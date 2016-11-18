@@ -1,0 +1,143 @@
+resource "aws_security_group" "api_private" {
+    name = "l0-${var.l0_prefix}-api-private"
+    description = "Enable communication within the API environment"
+    vpc_id = "{{ or .vpc_id "${aws_vpc.vpc.id}" }}"
+    ingress {
+        self = "true"
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+    }
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
+resource "aws_security_group" "api_public" {
+    name = "l0-${var.l0_prefix}-api-public"
+    description = "Enable public communication to the API"
+    vpc_id = "{{ or .vpc_id "${aws_vpc.vpc.id}" }}"
+    ingress {
+        from_port = 443
+        to_port = 443
+        protocol = "tcp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
+
+resource "aws_security_group" "agent" {
+    name = "l0-${var.l0_prefix}-agent"
+    description = "Enable communication between the Layer0 agent and the API"
+    vpc_id = "{{ or .vpc_id "${aws_vpc.vpc.id}" }}"
+    ingress {
+      security_groups = [ "${aws_security_group.api_private.id}" ]
+      from_port = 10189
+      to_port = 10189
+      protocol = "tcp"
+  }
+}
+
+{{ if .nat_id }} {{ else }}
+resource "aws_instance" "nat" {
+    ami = "${lookup(var.nat_amis, var.region)}"
+    disable_api_termination = false
+    source_dest_check = false
+    # Note the departure from m1.small
+    instance_type = "m3.medium"
+    associate_public_ip_address = true
+    subnet_id = "${aws_subnet.public_primary.id}"
+    vpc_security_group_ids = [
+      "${aws_security_group.ssh.id}",
+      "${aws_security_group.nat.id}",
+      "${aws_security_group.ntp.id}"]
+    root_block_device {
+        delete_on_termination = true
+    }
+    key_name = "${var.key_pair}"
+    tags {
+        Name = "l0-${var.l0_prefix}-nat"
+    }
+}
+
+resource "aws_security_group" "ssh" {
+    name = "l0-${var.l0_prefix}-ssh"
+    description = "Enable incoming SSH access"
+    vpc_id = "{{ or .vpc_id "${aws_vpc.vpc.id}" }}"
+    ingress {
+        from_port = 22
+        to_port = 22
+        protocol = "tcp"
+        cidr_blocks = ["${var.cidr_prefix}.0.0/16"]
+    }
+}
+
+resource "aws_security_group" "gitlab-ssh" {
+    name = "l0-${var.l0_prefix}-gitlab"
+    description = "Enable incoming Gitlab SSH access"
+    vpc_id = "{{ or .vpc_id "${aws_vpc.vpc.id}" }}"
+    ingress {
+        from_port = 2222
+        to_port = 2222
+        protocol = "tcp"
+        cidr_blocks = ["${var.cidr_prefix}.0.0/16"]
+    }
+}
+
+resource "aws_security_group" "ntp" {
+    name = "l0-${var.l0_prefix}-ntp"
+    description = "Enable bi-directional NTP access"
+    vpc_id = "{{ or .vpc_id "${aws_vpc.vpc.id}" }}"
+    ingress {
+        from_port = 123
+        to_port = 123
+        protocol = "udp"
+        cidr_blocks = ["${var.cidr_prefix}.0.0/16"]
+    }
+    egress {
+        from_port = 123
+        to_port = 123
+        protocol = "udp"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+
+resource "aws_security_group" "nat" {
+    name = "l0-${var.l0_prefix}-nat"
+    description = "Enable incoming and outgoing HTTP/HTTPS for NAT"
+    vpc_id = "{{ or .vpc_id "${aws_vpc.vpc.id}" }}"
+    ingress {
+        from_port = 80
+        to_port = 80
+        protocol = "tcp"
+        cidr_blocks = ["${var.cidr_prefix}.0.0/16"]
+    }
+    ingress {
+        from_port = 443
+        to_port = 443
+        protocol = "tcp"
+        cidr_blocks = ["${var.cidr_prefix}.0.0/16"]
+    }
+    ingress {
+        from_port = -1
+        to_port = -1
+        protocol = "icmp"
+        cidr_blocks = ["${var.cidr_prefix}.0.0/16"]
+    }
+    egress {
+        from_port = 0
+        to_port = 0
+        protocol = "-1"
+        cidr_blocks = ["0.0.0.0/0"]
+    }
+}
+{{ end }}

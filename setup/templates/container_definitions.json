@@ -1,0 +1,43 @@
+[
+    {
+        "name": "l0-api",
+        "image": "${api_docker_image}",
+        "essential": true,
+        "memory": 512,
+        "portMappings": [
+            {
+                "hostPort": 80,
+                "containerPort": 9090
+            }
+        ],
+        "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "${log_group_name}",
+                    "awslogs-region": "${region}"
+                }
+         },
+        "environment": [
+            { "name": "LAYER0_AWS_ACCESS_KEY_ID", "value": "${api_access_key}" },
+            { "name": "LAYER0_AWS_SECRET_ACCESS_KEY", "value": "${api_secret_key}" },
+            { "name": "LAYER0_AWS_REGION", "value": "${region}" },
+            { "name": "LAYER0_AWS_PUBLIC_SUBNETS", "value": "${public_subnets}" },
+            { "name": "LAYER0_AWS_PRIVATE_SUBNETS", "value": "${private_subnets}" },
+            { "name": "LAYER0_AWS_ECS_INSTANCE_PROFILE", "value": "${ecs_instance_profile}" },
+            { "name": "LAYER0_AWS_VPC_ID", "value": "${vpc_id}" },
+            { "name": "LAYER0_AWS_S3_BUCKET", "value": "${s3_bucket}" },
+            { "name": "LAYER0_PREFIX", "value": "${l0_prefix}" },
+            { "name": "LAYER0_AWS_SERVICE_AMI", "value": "${service_ami}" },
+            { "name": "LAYER0_MYSQL_CONNECTION", "value": "${db_api_username}:${db_api_password}@tcp(${db_address}:${db_port})/${db_name}_${l0_prefix}" },
+            { "name": "LAYER0_MYSQL_ADMIN_CONNECTION", "value": "${db_master_username}:${db_master_password}@tcp(${db_address}:${db_port})/" },
+            { "name": "LAYER0_API_AUTH_TOKEN", "value": "${api_auth_token}" },
+            { "name": "LAYER0_AWS_ECS_AGENT_SECURITY_GROUP_ID", "value": "${agent_securitygroupid}" },
+            { "name": "LAYER0_RUNNER_VERSION_TAG", "value": "${runner_docker_image_tag}" },
+            { "name": "LAYER0_AWS_ECS_ROLE", "value": "${ecs_role}" },
+            { "name": "LAYER0_AWS_KEY_PAIR", "value": "${key_pair}" },
+            { "name": "LAYER0_AWS_ACCOUNT_ID", "value": "${account_id}" },
+            { "name": "LAYER0_API_LOG_LEVEL", "value": "debug" },
+            { "name": "LAYER0_RUNNER_LOG_LEVEL", "value": "debug" }
+        ]
+    }
+]

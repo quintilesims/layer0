@@ -1,0 +1,17 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:Describe*",
+                "logs:GetLogEvents",
+		"logs:CreateLogGroup",
+		"logs:DeleteLogGroup"
+            ],
+            "Resource": [
+	        "arn:aws:logs:${region}:${account_id}:log-group:l0-${l0_prefix}-*"
+            ]
+	}
+    ]
+}

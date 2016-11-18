@@ -1,0 +1,131 @@
+output "access_key" {
+    value = "${var.access_key}"
+}
+
+output "secret_key" {
+    value = "${var.secret_key}"
+}
+
+output "key_pair" {
+    value = "${var.key_pair}"
+}
+
+output "cidr_prefix" {
+    value = "${var.cidr_prefix}"
+}
+
+output "account_id"{
+    value = "${var.account_id}"
+}
+
+output "agent_security_group_id" {
+	value = "${aws_security_group.agent.id}"
+}
+
+output "l0_prefix" {
+    value = "${var.l0_prefix}"
+}
+
+output "region" {
+    value = "${var.region}"
+}
+
+output "docker_token" {
+    value = "${var.docker_token}"
+}
+
+output "setup_version" {
+    value = "${var.setup_version}"
+}
+
+output "s3_bucket" {
+    value = "${aws_s3_bucket.bucket.id}"
+}
+
+output "ecs_role" {
+    value = "${aws_iam_role.ecs.id}"
+}
+
+output "ecs_instance_profile" {
+    value = "${aws_iam_instance_profile.ecs.id}"
+}
+
+output "vpc_id" {
+    value = "{{ or .vpc_id "${aws_vpc.vpc.id}" }}"
+}
+
+output "public_subnets" {
+   value = "${concat(aws_subnet.public_primary.id, ",",  aws_subnet.public_secondary.id)}"
+}
+
+output "private_subnets" {
+   value = "${concat(aws_subnet.private_primary.id, ",",  aws_subnet.private_secondary.id)}"
+}
+
+output "certificate_name" {
+    value = "${aws_iam_server_certificate.imshealthlabs.name}"
+}
+
+output "api_access_key" {
+    value = "${aws_iam_access_key.key.id}"
+}
+
+output "api_secret_key" {
+    value = "${aws_iam_access_key.key.secret}"
+}
+
+output "api_auth_token" {
+	value = "${var.api_auth_token}"
+}
+
+output "db_port" {
+    value = "${aws_db_instance.api.port}"
+}
+
+output "db_address" {
+    value = "${aws_db_instance.api.address}"
+}
+
+output "db_name" {
+    value = "${aws_db_instance.api.name}"
+}
+
+output "db_api_username" {
+    value = "${var.db_api_username}"
+}
+
+output "db_api_password" {
+    value = "${var.db_api_password}"
+}
+
+output "db_master_username" {
+    value = "${var.db_master_username}"
+}
+
+output "db_master_password" {
+    value = "${var.db_master_password}"
+}
+
+output "api_private_security_group" {
+    value = "${aws_security_group.api_private.id}"
+}
+
+output "api_public_security_group" {
+    value = "${aws_security_group.api_public.id}"
+}
+
+output "endpoint" {
+    value = "https://${aws_elb.api.dns_name}"
+}
+
+output "runner_docker_image_tag" {
+	value = "${var.runner_docker_image_tag}"
+}
+
+output "service_ami" {
+	value = "${lookup(var.layer0_service_amis, var.region)}"
+}
+
+output "cloudwatch_log_group" {
+    value = "${aws_cloudwatch_log_group.api.name}"
+}

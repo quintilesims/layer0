@@ -1,0 +1,45 @@
+deps:
+	go get github.com/golang/mock/mockgen/model
+	go install github.com/golang/mock/mockgen
+
+all: api cli
+
+api: logic data backend aws
+
+cli: client entity command
+
+logic:
+	mockgen gitlab.imshealth.com/xfra/layer0/api/logic DeployLogic > ../api/logic/mock_logic/mock_deploy_logic.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/api/logic EnvironmentLogic > ../api/logic/mock_logic/mock_environment_logic.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/api/logic ServiceLogic > ../api/logic/mock_logic/mock_service_logic.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/api/logic TaskLogic > ../api/logic/mock_logic/mock_task_logic.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/api/logic CertificateLogic > ../api/logic/mock_logic/mock_certificate_logic.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/api/logic LoadBalancerLogic > ../api/logic/mock_logic/mock_load_balancer_logic.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/api/logic JobLogic > ../api/logic/mock_logic/mock_job_logic.go &
+
+data:
+	mockgen gitlab.imshealth.com/xfra/layer0/api/data TagData > ../api/data/mock_data/mock_tag_tata.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/api/data JobData > ../api/data/mock_data/mock_job_data.go &
+
+backend:
+	mockgen gitlab.imshealth.com/xfra/layer0/api/backend Backend > ../api/backend/mock_backend/mock_backend.go &
+	mockgen -package mock_ecsbackend gitlab.imshealth.com/xfra/layer0/api/backend/ecs ClusterScaler > ../api/backend/ecs/mock_ecsbackend/mock_cluster_scaler.go &
+	mockgen -package mock_ecsbackend gitlab.imshealth.com/xfra/layer0/api/backend/ecs TaskScheduler > ../api/backend/ecs/mock_ecsbackend/mock_task_scheduler.go &
+
+aws:
+	mockgen gitlab.imshealth.com/xfra/layer0/common/aws/autoscaling Provider > ../common/aws/autoscaling/mock_autoscaling/mock_autoscaling.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/common/aws/ec2 Provider > ../common/aws/ec2/mock_ec2/mock_ec2.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/common/aws/ecs Provider > ../common/aws/ecs/mock_ecs/mock_ecs.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/common/aws/elb Provider > ../common/aws/elb/mock_elb/mock_elb.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/common/aws/iam Provider > ../common/aws/iam/mock_iam/mock_iam.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/common/aws/s3 Provider > ../common/aws/s3/mock_s3/mock_s3.go &
+	mockgen gitlab.imshealth.com/xfra/layer0/common/aws/cloudwatchlogs Provider > ../common/aws/cloudwatchlogs/mock_cloudwatchlogs/mock_cloudwatchlogs.go &
+
+client:
+	mockgen gitlab.imshealth.com/xfra/layer0/cli/client Client > ../cli/client/mock_client/mock_client.go &
+
+entity:
+	mockgen gitlab.imshealth.com/xfra/layer0/cli/entity Entity > ../cli/entity/mock_entity/mock_entity.go &
+
+command:
+	mockgen gitlab.imshealth.com/xfra/layer0/cli/command Resolver > ../cli/command/mock_command/mock_resolver.go &

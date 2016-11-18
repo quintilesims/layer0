@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Updating a service - Layer0</title>
+      
+      
+      
+        <link rel="canonical" href="https://gitlab.imshealth.com/xfra/layer0/reference/updateservice/">
+      
+      
+        <meta name="author" content="xfra">
+      
+    
+    <meta property="og:url" content="https://gitlab.imshealth.com/xfra/layer0/reference/updateservice/">
+    <meta property="og:title" content="Layer0">
+    <meta property="og:image" content="https://gitlab.imshealth.com/xfra/layer0/reference/updateservice//../../static/logo_icon.png">
+    <meta name="apple-mobile-web-app-title" content="Layer0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+      <link rel="apple-touch-icon" href="../../static/logo_icon.png">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../../assets/fonts/icon.eot?52m981');
+      	src: url('../../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../../assets/stylesheets/application-b64b728552.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Roboto+Mono">
+      <style>
+        body, input {
+          font-family: 'Roboto', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Roboto Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-red palette-accent-grey">
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+              
+                Reference <i class="icon icon-link"></i>
+              
+            
+          </span>
+        
+        Updating a service
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://gitlab.imshealth.com/xfra/layer0/" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="../../static/logo_icon.png">
+        </div>
+      
+      <div class="name">
+        <strong>Layer0 v0.8.3</strong>
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="../..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Releases" href="../../releases/">
+      Releases
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Introduction" href="../../intro/">
+      Introduction
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Setup</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Install" href="../../setup/install/">
+      Install
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Upgrade" href="../../setup/update/">
+      Upgrade
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Destroy" href="../../setup/destroy/">
+      Destroy
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Guides</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Guestbook" href="../../guides/guestbook/">
+      Guestbook
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Guestbook with RDS" href="../../guides/guestbook_rds/">
+      Guestbook with RDS
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../../guides/consul/">
+      Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Guestbook with Consul" href="../../guides/guestbook_consul/">
+      Guestbook with Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Shinken" href="../../guides/shinken/">
+      Shinken
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Reference</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Layer0 CLI" href="../cli/">
+      Layer0 CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Layer0 Setup CLI" href="../setup-cli/">
+      Layer0 Setup CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="current" title="Updating a service" href="./">
+      Updating a service
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Method 1: Refer to a new task definition" href="#method-1-refer-to-a-new-task-definition">
+                Method 1: Refer to a new task definition
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Method 2: Create a new Deploy and Service using the same Loadbalancer" href="#method-2-create-a-new-deploy-and-service-using-the-same-loadbalancer">
+                Method 2: Create a new Deploy and Service using the same Loadbalancer
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Method 3: Create a new Deploy, Loadbalancer and Service" href="#method-3-create-a-new-deploy-loadbalancer-and-service">
+                Method 3: Create a new Deploy, Loadbalancer and Service
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../consul/">
+      Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Shinken" href="../shinken/">
+      Shinken
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Task Definitions" href="../task_definition/">
+      Task Definitions
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Architecture" href="../architecture/">
+      Architecture
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="ECR" href="../ecr/">
+      ECR
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Troubleshooting</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Common Issues" href="../../troubleshooting/commonissues/">
+      Common Issues
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Secure Shell (SSH)" href="../../troubleshooting/ssh/">
+      Secure Shell (SSH)
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+          <hr>
+          <span class="section">The author</span>
+          <ul>
+            
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <h1 id="updating-a-layer0-service">Updating a Layer0 service<a class="headerlink" href="#updating-a-layer0-service" title="Permanent link">#</a></h1>
+<p>There are three methods of updating an existing Layer0 service. The first method is to update the existing Deploy to refer to a new Docker task definition. The second method is to create a new Service that uses the same Loadbalancer. The third method is to create both a new Loadbalancer and a new Service.</p>
+<p>There are advantages and disadvantages to each of these methods. The following sections discuss the advantages and disadvantages of using each method, and include procedures for implementing each method.</p>
+<h2 id="method-1-refer-to-a-new-task-definition">Method 1: Refer to a new task definition<a class="headerlink" href="#method-1-refer-to-a-new-task-definition" title="Permanent link">#</a></h2>
+<p>This method of updating a Layer0 application is the easiest to implement, because you do not need to rescale the Service or modify the Loadbalancer. This method is completely transparent to all other components of the application, and using this method does not involve any downtime.</p>
+<p>The disadvantage of using this method is that you cannot perform A/B testing of the old and new services, and you cannot control which traffic goes to the old service and which goes to the new one.</p>
+<p><strong>To replace a Deploy to refer to a new task definition:</strong></p>
+<ol>
+<li>At the command line, type the following to create a new Deploy: <br /><code>l0 deploy create [pathToTaskDefinition] [deployName]</code><br />Note that if <code>[deployName]</code> already exists, this step will create a new version of that Deploy. </li>
+<li>Type the following to update the existing Service: <br /><code>l0 service update [existingServiceName] [deployName]</code><br />By default, the Service you specify in this command will refer to the latest version of <code>[deployName]</code>, if multiple versions of the Deploy exist.<div class="admonition note"><p class="admonition-title">Note</p><br /><p>If you want to refer to a specific version of the Deploy, type the following command instead of the one shown above: <code style="color:white;">l0 service update [serviceName] [deployName]:[deployVersion]</code></p></div></li>
+</ol>
+<h2 id="method-2-create-a-new-deploy-and-service-using-the-same-loadbalancer">Method 2: Create a new Deploy and Service using the same Loadbalancer<a class="headerlink" href="#method-2-create-a-new-deploy-and-service-using-the-same-loadbalancer" title="Permanent link">#</a></h2>
+<p>This method of updating a Layer0 application is also rather easy to implement. Like the method described in the previous section, this method is completely transparent to all other services and components of the application. This method also you allows you to re-scale the service if necessary, using the <code>l0 service scale</code> command. Finally, this method allows for indirect A/B testing of the application; you can change the scale of the application, and observe the success and failure rates.</p>
+<p>The disadvantage of using this method is that you cannot control the routing of traffic between the old and new versions of the application.</p>
+<p><strong>To create a new Deploy and Service:</strong></p>
+<ol>
+<li>At the command line, type the following to create a new Deploy (or a new version of the Deploy, if <code>[deployName]</code> already exists):<br /> <code>l0 deploy create [pathToTaskDefinition] [deployName]</code> </li>
+<li>Type the following command to create a new Service that refers to <code>[deployName]</code> behind an existing Loadbalancer named <code>[loadbalancerName]</code>:<br /> <code>l0 service create --loadbalancer [loadbalancerName] [environmentName] [deployName]</code> </li>
+<li>Check to make sure that the new Service is working as expected. If it is, and you do not want to keep the old Service, type the following command to delete the old Service: <code>l0 service delete [oldServiceName]</code></li>
+</ol>
+<h2 id="method-3-create-a-new-deploy-loadbalancer-and-service">Method 3: Create a new Deploy, Loadbalancer and Service<a class="headerlink" href="#method-3-create-a-new-deploy-loadbalancer-and-service" title="Permanent link">#</a></h2>
+<p>The final method of updating a Layer0 service is to create an entirely new Deploy, Loadbalancer and Service. This method gives you complete control over both the new and the old Service, and allows you to perform true A/B testing by routing traffic to individual Services. </p>
+<p>The disadvantage of using this method is that you need to implement a method of routing traffic between the new and the old Loadbalancer. </p>
+<p><strong>To create a new Deploy, Loadbalancer and Service:</strong></p>
+<ol>
+<li>At the command line, type the following command to create a new Deploy:<br /><code>l0 deploy create [pathToTaskDefinition] [deployName]</code></li>
+<li>Type the following command to create a new Loadbalancer:<br /> <code>l0 loadbalancer create --port [portNumber] [environmentName] [loadbalancerName] [deployName]</code><div class="admonition note"><p class="admonition-title">Note</p><br /><p>The value of <code style="color:white;">[loadbalancerName]</code> in the above command must be unique.</p></div></li>
+<li>Type the following command to create a new Service: <br /><code>l0 service create --loadbalancer [loadBalancerName] [environmentName] [serviceName] [deployName]</code><div class="admonition note"><p class="admonition-title">Note</p><br /><p>The value of <code style="color:white;">[serviceName]</code> in the above command  must be unique.</p></div></li>
+<li>Implement a method of routing traffic between the old and new Services, such as <a href="http://www.haproxy.org">HAProxy</a> or <a href="https://www.consul.io">Consul</a>. For an example of a traffic routing scheme that uses HAProxy, see "<a href="https://gitlab.imshealth.com/channels/TheChunnel/wikis/DeploymentAutomation">The Chunnel: Deployment Automation</a>."</li>
+</ol>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../setup-cli/" title="Layer0 Setup CLI">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Layer0 Setup CLI
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../consul/" title="Consul">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Consul
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '../..';
+      var repo_id  = '';
+    </script>
+    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
+    
+    
+  </body>
+</html>

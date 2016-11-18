@@ -1,0 +1,26 @@
+{
+  "containerDefinitions": [
+    {
+      "name": "docs",
+      "image": "d.ims.io/xfra/l0-docs:v0.2.0",
+      "essential": true,
+      "memory": 128,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 80
+        }
+      ],
+      "environment": [
+        {
+          "name": "AWS_ACCESS_KEY_ID",
+          "value": ""
+        },
+        {
+          "name": "AWS_SECRET_ACCESS_KEY",
+          "value": ""
+        }
+      ]
+    }
+  ]
+}

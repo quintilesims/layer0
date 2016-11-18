@@ -1,0 +1,7 @@
+docs: 
+  build: ./
+  ports:
+    - 8080:80 # because, when running locally alongside auth, the auth already uses 80
+  environment:
+    AWS_ACCESS_KEY_ID: 
+    AWS_SECRET_ACCESS_KEY: 

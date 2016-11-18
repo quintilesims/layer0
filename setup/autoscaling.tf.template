@@ -1,0 +1,51 @@
+resource "template_file" "user_data" {
+    template = "${file("templates/user_data.sh")}"
+    vars {
+        cluster_id = "${aws_ecs_cluster.api.id}"
+        s3_bucket = "${aws_s3_bucket.bucket.id}"
+    }
+
+    # all resources tagged with 'create_before_destroy' that depend
+    # on each other must have the create_before_destroy block
+    # otherwise, the destroy command could cause cycles 
+    # see: https://www.terraform.io/docs/configuration/resources.html
+    lifecycle {
+        create_before_destroy = true
+    }
+}
+
+resource "aws_launch_configuration" "ecs" {
+    name_prefix = "l0-${var.l0_prefix}-api-"
+    image_id =  "${lookup(var.layer0_service_amis, var.region)}"
+    instance_type = "m3.medium"
+    iam_instance_profile = "${aws_iam_instance_profile.ecs.id}"
+    security_groups = ["${aws_security_group.api_private.id}", "${aws_security_group.agent.id}"]
+    user_data =  "${template_file.user_data.rendered}"
+
+    lifecycle {
+        create_before_destroy = true
+    }
+}
+
+resource "aws_autoscaling_group" "ecs_cluster" {
+    name = "l0-${var.l0_prefix}-api"
+    launch_configuration = "${aws_launch_configuration.ecs.name}"
+    vpc_zone_identifier = ["${aws_subnet.private_secondary.id}"]
+    # 1 instance to run the api, 1 instance to run jobs
+    min_size = "2"
+    max_size = "2"
+    desired_capacity = "2"
+    health_check_type = "EC2"
+    health_check_grace_period = "300"
+
+    tag {
+        key = "Name"
+        value =  "l0-${var.l0_prefix}-api"
+        propagate_at_launch = true
+    }
+
+    lifecycle {
+        create_before_destroy = true
+    }
+}
+

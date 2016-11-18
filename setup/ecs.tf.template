@@ -1,0 +1,57 @@
+resource "aws_ecs_cluster" "api" {
+    name = "l0-${var.l0_prefix}-api"
+}
+
+resource "aws_ecs_service" "api" {
+    name = "l0-${var.l0_prefix}-api"
+    cluster = "${aws_ecs_cluster.api.id}"
+    task_definition = "${aws_ecs_task_definition.api.arn}"
+    desired_count = 1
+
+    iam_role = "${aws_iam_role.ecs.arn}"
+    depends_on = ["aws_iam_role_policy.ecs"]
+
+    deployment_minimum_healthy_percent = 0
+
+    load_balancer {
+        elb_name = "${aws_elb.api.name}"
+        container_name = "l0-api"
+        container_port = 9090
+    }
+}
+
+resource "aws_ecs_task_definition" "api" {
+    family = "l0-${var.l0_prefix}-api"
+    container_definitions = "${template_file.container_definitions.rendered}"
+}
+
+resource "template_file" "container_definitions" {
+    template = "${file("templates/container_definitions.json")}"
+    vars {
+        api_auth_token = "${var.api_auth_token}"
+        api_docker_image = "${var.api_docker_image}:${var.api_docker_image_tag}"
+        api_access_key = "${aws_iam_access_key.key.id}"
+        api_secret_key = "${aws_iam_access_key.key.secret}"
+        region = "${var.region}"
+        public_subnets = "${concat(aws_subnet.public_primary.id, ",",  aws_subnet.public_secondary.id)}"
+        private_subnets = "${concat(aws_subnet.private_primary.id, ",",  aws_subnet.private_secondary.id)}"
+        ecs_role = "${aws_iam_role.ecs.id}"
+        ecs_instance_profile = "${aws_iam_instance_profile.ecs.id}"
+        vpc_id = "{{ or .vpc_id "${aws_vpc.vpc.id}" }}"
+        s3_bucket = "${aws_s3_bucket.bucket.id}"
+        service_ami = "${lookup(var.layer0_service_amis, var.region)}"
+        l0_prefix = "${var.l0_prefix}"
+        db_address = "${aws_db_instance.api.address}"
+        db_port = "${aws_db_instance.api.port}"
+        db_name = "${aws_db_instance.api.name}"
+        db_api_username = "${var.db_api_username}"
+        db_api_password = "${var.db_api_password}"
+        db_master_username = "${var.db_master_username}"
+        db_master_password = "${var.db_master_password}"
+        agent_securitygroupid = "${aws_security_group.agent.id}"
+	runner_docker_image_tag = "${var.runner_docker_image_tag}"
+	account_id = "${var.account_id}"
+        key_pair = "${var.key_pair}"
+        log_group_name = "${aws_cloudwatch_log_group.api.name}"
+    }
+}

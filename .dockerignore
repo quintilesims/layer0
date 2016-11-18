@@ -1,0 +1,11 @@
+**/*.exe
+**/*~
+*.md
+api/api
+build
+!build/Dockerfile.api.scratch
+!build/Dockerfile.runner.scratch
+output
+output/**/*
+setup/bin
+Godeps/_workspace/pkg

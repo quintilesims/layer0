@@ -1,0 +1,43 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecs:RunTask",
+                "ecs:CreateService",
+                "ecs:UpdateService",
+                "ecs:DeleteService",
+                "ecs:DescribeServices",
+                "ecs:CreateCluster",
+                "ecs:RegisterTaskDefinition",
+                "ecs:DeregisterTaskDefinition",
+                "ecs:Describe*",
+                "ecs:List*"
+            ],
+            "Resource": "*"
+        },
+	{
+            "Effect": "Allow",
+            "Action": [
+		"ecs:StartTask",
+		"ecs:StopTask"
+            ],
+            "Resource": "*",
+	    "Condition": {
+		"ArnEquals": {
+		    "ecs:cluster": "arn:aws:ecs:${region}:${account_id}:cluster/l0-${l0_prefix}-*"
+		}
+	    }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecs:DeleteCluster"
+            ],
+            "Resource": [
+		"arn:aws:ecs:${region}:${account_id}:cluster/l0-${l0_prefix}-*"
+	    ]
+        }
+    ]
+}

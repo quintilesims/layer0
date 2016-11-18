@@ -1,0 +1,13 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cloudformation:*"
+            ],
+            "Resource": "arn:aws:cloudformation:${region}:${account_id}:stack/awseb-*/*"
+        }
+    ]
+}
+

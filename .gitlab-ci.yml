@@ -1,0 +1,23 @@
+image: docker:1.9.1
+
+before_script:
+- docker info
+
+test:
+  stage: test
+  script:
+      - docker build -t gitlab-ci-layer0:unittest .
+      - docker run gitlab-ci-layer0:unittest make unittest 
+
+release:
+  stage: deploy
+  only: 
+      - tags
+  script:
+      - docker build -t gitlab-ci-layer0:release .
+      - docker run 
+          -v /var/run/docker.sock:/var/run/docker.sock 
+          -e AWS_ACCESS_KEY_ID="$AWS_ACCESS_KEY_ID" 
+          -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET_ACCESS_KEY" 
+          -e DOCKER_TOKEN="$DOCKER_TOKEN" 
+          gitlab-ci-layer0:release make release

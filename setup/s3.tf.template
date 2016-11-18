@@ -1,0 +1,18 @@
+resource "aws_s3_bucket" "bucket" {
+    bucket = "${var.s3_bucket}"
+    region = "${var.region}"
+    force_destroy = true
+}
+
+resource "aws_s3_bucket_object" "dockercfg" {
+    bucket = "${aws_s3_bucket.bucket.id}"
+    key = "bootstrap/dockercfg"
+    content = "${template_file.dockercfg.rendered}"
+}
+
+resource "template_file" "dockercfg" {
+    template = "${file("templates/dockercfg")}"
+    vars {
+        docker_token = "${var.docker_token}"
+    }
+}

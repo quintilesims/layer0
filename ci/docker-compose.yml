@@ -1,0 +1,23 @@
+#########################
+# XFRA Gitlab Runner
+#########################
+runner:
+  container_name: ci-runner
+  # need to add a docker config.json file to the build directory if you want to build locally
+  # build: ./GitlabRunner/
+  working_dir: /home/gitlab-runner
+  image: d.ims.io/xfra/gitlab-ci-runner:v1
+  environment:
+    - RUNNER_TAG_LIST=xfra-layer0
+    - REGISTER_NON_INTERACTIVE=true
+    - REGISTER_LEAVE_RUNNER=false
+    - CI_SERVER_URL=https://gitlab.imshealth.com/ci
+    - REGISTRATION_TOKEN=6fzK5zajWyEgLihz-uzq
+    - RUNNER_EXECUTOR=docker
+    - DOCKER_IMAGE=docker:latest
+    - DOCKER_PRIVILEGED=true
+    - DOCKER_VOLUMES=/var/run/docker.sock:/var/run/docker.sock:rw
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+  entrypoint: /entrypoint
+  command: run --user gitlab-runner --working-directory /home/gitlab-runner

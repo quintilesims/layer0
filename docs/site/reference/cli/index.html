@@ -1,0 +1,1402 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Layer0 CLI - Layer0</title>
+      
+      
+      
+        <link rel="canonical" href="https://gitlab.imshealth.com/xfra/layer0/reference/cli/">
+      
+      
+        <meta name="author" content="xfra">
+      
+    
+    <meta property="og:url" content="https://gitlab.imshealth.com/xfra/layer0/reference/cli/">
+    <meta property="og:title" content="Layer0">
+    <meta property="og:image" content="https://gitlab.imshealth.com/xfra/layer0/reference/cli//../../static/logo_icon.png">
+    <meta name="apple-mobile-web-app-title" content="Layer0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+      <link rel="apple-touch-icon" href="../../static/logo_icon.png">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../../assets/fonts/icon.eot?52m981');
+      	src: url('../../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../../assets/stylesheets/application-b64b728552.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Roboto+Mono">
+      <style>
+        body, input {
+          font-family: 'Roboto', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Roboto Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-red palette-accent-grey">
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+              
+                Reference <i class="icon icon-link"></i>
+              
+            
+          </span>
+        
+        Layer0 CLI
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://gitlab.imshealth.com/xfra/layer0/" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="../../static/logo_icon.png">
+        </div>
+      
+      <div class="name">
+        <strong>Layer0 v0.8.2</strong>
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="../..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Releases" href="../../releases/">
+      Releases
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Introduction" href="../../intro/">
+      Introduction
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Setup</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Install" href="../../setup/install/">
+      Install
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Upgrade" href="../../setup/update/">
+      Upgrade
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Destroy" href="../../setup/destroy/">
+      Destroy
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Guides</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Guestbook" href="../../guides/guestbook/">
+      Guestbook
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Guestbook with RDS" href="../../guides/guestbook_rds/">
+      Guestbook with RDS
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../../guides/consul/">
+      Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Guestbook with Consul" href="../../guides/guestbook_consul/">
+      Guestbook with Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Shinken" href="../../guides/shinken/">
+      Shinken
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Reference</span>
+    <ul>
+      
+        
+  <li>
+    <a class="current" title="Layer0 CLI" href="./">
+      Layer0 CLI
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Global options" href="#global-options">
+                Global options
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Admin" href="#admin">
+                Admin
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Certificate" href="#certificate">
+                Certificate
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Deploy" href="#deploy">
+                Deploy
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Environment" href="#environment">
+                Environment
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Job" href="#job">
+                Job
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Loadbalancer" href="#loadbalancer">
+                Loadbalancer
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Service" href="#service">
+                Service
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Task" href="#task">
+                Task
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Layer0 Setup CLI" href="../setup-cli/">
+      Layer0 Setup CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../consul/">
+      Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Shinken" href="../shinken/">
+      Shinken
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Task Definitions" href="../task_definition/">
+      Task Definitions
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Architecture" href="../architecture/">
+      Architecture
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="ECR" href="../ecr/">
+      ECR
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Troubleshooting</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Common Issues" href="../../troubleshooting/commonissues/">
+      Common Issues
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Secure Shell (SSH)" href="../../troubleshooting/ssh/">
+      Secure Shell (SSH)
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+          <hr>
+          <span class="section">The author</span>
+          <ul>
+            
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <h1 id="l0-command-line-interface-reference">l0 command-line interface reference<a class="headerlink" href="#l0-command-line-interface-reference" title="Permanent link">#</a></h1>
+<h2 id="global-options">Global options<a class="headerlink" href="#global-options" title="Permanent link">#</a></h2>
+<p>The <strong>l0</strong> application is designed to be used with one of several subcommands; these subcommands are detailed in the sections below. There are, however, some global parameters that you may specify when using <strong>l0</strong>.</p>
+<h4 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0</strong> [<em>globalOptions</em>] <em>command</em> <em>subcommand</em> [<em>options</em>] [<em>parameters</em>]</div>
+  </div>
+</div></p>
+<h4 id="optional-arguments">Optional arguments<a class="headerlink" href="#optional-arguments" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--output {text|json}</div>
+    <div class="divCell">Specify the format of Layer0 outputs. By default, Layer0 outputs unformatted text; by issuing the <strong>--output json</strong> option, you can force <strong>l0</strong> to output JSON-formatted text.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--version</div>
+    <div class="divCell">Display the version number of the <strong>l0</strong> application.</div>
+  </div>
+</div></p>
+<hr />
+<h2 id="admin">Admin<a class="headerlink" href="#admin" title="Permanent link">#</a></h2>
+<p>The <strong>admin</strong> command is used to manage the Layer0 API server. This command is used with the following subcommands: <a href="#admin-debug">debug</a>, <a href="#admin-sql">sql</a>, and <a href="#admin-version">version</a>.</p>
+<h3 id="admin-debug">admin debug<a class="headerlink" href="#admin-debug" title="Permanent link">#</a></h3>
+<p>Use the <strong>debug</strong> subcommand to view the running version of your Layer0 API server and CLI.</p>
+<h4 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 admin debug</strong></div>
+  </div>
+</div></p>
+<h3 id="admin-sql">admin sql<a class="headerlink" href="#admin-sql" title="Permanent link">#</a></h3>
+<p>Use the <strong>sql</strong> subcommand to initialize the Layer0 API database.</p>
+<h4 id="usage_2">Usage<a class="headerlink" href="#usage_2" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 admin sql</strong></div>
+  </div>
+</div></p>
+<h4 id="additional-information">Additional information<a class="headerlink" href="#additional-information" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">The <strong>sql</strong> subcommand is automatically executed during the Layer0 installation process; we recommend that you do not use this subcommand unless specifically directed to do so.</div>
+  </div>
+</div></p>
+<h3 id="admin-version">admin version<a class="headerlink" href="#admin-version" title="Permanent link">#</a></h3>
+<p>Use the <strong>version</strong> subcommand to display the current version of the Layer0 API.</p>
+<h4 id="usage_3">Usage<a class="headerlink" href="#usage_3" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 admin version</strong></div>
+  </div>
+</div></p>
+<hr />
+<h2 id="certificate">Certificate<a class="headerlink" href="#certificate" title="Permanent link">#</a></h2>
+<p>In order to use HTTPS ports in a Layer0 load balancer, you must create a certificate. You can use the Layer0 <strong>certificate</strong> command to upload and manage these certificates. This command is used with the following subcommands: <a href="#certificate-create">create</a>, <a href="#certificate-delete">delete</a>, <a href="#certificate-get">get</a> and <a href="#certificate-list">list</a>.</p>
+<h3 id="certificate-create">certificate create<a class="headerlink" href="#certificate-create" title="Permanent link">#</a></h3>
+<p>Use the <strong>create</strong> subcommand to upload a certificate into Layer0. Once you have uploaded the certificate, you can use it when configuring HTTPS ports on Layer0 load balancers.</p>
+<h4 id="usage_4">Usage<a class="headerlink" href="#usage_4" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 certificate create</strong> <em>certificateName publicKeyPath privateKeyPath</em> [<em>intermediateChainPath</em> ]</div>
+  </div>
+</div></p>
+<h4 id="required-parameters">Required parameters<a class="headerlink" href="#required-parameters" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>certificateName</em></div>
+    <div class="divCell">A name for the certificate.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>publicKeyPath</em></div>
+    <div class="divCell">The path to a public key associated with the certificate.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>privateKeyPath</em></div>
+    <div class="divCell">The path to the private key associated with the public key.</div>
+  </div>
+</div></p>
+<h4 id="optional-arguments_1">Optional arguments<a class="headerlink" href="#optional-arguments_1" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>intermediateChainPath</em></div>
+    <div class="divCell">The path to an intermediate certificate authority.</div>
+  </div>
+</div></p>
+<h3 id="certificate-delete">certificate delete<a class="headerlink" href="#certificate-delete" title="Permanent link">#</a></h3>
+<p>Use the <strong>delete</strong> subcommand to delete a certificate that has already been uploaded to Layer0.</p>
+<h4 id="usage_5">Usage<a class="headerlink" href="#usage_5" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 certificate delete</strong> <em>certificateName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_1">Required parameters<a class="headerlink" href="#required-parameters_1" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>certificateName</em></div>
+    <div class="divCell">The name of the certificate you want to delete.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_1">Additional information<a class="headerlink" href="#additional-information_1" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">You will not be able to use the <strong>delete</strong> subcommand if a load balancer that uses that certificate is currently running.</div>
+  </div>
+</div></p>
+<h3 id="certificate-get">certificate get<a class="headerlink" href="#certificate-get" title="Permanent link">#</a></h3>
+<p>Use the <strong>get</strong> subcommand to display information about an existing certificate in Layer0.</p>
+<h4 id="usage_6">Usage<a class="headerlink" href="#usage_6" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 certificate get</strong> <em>certificateName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_2">Required parameters<a class="headerlink" href="#required-parameters_2" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>certificateName</em></div>
+    <div class="divCell">The name of the Layer0 certificate for which you want to view additional information.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_2">Additional information<a class="headerlink" href="#additional-information_2" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">The value of <em>certificateName</em> does not need to exactly match the name of an existing certificate. If multiple results are found that match the pattern you specified in <em>certificateName</em>, then information about all matching certificates will be returned.</div>
+  </div>
+</div></p>
+<h3 id="certificate-list">certificate list<a class="headerlink" href="#certificate-list" title="Permanent link">#</a></h3>
+<p>Use the <strong>list</strong> subcommand to list all of the certificates used in an instance of Layer0.</p>
+<h4 id="usage_7">Usage<a class="headerlink" href="#usage_7" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 certificate list</strong></div>
+  </div>
+</div></p>
+<hr />
+<h2 id="deploy">Deploy<a class="headerlink" href="#deploy" title="Permanent link">#</a></h2>
+<h3 id="deploy-create">deploy create<a class="headerlink" href="#deploy-create" title="Permanent link">#</a></h3>
+<p>Use the <strong>create</strong> subcommand to upload a Docker task definition into Layer0. This command is used with the following subcommands: <a href="#deploy-create">create</a>, <a href="#deploy-apply">apply</a>,  <a href="#deploy-delete">delete</a>, <a href="#deploy-get">get</a> and <a href="#deploy-list">list</a>.</p>
+<h4 id="usage_8">Usage<a class="headerlink" href="#usage_8" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 deploy create</strong> <em>dockerPath</em> <em>deployName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_3">Required parameters<a class="headerlink" href="#required-parameters_3" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>dockerPath</em></div>
+    <div class="divCell">The path to the Docker task definition that you want to upload.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>deployName</em></div>
+    <div class="divCell">A name for the deploy.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_3">Additional information<a class="headerlink" href="#additional-information_3" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">If <em>deployName</em> exactly matches the name of an existing Layer0 deploy, then the version number of that deploy will increase by 1, and the task definition you specified will replace the task definition specified in the previous version.</div>
+  </div> <br />
+  <div class="divRow">
+    <div class="divCellNoPadding">If you use Visual Studio to modify or create your Dockerrun file, you may see an "Invalid Dockerrun.aws.json" error. This error is caused by the default encoding used by Visual Studio. See the <a href="http://localhost:8000/troubleshooting/commonissues/#invalid-dockerrunawsjson-error-when-creating-a-deploy">"Common issues" page</a> for steps to resolve this issue.</div>
+  </div></p>
+</div>
+
+<h3 id="deploy-delete">deploy delete<a class="headerlink" href="#deploy-delete" title="Permanent link">#</a></h3>
+<p>Use the <strong>delete</strong> subcommand to delete a version of a Layer0 deploy.</p>
+<h4 id="usage_9">Usage<a class="headerlink" href="#usage_9" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 deploy delete</strong> <em>deployID</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_4">Required parameters<a class="headerlink" href="#required-parameters_4" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>deployID</em></div>
+    <div class="divCell">The unique identifier of the version of the deploy that you want to delete. You can obtain a list of deployIDs for a given deploy by executing the following command: <span class="noBreak"><strong>l0 deploy get</strong> <em>deployName</em></span></div>
+  </div>
+</div></p>
+<h3 id="deploy-get">deploy get<a class="headerlink" href="#deploy-get" title="Permanent link">#</a></h3>
+<p>Use the <strong>get</strong> subcommand to view information about an existing Layer0 deploy.</p>
+<h4 id="usage_10">Usage<a class="headerlink" href="#usage_10" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 deploy get</strong> <em>deployName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_5">Required parameters<a class="headerlink" href="#required-parameters_5" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>deployName</em></div>
+    <div class="divCell">The name of the Layer0 deploy for which you want to view additional information.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_4">Additional information<a class="headerlink" href="#additional-information_4" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">The value of <em>deployName</em> does not need to exactly match the name of an existing deploy. If multiple results are found that match the pattern you specified in <em>deployName</em>, then information about all matching deploys will be returned.</div>
+  </div>
+</div></p>
+<h3 id="deploy-list">deploy list<a class="headerlink" href="#deploy-list" title="Permanent link">#</a></h3>
+<p>Use the <strong>list</strong> subcommand to view a list of deploys in your instance of Layer0.</p>
+<h4 id="usage_11">Usage<a class="headerlink" href="#usage_11" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 deploy list</strong></div>
+  </div>
+</div></p>
+<hr />
+<h2 id="environment">Environment<a class="headerlink" href="#environment" title="Permanent link">#</a></h2>
+<p>Layer0 environments allow you to isolate services and load balancers for specific applications.
+The <strong>environment</strong> command is used to manage Layer0 environments. This command is used with the following subcommands: <a href="#environment-create">create</a>, <a href="#environment-delete">delete</a>, <a href="#environment-get">get</a>, and <a href="#environment-list">list</a>.</p>
+<h3 id="environment-create">environment create<a class="headerlink" href="#environment-create" title="Permanent link">#</a></h3>
+<p>Use the <strong>create</strong> subcommand to create an additional Layer0 environment (<em>environmentName</em>).</p>
+<h4 id="usage_12">Usage<a class="headerlink" href="#usage_12" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 environment create</strong> [--size] [--user-data] <em>environmentName</em> </div>
+  </div>
+</div></p>
+<h4 id="required-parameters_6">Required parameters<a class="headerlink" href="#required-parameters_6" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>environmentName</em></div>
+    <div class="divCell">A name for the environment.</div>
+  </div>
+</div></p>
+<h4 id="optional-arguments_2">Optional arguments<a class="headerlink" href="#optional-arguments_2" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--size</div>
+    <div class="divCell">The size of the EC2 instances to create in your environment (default: m3.medium).</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--user-data</div>
+    <div class="divCell">The user data template to use for your environment's autoscaling group.</div>
+  </div>
+</div></p>
+<p>The user data template can be used to add custom configuration to your Layer0 environment. 
+Layer0 uses <a href="https://golang.org/pkg/text/template">Go Templates</a> to render user data. 
+Currently, two variables are passed into the template: <strong>ECSEnvironmentID</strong> and <strong>S3Bucket</strong>.
+Please review the <a href="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html">ECS Tutorial</a>
+to better understand how to write a user data template, and use at your own risk! 
+The default Layer0 user data template is:</p>
+<table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="code"><pre><span class="c">#!/bin/bash</span>
+<span class="nb">echo </span><span class="nv">ECS_CLUSTER</span><span class="o">={{</span> .ECSEnvironmentID <span class="o">}}</span> &gt;&gt; /etc/ecs/ecs.config
+<span class="nb">echo </span><span class="nv">ECS_ENGINE_AUTH_TYPE</span><span class="o">=</span>dockercfg &gt;&gt; /etc/ecs/ecs.config
+yum install -y aws-cli awslogs jq
+aws s3 cp s3://<span class="o">{{</span> .S3Bucket <span class="o">}}</span>/bootstrap/dockercfg dockercfg
+<span class="nv">cfg</span><span class="o">=</span><span class="k">$(</span>cat dockercfg<span class="k">)</span>
+<span class="nb">echo </span><span class="nv">ECS_ENGINE_AUTH_DATA</span><span class="o">=</span><span class="nv">$cfg</span> &gt;&gt; /etc/ecs/ecs.config
+docker pull amazon/amazon-ecs-agent:latest
+start ecs
+</pre></div>
+</td></tr></table>
+
+<h3 id="environment-delete">environment delete<a class="headerlink" href="#environment-delete" title="Permanent link">#</a></h3>
+<p>Use the <strong>delete</strong> subcommand to delete an existing Layer0 environment.</p>
+<h4 id="usage_13">Usage<a class="headerlink" href="#usage_13" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 environment delete</strong> [--wait] <em>environmentName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_7">Required parameters<a class="headerlink" href="#required-parameters_7" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>environmentName</em></div>
+    <div class="divCell">The name of the Layer0 environment that you want to delete.</div>
+  </div>
+</div></p>
+<h4 id="optional-arguments_3">Optional arguments<a class="headerlink" href="#optional-arguments_3" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--wait</div>
+    <div class="divCell">Wait until the deletion is complete before exiting.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_5">Additional information<a class="headerlink" href="#additional-information_5" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">This operation performs several tasks asynchronously. When run without the <em>--wait</em> option, this operation will most likely exit before all of these tasks are complete; when run with the <em>--wait</em> option, this operation will only exit once these tasks have completed.</div>
+  </div>
+</div></p>
+<h3 id="environment-get">environment get<a class="headerlink" href="#environment-get" title="Permanent link">#</a></h3>
+<p>Use the <strong>get</strong> subcommand to display information about an existing Layer0 environment.</p>
+<h4 id="usage_14">Usage<a class="headerlink" href="#usage_14" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 environment get</strong> <em>environmentName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_8">Required parameters<a class="headerlink" href="#required-parameters_8" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>environmentName</em></div>
+    <div class="divCell">The name of the Layer0 environment for which you want to view additional information.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_6">Additional information<a class="headerlink" href="#additional-information_6" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">The value of <em>environmentName</em> does not need to exactly match the name of an existing environment. If multiple results are found that match the pattern you specified in <em>environmentName</em>, then information about all matching environments will be returned.</div>
+  </div>
+</div></p>
+<h3 id="environment-list">environment list<a class="headerlink" href="#environment-list" title="Permanent link">#</a></h3>
+<p>Use the <strong>list</strong> subcommand to display a list of environments in your instance of Layer0.</p>
+<h4 id="usage_15">Usage<a class="headerlink" href="#usage_15" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 environment list</strong></div>
+  </div>
+</div></p>
+<hr />
+<h2 id="job">Job<a class="headerlink" href="#job" title="Permanent link">#</a></h2>
+<p>A Job is a long-running unit of work performed on behalf of the Layer0 API.
+Jobs are executed as Layer0 tasks that run in the <strong>api</strong> Environment. 
+The <strong>job</strong> command is used with the following subcommands: <a href="#job-logs">logs</a>, <a href="#job-delete">delete</a>, <a href="#job-get">get</a>, and <a href="#job-list">list</a>.</p>
+<h3 id="job-logs">job logs<a class="headerlink" href="#job-logs" title="Permanent link">#</a></h3>
+<p>Use the <strong>logs</strong> subcommand to display the logs from a Layer0 job that is currently running.</p>
+<h4 id="usage_16">Usage<a class="headerlink" href="#usage_16" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 job logs</strong> [--tail=<em>N</em> ] <em>jobName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_9">Required parameters<a class="headerlink" href="#required-parameters_9" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>jobName</em></div>
+    <div class="divCell">The name of the Layer0 job for which you want to view logs.</div>
+  </div>
+</div></p>
+<h3 id="job-logs_1">job logs<a class="headerlink" href="#job-logs_1" title="Permanent link">#</a></h3>
+<p>Use the <strong>logs</strong> subcommand to display the logs from a Layer0 job that is currently running.</p>
+<h4 id="usage_17">Usage<a class="headerlink" href="#usage_17" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 job logs</strong> [--tail=<em>N</em> ] <em>jobName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_10">Required parameters<a class="headerlink" href="#required-parameters_10" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>jobName</em></div>
+    <div class="divCell">The name of the Layer0 job for which you want to view logs.</div>
+  </div>
+</div></p>
+<h4 id="optional-arguments_4">Optional arguments<a class="headerlink" href="#optional-arguments_4" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--tail=<em>N</em></div>
+    <div class="divCell">Display only the last <em>N</em> lines of the log.</div>
+  </div>
+</div></p>
+<h3 id="job-delete">job delete<a class="headerlink" href="#job-delete" title="Permanent link">#</a></h3>
+<p>Use the <strong>delete</strong> subcommand to delete an existing job.</p>
+<h4 id="usage_18">Usage<a class="headerlink" href="#usage_18" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 job delete</strong> <em>jobName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_11">Required parameters<a class="headerlink" href="#required-parameters_11" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>jobName</em></div>
+    <div class="divCell">The name of the job that you want to delete.</div>
+  </div>
+</div></p>
+<h3 id="job-get">job get<a class="headerlink" href="#job-get" title="Permanent link">#</a></h3>
+<p>Use the <strong>get</strong> subcommand to display information about an existing Layer0 job.</p>
+<h4 id="usage_19">Usage<a class="headerlink" href="#usage_19" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 job get</strong> <em>jobName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_12">Required parameters<a class="headerlink" href="#required-parameters_12" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>jobName</em></div>
+    <div class="divCell">The name of an existing Layer0 job.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_7">Additional information<a class="headerlink" href="#additional-information_7" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">The value of <em>jobName</em> does not need to exactly match the name of an existing job. If multiple results are found that match the pattern you specified in <em>jobName</em>, then information about all matching jobs will be returned.</div>
+  </div>
+</div></p>
+<h3 id="job-list">job list<a class="headerlink" href="#job-list" title="Permanent link">#</a></h3>
+<p>Use the <strong>list</strong> subcommand to display information about all of the existing jobs in an instance of Layer0.</p>
+<h4 id="usage_20">Usage<a class="headerlink" href="#usage_20" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 job list</strong></div>
+  </div>
+</div></p>
+<hr />
+<h2 id="loadbalancer">Loadbalancer<a class="headerlink" href="#loadbalancer" title="Permanent link">#</a></h2>
+<p>A load balancer is a component of a Layer0 environment. Load balancers listen for traffic on certain ports, and then forward that traffic to Layer0 <a href="#service">services</a>. The <strong>loadbalancer</strong> command is used with the following subcommands: <a href="#loadbalancer-create">create</a>, <a href="#loadbalancer-delete">delete</a>, <a href="#loadbalancer-addport">addport</a>, <a href="#loadbalancer-dropport">dropport</a>, <a href="#loadbalancer-get">get</a>, and <a href="#loadbalancer-list">list</a>.</p>
+<h3 id="loadbalancer-create">loadbalancer create<a class="headerlink" href="#loadbalancer-create" title="Permanent link">#</a></h3>
+<p>Use the <strong>create</strong> subcommand to create a new load balancer.</p>
+<h4 id="usage_21">Usage<a class="headerlink" href="#usage_21" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 loadbalancer create</strong> [--port <em>port</em> --port <em>port</em> ...] [--certificate <em>certificateName</em>] [--private] <em>environmentName loadBalancerName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_13">Required parameters<a class="headerlink" href="#required-parameters_13" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>environmentName</em></div>
+    <div class="divCell">The name of the existing Layer0 environment in which you want to create the load balancer.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>loadBalancerName</em></div>
+    <div class="divCell">A name for the load balancer.</div>
+  </div>
+</div></p>
+<h4 id="optional-arguments_5">Optional arguments<a class="headerlink" href="#optional-arguments_5" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--port <em>hostPort:containerPort/protocol</em></div>
+    <div class="divCell">The port configuration for the load balancer. <em>hostPort</em> is the port on which the load balancer will listen for traffic; <em>containerPort</em> is the port that traffic will be forwarded to. You can specify multiple ports using <em>--port xxx --port yyy</em>. If this option is not specified, Layer0 will use the following configuration: 80:80/tcp</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--certificate <em>certificateName</em></div>
+    <div class="divCell">The name of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--private</div>
+    <div class="divCell">When you use this option, the load balancer will only be accessible from within the Layer0 environment.</div>
+  </div>
+</div></p>
+<h3 id="loadbalancer-delete">loadbalancer delete<a class="headerlink" href="#loadbalancer-delete" title="Permanent link">#</a></h3>
+<p>Use the <strong>delete</strong> subcommand to delete an existing load balancer.</p>
+<h4 id="usage_22">Usage<a class="headerlink" href="#usage_22" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 loadbalancer delete</strong> [--wait] <em>loadBalancerName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_14">Required parameters<a class="headerlink" href="#required-parameters_14" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>loadBalancerName</em></div>
+    <div class="divCell">The name of the load balancer that you want to delete.</div>
+  </div>
+</div></p>
+<h4 id="optional-arguments_6">Optional arguments<a class="headerlink" href="#optional-arguments_6" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--wait</div>
+    <div class="divCell">Wait until the deletion is complete before exiting.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_8">Additional information<a class="headerlink" href="#additional-information_8" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">In order to delete a load balancer that is already attached to a service, you must first delete the service that uses the load balancer.</div>
+  </div><br />
+  <div class="divRow">
+    <div class="divCellNoPadding">This operation performs several tasks asynchronously. When run without the <em>--wait</em> option, this operation will most likely exit before all of these tasks are complete; when run with the <em>--wait</em> option, this operation will only exit once these tasks have completed.</div>
+  </div>
+</div></p>
+<h3 id="loadbalancer-addport">loadbalancer addport<a class="headerlink" href="#loadbalancer-addport" title="Permanent link">#</a></h3>
+<p>Use the <strong>addport</strong> subcommand to add a new port configuration to an existing Layer0 load balancer.</p>
+<h4 id="usage_23">Usage<a class="headerlink" href="#usage_23" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 loadbalancer addport</strong> <em>loadBalancerName hostPort:containerPort/protocol</em> [--certificate <em>certificateName</em>]</div>
+  </div>
+</div></p>
+<h4 id="required-parameters_15">Required parameters<a class="headerlink" href="#required-parameters_15" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>loadBalancerName</em></div>
+    <div class="divCell">The name of an existing Layer0 load balancer in which you want to add the port configuration.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>hostPort</em></div>
+    <div class="divCell">The port that the load balancer will listen on.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>containerPort</em></div>
+    <div class="divCell">The port that the load balancer will forward traffic to.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>protocol</em></div>
+    <div class="divCell">The protocol to use when forwarding traffic (acceptable values: tcp, ssl, http, and https).</div>
+  </div>
+</div></p>
+<h4 id="optional-arguments_7">Optional arguments<a class="headerlink" href="#optional-arguments_7" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--certificate <em>certificateName</em></div>
+    <div class="divCell">The name of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_9">Additional information<a class="headerlink" href="#additional-information_9" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">The port configuration you specify must not already be in use by the load balancer you specify.</div>
+  </div>
+</div></p>
+<h3 id="loadbalancer-dropport">loadbalancer dropport<a class="headerlink" href="#loadbalancer-dropport" title="Permanent link">#</a></h3>
+<p>Use the <strong>dropport</strong> subcommand to remove a port configuration from an existing Layer0 load balancer. </p>
+<h4 id="usage_24">Usage<a class="headerlink" href="#usage_24" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 loadbalancer dropport</strong> <em>loadBalancerName</em> <em>hostPort</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_16">Required parameters<a class="headerlink" href="#required-parameters_16" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>loadBalancerName</em></div>
+    <div class="divCell">The name of an existing Layer0 load balancer in which you want to remove the port configuration.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>hostPort</em></div>
+    <div class="divCell">The host port to remove from the load balancer.</div>
+  </div>
+</div></p>
+<h3 id="loadbalancer-get">loadbalancer get<a class="headerlink" href="#loadbalancer-get" title="Permanent link">#</a></h3>
+<p>Use the <strong>get</strong> subcommand to display information about an existing Layer0 load balancer. </p>
+<h4 id="usage_25">Usage<a class="headerlink" href="#usage_25" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 loadbalancer get</strong> <em>environmentName:loadBalancerName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_17">Required parameters<a class="headerlink" href="#required-parameters_17" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>environmentName</em></div>
+    <div class="divCell">The name of an existing Layer0 environment.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>loadBalancerName</em></div>
+    <div class="divCell">The name of an existing Layer0 load balancer.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_10">Additional information<a class="headerlink" href="#additional-information_10" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">The value of <em>loadBalancerName</em> does not need to exactly match the name of an existing load balancer. If multiple results are found that match the pattern you specified in <em>loadBalancerName</em>, then information about all matching load balancers will be returned.</div>
+  </div>
+</div></p>
+<h3 id="loadbalancer-list">loadbalancer list<a class="headerlink" href="#loadbalancer-list" title="Permanent link">#</a></h3>
+<p>Use the <strong>list</strong> subcommand to display information about all of the existing load balancers in an instance of Layer0. </p>
+<h4 id="usage_26">Usage<a class="headerlink" href="#usage_26" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 loadbalancer list</strong></div>
+  </div>
+</div></p>
+<hr />
+<h2 id="service">Service<a class="headerlink" href="#service" title="Permanent link">#</a></h2>
+<p>A service is a component of a Layer0 environment. The purpose of a service is to execute a Docker image specified in a <a href="#deploy">deploy</a>. In order to create a service, you must first create an <a href="#environment">environment</a> and a <a href="#deploy">deploy</a>; in most cases, you should also create a <a href="#loadbalancer">load balancer</a> before creating the service.</p>
+<p>The <strong>service</strong> command is used with the following subcommands: <a href="#service-create">create</a>, <a href="#service-delete">delete</a>, <a href="#service-get">get</a>, <a href="#service-list">list</a>, <a href="#service-logs">logs</a>, and <a href="#service-scale">scale</a>.</p>
+<h3 id="service-create">service create<a class="headerlink" href="#service-create" title="Permanent link">#</a></h3>
+<p>Use the <strong>create</strong> subcommand to create a Layer0 service. </p>
+<h4 id="usage_27">Usage<a class="headerlink" href="#usage_27" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 service create</strong> [--loadbalancer <em>environmentName:loadBalancerName</em> ] [--no-logs] <em>environmentName serviceName deployName:deployVersion</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_18">Required parameters<a class="headerlink" href="#required-parameters_18" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>serviceName</em></div>
+    <div class="divCell">A name for the service that you are creating.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>environmentName</em></div>
+    <div class="divCell">The name of an existing Layer0 environment.</div>
+  </div><br />
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>deployName</em></div>
+    <div class="divCell">The name of a Layer0 deploy that exists in the environment <em>environmentName</em>.</div>
+  </div> 
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>deployVersion</em></div>
+    <div class="divCell">The version number of the Layer0 deploy that you want to deploy. If you do not specify a version number, the latest version of the deploy will be used.</div>
+  </div> 
+</div></p>
+<h4 id="optional-arguments_8">Optional arguments<a class="headerlink" href="#optional-arguments_8" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--loadbalancer <em>environmentName:loadBalancerName</em></div>
+    <div class="divCell">Place the new service behind an existing load balancer named <em>loadBalancerName</em> in the environment named <em>environmentName</em>.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--no-logs</div>
+    <div class="divCell">Disable cloudwatch logging for the service</div>
+  </div>
+</div></p>
+<h3 id="service-update">service update<a class="headerlink" href="#service-update" title="Permanent link">#</a></h3>
+<p>Use the <strong>update</strong> subcommand to apply an existing Layer0 Deploy to an existing Layer0 service.</p>
+<h4 id="usage_28">Usage<a class="headerlink" href="#usage_28" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 service update</strong> [--no-logs] <em>environmentName:serviceName deployName:deployVersion</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_19">Required parameters<a class="headerlink" href="#required-parameters_19" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+ <div class="divRow">
+    <div class="divCellNoWrap"><em>environmentName</em></div>
+    <div class="divCell">The name of the Layer0 environment in which the service resides.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>serviceName</em></div>
+    <div class="divCell">The name of an existing Layer0 service into which you want to apply the deploy.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>deployName</em></div>
+    <div class="divCell">The name of the Layer0 deploy that you want to apply to the service.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>deployVersion</em></div>
+    <div class="divCell">The version of the Layer0 deploy that you want to apply to the service. If you do not specify a version number, the latest version of the deploy will be applied.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--no-logs</div>
+    <div class="divCell">Disable cloudwatch logging for the service</div>
+  </div>
+</div></p>
+<h4 id="additional-information_11">Additional information<a class="headerlink" href="#additional-information_11" title="Permanent link">#</a></h4>
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">If your service uses a load balancer, when you update the task definition for the service, the container name and container port that were specified when the service was created must remain the same in the task definition. In other words, if your service has a load balancer, you cannot apply any deploy you want to that service. If you are varying the container name or exposed ports, you must create a new service instead.</div>
+  </div>
+</div>
+
+<h3 id="service-delete">service delete<a class="headerlink" href="#service-delete" title="Permanent link">#</a></h3>
+<p>Use the <strong>delete</strong> subcommand to delete an existing Layer0 service.</p>
+<h4 id="usage_29">Usage<a class="headerlink" href="#usage_29" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 service delete</strong> [--wait] <em>environmentName:serviceName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_20">Required parameters<a class="headerlink" href="#required-parameters_20" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>environmentName</em></div>
+    <div class="divCell">The name of the Layer0 environment that contains the service you want to delete.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>serviceName</em></div>
+    <div class="divCell">The name of the Layer0 service that you want to delete.</div>
+  </div> 
+</div></p>
+<h4 id="optional-arguments_9">Optional arguments<a class="headerlink" href="#optional-arguments_9" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--wait</div>
+    <div class="divCell">Wait until the deletion is complete before exiting.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_12">Additional information<a class="headerlink" href="#additional-information_12" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">This operation performs several tasks asynchronously. When run without the <em>--wait</em> option, this operation will most likely exit before all of these tasks are complete; when run with the <em>--wait</em> option, this operation will only exit once these tasks have completed.</div>
+  </div>
+</div></p>
+<h3 id="service-get">service get<a class="headerlink" href="#service-get" title="Permanent link">#</a></h3>
+<p>Use the <strong>get</strong> subcommand to display information about an existing Layer0 service.</p>
+<h4 id="usage_30">Usage<a class="headerlink" href="#usage_30" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 service get</strong> <em>environmentName:serviceName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_21">Required parameters<a class="headerlink" href="#required-parameters_21" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>environmentName</em></div>
+    <div class="divCell">The name of an existing Layer0 environment.</div>
+  </div> 
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>serviceName</em></div>
+    <div class="divCell">The name of an existing Layer0 service.</div>
+  </div> 
+</div></p>
+<h3 id="service-list">service list<a class="headerlink" href="#service-list" title="Permanent link">#</a></h3>
+<p>Use the <strong>list</strong> subcommand to list all of the existing services in your Layer0 instance.</p>
+<h4 id="usage_31">Usage<a class="headerlink" href="#usage_31" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 service list</strong></div>
+  </div>
+</div></p>
+<h3 id="service-logs">service logs<a class="headerlink" href="#service-logs" title="Permanent link">#</a></h3>
+<p>Use the <strong>logs</strong> subcommand to display the logs from a Layer0 service that is currently running.</p>
+<h4 id="usage_32">Usage<a class="headerlink" href="#usage_32" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 service logs</strong> [--tail=<em>N</em> ] <em>serviceName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_22">Required parameters<a class="headerlink" href="#required-parameters_22" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>serviceName</em></div>
+    <div class="divCell">The name of the Layer0 service for which you want to view logs.</div>
+  </div>
+</div></p>
+<h4 id="optional-arguments_10">Optional arguments<a class="headerlink" href="#optional-arguments_10" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--tail=<em>N</em></div>
+    <div class="divCell">Display only the last <em>N</em> lines of the log.</div>
+  </div>
+</div></p>
+<h3 id="service-scale">service scale<a class="headerlink" href="#service-scale" title="Permanent link">#</a></h3>
+<p>Use the <strong>scale</strong> subcommand to specify how many copies of an existing Layer0 service should run.</p>
+<h4 id="usage_33">Usage<a class="headerlink" href="#usage_33" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 service scale</strong> <em>environmentName:serviceName N</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_23">Required parameters<a class="headerlink" href="#required-parameters_23" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>environmentName</em></div>
+    <div class="divCell">The name of the Layer0 environment that contains the service that you want to scale.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>serviceName</em></div>
+    <div class="divCell">The name of the Layer0 service that you want to scale up.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>N</em></div>
+    <div class="divCell">The number of copies of the specified service that should be run.</div>
+  </div>
+</div></p>
+<hr />
+<h2 id="task">Task<a class="headerlink" href="#task" title="Permanent link">#</a></h2>
+<p>A Layer0 task is a component of an environment. A task executes the contents of a Docker image, as specified in a deploy. A task differs from a service in that a task does not restart after exiting. Additionally, ports are not exposed when using a task.</p>
+<p>The <strong>task</strong> command is used with the following subcommands: <a href="#task-create">create</a>, <a href="#task-delete">delete</a>, <a href="#task-get">get</a>, <a href="#task-list">list</a>, and <a href="#task-logs">logs</a>.</p>
+<h3 id="task-create">task create<a class="headerlink" href="#task-create" title="Permanent link">#</a></h3>
+<p>Use the <strong>create</strong> subcommand to create a Layer0 task.</p>
+<h4 id="usage_34">Usage<a class="headerlink" href="#usage_34" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 task create</strong> [--no-logs] [--copies <em>copies</em>] <em>environmentName taskName deployName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_24">Required parameters<a class="headerlink" href="#required-parameters_24" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>environmentName</em></div>
+    <div class="divCell">The name of the existing Layer0 environment in which you want to create the task.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>taskName</em></div>
+    <div class="divCell">A name for the task.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>deployName</em></div>
+    <div class="divCell">The name of an existing Layer0 deploy that the task should use.</div>
+  </div>
+</div></p>
+<h4 id="optional-arguments_11">Optional arguments<a class="headerlink" href="#optional-arguments_11" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--copies</div>
+    <div class="divCell">The number of copies of the task to run (default: 1)</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--no-logs</div>
+    <div class="divCell">Disable cloudwatch logging for the service</div>
+  </div>
+</div></p>
+<h3 id="task-delete">task delete<a class="headerlink" href="#task-delete" title="Permanent link">#</a></h3>
+<p>Use the <strong>delete</strong> subcommand to delete an existing Layer0 task.</p>
+<h4 id="usage_35">Usage<a class="headerlink" href="#usage_35" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 task delete</strong> [<em>environmentName</em>:]<em>taskName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_25">Required parameters<a class="headerlink" href="#required-parameters_25" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>taskName</em></div>
+    <div class="divCell">The name of the Layer0 task that you want to delete.</div>
+  </div>
+</div></p>
+<h4 id="optional-parameters">Optional parameters<a class="headerlink" href="#optional-parameters" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">[<em>environmentName</em>:]</div>
+    <div class="divCell">The name of the Layer0 environment that contains the task. This parameter is only necessary if multiple environments contain tasks with exactly the same name.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_13">Additional information<a class="headerlink" href="#additional-information_13" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">Until the record has been purged, the API may indicate that the task is still running. Task records are typically purged within an hour.</div>
+  </div>
+</div></p>
+<h3 id="task-get">task get<a class="headerlink" href="#task-get" title="Permanent link">#</a></h3>
+<p>Use the <strong>get</strong> subcommand to display information about an existing Layer0 task (<em>taskName</em>).</p>
+<h4 id="usage_36">Usage<a class="headerlink" href="#usage_36" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 task get</strong> [<em>environmentName</em>:]<em>taskName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_26">Required parameters<a class="headerlink" href="#required-parameters_26" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>taskName</em></div>
+    <div class="divCell">The name of a Layer0 task for which you want to see information.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_14">Additional information<a class="headerlink" href="#additional-information_14" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">The value of <em>taskName</em> does not need to exactly match the name of an existing task. If multiple results are found that match the pattern you specified in <em>taskName</em>, then information about all matching tasks will be returned.</div>
+  </div>
+</div></p>
+<h3 id="task-list">task list<a class="headerlink" href="#task-list" title="Permanent link">#</a></h3>
+<p>Use the <strong>task</strong> subcommand to display a list of running tasks in your Layer0.</p>
+<h4 id="usage_37">Usage<a class="headerlink" href="#usage_37" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 task list</strong></div>
+  </div>
+</div></p>
+<h3 id="task-logs">task logs<a class="headerlink" href="#task-logs" title="Permanent link">#</a></h3>
+<p>Use the <strong>logs</strong> subcommand to display logs for a running Layer0 task.</p>
+<h4 id="usage_38">Usage<a class="headerlink" href="#usage_38" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 task logs</strong> [--tail=<em>N</em> ] <em>taskName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_27">Required parameters<a class="headerlink" href="#required-parameters_27" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>taskName</em></div>
+    <div class="divCell">The name of an existing Layer0 task.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_15">Additional information<a class="headerlink" href="#additional-information_15" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">The value of <em>taskName</em> does not need to exactly match the name of an existing task. If multiple results are found that match the pattern you specified in <em>taskName</em>, then information about all matching tasks will be returned.</div>
+  </div>
+</div></p>
+<h3 id="task-list_1">task list<a class="headerlink" href="#task-list_1" title="Permanent link">#</a></h3>
+<p>Use the <strong>task</strong> subcommand to display a list of running tasks in your Layer0.</p>
+<h4 id="usage_39">Usage<a class="headerlink" href="#usage_39" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 task list</strong></div>
+  </div>
+</div>
+=======</p>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../../guides/shinken/" title="Shinken">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Shinken
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../setup-cli/" title="Layer0 Setup CLI">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Layer0 Setup CLI
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '../..';
+      var repo_id  = '';
+    </script>
+    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
+    
+    
+  </body>
+</html>

@@ -1,0 +1,10 @@
+{
+    "d.ims.io": {
+        "auth": "${docker_token}",
+        "email": ""
+    },
+    "docker.ims.io": {
+        "auth": "${docker_token}",
+        "email": ""
+    }
+}

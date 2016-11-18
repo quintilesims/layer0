@@ -1,0 +1,3 @@
+resource "aws_cloudwatch_log_group" "api" {
+  name = "l0-${var.l0_prefix}-api-api-svc"
+}
