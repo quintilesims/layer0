@@ -44,10 +44,6 @@ The **apply** command is used to create and update Layer0 instances.
     <div class="divCell">The AWS region in which the Layer0 instance resides.</div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">--docker\_token=_dockerToken_</div>
-    <div class="divCell">A valid d.ims.io Docker token.</div>
-  </div>
-  <div class="divRow">
     <div class="divCellNoWrap">--vpc=_vpcID_</div>
     <div class="divCell">The ID of a VPC. If blank, **l0-setup** will create a new VPC.</div>
   </div>
@@ -106,10 +102,6 @@ The **restore** command is used to restore Layer0 configuration files that were 
   <div class="divRow">
     <div class="divCellNoWrap">--region=_awsRegion_</div>
     <div class="divCell">The AWS region in which the Layer0 instance resides.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">--docker\_token=_dockerToken_</div>
-    <div class="divCell">A valid d.ims.io Docker token.</div>
   </div>
 </div>
 
@@ -216,10 +208,6 @@ The **vpc** command is used to look up details from a Virtual Private Cloud (VPC
   <div class="divRow">
     <div class="divCellNoWrap">--region=_awsRegion_</div>
     <div class="divCell">The AWS region in which the Layer0 instance resides.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">--docker\_token=_dockerToken_</div>
-    <div class="divCell">A valid d.ims.io Docker token.</div>
   </div>
 </div>
 

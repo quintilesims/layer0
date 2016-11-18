@@ -20,7 +20,7 @@ Consul should run behind a private load balancer in the **demo** environment wit
       <li class="command">**l0 loadbalancer create --private --port 8500:8500/tcp demo consullb**</li>
     </ul><br />You will see the following output:
 <pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICES  PORTS          PUBLIC  URL
-1consullb        consullb           demo                   8500:8500/tcp  false   
+1consullb        consullb           demo                   8500:8500/tcp  false
 </code></pre>
   </li>
   <li>At the command line, type the following command to add port 8301 to the **consullb** load balancer:
@@ -38,7 +38,7 @@ Copy the URL listed in the **URL** column; you will need this URL in the next se
 
 ## Part 2: Configure the deploy
 <ol>
-  <li>Download the <a href="https://gitlab.imshealth.com/xfra/consul-local/blob/master/consul.json">Consul Task Definition</a> and save it to your computer as Consul.Dockerrun.aws.json.</li>
+  <li>Download the <a href="https://github.com/quintilesims/consul-local/blob/master/consul.json">Consul Task Definition</a> and save it to your computer as Consul.Dockerrun.aws.json.</li>
   <li>Open Consul.Dockerrun.aws.json in a text editor. Toward the bottom of the file, you will see the following:
 <pre class="code"><code>"environment": [
     {
@@ -54,8 +54,8 @@ Replace <em>&lt;url&gt;</em> with the URL you copied in step 2 of the previous s
       <li class="command"><strong>l0 deploy create Consul.Dockerrun.aws.json consul</strong></li>
     </ul><br />
   You will see the following output:
-<pre class="code"><code>DEPLOY ID  DEPLOY NAME  VERSION  
-1consul:1  consul       1        
+<pre class="code"><code>DEPLOY ID  DEPLOY NAME  VERSION
+1consul:1  consul       1
 </code></pre>
   </li>
 </ol>
