@@ -14,7 +14,7 @@ The following snippet contains the task definition for the [Guestbook](/guides/g
     "containerDefinitions": [
         {
             "name": "l0-demo-guestbook",
-            "image": "d.ims.io/xfra/l0-guestbook",
+            "image": "quintilesims/l0-guestbook",
             "essential": true,
             "memory": 128,
             "portMappings": [
@@ -44,7 +44,7 @@ If you encounter a scenario where you must change or remove a container's name i
 
 
 * **Image** The Docker image used to build the container. The image format is `url/image:tag`
-    * The `url` specifies which Docker Repo to pull the image from (e.g. `d.ims.io`).
+    * The `url` specifies which Docker Repo to pull the image from (e.g. `quintilesims`).
 If `url` is not specified, [Docker Hub](https://hub.docker.com/) is used
     * The `image` specifies the name of the image to grab
     * The `tag` specifies which version of image to grab.

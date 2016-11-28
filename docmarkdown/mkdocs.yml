@@ -2,13 +2,13 @@
 site_name: Layer0
 site_description: Layer0 Documentation
 site_author: xfra
-site_url: https://gitlab.imshealth.com/xfra/layer0/
+site_url: https://github.com/quintilesims/layer0/
 extra_css: ['stylesheets/extra.css']
 site_dir: ../docs
 
 # Repository
-repo_name: GitLab
-repo_url: https://gitlab.imshealth.com/xfra/layer0/
+repo_name: GitHub
+repo_url: https://github.com/quintilesims/layer0/
 
 pages:
   - Home: index.md
@@ -24,13 +24,11 @@ pages:
     - Consul: guides/consul.md
     - Guestbook with Consul: guides/guestbook_consul.md
     - One-off Task: guides/one_off_task.md
-    - Shinken: guides/shinken.md
   - Reference:
     - Layer0 CLI: reference/cli.md
     - Layer0 Setup CLI: reference/setup-cli.md
     - Updating a service: reference/updateservice.md
     - Consul: reference/consul.md
-    - Shinken: reference/shinken.md
     - Task Definitions: reference/task_definition.md
     - Architecture: reference/architecture.md
     - ECR: reference/ecr.md

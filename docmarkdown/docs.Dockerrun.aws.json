@@ -2,7 +2,7 @@
   "containerDefinitions": [
     {
       "name": "docs",
-      "image": "d.ims.io/xfra/l0-docs:v0.2.0",
+      "image": "quintilesims/l0-docs:v0.2.0",
       "essential": true,
       "memory": 128,
       "portMappings": [

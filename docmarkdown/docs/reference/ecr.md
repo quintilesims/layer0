@@ -35,7 +35,6 @@ Here we'll walk through using ECR when deploying to Layer0,  Using a very basic 
 
 Your docker image can be built locally or pulled from dockerhub.  For this example, we made a service that waits and then exits (useful for triggering regular restarts).
 
-> [Dockerfile](https://gitlab.imshealth.com/xfra/production/blob/master/dockerfiles/Dockerfile.wait)
 ```
 FROM busybox
 
@@ -63,7 +62,6 @@ After preparing a login and registry, tag the image with the remote url, and use
 
 To run this image in Layer0, we create a dockerrun file, describing the instance and any additional variables
 
-> [timeout.Dockerrun.aws.json](https://gitlab.imshealth.com/xfra/production/blob/master/dockerruns/registry.Dockerrun.aws.json)
 ```
 {
   "containerDefinitions": [

@@ -17,7 +17,7 @@ An SSL certificate obtained from a valid [Certificate Authority (CA)](http://wik
 
 ### Deploys
 
-A [multicontainer docker configuration](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_docker_v2config.html). This configuration file details how to deploy your application. We have several [sample applications](https://gitlab.imshealth.com/xfra/layer0-samples) available that show what these files look like --- they're called `Dockerrun.aws.json` within each sample app.
+A [multicontainer docker configuration](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_docker_v2config.html). This configuration file details how to deploy your application. We have several [sample applications](https://github.com/quintilesims/layer0-samples) available that show what these files look like --- they're called `Dockerrun.aws.json` within each sample app.
 
 ### Load Balancers
 
