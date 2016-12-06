@@ -2,7 +2,7 @@ package decorators
 
 import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"gitlab.imshealth.com/xfra/layer0/common/waitutils"
+	"github.com/quintilesims/layer0/common/waitutils"
 	"time"
 )
 

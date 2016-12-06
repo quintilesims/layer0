@@ -2,8 +2,8 @@ package command
 
 import (
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/cli/client"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/cli/client"
+	"github.com/quintilesims/layer0/common/models"
 	"strings"
 )
 

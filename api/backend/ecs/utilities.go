@@ -3,11 +3,11 @@ package ecsbackend
 import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	awsecs "github.com/aws/aws-sdk-go/service/ecs"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/cloudwatchlogs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/models"
 	"strings"
 )
 

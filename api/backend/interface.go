@@ -1,7 +1,7 @@
 package backend
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type Backend interface {

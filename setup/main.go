@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/jawher/mow.cli"
-	"gitlab.imshealth.com/xfra/layer0/setup/context"
+	"github.com/quintilesims/layer0/setup/context"
 	"os"
 )
 

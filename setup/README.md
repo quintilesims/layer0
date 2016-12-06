@@ -3,7 +3,7 @@ Tools for Layer0 installation and management on AWS.
 
 Refer to the official documentation (only available from Office IPs) @ [docs.xfra.ims.io](http://docs.xfra.ims.io)
 
-If the site is down, you can access the source of those docs @ <https://gitlab.imshealth.com/xfra/layer0/tree/master/docs>
+If the site is down, you can access the source of those docs @ <https://github.com/quintilesims/layer0/tree/master/docs>
 
 ## Layer0 Setup - Developer Notes
 

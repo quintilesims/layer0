@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/provider"
+	"github.com/quintilesims/layer0/common/aws/provider"
 	"strings"
 )
 

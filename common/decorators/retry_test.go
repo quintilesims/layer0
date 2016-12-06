@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/golang/mock/gomock"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs/mock_ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
+	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
 

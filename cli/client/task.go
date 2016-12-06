@@ -2,7 +2,7 @@ package client
 
 import (
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func (c *APIClient) CreateTask(

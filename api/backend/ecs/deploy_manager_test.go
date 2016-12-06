@@ -4,12 +4,12 @@ import (
 	"fmt"
 	aws_ecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/mock_ecsbackend"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs/mock_ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/api/backend/ecs/mock_ecsbackend"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
 
@@ -238,7 +238,7 @@ func TestCreateDeploy(t *testing.T) {
 			"ContainerDefinitions": [
 				{	
 					"name": "test",
-					"image": "d.ims.io/xfra/test",
+					"image": "quintilesims/test",
 					"essential": true,
 					"memory": 128
 				}

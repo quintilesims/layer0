@@ -3,9 +3,9 @@ package handlers
 import (
 	"fmt"
 	"github.com/emicklei/go-restful"
-	"gitlab.imshealth.com/xfra/layer0/api/logic"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 	"net/http"
 	"strconv"
 )

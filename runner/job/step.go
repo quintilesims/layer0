@@ -11,7 +11,7 @@ package job
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/errors"
 	"sync"
 	"time"
 )

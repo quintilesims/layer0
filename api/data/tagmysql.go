@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	_ "github.com/go-sql-driver/mysql"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 // DataStore for Tag data in mysql

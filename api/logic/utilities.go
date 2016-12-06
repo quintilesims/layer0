@@ -1,7 +1,7 @@
 package logic
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func rangeTags(entityTags []models.EntityWithTags) []models.EntityTag {

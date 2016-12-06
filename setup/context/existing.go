@@ -4,8 +4,8 @@ package context
 
 import (
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ec2"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/provider"
+	"github.com/quintilesims/layer0/common/aws/ec2"
+	"github.com/quintilesims/layer0/common/aws/provider"
 	"net"
 	"sort"
 	"strings"

@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"gitlab.imshealth.com/xfra/layer0/cli/client"
+	"github.com/quintilesims/layer0/cli/client"
 )
 
 var defaultTimeout = time.Minute * 15

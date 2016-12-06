@@ -15,9 +15,9 @@ The Layer0 Terraform Plugin
 
 ### Part 1: Download the configuration files
 
-* [Dockerrun.aws.json](https://gitlab.imshealth.com/xfra/layer0-samples/blob/master/guestbook/app/Dockerrun.aws.json)
-* [terraform.tfvars](https://gitlab.imshealth.com/xfra/layer0-samples/blob/master/guestbook/app/terraform.tfvars)
-* [layer0.tf](https://gitlab.imshealth.com/xfra/layer0-samples/blob/master/guestbook/app/layer0.tf)
+* [Dockerrun.aws.json](https://github.com/quintilesims/layer0-samples/blob/master/guestbook/app/Dockerrun.aws.json)
+* [terraform.tfvars](https://github.com/quintilesims/layer0-samples/blob/master/guestbook/app/terraform.tfvars)
+* [layer0.tf](https://github.com/quintilesims/layer0-samples/blob/master/guestbook/app/layer0.tf)
 
 ### Part 2: Terraform Apply
 Run `terraform apply` to begin the process. Terraform will prompt you for configuration values that it does not have.

@@ -3,9 +3,9 @@ package ecsbackend
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/models"
 	"sync"
 	"time"
 )

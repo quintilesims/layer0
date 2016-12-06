@@ -3,7 +3,7 @@ package cloudwatchlogs
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/provider"
+	"github.com/quintilesims/layer0/common/aws/provider"
 )
 
 type Provider interface {

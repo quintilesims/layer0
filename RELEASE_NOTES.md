@@ -124,7 +124,7 @@ The deploy apply command still exists, but will be depreciated in further releas
 
 ---
 ## v0.6.3
-5.3.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.6.3)
+5.3.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.6.3)
 
 #### Features
 * Add tags for API Environment, LoadBalancer, and Service
@@ -136,7 +136,7 @@ The deploy apply command still exists, but will be depreciated in further releas
 
 ---
 ## v0.6.2
-4.15.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.6.2)
+4.15.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.6.2)
 
 *Updating your Layer0 API from previous versions will cause your endpoint URL to change. 
 Please review the [update instructions](http://docs.xfra.ims.io/setup/update/#migration-from-v060-or-v061-to-v062) for more information.*
@@ -155,7 +155,7 @@ Please review the [update instructions](http://docs.xfra.ims.io/setup/update/#mi
 
 ---
 ## v0.6.1
-4.4.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.6.1)
+4.4.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.6.1)
 
 #### Features
 
@@ -163,7 +163,7 @@ Please review the [update instructions](http://docs.xfra.ims.io/setup/update/#mi
 
 ---
 ## v0.6.0
-3.24.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.6.0)
+3.24.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.6.0)
 
 *This release is incompatible with previous versions of Layer0.
 Please see our [update documentation](http://docs.xfra.ims.io/setup/update/) for more information.*
@@ -179,21 +179,21 @@ Please see the [Consul Reference](http://docs.xfra.ims.io/reference/consul/) for
 
 ---
 ## v0.6.0-rc.2
-3.8.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.6.0-rc.2)
+3.8.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.6.0-rc.2)
 
 #### Features
 * This is a release candidate for v0.6.0
 
 ---
 ## v0.6.0-rc.1
-3.1.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.6.0-rc.1)
+3.1.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.6.0-rc.1)
 
 #### Features
 * This is a release candidate for v0.6.0
 
 ---
 ## v0.5.5
-2.24.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.5.5)
+2.24.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.5.5)
 
 #### Bug Fixes
 * Fix consul-agent bootstrapping
@@ -201,7 +201,7 @@ Please see the [Consul Reference](http://docs.xfra.ims.io/reference/consul/) for
 
 ---
 ## v0.5.4
-1.26.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.5.4)
+1.26.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.5.4)
 
 #### Features
 * Add documentation for Loadbalancers
@@ -212,7 +212,7 @@ Please see the [Consul Reference](http://docs.xfra.ims.io/reference/consul/) for
 
 ---
 ## v0.5.3
-1.25.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.5.3)
+1.25.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.5.3)
 
 #### Features
 * Setup locks down API docker image version instead of always using `"l0-api:master"`
@@ -225,21 +225,21 @@ Please see the [Consul Reference](http://docs.xfra.ims.io/reference/consul/) for
 
 ---
 ## v0.5.2
-1.15.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.5.2)
+1.15.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.5.2)
 
 #### Bug Fixes
 * CLI `loadbalancer:update` command now has correct url path
 
 ---
 ## v0.5.1
-1.14.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.5.1)
+1.14.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.5.1)
 
 #### Bug Fixes
 * Setup now sets `iam:PassRole` permission correctly
 
 ---
 ## v0.5.0
-1.13.2016 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.5.0)
+1.13.2016 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.5.0)
 
 #### Feautures
 * Loadbalancers as a first-class entity. Please see [Usage](https://gitlab.imshealth.com/xfra/l0-cli/tree/master#create-a-load-balancer) for more information
@@ -255,11 +255,11 @@ users no longer have to manually use the `admin/sql` endpoint in swagger.
 # Layer0 v0.5 is now available!
 ---
 ## v0.4.2
-12.8.2015 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.4.2)
+12.8.2015 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.4.2)
 
 #### Feautures
 * Layer0 can be installed into an existing VPC.
-Please see [Usage](https://gitlab.imshealth.com/xfra/layer0/tree/master/setup#install-into-an-existing-vpc) for more information
+Please see [Usage](https://github.com/quintilesims/layer0/tree/master/setup#install-into-an-existing-vpc) for more information
 * Random authentication token generation for API
 * Expanded CLI usage/help information
 
@@ -271,10 +271,10 @@ Please see [Usage](https://gitlab.imshealth.com/xfra/layer0/tree/master/setup#in
 
 ---
 ## v0.4.1
-11.18.2015 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.4.1)
+11.18.2015 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.4.1)
 
 #### Feautures
-* Custom authentication option for API. Please see [Usage](https://gitlab.imshealth.com/xfra/layer0/tree/master/setup#custom-authentication) for more information
+* Custom authentication option for API. Please see [Usage](https://github.com/quintilesims/layer0/tree/master/setup#custom-authentication) for more information
 * Updated Setup now uses `Terraform` for all infrastructure management
 * Improved error messages in CLI
 * CLI only shows the latest version of each deploy with `deploy` and `deploy:get` commands
@@ -286,9 +286,9 @@ Please see [Usage](https://gitlab.imshealth.com/xfra/layer0/tree/master/setup#in
 
 ---
 ## v0.4.0
-1.14.2015 | [Download](https://gitlab.imshealth.com/xfra/layer0-release/tree/master/v0.4.0)
+1.14.2015 | [Download](https://github.com/quintilesims/layer0-release/tree/master/v0.4.0)
 
-*This release has changed some of the versions previously released to be more compliant with http://semver.org.  For more information please read [Reversioning](https://gitlab.imshealth.com/xfra/layer0-release/blob/master/REVERSIONING.md).*
+*This release has changed some of the versions previously released to be more compliant with http://semver.org.  For more information please read [Reversioning](https://github.com/quintilesims/layer0-release/blob/master/REVERSIONING.md).*
 
 #### Feautures
 * Tagging for Layer0 entities. Please see [Usage](https://gitlab.imshealth.com/xfra/l0-cli/tree/master#aside-fuzzy-match) for more information

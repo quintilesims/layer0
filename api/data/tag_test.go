@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	log "github.com/Sirupsen/logrus"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 // Main test entrypoint

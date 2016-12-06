@@ -3,11 +3,11 @@ package job
 import (
 	"fmt"
 	"github.com/golang/mock/gomock"
-	"gitlab.imshealth.com/xfra/layer0/api/data/mock_data"
-	"gitlab.imshealth.com/xfra/layer0/api/logic"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
-	"gitlab.imshealth.com/xfra/layer0/common/types"
+	"github.com/quintilesims/layer0/api/data/mock_data"
+	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
+	"github.com/quintilesims/layer0/common/types"
 	"testing"
 	"time"
 )

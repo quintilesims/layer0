@@ -3,7 +3,7 @@ package cloudwatch
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/provider"
+	"github.com/quintilesims/layer0/common/aws/provider"
 	"time"
 )
 

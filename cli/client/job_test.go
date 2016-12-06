@@ -2,9 +2,9 @@ package client
 
 import (
 	// "encoding/base64"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
-	"gitlab.imshealth.com/xfra/layer0/common/types"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
+	"github.com/quintilesims/layer0/common/types"
 	"net/http"
 	"testing"
 )

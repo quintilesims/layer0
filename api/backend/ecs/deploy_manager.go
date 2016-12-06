@@ -3,10 +3,10 @@ package ecsbackend
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 	"strings"
 )
 

@@ -2,11 +2,11 @@ package ecsbackend
 
 import (
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/iam"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/aws/iam"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 	"strings"
 )
 

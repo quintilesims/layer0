@@ -3,10 +3,10 @@ package logic
 import (
 	"fmt"
 	"github.com/golang/mock/gomock"
-	"gitlab.imshealth.com/xfra/layer0/api/data"
-	"gitlab.imshealth.com/xfra/layer0/api/logic/mock_logic"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
+	"github.com/quintilesims/layer0/api/data"
+	"github.com/quintilesims/layer0/api/logic/mock_logic"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
 

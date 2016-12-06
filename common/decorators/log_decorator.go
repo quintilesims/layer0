@@ -1,7 +1,7 @@
 package decorators
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/common/logutils"
+	"github.com/quintilesims/layer0/common/logutils"
 	"time"
 )
 

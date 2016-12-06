@@ -3,10 +3,10 @@ package ecsbackend
 import (
 	"fmt"
 	"github.com/golang/mock/gomock"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/iam"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/iam/mock_iam"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/aws/iam"
+	"github.com/quintilesims/layer0/common/aws/iam/mock_iam"
+	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
 

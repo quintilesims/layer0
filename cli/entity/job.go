@@ -1,9 +1,9 @@
 package entity
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/cli/printer/table"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/types"
+	"github.com/quintilesims/layer0/cli/printer/table"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/types"
 	"strings"
 )
 

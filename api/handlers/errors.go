@@ -5,8 +5,8 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/emicklei/go-restful"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 	"net/http"
 	"strings"
 )

@@ -2,8 +2,8 @@ package command
 
 import (
 	"github.com/urfave/cli"
-	"gitlab.imshealth.com/xfra/layer0/cli/entity"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/cli/entity"
+	"github.com/quintilesims/layer0/common/models"
 	"strconv"
 )
 

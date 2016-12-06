@@ -3,7 +3,7 @@ package id
 import (
 	"crypto/md5"
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
+	"github.com/quintilesims/layer0/common/config"
 	"regexp"
 	"strings"
 	"time"

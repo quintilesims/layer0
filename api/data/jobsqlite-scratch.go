@@ -3,8 +3,8 @@
 package data
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/types"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/types"
 )
 
 // DataStore for Job data in sqlite

@@ -1,8 +1,8 @@
 package logic
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/common/config"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type AdminLogic interface {

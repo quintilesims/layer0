@@ -83,7 +83,7 @@ The following attributes are exported:
 Provides a Layer0 Deploy.
 
 Performing variable substitution inside of your deploy's json file (typically named `Dockerrun.aws.json`) can be done through Terraform's [template_file](https://www.terraform.io/docs/providers/template/).
-For a working example, please see the sample [Guestbook](https://gitlab.imshealth.com/xfra/layer0-samples/blob/master/guestbook/app/layer0.tf) application
+For a working example, please see the sample [Guestbook](https://github.com/quintilesims/layer0-samples/blob/master/guestbook/app/layer0.tf) application
 
 ### Example Usage
 ```

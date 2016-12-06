@@ -3,7 +3,7 @@ package handlers
 import (
 	"fmt"
 	"github.com/emicklei/go-restful"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 func basicAuthenticate(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {

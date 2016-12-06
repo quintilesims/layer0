@@ -2,11 +2,11 @@ package ecsbackend
 
 import (
 	"github.com/golang/mock/gomock"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/cloudwatchlogs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/cloudwatchlogs/mock_cloudwatchlogs"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
+	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
+	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs/mock_cloudwatchlogs"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
 
