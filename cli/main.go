@@ -22,7 +22,6 @@ func main() {
 	}
 
 	config.SetCLIVersion(Version)
-
 	RunApp()
 }
 

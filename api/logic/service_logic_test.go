@@ -268,7 +268,6 @@ func TestCreateService(t *testing.T) {
 		ServiceName:    "svc_name",
 		LoadBalancerID: "lb_id",
 		DeployID:       "dpl_id",
-		DisableLogging: true,
 	}
 
 	testCases := []testutils.TestCase{
@@ -353,7 +352,7 @@ func TestCreateService(t *testing.T) {
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)
 
 				mockLogic.Backend.EXPECT().
-					CreateService("svc_name", "env_id", "dpl_id", "lb_id", true, gomock.Not(nil)).
+					CreateService("svc_name", "env_id", "dpl_id", "lb_id").
 					Return(&models.Service{}, nil)
 
 				return NewL0ServiceLogic(mockLogic.Logic(), mockDeploy)
@@ -372,7 +371,7 @@ func TestCreateService(t *testing.T) {
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)
 
 				mockLogic.Backend.EXPECT().
-					CreateService(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					CreateService(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0ServiceLogic(mockLogic.Logic(), mockDeploy)
@@ -398,7 +397,7 @@ func TestCreateService(t *testing.T) {
 				}
 
 				mockLogic.Backend.EXPECT().
-					CreateService(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					CreateService(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(service, nil)
 
 				mockLogic.UseSQLite(t)
@@ -560,8 +559,7 @@ func TestUpdateService(t *testing.T) {
 	}
 
 	req := models.UpdateServiceRequest{
-		DeployID:       "dpl_id",
-		DisableLogging: true,
+		DeployID: "dpl_id",
 	}
 
 	testCases := []testutils.TestCase{
@@ -576,7 +574,7 @@ func TestUpdateService(t *testing.T) {
 				addTag(t, mockLogic.SQLite, entityIDTag)
 
 				mockLogic.Backend.EXPECT().
-					UpdateService("env_id", "svc_id", "dpl_id", true, gomock.Not(nil)).
+					UpdateService("env_id", "svc_id", "dpl_id").
 					Return(&models.Service{}, nil)
 
 				return NewL0ServiceLogic(mockLogic.Logic(), mockDeploy)
@@ -596,7 +594,7 @@ func TestUpdateService(t *testing.T) {
 				addTag(t, mockLogic.SQLite, entityIDTag)
 
 				mockLogic.Backend.EXPECT().
-					UpdateService(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					UpdateService(gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0ServiceLogic(mockLogic.Logic(), mockDeploy)

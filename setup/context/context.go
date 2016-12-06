@@ -333,6 +333,7 @@ func (this *Context) writeTerraformFiles() error {
 		"variables.tf.template",
 		"vpc.tf.template",
 		"cloudwatch.tf.template",
+		"certificate.tf.template",
 	}
 
 	for _, fileName := range templates {
@@ -357,11 +358,6 @@ func (this *Context) writeTerraformFiles() error {
 
 	templatesDir := fmt.Sprintf("%s/templates", this.ExecutionDir)
 	if err := CopyDir(templatesDir, fmt.Sprintf("%s/templates", this.InstanceDir)); err != nil {
-		return err
-	}
-
-	certificateDir := fmt.Sprintf("%s/certificate", this.ExecutionDir)
-	if err := CopyDir(certificateDir, fmt.Sprintf("%s/certificate", this.InstanceDir)); err != nil {
 		return err
 	}
 

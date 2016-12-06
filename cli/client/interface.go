@@ -50,5 +50,6 @@ type Client interface {
 
 	GetTags(params map[string]string) ([]*models.EntityWithTags, error)
 	GetVersion() (string, error)
+	GetConfig() (*models.APIConfig, error)
 	UpdateSQL() error
 }

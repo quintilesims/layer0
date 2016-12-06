@@ -14,7 +14,8 @@
                 "logDriver": "awslogs",
                 "options": {
                     "awslogs-group": "${log_group_name}",
-                    "awslogs-region": "${region}"
+                    "awslogs-region": "${region}",
+                    "awslogs-stream-prefix": "l0"
                 }
          },
         "environment": [

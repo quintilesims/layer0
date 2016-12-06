@@ -40,11 +40,6 @@ var TerraformVariables = []VariableSchema{
 		Validate:    validateRegion,
 	},
 	VariableSchema{
-		Name:        "docker_token",
-		Description: "A valid token for d.ims.io",
-		DisplayName: "d.ims.io Token",
-	},
-	VariableSchema{
 		Name:         "l0_prefix",
 		IsCalculated: true,
 		Calculate:    func(c *Context) (string, error) { return c.Instance, nil },

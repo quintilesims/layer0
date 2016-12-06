@@ -13,15 +13,15 @@
       
       
       
-        <link rel="canonical" href="https://gitlab.imshealth.com/xfra/layer0/guides/guestbook_rds/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/guides/guestbook_rds/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://gitlab.imshealth.com/xfra/layer0/guides/guestbook_rds/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/guides/guestbook_rds/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://gitlab.imshealth.com/xfra/layer0/guides/guestbook_rds//../../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/guides/guestbook_rds//../../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -75,6 +75,11 @@
   
   
   <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
     
     <div class="backdrop">
       <div class="backdrop-paper"></div>
@@ -130,7 +135,7 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://gitlab.imshealth.com/xfra/layer0/" class="project">
+  <a href="https://github.com/quintilesims/layer0/" class="project">
     <div class="banner">
       
         <div class="logo">
@@ -138,13 +143,32 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.8.2</strong>
+        <strong>Layer0 v0.8.4</strong>
+        
+          <br>
+          quintilesims/layer0
         
       </div>
     </div>
   </a>
   <div class="scrollable">
     <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/quintilesims/layer0//archive/v0.8.4.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
       
       <div class="toc">
         <ul>
@@ -245,26 +269,20 @@
             </li>
           
             <li class="anchor">
-              <a title="Part 1: Create an RDS instance" href="#part-1-create-an-rds-instance">
-                Part 1: Create an RDS instance
+              <a title="Step 1: Download the configuration files" href="#step-1-download-the-configuration-files">
+                Step 1: Download the configuration files
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Part 2: Create a deploy" href="#part-2-create-a-deploy">
-                Part 2: Create a deploy
+              <a title="Step 2: Terraform Apply" href="#step-2-terraform-apply">
+                Step 2: Terraform Apply
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Part 3: Apply the deploy" href="#part-3-apply-the-deploy">
-                Part 3: Apply the deploy
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Part 4: Test the application" href="#part-4-test-the-application">
-                Part 4: Test the application
+              <a title="What's happening" href="#whats-happening">
+                What's happening
               </a>
             </li>
           
@@ -294,8 +312,8 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../shinken/">
-      Shinken
+    <a class="" title="One-off Task" href="../one_off_task/">
+      One-off Task
     </a>
     
   </li>
@@ -330,8 +348,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../../reference/consul/">
-      Consul
+    <a class="" title="Layer0 Terraform Plugin" href="../../reference/terraform-plugin/">
+      Layer0 Terraform Plugin
     </a>
     
   </li>
@@ -339,8 +357,17 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../../reference/shinken/">
-      Shinken
+    <a class="" title="Updating a Service" href="../../reference/updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../../reference/consul/">
+      Consul
     </a>
     
   </li>
@@ -427,133 +454,89 @@
 <p>This guide will show you how to make a stateless Guestbook application that stores data in an Amazon Relational Database Service (RDS) database.</p>
 <hr />
 <h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">#</a></h2>
-<p>In order to complete the procedures in this section, you must install and configure Layer0 v0.7.0 or later. If you have not already configured Layer0, see the <a href="../../setup/install">installation guide</a>. If you are running an older version of Layer0, see the <a href="../../setup/update#upgrading-older-versions-of-layer0">upgrade instructions</a>.</p>
-<p>This guide expands upon the <a href="../../guides/guestbook">Guestbook deployment guide</a> deployment guide. You must complete the procedures in that guide before you can complete the procedures listed here. After completing the procedures in the Guestbook guide, your Layer0 should contain a service named "guestbooksvc", running a deploy named "guestbook", behind a load balancer named "guestbooklb", all within an environment named "demo".</p>
-<h2 id="part-1-create-an-rds-instance">Part 1: Create an RDS instance<a class="headerlink" href="#part-1-create-an-rds-instance" title="Permanent link">#</a></h2>
-<p>The updated Guestbook application described in this guide stores its data in an Amazon Relational Database Service (RDS) database. These steps describe the process of creating a new RDS instance for this purpose.</p>
-<p><strong>To create a new RDS database:</strong></p>
-<ol>
-<li>Download the <a href="https://gitlab.imshealth.com/xfra/layer0-samples/blob/master/rds/cloudformation.json">RDS Cloudformation script</a> and save it to your computer.</li>
-<li>Go to <a href="https://imshealth.auth0.com/samlp/dD95hSDud43w6tu0KiQTanigF2FzJccA">the AWS Console page for Layer0</a>. Log in using your IMS Health domain credentials.</li>
-<li>Under <strong>Management Tools</strong>, click <strong>CloudFormation</strong>.</li>
-<li>Click <strong>Create Stack</strong>.</li>
-<li>Next to <strong>Choose a Template</strong>, select <strong>Upload a template to Amazon S3</strong>. Click the <strong>Browse</strong> button. On the file selection window, select the file that you downloaded in step 1 (<strong>cloudformation.json</strong>), and then click <strong>Next</strong>.</li>
-<li>Under <strong>Parameters</strong>, enter the following details:<ul>
-<li><strong>Stack Name</strong>: <em>Layer0Prefix</em><strong>-guestbook-rds</strong></li>
-<li><strong>Database</strong>: <strong>guestbook</strong></li>
-<li><strong>EnvironmentSG</strong>: Select the item that starts with <em>Layer0Prefix</em><strong>-demo</strong></li>
-<li><strong>Password</strong>: a password that you specify. The password must contain at least 8 characters. It cannot contain spaces or any of the following characters: /, @, "</li>
-<li><strong>Port</strong>: 3306</li>
-<li><strong>Username</strong>: a username that you specify.</li>
-<li><strong>Subnets</strong>: Select the items that end with <strong>(layer0-</strong><em>Layer0Prefix</em><strong>-priA)</strong> and <strong>(layer0-</strong><em>Layer0Prefix</em><strong>-priB)</strong></li>
-<li><strong>VPC</strong>: Select the item that ends with <strong>(layer0-</strong><em>Layer0Prefix</em><strong>-vpc)</strong></li>
-</ul>
-</li>
-<li>Click <strong>Next</strong> until you arrive at the Review page. Click <strong>Create</strong>. The process of creating the stack requires about 10 minutes to complete; wait until this process is complete before proceeding to the next section.</li>
-</ol>
-<h2 id="part-2-create-a-deploy">Part 2: Create a deploy<a class="headerlink" href="#part-2-create-a-deploy" title="Permanent link">#</a></h2>
-<p>After the RDS database is ready, you can create a new deploy for the service.</p>
-<p><strong>To create a new deploy:</strong></p>
-<ol>
-<li>Download the <a href="https://gitlab.imshealth.com/xfra/layer0-samples/blob/master/rds/Dockerrun.aws.json">RDS Guestbook Task Definition</a> and save it to your computer as <strong>GuestbookRDS.Dockerrun.aws.json</strong>.</li>
-<li>In the AWS Console, under <strong>Management Tools</strong>, click <strong>CloudFormation</strong>, and then click the name of the stack you created in the previous section. Click <strong>Outputs</strong> to see a list of the variables you specified in the previous section.</li>
-<li>In a text editor, open the GuestbookRDS.Dockerrun.aws.json file. This file uses environment variables for configuration. Edit the file to use the appropriate values for your stack. When you are finished, the <strong>environment</strong> section should resemble the following example:
-<pre>
-...
-"environment": [
-    {
-        "name": "GB_DB_NAME",
-        "value": "guestbook"
-    },
-    {
-        "name": "GB_DB_HOST",
-        "value": "guestbook.abc123.us-west-2.rds.amazonaws.com"
-    },
-    {
-        "name": "GB_DB_PORT",
-        "value": "3306"
-    },
-    {
-        "name": "GB_DB_USER",
-        "value": "admin"
-    },
-    {
-        "name": "GB_DB_PASSWORD",
-        "value": "password"
-    }
-]
-...
-</pre></li>
-<li>Save the changes you made to <strong>GuestbookRDS.Dockerrun.aws.json</strong>.</li>
-<li>At the command prompt, run the following command:</li>
-</ol>
-<p><span style="padding-left:2em"><strong>l0 deploy create GuestbookRDS.Dockerrun.aws.json guestbook</strong></span></p>
-<p>You will see the following output:</p>
-<div class="code"><pre>DEPLOY ID       DEPLOY NAME  VERSION
-1guestbook:2    guestbook    2
-</pre></div>
-
-
-<p>The number 2 in the <strong>Version</strong> column indicates that this is the second iteration of this deploy (the deploy from the previous guestbook example was the first iteration).</p>
-<h2 id="part-3-apply-the-deploy">Part 3: Apply the deploy<a class="headerlink" href="#part-3-apply-the-deploy" title="Permanent link">#</a></h2>
-<p>At this point, you can use the <strong>deploy</strong> command to deploy the latest version of the deploy named "guestbook" to our existing service ("guestbooksvc"). Using this command will instruct the service to run the new version of the Guestbook container, along with the environment variables you specified in the task definition in the previous section.</p>
-<p>To apply the deploy, run the following command:</p>
-<p><span style="padding-left:2em"><strong>l0 deploy apply guestbook:2 demo:guestbooksvc</strong></span></p>
-<p>You will see the following output:</p>
-<div class="code"><pre>Successfully Applied Deploy
-</pre></div>
-
-
-<h2 id="part-4-test-the-application">Part 4: Test the application<a class="headerlink" href="#part-4-test-the-application" title="Permanent link">#</a></h2>
-<h3 id="check-the-status-of-the-service">Check the status of the service<a class="headerlink" href="#check-the-status-of-the-service" title="Permanent link">#</a></h3>
-<p>After you create a service, it may take several minutes for that service to completely finish deploying. You can check the status of a service using the <strong>service get</strong> command.</p>
-<p>To check the status of the guestbook service, run the following command:
+<p>In order to complete the procedures in this section, you must install and configure Layer0. If you have not already configured Layer0, see the <a href="../../setup/install">installation guide</a>.</p>
+<p><a href="../../reference/terraform-plugin#install">Install the Layer0 Terraform Plugin</a>. The Layer0 Terraform Plugin makes Layer0 deployment information (like VPCs and subnets) available to Terraform configurations (.tf files).</p>
+<h2 id="step-1-download-the-configuration-files">Step 1: Download the configuration files<a class="headerlink" href="#step-1-download-the-configuration-files" title="Permanent link">#</a></h2>
 <ul>
-  <li class="command"><strong>l0 service get demo:guestbooksvc</strong></li>
-</ul><br />
-Initially, you will see an asterisk (*) next to the name of the "guestbook:1" deploy; this indicates that the service is in a transitional state. In this phase, if you execute the <strong>service get</strong> command again, you will see the following output:</p>
-<div class="code"><pre>SERVICE ID      SERVICE NAME  ENVIRONMENT  LOADBALANCER     DEPLOYS       SCALE
-1guestbooksvc   guestbook     demo         guestbooklb      guestbook:2*  1/1
-                                                            guestbook:1
-</pre></div>
+<li><a href="https://gitlab.imshealth.com/xfra/layer0-samples/blob/master/rds/Dockerrun.aws.json">Dockerrun.aws.json</a></li>
+<li><a href="https://gitlab.imshealth.com/xfra/layer0-samples/blob/master/rds/terraform.tfvars">terraform.tfvars</a></li>
+<li><a href="https://gitlab.imshealth.com/xfra/layer0-samples/blob/master/rds/layer0.tf">layer0.tf</a></li>
+<li><a href="https://gitlab.imshealth.com/xfra/layer0-samples/blob/master/rds/rds.tf">rds.tf</a></li>
+</ul>
+<h2 id="step-2-terraform-apply">Step 2: Terraform Apply<a class="headerlink" href="#step-2-terraform-apply" title="Permanent link">#</a></h2>
+<p>Run <code>terraform apply</code> to begin the process. Terraform will prompt you for configuration values that it does not have.</p>
+<p>To begin deploying the application, run the following command:
+<ul>
+  <li class="command"><strong>terraform apply</strong></li>
+</ul></p>
+<p><em>To avoid entering these values manually each time you run terraform, you can set the terraform variables by editing the <code>terraform.tfvars</code> file.</em></p>
+<pre class="code"><code>var.access_key
+  Enter a value: [your AWS access key]
+
+var.endpoint
+  Enter a value: [your Layer0 endpoint]
+
+var.secret_key
+  Enter a value: [your AWS secret key]
+
+var.token
+  Enter a value: [your Layer0 token]
+
+layer0_environment.demo: Refreshing state...
+...
+...
+...
+layer0_service.guestbook: Creation complete
+
+Apply complete! Resources: 7 added, 0 changed, 0 destroyed.
+
+The state of your infrastructure has been saved to the path
+below. This state is required to modify and destroy your
+infrastructure, so keep it safe. To inspect the complete state
+use the `terraform show` command.
+
+State path: terraform.tfstate
+
+Outputs:
+
+guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
 
 
-<p>In the next phase of the deployment, you will see "(1)" in the Scale column; this indicates that 1 copy of the service is transitioning to an active state. In this phase, if you execute the <strong>service get</strong> command again, you will see the following output:</p>
-<div class="code"><pre>SERVICE ID      SERVICE NAME  ENVIRONMENT  LOADBALANCER     DEPLOYS       SCALE
-1guestbooksvc   guestbook     demo         guestbooklb      guestbook:2*  1/1 (1)
-                                                            guestbook:1
-</pre></div>
-
-
-<p>The system will wait until the guestbook:2 deploy is running before it stops the currently-running guestbook:1 deploy. In this phase, if you execute the <strong>service get</strong> command again, you will see the following output:</p>
-<div class="code"><pre>SERVICE ID      SERVICE NAME  ENVIRONMENT  LOADBALANCER     DEPLOYS       SCALE
-1guestbooksvc   guestbook     demo         guestbooklb      guestbook:2   2/1
-                                                            guestbook:1
-</pre></div>
-
-
-<p>Once the guestbook:2 deploy is running, the guestbook:1 deploy will be stopped.
-The Deploys and Scale columns will indicate that only one deploy (the guestbook:2 deploy) is running. In this phase, if you execute the <strong>service get</strong> command again, you will see the following output:</p>
-<div class="code"><pre>SERVICE ID      SERVICE NAME  ENVIRONMENT  LOADBALANCER     DEPLOYS      SCALE
-1guestbooksvc   guestbook     demo         guestbooklb      guestbook:2  1/1
-</pre></div>
-
-
-<h3 id="get-the-application-url">Get the application URL<a class="headerlink" href="#get-the-application-url" title="Permanent link">#</a></h3>
-<p>Once the service has been completely deployed, you can obtain the URL for your application and launch it in a browser.</p>
-<p><strong>To test the RDS guestbook application:</strong></p>
-<ol>
-  <li>At the command line, type the following command:
-    <ul>
-      <li class="command"><strong>l0 loadbalancer get demo:guestbooklb</strong></li>
-    </ul><br />
-  You will see the following output:
-<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICES            PORTS       PUBLIC  URL
-1guestbooklb     guestbooklb        demo         1guestbooksvc99706  80:80/HTTP  true    <em>(url)</em>
-</code></pre>
-  </li>
-  <li>Copy the value shown in the <strong>URL</strong> column and paste it into a web browser. The RDS-backed guestbook application will appear.</li>
-</ol>
+<p><strong>It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.</strong></p>
+<p>Terraform will set up the entire environment for you and then output a link to the application's load balancer.</p>
+<h2 id="whats-happening">What's happening<a class="headerlink" href="#whats-happening" title="Permanent link">#</a></h2>
+<p>Terraform provisions the AWS resources (an RDS instance, VPC and subnet configurations to connect the RDS instance to the Layer0 application), configures environment variables for the application, and deploys the application into a Layer0 environment.</p>
+<p>You can use Terraform with Layer0 and AWS to create fire and forget deployments for your applications.</p>
+<p>We use these files to set up a Layer0 envrionment with Terraform</p>
+<table>
+<thead>
+<tr>
+<th>Filename</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>terraform.tfvars</code></td>
+<td>Variables specific to the environment and guestbook application</td>
+</tr>
+<tr>
+<td><code>Dockerrun.aws.json</code></td>
+<td>Template for running the guestbook application in a Layer0 environment</td>
+</tr>
+<tr>
+<td><code>layer0.tf</code></td>
+<td>Provision Layer0 resources and populate variables in <code>Dockerrun.aws.json</code></td>
+</tr>
+<tr>
+<td><code>rds.tf</code></td>
+<td>Create the RDS instance and link it to the Layer0 environment's network</td>
+</tr>
+</tbody>
+</table>
+<p>Terraform figures out the appropriate order for creating each resource and handles the entire provisioning process.</p>
+<h3 id="cleanup">Cleanup<a class="headerlink" href="#cleanup" title="Permanent link">#</a></h3>
+<p>When you're finished with the example run <code>terraform destroy</code> in the same directory to destroy the AWS resources, Layer0 environment, and application.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -623,7 +606,7 @@ The Deploys and Scale columns will indicate that only one deploy (the guestbook:
     </main>
     <script>
       var base_url = '../..';
-      var repo_id  = '';
+      var repo_id  = 'quintilesims/layer0';
     </script>
     <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     

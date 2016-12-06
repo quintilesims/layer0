@@ -180,6 +180,17 @@ func (_mr *_MockClientRecorder) GetCertificate(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetCertificate", arg0)
 }
 
+func (_m *MockClient) GetConfig() (*models.APIConfig, error) {
+	ret := _m.ctrl.Call(_m, "GetConfig")
+	ret0, _ := ret[0].(*models.APIConfig)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockClientRecorder) GetConfig() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetConfig")
+}
+
 func (_m *MockClient) GetDeploy(_param0 string) (*models.Deploy, error) {
 	ret := _m.ctrl.Call(_m, "GetDeploy", _param0)
 	ret0, _ := ret[0].(*models.Deploy)

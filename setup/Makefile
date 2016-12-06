@@ -1,12 +1,11 @@
 L0_VERSION?=$(shell git describe --tags)
-TERRAFORM_VERSION=0.6.14
+TERRAFORM_VERSION=0.7.13
 
 build-directories:
 	rm -rf build
 	for os in linux darwin windows; do \
 		mkdir -p build/$$os/bin ; \
 		cp *.template build/$$os/ ; \
-		cp -r certificate build/$$os/certificate ; \
 		cp -r templates build/$$os/templates ; \
 	done
 

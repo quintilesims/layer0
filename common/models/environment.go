@@ -5,4 +5,5 @@ type Environment struct {
 	EnvironmentName string `json:"environment_name"`
 	ClusterCount    int    `json:"cluster_count"`
 	InstanceSize    string `json:"instance_size"`
+	SecurityGroupID string `json:"security_group_id"`
 }

@@ -13,15 +13,15 @@
       
       
       
-        <link rel="canonical" href="https://gitlab.imshealth.com/xfra/layer0/reference/consul/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/reference/consul/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://gitlab.imshealth.com/xfra/layer0/reference/consul/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/reference/consul/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://gitlab.imshealth.com/xfra/layer0/reference/consul//../../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/reference/consul//../../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -75,6 +75,11 @@
   
   
   <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
     
     <div class="backdrop">
       <div class="backdrop-paper"></div>
@@ -130,7 +135,7 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://gitlab.imshealth.com/xfra/layer0/" class="project">
+  <a href="https://github.com/quintilesims/layer0/" class="project">
     <div class="banner">
       
         <div class="logo">
@@ -138,13 +143,32 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.8.2</strong>
+        <strong>Layer0 v0.8.4</strong>
+        
+          <br>
+          quintilesims/layer0
         
       </div>
     </div>
   </a>
   <div class="scrollable">
     <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/quintilesims/layer0//archive/v0.8.4.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
       
       <div class="toc">
         <ul>
@@ -255,8 +279,8 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../../guides/shinken/">
-      Shinken
+    <a class="" title="One-off Task" href="../../guides/one_off_task/">
+      One-off Task
     </a>
     
   </li>
@@ -284,6 +308,24 @@
   <li>
     <a class="" title="Layer0 Setup CLI" href="../setup-cli/">
       Layer0 Setup CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Layer0 Terraform Plugin" href="../terraform-plugin/">
+      Layer0 Terraform Plugin
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Updating a Service" href="../updateservice/">
+      Updating a Service
     </a>
     
   </li>
@@ -339,15 +381,6 @@
           
         </ul>
       
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Shinken" href="../shinken/">
-      Shinken
-    </a>
     
   </li>
 
@@ -449,7 +482,7 @@ Layer0 Services that use Consul will run Registrator alongside their application
 <p>For an example of a Deploy that uses Consul, see the <a href="../../guides/guestbook_consul">Guestbook with Consul</a> guide.</p>
 <hr />
 <h2 id="registrator-container-definition">Registrator Container Definition<a class="headerlink" href="#registrator-container-definition" title="Permanent link">#</a></h2>
-<div class="code"><pre>{
+<pre class="code"><code>{
     &quot;name&quot;: &quot;registrator&quot;,
     &quot;image&quot;: &quot;gliderlabs/registrator:master&quot;,
     &quot;essential&quot;: true,
@@ -463,8 +496,7 @@ Layer0 Services that use Consul will run Registrator alongside their application
             &quot;containerPath&quot;: &quot;/tmp/docker.sock&quot;
         }
     ]
-},
-</pre></div>
+},</code></pre>
 
 
 <hr />
@@ -473,36 +505,35 @@ Layer0 Services that use Consul will run Registrator alongside their application
 <p class="admonition-title">Warning</p>
 </div>
 <p>You must replace <code>&lt;url&gt;</code> with your Layer0 Consul Load Balancer's</p>
-<div class="code"><pre><span class="err">{</span><span class="x"></span>
-<span class="x">    &quot;name&quot;: &quot;consul-agent&quot;,</span>
-<span class="x">    &quot;image&quot;: &quot;progrium/consul&quot;,</span>
-<span class="x">    &quot;essential&quot;: true,</span>
-<span class="x">    &quot;entrypoint&quot;: [&quot;/bin/bash&quot;, &quot;-c&quot;],</span>
-<span class="x">    &quot;command&quot;: [&quot;/bin/start -advertise </span><span class="p">$(</span><span class="err">wget</span> <span class="err">http://</span><span class="m">169</span><span class="err">.</span><span class="m">254</span><span class="err">.</span><span class="m">169</span><span class="err">.</span><span class="m">254</span><span class="err">/latest/meta-data/local-ipv4</span> <span class="err">-q</span> <span class="err">-O</span> <span class="err">-</span><span class="p">)</span><span class="x"> -retry-join </span><span class="p">$</span><span class="nv">EXTERNAL_URL</span><span class="x"> -recursor </span><span class="p">$</span><span class="nv">UPSTREAM_DNS</span><span class="x"> -retry-interval 30s&quot;],</span>
-<span class="x">    &quot;memory&quot;: 128,</span>
-<span class="x">    &quot;portMappings&quot;: [</span>
-<span class="x">        </span><span class="err">{</span><span class="x"></span>
-<span class="x">            &quot;hostPort&quot;: 8500,</span>
-<span class="x">            &quot;containerPort&quot;: 8500</span>
-<span class="x">        },</span>
-<span class="x">        </span><span class="err">{</span><span class="x"></span>
-<span class="x">            &quot;hostPort&quot;: 53,</span>
-<span class="x">            &quot;containerPort&quot;: 53,</span>
-<span class="x">            &quot;protocol&quot;: &quot;udp&quot;</span>
-<span class="x">        }</span>
-<span class="x">    ],</span>
-<span class="x">    &quot;environment&quot;: [</span>
-<span class="x">        </span><span class="err">{</span><span class="x"></span>
-<span class="x">            &quot;name&quot;: &quot;EXTERNAL_URL&quot;,</span>
-<span class="x">            &quot;value&quot;: &quot;&lt;url&gt;&quot;</span>
-<span class="x">    },</span>
-<span class="x">    </span><span class="err">{</span><span class="x"></span>
-<span class="x">            &quot;name&quot;: &quot;UPSTREAM_DNS&quot;,</span>
-<span class="x">            &quot;value&quot;: &quot;10.100.0.2&quot;</span>
-<span class="x">        }</span>
-<span class="x">    ]</span>
-<span class="x">},</span>
-</pre></div>
+<pre class="code"><code>{
+    &quot;name&quot;: &quot;consul-agent&quot;,
+    &quot;image&quot;: &quot;progrium/consul&quot;,
+    &quot;essential&quot;: true,
+    &quot;entrypoint&quot;: [&quot;/bin/bash&quot;, &quot;-c&quot;],
+    &quot;command&quot;: [&quot;/bin/start -advertise $(wget http://169.254.169.254/latest/meta-data/local-ipv4 -q -O -) -retry-join $EXTERNAL_URL -recursor $UPSTREAM_DNS -retry-interval 30s&quot;],
+    &quot;memory&quot;: 128,
+    &quot;portMappings&quot;: [
+        {
+            &quot;hostPort&quot;: 8500,
+            &quot;containerPort&quot;: 8500
+        },
+        {
+            &quot;hostPort&quot;: 53,
+            &quot;containerPort&quot;: 53,
+            &quot;protocol&quot;: &quot;udp&quot;
+        }
+    ],
+    &quot;environment&quot;: [
+        {
+            &quot;name&quot;: &quot;EXTERNAL_URL&quot;,
+            &quot;value&quot;: &quot;&lt;url&gt;&quot;
+    },
+    {
+            &quot;name&quot;: &quot;UPSTREAM_DNS&quot;,
+            &quot;value&quot;: &quot;10.100.0.2&quot;
+        }
+    ]
+},</code></pre>
 
 
 <h3 id="environment-variables">Environment Variables<a class="headerlink" href="#environment-variables" title="Permanent link">#</a></h3>
@@ -515,15 +546,14 @@ Layer0 Services that use Consul will run Registrator alongside their application
 </ul>
 <hr />
 <h2 id="docker-socket-volume-definition">Docker Socket Volume Definition<a class="headerlink" href="#docker-socket-volume-definition" title="Permanent link">#</a></h2>
-<div class="code"><pre>&quot;volumes&quot;: [
+<pre class="code"><code>&quot;volumes&quot;: [
     {
         &quot;name&quot;: &quot;dockersocket&quot;,
         &quot;host&quot;: {
                 &quot;sourcePath&quot;: &quot;/var/run/docker.sock&quot;
         }
     }
-],
-</pre></div>
+],</code></pre>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -540,7 +570,7 @@ Layer0 Services that use Consul will run Registrator alongside their application
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../setup-cli/" title="Layer0 Setup CLI">
+        <a href="../updateservice/" title="Updating a Service">
           <span class="direction">
             Previous
           </span>
@@ -550,7 +580,7 @@ Layer0 Services that use Consul will run Registrator alongside their application
             </div>
             <div class="stretch">
               <div class="title">
-                Layer0 Setup CLI
+                Updating a Service
               </div>
             </div>
           </div>
@@ -559,14 +589,14 @@ Layer0 Services that use Consul will run Registrator alongside their application
     </div>
     <div class="next">
       
-        <a href="../shinken/" title="Shinken">
+        <a href="../task_definition/" title="Task Definitions">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                Shinken
+                Task Definitions
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">
@@ -593,7 +623,7 @@ Layer0 Services that use Consul will run Registrator alongside their application
     </main>
     <script>
       var base_url = '../..';
-      var repo_id  = '';
+      var repo_id  = 'quintilesims/layer0';
     </script>
     <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     

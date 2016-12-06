@@ -10,7 +10,7 @@
 		"logs:DeleteLogGroup"
             ],
             "Resource": [
-	        "arn:aws:logs:${region}:${account_id}:log-group:l0-${l0_prefix}-*"
+	        "arn:aws:logs:${region}:${account_id}:log-group:l0-${l0_prefix}*"
             ]
 	}
     ]

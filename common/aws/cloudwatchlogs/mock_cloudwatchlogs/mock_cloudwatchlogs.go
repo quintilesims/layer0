@@ -60,16 +60,15 @@ func (_mr *_MockProviderRecorder) DescribeLogGroups(arg0, arg1 interface{}) *gom
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeLogGroups", arg0, arg1)
 }
 
-func (_m *MockProvider) DescribeLogStreams(_param0 string, _param1 string, _param2 *string) ([]*cloudwatchlogs.LogStream, *string, error) {
-	ret := _m.ctrl.Call(_m, "DescribeLogStreams", _param0, _param1, _param2)
+func (_m *MockProvider) DescribeLogStreams(_param0 string, _param1 string) ([]*cloudwatchlogs.LogStream, error) {
+	ret := _m.ctrl.Call(_m, "DescribeLogStreams", _param0, _param1)
 	ret0, _ := ret[0].([]*cloudwatchlogs.LogStream)
-	ret1, _ := ret[1].(*string)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-func (_mr *_MockProviderRecorder) DescribeLogStreams(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeLogStreams", arg0, arg1, arg2)
+func (_mr *_MockProviderRecorder) DescribeLogStreams(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeLogStreams", arg0, arg1)
 }
 
 func (_m *MockProvider) FilterLogEvents(_param0 *string, _param1 *string, _param2 *string, _param3 []*string, _param4 *int64, _param5 *int64, _param6 *bool) ([]*cloudwatchlogs.FilteredLogEvent, []*cloudwatchlogs.SearchedLogStream, error) {
@@ -84,12 +83,11 @@ func (_mr *_MockProviderRecorder) FilterLogEvents(arg0, arg1, arg2, arg3, arg4, 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "FilterLogEvents", arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 }
 
-func (_m *MockProvider) GetLogEvents(_param0 string, _param1 string, _param2 *string, _param3 *int64, _param4 *int64) ([]*cloudwatchlogs.OutputLogEvent, *string, error) {
+func (_m *MockProvider) GetLogEvents(_param0 string, _param1 string, _param2 int64, _param3 int64, _param4 int64) ([]*cloudwatchlogs.OutputLogEvent, error) {
 	ret := _m.ctrl.Call(_m, "GetLogEvents", _param0, _param1, _param2, _param3, _param4)
 	ret0, _ := ret[0].([]*cloudwatchlogs.OutputLogEvent)
-	ret1, _ := ret[1].(*string)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 func (_mr *_MockProviderRecorder) GetLogEvents(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {

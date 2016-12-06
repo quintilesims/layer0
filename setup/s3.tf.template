@@ -7,12 +7,5 @@ resource "aws_s3_bucket" "bucket" {
 resource "aws_s3_bucket_object" "dockercfg" {
     bucket = "${aws_s3_bucket.bucket.id}"
     key = "bootstrap/dockercfg"
-    content = "${template_file.dockercfg.rendered}"
-}
-
-resource "template_file" "dockercfg" {
-    template = "${file("templates/dockercfg")}"
-    vars {
-        docker_token = "${var.docker_token}"
-    }
+    content = "${file("dockercfg")}"
 }

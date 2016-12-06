@@ -6,6 +6,7 @@ import (
 	"gitlab.imshealth.com/xfra/layer0/common/config"
 	"gitlab.imshealth.com/xfra/layer0/common/models"
 	"net/http"
+	"strings"
 )
 
 type AdminHandler struct {
@@ -39,6 +40,11 @@ func (this AdminHandler) Routes() *restful.WebService {
 		To(this.GetHealth).
 		Doc("Returns Health of API Server"))
 
+	service.Route(service.GET("/config").
+		To(this.GetConfig).
+		Doc("Returns Configuration of the API Server").
+		Writes(models.APIConfig{}))
+
 	service.Route(service.POST("/sql").
 		Filter(basicAuthenticate).
 		To(this.UpdateSQL).
@@ -61,6 +67,27 @@ func (this *AdminHandler) GetSQL(request *restful.Request, response *restful.Res
 func (this *AdminHandler) GetVersion(request *restful.Request, response *restful.Response) {
 	version := config.APIVersion()
 	response.WriteAsJson(version)
+}
+
+func (this *AdminHandler) GetConfig(request *restful.Request, response *restful.Response) {
+	publicSubnets := []string{}
+	for _, subnet := range strings.Split(config.AWSPublicSubnets(), ",") {
+		publicSubnets = append(publicSubnets, subnet)
+	}
+
+	privateSubnets := []string{}
+	for _, subnet := range strings.Split(config.AWSPrivateSubnets(), ",") {
+		privateSubnets = append(privateSubnets, subnet)
+	}
+
+	model := models.APIConfig{
+		Prefix:         config.Prefix(),
+		VPCID:          config.AWSVPCID(),
+		PublicSubnets:  publicSubnets,
+		PrivateSubnets: privateSubnets,
+	}
+
+	response.WriteAsJson(model)
 }
 
 func (this *AdminHandler) GetHealth(request *restful.Request, response *restful.Response) {

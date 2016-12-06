@@ -4,6 +4,10 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
+	"strings"
+	"text/template"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"gitlab.imshealth.com/xfra/layer0/api/backend"
 	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
@@ -14,9 +18,6 @@ import (
 	"gitlab.imshealth.com/xfra/layer0/common/errors"
 	"gitlab.imshealth.com/xfra/layer0/common/models"
 	"gitlab.imshealth.com/xfra/layer0/common/waitutils"
-	"strings"
-	"text/template"
-	"time"
 )
 
 type ECSEnvironmentManager struct {
@@ -112,10 +113,20 @@ func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.
 		}
 	}
 
+	var securityGroupID string
+	securityGroup, err := this.EC2.DescribeSecurityGroup(ecsEnvironmentID.SecurityGroupName())
+	if err != nil {
+		return nil, err
+	}
+
+	if securityGroup != nil {
+		securityGroupID = *securityGroup.SecurityGroup.GroupId
+	}
 	model := &models.Environment{
-		EnvironmentID: ecsEnvironmentID.L0EnvironmentID(),
-		ClusterCount:  clusterCount,
-		InstanceSize:  instanceSize,
+		EnvironmentID:   ecsEnvironmentID.L0EnvironmentID(),
+		ClusterCount:    clusterCount,
+		InstanceSize:    instanceSize,
+		SecurityGroupID: securityGroupID,
 	}
 
 	return model, nil

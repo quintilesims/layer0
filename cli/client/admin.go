@@ -13,6 +13,15 @@ func (c *APIClient) GetVersion() (string, error) {
 	return version, nil
 }
 
+func (c *APIClient) GetConfig() (*models.APIConfig, error) {
+	var config *models.APIConfig
+	if err := c.Execute(c.Sling("admin/").Get("config"), &config); err != nil {
+		return nil, err
+	}
+
+	return config, nil
+}
+
 func (c *APIClient) UpdateSQL() error {
 	req := models.SQLVersion{
 		Version: "latest",

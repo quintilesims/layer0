@@ -401,11 +401,10 @@ func TestDeleteTask(t *testing.T) {
 
 func TestCreateTask(t *testing.T) {
 	request := models.CreateTaskRequest{
-		EnvironmentID:  "env_id",
-		TaskName:       "tsk_name",
-		DeployID:       "dpl_id",
-		Copies:         1,
-		DisableLogging: true,
+		EnvironmentID: "env_id",
+		TaskName:      "tsk_name",
+		DeployID:      "dpl_id",
+		Copies:        1,
 	}
 
 	testCases := []testutils.TestCase{
@@ -473,7 +472,7 @@ func TestCreateTask(t *testing.T) {
 
 				mockLogic.Backend.EXPECT().
 					// ignore container overrides for now
-					CreateTask("env_id", "tsk_name", "dpl_id", 1, gomock.Any(), true, gomock.Not(nil)).
+					CreateTask("env_id", "tsk_name", "dpl_id", 1, gomock.Any()).
 					Return(&models.Task{}, nil)
 
 				return NewL0TaskLogic(mockLogic.Logic(), mockDeploy)
@@ -490,7 +489,7 @@ func TestCreateTask(t *testing.T) {
 				mockLogic.StubTagMock()
 
 				mockLogic.Backend.EXPECT().
-					CreateTask(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					CreateTask(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)
@@ -516,7 +515,7 @@ func TestCreateTask(t *testing.T) {
 				}
 
 				mockLogic.Backend.EXPECT().
-					CreateTask(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					CreateTask(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(task, nil)
 
 				mockLogic.UseSQLite(t)
@@ -573,7 +572,7 @@ func TestCreateTask(t *testing.T) {
 				mockLogic := NewMockLogic(ctrl)
 
 				mockLogic.Backend.EXPECT().
-					CreateTask(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					CreateTask(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(&models.Task{}, nil)
 
 				mockLogic.Tag.EXPECT().

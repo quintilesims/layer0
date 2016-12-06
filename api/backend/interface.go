@@ -18,13 +18,13 @@ type Backend interface {
 
 	ListServices() ([]*models.Service, error)
 	GetService(envID, serviceID string) (*models.Service, error)
-	CreateService(serviceName, environmentID, deployID, loadBalancerID string, disableLogging bool, fn CreateDeployf) (*models.Service, error)
+	CreateService(serviceName, environmentID, deployID, loadBalancerID string) (*models.Service, error)
 	DeleteService(environmentID, serviceID string) error
 	ScaleService(environmentID, serviceID string, count int) (*models.Service, error)
-	UpdateService(environmentID, serviceID, deployID string, disableLogging bool, fn CreateDeployf) (*models.Service, error)
+	UpdateService(environmentID, serviceID, deployID string) (*models.Service, error)
 	GetServiceLogs(environmentID, serviceID string, tail int) ([]*models.LogFile, error)
 
-	CreateTask(envID, taskName, deployVersion string, copies int, overrides []models.ContainerOverride, disableLogging bool, fn CreateDeployf) (*models.Task, error)
+	CreateTask(envID, taskName, deployVersion string, copies int, overrides []models.ContainerOverride) (*models.Task, error)
 	ListTasks() ([]*models.Task, error)
 	GetTask(envID, taskID string) (*models.Task, error)
 	DeleteTask(envID, taskID string) error
@@ -44,5 +44,3 @@ type Backend interface {
 	StartRightSizer()
 	GetRightSizerHealth() (string, error)
 }
-
-type CreateDeployf func(models.CreateDeployRequest) (*models.Deploy, error)

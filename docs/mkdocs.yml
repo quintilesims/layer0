@@ -1,0 +1,54 @@
+# Project information
+site_name: Layer0
+site_description: Layer0 Documentation
+site_author: xfra
+site_url: https://github.com/quintilesims/layer0/
+extra_css: ['stylesheets/extra.css']
+
+# Repository
+repo_name: GitHub
+repo_url: https://github.com/quintilesims/layer0/
+
+pages:
+  - Home: index.md
+  - Releases: releases.md
+  - Introduction: intro.md
+  - Setup:
+    - Install: setup/install.md
+    - Upgrade: setup/update.md
+    - Destroy: setup/destroy.md
+  - Guides:
+    - Guestbook: guides/guestbook.md
+    - Guestbook with RDS: guides/guestbook_rds.md
+    - Consul: guides/consul.md
+    - Guestbook with Consul: guides/guestbook_consul.md
+    - One-off Task: guides/one_off_task.md
+  - Reference:
+    - Layer0 CLI: reference/cli.md
+    - Layer0 Setup CLI: reference/setup-cli.md
+    - Layer0 Terraform Plugin: reference/terraform-plugin.md
+    - Updating a Service: reference/updateservice.md
+    - Consul: reference/consul.md
+    - Task Definitions: reference/task_definition.md
+    - Architecture: reference/architecture.md
+    - ECR: reference/ecr.md
+  - Troubleshooting:
+    - Common Issues: troubleshooting/commonissues.md
+    - Secure Shell (SSH): troubleshooting/ssh.md
+
+theme_dir: material
+extra:
+    version: v0.8.4
+    logo: 'static/logo_icon.png'
+    author: xfra
+    palette:
+        primary: 'red'
+        accent:  'grey'
+    font:
+        text: 'Roboto'
+        code: 'Roboto Mono'
+markdown_extensions:
+  - codehilite(css_class=code)
+  - admonition
+  - toc:
+      permalink: '#'

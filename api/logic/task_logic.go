@@ -94,9 +94,7 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 		req.TaskName,
 		req.DeployID,
 		int(req.Copies),
-		req.ContainerOverrides,
-		req.DisableLogging,
-		this.DeployLogic.CreateDeploy)
+		req.ContainerOverrides)
 	if err != nil {
 		return task, err
 	}

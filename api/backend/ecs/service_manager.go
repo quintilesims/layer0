@@ -80,10 +80,8 @@ func (this *ECSServiceManager) UpdateService(
 	environmentID string,
 	serviceID string,
 	deployID string,
-	disableLogging bool,
-	createDeploy backend.CreateDeployf,
 ) (*models.Service, error) {
-	if err := this.updateService(environmentID, serviceID, deployID, disableLogging, createDeploy); err != nil {
+	if err := this.updateService(environmentID, serviceID, deployID); err != nil {
 		return nil, err
 	}
 
@@ -94,27 +92,10 @@ func (this *ECSServiceManager) updateService(
 	environmentID string,
 	serviceID string,
 	deployID string,
-	disableLogging bool,
-	createDeploy backend.CreateDeployf,
 ) error {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	ecsServiceID := id.L0ServiceID(serviceID).ECSServiceID()
 	ecsDeployID := id.L0DeployID(deployID).ECSDeployID()
-	logGroupID := ecsServiceID.LogGroupID(ecsEnvironmentID)
-
-	if !disableLogging {
-		task, err := this.ECS.DescribeTaskDefinition(ecsDeployID.TaskDefinition())
-		if err != nil {
-			return err
-		}
-
-		newDeploy, err := CreateRenderedDeploy(this.Backend, logGroupID, task, createDeploy)
-		if err != nil {
-			return err
-		}
-
-		ecsDeployID = id.L0DeployID(newDeploy.DeployID).ECSDeployID()
-	}
 
 	// trigger the scaling algorithm first or the service we are about to create gets
 	// included in the pending count of the cluster
@@ -160,8 +141,6 @@ func (this *ECSServiceManager) CreateService(
 	environmentID,
 	deployID,
 	loadBalancerID string,
-	disableLogging bool,
-	createDeploy backend.CreateDeployf,
 ) (*models.Service, error) {
 
 	// we generate a hashed id for services since aws does not enforce unique service names
@@ -186,26 +165,6 @@ func (this *ECSServiceManager) CreateService(
 	ecsServiceID := id.L0ServiceID(serviceID).ECSServiceID()
 	ecsDeployID := id.L0DeployID(deployID).ECSDeployID()
 	desiredCount := 1
-
-	if !disableLogging {
-		logGroupID := ecsServiceID.LogGroupID(ecsEnvironmentID)
-		if err := this.CloudWatchLogs.CreateLogGroup(logGroupID); err != nil {
-			return nil, err
-		}
-
-		// render a new task definition with cloudwatchlogs
-		task, err := this.ECS.DescribeTaskDefinition(ecsDeployID.TaskDefinition())
-		if err != nil {
-			return nil, err
-		}
-
-		newDeploy, err := CreateRenderedDeploy(this.Backend, logGroupID, task, createDeploy)
-		if err != nil {
-			return nil, err
-		}
-
-		ecsDeployID = id.L0DeployID(newDeploy.DeployID).ECSDeployID()
-	}
 
 	// trigger the scaling algorithm first or the service we are about to create gets
 	// included in the pending count of the cluster
@@ -334,10 +293,23 @@ func (this *ECSServiceManager) ScaleService(environmentID string, serviceID stri
 
 func (this *ECSServiceManager) GetServiceLogs(environmentID, serviceID string, tail int) ([]*models.LogFile, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
-	ecsServiceID := id.L0ServiceID(serviceID).ECSServiceID()
-	logGroupID := ecsServiceID.LogGroupID(ecsEnvironmentID)
 
-	return GetLogs(this.CloudWatchLogs, logGroupID, tail)
+	service, err := this.GetService(environmentID, serviceID)
+	if err != nil {
+		return nil, err
+	}
+
+	taskARNs := []*string{}
+	for _, deployment := range service.Deployments {
+		arns, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(deployment.DeploymentID))
+		if err != nil {
+			return nil, err
+		}
+
+		taskARNs = append(taskARNs, arns...)
+	}
+
+	return GetLogs(this.CloudWatchLogs, taskARNs, tail)
 }
 
 func (this *ECSServiceManager) waitUntilServiceStopped(ecsEnvironmentID id.ECSEnvironmentID, ecsServiceID id.ECSServiceID) error {
@@ -369,6 +341,7 @@ func (this *ECSServiceManager) populateModel(service *ecs.Service) *models.Servi
 		ecsDeployID := id.TaskDefinitionARNToECSDeployID(*deployment.TaskDefinition)
 
 		model := models.Deployment{
+			DeploymentID: *deployment.Id,
 			Created:      *deployment.CreatedAt,
 			Updated:      *deployment.UpdatedAt,
 			Status:       *deployment.Status,

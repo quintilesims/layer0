@@ -77,7 +77,7 @@ func (this *ECSDeployManager) CreateDeploy(deployName string, body []byte) (*mod
 		return nil, errors.Newf(errors.InvalidDeployID, "Deploy names cannot contain '.'")
 	}
 
-	deploy, err := marshalDeploy(body)
+	deploy, err := CreateRenderedDeploy(body)
 	if err != nil {
 		return nil, err
 	}

@@ -1,2 +1,0 @@
-# Certificate files must always have LF line endings to work with terraform
-*imshealthlabs* text eol=lf

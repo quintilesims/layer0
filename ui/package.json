@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "webpack-dev-server --host 0.0.0.0 --port 80",
+    "dev": "webpack-dev-server --host 0.0.0.0 --port 9090",
     "prod": "webpack -p"
   },
   "author": "xfra<xfra@us.imshealth.com>",

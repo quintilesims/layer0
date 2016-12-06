@@ -10,8 +10,8 @@ type Provider interface {
 	CreateLogGroup(logGroupName string) error
 	DeleteLogGroup(logGroupName string) error
 	DescribeLogGroups(logGroupNamePrefix string, nextToken *string) ([]*LogGroup, error)
-	DescribeLogStreams(logGroupName, orderBy string, nextToken *string) ([]*LogStream, *string, error)
-	GetLogEvents(logGroupName, logStreamName string, nextToken *string, startTime, endTime *int64) ([]*OutputLogEvent, *string, error)
+	DescribeLogStreams(logGroupName, orderBy string) ([]*LogStream, error)
+	GetLogEvents(logGroupName, logStreamName string, startTime, endTime, limit int64) ([]*OutputLogEvent, error)
 	FilterLogEvents(filterPattern, logGroupName, nextToken *string, logStreamNames []*string, endTime, startTime *int64, interleaved *bool) ([]*FilteredLogEvent, []*SearchedLogStream, error)
 }
 
@@ -25,8 +25,8 @@ type CloudWatchLogsInternal interface {
 	CreateLogGroup(input *cloudwatchlogs.CreateLogGroupInput) (*cloudwatchlogs.CreateLogGroupOutput, error)
 	DeleteLogGroup(input *cloudwatchlogs.DeleteLogGroupInput) (*cloudwatchlogs.DeleteLogGroupOutput, error)
 	DescribeLogGroups(input *cloudwatchlogs.DescribeLogGroupsInput) (*cloudwatchlogs.DescribeLogGroupsOutput, error)
-	DescribeLogStreams(input *cloudwatchlogs.DescribeLogStreamsInput) (*cloudwatchlogs.DescribeLogStreamsOutput, error)
-	GetLogEvents(input *cloudwatchlogs.GetLogEventsInput) (*cloudwatchlogs.GetLogEventsOutput, error)
+	DescribeLogStreamsPages(input *cloudwatchlogs.DescribeLogStreamsInput, fn func(p *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) (shouldContinue bool)) error
+	GetLogEventsPages(input *cloudwatchlogs.GetLogEventsInput, fn func(p *cloudwatchlogs.GetLogEventsOutput, lastPage bool) (shouldContinue bool)) error
 	FilterLogEvents(input *cloudwatchlogs.FilterLogEventsInput) (*cloudwatchlogs.FilterLogEventsOutput, error)
 }
 
@@ -159,62 +159,79 @@ func (this *CloudWatchLogs) DescribeLogGroups(logGroupNamePrefix string, nextTok
 	return result, nil
 }
 
-func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string, nextToken *string) ([]*LogStream, *string, error) {
+func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]*LogStream, error) {
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
 	input := &cloudwatchlogs.DescribeLogStreamsInput{
 		LogGroupName: aws.String(logGroupName),
 		OrderBy:      aws.String(orderBy),
-		NextToken:    nextToken,
-	}
-
-	connection, err := this.Connect()
-	if err != nil {
-		return nil, nil, err
-	}
-
-	resp, err := connection.DescribeLogStreams(input)
-	if err != nil {
-		return nil, nil, err
 	}
 
 	result := []*LogStream{}
-	for _, stream := range resp.LogStreams {
-		result = append(result, &LogStream{stream})
+	pagef := func(output *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
+		for _, stream := range output.LogStreams {
+			result = append(result, &LogStream{stream})
+		}
+
+		return !lastPage
 	}
 
-	return result, resp.NextToken, nil
+	if err := connection.DescribeLogStreamsPages(input, pagef); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (this *CloudWatchLogs) GetLogEvents(
 	logGroupName string,
 	logStreamName string,
-	nextToken *string,
-	startTime *int64,
-	endTime *int64,
-) ([]*OutputLogEvent, *string, error) {
-	input := &cloudwatchlogs.GetLogEventsInput{
-		EndTime:       endTime,
-		LogGroupName:  aws.String(logGroupName),
-		LogStreamName: aws.String(logStreamName),
-		NextToken:     nextToken,
-		StartTime:     startTime,
-	}
-
+	startTime int64,
+	endTime int64,
+	limit int64,
+) ([]*OutputLogEvent, error) {
 	connection, err := this.Connect()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	resp, err := connection.GetLogEvents(input)
-	if err != nil {
-		return nil, nil, err
+	var limitp *int64
+	if limit > 0 {
+		limitp = aws.Int64(limit)
 	}
 
+	input := &cloudwatchlogs.GetLogEventsInput{
+		LogGroupName:  aws.String(logGroupName),
+		LogStreamName: aws.String(logStreamName),
+		StartTime:     aws.Int64(startTime),
+		EndTime:       aws.Int64(endTime),
+		Limit:         limitp,
+	}
+
+	var previousToken string
 	result := []*OutputLogEvent{}
-	for _, event := range resp.Events {
-		result = append(result, &OutputLogEvent{event})
+	pagef := func(output *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
+		for _, event := range output.Events {
+			result = append(result, &OutputLogEvent{event})
+		}
+
+		// GetLogEvents re-uses the same NextToken when it is finished instead of returning nil
+		if previousToken == *output.NextForwardToken {
+			return false
+		}
+
+		previousToken = *output.NextForwardToken
+		return true
 	}
 
-	return result, resp.NextForwardToken, nil
+	if err := connection.GetLogEventsPages(input, pagef); err != nil {
+		return nil, err
+	}
+
+	return result, nil
 }
 
 func (this *CloudWatchLogs) FilterLogEvents(
