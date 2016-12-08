@@ -1,10 +1,10 @@
 package command
 
 import (
-	"github.com/urfave/cli"
 	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/cli/entity"
 	"github.com/quintilesims/layer0/cli/printer"
+	"github.com/urfave/cli"
 )
 
 type CommandGroup interface {

@@ -1,8 +1,8 @@
 package command
 
 import (
-	"github.com/urfave/cli"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/urfave/cli"
 	"testing"
 )
 
