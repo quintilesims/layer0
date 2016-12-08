@@ -191,7 +191,7 @@ func TestWaitForDeployment(t *testing.T) {
 		var desiredCount int64 = 2
 
 		// simulate flapping success
-		if count == 0  || count > 3 {
+		if count == 0 || count > 3 {
 			runningCount = 2
 		}
 
@@ -215,27 +215,26 @@ func TestWaitForDeployment(t *testing.T) {
 	}
 
 	testutils.AssertEqual(t, service.ServiceID, "id")
-	if count <  REQUIRED_SUCCESS_WAIT_COUNT {
+	if count < REQUIRED_SUCCESS_WAIT_COUNT {
 		t.Fatalf("Retry count was less than required (%d)", count)
 	}
 }
 
 func TestWaitForDeployment_timeout(t *testing.T) {
-        handler := func(w http.ResponseWriter, r *http.Request) {
-                 service := models.Service{
-                        Deployments: []models.Deployment{
-                                {DesiredCount: 1, RunningCount: 0},
-                        },
-                }
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		service := models.Service{
+			Deployments: []models.Deployment{
+				{DesiredCount: 1, RunningCount: 0},
+			},
+		}
 
 		MarshalAndWrite(t, w, service, 200)
-        }
+	}
 
-        client, server := newClientAndServer(handler)
-        defer server.Close()
+	client, server := newClientAndServer(handler)
+	defer server.Close()
 
-        if _, err := client.WaitForDeployment("id", time.Millisecond); err == nil {
-                t.Fatal("Error was nil!")
-        }
+	if _, err := client.WaitForDeployment("id", time.Millisecond); err == nil {
+		t.Fatal("Error was nil!")
+	}
 }
-

@@ -1,8 +1,8 @@
 package testutils
 
 import (
-	"time"
 	"sync"
+	"time"
 )
 
 type StubClock struct {
@@ -10,8 +10,8 @@ type StubClock struct {
 	once sync.Once
 }
 
-func (s *StubClock) init(){
-	if s.Time.IsZero(){
+func (s *StubClock) init() {
+	if s.Time.IsZero() {
 		s.Time = time.Now()
 	}
 }

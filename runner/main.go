@@ -2,12 +2,12 @@ package main
 
 import (
 	"github.com/Sirupsen/logrus"
-	"github.com/urfave/cli"
 	"github.com/quintilesims/layer0/common/aws/provider"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/startup"
 	"github.com/quintilesims/layer0/runner/job"
+	"github.com/urfave/cli"
 	"os"
 	"strings"
 )
