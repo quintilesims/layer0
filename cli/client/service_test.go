@@ -5,6 +5,7 @@ import (
 	"github.com/quintilesims/layer0/common/testutils"
 	"net/http"
 	"testing"
+	"time"
 )
 
 func TestCreateService(t *testing.T) {
@@ -177,3 +178,64 @@ func TestUpdateService(t *testing.T) {
 
 	testutils.AssertEqual(t, service.ServiceID, "id")
 }
+
+func TestWaitForDeployment(t *testing.T) {
+	var count int
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		count++
+		testutils.AssertEqual(t, r.Method, "GET")
+		testutils.AssertEqual(t, r.URL.Path, "/service/id")
+
+		var runningCount int64 = 1
+		var desiredCount int64 = 2
+
+		// simulate flapping success
+		if count == 0  || count > 3 {
+			runningCount = 2
+		}
+
+		service := models.Service{
+			ServiceID: "id",
+			Deployments: []models.Deployment{
+				{DesiredCount: desiredCount, RunningCount: runningCount},
+				{DesiredCount: desiredCount, RunningCount: runningCount},
+			},
+		}
+
+		MarshalAndWrite(t, w, service, 200)
+	}
+
+	client, server := newClientAndServer(handler)
+	defer server.Close()
+
+	service, err := client.WaitForDeployment("id", time.Minute*15)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutils.AssertEqual(t, service.ServiceID, "id")
+	if count <  REQUIRED_SUCCESS_WAIT_COUNT {
+		t.Fatalf("Retry count was less than required (%d)", count)
+	}
+}
+
+func TestWaitForDeployment_timeout(t *testing.T) {
+        handler := func(w http.ResponseWriter, r *http.Request) {
+                 service := models.Service{
+                        Deployments: []models.Deployment{
+                                {DesiredCount: 1, RunningCount: 0},
+                        },
+                }
+
+		MarshalAndWrite(t, w, service, 200)
+        }
+
+        client, server := newClientAndServer(handler)
+        defer server.Close()
+
+        if _, err := client.WaitForDeployment("id", time.Millisecond); err == nil {
+                t.Fatal("Error was nil!")
+        }
+}
+

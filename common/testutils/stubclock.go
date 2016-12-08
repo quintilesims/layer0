@@ -2,21 +2,35 @@ package testutils
 
 import (
 	"time"
+	"sync"
 )
 
 type StubClock struct {
-	InnerTime time.Time
+	Time time.Time
+	once sync.Once
 }
 
-func (this *StubClock) Now() time.Time {
-	this.InnerTime = this.InnerTime.Add(time.Millisecond * 20)
-	return this.InnerTime
+func (s *StubClock) init(){
+	if s.Time.IsZero(){
+		s.Time = time.Now()
+	}
 }
 
-func (this *StubClock) Sleep(s time.Duration) {
-	this.InnerTime = this.InnerTime.Add(s)
+func (s *StubClock) Now() time.Time {
+	s.once.Do(s.init)
+
+	s.Time = s.Time.Add(time.Millisecond * 20)
+	return s.Time
 }
 
-func (this *StubClock) Since(t time.Time) time.Duration {
-	return this.Now().Sub(t)
+func (s *StubClock) Sleep(d time.Duration) {
+	s.once.Do(s.init)
+
+	s.Time = s.Time.Add(d)
+}
+
+func (s *StubClock) Since(t time.Time) time.Duration {
+	s.once.Do(s.init)
+
+	return s.Now().Sub(t)
 }

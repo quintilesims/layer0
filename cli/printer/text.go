@@ -3,10 +3,10 @@ package printer
 import (
 	"fmt"
 	"github.com/briandowns/spinner"
-	"github.com/ryanuber/columnize"
 	"github.com/quintilesims/layer0/cli/entity"
 	"github.com/quintilesims/layer0/cli/printer/table"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/ryanuber/columnize"
 	"os"
 	"time"
 )

@@ -7,6 +7,8 @@ import (
 	"time"
 )
 
+const REQUIRED_SUCCESS_WAIT_COUNT = 3
+
 func (c *APIClient) CreateService(name, environmentID, deployID, serviceID string) (*models.Service, error) {
 	req := models.CreateServiceRequest{
 		ServiceName:    name,
@@ -91,6 +93,8 @@ func (c *APIClient) ScaleService(id string, count int) (*models.Service, error) 
 }
 
 func (c *APIClient) WaitForDeployment(serviceID string, timeout time.Duration) (*models.Service, error) {
+	var successCount int
+
 	waiter := waitutils.Waiter{
 		Name:    "WaitForDeployment",
 		Timeout: timeout,
@@ -108,7 +112,8 @@ func (c *APIClient) WaitForDeployment(serviceID string, timeout time.Duration) (
 				}
 			}
 
-			return true, nil
+			successCount++
+			return successCount >= REQUIRED_SUCCESS_WAIT_COUNT, nil
 		},
 	}
 
