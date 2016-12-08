@@ -158,7 +158,7 @@ func TestScaleService(t *testing.T) {
 func TestUpdateService(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		testutils.AssertEqual(t, r.Method, "PUT")
-		testutils.AssertEqual(t, r.URL.Path, "/service/id/update")
+		testutils.AssertEqual(t, r.URL.Path, "/service/id/deploy")
 
 		var req models.UpdateServiceRequest
 		Unmarshal(t, r, &req)

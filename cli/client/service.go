@@ -40,7 +40,7 @@ func (c *APIClient) UpdateService(serviceID, deployID string) (*models.Service, 
 	}
 
 	var service *models.Service
-	if err := c.Execute(c.Sling("service/").Put(serviceID+"/update").BodyJSON(request), &service); err != nil {
+	if err := c.Execute(c.Sling("service/").Put(serviceID+"/deploy").BodyJSON(request), &service); err != nil {
 		return nil, err
 	}
 

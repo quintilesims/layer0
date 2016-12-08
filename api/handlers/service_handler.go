@@ -71,7 +71,7 @@ func (this *ServiceHandler) Routes() *restful.WebService {
 		Returns(400, "Invalid request", models.ServerError{}).
 		Writes(models.Service{}))
 
-	service.Route(service.PUT("/{id}/update").
+	service.Route(service.PUT("/{id}/deploy").
 		Filter(basicAuthenticate).
 		To(this.UpdateService).
 		Doc("Run a new deploy on a service").
