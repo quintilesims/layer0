@@ -49,7 +49,7 @@ func (this *DeployHandler) Routes() *restful.WebService {
 		Param(id).
 		Returns(http.StatusNoContent, "Deleted", nil))
 
-	service.Route(service.POST("/create").
+	service.Route(service.POST("/").
 		Filter(basicAuthenticate).
 		To(this.CreateDeploy).
 		Doc("Create a new Deploy").
