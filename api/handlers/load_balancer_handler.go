@@ -59,7 +59,7 @@ func (this *LoadBalancerHandler) Routes() *restful.WebService {
 		Param(id).
 		Returns(http.StatusNoContent, "Deleted", nil))
 
-	service.Route(service.PUT("{id}").
+	service.Route(service.PUT("{id}/ports").
 		Filter(basicAuthenticate).
 		To(this.UpdateLoadBalancer).
 		Reads(models.UpdateLoadBalancerRequest{}).
