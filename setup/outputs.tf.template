@@ -30,10 +30,6 @@ output "region" {
     value = "${var.region}"
 }
 
-output "docker_token" {
-    value = "${var.docker_token}"
-}
-
 output "setup_version" {
     value = "${var.setup_version}"
 }
@@ -55,15 +51,15 @@ output "vpc_id" {
 }
 
 output "public_subnets" {
-   value = "${concat(aws_subnet.public_primary.id, ",",  aws_subnet.public_secondary.id)}"
+   value = "${aws_subnet.public_primary.id},${aws_subnet.public_secondary.id}"
 }
 
 output "private_subnets" {
-   value = "${concat(aws_subnet.private_primary.id, ",",  aws_subnet.private_secondary.id)}"
+  value = "${aws_subnet.private_primary.id}, ${aws_subnet.private_secondary.id}"
 }
 
 output "certificate_name" {
-    value = "${aws_iam_server_certificate.imshealthlabs.name}"
+    value = "${aws_iam_server_certificate.api.name}"
 }
 
 output "api_access_key" {
@@ -127,5 +123,5 @@ output "service_ami" {
 }
 
 output "cloudwatch_log_group" {
-    value = "${aws_cloudwatch_log_group.api.name}"
+    value = "${aws_cloudwatch_log_group.l0.name}"
 }

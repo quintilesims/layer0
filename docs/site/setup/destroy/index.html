@@ -13,15 +13,15 @@
       
       
       
-        <link rel="canonical" href="https://gitlab.imshealth.com/xfra/layer0/setup/destroy/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/setup/destroy/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://gitlab.imshealth.com/xfra/layer0/setup/destroy/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/setup/destroy/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://gitlab.imshealth.com/xfra/layer0/setup/destroy//../../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/setup/destroy//../../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -75,6 +75,11 @@
   
   
   <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
     
     <div class="backdrop">
       <div class="backdrop-paper"></div>
@@ -130,7 +135,7 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://gitlab.imshealth.com/xfra/layer0/" class="project">
+  <a href="https://github.com/quintilesims/layer0/" class="project">
     <div class="banner">
       
         <div class="logo">
@@ -138,13 +143,32 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.8.2</strong>
+        <strong>Layer0 v0.8.4</strong>
+        
+          <br>
+          quintilesims/layer0
         
       </div>
     </div>
   </a>
   <div class="scrollable">
     <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/quintilesims/layer0//archive/v0.8.4.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
       
       <div class="toc">
         <ul>
@@ -276,8 +300,8 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../../guides/shinken/">
-      Shinken
+    <a class="" title="One-off Task" href="../../guides/one_off_task/">
+      One-off Task
     </a>
     
   </li>
@@ -312,8 +336,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../../reference/consul/">
-      Consul
+    <a class="" title="Layer0 Terraform Plugin" href="../../reference/terraform-plugin/">
+      Layer0 Terraform Plugin
     </a>
     
   </li>
@@ -321,8 +345,17 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../../reference/shinken/">
-      Shinken
+    <a class="" title="Updating a Service" href="../../reference/updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../../reference/consul/">
+      Consul
     </a>
     
   </li>
@@ -423,11 +456,11 @@
       <li class="command"><strong>l0 certificate list</strong></li>
     </ul>
   </li>
-  <li>For each certificate listed in the previous step, with the exception of the certificate named "imshealthlabs", type the following command to delete the certificate (replacing <em>certificateName</em> with the name of the certificate you want to delete):
+  <li>For each certificate listed in the previous step, type the following command to delete the certificate (replacing <em>certificateName</em> with the name of the certificate you want to delete):
     <ul>
       <li class="command"><strong>l0 certificate delete</strong> <em>certificateName</em> <strong>--wait</strong></li>
     </ul><br />
-    Repeat this step until all of the certificates, with the exception of the "imshealthlabs" certificate, have been deleted. When you have finished deleting the environments and certificates in your Layer0 instance, proceed to Part 2.
+    Repeat this step until all of the certificates have been deleted. When you have finished deleting the environments and certificates in your Layer0 instance, proceed to Part 2.
   </li>
 </ol></p>
 <h2 id="part-2-destroy-the-layer0-instance">Part 2: Destroy the Layer0 instance<a class="headerlink" href="#part-2-destroy-the-layer0-instance" title="Permanent link">#</a></h2>
@@ -435,7 +468,7 @@
 <p><strong>To destroy a Layer0 instance:</strong></p>
 <ol>
 
-  <li>At the command prompt, type the following command, replacing _prefixName_ with the prefix you created when you created your Layer0 instance:
+  <li>At the command prompt, type the following command, replacing <em>prefixName</em> with the prefix you created when you created your Layer0 instance:
     <ul>
       <li class="command"><strong>l0-setup destroy</strong> <em>prefixName</em></li>
     </ul>
@@ -444,7 +477,7 @@
 
 <div class="admonition note">
   <p class="admonition-title">Note</p>
-  <p>The <strong>l0-setup destroy</strong> operation is idempotent (that is, it has no additional effects if you execute it multiple times with the same parameters). Therefore, if the <strong>destroy</strong> operation fails, you may be able to make it complete by running it again. If the <strong>destroy</strong> operation continues to fail after running it again, please contact the Xfra team on our <a href="https://ims-dev.slack.com/messages/xfra/" class="note">Slack channel</a>.</p>    
+  <p>The <strong>l0-setup destroy</strong> operation is idempotent (that is, it has no additional effects if you execute it multiple times with the same parameters). Therefore, if the <strong>destroy</strong> operation fails, you may be able to make it complete by running it again. If the <strong>destroy</strong> operation continues to fail after running it again, please contact the Xfra team at <strong>xfra@us.imshealth.com</strong>.</p>
 </div>
           <aside class="copyright" role="note">
             
@@ -515,7 +548,7 @@
     </main>
     <script>
       var base_url = '../..';
-      var repo_id  = '';
+      var repo_id  = 'quintilesims/layer0';
     </script>
     <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     

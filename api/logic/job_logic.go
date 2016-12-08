@@ -4,10 +4,10 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/types"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/types"
 	"strings"
 	"text/template"
 	"time"
@@ -211,7 +211,7 @@ var jobDockerrun string = `
     "containerDefinitions": [
         {
             "name": "l0-job",
-            "image": "d.ims.io/xfra/l0-runner:{{ .RunnerVersionTag }}",
+            "image": "quintilesims/l0-runner:{{ .RunnerVersionTag }}",
             "essential": true,
             "memory": 64,
             "environment": [

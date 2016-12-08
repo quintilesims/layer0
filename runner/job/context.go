@@ -1,7 +1,7 @@
 package job
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/api/logic"
+	"github.com/quintilesims/layer0/api/logic"
 	"sync"
 )
 

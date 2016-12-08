@@ -3,12 +3,12 @@ package logic
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/mock/gomock"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/mock_backend"
-	"gitlab.imshealth.com/xfra/layer0/api/data"
-	"gitlab.imshealth.com/xfra/layer0/api/data/mock_data"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
+	"github.com/quintilesims/layer0/api/backend/mock_backend"
+	"github.com/quintilesims/layer0/api/data"
+	"github.com/quintilesims/layer0/api/data/mock_data"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"os"
 	"testing"
 )

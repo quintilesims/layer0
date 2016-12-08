@@ -4,16 +4,16 @@ import (
 	"fmt"
 	aws_ecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/mock_ecsbackend"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/mock_backend"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/cloudwatchlogs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/cloudwatchlogs/mock_cloudwatchlogs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ec2/mock_ec2"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs/mock_ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/api/backend/ecs/mock_ecsbackend"
+	"github.com/quintilesims/layer0/api/backend/mock_backend"
+	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
+	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs/mock_cloudwatchlogs"
+	"github.com/quintilesims/layer0/common/aws/ec2/mock_ec2"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
 
@@ -278,11 +278,6 @@ func TestCreateService(t *testing.T) {
 				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				clusterARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:cluster/%s", environmentID.String())
 				serviceID := id.L0ServiceID("svcid").ECSServiceID()
-				logGroupID := serviceID.LogGroupID(environmentID)
-
-				mockService.CloudWatchLogs.EXPECT().
-					CreateLogGroup(logGroupID).
-					Return(nil)
 
 				task := &ecs.TaskDefinition{
 					&aws_ecs.TaskDefinition{
@@ -296,15 +291,14 @@ func TestCreateService(t *testing.T) {
 					Return(task, nil).
 					AnyTimes()
 
-				renderedDeployID := id.L0DeployID("renderedid.2").ECSDeployID()
 				mockService.ClusterScaler.EXPECT().
-					TriggerScalingAlgorithm(environmentID, &renderedDeployID, 1).
+					TriggerScalingAlgorithm(environmentID, &deployID, 1).
 					Return(0, false, nil)
 
 				mockService.ECS.EXPECT().CreateService(
 					environmentID.String(),
 					serviceID.String(),
-					renderedDeployID.TaskDefinition(),
+					deployID.TaskDefinition(),
 					int64(1),
 					nil,
 					nil).
@@ -314,37 +308,7 @@ func TestCreateService(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSServiceManager)
-				manager.CreateService("svc_name", "envid", "dplyid.1", "", false, testCreateDeploy)
-			},
-		},
-		testutils.TestCase{
-			Name: "Should not create cloudwatch log group if disableLogging is true",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockService := NewMockECSServiceManager(ctrl)
-
-				mockService.ClusterScaler.EXPECT().
-					TriggerScalingAlgorithm(gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(0, false, nil)
-
-				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
-				clusterARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:cluster/%s", environmentID.String())
-				serviceID := id.L0ServiceID("svcid").ECSServiceID()
-
-				mockService.ECS.EXPECT().CreateService(
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any()).
-					Return(ecs.NewService(clusterARN, serviceID.String()), nil).
-					AnyTimes()
-
-				return mockService.Service()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSServiceManager)
-				manager.CreateService("svc_name", "envid", "dplyid.1", "", true, testCreateDeploy)
+				manager.CreateService("svc_name", "envid", "dplyid.1", "")
 			},
 		},
 		testutils.TestCase{
@@ -353,27 +317,10 @@ func TestCreateService(t *testing.T) {
 				return func(g testutils.ErrorGenerator) *ECSServiceManager {
 					mockService := NewMockECSServiceManager(ctrl)
 
-					deployID := id.L0DeployID("dplyid.1").ECSDeployID()
+					//deployID := id.L0DeployID("dplyid.1").ECSDeployID()
 					environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 					clusterARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:cluster/%s", environmentID.String())
 					serviceID := id.L0ServiceID("svcid").ECSServiceID()
-
-					mockService.CloudWatchLogs.EXPECT().
-						CreateLogGroup(gomock.Any()).
-						Return(g.Error()).
-						AnyTimes()
-
-					task := &ecs.TaskDefinition{
-						&aws_ecs.TaskDefinition{
-							Revision: int64p(1),
-							Family:   stringp(deployID.FamilyName()),
-						},
-					}
-
-					mockService.ECS.EXPECT().
-						DescribeTaskDefinition(gomock.Any()).
-						Return(task, g.Error()).
-						AnyTimes()
 
 					mockService.ClusterScaler.EXPECT().
 						TriggerScalingAlgorithm(gomock.Any(), gomock.Any(), gomock.Any()).
@@ -396,12 +343,12 @@ func TestCreateService(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				setup := target.(func(testutils.ErrorGenerator) *ECSServiceManager)
 
-				for i := 0; i < 4; i++ {
+				for i := 0; i < 2; i++ {
 					var g testutils.ErrorGenerator
 					g.Set(i+1, fmt.Errorf("some eror"))
 
 					manager := setup(g)
-					if _, err := manager.CreateService("svc_name", "envid", "dplyid.1", "", false, testCreateDeploy); err == nil {
+					if _, err := manager.CreateService("svc_name", "envid", "dplyid.1", ""); err == nil {
 						reporter.Errorf("Error on variation %d, Error was nil!", i)
 					}
 				}
@@ -437,15 +384,14 @@ func TestUpdateService(t *testing.T) {
 					Return(task, nil).
 					AnyTimes()
 
-				renderedDeployID := id.L0DeployID("renderedid.2").ECSDeployID()
 				mockService.ClusterScaler.EXPECT().
-					TriggerScalingAlgorithm(environmentID, &renderedDeployID, 1).
+					TriggerScalingAlgorithm(environmentID, &deployID, 1).
 					Return(0, false, nil)
 
 				mockService.ECS.EXPECT().UpdateService(
 					environmentID.String(),
 					serviceID.String(),
-					stringp(renderedDeployID.TaskDefinition()),
+					stringp(deployID.TaskDefinition()),
 					nil).
 					Return(nil)
 
@@ -453,32 +399,7 @@ func TestUpdateService(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSServiceManager)
-				manager.updateService("envid", "svcid", "dplyid.1", false, testCreateDeploy)
-			},
-		},
-		testutils.TestCase{
-			Name: "Should not render new deploy if disableLogging is true",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockService := NewMockECSServiceManager(ctrl)
-
-				deployID := id.L0DeployID("dplyid.1").ECSDeployID()
-
-				mockService.ClusterScaler.EXPECT().
-					TriggerScalingAlgorithm(gomock.Any(), &deployID, gomock.Any()).
-					Return(0, false, nil)
-
-				mockService.ECS.EXPECT().UpdateService(
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any()).
-					Return(nil)
-
-				return mockService.Service()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSServiceManager)
-				manager.updateService("envid", "svcid", "dplyid.1", true, testCreateDeploy)
+				manager.updateService("envid", "svcid", "dplyid.1")
 			},
 		},
 		testutils.TestCase{
@@ -486,20 +407,6 @@ func TestUpdateService(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				return func(g testutils.ErrorGenerator) *ECSServiceManager {
 					mockService := NewMockECSServiceManager(ctrl)
-
-					deployID := id.L0DeployID("dplyid.1").ECSDeployID()
-
-					task := &ecs.TaskDefinition{
-						&aws_ecs.TaskDefinition{
-							Revision: int64p(1),
-							Family:   stringp(deployID.FamilyName()),
-						},
-					}
-
-					mockService.ECS.EXPECT().
-						DescribeTaskDefinition(gomock.Any()).
-						Return(task, g.Error()).
-						AnyTimes()
 
 					mockService.ClusterScaler.EXPECT().
 						TriggerScalingAlgorithm(gomock.Any(), gomock.Any(), gomock.Any()).
@@ -520,12 +427,12 @@ func TestUpdateService(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				setup := target.(func(testutils.ErrorGenerator) *ECSServiceManager)
 
-				for i := 0; i < 3; i++ {
+				for i := 0; i < 2; i++ {
 					var g testutils.ErrorGenerator
 					g.Set(i+1, fmt.Errorf("some eror"))
 
 					manager := setup(g)
-					if err := manager.updateService("envid", "svcid", "dplid.1", false, testCreateDeploy); err == nil {
+					if err := manager.updateService("envid", "svcid", "dplid.1"); err == nil {
 						reporter.Errorf("Error on variation %d, Error was nil!", i)
 					}
 				}
@@ -632,18 +539,20 @@ func TestGetServiceLogs(t *testing.T) {
 				mockService := NewMockECSServiceManager(ctrl)
 
 				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
+				clusterARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:cluster/%s", environmentID.String())
 				serviceID := id.L0ServiceID("svcid").ECSServiceID()
+
+				mockService.ECS.EXPECT().
+					DescribeService(environmentID.String(), serviceID.String()).
+					Return(ecs.NewService(clusterARN, serviceID.String()), nil).AnyTimes()
 
 				// ensure we actually call GetLogs
 				recorder := testutils.NewRecorder(ctrl)
 				recorder.EXPECT().Call("")
 
-				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, logGroupID string, tail int) ([]*models.LogFile, error) {
+				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, tail int) ([]*models.LogFile, error) {
 					recorder.Call("")
-
-					reporter.AssertEqual(logGroupID, serviceID.LogGroupID(environmentID))
 					reporter.AssertEqual(tail, 100)
-
 					return nil, nil
 				}
 
@@ -659,13 +568,20 @@ func TestGetServiceLogs(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
 
+				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
+				clusterARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:cluster/%s", environmentID.String())
+				serviceID := id.L0ServiceID("svcid").ECSServiceID()
+
+				mockService.ECS.EXPECT().
+					DescribeService(environmentID.String(), serviceID.String()).
+					Return(ecs.NewService(clusterARN, serviceID.String()), nil).AnyTimes()
+
 				// ensure we actually call GetLogs
 				recorder := testutils.NewRecorder(ctrl)
 				recorder.EXPECT().Call("")
 
-				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, logGroupID string, tail int) ([]*models.LogFile, error) {
+				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, tail int) ([]*models.LogFile, error) {
 					recorder.Call("")
-
 					return nil, fmt.Errorf("some error")
 				}
 

@@ -3,9 +3,9 @@ package ecsbackend
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/models"
 	"sync"
 	"time"
 )
@@ -209,7 +209,8 @@ func (this *L0TaskScheduler) attemptRunTask(task *ScheduledTask) bool {
 	}
 
 	log.Infof("[TaskScheduler] Attempting to start task '%s'", task.TaskID)
-	if _, err := this.ECS.RunTask(clusterName, taskDefinition, 1, startedBy, overrides); err != nil {
+	_, failed, err := this.ECS.RunTask(clusterName, taskDefinition, 1, startedBy, overrides)
+	if err != nil {
 		if ContainsErrMsg(err, "No Container Instances were found in your cluster") {
 			// do retry since we are just waiting for cluster to come online
 			log.Infof("TaskScheduler] Waiting for increased cluster size for task '%s'...", task.TaskID)
@@ -220,6 +221,14 @@ func (this *L0TaskScheduler) attemptRunTask(task *ScheduledTask) bool {
 			task.ECSTask = ecsFailedTask(task.TaskID, task.DeployID, task.EnvironmentID, err)
 			return false
 		}
+	}
+
+	if numFailed := len(failed); numFailed > 0 {
+		// do retry since we assume failure to start is due to cluster size
+		// todo: check failure.Reason to determine more specific course of action
+		log.Infof("[TaskScheduler] Task '%s' returned a failure: %v", task.TaskID, failed)
+		log.Infof("TaskScheduler] Waiting for increased cluster size for task '%s'...", task.TaskID)
+		return true
 	}
 
 	// Tasks are tracked in ECS once they have been successfully started

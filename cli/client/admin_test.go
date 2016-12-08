@@ -1,8 +1,8 @@
 package client
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"net/http"
 	"testing"
 )
@@ -24,6 +24,25 @@ func TestGetVersion(t *testing.T) {
 	}
 
 	testutils.AssertEqual(t, version, "v1.2.3")
+}
+
+func TestGetConfig(t *testing.T) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		testutils.AssertEqual(t, r.Method, "GET")
+		testutils.AssertEqual(t, r.URL.Path, "/admin/config")
+
+		MarshalAndWrite(t, w, models.APIConfig{VPCID: "vpc"}, 200)
+	}
+
+	client, server := newClientAndServer(handler)
+	defer server.Close()
+
+	config, err := client.GetConfig()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutils.AssertEqual(t, config.VPCID, "vpc")
 }
 
 func TestUpdateSQL(t *testing.T) {

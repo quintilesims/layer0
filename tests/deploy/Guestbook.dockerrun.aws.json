@@ -2,8 +2,8 @@
     "AWSEBDockerrunVersion": 2,
     "containerDefinitions": [
         {
-            "name": "l0-demo-guestbook",
-            "image": "d.ims.io/xfra/l0-guestbook",
+            "name": "guestbook",
+            "image": "quintilesims/guestbook",
             "essential": true,
             "memory": 128,
             "portMappings": [

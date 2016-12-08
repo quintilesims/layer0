@@ -1,22 +1,21 @@
-resource "aws_iam_server_certificate" "imshealthlabs" {
-    name = "l0-${var.l0_prefix}-imshealthlabs"
+resource "aws_iam_server_certificate" "api" {
+    name = "l0-${var.l0_prefix}-api"
     path = "/l0/l0-${var.l0_prefix}/"
-    certificate_body = "${file("certificate/imshealthlabs.crt")}"
-    private_key = "${file("certificate/imshealthlabs.pem")}"
-    certificate_chain = "${file("certificate/imshealthlabs.chain.crt")}"
+    certificate_body = "${tls_self_signed_cert.api.cert_pem}"
+    private_key = "${tls_private_key.api.private_key_pem}"
 }
 
-resource "template_file" "ecs_assume_role_policy"{
+data "template_file" "ecs_assume_role_policy"{
     template = "${file("templates/ecs_assume_role_policy.json")}"
 }
 
 resource "aws_iam_role" "ecs" {
     name = "l0-${var.l0_prefix}-ecs-role"
     path = "/l0/l0-${var.l0_prefix}/"
-    assume_role_policy = "${template_file.ecs_assume_role_policy.rendered}"
+    assume_role_policy = "${data.template_file.ecs_assume_role_policy.rendered}"
 }
 
-resource "template_file" "ecs_role_policy" {
+data "template_file" "ecs_role_policy" {
     template = "${file("templates/ecs_role_policy.json")}"
     vars {
         s3_bucket = "${aws_s3_bucket.bucket.id}"
@@ -29,7 +28,7 @@ resource "template_file" "ecs_role_policy" {
 resource "aws_iam_role_policy" "ecs" {
     name = "l0-${var.l0_prefix}-ecs-role-policy"
     role = "${aws_iam_role.ecs.id}"
-    policy = "${template_file.ecs_role_policy.rendered}"
+    policy = "${data.template_file.ecs_role_policy.rendered}"
 }
 
 resource "aws_iam_instance_profile" "ecs" {
@@ -70,17 +69,17 @@ resource "aws_iam_group" "group2" {
 }
 
 
-resource "template_file" "asg_group_policy"{
+data "template_file" "asg_group_policy"{
     template = "${file("templates/asg_group_policy.json")}"
 }
 
 resource "aws_iam_group_policy" "asg" {
     name = "l0-${var.l0_prefix}-asg"
     group = "${aws_iam_group.group.id}"
-    policy = "${template_file.asg_group_policy.rendered}"
+    policy = "${data.template_file.asg_group_policy.rendered}"
 }
 
-resource "template_file" "cloudformation_group_policy"{
+data "template_file" "cloudformation_group_policy"{
     template = "${file("templates/cloudformation_group_policy.json")}"
     vars {
         region = "${var.region}"
@@ -91,20 +90,20 @@ resource "template_file" "cloudformation_group_policy"{
 resource "aws_iam_group_policy" "cloudformation" {
     name = "l0-${var.l0_prefix}-cloudformation"
     group = "${aws_iam_group.group.id}"
-    policy = "${template_file.cloudformation_group_policy.rendered}"
+    policy = "${data.template_file.cloudformation_group_policy.rendered}"
 }
 
-resource "template_file" "cloudwatch_group_policy"{
+data "template_file" "cloudwatch_group_policy"{
     template = "${file("templates/cloudwatch_group_policy.json")}"
 }
 
 resource "aws_iam_group_policy" "cloudwatch" {
     name = "l0-${var.l0_prefix}-cloudwatch"
     group = "${aws_iam_group.group.id}"
-    policy = "${template_file.cloudwatch_group_policy.rendered}"
+    policy = "${data.template_file.cloudwatch_group_policy.rendered}"
 }
 
-resource "template_file" "ec2_group_policy" {
+data "template_file" "ec2_group_policy" {
     template = "${file("templates/ec2_group_policy.json")}"
     vars {
         region = "${var.region}"
@@ -116,10 +115,10 @@ resource "template_file" "ec2_group_policy" {
 resource "aws_iam_group_policy" "ec2" {
     name = "l0-${var.l0_prefix}-ec2"
     group = "${aws_iam_group.group.id}"
-    policy = "${template_file.ec2_group_policy.rendered}"
+    policy = "${data.template_file.ec2_group_policy.rendered}"
 }
 
-resource "template_file" "ecs_group_policy" {
+data "template_file" "ecs_group_policy" {
     template = "${file("templates/ecs_group_policy.json")}"
     vars {
         region = "${var.region}"
@@ -131,10 +130,10 @@ resource "template_file" "ecs_group_policy" {
 resource "aws_iam_group_policy" "ecs" {
     name = "l0-${var.l0_prefix}-ecs"
     group = "${aws_iam_group.group2.id}"
-    policy = "${template_file.ecs_group_policy.rendered}"
+    policy = "${data.template_file.ecs_group_policy.rendered}"
 }
 
-resource "template_file" "elb_group_policy" {
+data "template_file" "elb_group_policy" {
     template = "${file("templates/elb_group_policy.json")}"
     vars {
         region = "${var.region}"
@@ -146,10 +145,10 @@ resource "template_file" "elb_group_policy" {
 resource "aws_iam_group_policy" "elb" {
     name = "l0-${var.l0_prefix}-elb"
     group = "${aws_iam_group.group.id}"
-    policy = "${template_file.elb_group_policy.rendered}"
+    policy = "${data.template_file.elb_group_policy.rendered}"
 }
 
-resource "template_file" "s3_group_policy" {
+data "template_file" "s3_group_policy" {
     template = "${file("templates/s3_group_policy.json")}"
     vars {
         account_id = "${var.account_id}"
@@ -160,10 +159,10 @@ resource "template_file" "s3_group_policy" {
 resource "aws_iam_group_policy" "s3" {
     name = "l0-${var.l0_prefix}-s3"
     group = "${aws_iam_group.group.id}"
-    policy = "${template_file.s3_group_policy.rendered}"
+    policy = "${data.template_file.s3_group_policy.rendered}"
 }
 
-resource "template_file" "iam_group_policy"{
+data "template_file" "iam_group_policy"{
     template = "${file("templates/iam_group_policy.json")}"
     vars {
         account_id = "${var.account_id}"
@@ -175,11 +174,11 @@ resource "template_file" "iam_group_policy"{
 resource "aws_iam_group_policy" "iam" {
     name = "l0-${var.l0_prefix}-iam"
     group = "${aws_iam_group.group.id}"
-    policy = "${template_file.iam_group_policy.rendered}"
+    policy = "${data.template_file.iam_group_policy.rendered}"
 }
 
 
-resource "template_file" "cloudwatchlogs_group_policy" {
+data "template_file" "cloudwatchlogs_group_policy" {
     template = "${file("templates/cloudwatchlogs_group_policy.json")}"
     vars {
         region = "${var.region}"
@@ -191,5 +190,5 @@ resource "template_file" "cloudwatchlogs_group_policy" {
 resource "aws_iam_group_policy" "cloudwatchlogs" {
     name = "l0-${var.l0_prefix}-cloudwatchlogs"
     group = "${aws_iam_group.group2.id}"
-    policy = "${template_file.cloudwatchlogs_group_policy.rendered}"
+    policy = "${data.template_file.cloudwatchlogs_group_policy.rendered}"
 }

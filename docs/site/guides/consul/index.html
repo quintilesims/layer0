@@ -13,15 +13,15 @@
       
       
       
-        <link rel="canonical" href="https://gitlab.imshealth.com/xfra/layer0/guides/consul/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/guides/consul/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://gitlab.imshealth.com/xfra/layer0/guides/consul/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/guides/consul/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://gitlab.imshealth.com/xfra/layer0/guides/consul//../../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/guides/consul//../../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -75,6 +75,11 @@
   
   
   <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
     
     <div class="backdrop">
       <div class="backdrop-paper"></div>
@@ -130,7 +135,7 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://gitlab.imshealth.com/xfra/layer0/" class="project">
+  <a href="https://github.com/quintilesims/layer0/" class="project">
     <div class="banner">
       
         <div class="logo">
@@ -138,13 +143,32 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.8.2</strong>
+        <strong>Layer0 v0.8.4</strong>
+        
+          <br>
+          quintilesims/layer0
         
       </div>
     </div>
   </a>
   <div class="scrollable">
     <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/quintilesims/layer0//archive/v0.8.4.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
       
       <div class="toc">
         <ul>
@@ -300,8 +324,8 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../shinken/">
-      Shinken
+    <a class="" title="One-off Task" href="../one_off_task/">
+      One-off Task
     </a>
     
   </li>
@@ -336,8 +360,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../../reference/consul/">
-      Consul
+    <a class="" title="Layer0 Terraform Plugin" href="../../reference/terraform-plugin/">
+      Layer0 Terraform Plugin
     </a>
     
   </li>
@@ -345,8 +369,17 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../../reference/shinken/">
-      Shinken
+    <a class="" title="Updating a Service" href="../../reference/updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../../reference/consul/">
+      Consul
     </a>
     
   </li>
@@ -442,7 +475,7 @@
       <li class="command"><strong>l0 loadbalancer create --private --port 8500:8500/tcp demo consullb</strong></li>
     </ul><br />You will see the following output:
 <pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICES  PORTS          PUBLIC  URL
-1consullb        consullb           demo                   8500:8500/tcp  false <br />
+1consullb        consullb           demo                   8500:8500/tcp  false
 </code></pre>
   </li>
   <li>At the command line, type the following command to add port 8301 to the <strong>consullb</strong> load balancer:
@@ -459,7 +492,7 @@ Copy the URL listed in the <strong>URL</strong> column; you will need this URL i
 </ol></p>
 <h2 id="part-2-configure-the-deploy">Part 2: Configure the deploy<a class="headerlink" href="#part-2-configure-the-deploy" title="Permanent link">#</a></h2>
 <p><ol>
-  <li>Download the <a href="https://gitlab.imshealth.com/xfra/consul-local/blob/master/consul.json">Consul Task Definition</a> and save it to your computer as Consul.Dockerrun.aws.json.</li>
+  <li>Download the <a href="https://github.com/quintilesims/consul-local/blob/master/consul.json">Consul Task Definition</a> and save it to your computer as Consul.Dockerrun.aws.json.</li>
   <li>Open Consul.Dockerrun.aws.json in a text editor. Toward the bottom of the file, you will see the following:
 <pre class="code"><code>"environment": [
     {
@@ -475,8 +508,8 @@ Replace <em>&lt;url&gt;</em> with the URL you copied in step 2 of the previous s
       <li class="command"><strong>l0 deploy create Consul.Dockerrun.aws.json consul</strong></li>
     </ul><br />
   You will see the following output:
-<pre class="code"><code>DEPLOY ID  DEPLOY NAME  VERSION<br />
-1consul:1  consul       1      <br />
+<pre class="code"><code>DEPLOY ID  DEPLOY NAME  VERSION
+1consul:1  consul       1
 </code></pre>
   </li>
 </ol></p>
@@ -497,9 +530,8 @@ Replace <em>&lt;url&gt;</em> with the URL you copied in step 2 of the previous s
     <li class="command"><strong>l0 service get consulsvc</strong></li>
   </ul><br />
   When the service has finished provisioning, you will see the following output:</p>
-<div class="code"><pre>SERVICE ID  SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYS      SCALE
-1consul     consulsvc     demo         consullb      consul:1     1/1
-</pre></div>
+<pre class="code"><code>SERVICE ID  SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYS      SCALE
+1consul     consulsvc     demo         consullb      consul:1     1/1</code></pre>
 
 
 <p></li>
@@ -596,7 +628,7 @@ Replace <em>&lt;url&gt;</em> with the URL you copied in step 2 of the previous s
     </main>
     <script>
       var base_url = '../..';
-      var repo_id  = '';
+      var repo_id  = 'quintilesims/layer0';
     </script>
     <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     

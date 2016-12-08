@@ -1,15 +1,13 @@
 package ecsbackend
 
 import (
-	"encoding/json"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	awsecs "github.com/aws/aws-sdk-go/service/ecs"
-	"gitlab.imshealth.com/xfra/layer0/api/backend"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/cloudwatchlogs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/models"
 	"strings"
 )
 
@@ -74,39 +72,6 @@ func ContainsErrMsg(err error, msg string) bool {
 		strings.ToLower(msg))
 }
 
-var CreateRenderedDeploy = func(
-	backend backend.Backend,
-	logGroupID string,
-	task *ecs.TaskDefinition,
-	createDeploy backend.CreateDeployf,
-) (*models.Deploy, error) {
-	for _, container := range task.ContainerDefinitions {
-		if container.LogConfiguration == nil {
-			container.LogConfiguration = &awsecs.LogConfiguration{
-				LogDriver: stringp("awslogs"),
-				Options: map[string]*string{
-					"awslogs-group":  stringp(logGroupID),
-					"awslogs-region": stringp(config.AWSRegion()),
-				},
-			}
-		}
-	}
-
-	dockerrun, err := json.Marshal(task)
-	if err != nil {
-		return nil, err
-	}
-
-	// *task.Family is in format 'l0-<prefix>-<deployName>'
-	deployName := strings.TrimPrefix(*task.Family, id.PREFIX)
-	request := models.CreateDeployRequest{
-		DeployName: deployName,
-		Dockerrun:  dockerrun,
-	}
-
-	return createDeploy(request)
-}
-
 // IteratePages performs a do-while loop on a paginatedf
 // until nextToken is nil or an error is returned
 type paginatedf func(*string) (*string, error)
@@ -130,70 +95,109 @@ func IteratePages(fn paginatedf) error {
 	return nil
 }
 
-var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, logGroupID string, tail int) ([]*models.LogFile, error) {
-	logStreams := []*cloudwatchlogs.LogStream{}
-	getStreams := func(nextToken *string) (*string, error) {
-		orderBy := "LogStreamName"
-		streams, updatedToken, err := cloudWatchLogs.DescribeLogStreams(logGroupID, orderBy, nextToken)
-		if err != nil {
-			return nil, err
-		}
-
-		logStreams = append(logStreams, streams...)
-		return updatedToken, nil
+var CreateRenderedDeploy = func(body []byte) (*deploy, error) {
+	deploy, err := marshalDeploy(body)
+	if err != nil {
+		return nil, err
 	}
 
-	if err := IteratePages(getStreams); err != nil {
+	for _, container := range deploy.ContainerDefinitions {
+		if container.LogConfiguration == nil {
+			container.LogConfiguration = &awsecs.LogConfiguration{
+				LogDriver: stringp("awslogs"),
+				Options: map[string]*string{
+					"awslogs-group":         stringp(config.AWSLogGroupID()),
+					"awslogs-region":        stringp(config.AWSRegion()),
+					"awslogs-stream-prefix": stringp("l0"),
+				},
+			}
+		}
+	}
+
+	return deploy, nil
+}
+
+var getTaskARNs = func(ecs ecs.Provider, ecsEnvironmentID id.ECSEnvironmentID, startedBy *string) ([]*string, error) {
+	// we can only check each of the states individually, thus we must issue 3 API calls
+
+	running := "RUNNING"
+	tasks, err := ecs.ListTasks(ecsEnvironmentID.String(), nil, &running, startedBy, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	stopped := "STOPPED"
+	stoppedTasks, err := ecs.ListTasks(ecsEnvironmentID.String(), nil, &stopped, startedBy, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	pending := "PENDING"
+	pendingTasks, err := ecs.ListTasks(ecsEnvironmentID.String(), nil, &pending, startedBy, nil)
+	if err != nil {
+		return nil, err
+	}
+
+	tasks = append(tasks, stoppedTasks...)
+	tasks = append(tasks, pendingTasks...)
+
+	return tasks, nil
+}
+
+var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, tail int) ([]*models.LogFile, error) {
+	taskIDCatalog := generateTaskIDCatalog(taskARNs)
+
+	orderBy := "LogStreamName"
+	logStreams, err := cloudWatchLogs.DescribeLogStreams(config.AWSLogGroupID(), orderBy)
+	if err != nil {
 		return nil, err
 	}
 
 	logFiles := []*models.LogFile{}
 	for _, logStream := range logStreams {
-		// each logStream corresponds to a container
+		// filter by streams that have <prefix>/<container name>/<stream task id>
+		streamNameSplit := strings.Split(*logStream.LogStreamName, "/")
+		if len(streamNameSplit) != 3 {
+			continue
+		}
+
+		streamTaskID := streamNameSplit[2]
+		if _, ok := taskIDCatalog[streamTaskID]; !ok {
+			continue
+		}
+
 		logFile := &models.LogFile{
-			Name:  *logStream.LogStreamName,
+			Name:  streamNameSplit[1],
 			Lines: []string{},
 		}
 
 		// since the time range is exclusive, expand the range to get first/last events
-		logStream.FirstEventTimestamp = int64p(*logStream.FirstEventTimestamp - 1)
-		logStream.LastEventTimestamp = int64p(*logStream.LastEventTimestamp + 1)
-
-		// todo: use tail to lookup from back to front
-		getEvents := func(nextToken *string) (*string, error) {
-			logEvents, updatedToken, err := cloudWatchLogs.GetLogEvents(
-				logGroupID,
-				*logStream.LogStreamName,
-				nextToken,
-				logStream.FirstEventTimestamp,
-				logStream.LastEventTimestamp)
-			if err != nil {
-				return nil, err
-			}
-
-			for _, logEvent := range logEvents {
-				logFile.Lines = append(logFile.Lines, *logEvent.Message)
-			}
-
-			// GetLogEvents re-uses the same NextToken when it is finished instead
-			// of returning nil
-			if nextToken != nil && *updatedToken == *nextToken {
-				return nil, nil
-			}
-
-			return updatedToken, nil
-		}
-
-		if err := IteratePages(getEvents); err != nil {
+		logEvents, err := cloudWatchLogs.GetLogEvents(
+			config.AWSLogGroupID(),
+			*logStream.LogStreamName,
+			*logStream.FirstEventTimestamp-1,
+			*logStream.LastEventTimestamp+1,
+			int64(tail))
+		if err != nil {
 			return nil, err
 		}
 
-		if numLines := len(logFile.Lines); tail != 0 && numLines > tail {
-			logFile.Lines = logFile.Lines[numLines-tail:]
+		for _, logEvent := range logEvents {
+			logFile.Lines = append(logFile.Lines, *logEvent.Message)
 		}
 
 		logFiles = append(logFiles, logFile)
 	}
 
 	return logFiles, nil
+}
+
+func generateTaskIDCatalog(taskARNs []*string) map[string]bool {
+	catalog := map[string]bool{}
+	for _, taskARN := range taskARNs {
+		taskID := strings.Split(*taskARN, "/")[1]
+		catalog[taskID] = true
+	}
+
+	return catalog
 }

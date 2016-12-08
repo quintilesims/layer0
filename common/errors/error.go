@@ -2,7 +2,7 @@ package errors
 
 import (
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type ServerError struct {

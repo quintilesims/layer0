@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/iam"
-	//	"gitlab.imshealth.com/xfra/layer0/api/config"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/provider"
+	//	"github.com/quintilesims/layer0/api/config"
+	"github.com/quintilesims/layer0/common/aws/provider"
 	"strings"
 )
 

@@ -5,11 +5,13 @@ release:
 	$(MAKE) -C cli release
 	$(MAKE) -C runner release
 	$(MAKE) -C setup release
+	$(MAKE) -C plugins/terraform release
 
 	rm -rf build
 	for os in linux darwin windows; do \
 		cp -R cli/build . ; \
 		cp -R setup/build . ; \
+		cp -R plugins/terraform/build . ; \
 		cd build/$$os && zip -r layer0_$(L0_VERSION)_$$os.zip * && cd ../.. ; \
 		aws s3 cp build/$$os/layer0_$(L0_VERSION)_$$os.zip s3://xfra-layer0/release/$(L0_VERSION)/layer0_$(L0_VERSION)_$$os.zip ; \
 	done

@@ -224,14 +224,14 @@ func (this *ProviderDecorator) RegisterTaskDefinition(p0 string, p1 string, p2 s
 	err = this.Decorator("RegisterTaskDefinition", call)
 	return v0, err
 }
-func (this *ProviderDecorator) RunTask(p0 string, p1 string, p2 int64, p3 *string, p4 []*ContainerOverride) (v0 []*Task, err error) {
+func (this *ProviderDecorator) RunTask(p0 string, p1 string, p2 int64, p3 *string, p4 []*ContainerOverride) (v0 []*Task, v1 []*FailedTask, err error) {
 	call := func() error {
 		var err error
-		v0, err = this.Inner.RunTask(p0, p1, p2, p3, p4)
+		v0, v1, err = this.Inner.RunTask(p0, p1, p2, p3, p4)
 		return err
 	}
 	err = this.Decorator("RunTask", call)
-	return v0, err
+	return v0, v1, err
 }
 func (this *ProviderDecorator) StartTask(p0 string, p1 string, p2 *TaskOverride, p3 []*string, p4 *string) (err error) {
 	call := func() error {

@@ -1,0 +1,26 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "networkMode": "host",
+    "containerDefinitions": [
+        {
+            "name": "l0-demo-guestbook",
+            "image": "${image}",
+            "essential": true,
+            "memory": 128,
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80
+                }
+            ],
+            "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "${log_group_name}",
+                    "awslogs-region": "us-west-2",
+                    "awslogs-stream-prefix": "l0"
+                }
+            }
+        }
+    ]
+}

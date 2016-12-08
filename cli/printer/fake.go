@@ -1,8 +1,8 @@
 package printer
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/cli/entity"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/cli/entity"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type FakePrinter struct{}

@@ -2,8 +2,8 @@ package logic
 
 import (
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type TaskLogic interface {
@@ -94,9 +94,7 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 		req.TaskName,
 		req.DeployID,
 		int(req.Copies),
-		req.ContainerOverrides,
-		req.DisableLogging,
-		this.DeployLogic.CreateDeploy)
+		req.ContainerOverrides)
 	if err != nil {
 		return task, err
 	}

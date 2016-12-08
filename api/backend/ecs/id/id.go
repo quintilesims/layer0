@@ -3,7 +3,7 @@ package id
 import (
 	"crypto/md5"
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
+	"github.com/quintilesims/layer0/common/config"
 	"regexp"
 	"strings"
 	"time"
@@ -169,12 +169,6 @@ func (id ECSServiceID) String() string {
 	return strings.TrimFunc(string(id), isQuote)
 }
 
-// service log group format is 'l0-<prefix>-<environment_id>-<service_id>-svc'
-func (id ECSServiceID) LogGroupID(environmentID ECSEnvironmentID) string {
-	groupName := fmt.Sprintf("%s-%s-svc", environmentID.L0EnvironmentID(), id.L0ServiceID())
-	return addPrefix(groupName)
-}
-
 func (id ECSServiceID) L0ServiceID() string {
 	return removePrefix(id.String())
 }
@@ -227,12 +221,6 @@ func TaskDefinitionARNToECSDeployID(arn string) ECSDeployID {
 	taskDefinitionID := strings.SplitN(arn, "/", 2)[1]
 	taskDefinitionID = strings.Replace(taskDefinitionID, ":", ".", -1)
 	return ECSDeployID(taskDefinitionID)
-}
-
-// task log group format is 'l0-<prefix>-<environment_id>-<task_id>-tsk'
-func (id ECSTaskID) LogGroupID(environmentID ECSEnvironmentID) string {
-	groupName := fmt.Sprintf("%s-%s-tsk", environmentID.L0EnvironmentID(), id.L0TaskID())
-	return addPrefix(groupName)
 }
 
 type L0DeployID string

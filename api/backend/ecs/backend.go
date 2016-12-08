@@ -1,14 +1,14 @@
 package ecsbackend
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/api/data"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/autoscaling"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/cloudwatchlogs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ec2"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/elb"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/iam"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/s3"
+	"github.com/quintilesims/layer0/api/data"
+	"github.com/quintilesims/layer0/common/aws/autoscaling"
+	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
+	"github.com/quintilesims/layer0/common/aws/ec2"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/aws/elb"
+	"github.com/quintilesims/layer0/common/aws/iam"
+	"github.com/quintilesims/layer0/common/aws/s3"
 )
 
 // todo: this is an awkward design pattern - we don't need to split the ECSBackend

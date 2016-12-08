@@ -5,17 +5,17 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/golang/mock/gomock"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/mock_backend"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/autoscaling"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/autoscaling/mock_autoscaling"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ec2"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ec2/mock_ec2"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs/mock_ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/api/backend/mock_backend"
+	"github.com/quintilesims/layer0/common/aws/autoscaling"
+	"github.com/quintilesims/layer0/common/aws/autoscaling/mock_autoscaling"
+	"github.com/quintilesims/layer0/common/aws/ec2"
+	"github.com/quintilesims/layer0/common/aws/ec2/mock_ec2"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
 
@@ -50,6 +50,7 @@ func TestGetEnvironment(t *testing.T) {
 				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				autoScalingGroupName := ecsEnvironmentID.AutoScalingGroupName()
 				clusterName := ecsEnvironmentID.String()
+				securityGroupName := ecsEnvironmentID.SecurityGroupName()
 
 				mockEnvironment.ECS.EXPECT().
 					DescribeCluster(clusterName).
@@ -65,6 +66,11 @@ func TestGetEnvironment(t *testing.T) {
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(clusterName).
 					Return(autoscaling.NewLaunchConfiguration("m3.medium"), nil)
+
+				securityGroup := ec2.NewSecurityGroup("some_sg_id")
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(securityGroupName).
+					Return(securityGroup, nil)
 
 				return mockEnvironment.Environment()
 			},
@@ -94,6 +100,11 @@ func TestGetEnvironment(t *testing.T) {
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(gomock.Any()).
 					Return(autoscaling.NewLaunchConfiguration("m3.medium"), nil)
+
+				securityGroup := ec2.NewSecurityGroup("some_sg_id")
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(gomock.Any()).
+					Return(securityGroup, nil)
 
 				return mockEnvironment.Environment()
 			},
@@ -141,6 +152,7 @@ func TestListEnvironments(t *testing.T) {
 				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				autoScalingGroupName := ecsEnvironmentID.AutoScalingGroupName()
 				clusterName := ecsEnvironmentID.String()
+				securityGroupName := ecsEnvironmentID.SecurityGroupName()
 
 				mockEnvironment.ECS.EXPECT().
 					Helper_DescribeClusters().
@@ -156,6 +168,11 @@ func TestListEnvironments(t *testing.T) {
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(clusterName).
 					Return(autoscaling.NewLaunchConfiguration("m3.medium"), nil)
+
+				securityGroup := ec2.NewSecurityGroup("some_sg_id")
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(securityGroupName).
+					Return(securityGroup, nil)
 
 				return mockEnvironment.Environment()
 			},
@@ -431,6 +448,11 @@ func TestCreateEnvironment(t *testing.T) {
 					DescribeAutoScalingGroup(autoScalingGroupName).
 					Return(asg, nil)
 
+				securityGroup := ec2.NewSecurityGroup(securityGroupID)
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(securityGroupName).
+					Return(securityGroup, nil)
+
 				return mockEnvironment.Environment()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -479,6 +501,11 @@ func TestCreateEnvironment(t *testing.T) {
 					DescribeAutoScalingGroup(gomock.Any()).
 					Return(asg, nil)
 
+				securityGroup := ec2.NewSecurityGroup("some_sg_id")
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(gomock.Any()).
+					Return(securityGroup, nil)
+
 				return mockEnvironment.Environment()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -525,6 +552,11 @@ func TestCreateEnvironment(t *testing.T) {
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeAutoScalingGroup(gomock.Any()).
 					Return(asg, nil)
+
+				securityGroup := ec2.NewSecurityGroup("some_sg_id")
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(gomock.Any()).
+					Return(securityGroup, nil)
 
 				return mockEnvironment.Environment()
 			},
@@ -576,6 +608,12 @@ func TestCreateEnvironment(t *testing.T) {
 					mockEnvironment.AutoScaling.EXPECT().
 						DescribeAutoScalingGroup(gomock.Any()).
 						Return(autoscaling.NewGroup(), g.Error()).
+						AnyTimes()
+
+					securityGroup := ec2.NewSecurityGroup("some_sg_id")
+					mockEnvironment.EC2.EXPECT().
+						DescribeSecurityGroup(gomock.Any()).
+						Return(securityGroup, g.Error()).
 						AnyTimes()
 
 					return mockEnvironment.Environment()

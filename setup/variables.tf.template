@@ -8,8 +8,6 @@ variable "secret_key" {}
 
 variable "account_id" {}
 
-variable "docker_token" {}
-
 variable "setup_version" {}
 
 variable "s3_bucket" {}

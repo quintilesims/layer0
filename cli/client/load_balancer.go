@@ -1,7 +1,7 @@
 package client
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func (c *APIClient) CreateLoadBalancer(name, environmentID string, ports []models.Port, isPublic bool) (*models.LoadBalancer, error) {

@@ -8,7 +8,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	_ "github.com/go-sql-driver/mysql"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 type AdminDataStore interface {

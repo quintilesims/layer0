@@ -3,8 +3,8 @@ package context
 import (
 	"encoding/base64"
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/iam"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/provider"
+	"github.com/quintilesims/layer0/common/aws/iam"
+	"github.com/quintilesims/layer0/common/aws/provider"
 	"math/rand"
 	"strings"
 	"time"
@@ -38,11 +38,6 @@ var TerraformVariables = []VariableSchema{
 		DisplayName: "AWS Region",
 		Description: "The aws_region for your Layer0",
 		Validate:    validateRegion,
-	},
-	VariableSchema{
-		Name:        "docker_token",
-		Description: "A valid token for d.ims.io",
-		DisplayName: "d.ims.io Token",
 	},
 	VariableSchema{
 		Name:         "l0_prefix",
@@ -91,8 +86,8 @@ var TerraformVariables = []VariableSchema{
 	},
 	VariableSchema{
 		Name:        "api_docker_image",
-		Description: "Layer0 API image name (like d.ims.io/xfra/l0-api)",
-		Default:     "d.ims.io/xfra/l0-api",
+		Description: "Layer0 API image name (like quintilesims/l0-api)",
+		Default:     "quintilesims/l0-api",
 	},
 	VariableSchema{
 		Name:         "api_docker_image_tag",

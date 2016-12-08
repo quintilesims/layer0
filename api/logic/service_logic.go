@@ -2,8 +2,8 @@ package logic
 
 import (
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type ServiceLogic interface {
@@ -102,13 +102,7 @@ func (this *L0ServiceLogic) UpdateService(serviceID string, req models.UpdateSer
 		return nil, err
 	}
 
-	service, err := this.Backend.UpdateService(
-		environmentID,
-		serviceID,
-		req.DeployID,
-		req.DisableLogging,
-		this.DeployLogic.CreateDeploy)
-
+	service, err := this.Backend.UpdateService(environmentID, serviceID, req.DeployID)
 	if err != nil {
 		return nil, err
 	}
@@ -143,9 +137,7 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 		req.ServiceName,
 		req.EnvironmentID,
 		req.DeployID,
-		req.LoadBalancerID,
-		req.DisableLogging,
-		this.DeployLogic.CreateDeploy)
+		req.LoadBalancerID)
 	if err != nil {
 		return service, err
 	}

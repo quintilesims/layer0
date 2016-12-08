@@ -3,11 +3,11 @@ package main
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/urfave/cli"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/provider"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
-	"gitlab.imshealth.com/xfra/layer0/common/logutils"
-	"gitlab.imshealth.com/xfra/layer0/common/startup"
-	"gitlab.imshealth.com/xfra/layer0/runner/job"
+	"github.com/quintilesims/layer0/common/aws/provider"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/logutils"
+	"github.com/quintilesims/layer0/common/startup"
+	"github.com/quintilesims/layer0/runner/job"
 	"os"
 	"strings"
 )

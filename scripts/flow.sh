@@ -7,7 +7,7 @@ trap 'if [ ! -z "$(jobs -pr)" ]; then kill $(jobs -pr); fi' EXIT
 
 BULLET='\u2713'
 GIT_HASH=$(git describe --tags)
-LAYER0_PATH=$GOPATH/src/gitlab.imshealth.com/xfra/layer0
+LAYER0_PATH=$GOPATH/src/github.com/quintilesims/layer0
 
 update_api() {
     echo "Updating API"
@@ -63,7 +63,7 @@ delete() {
     echo "Deleting Certificates"
     certificate_ids=$(l0 -o json certificate list | jq -r .[].certificate_id)
     for id in $certificate_ids; do
-        if [ "$id" != "imshealthlabs" ]; then
+        if [ "$id" != "api" ]; then
             l0 certificate delete $id > /dev/null
             echo -e $BULLET "$id"
         fi

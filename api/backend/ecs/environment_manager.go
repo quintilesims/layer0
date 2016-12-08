@@ -4,19 +4,20 @@ import (
 	"bytes"
 	"encoding/base64"
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"gitlab.imshealth.com/xfra/layer0/api/backend"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/autoscaling"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ec2"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/waitutils"
 	"strings"
 	"text/template"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/quintilesims/layer0/api/backend"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/aws/autoscaling"
+	"github.com/quintilesims/layer0/common/aws/ec2"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/waitutils"
 )
 
 type ECSEnvironmentManager struct {
@@ -112,10 +113,20 @@ func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.
 		}
 	}
 
+	var securityGroupID string
+	securityGroup, err := this.EC2.DescribeSecurityGroup(ecsEnvironmentID.SecurityGroupName())
+	if err != nil {
+		return nil, err
+	}
+
+	if securityGroup != nil {
+		securityGroupID = *securityGroup.SecurityGroup.GroupId
+	}
 	model := &models.Environment{
-		EnvironmentID: ecsEnvironmentID.L0EnvironmentID(),
-		ClusterCount:  clusterCount,
-		InstanceSize:  instanceSize,
+		EnvironmentID:   ecsEnvironmentID.L0EnvironmentID(),
+		ClusterCount:    clusterCount,
+		InstanceSize:    instanceSize,
+		SecurityGroupID: securityGroupID,
 	}
 
 	return model, nil

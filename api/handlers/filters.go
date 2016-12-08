@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/Sirupsen/logrus"
 	"github.com/emicklei/go-restful"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
+	"github.com/quintilesims/layer0/common/config"
 	"time"
 )
 

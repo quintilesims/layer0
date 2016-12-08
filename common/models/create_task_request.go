@@ -6,5 +6,4 @@ type CreateTaskRequest struct {
 	DeployID           string              `json:"deploy_id"`
 	EnvironmentID      string              `json:"environment_id"`
 	TaskName           string              `json:"task_name"`
-	DisableLogging     bool                `json:"disable_logging"`
 }

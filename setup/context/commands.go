@@ -5,9 +5,9 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/provider"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/s3"
-	"gitlab.imshealth.com/xfra/layer0/common/config"
+	"github.com/quintilesims/layer0/common/aws/provider"
+	"github.com/quintilesims/layer0/common/aws/s3"
+	"github.com/quintilesims/layer0/common/config"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -23,11 +23,11 @@ type TFState struct {
 
 type TFModule struct {
 	Path      []string               `json:"path"`
-	Outputs   map[string]string      `json:"outputs"`
+	Outputs   map[string]interface{} `json:"outputs"`
 	Resources map[string]interface{} `json:"resources"`
 }
 
-func Apply(c *Context) error {
+func Apply(c *Context, force bool) error {
 	if err := c.Load(false); err != nil {
 		return err
 	}
@@ -61,6 +61,11 @@ func Apply(c *Context) error {
 		if vpcExists {
 			return fmt.Errorf("`apply` would recreate vpc %s.  Use `restore` to use an existing layer0, or --vpc to install into an existing vpc.", c.Instance)
 		}
+	}
+
+	// write empty dockercfg file if it doesn't exist
+	if err := checkDockercfg(c, force); err != nil {
+		return err
 	}
 
 	// first apply typically fails due to https://github.com/hashicorp/terraform/issues/2349
@@ -292,17 +297,12 @@ func Destroy(c *Context, force bool) error {
 	if force {
 		fmt.Println("Force flag present")
 	} else {
-
 		text := "Do you really want to destroy your Layer0?\n"
 		text += "    This will delete all your managed infrastructure.\n"
 		text += fmt.Sprintf("    There is no undo. Only '%s' will be accepted to confirm.\n", c.Instance)
 		text += "\n    Enter the name of your Layer0: "
-		fmt.Printf(text)
 
-		var input string
-		fmt.Scanln(&input)
-
-		if input != c.Instance {
+		if !requireInput(text, c.Instance) {
 			return fmt.Errorf("Destroy cancelled")
 		}
 	}
@@ -312,6 +312,18 @@ func Destroy(c *Context, force bool) error {
 	}
 
 	return nil
+}
+
+func requireInput(display, requiredInput string) bool {
+	fmt.Printf(display)
+	var input string
+	fmt.Scanln(&input)
+
+	if input != requiredInput {
+		return false
+	}
+
+	return true
 }
 
 func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
@@ -381,8 +393,38 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 }
 
 func Plan(c *Context, args []string) error {
+	if err := checkDockercfg(c, false); err != nil {
+		return err
+	}
+
 	args = append([]string{"plan"}, args...)
 	return Terraform(c, args)
+}
+
+func checkDockercfg(c *Context, force bool) error {
+	path := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
+
+	// if file doesn't exist
+	if _, err := os.Stat(path); err != nil {
+		if !force {
+			text := fmt.Sprintf("WARNING: No 'dockercfg' file present at %s. \n", path)
+			text += "If you require private registry authentication, please create this file \n"
+			text += "with the required credentials before proceeding. \n"
+			text += "This step is not required, but highly recommended if private authentication is required. \n"
+			text += "\n    Enter 'yes' to continue: "
+
+			if !requireInput(text, "yes") {
+				return fmt.Errorf("Operation Cancelled")
+			}
+		}
+
+		// write empty dockercfg file
+		if err := ioutil.WriteFile(path, []byte("{}"), 0666); err != nil {
+			return fmt.Errorf("Failed to write 'dockercfg': %v", err)
+		}
+	}
+
+	return nil
 }
 
 func Terraform(c *Context, args []string) error {

@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/jawher/mow.cli"
-	"gitlab.imshealth.com/xfra/layer0/setup/context"
+	"github.com/quintilesims/layer0/setup/context"
 	"os"
 )
 
@@ -73,12 +73,17 @@ func main() {
 	app.Version("v version", Version)
 
 	app.Command("apply", "Create/Update a Layer0", func(cmd *cli.Cmd) {
-		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region", "docker_token"})
+		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region"})
+		force := cmd.BoolOpt("force", false, "Set this flag to skip prompting on a missing dockercfg file")
 
 		vpc := cmd.StringOpt("vpc", "", "VPC id to target.  Will create new VPC if blank.")
 		flags["vpc_id"] = vpc
 
-		flagsCommand(cmd, context.Apply, flags)
+		command := func(c *context.Context) error {
+			return context.Apply(c, *force)
+		}
+
+		flagsCommand(cmd, command, flags)
 	})
 
 	app.Command("plan", "Plan an update for a Layer0", func(cmd *cli.Cmd) {
@@ -111,7 +116,7 @@ func main() {
 	})
 
 	app.Command("restore", "Restore Layer0 resource files from S3", func(cmd *cli.Cmd) {
-		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region", "docker_token"})
+		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region"})
 		flagsCommand(cmd, context.Restore, flags)
 	})
 
@@ -140,7 +145,7 @@ func main() {
 	})
 
 	app.Command("vpc", "Lookup details from a vpc", func(cmd *cli.Cmd) {
-		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region", "docker_token"})
+		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region"})
 		vpc := cmd.StringArg("VPC", "", "VPC id to inspect")
 
 		command := func(c *context.Context) error {

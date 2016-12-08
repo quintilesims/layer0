@@ -13,15 +13,15 @@
       
       
       
-        <link rel="canonical" href="https://gitlab.imshealth.com/xfra/layer0/intro/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/intro/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://gitlab.imshealth.com/xfra/layer0/intro/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/intro/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://gitlab.imshealth.com/xfra/layer0/intro//../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/intro//../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -76,6 +76,11 @@
   
   <body class="palette-primary-red palette-accent-grey">
     
+      
+      
+        
+      
+    
     <div class="backdrop">
       <div class="backdrop-paper"></div>
     </div>
@@ -126,7 +131,7 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://gitlab.imshealth.com/xfra/layer0/" class="project">
+  <a href="https://github.com/quintilesims/layer0/" class="project">
     <div class="banner">
       
         <div class="logo">
@@ -134,13 +139,32 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.8.2</strong>
+        <strong>Layer0 v0.8.4</strong>
+        
+          <br>
+          quintilesims/layer0
         
       </div>
     </div>
   </a>
   <div class="scrollable">
     <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/quintilesims/layer0//archive/v0.8.4.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
       
       <div class="toc">
         <ul>
@@ -266,8 +290,8 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../guides/shinken/">
-      Shinken
+    <a class="" title="One-off Task" href="../guides/one_off_task/">
+      One-off Task
     </a>
     
   </li>
@@ -302,8 +326,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../reference/consul/">
-      Consul
+    <a class="" title="Layer0 Terraform Plugin" href="../reference/terraform-plugin/">
+      Layer0 Terraform Plugin
     </a>
     
   </li>
@@ -311,8 +335,17 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../reference/shinken/">
-      Shinken
+    <a class="" title="Updating a Service" href="../reference/updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../reference/consul/">
+      Consul
     </a>
     
   </li>
@@ -403,7 +436,7 @@
 <h3 id="certificates">Certificates<a class="headerlink" href="#certificates" title="Permanent link">#</a></h3>
 <p>An SSL certificate obtained from a valid <a href="http://wikit.rxcorp.com/index.php/Production_Dns_Request#CSR">Certificate Authority (CA)</a>. You can use these certificates to secure your HTTPS services by applying them to your Layer0 load balancers.</p>
 <h3 id="deploys">Deploys<a class="headerlink" href="#deploys" title="Permanent link">#</a></h3>
-<p>A <a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_docker_v2config.html">multicontainer docker configuration</a>. This configuration file details how to deploy your application. We have several <a href="https://gitlab.imshealth.com/xfra/layer0-samples">sample applications</a> available that show what these files look like --- they're called <code>Dockerrun.aws.json</code> within each sample app.</p>
+<p>A <a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_docker_v2config.html">multicontainer docker configuration</a>. This configuration file details how to deploy your application. We have several <a href="https://github.com/quintilesims/layer0-samples">sample applications</a> available that show what these files look like --- they're called <code>Dockerrun.aws.json</code> within each sample app.</p>
 <h3 id="load-balancers">Load Balancers<a class="headerlink" href="#load-balancers" title="Permanent link">#</a></h3>
 <p>A powerful tool that gives you the basic building blocks for high-availability, scaling, and HTTPS. We currently use Amazon's <a href="https://aws.amazon.com/elasticloadbalancing/">Elastic Load Balancing</a>, and it pays to understand the basics of this service when working with Layer0.</p>
 <h3 id="services">Services<a class="headerlink" href="#services" title="Permanent link">#</a></h3>
@@ -479,7 +512,7 @@
     </main>
     <script>
       var base_url = '..';
-      var repo_id  = '';
+      var repo_id  = 'quintilesims/layer0';
     </script>
     <script src="../assets/javascripts/application-997097ee0c.js"></script>
     

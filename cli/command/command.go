@@ -2,9 +2,9 @@ package command
 
 import (
 	"github.com/urfave/cli"
-	"gitlab.imshealth.com/xfra/layer0/cli/client"
-	"gitlab.imshealth.com/xfra/layer0/cli/entity"
-	"gitlab.imshealth.com/xfra/layer0/cli/printer"
+	"github.com/quintilesims/layer0/cli/client"
+	"github.com/quintilesims/layer0/cli/entity"
+	"github.com/quintilesims/layer0/cli/printer"
 )
 
 type CommandGroup interface {

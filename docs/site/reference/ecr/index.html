@@ -13,15 +13,15 @@
       
       
       
-        <link rel="canonical" href="https://gitlab.imshealth.com/xfra/layer0/reference/ecr/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/reference/ecr/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://gitlab.imshealth.com/xfra/layer0/reference/ecr/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/reference/ecr/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://gitlab.imshealth.com/xfra/layer0/reference/ecr//../../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/reference/ecr//../../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -75,6 +75,11 @@
   
   
   <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
     
     <div class="backdrop">
       <div class="backdrop-paper"></div>
@@ -130,7 +135,7 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://gitlab.imshealth.com/xfra/layer0/" class="project">
+  <a href="https://github.com/quintilesims/layer0/" class="project">
     <div class="banner">
       
         <div class="logo">
@@ -138,13 +143,32 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.8.2</strong>
+        <strong>Layer0 v0.8.4</strong>
+        
+          <br>
+          quintilesims/layer0
         
       </div>
     </div>
   </a>
   <div class="scrollable">
     <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/quintilesims/layer0//archive/v0.8.4.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
       
       <div class="toc">
         <ul>
@@ -255,8 +279,8 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../../guides/shinken/">
-      Shinken
+    <a class="" title="One-off Task" href="../../guides/one_off_task/">
+      One-off Task
     </a>
     
   </li>
@@ -291,8 +315,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../consul/">
-      Consul
+    <a class="" title="Layer0 Terraform Plugin" href="../terraform-plugin/">
+      Layer0 Terraform Plugin
     </a>
     
   </li>
@@ -300,8 +324,17 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../shinken/">
-      Shinken
+    <a class="" title="Updating a Service" href="../updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../consul/">
+      Consul
     </a>
     
   </li>
@@ -415,50 +448,41 @@
 <p>When interacting with ECR, you will first need to create a repository and a login to interact from your development machine.</p>
 <h3 id="repository">Repository<a class="headerlink" href="#repository" title="Permanent link">#</a></h3>
 <p>Each repository needs to be created by an AWS api call.</p>
-<div class="code"><pre>  &gt; aws ecr create-repository --repository-name myteam/myproject
-</pre></div>
+<pre class="code"><code>  &gt; aws ecr create-repository --repository-name myteam/myproject</code></pre>
 
 
 <h3 id="login">Login<a class="headerlink" href="#login" title="Permanent link">#</a></h3>
 <p>To authenticate with the ECR service, Amazon provides the <code>get-login</code> command, which generates an authentication token, and returns a docker command to set it up</p>
-<div class="code"><pre>  &gt; aws ecr get-login
+<pre class="code"><code>  &gt; aws ecr get-login
   # this command will return the following: (password is typically hundreds of characters)
-  docker login -u AWS -p password -e none https://aws_account_id.dkr.ecr.us-east-1.amazonaws.com
-</pre></div>
+  docker login -u AWS -p password -e none https://aws_account_id.dkr.ecr.us-east-1.amazonaws.com</code></pre>
 
 
 <p>Execute the provided docker command to store the login credentials</p>
 <p>Afterward creating the repository and local login credentials you may interact with images (and tags) under this path from a local docker client.</p>
-<div class="code"><pre>  docker pull <span class="cp">${</span><span class="n">ecr</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/myteam/myproject
-  docker push <span class="cp">${</span><span class="n">ecr</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/myteam/myproject:custom-tag-1
-</pre></div>
+<pre class="code"><code>  docker pull ${ecr-url}/myteam/myproject
+  docker push ${ecr-url}/myteam/myproject:custom-tag-1</code></pre>
 
 
 <h2 id="deploy-example">Deploy Example<a class="headerlink" href="#deploy-example" title="Permanent link">#</a></h2>
 <p>Here we'll walk through using ECR when deploying to Layer0,  Using a very basic wait container.</p>
 <h3 id="make-docker-image">Make docker image<a class="headerlink" href="#make-docker-image" title="Permanent link">#</a></h3>
 <p>Your docker image can be built locally or pulled from dockerhub.  For this example, we made a service that waits and then exits (useful for triggering regular restarts).</p>
-<blockquote>
-<p><a href="https://gitlab.imshealth.com/xfra/production/blob/master/dockerfiles/Dockerfile.wait">Dockerfile</a></p>
-</blockquote>
-<div class="code"><pre><span class="x">FROM busybox</span>
+<pre class="code"><code>FROM busybox
 
-<span class="x">ENV SLEEP_TIME=60</span>
+ENV SLEEP_TIME=60
 
-<span class="x">CMD sleep </span><span class="p">$</span><span class="nv">SLEEP_TIME</span><span class="x"></span>
-</pre></div>
+CMD sleep $SLEEP_TIME</code></pre>
 
 
 <p>Then build the file, with the tag <code>xfra/wait</code></p>
-<div class="code"><pre> &gt; docker build -f Dockerfile.wait -t xfra/wait .
-</pre></div>
+<pre class="code"><code> &gt; docker build -f Dockerfile.wait -t xfra/wait .</code></pre>
 
 
 <h3 id="upload-to-ecr">Upload to ECR<a class="headerlink" href="#upload-to-ecr" title="Permanent link">#</a></h3>
 <p>After preparing a login and registry, tag the image with the remote url, and use <code>docker push</code></p>
-<div class="code"><pre>  docker tag xfra/wait 111222333444.dkr.ecr.us-east-1.amazonaws.com/xfra-wait
-  docker push 111222333444.dkr.ecr.us-east-1.amazonaws.com/xfra-wait
-</pre></div>
+<pre class="code"><code>  docker tag xfra/wait 111222333444.dkr.ecr.us-east-1.amazonaws.com/xfra-wait
+  docker push 111222333444.dkr.ecr.us-east-1.amazonaws.com/xfra-wait</code></pre>
 
 
 <div class="admonition note">
@@ -466,10 +490,7 @@
 </div>
 <h3 id="create-a-deploy">Create a deploy<a class="headerlink" href="#create-a-deploy" title="Permanent link">#</a></h3>
 <p>To run this image in Layer0, we create a dockerrun file, describing the instance and any additional variables</p>
-<blockquote>
-<p><a href="https://gitlab.imshealth.com/xfra/production/blob/master/dockerruns/registry.Dockerrun.aws.json">timeout.Dockerrun.aws.json</a></p>
-</blockquote>
-<div class="code"><pre>{
+<pre class="code"><code>{
   &quot;containerDefinitions&quot;: [
     {
       &quot;name&quot;: &quot;timeout&quot;,
@@ -481,19 +502,16 @@
       ]
     }
   ]
-}
-</pre></div>
+}</code></pre>
 
 
 <p>And create that in Layer0</p>
-<div class="code"><pre>  l0 deploy create timeout.dockerrun.aws.json timeout
-</pre></div>
+<pre class="code"><code>  l0 deploy create timeout.dockerrun.aws.json timeout</code></pre>
 
 
 <h3 id="deploy">Deploy<a class="headerlink" href="#deploy" title="Permanent link">#</a></h3>
 <p>Finally, run that deploy as a service or a task. (the service will restart every 12 hours)</p>
-<div class="code"><pre>  l0 service create demo timeoutsvc timeout:latest
-</pre></div>
+<pre class="code"><code>  l0 service create demo timeoutsvc timeout:latest</code></pre>
 
 
 <h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">#</a></h2>
@@ -571,7 +589,7 @@
     </main>
     <script>
       var base_url = '../..';
-      var repo_id  = '';
+      var repo_id  = 'quintilesims/layer0';
     </script>
     <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     

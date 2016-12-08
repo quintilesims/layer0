@@ -14,4 +14,5 @@ type Deployment struct {
 	RunningCount  int64     `json:"running_count"`
 	Status        string    `json:"status"`
 	Updated       time.Time `json:"updated"`
+	DeploymentID  string    `json:"deployment_id"`
 }

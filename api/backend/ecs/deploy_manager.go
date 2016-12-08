@@ -3,10 +3,10 @@ package ecsbackend
 import (
 	"encoding/json"
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 	"strings"
 )
 
@@ -77,7 +77,7 @@ func (this *ECSDeployManager) CreateDeploy(deployName string, body []byte) (*mod
 		return nil, errors.Newf(errors.InvalidDeployID, "Deploy names cannot contain '.'")
 	}
 
-	deploy, err := marshalDeploy(body)
+	deploy, err := CreateRenderedDeploy(body)
 	if err != nil {
 		return nil, err
 	}

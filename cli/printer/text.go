@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"github.com/briandowns/spinner"
 	"github.com/ryanuber/columnize"
-	"gitlab.imshealth.com/xfra/layer0/cli/entity"
-	"gitlab.imshealth.com/xfra/layer0/cli/printer/table"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/cli/entity"
+	"github.com/quintilesims/layer0/cli/printer/table"
+	"github.com/quintilesims/layer0/common/models"
 	"os"
 	"time"
 )

@@ -2,8 +2,8 @@ package client
 
 import (
 	"fmt"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/waitutils"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/waitutils"
 	"time"
 )
 

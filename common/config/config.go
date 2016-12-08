@@ -41,8 +41,8 @@ const (
 
 // non environment variable constants
 const (
-	API_CERTIFICATE_ID     = "imshealthlabs"
-	API_CERTIFICATE_NAME   = "imshealthlabs"
+	API_CERTIFICATE_ID     = "api"
+	API_CERTIFICATE_NAME   = "api"
 	API_ENVIRONMENT_ID     = "api"
 	API_ENVIRONMENT_NAME   = "api"
 	API_LOAD_BALANCER_ID   = "api"
@@ -124,6 +124,10 @@ var serviceAMI = map[string]string{
 	"us-west-2": "ami-6cb9ac0d",
 	"us-east-1": "ami-804130ea",
 	"eu-west-1": "ami-e563bf96",
+}
+
+func AWSLogGroupID() string {
+	return fmt.Sprintf("l0-%s", Prefix())
 }
 
 func AWSServiceAMI() string {

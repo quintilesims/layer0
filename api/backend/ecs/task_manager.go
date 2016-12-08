@@ -2,12 +2,12 @@ package ecsbackend
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"gitlab.imshealth.com/xfra/layer0/api/backend"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/cloudwatchlogs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/api/backend"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 	"strings"
 )
 
@@ -46,7 +46,7 @@ func (this *ECSTaskManager) ListTasks() ([]*models.Task, error) {
 	for _, environment := range environments {
 		ecsEnvironmentID := id.L0EnvironmentID(environment.EnvironmentID).ECSEnvironmentID()
 
-		taskARNs, err := this.getTaskARNs(ecsEnvironmentID, nil)
+		taskARNs, err := getTaskARNs(this.ECS, ecsEnvironmentID, nil)
 		if err != nil {
 			return nil, err
 		}
@@ -98,7 +98,7 @@ func (this *ECSTaskManager) GetTask(environmentID, taskID string) (*models.Task,
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
 
-	tasks, err := this.getTaskARNs(ecsEnvironmentID, stringp(ecsTaskID.String()))
+	tasks, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(ecsTaskID.String()))
 	if err != nil {
 		return nil, err
 	}
@@ -120,7 +120,7 @@ func (this *ECSTaskManager) DeleteTask(environmentID, taskID string) error {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
 
-	taskARNs, err := this.getTaskARNs(ecsEnvironmentID, stringp(ecsTaskID.String()))
+	taskARNs, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(ecsTaskID.String()))
 	if err != nil {
 		return err
 	}
@@ -145,8 +145,6 @@ func (this *ECSTaskManager) CreateTask(
 	deployID string,
 	copies int,
 	overrides []models.ContainerOverride,
-	disableLogging bool,
-	createDeploy backend.CreateDeployf,
 ) (*models.Task, error) {
 
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
@@ -154,26 +152,6 @@ func (this *ECSTaskManager) CreateTask(
 
 	taskID := id.GenerateHashedEntityID(taskName)
 	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
-
-	if !disableLogging {
-		logGroupID := ecsTaskID.LogGroupID(ecsEnvironmentID)
-		if err := this.CloudWatchLogs.CreateLogGroup(logGroupID); err != nil {
-			return nil, err
-		}
-
-		// render a new task definition with cloudwatchlogs
-		task, err := this.ECS.DescribeTaskDefinition(ecsDeployID.TaskDefinition())
-		if err != nil {
-			return nil, err
-		}
-
-		newDeploy, err := CreateRenderedDeploy(this.Backend, logGroupID, task, createDeploy)
-		if err != nil {
-			return nil, err
-		}
-
-		ecsDeployID = id.L0DeployID(newDeploy.DeployID).ECSDeployID()
-	}
 
 	// trigger the scaling algorithm first or the task we are about to create gets
 	// included in the pending count of the cluster
@@ -187,7 +165,7 @@ func (this *ECSTaskManager) CreateTask(
 		ecsOverrides = append(ecsOverrides, o)
 	}
 
-	tasks, err := this.ECS.RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), int64(copies), stringp(ecsTaskID.String()), ecsOverrides)
+	tasks, failed, err := this.ECS.RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), int64(copies), stringp(ecsTaskID.String()), ecsOverrides)
 	if err != nil {
 		if !ContainsErrMsg(err, "No Container Instances were found in your cluster") {
 			return nil, err
@@ -200,42 +178,29 @@ func (this *ECSTaskManager) CreateTask(
 		tasks = []*ecs.Task{dummyTask}
 	}
 
+	if numFailed := len(failed); numFailed > 0 {
+		log.Debug("RunTask failed to start %d tasks: %v", numFailed, failed)
+		log.Debug("Adding task '%s' to scheduler", ecsTaskID)
+
+		this.Scheduler.AddTask(ecsTaskID, ecsDeployID, ecsEnvironmentID, numFailed, overrides)
+
+		dummyTask := ecsPendingTask(ecsTaskID, ecsDeployID, ecsEnvironmentID)
+		tasks = []*ecs.Task{dummyTask}
+	}
+
 	return modelFromTasks(tasks)
 }
 
 func (this *ECSTaskManager) GetTaskLogs(environmentID, taskID string, tail int) ([]*models.LogFile, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
-	logGroupID := ecsTaskID.LogGroupID(ecsEnvironmentID)
 
-	return GetLogs(this.CloudWatchLogs, logGroupID, tail)
-}
-
-func (this *ECSTaskManager) getTaskARNs(ecsEnvironmentID id.ECSEnvironmentID, startedBy *string) ([]*string, error) {
-	// we can only check each of the states individually, thus we must issue 3 API calls
-
-	running := "RUNNING"
-	tasks, err := this.ECS.ListTasks(ecsEnvironmentID.String(), nil, &running, startedBy, nil)
+	taskARNs, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(ecsTaskID.String()))
 	if err != nil {
 		return nil, err
 	}
 
-	stopped := "STOPPED"
-	stoppedTasks, err := this.ECS.ListTasks(ecsEnvironmentID.String(), nil, &stopped, startedBy, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	pending := "PENDING"
-	pendingTasks, err := this.ECS.ListTasks(ecsEnvironmentID.String(), nil, &pending, startedBy, nil)
-	if err != nil {
-		return nil, err
-	}
-
-	tasks = append(tasks, stoppedTasks...)
-	tasks = append(tasks, pendingTasks...)
-
-	return tasks, nil
+	return GetLogs(this.CloudWatchLogs, taskARNs, tail)
 }
 
 // Assumes the tasks are all of the same type

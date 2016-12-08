@@ -22,10 +22,10 @@ resource "aws_ecs_service" "api" {
 
 resource "aws_ecs_task_definition" "api" {
     family = "l0-${var.l0_prefix}-api"
-    container_definitions = "${template_file.container_definitions.rendered}"
+    container_definitions = "${data.template_file.container_definitions.rendered}"
 }
 
-resource "template_file" "container_definitions" {
+data "template_file" "container_definitions" {
     template = "${file("templates/container_definitions.json")}"
     vars {
         api_auth_token = "${var.api_auth_token}"
@@ -33,8 +33,8 @@ resource "template_file" "container_definitions" {
         api_access_key = "${aws_iam_access_key.key.id}"
         api_secret_key = "${aws_iam_access_key.key.secret}"
         region = "${var.region}"
-        public_subnets = "${concat(aws_subnet.public_primary.id, ",",  aws_subnet.public_secondary.id)}"
-        private_subnets = "${concat(aws_subnet.private_primary.id, ",",  aws_subnet.private_secondary.id)}"
+        public_subnets =  "${format("%s,%s", aws_subnet.public_primary.id,  aws_subnet.public_secondary.id)}"
+        private_subnets = "${format("%s,%s", aws_subnet.private_primary.id, aws_subnet.private_secondary.id)}"
         ecs_role = "${aws_iam_role.ecs.id}"
         ecs_instance_profile = "${aws_iam_instance_profile.ecs.id}"
         vpc_id = "{{ or .vpc_id "${aws_vpc.vpc.id}" }}"
@@ -52,6 +52,6 @@ resource "template_file" "container_definitions" {
 	runner_docker_image_tag = "${var.runner_docker_image_tag}"
 	account_id = "${var.account_id}"
         key_pair = "${var.key_pair}"
-        log_group_name = "${aws_cloudwatch_log_group.api.name}"
+        log_group_name = "${aws_cloudwatch_log_group.l0.name}"
     }
 }

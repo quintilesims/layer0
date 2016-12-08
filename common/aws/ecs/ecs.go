@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/provider"
+	"github.com/quintilesims/layer0/common/aws/provider"
 	"strings"
 )
 
@@ -45,7 +45,7 @@ type Provider interface {
 	ListTaskDefinitionFamiliesPages(prefix string) ([]*string, error)
 
 	RegisterTaskDefinition(family string, roleARN string, networkMode string, containerDefinitions []*ContainerDefinition, volumes []*Volume) (*TaskDefinition, error)
-	RunTask(cluster, taskDefinition string, count int64, startedBy *string, overrides []*ContainerOverride) ([]*Task, error)
+	RunTask(cluster, taskDefinition string, count int64, startedBy *string, overrides []*ContainerOverride) ([]*Task, []*FailedTask, error)
 	StartTask(cluster, taskDefinition string, overrides *TaskOverride, containerInstanceIDs []*string, startedBy *string) error
 	StopTask(cluster, reason, task string) error
 
@@ -109,6 +109,10 @@ func NewCluster(name string) *Cluster {
 
 type TaskOverride struct {
 	*ecs.TaskOverride
+}
+
+type FailedTask struct {
+	*ecs.Failure
 }
 
 type ContainerOverride struct {
@@ -247,9 +251,11 @@ func (this *TaskDefinition) AddContainerDefinition(def *ContainerDefinition) {
 func NewContainerOverride(name string, envVars map[string]string) *ContainerOverride {
 	environment := []*ecs.KeyValuePair{}
 	for k, v := range envVars {
+		name := k
+		value := v
 		environment = append(environment, &ecs.KeyValuePair{
-			Name:  &k,
-			Value: &v,
+			Name:  &name,
+			Value: &value,
 		})
 	}
 	return &ContainerOverride{
@@ -357,7 +363,7 @@ func (this *ECS) RegisterTaskDefinition(family string, roleARN string, networkMo
 	return &TaskDefinition{output.TaskDefinition}, err
 }
 
-func (this *ECS) RunTask(cluster, taskDefinition string, count int64, startedBy *string, overrides []*ContainerOverride) ([]*Task, error) {
+func (this *ECS) RunTask(cluster, taskDefinition string, count int64, startedBy *string, overrides []*ContainerOverride) ([]*Task, []*FailedTask, error) {
 	var taskOverride *ecs.TaskOverride
 	if overrides != nil {
 		containerOverrides := []*ecs.ContainerOverride{}
@@ -379,12 +385,17 @@ func (this *ECS) RunTask(cluster, taskDefinition string, count int64, startedBy 
 
 	connection, err := this.Connect()
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	result, err := connection.RunTask(input)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
+	}
+
+	failures := []*FailedTask{}
+	for _, f := range result.Failures {
+		failures = append(failures, &FailedTask{f})
 	}
 
 	tasks := []*Task{}
@@ -392,11 +403,10 @@ func (this *ECS) RunTask(cluster, taskDefinition string, count int64, startedBy 
 		tasks = append(tasks, &Task{task})
 	}
 
-	return tasks, nil
+	return tasks, failures, nil
 }
 
 func (this *ECS) StartTask(cluster, taskDefinition string, overrides *TaskOverride, containerInstanceIDs []*string, startedBy *string) (err error) {
-
 	input := &ecs.StartTaskInput{
 		Cluster:            aws.String(cluster),
 		TaskDefinition:     aws.String(taskDefinition),

@@ -2,10 +2,10 @@ package ecsbackend
 
 import (
 	log "github.com/Sirupsen/logrus"
-	"gitlab.imshealth.com/xfra/layer0/api/backend"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/autoscaling"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/api/backend"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/common/aws/autoscaling"
+	"github.com/quintilesims/layer0/common/aws/ecs"
 	"strconv"
 )
 

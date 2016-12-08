@@ -5,15 +5,15 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	aws_ecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/id"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/ecs/mock_ecsbackend"
-	"gitlab.imshealth.com/xfra/layer0/api/backend/mock_backend"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/cloudwatchlogs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/cloudwatchlogs/mock_cloudwatchlogs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ecs/mock_ecs"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
-	"gitlab.imshealth.com/xfra/layer0/common/testutils"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+	"github.com/quintilesims/layer0/api/backend/ecs/mock_ecsbackend"
+	"github.com/quintilesims/layer0/api/backend/mock_backend"
+	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
+	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs/mock_cloudwatchlogs"
+	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
 
@@ -237,11 +237,6 @@ func TestCreateTask(t *testing.T) {
 				deployID := id.L0DeployID("dplyid.1").ECSDeployID()
 				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				taskID := id.L0TaskID("tskid").ECSTaskID()
-				logGroupID := taskID.LogGroupID(environmentID)
-
-				mockTask.CloudWatchLogs.EXPECT().
-					CreateLogGroup(logGroupID).
-					Return(nil)
 
 				task := &ecs.TaskDefinition{
 					&aws_ecs.TaskDefinition{
@@ -255,24 +250,23 @@ func TestCreateTask(t *testing.T) {
 					Return(task, nil).
 					AnyTimes()
 
-				renderedDeployID := id.L0DeployID("renderedid.2").ECSDeployID()
 				mockTask.ClusterScaler.EXPECT().
-					TriggerScalingAlgorithm(environmentID, &renderedDeployID, 1).
+					TriggerScalingAlgorithm(environmentID, &deployID, 1).
 					Return(0, false, nil)
 
 				mockTask.ECS.EXPECT().RunTask(
 					environmentID.String(),
-					renderedDeployID.TaskDefinition(),
+					deployID.TaskDefinition(),
 					int64(1),
 					stringp(taskID.String()),
 					[]*ecs.ContainerOverride{},
-				).Return(nil, nil)
+				).Return(nil, nil, nil)
 
 				return mockTask.Task()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSTaskManager)
-				manager.CreateTask("envid", "tsk_name", "dplyid.1", 1, nil, false, testCreateDeploy)
+				manager.CreateTask("envid", "tsk_name", "dplyid.1", 1, nil)
 			},
 		},
 		testutils.TestCase{
@@ -290,13 +284,13 @@ func TestCreateTask(t *testing.T) {
 					gomock.Any(),
 					gomock.Any(),
 					gomock.Any(),
-				).Return(nil, nil)
+				).Return(nil, nil, nil)
 
 				return mockTask.Task()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSTaskManager)
-				manager.CreateTask("envid", "tsk_name", "dplyid.1", 1, nil, true, testCreateDeploy)
+				manager.CreateTask("envid", "tsk_name", "dplyid.1", 1, nil)
 			},
 		},
 		testutils.TestCase{
@@ -319,7 +313,7 @@ func TestCreateTask(t *testing.T) {
 					gomock.Any(),
 					gomock.Any(),
 					gomock.Any(),
-				).Return(nil, err)
+				).Return(nil, nil, err)
 
 				mockTask.Scheduler.EXPECT().
 					AddTask(taskID, deployID, environmentID, 1, nil)
@@ -328,7 +322,7 @@ func TestCreateTask(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSTaskManager)
-				manager.CreateTask("envid", "tsk_name", "dplyid.1", 1, nil, true, testCreateDeploy)
+				manager.CreateTask("envid", "tsk_name", "dplyid.1", 1, nil)
 			},
 		},
 	}
@@ -348,17 +342,18 @@ func TestGetTaskLogs(t *testing.T) {
 
 				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				taskID := id.L0TaskID("tskid").ECSTaskID()
+				mockTask.ECS.EXPECT().
+					ListTasks(environmentID.String(), nil, gomock.Any(), stringp(taskID.String()), nil).
+					Return([]*string{}, nil).
+					AnyTimes()
 
 				// ensure we actually call GetLogs
 				recorder := testutils.NewRecorder(ctrl)
 				recorder.EXPECT().Call("")
 
-				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, logGroupID string, tail int) ([]*models.LogFile, error) {
+				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, tail int) ([]*models.LogFile, error) {
 					recorder.Call("")
-
-					reporter.AssertEqual(logGroupID, taskID.LogGroupID(environmentID))
 					reporter.AssertEqual(tail, 100)
-
 					return nil, nil
 				}
 
@@ -374,13 +369,17 @@ func TestGetTaskLogs(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
 
+				mockTask.ECS.EXPECT().
+					ListTasks(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					Return([]*string{}, nil).
+					AnyTimes()
+
 				// ensure we actually call GetLogs
 				recorder := testutils.NewRecorder(ctrl)
 				recorder.EXPECT().Call("")
 
-				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, logGroupID string, tail int) ([]*models.LogFile, error) {
+				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, tail int) ([]*models.LogFile, error) {
 					recorder.Call("")
-
 					return nil, fmt.Errorf("some error")
 				}
 

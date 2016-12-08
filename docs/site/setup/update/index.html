@@ -13,15 +13,15 @@
       
       
       
-        <link rel="canonical" href="https://gitlab.imshealth.com/xfra/layer0/setup/update/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/setup/update/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://gitlab.imshealth.com/xfra/layer0/setup/update/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/setup/update/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://gitlab.imshealth.com/xfra/layer0/setup/update//../../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/setup/update//../../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -75,6 +75,11 @@
   
   
   <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
     
     <div class="backdrop">
       <div class="backdrop-paper"></div>
@@ -130,7 +135,7 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://gitlab.imshealth.com/xfra/layer0/" class="project">
+  <a href="https://github.com/quintilesims/layer0/" class="project">
     <div class="banner">
       
         <div class="logo">
@@ -138,13 +143,32 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.8.2</strong>
+        <strong>Layer0 v0.8.4</strong>
+        
+          <br>
+          quintilesims/layer0
         
       </div>
     </div>
   </a>
   <div class="scrollable">
     <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/quintilesims/layer0//archive/v0.8.4.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
       
       <div class="toc">
         <ul>
@@ -201,6 +225,12 @@
       
       
         <ul>
+          
+            <li class="anchor">
+              <a title="Upgrading to version 0.8.4" href="#upgrading-to-version-084">
+                Upgrading to version 0.8.4
+              </a>
+            </li>
           
             <li class="anchor">
               <a title="Upgrading from version 0.5.5 or earlier to the latest version of Layer0" href="#upgrading-from-version-055-or-earlier-to-the-latest-version-of-layer0">
@@ -288,8 +318,8 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../../guides/shinken/">
-      Shinken
+    <a class="" title="One-off Task" href="../../guides/one_off_task/">
+      One-off Task
     </a>
     
   </li>
@@ -324,8 +354,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../../reference/consul/">
-      Consul
+    <a class="" title="Layer0 Terraform Plugin" href="../../reference/terraform-plugin/">
+      Layer0 Terraform Plugin
     </a>
     
   </li>
@@ -333,8 +363,17 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../../reference/shinken/">
-      Shinken
+    <a class="" title="Updating a Service" href="../../reference/updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../../reference/consul/">
+      Consul
     </a>
     
   </li>
@@ -419,16 +458,28 @@
 <p>This section provides procedures for upgrading your Layer0 installation to the latest version.</p>
 <p>The process of upgrading Layer0 differs depending on the version of Layer0 you are currently running, and the version you are upgrading to. Before continuing, determine which of the following sections applies to your current Layer0 installation:</p>
 <ul>
+<li><a href="#upgrading-to-version-084">Upgrading to version 0.8.4</a></li>
 <li><a href="#upgrading-from-version-055-or-earlier-to-the-latest-version-of-layer0">Upgrading from version 0.5.5 or earlier to the latest version of Layer0</a></li>
 <li><a href="#upgrading-from-version-060-or-061-to-the-latest-version-of-layer0">Upgrading from version 0.6.0 or 0.6.1 to the latest version of Layer0 0.6.2</a></li>
-<li><a href="#upgrading-version-07x-to-072">Upgrading ffrom version 0.7.x to 0.7.2</a></li>
+<li><a href="#upgrading-version-07x-to-072">Upgrading from version 0.7.x to 0.7.2</a></li>
 <li><a href="#upgrading-versions-not-listed-above">Upgrading versions not listed above</a></li>
 </ul>
 <hr />
+<h2 id="upgrading-to-version-084">Upgrading to version 0.8.4<a class="headerlink" href="#upgrading-to-version-084" title="Permanent link">#</a></h2>
+<p>Layer0 Setup v0.8.4 contains changes to better support open source Layer0 installations.
+The major changes are:  </p>
+<ul>
+<li>Replacing the <code>imshealthlabs</code> certificate with a self signed certificate</li>
+<li>Removing the <code>docker_token</code> variable for <code>d.ims.io</code>, and using a <code>dockercfg</code> file to track private registry authentication</li>
+</ul>
+<p>As a result of these changes, terraform will fail to run against l0-setup files created prior to v0.8.4. 
+Please create your v0.8.4 instances from scratch.
+Be sure to follow our updated <a href="../../setup/install">installation</a> docs.</p>
+<p>===</p>
 <h2 id="upgrading-from-version-055-or-earlier-to-the-latest-version-of-layer0">Upgrading from version 0.5.5 or earlier to the latest version of Layer0<a class="headerlink" href="#upgrading-from-version-055-or-earlier-to-the-latest-version-of-layer0" title="Permanent link">#</a></h2>
 <p>The architecture of Layer0 version 0.5.5 and earlier is not compatible with the architecture of more recent versions. For this reason, Layer0 versions 0.5.5 and earlier cannot be upgraded.</p>
 <p>If you are using Layer0 0.5.5 or earlier and want to upgrade to a more recent version, we recommend that you create a new Layer0 using the current version of Layer0, and then migrate your services onto it by deploying your Docker task definitions into the new instance.</p>
-<p>If you have questions about migrating from an older version of Layer0, visit the <a href="https://ims-dev.slack.com/messages/xfra/">#xfra Slack channel</a>.</p>
+<p>If you have questions about migrating from an older version of Layer0, email the development team at <a href="mailto:xfra@us.imshealth.com">xfra@us.imshealth.com</a>.</p>
 <hr />
 <h2 id="upgrading-from-version-060-or-061-to-the-latest-version-of-layer0">Upgrading from version 0.6.0 or 0.6.1 to the latest version of Layer0<a class="headerlink" href="#upgrading-from-version-060-or-061-to-the-latest-version-of-layer0" title="Permanent link">#</a></h2>
 <p>In order to upgrade from version 0.6.0 or 0.6.1 to the current version of Layer0, you must first complete some steps that are specific to these versions of Layer0.</p>
@@ -436,8 +487,8 @@
 <p><strong>To update to the latest version:</strong></p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>Do not delete the <strong>l0</strong> or <strong>l0-setup</strong> files from version 0.6.0 or 0.6.1 until step 3&mdash;you will need these files to complete this upgrade process.</p>
 </div>
+<p>Do not delete the <strong>l0</strong> or <strong>l0-setup</strong> files from version 0.6.0 or 0.6.1 until step 3&mdash;you will need these files to complete this upgrade process.</p>
 <ol>
 <li>In the <a href="../../index.html#download">Downloads section of the home page</a>, select the appropriate installation file for your operating system. Extract the zip file to a directory on your computer, but do not remove or replace the files from version 0.6.0 or 0.6.1.</li>
 <li>Type the following command to destroy the ElasticBeanstalk resources, replacing <em>prefix</em> with the name of your Layer0 prefix:
@@ -476,11 +527,9 @@ If you see the correct version number, proceed to the next step. Otherwise, ensu
 </li>
 <li>
 <p>At this point, the environment variables already applied to your shell will no longer be valid. Type the following command to view the new environment variables and apply them to your shell:</p>
-<ul>
+</li>
 <li>(Windows PowerShell): <strong>l0-setup endpoint --insecure --powershell</strong> <em>prefix</em> <strong>| Out-String | Invoke-Expression</strong></li>
 <li>(Linux/Mac): <strong>eval "$(l0-setup endpoint --insecure</strong> <em>prefix</em><strong>)"</strong></li>
-</ul>
-</li>
 </ol>
 <h3 id="versions-supported-by-these-procedures">Versions supported by these procedures<a class="headerlink" href="#versions-supported-by-these-procedures" title="Permanent link">#</a></h3>
 <p>The procedures above are known to work when migrating between the versions listed in the following table:</p>
@@ -512,15 +561,15 @@ If you see the correct version number, proceed to the next step. Otherwise, ensu
 </table>
 <hr />
 <h2 id="upgrading-version-07x-to-072">Upgrading version 0.7.x to 0.7.2<a class="headerlink" href="#upgrading-version-07x-to-072" title="Permanent link">#</a></h2>
-<p>The commands <strong>service logs</strong> and <strong>task logs</strong> will not work for Services and Tasks created prior to version 0.7.2. 
-You will likely get an error: <code>AWS Error: the specified log group does not exist</code>. 
-You must re-create your Service in order for Layer0 to create the proper log group. </p>
+<p>The commands <strong>service logs</strong> and <strong>task logs</strong> will not work for Services and Tasks created prior to version 0.7.2.
+You will likely get an error: <code>AWS Error: the specified log group does not exist</code>.
+You must re-create your Service in order for Layer0 to create the proper log group.</p>
 <hr />
 <h2 id="upgrading-versions-not-listed-above">Upgrading versions not listed above<a class="headerlink" href="#upgrading-versions-not-listed-above" title="Permanent link">#</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>If you have already completed the upgrade procedures listed in one of the sections above, you do not need to complete the procedures in this section.</p>
 </div>
+<p>If you have already completed the upgrade procedures listed in one of the sections above, you do not need to complete the procedures in this section.</p>
 <p><strong>To upgrade to a new version of Layer0:</strong></p>
 <ol>
 <li>In the <a href="../../index.html#download">Downloads section of the home page</a>, select the appropriate installation file for your operating system. Extract the zip file to a directory on your computer, and then move the <strong>l0</strong> and <strong>l0-setup</strong> files to a folder in your system path, replacing any previous versions of these files.</li>
@@ -664,7 +713,7 @@ The output of this command should display the version number of the most recent 
     </main>
     <script>
       var base_url = '../..';
-      var repo_id  = '';
+      var repo_id  = 'quintilesims/layer0';
     </script>
     <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     

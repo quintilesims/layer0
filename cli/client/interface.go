@@ -1,7 +1,7 @@
 package client
 
 import (
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/common/models"
 	"time"
 )
 
@@ -50,5 +50,6 @@ type Client interface {
 
 	GetTags(params map[string]string) ([]*models.EntityWithTags, error)
 	GetVersion() (string, error)
+	GetConfig() (*models.APIConfig, error)
 	UpdateSQL() error
 }

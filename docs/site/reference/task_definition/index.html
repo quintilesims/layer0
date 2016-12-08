@@ -13,15 +13,15 @@
       
       
       
-        <link rel="canonical" href="https://gitlab.imshealth.com/xfra/layer0/reference/task_definition/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/reference/task_definition/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://gitlab.imshealth.com/xfra/layer0/reference/task_definition/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/reference/task_definition/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://gitlab.imshealth.com/xfra/layer0/reference/task_definition//../../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/reference/task_definition//../../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -75,6 +75,11 @@
   
   
   <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
     
     <div class="backdrop">
       <div class="backdrop-paper"></div>
@@ -130,7 +135,7 @@
       <div class="drawer">
         <nav aria-label="Navigation">
   
-  <a href="https://gitlab.imshealth.com/xfra/layer0/" class="project">
+  <a href="https://github.com/quintilesims/layer0/" class="project">
     <div class="banner">
       
         <div class="logo">
@@ -138,13 +143,32 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.8.2</strong>
+        <strong>Layer0 v0.8.4</strong>
+        
+          <br>
+          quintilesims/layer0
         
       </div>
     </div>
   </a>
   <div class="scrollable">
     <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="https://github.com/quintilesims/layer0//archive/v0.8.4.zip" target="_blank" title="Download" data-action="download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
       
       <div class="toc">
         <ul>
@@ -255,8 +279,8 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../../guides/shinken/">
-      Shinken
+    <a class="" title="One-off Task" href="../../guides/one_off_task/">
+      One-off Task
     </a>
     
   </li>
@@ -291,8 +315,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../consul/">
-      Consul
+    <a class="" title="Layer0 Terraform Plugin" href="../terraform-plugin/">
+      Layer0 Terraform Plugin
     </a>
     
   </li>
@@ -300,8 +324,17 @@
       
         
   <li>
-    <a class="" title="Shinken" href="../shinken/">
-      Shinken
+    <a class="" title="Updating a Service" href="../updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../consul/">
+      Consul
     </a>
     
   </li>
@@ -406,7 +439,7 @@ For more comprehensive documentation, we recommend taking a look at the official
 </ul>
 <h2 id="sample">Sample<a class="headerlink" href="#sample" title="Permanent link">#</a></h2>
 <p>The following snippet contains the task definition for the <a href="../../guides/guestbook">Guestbook</a> application</p>
-<div class="code"><pre>{
+<pre class="code"><code>{
     &quot;AWSEBDockerrunVersion&quot;: 2,
     &quot;containerDefinitions&quot;: [
         {
@@ -428,8 +461,7 @@ For more comprehensive documentation, we recommend taking a look at the official
             ]
         }
     ]
-}
-</pre></div>
+}</code></pre>
 
 
 <ul>
@@ -480,7 +512,7 @@ Any traffic received from the instance's <code>hostPort</code> will be forwarded
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../shinken/" title="Shinken">
+        <a href="../consul/" title="Consul">
           <span class="direction">
             Previous
           </span>
@@ -490,7 +522,7 @@ Any traffic received from the instance's <code>hostPort</code> will be forwarded
             </div>
             <div class="stretch">
               <div class="title">
-                Shinken
+                Consul
               </div>
             </div>
           </div>
@@ -533,7 +565,7 @@ Any traffic received from the instance's <code>hostPort</code> will be forwarded
     </main>
     <script>
       var base_url = '../..';
-      var repo_id  = '';
+      var repo_id  = 'quintilesims/layer0';
     </script>
     <script src="../../assets/javascripts/application-997097ee0c.js"></script>
     

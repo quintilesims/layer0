@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"github.com/emicklei/go-restful"
-	"gitlab.imshealth.com/xfra/layer0/api/data"
-	"gitlab.imshealth.com/xfra/layer0/common/errors"
-	"gitlab.imshealth.com/xfra/layer0/common/models"
+	"github.com/quintilesims/layer0/api/data"
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 	"net/http"
 )
 

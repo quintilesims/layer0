@@ -3,8 +3,8 @@ package job
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"gitlab.imshealth.com/xfra/layer0/api/logic"
-	"gitlab.imshealth.com/xfra/layer0/common/types"
+	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/common/types"
 	"time"
 )
 
