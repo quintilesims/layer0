@@ -53,7 +53,7 @@ func (c *APIClient) UpdateLoadBalancer(id string, ports []models.Port) (*models.
 	}
 
 	var loadBalancer *models.LoadBalancer
-	if err := c.Execute(c.Sling("loadbalancer/").Put(id).BodyJSON(req), &loadBalancer); err != nil {
+	if err := c.Execute(c.Sling("loadbalancer/").Put(id+"/ports").BodyJSON(req), &loadBalancer); err != nil {
 		return nil, err
 	}
 

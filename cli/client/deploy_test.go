@@ -10,7 +10,7 @@ import (
 func TestCreateDeploy(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		testutils.AssertEqual(t, r.Method, "POST")
-		testutils.AssertEqual(t, r.URL.Path, "/deploy/create")
+		testutils.AssertEqual(t, r.URL.Path, "/deploy")
 
 		var req models.CreateDeployRequest
 		Unmarshal(t, r, &req)

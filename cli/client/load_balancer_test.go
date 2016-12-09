@@ -136,7 +136,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		testutils.AssertEqual(t, r.Method, "PUT")
-		testutils.AssertEqual(t, r.URL.Path, "/loadbalancer/id")
+		testutils.AssertEqual(t, r.URL.Path, "/loadbalancer/id/ports")
 
 		var req models.UpdateLoadBalancerRequest
 		Unmarshal(t, r, &req)

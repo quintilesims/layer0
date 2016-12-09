@@ -11,7 +11,7 @@ func (c *APIClient) CreateDeploy(name string, content []byte) (*models.Deploy, e
 	}
 
 	var deploy *models.Deploy
-	if err := c.Execute(c.Sling("deploy/create").Post("").BodyJSON(req), &deploy); err != nil {
+	if err := c.Execute(c.Sling("deploy").Post("").BodyJSON(req), &deploy); err != nil {
 		return nil, err
 	}
 
