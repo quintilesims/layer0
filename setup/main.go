@@ -2,9 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/jawher/mow.cli"
 	"github.com/quintilesims/layer0/setup/context"
-	"os"
 )
 
 var Version string
@@ -74,6 +75,10 @@ func main() {
 
 	app.Command("apply", "Create/Update a Layer0", func(cmd *cli.Cmd) {
 		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region"})
+
+		dockercfg := cmd.StringOpt("dockercfg", "", "Path to valid dockercfg file")
+		flags["dockercfg"] = dockercfg
+
 		force := cmd.BoolOpt("force", false, "Set this flag to skip prompting on a missing dockercfg file")
 
 		vpc := cmd.StringOpt("vpc", "", "VPC id to target.  Will create new VPC if blank.")
