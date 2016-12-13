@@ -3,7 +3,7 @@ package handlers
 import (
 	"github.com/emicklei/go-restful"
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/data/mock_data"
+	"github.com/quintilesims/layer0/commmon/db/mock_data"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"

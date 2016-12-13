@@ -209,6 +209,10 @@ func MySQLAdminConnection() string {
 	return get(MYSQL_ADMIN_CONNECTION)
 }
 
+func DBName() string {
+	return fmt.Sprintf("layer0_%s", Prefix())
+}
+
 func Prefix() string {
 	return getOr(PREFIX, "l0")
 }

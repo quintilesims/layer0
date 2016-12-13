@@ -3,8 +3,8 @@ package job
 import (
 	"fmt"
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/data/mock_data"
 	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/commmon/db/mock_data"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/common/types"

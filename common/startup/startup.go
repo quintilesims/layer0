@@ -3,8 +3,8 @@ package startup
 import (
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs"
-	"github.com/quintilesims/layer0/api/data"
 	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/commmon/db"
 	"github.com/quintilesims/layer0/common/aws/autoscaling"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
 	"github.com/quintilesims/layer0/common/aws/ec2"

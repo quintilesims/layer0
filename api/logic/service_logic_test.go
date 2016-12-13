@@ -3,8 +3,8 @@ package logic
 import (
 	"fmt"
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/data"
 	"github.com/quintilesims/layer0/api/logic/mock_logic"
+	"github.com/quintilesims/layer0/commmon/db"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"testing"

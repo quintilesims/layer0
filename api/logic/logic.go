@@ -2,7 +2,7 @@ package logic
 
 import (
 	"github.com/quintilesims/layer0/api/backend"
-	"github.com/quintilesims/layer0/api/data"
+	"github.com/quintilesims/layer0/commmon/db"
 	"github.com/quintilesims/layer0/common/models"
 )
 

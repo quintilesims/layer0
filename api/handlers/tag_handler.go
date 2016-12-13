@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/emicklei/go-restful"
-	"github.com/quintilesims/layer0/api/data"
+	"github.com/quintilesims/layer0/commmon/db"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"net/http"
