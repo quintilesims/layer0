@@ -28,7 +28,30 @@ type TFModule struct {
 	Resources map[string]interface{} `json:"resources"`
 }
 
+type FileIO interface {
+	ReadFile(path string) ([]byte, error)
+	WriteFile(path string, data []byte, perm os.FileMode) error
+	Stat(path string) (os.FileInfo, error)
+}
+
+type DefaultFileIO struct{}
+
+func (r DefaultFileIO) ReadFile(path string) ([]byte, error) {
+	return ioutil.ReadFile(path)
+}
+
+func (r DefaultFileIO) WriteFile(path string, data []byte, perm os.FileMode) error {
+	return ioutil.WriteFile(path, data, perm)
+}
+
+func (r DefaultFileIO) Stat(path string) (os.FileInfo, error) {
+	return os.Stat(path)
+}
+
 func Apply(c *Context, force bool) error {
+	//TODO: Declare io elsewhere and pass in for testing
+	io := DefaultFileIO{}
+
 	if err := c.Load(false); err != nil {
 		return err
 	}
@@ -66,16 +89,19 @@ func Apply(c *Context, force bool) error {
 
 	var dockercfg string
 	dockercfg_flag, ok := c.Flags["dockercfg"]
+
 	if ok && dockercfg_flag != nil && *dockercfg_flag != "" {
 		fmt.Printf("Detected dockercfg: `%s`\n", *dockercfg_flag)
 		dockercfg = *dockercfg_flag
-		if err := copyDockercfg(c, dockercfg); err != nil {
+		instancePath := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
+
+		if err := CopyFile(dockercfg, instancePath); err != nil {
 			return fmt.Errorf("Failed to copy dockercfg: %v.", err)
 		}
 	}
 
 	// validate dockercfg; if file does not exist, write empty dockercfg file
-	if err := checkDockercfg(c, force); err != nil {
+	if err := checkDockercfg(c, force, io); err != nil {
 		return err
 	}
 
@@ -404,7 +430,9 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 }
 
 func Plan(c *Context, args []string) error {
-	if err := checkDockercfg(c, false); err != nil {
+	//TODO: Declare io elsewhere and pass in for testing
+	io := DefaultFileIO{}
+	if err := checkDockercfg(c, false, io); err != nil {
 		return err
 	}
 
@@ -412,24 +440,14 @@ func Plan(c *Context, args []string) error {
 	return Terraform(c, args)
 }
 
-func copyDockercfg(c *Context, dockerconfigPath string) error {
-	instancePath := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
-
-	if err := CopyFile(dockerconfigPath, instancePath); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func checkDockercfg(c *Context, force bool) error {
+func checkDockercfg(c *Context, force bool, io FileIO) error {
 	path := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
 
 	// if file does not exist
-	if _, err := os.Stat(path); err != nil {
+	if _, err := io.Stat(path); err != nil {
 
 		// write empty dockercfg file
-		if err := ioutil.WriteFile(path, []byte("{}"), 0666); err != nil {
+		if err := io.WriteFile(path, []byte("{}"), 0666); err != nil {
 			return fmt.Errorf("Failed to write 'dockercfg': %v", err)
 		}
 
@@ -449,17 +467,17 @@ func checkDockercfg(c *Context, force bool) error {
 
 	}
 
-	if err := validateDockercfg(path); err != nil {
+	if err := validateDockercfg(path, io); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func validateDockercfg(dockercfgPath string) error {
-	contents, err := ioutil.ReadFile(dockercfgPath)
+func validateDockercfg(dockercfgPath string, io FileIO) error {
+	contents, err := io.ReadFile(dockercfgPath)
 	if err != nil {
-		return fmt.Errorf("Failed to read 'dockercfg': %v", err)
+		return err
 	}
 
 	// Simple attempt to validate JSON
