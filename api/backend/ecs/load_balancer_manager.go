@@ -392,17 +392,22 @@ func (this *ECSLoadBalancerManager) portToListener(port models.Port) (*elb.Liste
 
 	var certificateARN string
 	if port.CertificateID != "" {
-		cert, err := this.Backend.GetCertificate(port.CertificateID)
-		if err != nil {
-			return nil, err
-		}
+		// todo: pass through certificate ids to backend
+		return nil, fmt.Errorf("Using certificates is currently not implemented for load balancers")
 
-		// todo: this will be uncessary after cert is updated
-		if cert == nil {
-			return nil, fmt.Errorf("Certificate with id '%s' does not exist", port.CertificateID)
-		}
+		/*
+			cert, err := this.Backend.GetCertificate(port.CertificateID)
+			if err != nil {
+				return nil, err
+			}
 
-		certificateARN = cert.CertificateARN
+			// todo: this will be uncessary after cert is updated
+			if cert == nil {
+				return nil, fmt.Errorf("Certificate with id '%s' does not exist", port.CertificateID)
+			}
+
+			certificateARN = cert.CertificateARN
+		*/
 	}
 
 	listener := elb.NewListener(port.ContainerPort, containerProtocol, port.HostPort, hostProtocol, certificateARN)

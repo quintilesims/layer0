@@ -2,23 +2,23 @@ package handlers
 
 import (
 	"github.com/emicklei/go-restful"
-	"github.com/quintilesims/layer0/commmon/db"
+	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"net/http"
 )
 
 type TagHandler struct {
-	TagData data.TagData
+	TagStore tag_store.TagStore
 }
 
-func NewTagHandler(tagData data.TagData) *TagHandler {
+func NewTagHandler(tagData tag_store.TagStore) *TagHandler {
 	return &TagHandler{
-		TagData: tagData,
+		TagStore: tagData,
 	}
 }
 
-func (this *TagHandler) Routes() *restful.WebService {
+func (t *TagHandler) Routes() *restful.WebService {
 	service := new(restful.WebService)
 	service.Path("/tag").
 		Consumes(restful.MIME_JSON).
@@ -27,54 +27,50 @@ func (this *TagHandler) Routes() *restful.WebService {
 
 	service.Route(service.GET("/").
 		Filter(basicAuthenticate).
-		To(this.FindTags).
+		To(t.FindTags).
 		Doc("Lists tags, optionally filtered by the query parameters").
 		Param(service.QueryParameter("name", "tag name to find").DataType("string")).
-		Param(service.QueryParameter("type", "target type for the tag").DataType("string").AllowableValues(data.AllowedTagMap())).
+		Param(service.QueryParameter("type", "target type for the tag").DataType("string")).
 		Returns(200, "OK", []models.EntityWithTags{}))
 
 	service.Route(service.POST("/").
 		Filter(basicAuthenticate).
-		To(this.CreateTag).
+		To(t.CreateTag).
 		Doc("Create a tag for a service, deploy, or environment").
-		Reads(models.EntityTag{}).
-		Returns(http.StatusCreated, "Created", models.EntityTag{}).
+		Reads(models.Tag{}).
+		Returns(http.StatusCreated, "Created", models.Tag{}).
 		Returns(400, "Invalid request", models.ServerError{}).
-		Writes(models.EntityTag{}))
+		Writes(models.Tag{}))
 
 	service.Route(service.DELETE("/").
 		Filter(basicAuthenticate).
-		To(this.DeleteTag).
+		To(t.DeleteTag).
 		Doc("Delete a tag").
-		Reads(models.EntityTag{}).
+		Reads(models.Tag{}).
 		Returns(http.StatusNoContent, "Deleted", nil))
 
 	return service
 }
 
-func (this *TagHandler) FindTags(request *restful.Request, response *restful.Response) {
+func (t *TagHandler) FindTags(request *restful.Request, response *restful.Response) {
 	keys := make(map[string]string)
 	for key, val := range request.Request.URL.Query() {
 		keys[key] = val[0]
 	}
 
-	result, err := this.TagData.GetTags(keys)
-	if err != nil {
-		ReturnError(response, err)
-		return
-	}
+	// todo: re-create t
 
-	response.WriteAsJson(result)
+	response.WriteAsJson(keys)
 }
 
-func (this *TagHandler) DeleteTag(request *restful.Request, response *restful.Response) {
-	req := new(models.EntityTag)
+func (t *TagHandler) DeleteTag(request *restful.Request, response *restful.Response) {
+	req := new(models.Tag)
 	if err := request.ReadEntity(&req); err != nil {
 		BadRequest(response, errors.InvalidJSON, err)
 		return
 	}
 
-	if err := this.TagData.Delete(*req); err != nil {
+	if err := t.TagStore.Delete(req); err != nil {
 		ReturnError(response, err)
 		return
 	}
@@ -82,14 +78,14 @@ func (this *TagHandler) DeleteTag(request *restful.Request, response *restful.Re
 	response.WriteHeader(http.StatusNoContent)
 }
 
-func (this *TagHandler) CreateTag(request *restful.Request, response *restful.Response) {
-	req := new(models.EntityTag)
+func (t *TagHandler) CreateTag(request *restful.Request, response *restful.Response) {
+	req := new(models.Tag)
 	if err := request.ReadEntity(&req); err != nil {
 		BadRequest(response, errors.InvalidJSON, err)
 		return
 	}
 
-	if err := this.TagData.Make(*req); err != nil {
+	if err := t.TagStore.Insert(req); err != nil {
 		ReturnError(response, err)
 		return
 	}

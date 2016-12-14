@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func TestDeleteJob(t *testing.T) {
+func TestDelete(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewJobCommand(tc.Command())
@@ -16,7 +16,7 @@ func TestDeleteJob(t *testing.T) {
 		Return([]string{"id"}, nil)
 
 	tc.Client.EXPECT().
-		DeleteJob("id").
+		Delete("id").
 		Return(nil)
 
 	c := getCLIContext(t, Args{"name"}, nil)
@@ -25,7 +25,7 @@ func TestDeleteJob(t *testing.T) {
 	}
 }
 
-func TestDeleteJob_UserInputErrors(t *testing.T) {
+func TestDelete_UserInputErrors(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewJobCommand(tc.Command())
@@ -41,7 +41,7 @@ func TestDeleteJob_UserInputErrors(t *testing.T) {
 	}
 }
 
-func TestGetJob(t *testing.T) {
+func TestSelectByID(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewJobCommand(tc.Command())
@@ -51,7 +51,7 @@ func TestGetJob(t *testing.T) {
 		Return([]string{"id"}, nil)
 
 	tc.Client.EXPECT().
-		GetJob("id").
+		SelectByID("id").
 		Return(&models.Job{}, nil)
 
 	c := getCLIContext(t, Args{"name"}, nil)
@@ -60,7 +60,7 @@ func TestGetJob(t *testing.T) {
 	}
 }
 
-func TestGetJob_UserInputErrors(t *testing.T) {
+func TestSelectByID_UserInputErrors(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewJobCommand(tc.Command())
@@ -76,13 +76,13 @@ func TestGetJob_UserInputErrors(t *testing.T) {
 	}
 }
 
-func TestListJobs(t *testing.T) {
+func TestSelectAll(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewJobCommand(tc.Command())
 
 	tc.Client.EXPECT().
-		ListJobs().
+		SelectAll().
 		Return([]*models.Job{}, nil)
 
 	c := getCLIContext(t, nil, nil)
@@ -91,7 +91,7 @@ func TestListJobs(t *testing.T) {
 	}
 }
 
-func TestGetJobLogs(t *testing.T) {
+func TestSelectByIDLogs(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewJobCommand(tc.Command())
@@ -101,7 +101,7 @@ func TestGetJobLogs(t *testing.T) {
 		Return([]string{"id"}, nil)
 
 	tc.Client.EXPECT().
-		GetJob("id").
+		SelectByID("id").
 		Return(&models.Job{TaskID: "task-id"}, nil)
 
 	tc.Client.EXPECT().
@@ -114,7 +114,7 @@ func TestGetJobLogs(t *testing.T) {
 	}
 }
 
-func TestGetJobLogs_UserInputErrors(t *testing.T) {
+func TestSelectByIDLogs_UserInputErrors(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewJobCommand(tc.Command())

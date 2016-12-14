@@ -57,7 +57,7 @@ func (this *L0LoadBalancerLogic) DeleteLoadBalancer(loadBalancerID string) error
 		return err
 	}
 
-	if err := this.deleteEntityTags(loadBalancerID, "load_balancer"); err != nil {
+	if err := this.deleteEntityTags("load_balancer", loadBalancerID); err != nil {
 		return err
 	}
 
@@ -123,70 +123,51 @@ func (this *L0LoadBalancerLogic) UpdateLoadBalancer(loadBalancerID string, ports
 }
 
 func (this *L0LoadBalancerLogic) doesLoadBalancerTagExist(environmentID, name string) (bool, error) {
-	filter := map[string]string{
-		"type":           "load_balancer",
-		"environment_id": environmentID,
-		"name":           name,
-	}
-
-	tags, err := this.TagData.GetTags(filter)
+	tags, err := this.TagStore.SelectByQuery("load_balancer", "")
 	if err != nil {
 		return false, err
 	}
 
-	return len(tags) > 0, nil
+	ewts := tags.GroupByEntity().
+		WithKey("environment_id").
+		WithValue(environmentID).
+		WithKey("name").
+		WithValue(name)
+
+	return len(ewts) > 0, nil
 }
 
 func (this *L0LoadBalancerLogic) populateModel(model *models.LoadBalancer) error {
-	filter := map[string]string{
-		"type": "load_balancer",
-		"id":   model.LoadBalancerID,
-	}
-
-	tags, err := this.TagData.GetTags(filter)
+	tags, err := this.TagStore.SelectByQuery("load_balancer", model.LoadBalancerID)
 	if err != nil {
 		return err
 	}
 
-	for _, tag := range rangeTags(tags) {
-		switch tag.Key {
-		case "environment_id":
-			model.EnvironmentID = tag.Value
-		case "name":
-			model.LoadBalancerName = tag.Value
-		}
+	if tag := tags.WithKey("environment_id").First(); tag != nil {
+		model.EnvironmentID = tag.Value
+	}
+
+	if tag := tags.WithKey("name").First(); tag != nil {
+		model.LoadBalancerName = tag.Value
 	}
 
 	if model.EnvironmentID != "" {
-		filter := map[string]string{
-			"type": "environment",
-			"id":   model.EnvironmentID,
-		}
-
-		tags, err := this.TagData.GetTags(filter)
+		tags, err := this.TagStore.SelectByQuery("environment", model.EnvironmentID)
 		if err != nil {
 			return err
 		}
 
-		for _, tag := range rangeTags(tags) {
-			if tag.Key == "name" {
-				model.EnvironmentName = tag.Value
-				break
-			}
+		if tag := tags.WithKey("name").First(); tag != nil {
+			model.EnvironmentName = tag.Value
 		}
 	}
 
-	filter = map[string]string{
-		"type":             "service",
-		"load_balancer_id": model.LoadBalancerID,
-	}
-
-	tags, err = this.TagData.GetTags(filter)
+	tags, err = this.TagStore.SelectByQuery("service", "")
 	if err != nil {
 		return err
 	}
 
-	for _, tag := range tags {
+	for _, tag := range tags.WithKey("load_balancer_id").WithValue(model.LoadBalancerID) {
 		model.Services = append(model.Services, tag.EntityID)
 	}
 

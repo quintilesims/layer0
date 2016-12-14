@@ -29,11 +29,11 @@ func TestJobJanitorPulse(t *testing.T) {
 				}
 
 				jobLogicMock.EXPECT().
-					ListJobs().
+					SelectAll().
 					Return(jobs, nil)
 
 				jobLogicMock.EXPECT().
-					DeleteJob("old_job").
+					Delete("old_job").
 					Return(nil)
 
 				return NewJobJanitor(jobLogicMock)
@@ -44,7 +44,7 @@ func TestJobJanitorPulse(t *testing.T) {
 			},
 		},
 		testutils.TestCase{
-			Name: "Should propagate DeleteJob error",
+			Name: "Should propagate Delete error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				jobLogicMock := mock_logic.NewMockJobLogic(ctrl)
 
@@ -56,11 +56,11 @@ func TestJobJanitorPulse(t *testing.T) {
 				}
 
 				jobLogicMock.EXPECT().
-					ListJobs().
+					SelectAll().
 					Return(jobs, nil)
 
 				jobLogicMock.EXPECT().
-					DeleteJob(gomock.Any()).
+					Delete(gomock.Any()).
 					Return(fmt.Errorf("some error"))
 
 				return NewJobJanitor(jobLogicMock)
@@ -74,12 +74,12 @@ func TestJobJanitorPulse(t *testing.T) {
 			},
 		},
 		testutils.TestCase{
-			Name: "Should propagate ListJobs error",
+			Name: "Should propagate SelectAll error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				jobLogicMock := mock_logic.NewMockJobLogic(ctrl)
 
 				jobLogicMock.EXPECT().
-					ListJobs().
+					SelectAll().
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewJobJanitor(jobLogicMock)

@@ -4,9 +4,9 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/mock_backend"
-	"github.com/quintilesims/layer0/commmon/db"
-	"github.com/quintilesims/layer0/commmon/db/mock_data"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/db"
+	"github.com/quintilesims/layer0/common/db/mock_data"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"os"
@@ -23,18 +23,18 @@ func TestMain(m *testing.M) {
 }
 
 type MockLogic struct {
-	Tag         *mock_data.MockTagData
-	Job         *mock_data.MockJobData
+	Tag         *mock_data.MockTagStore
+	Job         *mock_data.MockJobStore
 	EbStackName *string
 	Backend     *mock_backend.MockBackend
-	SQLite      *data.TagDataStoreSQLite
+	SQLite      *tag_store.TagStoreStoreSQLite
 }
 
 func NewMockLogic(ctrl *gomock.Controller) *MockLogic {
 	name := "Pre-set a StackName to avoid Beanstalk.ListAvailableSolutionStacks"
 	return &MockLogic{
-		Tag:         mock_data.NewMockTagData(ctrl),
-		Job:         mock_data.NewMockJobData(ctrl),
+		Tag:         mock_data.NewMockTagStore(ctrl),
+		Job:         mock_data.NewMockJobStore(ctrl),
 		Backend:     mock_backend.NewMockBackend(ctrl),
 		EbStackName: &name,
 	}
@@ -47,7 +47,7 @@ func (this *MockLogic) StubTagMock() {
 		AnyTimes()
 
 	this.Tag.EXPECT().
-		GetTags(gomock.Any()).
+		SelectByQuery(gomock.Any()).
 		Return([]models.EntityWithTags{}, nil).
 		AnyTimes()
 
@@ -58,7 +58,7 @@ func (this *MockLogic) StubTagMock() {
 }
 
 func (this *MockLogic) Logic() Logic {
-	var tagData data.TagData
+	var tagData tag_store.TagStore
 	if this.SQLite != nil {
 		tagData = data.NewTagLogicLayer(this.SQLite)
 	} else {
@@ -99,11 +99,11 @@ func newTag(tag_key, tag_value, eid, etype string) models.EntityTag {
 	}
 }
 
-func addTag(t *testing.T, sqlite *data.TagDataStoreSQLite, tag models.EntityTag) {
+func addTag(t *testing.T, sqlite *tag_store.TagStoreStoreSQLite, tag models.EntityTag) {
 	addTags(t, sqlite, []models.EntityTag{tag})
 }
 
-func addTags(t *testing.T, sqlite *data.TagDataStoreSQLite, tags []models.EntityTag) {
+func addTags(t *testing.T, sqlite *tag_store.TagStoreStoreSQLite, tags []models.EntityTag) {
 	for _, tag := range tags {
 		if err := sqlite.Insert(tag); err != nil {
 			t.Error(err)

@@ -3,7 +3,7 @@ package logic
 import (
 	"fmt"
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/commmon/db"
+	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
@@ -90,7 +90,7 @@ func TestGetDeploy(t *testing.T) {
 					Return(&models.Deploy{}, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0DeployLogic(mockLogic.Logic())
@@ -206,7 +206,7 @@ func TestListDeploys(t *testing.T) {
 					Return(deploys, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0DeployLogic(mockLogic.Logic())
@@ -278,7 +278,7 @@ func TestDeleteDeploy(t *testing.T) {
 				logic := testMap["target"].(*L0DeployLogic)
 				logic.DeleteDeploy("dpl_id")
 
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
+				sqlite := testMap["sqlite"].(*tag_store.TagStoreStoreSQLite)
 				tags, err := sqlite.Select()
 				if err != nil {
 					reporter.Error(err)
@@ -317,7 +317,7 @@ func TestDeleteDeploy(t *testing.T) {
 					Return(nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0DeployLogic(mockLogic.Logic())
@@ -423,7 +423,7 @@ func TestCreateDeploy(t *testing.T) {
 					reporter.Error(err)
 				}
 
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
+				sqlite := testMap["sqlite"].(*tag_store.TagStoreStoreSQLite)
 				tags, err := sqlite.Select()
 				if err != nil {
 					reporter.Error(err)
@@ -458,7 +458,7 @@ func TestCreateDeploy(t *testing.T) {
 					Return(&models.Deploy{}, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0DeployLogic(mockLogic.Logic())

@@ -8,26 +8,18 @@ package tag_store
 
 import (
 	"flag"
-	"github.com/quintilesims/layer0/common/db/common"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/models"
 	"testing"
 )
 
-// todo: may have to place this into common/testutils for shared use w/ job data
-const (
-	DEFAULT_USERNAME = "layer0"
-	DEFAULT_PASSWORD = "nohaxplz"
-	DEFAULT_ADDRESS  = "127.0.0.1"
-	DEFAULT_PORT     = 3306
-	DEFAULT_DB_NAME  = "layer0_test"
-)
-
 var (
-	username = flag.String("username", DEFAULT_USERNAME, "username for the test db")
-	password = flag.String("password", DEFAULT_PASSWORD, "password for the test db")
-	address  = flag.String("address", DEFAULT_ADDRESS, "address for the test db")
-	port     = flag.Int("port", DEFAULT_PORT, "port for the test db")
-	dbName   = flag.String("dbname", DEFAULT_DB_NAME, "name of the test db")
+	username = flag.String("username", config.DBUsername(), "username for the test db")
+	password = flag.String("password", config.DBPassword(), "password for the test db")
+	address  = flag.String("address", config.DBAddress(), "address for the test db")
+	port     = flag.Int("port", config.DBPort(), "port for the test db")
+	dbName   = flag.String("dbname", config.DBName(), "name of the test db")
 )
 
 func init() {
@@ -35,7 +27,7 @@ func init() {
 }
 
 func NewTestTagStore(t *testing.T) *MysqlTagStore {
-	store := NewMysqlTagStore(common.Config{
+	store := NewMysqlTagStore(db.Config{
 		Username: *username,
 		Password: *password,
 		Address:  *address,

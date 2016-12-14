@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/logic/mock_logic"
-	"github.com/quintilesims/layer0/commmon/db"
+	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
@@ -117,7 +117,7 @@ func TestGetTask(t *testing.T) {
 				mockLogic := NewMockLogic(ctrl)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)
@@ -254,7 +254,7 @@ func TestListTasks(t *testing.T) {
 					Return(tasks, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)
@@ -341,7 +341,7 @@ func TestDeleteTask(t *testing.T) {
 				logic := testMap["target"].(*L0TaskLogic)
 				logic.DeleteTask("tsk_id")
 
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
+				sqlite := testMap["sqlite"].(*tag_store.TagStoreStoreSQLite)
 				tags, err := sqlite.Select()
 				if err != nil {
 					reporter.Error(err)
@@ -380,7 +380,7 @@ func TestDeleteTask(t *testing.T) {
 				mockLogic := NewMockLogic(ctrl)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)
@@ -534,7 +534,7 @@ func TestCreateTask(t *testing.T) {
 					reporter.Error(err)
 				}
 
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
+				sqlite := testMap["sqlite"].(*tag_store.TagStoreStoreSQLite)
 				tags, err := sqlite.Select()
 				if err != nil {
 					reporter.Error(err)
@@ -576,7 +576,7 @@ func TestCreateTask(t *testing.T) {
 					Return(&models.Task{}, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)

@@ -57,7 +57,7 @@ func (this *L0EnvironmentLogic) DeleteEnvironment(environmentID string) error {
 		return err
 	}
 
-	if err := this.deleteEntityTags(environmentID, "environment"); err != nil {
+	if err := this.deleteEntityTags("environment", environmentID); err != nil {
 		return err
 	}
 
@@ -65,16 +65,12 @@ func (this *L0EnvironmentLogic) DeleteEnvironment(environmentID string) error {
 }
 
 func (this *L0EnvironmentLogic) CanCreateEnvironment(req models.CreateEnvironmentRequest) (bool, error) {
-	filter := map[string]string{
-		"type": "environment",
-		"name": req.EnvironmentName,
-	}
-
-	tags, err := this.TagData.GetTags(filter)
+	tags, err := this.TagStore.SelectByQuery("environment", "")
 	if err != nil {
 		return false, err
 	}
 
+	tags = tags.WithKey("name").WithValue(req.EnvironmentName)
 	return len(tags) == 0, nil
 }
 
@@ -113,21 +109,13 @@ func (this *L0EnvironmentLogic) UpdateEnvironment(environmentID string, minClust
 }
 
 func (this *L0EnvironmentLogic) populateModel(model *models.Environment) error {
-	filter := map[string]string{
-		"type": "environment",
-		"id":   model.EnvironmentID,
-	}
-
-	tags, err := this.TagData.GetTags(filter)
+	tags, err := this.TagStore.SelectByQuery("environment", model.EnvironmentID)
 	if err != nil {
 		return err
 	}
 
-	for _, tag := range rangeTags(tags) {
-		if tag.Key == "name" {
-			model.EnvironmentName = tag.Value
-			break
-		}
+	if tag := tags.WithKey("name").First(); tag != nil {
+		model.EnvironmentName = tag.Value
 	}
 
 	return nil

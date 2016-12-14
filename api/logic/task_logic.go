@@ -69,7 +69,7 @@ func (this *L0TaskLogic) DeleteTask(taskID string) error {
 		return err
 	}
 
-	if err := this.deleteEntityTags(taskID, "task"); err != nil {
+	if err := this.deleteEntityTags("task", taskID); err != nil {
 		return err
 	}
 
@@ -136,86 +136,59 @@ func (this *L0TaskLogic) GetTaskLogs(taskID string, tail int) ([]*models.LogFile
 }
 
 func (this *L0TaskLogic) getEnvironmentID(taskID string) (string, error) {
-	filter := map[string]string{
-		"type": "task",
-		"id":   taskID,
-	}
-
-	tags, err := this.TagData.GetTags(filter)
+	tags, err := this.TagStore.SelectByQuery("task", taskID)
 	if err != nil {
 		return "", err
 	}
 
-	for _, tag := range rangeTags(tags) {
-		if tag.Key == "environment_id" {
-			return tag.Value, nil
-		}
-
+	if tag := tags.WithKey("environment_id").First(); tag != nil {
+		return tag.Value, nil
 	}
 
 	return "", fmt.Errorf("Failed to find Environment ID for Task %s", taskID)
 }
 
 func (this *L0TaskLogic) populateModel(model *models.Task) error {
-	filter := map[string]string{
-		"type": "task",
-		"id":   model.TaskID,
-	}
-
-	tags, err := this.TagData.GetTags(filter)
+	tags, err := this.TagStore.SelectByQuery("task", model.TaskID)
 	if err != nil {
 		return err
 	}
 
-	for _, tag := range rangeTags(tags) {
-		switch tag.Key {
-		case "environment_id":
-			model.EnvironmentID = tag.Value
-		case "deploy_id":
-			model.DeployID = tag.Value
-		case "name":
-			model.TaskName = tag.Value
-		}
+	if tag := tags.WithKey("environment_id").First(); tag != nil {
+		model.EnvironmentID = tag.Value
 	}
 
-	// todo: make this errors for all environment-scoped entities
-	if model.EnvironmentID != "" {
-		filter := map[string]string{
-			"type": "environment",
-			"id":   model.EnvironmentID,
-		}
+	if tag := tags.WithKey("deploy_id").First(); tag != nil {
+		model.DeployID = tag.Value
+	}
 
-		tags, err := this.TagData.GetTags(filter)
+	if tag := tags.WithKey("name").First(); tag != nil {
+		model.TaskName = tag.Value
+	}
+
+	if model.EnvironmentID != "" {
+		tags, err := this.TagStore.SelectByQuery("environment", model.EnvironmentID)
 		if err != nil {
 			return err
 		}
 
-		for _, tag := range rangeTags(tags) {
-			if tag.Key == "name" {
-				model.EnvironmentName = tag.Value
-				break
-			}
+		if tag := tags.WithKey("name").First(); tag != nil {
+			model.EnvironmentName = tag.Value
 		}
 	}
 
 	if model.DeployID != "" {
-		filter = map[string]string{
-			"type": "deploy",
-			"id":   model.DeployID,
-		}
-
-		tags, err := this.TagData.GetTags(filter)
+		tags, err := this.TagStore.SelectByQuery("deploy", model.DeployID)
 		if err != nil {
 			return err
 		}
 
-		for _, tag := range rangeTags(tags) {
-			switch tag.Key {
-			case "name":
-				model.DeployName = tag.Value
-			case "version":
-				model.DeployVersion = tag.Value
-			}
+		if tag := tags.WithKey("name").First(); tag != nil {
+			model.DeployName = tag.Value
+		}
+
+		if tag := tags.WithKey("version").First(); tag != nil {
+			model.DeployVersion = tag.Value
 		}
 	}
 

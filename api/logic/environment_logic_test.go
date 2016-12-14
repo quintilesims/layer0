@@ -3,7 +3,7 @@ package logic
 import (
 	"fmt"
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/commmon/db"
+	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
@@ -90,7 +90,7 @@ func TestGetEnvironment(t *testing.T) {
 					Return(&models.Environment{}, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0EnvironmentLogic(mockLogic.Logic())
@@ -206,7 +206,7 @@ func TestListEnvironments(t *testing.T) {
 					Return(environments, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0EnvironmentLogic(mockLogic.Logic())
@@ -278,7 +278,7 @@ func TestDeleteEnvironment(t *testing.T) {
 				logic := testMap["target"].(*L0EnvironmentLogic)
 				logic.DeleteEnvironment("env_id")
 
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
+				sqlite := testMap["sqlite"].(*tag_store.TagStoreStoreSQLite)
 				tags, err := sqlite.Select()
 				if err != nil {
 					reporter.Error(err)
@@ -317,7 +317,7 @@ func TestDeleteEnvironment(t *testing.T) {
 					Return(nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0EnvironmentLogic(mockLogic.Logic())
@@ -419,7 +419,7 @@ func TestCreateEnvironment(t *testing.T) {
 					reporter.Error(err)
 				}
 
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
+				sqlite := testMap["sqlite"].(*tag_store.TagStoreStoreSQLite)
 				tags, err := sqlite.Select()
 				if err != nil {
 					reporter.Error(err)
@@ -442,7 +442,7 @@ func TestCreateEnvironment(t *testing.T) {
 					Return(&models.Environment{}, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0EnvironmentLogic(mockLogic.Logic())
@@ -541,7 +541,7 @@ func TestUpdateEnvironment(t *testing.T) {
 					Return(&models.Environment{}, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0EnvironmentLogic(mockLogic.Logic())

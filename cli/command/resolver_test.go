@@ -39,7 +39,7 @@ func TestResolveExactIDMatch(t *testing.T) {
 	resolver := NewTagResolver(tc.Command().Client)
 
 	tc.Client.EXPECT().
-		GetTags(fuzzParams("environment", "id")).
+		SelectByQuery(fuzzParams("environment", "id")).
 		Return(tagsWithIDs("id"), nil)
 
 	ids, err := resolver.Resolve("environment", "id")
@@ -58,7 +58,7 @@ func TestResolveExactNameMatch(t *testing.T) {
 
 	tag := tagWithName("id", "name")
 	tc.Client.EXPECT().
-		GetTags(fuzzParams("environment", "name")).
+		SelectByQuery(fuzzParams("environment", "name")).
 		Return([]*models.EntityWithTags{tag}, nil)
 
 	ids, err := resolver.Resolve("environment", "name")
@@ -82,7 +82,7 @@ func TestResolveWildcardMatch(t *testing.T) {
 	)
 
 	tc.Client.EXPECT().
-		GetTags(fuzzParams("environment", "n")).
+		SelectByQuery(fuzzParams("environment", "n")).
 		Return(tags, nil)
 
 	ids, err := resolver.Resolve("environment", "n*")
@@ -102,14 +102,14 @@ func TestResolveEnvironmentScopedEntity(t *testing.T) {
 	resolver := NewTagResolver(tc.Command().Client)
 
 	tc.Client.EXPECT().
-		GetTags(fuzzParams("environment", "envid")).
+		SelectByQuery(fuzzParams("environment", "envid")).
 		Return(tagsWithIDs("envid"), nil)
 
 	params := fuzzParams("service", "svcid")
 	params["environment_id"] = "envid"
 
 	tc.Client.EXPECT().
-		GetTags(params).
+		SelectByQuery(params).
 		Return(tagsWithIDs("svcid"), nil)
 
 	ids, err := resolver.Resolve("service", "envid:svcid")
@@ -130,7 +130,7 @@ func TestResolveDeploy(t *testing.T) {
 	params["version"] = "version"
 
 	tc.Client.EXPECT().
-		GetTags(params).
+		SelectByQuery(params).
 		Return(tagsWithIDs("id"), nil)
 
 	ids, err := resolver.Resolve("deploy", "id:version")

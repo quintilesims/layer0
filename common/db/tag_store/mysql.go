@@ -2,17 +2,26 @@ package tag_store
 
 import (
 	"database/sql"
+	"fmt"
 	_ "github.com/go-sql-driver/mysql"
-	"github.com/quintilesims/layer0/common/db/common"
+	dbcommon "github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/models"
 )
 
-type MysqlTagStore struct {
-	db     *sql.DB
-	config common.Config
+// Since query by anything other than EntityID and EntityType requires a mixture of
+// and/or logic (depending on the context) and because the Name field can be any string,
+// any complex queries required outside of entityType or EntityID need to be handled by the caller
+type Query struct {
+	EntityID   string
+	EntityType string
 }
 
-func NewMysqlTagStore(c common.Config) *MysqlTagStore {
+type MysqlTagStore struct {
+	db     *sql.DB
+	config dbcommon.Config
+}
+
+func NewMysqlTagStore(c dbcommon.Config) *MysqlTagStore {
 	return &MysqlTagStore{
 		config: c,
 	}
@@ -26,11 +35,11 @@ func (m *MysqlTagStore) Init() error {
 	}
 	m.db = db
 
-	if err := common.CreateDatabase(m.config.DBName, m.db); err != nil {
+	if err := dbcommon.CreateDatabase(m.config.DBName, m.db); err != nil {
 		return err
 	}
 
-	return m.exec(common.CREATE_TAG_TABLE_QUERY)
+	return m.exec(dbcommon.CREATE_TAG_TABLE_QUERY)
 }
 
 func (m *MysqlTagStore) Close() {
@@ -61,12 +70,34 @@ func (m *MysqlTagStore) SelectAll() (models.Tags, error) {
 	return m.query("SELECT * FROM tags")
 }
 
-func (m *MysqlTagStore) SelectByEntityID(id string) (models.Tags, error) {
-	return m.query("SELECT * FROM tags WHERE entity_id=?", id)
-}
+func (m *MysqlTagStore) SelectByQuery(entityType, entityID string) (models.Tags, error) {
+	if entityType == "" && entityID == "" {
+		return m.SelectAll()
+	}
 
-func (m *MysqlTagStore) SelectByEntityType(entityType string) (models.Tags, error) {
-	return m.query("SELECT * FROM tags WHERE entity_type=?", entityType)
+	clauses := []string{}
+	args := []interface{}{}
+
+	if entityType != "" {
+		clauses = append(clauses, "entity_type=?")
+		args = append(args, entityType)
+	}
+
+	if entityID != "" {
+		clauses = append(clauses, "entity_id=?")
+		args = append(args, entityID)
+	}
+
+	query := "SELECT * FROM tags WHERE "
+	for i, clause := range clauses {
+		if i == 0 {
+			query += clause
+		} else {
+			query += fmt.Sprintf(" AND %s", clause)
+		}
+	}
+
+	return m.query(query, args...)
 }
 
 func (m *MysqlTagStore) exec(query string, args ...interface{}) error {

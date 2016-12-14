@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/logic/mock_logic"
-	"github.com/quintilesims/layer0/commmon/db"
+	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
@@ -117,7 +117,7 @@ func TestGetService(t *testing.T) {
 				mockLogic := NewMockLogic(ctrl)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)
@@ -204,7 +204,7 @@ func TestDeleteService(t *testing.T) {
 				logic := testMap["target"].(*L0ServiceLogic)
 				logic.DeleteService("svc_id")
 
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
+				sqlite := testMap["sqlite"].(*tag_store.TagStoreStoreSQLite)
 				tags, err := sqlite.Select()
 				if err != nil {
 					reporter.Error(err)
@@ -243,7 +243,7 @@ func TestDeleteService(t *testing.T) {
 				mockLogic := NewMockLogic(ctrl)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)
@@ -415,7 +415,7 @@ func TestCreateService(t *testing.T) {
 					reporter.Error(err)
 				}
 
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
+				sqlite := testMap["sqlite"].(*tag_store.TagStoreStoreSQLite)
 				tags, err := sqlite.Select()
 				if err != nil {
 					reporter.Error(err)
@@ -454,7 +454,7 @@ func TestCreateService(t *testing.T) {
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0ServiceLogic(mockLogic.Logic(), mockDeploy)
@@ -531,7 +531,7 @@ func TestScaleService(t *testing.T) {
 				mockLogic := NewMockLogic(ctrl)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)
@@ -613,7 +613,7 @@ func TestUpdateService(t *testing.T) {
 				mockLogic := NewMockLogic(ctrl)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				mockDeploy := mock_logic.NewMockDeployLogic(ctrl)

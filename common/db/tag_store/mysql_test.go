@@ -3,6 +3,7 @@ package tag_store
 import (
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
+	"reflect"
 	"testing"
 )
 
@@ -11,9 +12,13 @@ func getTestTags() models.Tags {
 		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env1"},
 		{EntityID: "e2", EntityType: "environment", Key: "name", Value: "env2"},
 		{EntityID: "s1", EntityType: "service", Key: "name", Value: "svc1"},
+		{EntityID: "s1", EntityType: "service", Key: "environment_id", Value: "env1"},
 		{EntityID: "s2", EntityType: "service", Key: "name", Value: "svc2"},
+		{EntityID: "s2", EntityType: "service", Key: "environment_id", Value: "env2"},
 		{EntityID: "l1", EntityType: "load_balancer", Key: "name", Value: "lb1"},
+		{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "env1"},
 		{EntityID: "l2", EntityType: "load_balancer", Key: "name", Value: "lb2"},
+		{EntityID: "l2", EntityType: "load_balancer", Key: "environment_id", Value: "env2"},
 		{EntityID: "d1", EntityType: "deploy", Key: "name", Value: "dpl"},
 		{EntityID: "d1", EntityType: "deploy", Key: "version", Value: "1"},
 		{EntityID: "d2", EntityType: "deploy", Key: "name", Value: "dpl"},
@@ -31,6 +36,16 @@ func assertTagsMatch(t *testing.T, store *MysqlTagStore, expected models.Tags) {
 	for _, tag := range tags {
 		testutils.AssertInSlice(t, tag, expected)
 	}
+}
+
+func testQuery(t *testing.T, entityType, entityID string) (models.Tags, func()) {
+	store := NewTestTagStoreWithTags(t, getTestTags())
+	tags, err := store.SelectByQuery(entityType, entityID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	return tags, func() { store.Close() }
 }
 
 func TestMysqlTagStoreInsert(t *testing.T) {
@@ -69,72 +84,114 @@ func TestMysqlTagStoreSelectAll(t *testing.T) {
 	assertTagsMatch(t, store, tags)
 }
 
-func TestMysqlTagStoreSelectByEntityID(t *testing.T) {
-	tags := getTestTags()
-	store := NewTestTagStoreWithTags(t, tags)
+func TestMysqlTagStoreSelectByQuery(t *testing.T) {
+	testTags := getTestTags()
+	store := NewTestTagStoreWithTags(t, testTags)
 	defer store.Close()
 
-	r1, err := store.SelectByEntityID("e1")
-	if err != nil {
-		t.Fatal(err)
+	cases := []struct {
+		EntityID   string
+		EntityType string
+		Expected   models.Tags
+	}{
+		// filter by nothing
+		{
+			Expected: testTags,
+		},
+		// filter by entityID
+		{
+			EntityID: "invalid",
+			Expected: models.Tags{},
+		},
+		{
+			EntityID: "e1",
+			Expected: testTags[0:1],
+		},
+		{
+			EntityID: "e2",
+			Expected: testTags[1:2],
+		},
+		{
+			EntityID: "s1",
+			Expected: testTags[2:4],
+		},
+		{
+			EntityID: "s2",
+			Expected: testTags[4:6],
+		},
+		{
+			EntityID: "l1",
+			Expected: testTags[6:8],
+		},
+		{
+			EntityID: "l2",
+			Expected: testTags[8:10],
+		},
+		{
+			EntityID: "d1",
+			Expected: testTags[10:12],
+		},
+		{
+			EntityID: "d2",
+			Expected: testTags[12:14],
+		},
+		// filter by entityType
+		{
+			EntityType: "invalid",
+			Expected:   models.Tags{},
+		},
+		{
+			EntityType: "environment",
+			Expected:   testTags[0:2],
+		},
+		{
+			EntityType: "service",
+			Expected:   testTags[2:6],
+		},
+		{
+			EntityType: "load_balancer",
+			Expected:   testTags[6:10],
+		},
+		{
+			EntityType: "deploy",
+			Expected:   testTags[10:14],
+		},
+		// filter by both
+		{
+			EntityType: "invalid",
+			EntityID:   "invalid",
+			Expected:   models.Tags{},
+		},
+		{
+			EntityType: "environment",
+			EntityID:   "e1",
+			Expected:   testTags[0:1],
+		},
+		{
+			EntityType: "service",
+			EntityID:   "s1",
+			Expected:   testTags[2:4],
+		},
+		{
+			EntityType: "load_balancer",
+			EntityID:   "l1",
+			Expected:   testTags[6:8],
+		},
+		{
+			EntityType: "deploy",
+			EntityID:   "d1",
+			Expected:   testTags[10:12],
+		},
 	}
 
-	testutils.AssertEqual(t, len(r1), 1)
-	testutils.AssertEqual(t, r1[0].EntityID, "e1")
+	for i, c := range cases {
+		tags, err := store.SelectByQuery(c.EntityType, c.EntityID)
+		if err != nil {
+			t.Fatalf("Query %#v: %v", i, err)
+		}
 
-	r2, err := store.SelectByEntityID("d1")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	testutils.AssertEqual(t, len(r2), 2)
-	testutils.AssertEqual(t, r2[0].EntityID, "d1")
-	testutils.AssertEqual(t, r2[1].EntityID, "d1")
-}
-
-func TestMysqlTagStoreSelectByEntityType(t *testing.T) {
-	tags := getTestTags()
-	store := NewTestTagStoreWithTags(t, tags)
-	defer store.Close()
-
-	// environemnt, service, loadbalnccer, deplo
-	environments, err := store.SelectByEntityType("environment")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	testutils.AssertEqual(t, len(environments), 2)
-	for _, tag := range environments {
-		testutils.AssertEqual(t, tag.EntityType, "environment")
-	}
-
-	services, err := store.SelectByEntityType("service")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	testutils.AssertEqual(t, len(services), 2)
-	for _, tag := range services {
-		testutils.AssertEqual(t, tag.EntityType, "service")
-	}
-
-	loadBalancers, err := store.SelectByEntityType("load_balancer")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	testutils.AssertEqual(t, len(loadBalancers), 2)
-	for _, tag := range loadBalancers {
-		testutils.AssertEqual(t, tag.EntityType, "load_balancer")
-	}
-
-	deploys, err := store.SelectByEntityType("deploy")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	testutils.AssertEqual(t, len(deploys), 4)
-	for _, tag := range deploys {
-		testutils.AssertEqual(t, tag.EntityType, "deploy")
+		if !reflect.DeepEqual(tags, c.Expected) {
+			t.Errorf("Query %#v: got %v, expected: %v", i, tags, c.Expected)
+		}
 	}
 }

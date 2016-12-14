@@ -3,7 +3,7 @@ package logic
 import (
 	"fmt"
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/commmon/db"
+	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
@@ -98,7 +98,7 @@ func TestGetLoadBalancer(t *testing.T) {
 					Return(&models.LoadBalancer{}, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0LoadBalancerLogic(mockLogic.Logic())
@@ -231,7 +231,7 @@ func TestListLoadBalancers(t *testing.T) {
 					Return(loadBalancers, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0LoadBalancerLogic(mockLogic.Logic())
@@ -303,7 +303,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 				logic := testMap["target"].(*L0LoadBalancerLogic)
 				logic.DeleteLoadBalancer("lbid")
 
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
+				sqlite := testMap["sqlite"].(*tag_store.TagStoreStoreSQLite)
 				tags, err := sqlite.Select()
 				if err != nil {
 					reporter.Error(err)
@@ -342,7 +342,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 					Return(nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0LoadBalancerLogic(mockLogic.Logic())
@@ -509,7 +509,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 					reporter.Error(err)
 				}
 
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
+				sqlite := testMap["sqlite"].(*tag_store.TagStoreStoreSQLite)
 				tags, err := sqlite.Select()
 				if err != nil {
 					reporter.Error(err)
@@ -541,7 +541,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 				mockLogic := NewMockLogic(ctrl)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0LoadBalancerLogic(mockLogic.Logic())
@@ -618,7 +618,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 					Return(&models.LoadBalancer{}, nil)
 
 				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
+					SelectByQuery(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return NewL0LoadBalancerLogic(mockLogic.Logic())

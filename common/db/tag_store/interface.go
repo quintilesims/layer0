@@ -9,7 +9,6 @@ type TagStore interface {
 	Close()
 	Delete(tag *models.Tag) error
 	Insert(tag *models.Tag) error
-	SelectAll() models.Tags
-	SelectByEntityID(string) models.Tags
-	SelectByEntityType(string) models.Tags
+	SelectAll() (models.Tags, error)
+	SelectByQuery(entityType, entityID string) (models.Tags, error)
 }

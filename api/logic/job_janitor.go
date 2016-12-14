@@ -38,7 +38,7 @@ func (this *JobJanitor) Run() {
 }
 
 func (this *JobJanitor) pulse() error {
-	jobs, err := this.jobLogic.ListJobs()
+	jobs, err := this.jobLogic.SelectAll()
 	if err != nil {
 		jobLogger.Errorf("Failed to list jobs: %v", err)
 		return err
@@ -51,7 +51,7 @@ func (this *JobJanitor) pulse() error {
 		if timeSinceCreated > JOB_LIFETIME {
 			jobLogger.Infof("Deleting job '%s'", job.JobID)
 
-			if err := this.jobLogic.DeleteJob(job.JobID); err != nil {
+			if err := this.jobLogic.Delete(job.JobID); err != nil {
 				jobLogger.Errorf("Failed to delete job '%s': %v", job.JobID, err)
 				errs = append(errs, err)
 			} else {

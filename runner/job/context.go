@@ -79,7 +79,7 @@ func (this *L0JobContext) SetMeta(key, val string) error {
 	this.mutex.Lock()
 	defer this.mutex.Unlock()
 
-	if err := this.logic.JobData.SetMeta(this.jobID, key, val); err != nil {
+	if err := this.logic.JobStore.SetMeta(this.jobID, key, val); err != nil {
 		return err
 	}
 
@@ -90,7 +90,7 @@ func (this *L0JobContext) GetMeta(key string) (string, error) {
 	this.mutex.Lock()
 	defer this.mutex.Unlock()
 
-	meta, err := this.logic.JobData.GetMeta(this.jobID)
+	meta, err := this.logic.JobStore.GetMeta(this.jobID)
 	if err != nil {
 		return "", err
 	}

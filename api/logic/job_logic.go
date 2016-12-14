@@ -14,10 +14,10 @@ import (
 )
 
 type JobLogic interface {
-	ListJobs() ([]*models.Job, error)
-	GetJob(string) (*models.Job, error)
+	SelectAll() ([]*models.Job, error)
+	SelectByID(string) (*models.Job, error)
 	CreateJob(types.JobType, interface{}) (*models.Job, error)
-	DeleteJob(string) error
+	Delete(string) error
 }
 
 type L0JobLogic struct {
@@ -34,8 +34,8 @@ func NewL0JobLogic(logic Logic, taskLogic TaskLogic, deployLogic DeployLogic) *L
 	}
 }
 
-func (this *L0JobLogic) ListJobs() ([]*models.Job, error) {
-	jobs, err := this.JobData.ListJobs()
+func (this *L0JobLogic) SelectAll() ([]*models.Job, error) {
+	jobs, err := this.JobStore.SelectAll()
 	if err != nil {
 		return nil, err
 	}
@@ -43,8 +43,8 @@ func (this *L0JobLogic) ListJobs() ([]*models.Job, error) {
 	return jobs, nil
 }
 
-func (this *L0JobLogic) GetJob(jobID string) (*models.Job, error) {
-	job, err := this.JobData.GetJob(jobID)
+func (this *L0JobLogic) SelectByID(jobID string) (*models.Job, error) {
+	job, err := this.JobStore.SelectByID(jobID)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +52,8 @@ func (this *L0JobLogic) GetJob(jobID string) (*models.Job, error) {
 	return job, nil
 }
 
-func (this *L0JobLogic) DeleteJob(jobID string) error {
-	job, err := this.GetJob(jobID)
+func (this *L0JobLogic) Delete(jobID string) error {
+	job, err := this.SelectByID(jobID)
 	if err != nil {
 		return err
 	}
@@ -62,11 +62,11 @@ func (this *L0JobLogic) DeleteJob(jobID string) error {
 		return err
 	}
 
-	if err := this.JobData.DeleteJob(jobID); err != nil {
+	if err := this.JobStore.Delete(jobID); err != nil {
 		return err
 	}
 
-	if err := this.deleteEntityTags(jobID, "job"); err != nil {
+	if err := this.deleteEntityTags("job", jobID); err != nil {
 		return err
 	}
 
@@ -105,11 +105,11 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 		TimeCreated: time.Now(),
 	}
 
-	if err := this.JobData.CreateJob(job); err != nil {
+	if err := this.JobStore.Insert(job); err != nil {
 		return nil, err
 	}
 
-	if err := this.addTag(jobID, "job", "task_id", task.TaskID); err != nil {
+	if err := this.upsertTagf(jobID, "job", "task_id", task.TaskID); err != nil {
 		return nil, err
 	}
 
@@ -149,8 +149,24 @@ func (this *L0JobLogic) createJobDeploy(jobID string) (*models.Deploy, error) {
 				Val: jobID,
 			},
 			{
-				Key: config.MYSQL_CONNECTION,
-				Val: config.MySQLConnection(),
+				Key: config.DB_USERNAME,
+				Val: config.DBUsername(),
+			},
+			{
+				Key: config.DB_PASSWORD,
+				Val: config.DBPassword(),
+			},
+			{
+				Key: config.DB_ADDRESS,
+				Val: config.DBAddress(),
+			},
+			{
+				Key: config.DB_PORT,
+				Val: string(config.DBPort()),
+			},
+			{
+				Key: config.DB_NAME,
+				Val: config.DBName(),
 			},
 			{
 				Key: config.AWS_ACCESS_KEY_ID,

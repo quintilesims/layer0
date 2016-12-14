@@ -16,7 +16,6 @@ import (
 
 func setupRestful(lgc logic.Logic) {
 	adminLogic := logic.NewL0AdminLogic(lgc)
-	certificateLogic := logic.NewL0CertificateLogic(lgc)
 	deployLogic := logic.NewL0DeployLogic(lgc)
 	environmentLogic := logic.NewL0EnvironmentLogic(lgc)
 	loadBalancerLogic := logic.NewL0LoadBalancerLogic(lgc)
@@ -25,20 +24,18 @@ func setupRestful(lgc logic.Logic) {
 	jobLogic := logic.NewL0JobLogic(lgc, taskLogic, deployLogic)
 
 	adminHandler := handlers.NewAdminHandler(adminLogic)
-	certificateHandler := handlers.NewCertificateHandler(certificateLogic)
 	deployHandler := handlers.NewDeployHandler(deployLogic)
 	environmentHandler := handlers.NewEnvironmentHandler(environmentLogic, jobLogic)
 	jobHandler := handlers.NewJobHandler(jobLogic)
 	loadBalancerHandler := handlers.NewLoadBalancerHandler(loadBalancerLogic, jobLogic)
 	serviceHandler := handlers.NewServiceHandler(serviceLogic, jobLogic)
-	tagHandler := handlers.NewTagHandler(lgc.TagData)
+	tagHandler := handlers.NewTagHandler(lgc.TagStore)
 	taskHandler := handlers.NewTaskHandler(taskLogic)
 
 	restful.SetLogger(logutils.SilentLogger{})
 	restful.Add(deployHandler.Routes())
 	restful.Add(serviceHandler.Routes())
 	restful.Add(environmentHandler.Routes())
-	restful.Add(certificateHandler.Routes())
 	restful.Add(tagHandler.Routes())
 	restful.Add(adminHandler.Routes())
 	restful.Add(loadBalancerHandler.Routes())
@@ -123,22 +120,12 @@ func main() {
 	region := config.AWSRegion()
 	credProvider := config.NewConfigCredProvider()
 
-	var connection string
-	if config.MySQLConnection() != "" {
-		connection = config.MySQLConnection()
-	}
-
-	var adminConnection string
-	if config.MySQLConnection() != "" {
-		adminConnection = config.MySQLAdminConnection()
-	}
-
-	backend, err := startup.GetBackend(credProvider, region, connection, adminConnection)
+	backend, err := startup.GetBackend(credProvider, region)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
-	lgc, err := startup.GetLogic(backend, connection, adminConnection)
+	lgc, err := startup.GetLogic(backend)
 	if err != nil {
 		logrus.Fatal(err)
 	}

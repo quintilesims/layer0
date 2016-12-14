@@ -14,7 +14,7 @@ import (
 	"time"
 )
 
-func TestGetJob(t *testing.T) {
+func TestSelectByID(t *testing.T) {
 	model := &models.Job{
 		JobID:       "some_job_id",
 		JobStatus:   1,
@@ -29,7 +29,7 @@ func TestGetJob(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLogic := NewMockLogic(ctrl)
 				mockLogic.Job.EXPECT().
-					GetJob("some_job_id").
+					SelectByID("some_job_id").
 					Return(model, nil)
 
 				mockTask := mock_logic.NewMockTaskLogic(ctrl)
@@ -40,7 +40,7 @@ func TestGetJob(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				job := target.(*L0JobLogic)
 
-				output, err := job.GetJob("some_job_id")
+				output, err := job.SelectByID("some_job_id")
 				if err != nil {
 					reporter.Error(err)
 				}
@@ -53,7 +53,7 @@ func TestGetJob(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLogic := NewMockLogic(ctrl)
 				mockLogic.Job.EXPECT().
-					GetJob("some_job_id").
+					SelectByID("some_job_id").
 					Return(nil, fmt.Errorf("some error"))
 
 				mockTask := mock_logic.NewMockTaskLogic(ctrl)
@@ -64,7 +64,7 @@ func TestGetJob(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				job := target.(*L0JobLogic)
 
-				if _, err := job.GetJob("some_job_id"); err == nil {
+				if _, err := job.SelectByID("some_job_id"); err == nil {
 					reporter.Errorf("Error was nil!")
 				}
 			},
@@ -74,7 +74,7 @@ func TestGetJob(t *testing.T) {
 	testutils.RunTests(t, testCases)
 }
 
-func TestListJobs(t *testing.T) {
+func TestSelectAll(t *testing.T) {
 	models := []*models.Job{
 		&models.Job{
 			JobID:       "some_job_id1",
@@ -98,7 +98,7 @@ func TestListJobs(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLogic := NewMockLogic(ctrl)
 				mockLogic.Job.EXPECT().
-					ListJobs().
+					SelectAll().
 					Return(models, nil)
 
 				mockTask := mock_logic.NewMockTaskLogic(ctrl)
@@ -109,7 +109,7 @@ func TestListJobs(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				job := target.(*L0JobLogic)
 
-				output, err := job.ListJobs()
+				output, err := job.SelectAll()
 				if err != nil {
 					reporter.Error(err)
 				}
@@ -122,7 +122,7 @@ func TestListJobs(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLogic := NewMockLogic(ctrl)
 				mockLogic.Job.EXPECT().
-					ListJobs().
+					SelectAll().
 					Return(nil, fmt.Errorf("some error"))
 
 				mockTask := mock_logic.NewMockTaskLogic(ctrl)
@@ -133,7 +133,7 @@ func TestListJobs(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				job := target.(*L0JobLogic)
 
-				if _, err := job.ListJobs(); err == nil {
+				if _, err := job.SelectAll(); err == nil {
 					reporter.Errorf("Error was nil!")
 				}
 			},
