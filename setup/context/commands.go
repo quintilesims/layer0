@@ -47,7 +47,7 @@ func (r DefaultFileIO) Stat(path string) (os.FileInfo, error) {
 	return os.Stat(path)
 }
 
-func Apply(c *Context, force bool) error {
+func Apply(c *Context, force bool, dockercfg string) error {
 	//TODO: Declare io elsewhere and pass in for testing
 	io := DefaultFileIO{}
 
@@ -86,17 +86,10 @@ func Apply(c *Context, force bool) error {
 		}
 	}
 
-	var dockercfg string
-	dockercfg_flag, ok := c.Flags["dockercfg"]
+	instancePath := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
 
-	if ok && dockercfg_flag != nil && *dockercfg_flag != "" {
-		fmt.Printf("Detected dockercfg: `%s`\n", *dockercfg_flag)
-		dockercfg = *dockercfg_flag
-		instancePath := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
-
-		if err := CopyFile(dockercfg, instancePath); err != nil {
-			return fmt.Errorf("Failed to copy dockercfg: %v.", err)
-		}
+	if err := CopyFile(dockercfg, instancePath); err != nil {
+		return fmt.Errorf("Failed to copy dockercfg: %v.", err)
 	}
 
 	// validate dockercfg; if file does not exist, write empty dockercfg file
@@ -466,11 +459,7 @@ func checkDockercfg(c *Context, force bool, io FileIO) error {
 
 	}
 
-	if err := validateDockercfg(path, io); err != nil {
-		return err
-	}
-
-	return nil
+	return validateDockercfg(path, io)
 }
 
 func validateDockercfg(dockercfgPath string, io FileIO) error {

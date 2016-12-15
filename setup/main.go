@@ -77,7 +77,6 @@ func main() {
 		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region"})
 
 		dockercfg := cmd.StringOpt("dockercfg", "", "Path to valid dockercfg file")
-		flags["dockercfg"] = dockercfg
 
 		force := cmd.BoolOpt("force", false, "Set this flag to skip prompting on a missing dockercfg file")
 
@@ -85,7 +84,7 @@ func main() {
 		flags["vpc_id"] = vpc
 
 		command := func(c *context.Context) error {
-			return context.Apply(c, *force)
+			return context.Apply(c, *force, *dockercfg)
 		}
 
 		flagsCommand(cmd, command, flags)
