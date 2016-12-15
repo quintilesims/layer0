@@ -5,15 +5,14 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/quintilesims/layer0/common/aws/provider"
+	"github.com/quintilesims/layer0/common/aws/s3"
+	"github.com/quintilesims/layer0/common/config"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
 	"time"
-
-	"github.com/quintilesims/layer0/common/aws/provider"
-	"github.com/quintilesims/layer0/common/aws/s3"
-	"github.com/quintilesims/layer0/common/config"
 )
 
 type TFState struct {
@@ -447,7 +446,7 @@ func checkDockercfg(c *Context, force bool, io FileIO) error {
 	if _, err := io.Stat(path); err != nil {
 
 		// write empty dockercfg file
-		if err := io.WriteFile(path, []byte("{}"), 0666); err != nil {
+		if err := io.WriteFile(path, []byte("{}"), 0660); err != nil {
 			return fmt.Errorf("Failed to write 'dockercfg': %v", err)
 		}
 
