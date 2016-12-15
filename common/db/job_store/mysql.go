@@ -7,6 +7,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	dbcommon "github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/types"
 	"time"
 )
 
@@ -81,6 +82,10 @@ func (m *MysqlJobStore) Delete(id string) error {
 	return m.exec("DELETE FROM jobs WHERE job_id=?", id)
 }
 
+func (m *MysqlJobStore) UpdateJobStatus(id string, status types.JobStatus) error {
+	return m.exec("UPDATE jobs SET job_status=? WHERE job_id=?", int64(status), id)
+}
+
 func (m *MysqlJobStore) SelectAll() ([]*models.Job, error) {
 	return m.query("SELECT * FROM jobs")
 }
@@ -113,45 +118,64 @@ func (m *MysqlJobStore) exec(query string, args ...interface{}) error {
 }
 
 func (m *MysqlJobStore) query(query string, args ...interface{}) ([]*models.Job, error) {
-	return nil, fmt.Errorf("query not implemtned")
+	stmt, err := m.db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
 
-	/*
-		stmt, err := m.db.Prepare(query)
-		if err != nil {
-			return nil, err
-		}
-		defer stmt.Close()
+	rows, err := stmt.Query(args...)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
 
-		rows, err := stmt.Query(args...)
-		if err != nil {
-			return nil, err
-		}
-		defer rows.Close()
+	jobs := []*models.Job{}
+	for rows.Next() {
+		var job = models.Job{}
+		var created string
+		var updated string
+		var meta string
 
-		jobs := models.Job{}
-		for rows.Next() {
-			var job = models.Job{}
-			var id int
-
-			err := rows.Scan(
-				&id,
-				&job.Key,
-				&job.Value,
-				&job.EntityID,
-				&job.EntityType)
-			if err != nil {
-				return nil, err
-			}
-
-			jobs = append(jobs, &job)
-		}
-
-		if err := rows.Err(); err != nil {
+		if err := rows.Scan(
+			&job.JobID,
+			&job.TaskID,
+			&job.JobType,
+			&job.JobStatus,
+			&created,
+			&updated,
+			&job.Request,
+			&meta,
+		); err != nil {
 			return nil, err
 		}
 
-		return models.Job(jobs), nil
-	*/
+		if t, err := time.Parse(TIME_FORMAT, created); err != nil {
+			return nil, err
+		} else {
+			job.TimeCreated = t
+		}
+
+		if t, err := time.Parse(TIME_FORMAT, updated); err != nil {
+			return nil, err
+		} else {
+			job.LastUpdated = t
+		}
+
+		if m, err := stringToMap(meta); err != nil {
+			return nil, err
+		} else {
+			job.Meta = m
+		}
+
+		jobs = append(jobs, &job)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return jobs, nil
 }
 
 func mapToString(meta map[string]string) (string, error) {

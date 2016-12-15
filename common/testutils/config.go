@@ -1,4 +1,4 @@
-package tag_store
+package testutils
 
 /*
 	There is a mock packge, https://github.com/DATA-DOG/go-sqlmock, that could be used for these tests
@@ -10,8 +10,6 @@ import (
 	"flag"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/db"
-	"github.com/quintilesims/layer0/common/models"
-	"testing"
 )
 
 var (
@@ -26,33 +24,12 @@ func init() {
 	flag.Parse()
 }
 
-func NewTestTagStore(t *testing.T) *MysqlTagStore {
-	store := NewMysqlTagStore(db.Config{
+func GetDBConfig() db.Config {
+	return db.Config{
 		Username: *username,
 		Password: *password,
 		Address:  *address,
 		Port:     *port,
 		DBName:   *dbName,
-	})
-
-	if err := store.Init(); err != nil {
-		t.Fatal(err)
 	}
-
-	if err := store.Clear(); err != nil {
-		t.Fatal(err)
-	}
-
-	return store
-}
-
-func NewTestTagStoreWithTags(t *testing.T, tags models.Tags) *MysqlTagStore {
-	store := NewTestTagStore(t)
-	for _, tag := range tags {
-		if err := store.Insert(tag); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	return store
 }

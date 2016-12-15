@@ -26,6 +26,31 @@ func getTestTags() models.Tags {
 	}
 }
 
+func NewTestTagStore(t *testing.T) *MysqlTagStore {
+	store := NewMysqlTagStore(testutils.GetDBConfig())
+
+	if err := store.Init(); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := store.Clear(); err != nil {
+		t.Fatal(err)
+	}
+
+	return store
+}
+
+func NewTestTagStoreWithTags(t *testing.T, tags models.Tags) *MysqlTagStore {
+	store := NewTestTagStore(t)
+	for _, tag := range tags {
+		if err := store.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	return store
+}
+
 func assertTagsMatch(t *testing.T, store *MysqlTagStore, expected models.Tags) {
 	tags, err := store.SelectAll()
 	if err != nil {
@@ -36,16 +61,6 @@ func assertTagsMatch(t *testing.T, store *MysqlTagStore, expected models.Tags) {
 	for _, tag := range tags {
 		testutils.AssertInSlice(t, tag, expected)
 	}
-}
-
-func testQuery(t *testing.T, entityType, entityID string) (models.Tags, func()) {
-	store := NewTestTagStoreWithTags(t, getTestTags())
-	tags, err := store.SelectByQuery(entityType, entityID)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	return tags, func() { store.Close() }
 }
 
 func TestMysqlTagStoreInsert(t *testing.T) {

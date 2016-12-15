@@ -5,14 +5,17 @@ type EntitiesWithTags []*EntityWithTags
 type ewtFilter func(e EntityWithTags) bool
 
 func (e EntitiesWithTags) RemoveIf(f ewtFilter) EntitiesWithTags {
-	for i := 0; i < len(e); i++ {
-		if f(*e[i]) {
-			e = append(e[:i], e[i+1:]...)
+	cp := make(EntitiesWithTags, len(e))
+	copy(cp, e)
+
+	for i := 0; i < len(cp); i++ {
+		if f(*cp[i]) {
+			cp = append(cp[:i], cp[i+1:]...)
 			i--
 		}
 	}
 
-	return e
+	return cp
 }
 
 // removes each EntityWithTags object from e if e.Tags does

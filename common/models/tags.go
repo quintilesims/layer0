@@ -9,14 +9,17 @@ type Tags []*Tag
 type filter func(Tag) bool
 
 func (t Tags) RemoveIf(f filter) Tags {
-	for i := 0; i < len(t); i++ {
-		if f(*t[i]) {
-			t = append(t[:i], t[i+1:]...)
+	cp := make(Tags, len(t))
+	copy(cp, t)
+
+	for i := 0; i < len(cp); i++ {
+		if f(*cp[i]) {
+			cp = append(cp[:i], cp[i+1:]...)
 			i--
 		}
 	}
 
-	return t
+	return cp
 }
 
 func (t Tags) WithKey(key string) Tags {
