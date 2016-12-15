@@ -24,3 +24,5 @@ pass_file
 **pyc
 *.save
 coverage.*
+*.tags*
+

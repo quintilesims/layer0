@@ -5,14 +5,15 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/quintilesims/layer0/common/aws/provider"
-	"github.com/quintilesims/layer0/common/aws/s3"
-	"github.com/quintilesims/layer0/common/config"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
 	"time"
+
+	"github.com/quintilesims/layer0/common/aws/provider"
+	"github.com/quintilesims/layer0/common/aws/s3"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 type TFState struct {
@@ -27,7 +28,30 @@ type TFModule struct {
 	Resources map[string]interface{} `json:"resources"`
 }
 
+type FileIO interface {
+	ReadFile(path string) ([]byte, error)
+	WriteFile(path string, data []byte, perm os.FileMode) error
+	Stat(path string) (os.FileInfo, error)
+}
+
+type DefaultFileIO struct{}
+
+func (r DefaultFileIO) ReadFile(path string) ([]byte, error) {
+	return ioutil.ReadFile(path)
+}
+
+func (r DefaultFileIO) WriteFile(path string, data []byte, perm os.FileMode) error {
+	return ioutil.WriteFile(path, data, perm)
+}
+
+func (r DefaultFileIO) Stat(path string) (os.FileInfo, error) {
+	return os.Stat(path)
+}
+
 func Apply(c *Context, force bool) error {
+	//TODO: Declare io elsewhere and pass in for testing
+	io := DefaultFileIO{}
+
 	if err := c.Load(false); err != nil {
 		return err
 	}
@@ -63,8 +87,21 @@ func Apply(c *Context, force bool) error {
 		}
 	}
 
-	// write empty dockercfg file if it doesn't exist
-	if err := checkDockercfg(c, force); err != nil {
+	var dockercfg string
+	dockercfg_flag, ok := c.Flags["dockercfg"]
+
+	if ok && dockercfg_flag != nil && *dockercfg_flag != "" {
+		fmt.Printf("Detected dockercfg: `%s`\n", *dockercfg_flag)
+		dockercfg = *dockercfg_flag
+		instancePath := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
+
+		if err := CopyFile(dockercfg, instancePath); err != nil {
+			return fmt.Errorf("Failed to copy dockercfg: %v.", err)
+		}
+	}
+
+	// validate dockercfg; if file does not exist, write empty dockercfg file
+	if err := checkDockercfg(c, force, io); err != nil {
 		return err
 	}
 
@@ -393,7 +430,9 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 }
 
 func Plan(c *Context, args []string) error {
-	if err := checkDockercfg(c, false); err != nil {
+	//TODO: Declare io elsewhere and pass in for testing
+	io := DefaultFileIO{}
+	if err := checkDockercfg(c, false, io); err != nil {
 		return err
 	}
 
@@ -401,27 +440,50 @@ func Plan(c *Context, args []string) error {
 	return Terraform(c, args)
 }
 
-func checkDockercfg(c *Context, force bool) error {
+func checkDockercfg(c *Context, force bool, io FileIO) error {
 	path := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
 
-	// if file doesn't exist
-	if _, err := os.Stat(path); err != nil {
-		if !force {
-			text := fmt.Sprintf("WARNING: No 'dockercfg' file present at %s. \n", path)
-			text += "If you require private registry authentication, please create this file \n"
-			text += "with the required credentials before proceeding. \n"
-			text += "This step is not required, but highly recommended if private authentication is required. \n"
-			text += "\n    Enter 'yes' to continue: "
+	// if file does not exist
+	if _, err := io.Stat(path); err != nil {
 
-			if !requireInput(text, "yes") {
+		// write empty dockercfg file
+		if err := io.WriteFile(path, []byte("{}"), 0666); err != nil {
+			return fmt.Errorf("Failed to write 'dockercfg': %v", err)
+		}
+
+		// alert user
+		if !force {
+			text := fmt.Sprintf("NOTICE: No 'dockercfg' file present at %s. \n", path)
+			text += "Created default 'dockercfg' file. \n"
+			text += "\n"
+			text += "If you require private registry authentication, please edit this file \n"
+			text += "with the required credentials before proceeding. \n"
+			text += "\n    Continue? (y/n): "
+
+			if !requireInput(text, "y") {
 				return fmt.Errorf("Operation Cancelled")
 			}
 		}
 
-		// write empty dockercfg file
-		if err := ioutil.WriteFile(path, []byte("{}"), 0666); err != nil {
-			return fmt.Errorf("Failed to write 'dockercfg': %v", err)
-		}
+	}
+
+	if err := validateDockercfg(path, io); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func validateDockercfg(dockercfgPath string, io FileIO) error {
+	contents, err := io.ReadFile(dockercfgPath)
+	if err != nil {
+		return err
+	}
+
+	// Simple attempt to validate JSON
+	var result map[string]interface{}
+	if err := json.Unmarshal(contents, &result); err != nil {
+		return fmt.Errorf("Failed to validate JSON for 'dockercfg': %v", err)
 	}
 
 	return nil
