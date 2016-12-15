@@ -30,27 +30,40 @@ func (mock MockFileIO) Stat(path string) (os.FileInfo, error) {
 }
 
 func TestValidateDockercfgWithValidData(t *testing.T) {
-	mockIO := MockFileIO{data: map[string][]byte{"foo": []byte(`
+	mockIO := MockFileIO{data: map[string][]byte{"path": []byte(`
         {
             "https://d.ims.io": {
                 "auth": "StopLookingAtMySecretsYouJerk=",
                 "email": ""
             }
         }`)}}
-	if err := validateDockercfg("foo", mockIO); err != nil {
+	if err := validateDockercfg("path", mockIO); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestValidateDockercfgWithInvalidData(t *testing.T) {
-	mockIO := MockFileIO{data: map[string][]byte{"foo": []byte(`
+	mockIO := MockFileIO{data: map[string][]byte{"path": []byte(`
         {
             "https://d.ims.io": {
                 "auth": "StopLookingAtMySecretsYouJerk=",
                 "email": ""
             },
         }`)}}
-	if err := validateDockercfg("foo", mockIO); err == nil {
+	if err := validateDockercfg("path", mockIO); err == nil {
+		t.Fatal(err)
+	}
+}
+
+func TestValidateDockercfgWithInvalidPath(t *testing.T) {
+	mockIO := MockFileIO{data: map[string][]byte{"path": []byte(`
+        {
+            "https://d.ims.io": {
+                "auth": "StopLookingAtMySecretsYouJerk=",
+                "email": ""
+            }
+        }`)}}
+	if err := validateDockercfg("badpath", mockIO); err == nil {
 		t.Fatal(err)
 	}
 }
