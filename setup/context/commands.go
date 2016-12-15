@@ -27,30 +27,7 @@ type TFModule struct {
 	Resources map[string]interface{} `json:"resources"`
 }
 
-type FileIO interface {
-	ReadFile(path string) ([]byte, error)
-	WriteFile(path string, data []byte, perm os.FileMode) error
-	Stat(path string) (os.FileInfo, error)
-}
-
-type DefaultFileIO struct{}
-
-func (r DefaultFileIO) ReadFile(path string) ([]byte, error) {
-	return ioutil.ReadFile(path)
-}
-
-func (r DefaultFileIO) WriteFile(path string, data []byte, perm os.FileMode) error {
-	return ioutil.WriteFile(path, data, perm)
-}
-
-func (r DefaultFileIO) Stat(path string) (os.FileInfo, error) {
-	return os.Stat(path)
-}
-
 func Apply(c *Context, force bool, dockercfg string) error {
-	//TODO: Declare io elsewhere and pass in for testing
-	io := DefaultFileIO{}
-
 	if err := c.Load(false); err != nil {
 		return err
 	}
@@ -86,15 +63,22 @@ func Apply(c *Context, force bool, dockercfg string) error {
 		}
 	}
 
-	instancePath := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
+	if dockercfg != "" {
+		fmt.Printf("Detected dockercfg: `%s`\n", dockercfg)
+		instancePath := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
 
-	if err := CopyFile(dockercfg, instancePath); err != nil {
-		return fmt.Errorf("Failed to copy dockercfg: %v.", err)
+		if err := CopyFile(dockercfg, instancePath); err != nil {
+			return fmt.Errorf("Failed to copy dockercfg: %v.", err)
+		}
 	}
 
 	// validate dockercfg; if file does not exist, write empty dockercfg file
-	if err := checkDockercfg(c, force, io); err != nil {
+	if err := checkDockercfg(c, force); err != nil {
 		return err
+	}
+
+	if !requireInput("Pre-apply check", "y") {
+		return fmt.Errorf("Operation Cancelled")
 	}
 
 	// first apply typically fails due to https://github.com/hashicorp/terraform/issues/2349
@@ -422,9 +406,7 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 }
 
 func Plan(c *Context, args []string) error {
-	//TODO: Declare io elsewhere and pass in for testing
-	io := DefaultFileIO{}
-	if err := checkDockercfg(c, false, io); err != nil {
+	if err := checkDockercfg(c, false); err != nil {
 		return err
 	}
 
@@ -432,14 +414,14 @@ func Plan(c *Context, args []string) error {
 	return Terraform(c, args)
 }
 
-func checkDockercfg(c *Context, force bool, io FileIO) error {
+func checkDockercfg(c *Context, force bool) error {
 	path := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
 
 	// if file does not exist
-	if _, err := io.Stat(path); err != nil {
+	if _, err := os.Stat(path); err != nil {
 
 		// write empty dockercfg file
-		if err := io.WriteFile(path, []byte("{}"), 0660); err != nil {
+		if err := ioutil.WriteFile(path, []byte("{}"), 0660); err != nil {
 			return fmt.Errorf("Failed to write 'dockercfg': %v", err)
 		}
 
@@ -459,11 +441,11 @@ func checkDockercfg(c *Context, force bool, io FileIO) error {
 
 	}
 
-	return validateDockercfg(path, io)
+	return validateDockercfg(path)
 }
 
-func validateDockercfg(dockercfgPath string, io FileIO) error {
-	contents, err := io.ReadFile(dockercfgPath)
+func validateDockercfg(dockercfgPath string) error {
+	contents, err := ioutil.ReadFile(dockercfgPath)
 	if err != nil {
 		return err
 	}
