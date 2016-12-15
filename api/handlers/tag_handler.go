@@ -6,6 +6,7 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"net/http"
+	"strings"
 )
 
 type TagHandler struct {
@@ -29,8 +30,11 @@ func (t *TagHandler) Routes() *restful.WebService {
 		Filter(basicAuthenticate).
 		To(t.FindTags).
 		Doc("Lists tags, optionally filtered by the query parameters").
-		Param(service.QueryParameter("name", "tag name to find").DataType("string")).
-		Param(service.QueryParameter("type", "target type for the tag").DataType("string")).
+		Param(service.QueryParameter("type", "Require the EntityType field match the specified parameter").DataType("string")).
+		Param(service.QueryParameter("id", "Require the EntityID field match the specified parameter").DataType("string")).
+		Param(service.QueryParameter("fuzz", "Require the prefix of the EntityID field or 'name' tag match the specified parameter").DataType("string")).
+		Param(service.QueryParameter("version", "Require the 'version' tag match the specified parameter. If 'latest' is used, only the latest will be returned").DataType("string")).
+		Param(service.QueryParameter("environment_id", "Require the 'environment_id' tag match the specified parameter").DataType("string")).
 		Returns(200, "OK", []models.EntityWithTags{}))
 
 	service.Route(service.POST("/").
@@ -53,14 +57,90 @@ func (t *TagHandler) Routes() *restful.WebService {
 }
 
 func (t *TagHandler) FindTags(request *restful.Request, response *restful.Response) {
-	keys := make(map[string]string)
+	params := make(map[string]string)
 	for key, val := range request.Request.URL.Query() {
-		keys[key] = val[0]
+		params[key] = val[0]
 	}
 
-	// todo: re-create t
+	var entityType string
+	var entityID string
+	var fuzz string
+	var latestVersion bool
 
-	response.WriteAsJson(keys)
+	// break out special filter params so we don't filter
+	// them by tag.Key and tag.Value
+	if val, ok := params["type"]; ok {
+		entityType = val
+		delete(params, "type")
+	}
+
+	if val, ok := params["id"]; ok {
+		entityID = val
+		delete(params, "id")
+	}
+
+	if val, ok := params["fuzz"]; ok {
+		fuzz = val
+		delete(params, "fuzz")
+	}
+
+	if val, ok := params["version"]; ok && val == "latest" {
+		latestVersion = true
+		delete(params, "version")
+	}
+
+	// filter by entityID and/or entityType
+	// if neither are specified, this acts as a SelectAll
+	tags, err := t.TagStore.SelectByQuery(entityType, entityID)
+	if err != nil {
+		ReturnError(response, err)
+		return
+	}
+
+	// filter the non-special params the by tag.Name and tag.Value (e.g. environment_id, version)
+	ewts := tags.GroupByEntity()
+	for key, val := range params {
+		ewts = ewts.WithKey(key).WithValue(val)
+	}
+
+	if fuzz != "" {
+		ewts = ewts.RemoveIf(func(e models.EntityWithTags) bool {
+			// don't remove if the EntityID matches the fuzz prefix
+			if strings.HasPrefix(e.EntityID, fuzz) {
+				return false
+			}
+
+			// don't remove if the name tag matches the fuzz prefix
+			if tag := e.Tags.WithKey("name").First(); tag != nil {
+				return !strings.HasPrefix(tag.Value, fuzz)
+			}
+
+			return true
+		})
+	}
+
+	if latestVersion {
+		var latest string
+		var index int
+
+		for i, ewt := range ewts {
+			if tag := ewt.Tags.WithKey("version").First(); tag != nil {
+				current := tag.Value
+				if latest == "" || current > latest {
+					latest = current
+					index = i
+				}
+			}
+		}
+
+		if latest == "" {
+			ewts = models.EntitiesWithTags{}
+		} else {
+			ewts = models.EntitiesWithTags{ewts[index]}
+		}
+	}
+
+	response.WriteAsJson(ewts)
 }
 
 func (t *TagHandler) DeleteTag(request *restful.Request, response *restful.Response) {

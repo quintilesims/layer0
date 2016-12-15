@@ -17,7 +17,7 @@ var (
 	password = flag.String("password", config.DBPassword(), "password for the test db")
 	address  = flag.String("address", config.DBAddress(), "address for the test db")
 	port     = flag.Int("port", config.DBPort(), "port for the test db")
-	dbName   = flag.String("dbname", config.DBName(), "name of the test db")
+	dbName   = flag.String("dbname", "layer0_test", "name of the test db")
 )
 
 func init() {

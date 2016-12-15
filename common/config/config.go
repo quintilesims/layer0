@@ -11,6 +11,9 @@ import (
 // IMPORTANT!
 // The environment variables represented as constants here should
 // always line up with the environment variables in setup/container_definitions.json
+
+// todo: change l0-setup, api, and cli to use only auth_token
+// todo: change l0-setup to use db_name, password, etc. instead of mysql_connection
 const (
 	AWS_ACCOUNT_ID                  = "LAYER0_AWS_ACCOUNT_ID"
 	AWS_ACCESS_KEY_ID               = "LAYER0_AWS_ACCESS_KEY_ID"
@@ -26,32 +29,29 @@ const (
 	JOB_ID                          = "LAYER0_JOB_ID"
 	AWS_SERVICE_AMI                 = "LAYER0_AWS_SERVICE_AMI"
 	AWS_REGION                      = "LAYER0_AWS_REGION"
-	// todo: change l0-setup, api, and cli to use only auth_token
-	AUTH_TOKEN          = "LAYER0_AUTH_TOKEN"
-	API_ENDPOINT        = "LAYER0_API_ENDPOINT"
-	API_PORT            = "LAYER0_API_PORT"
-	API_LOG_LEVEL       = "LAYER0_API_LOG_LEVEL"
-	PREFIX              = "LAYER0_PREFIX"
-	RUNNER_LOG_LEVEL    = "LAYER0_RUNNER_LOG_LEVEL"
-	RUNNER_VERSION_TAG  = "LAYER0_RUNNER_VERSION_TAG"
-	SKIP_SSL_VERIFY     = "LAYER0_SKIP_SSL_VERIFY"
-	SKIP_VERSION_VERIFY = "LAYER0_SKIP_VERSION_VERIFY"
-	// todo: change l0-setup to use these intead of mysql_connection
-	DB_USERNAME = "LAYER0_DB_USERNAME"
-	DB_PASSWORD = "LAYER0_DB_PASSWORD"
-	DB_ADDRESS  = "LAYER0_DB_ADDRESS"
-	DB_PORT     = "LAYER0_DB_PORT"
-	DB_NAME     = "LAYER0_DB_NAME"
+	AUTH_TOKEN                      = "LAYER0_AUTH_TOKEN"
+	API_ENDPOINT                    = "LAYER0_API_ENDPOINT"
+	API_PORT                        = "LAYER0_API_PORT"
+	API_LOG_LEVEL                   = "LAYER0_API_LOG_LEVEL"
+	PREFIX                          = "LAYER0_PREFIX"
+	RUNNER_LOG_LEVEL                = "LAYER0_RUNNER_LOG_LEVEL"
+	RUNNER_VERSION_TAG              = "LAYER0_RUNNER_VERSION_TAG"
+	SKIP_SSL_VERIFY                 = "LAYER0_SKIP_SSL_VERIFY"
+	SKIP_VERSION_VERIFY             = "LAYER0_SKIP_VERSION_VERIFY"
+	DB_USERNAME                     = "LAYER0_DB_USERNAME"
+	DB_PASSWORD                     = "LAYER0_DB_PASSWORD"
+	DB_ADDRESS                      = "LAYER0_DB_ADDRESS"
+	DB_PORT                         = "LAYER0_DB_PORT"
+	DB_NAME                         = "LAYER0_DB_NAME"
 )
 
 // defaults
+// bGF5ZXIwOm5vaGF4cGx6 = layer0:nohaxplz, base64 encoded (basic http auth)
 const (
-	DEFAULT_DB_USERNAME = "layer0"
-	DEFAULT_DB_PASSWORD = "nohaxplz"
-	DEFAULT_DB_ADDRESS  = "127.0.0.1"
-	DEFAULT_DB_PORT     = 3306
-	DEFAULT_DB_NAME     = "layer0_test"
-	// usr:pwd = layer0:nohaxplz, base64 encoded (basic http auth)
+	DEFAULT_DB_USERNAME  = "layer0"
+	DEFAULT_DB_PASSWORD  = "nohaxplz"
+	DEFAULT_DB_ADDRESS   = "127.0.0.1"
+	DEFAULT_DB_PORT      = 3306
 	DEFAULT_AUTH_TOKEN   = "bGF5ZXIwOm5vaGF4cGx6"
 	DEFAULT_API_ENDPOINT = "http://localhost:9090/"
 	DEFAULT_API_PORT     = "9090"

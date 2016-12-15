@@ -43,7 +43,7 @@ func getTestJobs() []*models.Job {
 		{
 			JobID:       "job_id4",
 			TaskID:      "task_id4",
-			JobStatus:   int64(types.Completed),
+			JobStatus:   int64(types.Error),
 			JobType:     int64(types.DeleteLoadBalancerJob),
 			Request:     "request4",
 			TimeCreated: time.Now(),
@@ -130,6 +130,8 @@ func TestMysqlJobStoreDelete(t *testing.T) {
 	if err := store.Delete("invalid"); err != nil {
 		t.Fatal(err)
 	}
+
+	assertJobsMatch(t, store, jobs[2:])
 }
 
 func TestMysqlJobStoreUpdateJobStatus(t *testing.T) {
