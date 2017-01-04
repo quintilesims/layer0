@@ -151,6 +151,48 @@ func TestCreateLoadBalancer(t *testing.T) {
 	testLogic.AssertTagExists(t, models.Tag{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "e1"})
 }
 
+func TestCreateLoadBalancerError_missingRequiredParams(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+
+	cases := map[string]models.CreateLoadBalancerRequest{
+		"Missing EnvironmentID": models.CreateLoadBalancerRequest{
+			LoadBalancerName: "name",
+		},
+		"Missing LoadBalancerName": models.CreateLoadBalancerRequest{
+			EnvironmentID: "e1",
+		},
+	}
+
+	for name, request := range cases {
+		if _, err := loadBalancerLogic.CreateLoadBalancer(request); err == nil {
+			t.Errorf("Case %s: error was nil!", name)
+		}
+	}
+}
+
+func TestCreateLoadBalancerError_duplicateName(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	testLogic.AddTags(t, []*models.Tag{
+		{EntityID: "l1", EntityType: "load_balancer", Key: "name", Value: "lb_1"},
+		{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "e1"},
+	})
+
+	request := models.CreateLoadBalancerRequest{
+		EnvironmentID:    "e1",
+		LoadBalancerName: "lb_1",
+	}
+
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+	if _, err := loadBalancerLogic.CreateLoadBalancer(request); err == nil {
+		t.Errorf("Error was nil!")
+	}
+}
+
 func TestUpdateLoadBalancer(t *testing.T) {
 	testLogic, ctrl := NewTestLogic(t)
 	defer ctrl.Finish()

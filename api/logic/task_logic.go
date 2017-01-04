@@ -16,13 +16,11 @@ type TaskLogic interface {
 
 type L0TaskLogic struct {
 	Logic
-	DeployLogic
 }
 
-func NewL0TaskLogic(logic Logic, deployLogic DeployLogic) *L0TaskLogic {
+func NewL0TaskLogic(logic Logic) *L0TaskLogic {
 	return &L0TaskLogic{
-		Logic:       logic,
-		DeployLogic: deployLogic,
+		Logic: logic,
 	}
 }
 
@@ -104,12 +102,12 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 		return task, err
 	}
 
-	environmentID := task.EnvironmentID
+	environmentID := req.EnvironmentID
 	if err := this.upsertTagf(taskID, "task", "environment_id", environmentID); err != nil {
 		return task, err
 	}
 
-	deployID := task.DeployID
+	deployID := req.DeployID
 	if err := this.upsertTagf(taskID, "task", "deploy_id", deployID); err != nil {
 		return task, err
 	}

@@ -121,6 +121,10 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 		return nil, errors.Newf(errors.MissingParameter, "ServiceName not specified")
 	}
 
+	if req.DeployID == "" {
+		return nil, errors.Newf(errors.MissingParameter, "DeployID not specified")
+	}
+
 	exists, err := this.doesServiceTagExist(req.EnvironmentID, req.ServiceName)
 	if err != nil {
 		return nil, err
@@ -145,7 +149,7 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 		return service, err
 	}
 
-	environmentID := service.EnvironmentID
+	environmentID := req.EnvironmentID
 	if err := this.upsertTagf(serviceID, "service", "environment_id", environmentID); err != nil {
 		return service, err
 	}
@@ -245,6 +249,7 @@ func (this *L0ServiceLogic) populateModel(model *models.Service) error {
 		}
 	}
 
+	deployments := []models.Deployment{}
 	for _, deploy := range model.Deployments {
 		tags, err := this.TagStore.SelectByQuery("deploy", deploy.DeployID)
 		if err != nil {
@@ -258,7 +263,11 @@ func (this *L0ServiceLogic) populateModel(model *models.Service) error {
 		if tag := tags.WithKey("version").First(); tag != nil {
 			deploy.DeployVersion = tag.Value
 		}
+
+		deployments = append(deployments, deploy)
 	}
+
+	model.Deployments = deployments
 
 	return nil
 }

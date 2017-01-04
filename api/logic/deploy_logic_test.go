@@ -128,3 +128,20 @@ func TestCreateDeploy(t *testing.T) {
 	testLogic.AssertTagExists(t, models.Tag{EntityID: "d1", EntityType: "deploy", Key: "name", Value: "name"})
 	testLogic.AssertTagExists(t, models.Tag{EntityID: "d1", EntityType: "deploy", Key: "version", Value: "1"})
 }
+
+func TestCreateDeployError_missingRequiredParams(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	deployLogic := NewL0DeployLogic(testLogic.Logic())
+
+	cases := map[string]models.CreateDeployRequest{
+		"Missing DeployName": models.CreateDeployRequest{},
+	}
+
+	for name, request := range cases {
+		if _, err := deployLogic.CreateDeploy(request); err == nil {
+			t.Errorf("Case %s: error was nil!", name)
+		}
+	}
+}

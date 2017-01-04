@@ -173,6 +173,23 @@ func TestCreateEnvironment(t *testing.T) {
 	testLogic.AssertTagExists(t, models.Tag{EntityID: "e1", EntityType: "environment", Key: "name", Value: "name"})
 }
 
+func TestCreateEnvironmentError_missingRequiredParams(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	environmentLogic := NewL0EnvironmentLogic(testLogic.Logic())
+
+	cases := map[string]models.CreateEnvironmentRequest{
+		"Missing EnvironmentName": models.CreateEnvironmentRequest{},
+	}
+
+	for name, request := range cases {
+		if _, err := environmentLogic.CreateEnvironment(request); err == nil {
+			t.Errorf("Case %s: error was nil!", name)
+		}
+	}
+}
+
 func TestUpdateEnvironment(t *testing.T) {
 	testLogic, ctrl := NewTestLogic(t)
 	defer ctrl.Finish()
