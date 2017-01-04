@@ -345,7 +345,7 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 
 	settings := map[string]string{
 		"endpoint":       config.API_ENDPOINT,
-		"api_auth_token": config.CLI_AUTH,
+		"api_auth_token": config.AUTH_TOKEN,
 	}
 
 	if dev {
@@ -377,8 +377,8 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 	}
 
 	if dev {
-		fmt.Printf(format, config.MYSQL_CONNECTION, fmt.Sprintf("layer0:nohaxplz@tcp(localhost:3306)/layer0_%s", c.Instance))
-		fmt.Printf(format, config.MYSQL_ADMIN_CONNECTION, "layer0:nohaxplz@tcp(localhost:3306)/")
+		fmt.Printf(format, config.DB_CONNECTION, fmt.Sprintf("layer0:nohaxplz@tcp(localhost:3306)/"))
+		fmt.Printf(format, config.DB_NAME, "layer0_%s", c.Instance)
 	}
 
 	if insecure {
