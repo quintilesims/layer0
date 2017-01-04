@@ -66,6 +66,21 @@ func (l *TestLogic) AddTags(t *testing.T, tags []*models.Tag) {
 	}
 }
 
+func (l *TestLogic) AssertTagExists(t *testing.T, tag models.Tag) {
+	tags, err := l.TagStore.SelectByQuery(tag.EntityType, tag.EntityID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	exists := tags.Any(func(t models.Tag) bool {
+		return t.Key == tag.Key && t.Value == tag.Value
+	})
+
+	if !exists {
+		t.Fatalf("Tag '%#v' does not exist in JobStore", tag)
+	}
+}
+
 func (l *TestLogic) Logic() Logic {
 	return *NewLogic(l.TagStore, l.JobStore, l.Backend)
 }
