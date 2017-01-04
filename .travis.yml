@@ -1,0 +1,12 @@
+sudo: required
+
+language: go
+
+services:
+  - docker
+
+before_install:
+  - docker build -t gitlab-ci-layer0:unittest
+
+script:
+  - docker run gitlab-ci-layer0:unittest make unittest
