@@ -27,7 +27,7 @@ type TFModule struct {
 	Resources map[string]interface{} `json:"resources"`
 }
 
-func Apply(c *Context, force bool) error {
+func Apply(c *Context, force bool, dockercfg string) error {
 	if err := c.Load(false); err != nil {
 		return err
 	}
@@ -63,9 +63,22 @@ func Apply(c *Context, force bool) error {
 		}
 	}
 
-	// write empty dockercfg file if it doesn't exist
+	if dockercfg != "" {
+		fmt.Printf("Detected dockercfg: `%s`\n", dockercfg)
+		instancePath := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
+
+		if err := CopyFile(dockercfg, instancePath); err != nil {
+			return fmt.Errorf("Failed to copy dockercfg: %v.", err)
+		}
+	}
+
+	// validate dockercfg; if file does not exist, write empty dockercfg file
 	if err := checkDockercfg(c, force); err != nil {
 		return err
+	}
+
+	if !requireInput("Pre-apply check", "y") {
+		return fmt.Errorf("Operation Cancelled")
 	}
 
 	// first apply typically fails due to https://github.com/hashicorp/terraform/issues/2349
@@ -404,24 +417,43 @@ func Plan(c *Context, args []string) error {
 func checkDockercfg(c *Context, force bool) error {
 	path := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
 
-	// if file doesn't exist
+	// if file does not exist
 	if _, err := os.Stat(path); err != nil {
-		if !force {
-			text := fmt.Sprintf("WARNING: No 'dockercfg' file present at %s. \n", path)
-			text += "If you require private registry authentication, please create this file \n"
-			text += "with the required credentials before proceeding. \n"
-			text += "This step is not required, but highly recommended if private authentication is required. \n"
-			text += "\n    Enter 'yes' to continue: "
 
-			if !requireInput(text, "yes") {
+		// write empty dockercfg file
+		if err := ioutil.WriteFile(path, []byte("{}"), 0660); err != nil {
+			return fmt.Errorf("Failed to write 'dockercfg': %v", err)
+		}
+
+		// alert user
+		if !force {
+			text := fmt.Sprintf("NOTICE: No 'dockercfg' file present at %s. \n", path)
+			text += "Created default 'dockercfg' file. \n"
+			text += "\n"
+			text += "If you require private registry authentication, please edit this file \n"
+			text += "with the required credentials before proceeding. \n"
+			text += "\n    Continue? (y/n): "
+
+			if !requireInput(text, "y") {
 				return fmt.Errorf("Operation Cancelled")
 			}
 		}
 
-		// write empty dockercfg file
-		if err := ioutil.WriteFile(path, []byte("{}"), 0666); err != nil {
-			return fmt.Errorf("Failed to write 'dockercfg': %v", err)
-		}
+	}
+
+	return validateDockercfg(path)
+}
+
+func validateDockercfg(dockercfgPath string) error {
+	contents, err := ioutil.ReadFile(dockercfgPath)
+	if err != nil {
+		return err
+	}
+
+	// Simple attempt to validate JSON
+	var result map[string]interface{}
+	if err := json.Unmarshal(contents, &result); err != nil {
+		return fmt.Errorf("Failed to validate JSON for 'dockercfg': %v", err)
 	}
 
 	return nil

@@ -1,0 +1,6 @@
+sudo: required
+
+language: go
+
+script:
+  - make unittest
