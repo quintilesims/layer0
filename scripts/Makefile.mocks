@@ -13,7 +13,6 @@ logic:
 	mockgen github.com/quintilesims/layer0/api/logic EnvironmentLogic > ../api/logic/mock_logic/mock_environment_logic.go &
 	mockgen github.com/quintilesims/layer0/api/logic ServiceLogic > ../api/logic/mock_logic/mock_service_logic.go &
 	mockgen github.com/quintilesims/layer0/api/logic TaskLogic > ../api/logic/mock_logic/mock_task_logic.go &
-	mockgen github.com/quintilesims/layer0/api/logic CertificateLogic > ../api/logic/mock_logic/mock_certificate_logic.go &
 	mockgen github.com/quintilesims/layer0/api/logic LoadBalancerLogic > ../api/logic/mock_logic/mock_load_balancer_logic.go &
 	mockgen github.com/quintilesims/layer0/api/logic JobLogic > ../api/logic/mock_logic/mock_job_logic.go &
 

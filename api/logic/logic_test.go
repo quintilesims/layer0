@@ -66,6 +66,14 @@ func (l *TestLogic) AddTags(t *testing.T, tags []*models.Tag) {
 	}
 }
 
+func (l *TestLogic) AddJobs(t *testing.T, jobs []*models.Job) {
+	for _, job := range jobs {
+		if err := l.JobStore.Insert(job); err != nil {
+			t.Fatal(err)
+		}
+	}
+}
+
 func (l *TestLogic) AssertTagExists(t *testing.T, tag models.Tag) {
 	tags, err := l.TagStore.SelectByQuery(tag.EntityType, tag.EntityID)
 	if err != nil {
