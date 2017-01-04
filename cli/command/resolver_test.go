@@ -25,11 +25,13 @@ func tagsWithIDs(ids ...string) []*models.EntityWithTags {
 func tagWithName(id, name string) *models.EntityWithTags {
 	return &models.EntityWithTags{
 		EntityID: id,
-		Tags: []models.EntityTag{{
-			EntityID: id,
-			Key:      "name",
-			Value:    name,
-		}},
+		Tags: models.Tags{
+			{
+				EntityID: id,
+				Key:      "name",
+				Value:    name,
+			},
+		},
 	}
 }
 

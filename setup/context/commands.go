@@ -77,10 +77,6 @@ func Apply(c *Context, force bool, dockercfg string) error {
 		return err
 	}
 
-	if !requireInput("Pre-apply check", "y") {
-		return fmt.Errorf("Operation Cancelled")
-	}
-
 	// first apply typically fails due to https://github.com/hashicorp/terraform/issues/2349
 	// adding a 2nd attempt here to counter for now
 	if _, err := c.Terraformf(true, "apply"); err != nil {

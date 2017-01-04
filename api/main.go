@@ -19,8 +19,8 @@ func setupRestful(lgc logic.Logic) {
 	deployLogic := logic.NewL0DeployLogic(lgc)
 	environmentLogic := logic.NewL0EnvironmentLogic(lgc)
 	loadBalancerLogic := logic.NewL0LoadBalancerLogic(lgc)
-	serviceLogic := logic.NewL0ServiceLogic(lgc, deployLogic)
-	taskLogic := logic.NewL0TaskLogic(lgc, deployLogic)
+	serviceLogic := logic.NewL0ServiceLogic(lgc)
+	taskLogic := logic.NewL0TaskLogic(lgc)
 	jobLogic := logic.NewL0JobLogic(lgc, taskLogic, deployLogic)
 
 	adminHandler := handlers.NewAdminHandler(adminLogic)
@@ -138,7 +138,7 @@ func main() {
 	backend.StartRightSizer()
 
 	deployLogic := logic.NewL0DeployLogic(*lgc)
-	taskLogic := logic.NewL0TaskLogic(*lgc, deployLogic)
+	taskLogic := logic.NewL0TaskLogic(*lgc)
 	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
 	jobJanitor := logic.NewJobJanitor(jobLogic)
 

@@ -27,11 +27,6 @@ func main() {
 			EnvVar: config.JOB_ID,
 		},
 		cli.StringFlag{
-			Name:   "mysql_connection, c",
-			Usage:  "mysql connection string",
-			EnvVar: config.MYSQL_CONNECTION,
-		},
-		cli.StringFlag{
 			Name:   "access_key, a",
 			Usage:  "aws access key id",
 			EnvVar: config.AWS_ACCESS_KEY_ID,
@@ -93,14 +88,13 @@ func Run(c *cli.Context) {
 		log.Fatal("JOB_ID not specified")
 	}
 
-	connection := c.String("mysql_connection")
 	credProvider := provider.NewExplicitCredProvider(c.String("access_key"), c.String("secret_key"))
-	backend, err := startup.GetBackend(credProvider, c.String("region"), connection, connection)
+	backend, err := startup.GetBackend(credProvider, c.String("region"))
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	logic, err := startup.GetLogic(backend, connection, connection)
+	logic, err := startup.GetLogic(backend)
 	if err != nil {
 		log.Fatal(err)
 	}

@@ -50,7 +50,7 @@ func RunApp() {
 
 	apiClient := client.NewAPIClient(client.Config{
 		Endpoint:      config.APIEndpoint(),
-		Token:         config.CLIAuth(),
+		Token:         config.AuthToken(),
 		VerifySSL:     config.ShouldVerifySSL(),
 		VerifyVersion: config.ShouldVerifyVersion(),
 		Clock:         waitutils.RealClock{},
