@@ -54,14 +54,19 @@ func TestListDeploys(t *testing.T) {
 	})
 
 	deployLogic := NewL0DeployLogic(testLogic.Logic())
-	deploys, err := deployLogic.ListDeploys()
+	received, err := deployLogic.ListDeploys()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, len(deploys), 2)
-	testutils.AssertEqual(t, deploys[0], &models.Deploy{DeployID: "d1", DeployName: "dpl_1", Version: "2"})
-	testutils.AssertEqual(t, deploys[1], &models.Deploy{DeployID: "d2", DeployName: "dpl_2", Version: "3"})
+	expected := []*models.Deploy{
+		{DeployID: "d1", DeployName: "dpl_1", Version: "2"},
+		{DeployID: "d2", DeployName: "dpl_2", Version: "3"},
+	}
+
+	testutils.AssertEqual(t, len(received), 2)
+	testutils.AssertEqual(t, received[0], expected[0])
+	testutils.AssertEqual(t, received[1], expected[1])
 }
 
 func TestDeleteDeploy(t *testing.T) {
@@ -108,15 +113,18 @@ func TestCreateDeploy(t *testing.T) {
 	}
 
 	deployLogic := NewL0DeployLogic(testLogic.Logic())
-	deploy, err := deployLogic.CreateDeploy(request)
+	received, err := deployLogic.CreateDeploy(request)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, deploy.DeployID, "d1")
-	testutils.AssertEqual(t, deploy.DeployName, "name")
-	testutils.AssertEqual(t, deploy.Version, "1")
+	expected := &models.Deploy{
+		DeployID:   "d1",
+		DeployName: "name",
+		Version:    "1",
+	}
 
+	testutils.AssertEqual(t, received, expected)
 	testLogic.AssertTagExists(t, models.Tag{EntityID: "d1", EntityType: "deploy", Key: "name", Value: "name"})
 	testLogic.AssertTagExists(t, models.Tag{EntityID: "d1", EntityType: "deploy", Key: "version", Value: "1"})
 }

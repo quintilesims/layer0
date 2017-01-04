@@ -18,13 +18,11 @@ type ServiceLogic interface {
 
 type L0ServiceLogic struct {
 	Logic
-	DeployLogic DeployLogic
 }
 
-func NewL0ServiceLogic(logic Logic, deployLogic DeployLogic) *L0ServiceLogic {
+func NewL0ServiceLogic(logic Logic) *L0ServiceLogic {
 	return &L0ServiceLogic{
-		Logic:       logic,
-		DeployLogic: deployLogic,
+		Logic: logic,
 	}
 }
 

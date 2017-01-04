@@ -11,10 +11,7 @@ func TestGetEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	retEnvironment := &models.Environment{
-		EnvironmentID:   "e1",
-		ClusterCount:    1,
-		InstanceSize:    "m3.medium",
-		SecurityGroupID: "sgid",
+		EnvironmentID: "e1",
 	}
 
 	testLogic.Backend.EXPECT().
@@ -35,9 +32,6 @@ func TestGetEnvironment(t *testing.T) {
 	expected := &models.Environment{
 		EnvironmentID:   "e1",
 		EnvironmentName: "env",
-		ClusterCount:    1,
-		InstanceSize:    "m3.medium",
-		SecurityGroupID: "sgid",
 	}
 
 	testutils.AssertEqual(t, received, expected)
@@ -48,18 +42,8 @@ func TestListEnvironments(t *testing.T) {
 	defer ctrl.Finish()
 
 	retEnvironments := []*models.Environment{
-		{
-			EnvironmentID:   "e1",
-			ClusterCount:    1,
-			InstanceSize:    "m3.medium",
-			SecurityGroupID: "sgid1",
-		},
-		{
-			EnvironmentID:   "e2",
-			ClusterCount:    2,
-			InstanceSize:    "m3.small",
-			SecurityGroupID: "sgid2",
-		},
+		{EnvironmentID: "e1"},
+		{EnvironmentID: "e2"},
 	}
 
 	testLogic.Backend.EXPECT().
@@ -73,7 +57,7 @@ func TestListEnvironments(t *testing.T) {
 	})
 
 	environmentLogic := NewL0EnvironmentLogic(testLogic.Logic())
-	environments, err := environmentLogic.ListEnvironments()
+	received, err := environmentLogic.ListEnvironments()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -82,22 +66,16 @@ func TestListEnvironments(t *testing.T) {
 		{
 			EnvironmentID:   "e1",
 			EnvironmentName: "env_1",
-			ClusterCount:    1,
-			InstanceSize:    "m3.medium",
-			SecurityGroupID: "sgid1",
 		},
 		{
 			EnvironmentID:   "e2",
 			EnvironmentName: "env_2",
-			ClusterCount:    2,
-			InstanceSize:    "m3.small",
-			SecurityGroupID: "sgid2",
 		},
 	}
 
-	testutils.AssertEqual(t, len(environments), 2)
-	testutils.AssertEqual(t, environments[0], expected[0])
-	testutils.AssertEqual(t, environments[1], expected[1])
+	testutils.AssertEqual(t, len(received), 2)
+	testutils.AssertEqual(t, received[0], expected[0])
+	testutils.AssertEqual(t, received[1], expected[1])
 }
 
 func TestDeleteEnvironment(t *testing.T) {
@@ -166,10 +144,7 @@ func TestCreateEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	retEnvironment := &models.Environment{
-		EnvironmentID:   "e1",
-		ClusterCount:    1,
-		InstanceSize:    "m3.medium",
-		SecurityGroupID: "sgid",
+		EnvironmentID: "e1",
 	}
 
 	testLogic.Backend.EXPECT().
@@ -192,9 +167,6 @@ func TestCreateEnvironment(t *testing.T) {
 	expected := &models.Environment{
 		EnvironmentID:   "e1",
 		EnvironmentName: "name",
-		ClusterCount:    1,
-		InstanceSize:    "m3.medium",
-		SecurityGroupID: "sgid",
 	}
 
 	testutils.AssertEqual(t, received, expected)
@@ -206,10 +178,7 @@ func TestUpdateEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	retEnvironment := &models.Environment{
-		EnvironmentID:   "e1",
-		ClusterCount:    2,
-		InstanceSize:    "m3.medium",
-		SecurityGroupID: "sgid",
+		EnvironmentID: "e1",
 	}
 
 	testLogic.Backend.EXPECT().
@@ -230,9 +199,6 @@ func TestUpdateEnvironment(t *testing.T) {
 	expected := &models.Environment{
 		EnvironmentID:   "e1",
 		EnvironmentName: "env",
-		ClusterCount:    2,
-		InstanceSize:    "m3.medium",
-		SecurityGroupID: "sgid",
 	}
 
 	testutils.AssertEqual(t, received, expected)
