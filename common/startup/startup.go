@@ -96,11 +96,8 @@ func GetLogic(backend backend.Backend) (*logic.Logic, error) {
 
 func getTagStore() (tag_store.TagStore, error) {
 	store := tag_store.NewMysqlTagStore(db.Config{
-		Username: config.DBUsername(),
-		Password: config.DBPassword(),
-		Address:  config.DBAddress(),
-		Port:     config.DBPort(),
-		DBName:   config.DBName(),
+		Connection: config.DBConnection(),
+		DBName:     config.DBName(),
 	})
 
 	if err := store.Init(); err != nil {
@@ -112,11 +109,8 @@ func getTagStore() (tag_store.TagStore, error) {
 
 func getJobStore() (job_store.JobStore, error) {
 	store := job_store.NewMysqlJobStore(db.Config{
-		Username: config.DBUsername(),
-		Password: config.DBPassword(),
-		Address:  config.DBAddress(),
-		Port:     config.DBPort(),
-		DBName:   config.DBName(),
+		Connection: config.DBConnection(),
+		DBName:     config.DBName(),
 	})
 
 	if err := store.Init(); err != nil {

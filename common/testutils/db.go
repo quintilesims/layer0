@@ -8,15 +8,15 @@ package testutils
 
 import (
 	"flag"
-	"github.com/quintilesims/layer0/common/config"
+	"fmt"
 	"github.com/quintilesims/layer0/common/db"
 )
 
 var (
-	username = flag.String("username", config.DBUsername(), "username for the test db")
-	password = flag.String("password", config.DBPassword(), "password for the test db")
-	address  = flag.String("address", config.DBAddress(), "address for the test db")
-	port     = flag.Int("port", config.DBPort(), "port for the test db")
+	username = flag.String("username", "layer0", "username for the test db")
+	password = flag.String("password", "nohaxplz", "password for the test db")
+	address  = flag.String("address", "127.0.0.1", "address for the test db")
+	port     = flag.Int("port", 3306, "port for the test db")
 	dbName   = flag.String("dbname", "layer0_test", "name of the test db")
 )
 
@@ -26,10 +26,7 @@ func init() {
 
 func GetDBConfig() db.Config {
 	return db.Config{
-		Username: *username,
-		Password: *password,
-		Address:  *address,
-		Port:     *port,
-		DBName:   *dbName,
+		Connection: fmt.Sprintf("%s:%s@tcp(%s:%d)/", *username, *password, *address, *port),
+		DBName:     *dbName,
 	}
 }

@@ -27,7 +27,7 @@ func NewMysqlJobStore(c dbcommon.Config) *MysqlJobStore {
 
 // Creates the database and job table if it doesn't already exist
 func (m *MysqlJobStore) Init() error {
-	db, err := sql.Open("mysql", m.config.Connection())
+	db, err := sql.Open("mysql", m.config.Connection)
 	if err != nil {
 		return err
 	}

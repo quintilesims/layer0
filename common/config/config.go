@@ -2,9 +2,7 @@ package config
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"os"
-	"strconv"
 	"strings"
 )
 
@@ -38,24 +36,18 @@ const (
 	RUNNER_VERSION_TAG              = "LAYER0_RUNNER_VERSION_TAG"
 	SKIP_SSL_VERIFY                 = "LAYER0_SKIP_SSL_VERIFY"
 	SKIP_VERSION_VERIFY             = "LAYER0_SKIP_VERSION_VERIFY"
-	DB_USERNAME                     = "LAYER0_DB_USERNAME"
-	DB_PASSWORD                     = "LAYER0_DB_PASSWORD"
-	DB_ADDRESS                      = "LAYER0_DB_ADDRESS"
-	DB_PORT                         = "LAYER0_DB_PORT"
+	DB_CONNECTION                   = "LAYER0_DB_CONNECTION"
 	DB_NAME                         = "LAYER0_DB_NAME"
 )
 
 // defaults
 // bGF5ZXIwOm5vaGF4cGx6 = layer0:nohaxplz, base64 encoded (basic http auth)
 const (
-	DEFAULT_DB_USERNAME  = "layer0"
-	DEFAULT_DB_PASSWORD  = "nohaxplz"
-	DEFAULT_DB_ADDRESS   = "127.0.0.1"
-	DEFAULT_DB_PORT      = 3306
-	DEFAULT_AUTH_TOKEN   = "bGF5ZXIwOm5vaGF4cGx6"
-	DEFAULT_API_ENDPOINT = "http://localhost:9090/"
-	DEFAULT_API_PORT     = "9090"
-	DEFAULT_AWS_REGION   = "us-west-2"
+	DEFAULT_DB_CONNECTION = "layer0:nohaxplz@tcp(127.0.0.1:3306)/"
+	DEFAULT_AUTH_TOKEN    = "bGF5ZXIwOm5vaGF4cGx6"
+	DEFAULT_API_ENDPOINT  = "http://localhost:9090/"
+	DEFAULT_API_PORT      = "9090"
+	DEFAULT_AWS_REGION    = "us-west-2"
 )
 
 // api resource tags
@@ -213,30 +205,8 @@ func DBName() string {
 	return getOr(DB_NAME, fmt.Sprintf("layer0_%s", Prefix()))
 }
 
-func DBUsername() string {
-	return getOr(DB_USERNAME, DEFAULT_DB_USERNAME)
-}
-
-func DBPassword() string {
-	return getOr(DB_PASSWORD, DEFAULT_DB_PASSWORD)
-}
-
-func DBAddress() string {
-	return getOr(DB_ADDRESS, DEFAULT_DB_ADDRESS)
-}
-
-func DBPort() int {
-	if val := get(DB_PORT); val != "" {
-		port, err := strconv.Atoi(val)
-		if err != nil {
-			log.Errorf("DB_PORT has non-integer value '%s'. Using default %d\n", val, DEFAULT_DB_PORT)
-			return DEFAULT_DB_PORT
-		}
-
-		return port
-	}
-
-	return DEFAULT_DB_PORT
+func DBConnection() string {
+	return getOr(DB_CONNECTION, DEFAULT_DB_CONNECTION)
 }
 
 func Prefix() string {

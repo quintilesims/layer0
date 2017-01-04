@@ -149,20 +149,8 @@ func (this *L0JobLogic) createJobDeploy(jobID string) (*models.Deploy, error) {
 				Val: jobID,
 			},
 			{
-				Key: config.DB_USERNAME,
-				Val: config.DBUsername(),
-			},
-			{
-				Key: config.DB_PASSWORD,
-				Val: config.DBPassword(),
-			},
-			{
-				Key: config.DB_ADDRESS,
-				Val: config.DBAddress(),
-			},
-			{
-				Key: config.DB_PORT,
-				Val: string(config.DBPort()),
+				Key: config.DB_CONNECTION,
+				Val: config.DBConnection(),
 			},
 			{
 				Key: config.DB_NAME,
