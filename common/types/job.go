@@ -37,7 +37,6 @@ const (
 )
 
 var jobTypeStrings = []string{
-	"create load balancer",
 	"delete environment",
 	"delete service",
 	"delete load balancer",

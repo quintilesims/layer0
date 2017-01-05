@@ -6,7 +6,6 @@ import (
 
 type TagStore interface {
 	Init() error
-	Close()
 	Delete(tag *models.Tag) error
 	Insert(tag *models.Tag) error
 	SelectAll() (models.Tags, error)

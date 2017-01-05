@@ -15,7 +15,6 @@ import (
 const TIME_FORMAT = "2006-01-02 15:04:05"
 
 type MysqlJobStore struct {
-	db     *sql.DB
 	config dbcommon.Config
 }
 
@@ -31,17 +30,26 @@ func (m *MysqlJobStore) Init() error {
 	if err != nil {
 		return err
 	}
-	m.db = db
 
-	if err := dbcommon.CreateDatabase(m.config.DBName, m.db); err != nil {
+	if err := dbcommon.CreateDatabase(m.config.DBName, db); err != nil {
 		return err
 	}
 
 	return m.exec(dbcommon.CREATE_JOB_TABLE_QUERY)
 }
 
-func (m *MysqlJobStore) Close() {
-	m.db.Close()
+func (m *MysqlJobStore) connect() (*sql.DB, error) {
+	connection := fmt.Sprintf("%s%s", m.config.Connection, m.config.DBName)
+	db, err := sql.Open("mysql", connection)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
 
 func (m *MysqlJobStore) Clear() error {
@@ -104,7 +112,13 @@ func (m *MysqlJobStore) SelectByID(id string) (*models.Job, error) {
 }
 
 func (m *MysqlJobStore) exec(query string, args ...interface{}) error {
-	stmt, err := m.db.Prepare(query)
+	db, err := m.connect()
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare(query)
 	if err != nil {
 		return err
 	}
@@ -118,7 +132,13 @@ func (m *MysqlJobStore) exec(query string, args ...interface{}) error {
 }
 
 func (m *MysqlJobStore) query(query string, args ...interface{}) ([]*models.Job, error) {
-	stmt, err := m.db.Prepare(query)
+	db, err := m.connect()
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	stmt, err := db.Prepare(query)
 	if err != nil {
 		return nil, err
 	}

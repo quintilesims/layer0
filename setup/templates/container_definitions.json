@@ -30,7 +30,7 @@
             { "name": "LAYER0_PREFIX", "value": "${l0_prefix}" },
             { "name": "LAYER0_AWS_SERVICE_AMI", "value": "${service_ami}" },
             { "name": "LAYER0_DB_CONNECTION", "value": "${db_master_username}:${db_master_password}@tcp(${db_address}:${db_port})/" },
-            { "name": "LAYER0_API_AUTH_TOKEN", "value": "${api_auth_token}" },
+            { "name": "LAYER0_AUTH_TOKEN", "value": "${api_auth_token}" },
             { "name": "LAYER0_AWS_ECS_AGENT_SECURITY_GROUP_ID", "value": "${agent_securitygroupid}" },
             { "name": "LAYER0_RUNNER_VERSION_TAG", "value": "${runner_docker_image_tag}" },
             { "name": "LAYER0_AWS_ECS_ROLE", "value": "${ecs_role}" },

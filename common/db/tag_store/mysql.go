@@ -42,8 +42,18 @@ func (m *MysqlTagStore) Init() error {
 	return m.exec(dbcommon.CREATE_TAG_TABLE_QUERY)
 }
 
-func (m *MysqlTagStore) Close() {
-	m.db.Close()
+func (m *MysqlTagStore) connect() (*sql.DB, error) {
+	connection := fmt.Sprintf("%s%s", m.config.Connection, m.config.DBName)
+	db, err := sql.Open("mysql", connection)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := db.Ping(); err != nil {
+		return nil, err
+	}
+
+	return db, nil
 }
 
 func (m *MysqlTagStore) Clear() error {
@@ -101,7 +111,13 @@ func (m *MysqlTagStore) SelectByQuery(entityType, entityID string) (models.Tags,
 }
 
 func (m *MysqlTagStore) exec(query string, args ...interface{}) error {
-	stmt, err := m.db.Prepare(query)
+	db, err := m.connect()
+	if err != nil {
+		return err
+	}
+	 defer db.Close()
+	
+	stmt, err := db.Prepare(query)
 	if err != nil {
 		return err
 	}
@@ -115,7 +131,13 @@ func (m *MysqlTagStore) exec(query string, args ...interface{}) error {
 }
 
 func (m *MysqlTagStore) query(query string, args ...interface{}) (models.Tags, error) {
-	stmt, err := m.db.Prepare(query)
+	db, err := m.connect()
+	if err != nil {
+		return nil, err
+	}
+	 defer db.Close()
+
+	stmt, err := db.Prepare(query)
 	if err != nil {
 		return nil, err
 	}

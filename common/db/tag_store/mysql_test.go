@@ -65,7 +65,6 @@ func assertTagsMatch(t *testing.T, store *MysqlTagStore, expected models.Tags) {
 
 func TestMysqlTagStoreInsert(t *testing.T) {
 	store := NewTestTagStore(t)
-	defer store.Close()
 
 	tags := getTestTags()
 	for _, tag := range tags {
@@ -80,7 +79,6 @@ func TestMysqlTagStoreInsert(t *testing.T) {
 func TestMysqlTagStoreDelete(t *testing.T) {
 	tags := getTestTags()
 	store := NewTestTagStoreWithTags(t, tags)
-	defer store.Close()
 
 	for _, tag := range tags[:2] {
 		if err := store.Delete(tag); err != nil {
@@ -94,7 +92,6 @@ func TestMysqlTagStoreDelete(t *testing.T) {
 func TestMysqlTagStoreSelectAll(t *testing.T) {
 	tags := getTestTags()
 	store := NewTestTagStoreWithTags(t, tags)
-	defer store.Close()
 
 	assertTagsMatch(t, store, tags)
 }
@@ -102,7 +99,6 @@ func TestMysqlTagStoreSelectAll(t *testing.T) {
 func TestMysqlTagStoreSelectByQuery(t *testing.T) {
 	testTags := getTestTags()
 	store := NewTestTagStoreWithTags(t, testTags)
-	defer store.Close()
 
 	cases := []struct {
 		EntityID   string

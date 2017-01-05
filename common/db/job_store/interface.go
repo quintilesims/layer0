@@ -7,7 +7,6 @@ import (
 
 type JobStore interface {
 	Init() error
-	Close()
 	Delete(string) error
 	Insert(*models.Job) error
 	SelectAll() ([]*models.Job, error)

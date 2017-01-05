@@ -103,7 +103,6 @@ func assertJobsMatch(t *testing.T, store *MysqlJobStore, expected []*models.Job)
 
 func TestMysqlJobStoreInsert(t *testing.T) {
 	store := NewTestJobStore(t)
-	defer store.Close()
 
 	jobs := getTestJobs()
 	for _, job := range jobs {
@@ -118,7 +117,6 @@ func TestMysqlJobStoreInsert(t *testing.T) {
 func TestMysqlJobStoreDelete(t *testing.T) {
 	jobs := getTestJobs()
 	store := NewTestJobStoreWithJobs(t, jobs)
-	defer store.Close()
 
 	for _, job := range jobs[:2] {
 		if err := store.Delete(job.JobID); err != nil {
@@ -137,7 +135,6 @@ func TestMysqlJobStoreDelete(t *testing.T) {
 func TestMysqlJobStoreUpdateJobStatus(t *testing.T) {
 	jobs := getTestJobs()
 	store := NewTestJobStoreWithJobs(t, jobs)
-	defer store.Close()
 
 	if err := store.UpdateJobStatus(jobs[0].JobID, types.Completed); err != nil {
 		t.Fatal(err)
@@ -150,7 +147,6 @@ func TestMysqlJobStoreUpdateJobStatus(t *testing.T) {
 func TestMysqlJobStoreSelectAll(t *testing.T) {
 	jobs := getTestJobs()
 	store := NewTestJobStoreWithJobs(t, jobs)
-	defer store.Close()
 
 	assertJobsMatch(t, store, jobs)
 }
@@ -158,7 +154,6 @@ func TestMysqlJobStoreSelectAll(t *testing.T) {
 func TestMysqlJobStoreSelectByID(t *testing.T) {
 	jobs := getTestJobs()
 	store := NewTestJobStoreWithJobs(t, jobs)
-	defer store.Close()
 
 	for _, job := range jobs {
 		j, err := store.SelectByID(job.JobID)
@@ -173,7 +168,6 @@ func TestMysqlJobStoreSelectByID(t *testing.T) {
 func TestMysqlJobStoreSelectByID_error(t *testing.T) {
 	jobs := getTestJobs()
 	store := NewTestJobStoreWithJobs(t, jobs)
-	defer store.Close()
 
 	if _, err := store.SelectByID("invalid"); err == nil {
 		t.Fatalf("Error was nil!")

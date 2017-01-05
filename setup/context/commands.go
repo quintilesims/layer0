@@ -387,7 +387,7 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 
 	if dev {
 		fmt.Printf(format, config.DB_CONNECTION, fmt.Sprintf("layer0:nohaxplz@tcp(localhost:3306)/"))
-		fmt.Printf(format, config.DB_NAME, "layer0_%s", c.Instance)
+		fmt.Printf(format, config.DB_NAME, fmt.Sprintf("layer0_%s", c.Instance))
 	}
 
 	if insecure {

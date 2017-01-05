@@ -50,7 +50,7 @@ func RunApp() {
 
 	apiClient := client.NewAPIClient(client.Config{
 		Endpoint:      config.APIEndpoint(),
-		Token:         config.AuthToken(),
+		Token:         fmt.Sprintf("Basic %s", config.AuthToken()),
 		VerifySSL:     config.ShouldVerifySSL(),
 		VerifyVersion: config.ShouldVerifyVersion(),
 		Clock:         waitutils.RealClock{},

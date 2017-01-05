@@ -99,6 +99,14 @@ func Run(c *cli.Context) {
 		log.Fatal(err)
 	}
 
+	if err := logic.JobStore.Init(); err != nil {
+		log.Fatal(err)
+	}
+
+	if err := logic.TagStore.Init(); err != nil {
+		log.Fatal(err)
+	}
+
 	runner := job.NewJobRunner(logic, c.String("job"))
 
 	if err := runner.Load(); err != nil {

@@ -184,7 +184,6 @@ func AWSS3Bucket() string {
 	return get(AWS_S3_BUCKET)
 }
 
-// todo: cli auth put 'basic + ' auth token
 func AuthToken() string {
 	return getOr(AUTH_TOKEN, DEFAULT_AUTH_TOKEN)
 }
