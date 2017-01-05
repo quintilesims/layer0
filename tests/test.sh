@@ -1,9 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-for test in */ ; do
+dirs=(admin deploy environment job load_balancer service task)
+
+for dir in "${dirs[@]}"; do
     echo
-    echo "Testing ${test::-1}"
-    echo "=========================="
-    bats "$test/test.bats" || :
+    echo "Testing $dir"
+    echo "====================="
+    bats "$dir/test.bats"
 done
