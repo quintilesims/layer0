@@ -56,6 +56,10 @@ func (this *Reporter) AssertEqual(result, expected interface{}) {
 	this.AssertEqualf(result, expected, "")
 }
 
+func (this *Reporter) AssertAny(result interface{}, expected ...interface{}) {
+        this.AssertInSlice(result, expected)
+}
+
 func (this *Reporter) AssertEqualf(result, expected interface{}, format string, args ...interface{}) {
 	message := fmt.Sprintf(format, args...)
 
