@@ -125,8 +125,7 @@ func (t *TagHandler) FindTags(request *restful.Request, response *restful.Respon
 
 		for i, ewt := range ewts {
 			if tag := ewt.Tags.WithKey("version").First(); tag != nil {
-				current := tag.Value
-				if latest == "" || current > latest {
+				if current := tag.Value; current > latest {
 					latest = current
 					index = i
 				}

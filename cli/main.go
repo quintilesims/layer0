@@ -123,7 +123,6 @@ func getCommands(client *client.APIClient) []command.CommandGroup {
 
 	return []command.CommandGroup{
 		command.NewAdminCommand(cmd),
-		command.NewCertificateCommand(cmd),
 		command.NewDeployCommand(cmd),
 		command.NewEnvironmentCommand(cmd),
 		command.NewJobCommand(cmd),
