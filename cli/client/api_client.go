@@ -138,7 +138,7 @@ func (c *APIClient) execute(sling *sling.Sling, receive interface{}) (*http.Resp
 			return nil, sslError(err)
 		}
 
-		if resp != nil && resp.StatusCode == 401{
+		if resp != nil && resp.StatusCode == 401 {
 			return nil, fmt.Errorf("Invalid Auth Token. Have you tried running `l0-setup endpoint <prefix>`?")
 		}
 

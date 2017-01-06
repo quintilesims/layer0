@@ -1,5 +1,4 @@
 #!/usr/bin/env bats
-load ../common/common
 
 @test "deploy create guestbook1" {
     l0 deploy create ./deploy/Guestbook.dockerrun.aws.json guestbook1

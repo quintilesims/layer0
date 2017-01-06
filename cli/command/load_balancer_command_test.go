@@ -13,30 +13,30 @@ func TestParsePort(t *testing.T) {
 			HostPort:      80,
 			ContainerPort: 80,
 			Protocol:      "tcp",
-			CertificateID: "",
+			CertificateName: "",
 		},
 		"80:80/http": &models.Port{
 			HostPort:      80,
 			ContainerPort: 80,
 			Protocol:      "http",
-			CertificateID: "",
+			CertificateName: "",
 		},
 		"8080:80/http": &models.Port{
 			HostPort:      8080,
 			ContainerPort: 80,
 			Protocol:      "http",
-			CertificateID: "",
+			CertificateName: "",
 		},
 		"443:80/https": &models.Port{
 			HostPort:      443,
 			ContainerPort: 80,
 			Protocol:      "https",
-			CertificateID: "certid",
+			CertificateName: "cert_name",
 		},
 	}
 
 	for input, expected := range cases {
-		model, err := parsePort(input, "certid")
+		model, err := parsePort(input, "cert_name")
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -78,14 +78,14 @@ func TestLoadBalancerAddPort(t *testing.T) {
 		HostPort:      443,
 		ContainerPort: 80,
 		Protocol:      "https",
-		CertificateID: "certid",
+		CertificateName: "cert_name",
 	}
 
 	tc.Client.EXPECT().
 		UpdateLoadBalancer("id", []models.Port{port}).
 		Return(&models.LoadBalancer{}, nil)
 
-	flags := Flags{"certificate": "certid"}
+	flags := Flags{"certificate": "cert_name"}
 	c := getCLIContext(t, Args{"name", "443:80/https"}, flags)
 	if err := command.AddPort(c); err != nil {
 		t.Fatal(err)
@@ -123,13 +123,13 @@ func TestCreateLoadBalancer(t *testing.T) {
 			HostPort:      443,
 			ContainerPort: 80,
 			Protocol:      "https",
-			CertificateID: "certid",
+			CertificateName: "cert_name",
 		},
 		{
 			HostPort:      8000,
 			ContainerPort: 8000,
 			Protocol:      "http",
-			CertificateID: "",
+			CertificateName: "",
 		},
 	}
 
@@ -139,7 +139,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	flags := Flags{
 		"port":        []string{"443:80/https", "8000:8000/http"},
-		"certificate": "certid",
+		"certificate": "cert_name",
 		"private":     true,
 	}
 

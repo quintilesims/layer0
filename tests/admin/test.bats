@@ -1,5 +1,4 @@
 #!/usr/bin/env bats
-load ../common/common
 
 @test "admin sql" {
     l0 admin sql

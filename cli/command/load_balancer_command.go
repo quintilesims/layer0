@@ -30,7 +30,7 @@ func (l *LoadBalancerCommand) GetCommand() cli.Command {
 				Flags: []cli.Flag{
 					cli.StringFlag{
 						Name:  "certificate",
-						Usage: "certificate to use for port configuration (only required for https)",
+						Usage: "name of certificate to use for port configuration (only required for https)",
 					},
 				},
 			},
@@ -46,7 +46,7 @@ func (l *LoadBalancerCommand) GetCommand() cli.Command {
 					},
 					cli.StringFlag{
 						Name:  "certificate",
-						Usage: "certificate to use for port configuration (only required for https)",
+						Usage: "name of certificate to use for port configuration (only required for https)",
 					},
 					cli.BoolFlag{
 						Name:  "private",
@@ -223,7 +223,7 @@ func (l *LoadBalancerCommand) List(c *cli.Context) error {
 	return l.printLoadBalancers(loadBalancers)
 }
 
-func parsePort(port, certificateID string) (*models.Port, error) {
+func parsePort(port, certificateName string) (*models.Port, error) {
 	split := strings.FieldsFunc(port, func(r rune) bool {
 		return r == ':' || r == '/'
 	})
@@ -244,14 +244,14 @@ func parsePort(port, certificateID string) (*models.Port, error) {
 
 	protocol := split[2]
 	if strings.ToLower(protocol) != "https" {
-		certificateID = ""
+		certificateName = ""
 	}
 
 	model := &models.Port{
-		HostPort:      hostPort,
-		ContainerPort: containerPort,
-		Protocol:      protocol,
-		CertificateID: certificateID,
+		HostPort:        hostPort,
+		ContainerPort:   containerPort,
+		Protocol:        protocol,
+		CertificateName: certificateName,
 	}
 
 	return model, nil

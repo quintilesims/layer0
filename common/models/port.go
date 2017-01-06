@@ -1,7 +1,7 @@
 package models
 
 type Port struct {
-	CertificateID string `json:"certificate_id"`
+	CertificateName string `json:"certificate_name"`
 	ContainerPort int64  `json:"container_port"`
 	HostPort      int64  `json:"host_port"`
 	Protocol      string `json:"protocol"`
