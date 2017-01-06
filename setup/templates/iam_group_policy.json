@@ -39,11 +39,9 @@
         {
             "Effect": "Allow",
             "Action": [
-                "iam:ListServerCertificates",
-                "iam:UploadServerCertificate",
-                "iam:DeleteServerCertificate"
+                "iam:ListServerCertificates"
             ],
-            "Resource": "arn:aws:iam::${account_id}:server-certificate/l0/l0-${l0_prefix}/*"
+            "Resource": "*"
         }
     ]
 }

@@ -207,8 +207,7 @@ func (this *ECSLoadBalancerManager) listenerToPort(listener *awselb.Listener) mo
 	}
 
 	if listener.SSLCertificateId != nil {
-		ecsCertificateID := id.CertificateARNToECSCertificateID(*listener.SSLCertificateId)
-		port.CertificateID = ecsCertificateID.L0CertificateID()
+		port.CertificateName = id.CertificateARNToName(*listener.SSLCertificateId)
 	}
 
 	return port
@@ -391,27 +390,35 @@ func (this *ECSLoadBalancerManager) portToListener(port models.Port) (*elb.Liste
 	}
 
 	var certificateARN string
-	if port.CertificateID != "" {
-		// todo: pass through certificate ids to backend
-		return nil, fmt.Errorf("Using certificates is currently not implemented for load balancers")
-
-		/*
-			cert, err := this.Backend.GetCertificate(port.CertificateID)
-			if err != nil {
-				return nil, err
-			}
-
-			// todo: this will be uncessary after cert is updated
-			if cert == nil {
-				return nil, fmt.Errorf("Certificate with id '%s' does not exist", port.CertificateID)
-			}
-
-			certificateARN = cert.CertificateARN
-		*/
+	if port.CertificateName != "" {
+		arn, err := this.getCertificateARN(port.CertificateName)
+		if err != nil{
+			return nil, err
+		}	
+		
+		certificateARN = arn
 	}
 
 	listener := elb.NewListener(port.ContainerPort, containerProtocol, port.HostPort, hostProtocol, certificateARN)
 	return listener, nil
+}
+
+func (this *ECSLoadBalancerManager) getCertificateARN(name string) (string, error){
+	certificates, err := this.IAM.ListCertificates()
+	if err != nil{
+		return "", err
+	}
+
+	names := []string{}
+	for _, c := range certificates{
+		names = append(names, *c.ServerCertificateName)
+
+		if *c.ServerCertificateName == name{
+			return *c.Arn, nil
+		}
+	}
+
+	return "", fmt.Errorf("Certificate with name '%s' does not exist. ", name)
 }
 
 func (this *ECSLoadBalancerManager) upsertSecurityGroup(ecsLoadBalancerID id.ECSLoadBalancerID, ports []models.Port) (*ec2.SecurityGroup, error) {

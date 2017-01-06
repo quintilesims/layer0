@@ -10,27 +10,27 @@ import (
 func TestParsePort(t *testing.T) {
 	cases := map[string]*models.Port{
 		"80:80/tcp": &models.Port{
-			HostPort:      80,
-			ContainerPort: 80,
-			Protocol:      "tcp",
+			HostPort:        80,
+			ContainerPort:   80,
+			Protocol:        "tcp",
 			CertificateName: "",
 		},
 		"80:80/http": &models.Port{
-			HostPort:      80,
-			ContainerPort: 80,
-			Protocol:      "http",
+			HostPort:        80,
+			ContainerPort:   80,
+			Protocol:        "http",
 			CertificateName: "",
 		},
 		"8080:80/http": &models.Port{
-			HostPort:      8080,
-			ContainerPort: 80,
-			Protocol:      "http",
+			HostPort:        8080,
+			ContainerPort:   80,
+			Protocol:        "http",
 			CertificateName: "",
 		},
 		"443:80/https": &models.Port{
-			HostPort:      443,
-			ContainerPort: 80,
-			Protocol:      "https",
+			HostPort:        443,
+			ContainerPort:   80,
+			Protocol:        "https",
 			CertificateName: "cert_name",
 		},
 	}
@@ -75,9 +75,9 @@ func TestLoadBalancerAddPort(t *testing.T) {
 		Return(&models.LoadBalancer{}, nil)
 
 	port := models.Port{
-		HostPort:      443,
-		ContainerPort: 80,
-		Protocol:      "https",
+		HostPort:        443,
+		ContainerPort:   80,
+		Protocol:        "https",
 		CertificateName: "cert_name",
 	}
 
@@ -120,15 +120,15 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	ports := []models.Port{
 		{
-			HostPort:      443,
-			ContainerPort: 80,
-			Protocol:      "https",
+			HostPort:        443,
+			ContainerPort:   80,
+			Protocol:        "https",
 			CertificateName: "cert_name",
 		},
 		{
-			HostPort:      8000,
-			ContainerPort: 8000,
-			Protocol:      "http",
+			HostPort:        8000,
+			ContainerPort:   8000,
+			Protocol:        "http",
 			CertificateName: "",
 		},
 	}

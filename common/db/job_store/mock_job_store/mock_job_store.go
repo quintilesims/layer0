@@ -30,14 +30,6 @@ func (_m *MockJobStore) EXPECT() *_MockJobStoreRecorder {
 	return _m.recorder
 }
 
-func (_m *MockJobStore) Close() {
-	_m.ctrl.Call(_m, "Close")
-}
-
-func (_mr *_MockJobStoreRecorder) Close() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "Close")
-}
-
 func (_m *MockJobStore) Delete(_param0 string) error {
 	ret := _m.ctrl.Call(_m, "Delete", _param0)
 	ret0, _ := ret[0].(error)

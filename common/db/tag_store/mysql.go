@@ -115,8 +115,8 @@ func (m *MysqlTagStore) exec(query string, args ...interface{}) error {
 	if err != nil {
 		return err
 	}
-	 defer db.Close()
-	
+	defer db.Close()
+
 	stmt, err := db.Prepare(query)
 	if err != nil {
 		return err
@@ -135,7 +135,7 @@ func (m *MysqlTagStore) query(query string, args ...interface{}) (models.Tags, e
 	if err != nil {
 		return nil, err
 	}
-	 defer db.Close()
+	defer db.Close()
 
 	stmt, err := db.Prepare(query)
 	if err != nil {
