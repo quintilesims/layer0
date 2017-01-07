@@ -4,10 +4,11 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func (c *APIClient) CreateLoadBalancer(name, environmentID string, ports []models.Port, isPublic bool) (*models.LoadBalancer, error) {
+func (c *APIClient) CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool) (*models.LoadBalancer, error) {
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: name,
 		EnvironmentID:    environmentID,
+		HealthCheck:      healthCheck,
 		Ports:            ports,
 		IsPublic:         isPublic,
 	}
@@ -47,8 +48,21 @@ func (c *APIClient) ListLoadBalancers() ([]*models.LoadBalancerSummary, error) {
 	return loadBalancers, nil
 }
 
-func (c *APIClient) UpdateLoadBalancer(id string, ports []models.Port) (*models.LoadBalancer, error) {
-	req := models.UpdateLoadBalancerRequest{
+func (c *APIClient) UpdateLoadBalancerHealthCheck(id string, healthCheck models.HealthCheck) (*models.LoadBalancer, error) {
+	req := models.UpdateLoadBalancerHealthCheckRequest{
+		HealthCheck: healthCheck,
+	}
+
+	var loadBalancer *models.LoadBalancer
+	if err := c.Execute(c.Sling("loadbalancer/").Put(id+"/healthcheck").BodyJSON(req), &loadBalancer); err != nil {
+		return nil, err
+	}
+
+	return loadBalancer, nil
+}
+
+func (c *APIClient) UpdateLoadBalancerPorts(id string, ports []models.Port) (*models.LoadBalancer, error) {
+	req := models.UpdateLoadBalancerPortsRequest{
 		Ports: ports,
 	}
 

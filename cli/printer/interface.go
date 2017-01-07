@@ -14,6 +14,7 @@ type Printer interface {
 	PrintJobs(jobs ...*models.Job) error
 	PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) error
 	PrintLoadBalancerSummaries(loadBalancers ...*models.LoadBalancerSummary) error
+	PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBalancer) error
 	PrintLogs(logs ...*models.LogFile) error
 	PrintServices(services ...*models.Service) error
 	PrintServiceSummaries(services ...*models.ServiceSummary) error
