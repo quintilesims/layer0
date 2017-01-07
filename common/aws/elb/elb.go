@@ -24,10 +24,6 @@ type Listener struct {
 	*elb.Listener
 }
 
-type HealthCheck struct {
-	*elb.HealthCheck
-}
-
 type ListenerDescription struct {
 	*elb.ListenerDescription
 }
@@ -38,6 +34,10 @@ func NewListenerDescription(listener *Listener) *ListenerDescription {
 			Listener: listener.Listener,
 		},
 	}
+}
+
+type HealthCheck struct {
+	*elb.HealthCheck
 }
 
 type LoadBalancerDescription struct {
@@ -56,6 +56,13 @@ func NewLoadBalancerDescription(name, scheme string, listeners []*Listener) *Loa
 			DNSName:              aws.String(name),
 			Scheme:               aws.String(scheme),
 			ListenerDescriptions: listenerDescriptions,
+			HealthCheck: &elb.HealthCheck{
+				Target:             aws.String("TCP:80"),
+				Interval:           aws.Int64(30),
+				Timeout:            aws.Int64(5),
+				HealthyThreshold:   aws.Int64(2),
+				UnhealthyThreshold: aws.Int64(2),
+			},
 		},
 	}
 }
@@ -66,18 +73,6 @@ type InstanceState struct {
 
 func NewInstanceState() *InstanceState {
 	return &InstanceState{&elb.InstanceState{}}
-}
-
-func NewHealthCheck(target string, healthyThresh, unhealthyThresh, interval, timeout int64) *HealthCheck {
-	return &HealthCheck{
-		&elb.HealthCheck{
-			Target:             aws.String(target),
-			Interval:           aws.Int64(interval),
-			Timeout:            aws.Int64(timeout),
-			UnhealthyThreshold: aws.Int64(unhealthyThresh),
-			HealthyThreshold:   aws.Int64(healthyThresh),
-		},
-	}
 }
 
 func NewListener(instancePort int64, instanceProtocol string, lbPort int64, lbProtocol, certificate string) *Listener {
@@ -95,6 +90,18 @@ func NewListener(instancePort int64, instanceProtocol string, lbPort int64, lbPr
 	}
 
 	return listener
+}
+
+func NewHealthCheck(target string, interval, timeout, healthyThresh, unhealthyThresh int64) *HealthCheck {
+	return &HealthCheck{
+		&elb.HealthCheck{
+			Target:             aws.String(target),
+			Interval:           aws.Int64(interval),
+			Timeout:            aws.Int64(timeout),
+			UnhealthyThreshold: aws.Int64(unhealthyThresh),
+			HealthyThreshold:   aws.Int64(healthyThresh),
+		},
+	}
 }
 
 type Tag struct {

@@ -1,7 +1,7 @@
 package printer
 
 import (
-	"github.com/quintilesims/layer0/common/models"
+    "github.com/quintilesims/layer0/common/models"
 )
 
 // we use a TestPrinter instead of a mock because gomock doesn't support
@@ -19,8 +19,9 @@ func (t *TestPrinter) PrintEnvironmentSummaries(...*models.EnvironmentSummary) e
 func (t *TestPrinter) PrintJobs(...*models.Job) error                                  { return nil }
 func (t *TestPrinter) PrintLoadBalancers(...*models.LoadBalancer) error                { return nil }
 func (t *TestPrinter) PrintLoadBalancerSummaries(...*models.LoadBalancerSummary) error { return nil }
+func (t *TestPrinter) PrintLoadBalancerHealthCheck(*models.LoadBalancer) error         { return nil }
 func (t *TestPrinter) PrintLogs(...*models.LogFile) error                              { return nil }
 func (t *TestPrinter) PrintServices(...*models.Service) error                          { return nil }
 func (t *TestPrinter) PrintServiceSummaries(...*models.ServiceSummary) error           { return nil }
 func (t *TestPrinter) PrintTasks(...*models.Task) error                                { return nil }
-func (t *TestPrinter) PrintTaskSummaries(...*models.TaskSummary) error     { return nil }
+func (t *TestPrinter) PrintTaskSummaries(...*models.TaskSummary) error                 { return nil }

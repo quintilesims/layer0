@@ -9,25 +9,25 @@ import (
 
 func TestParsePort(t *testing.T) {
 	cases := map[string]*models.Port{
-		"80:80/tcp": &models.Port{
+		"80:80/tcp": {
 			HostPort:        80,
 			ContainerPort:   80,
 			Protocol:        "tcp",
 			CertificateName: "",
 		},
-		"80:80/http": &models.Port{
+		"80:80/http": {
 			HostPort:        80,
 			ContainerPort:   80,
 			Protocol:        "http",
 			CertificateName: "",
 		},
-		"8080:80/http": &models.Port{
+		"8080:80/http": {
 			HostPort:        8080,
 			ContainerPort:   80,
 			Protocol:        "http",
 			CertificateName: "",
 		},
-		"443:80/https": &models.Port{
+		"443:80/https": {
 			HostPort:        443,
 			ContainerPort:   80,
 			Protocol:        "https",
@@ -82,7 +82,7 @@ func TestLoadBalancerAddPort(t *testing.T) {
 	}
 
 	tc.Client.EXPECT().
-		UpdateLoadBalancer("id", []models.Port{port}).
+		UpdateLoadBalancerPorts("id", []models.Port{port}).
 		Return(&models.LoadBalancer{}, nil)
 
 	flags := Flags{"certificate": "cert_name"}
@@ -118,6 +118,14 @@ func TestCreateLoadBalancer(t *testing.T) {
 		Resolve("environment", "environment").
 		Return([]string{"environmentID"}, nil)
 
+	healthCheck := models.HealthCheck{
+		Target:             "TCP:80",
+		Interval:           30,
+		Timeout:            5,
+		HealthyThreshold:   10,
+		UnhealthyThreshold: 2,
+	}
+
 	ports := []models.Port{
 		{
 			HostPort:        443,
@@ -134,13 +142,18 @@ func TestCreateLoadBalancer(t *testing.T) {
 	}
 
 	tc.Client.EXPECT().
-		CreateLoadBalancer("name", "environmentID", ports, false).
+		CreateLoadBalancer("name", "environmentID", healthCheck, ports, false).
 		Return(&models.LoadBalancer{}, nil)
 
 	flags := Flags{
-		"port":        []string{"443:80/https", "8000:8000/http"},
-		"certificate": "cert_name",
-		"private":     true,
+		"port":                            []string{"443:80/https", "8000:8000/http"},
+		"certificate":                     "cert_name",
+		"private":                         true,
+		"healthcheck-target":              "TCP:80",
+		"healthcheck-interval":            30,
+		"healthcheck-timeout":             5,
+		"healthcheck-healthy-threshold":   10,
+		"healthcheck-unhealthy-threshold": 2,
 	}
 
 	c := getCLIContext(t, Args{"environment", "name"}, flags)
@@ -271,5 +284,89 @@ func TestListLoadBalancers(t *testing.T) {
 	c := getCLIContext(t, nil, nil)
 	if err := command.List(c); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestHealthCheck_noUpdateRequired(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(tc.Command())
+
+	tc.Resolver.EXPECT().
+		Resolve("load_balancer", "env").
+		Return([]string{"id"}, nil)
+
+	tc.Client.EXPECT().
+		GetLoadBalancer("id").
+		Return(&models.LoadBalancer{}, nil)
+
+	c := getCLIContext(t, Args{"env", "name"}, nil)
+	if err := command.HealthCheck(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestHealthCheck_partialUpdateRequired(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(tc.Command())
+
+	existingHealthCheck := models.HealthCheck{
+		Target:             "TCP:80",
+		Interval:           30,
+		Timeout:            5,
+		HealthyThreshold:   2,
+		UnhealthyThreshold: 2,
+	}
+
+	tc.Resolver.EXPECT().
+		Resolve("load_balancer", "env").
+		Return([]string{"id"}, nil)
+
+	tc.Client.EXPECT().
+		GetLoadBalancer("id").
+		Return(&models.LoadBalancer{
+			HealthCheck: existingHealthCheck,
+		}, nil)
+
+	expectedHealthCheck := models.HealthCheck{
+		Target:             "TCP:88",
+		Interval:           45,
+		Timeout:            5,
+		HealthyThreshold:   2,
+		UnhealthyThreshold: 2,
+	}
+
+	tc.Client.EXPECT().
+		UpdateLoadBalancerHealthCheck("id", expectedHealthCheck)
+
+	flags := Flags{
+		"set-target":   "TCP:88",
+		"set-interval": 45,
+	}
+
+	c := getCLIContext(t, Args{"env", "name"}, flags)
+	if err := command.HealthCheck(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestHealthCheck_userInputErrors(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(tc.Command())
+
+	contexts := map[string]*cli.Context{
+		"Non-int '--set-interval' flag":            getCLIContext(t, Args{"name"}, Flags{"set-interval": "two"}),
+		"Non-int '--set-timeout' flag":             getCLIContext(t, Args{"name"}, Flags{"set-timeout": "two"}),
+		"Non-int '--set-healthy-threshold' flag":   getCLIContext(t, Args{"name"}, Flags{"set-healthy-threshold": "two"}),
+		"Non-int '--set-unhealthy-threshold' flag": getCLIContext(t, Args{"name"}, Flags{"set-unhealthy-threshold": "two"}),
+		"Missing NAME arg":                         getCLIContext(t, nil, Flags{"set-interval": 2}),
+	}
+
+	for name, c := range contexts {
+		if err := command.HealthCheck(c); err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
 	}
 }
