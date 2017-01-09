@@ -2,5 +2,11 @@ sudo: required
 
 language: go
 
+services:
+  - mysql
+
+before_install:
+  - mysql -e 'GRANT ALL PRIVILEGES ON layer0_test.* TO 'layer0'@'127.0.0.1' IDENTIFIED BY 'nohaxplz';'
+
 script:
   - make unittest
