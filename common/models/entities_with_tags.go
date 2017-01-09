@@ -34,10 +34,10 @@ func (e EntitiesWithTags) WithKey(key string) EntitiesWithTags {
 // not contain at least one tag with the specified value
 func (e EntitiesWithTags) WithValue(value string) EntitiesWithTags {
 	return e.RemoveIf(func(ewt EntityWithTags) bool {
-		hasKey := ewt.Tags.Any(func(t Tag) bool {
+		hasVal := ewt.Tags.Any(func(t Tag) bool {
 			return t.Value == value
 		})
 
-		return !hasKey
+		return !hasVal
 	})
 }

@@ -64,9 +64,7 @@ func TestListDeploys(t *testing.T) {
 		{DeployID: "d2", DeployName: "dpl_2", Version: "3"},
 	}
 
-	testutils.AssertEqual(t, len(received), 2)
-	testutils.AssertEqual(t, received[0], expected[0])
-	testutils.AssertEqual(t, received[1], expected[1])
+	testutils.AssertEqual(t, received, expected)
 }
 
 func TestDeleteDeploy(t *testing.T) {

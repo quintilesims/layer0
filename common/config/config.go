@@ -9,9 +9,6 @@ import (
 // IMPORTANT!
 // The environment variables represented as constants here should
 // always line up with the environment variables in setup/container_definitions.json
-
-// todo: change l0-setup, api, and cli to use only auth_token
-// todo: change l0-setup to use db_name, password, etc. instead of mysql_connection
 const (
 	AWS_ACCOUNT_ID                  = "LAYER0_AWS_ACCOUNT_ID"
 	AWS_ACCESS_KEY_ID               = "LAYER0_AWS_ACCESS_KEY_ID"

@@ -409,10 +409,7 @@ func (this *ECSLoadBalancerManager) getCertificateARN(name string) (string, erro
 		return "", err
 	}
 
-	names := []string{}
 	for _, c := range certificates{
-		names = append(names, *c.ServerCertificateName)
-
 		if *c.ServerCertificateName == name{
 			return *c.Arn, nil
 		}

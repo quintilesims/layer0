@@ -73,9 +73,7 @@ func TestListEnvironments(t *testing.T) {
 		},
 	}
 
-	testutils.AssertEqual(t, len(received), 2)
-	testutils.AssertEqual(t, received[0], expected[0])
-	testutils.AssertEqual(t, received[1], expected[1])
+	testutils.AssertEqual(t, received, expected)
 }
 
 func TestDeleteEnvironment(t *testing.T) {
