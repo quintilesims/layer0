@@ -56,7 +56,7 @@ func GetBackend(credProvider provider.CredProvider, region string) (backend.Back
 		return nil, err
 	}
 
-	tagStore, err := getTagStore()
+	tagStore, err := getNewTagStore()
 	if err != nil {
 		return nil, err
 	}
@@ -81,12 +81,12 @@ func GetBackend(credProvider provider.CredProvider, region string) (backend.Back
 }
 
 func GetLogic(backend backend.Backend) (*logic.Logic, error) {
-	tagStore, err := getTagStore()
+	tagStore, err := getNewTagStore()
 	if err != nil {
 		return nil, err
 	}
 
-	jobStore, err := getJobStore()
+	jobStore, err := getNewJobStore()
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func GetLogic(backend backend.Backend) (*logic.Logic, error) {
 	return logic.NewLogic(tagStore, jobStore, backend), nil
 }
 
-func getTagStore() (tag_store.TagStore, error) {
+func getNewTagStore() (tag_store.TagStore, error) {
 	store := tag_store.NewMysqlTagStore(db.Config{
 		Connection: config.DBConnection(),
 		DBName:     config.DBName(),
@@ -107,7 +107,7 @@ func getTagStore() (tag_store.TagStore, error) {
 	return store, nil
 }
 
-func getJobStore() (job_store.JobStore, error) {
+func getNewJobStore() (job_store.JobStore, error) {
 	store := job_store.NewMysqlJobStore(db.Config{
 		Connection: config.DBConnection(),
 		DBName:     config.DBName(),
