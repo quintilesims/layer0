@@ -392,10 +392,10 @@ func (this *ECSLoadBalancerManager) portToListener(port models.Port) (*elb.Liste
 	var certificateARN string
 	if port.CertificateName != "" {
 		arn, err := this.getCertificateARN(port.CertificateName)
-		if err != nil{
+		if err != nil {
 			return nil, err
-		}	
-		
+		}
+
 		certificateARN = arn
 	}
 
@@ -403,14 +403,14 @@ func (this *ECSLoadBalancerManager) portToListener(port models.Port) (*elb.Liste
 	return listener, nil
 }
 
-func (this *ECSLoadBalancerManager) getCertificateARN(name string) (string, error){
+func (this *ECSLoadBalancerManager) getCertificateARN(name string) (string, error) {
 	certificates, err := this.IAM.ListCertificates()
-	if err != nil{
+	if err != nil {
 		return "", err
 	}
 
-	for _, c := range certificates{
-		if *c.ServerCertificateName == name{
+	for _, c := range certificates {
+		if *c.ServerCertificateName == name {
 			return *c.Arn, nil
 		}
 	}
