@@ -153,9 +153,18 @@ func TestFindTags_byType(t *testing.T) {
 
 func TestFindTags_byVersion(t *testing.T) {
 	store := getTestTagStore(t, []*models.Tag{
-		{EntityID: "d1", EntityType: "deploy", Key: "version", Value: "1"},
-		{EntityID: "d2", EntityType: "deploy", Key: "version", Value: "2"},
-		{EntityID: "d3", EntityType: "deploy", Key: "version", Value: "3"},
+		{EntityID: "d.1", EntityType: "deploy", Key: "version", Value: "1"},
+		{EntityID: "d.2", EntityType: "deploy", Key: "version", Value: "2"},
+		{EntityID: "d.3", EntityType: "deploy", Key: "version", Value: "3"},
+		{EntityID: "d.4", EntityType: "deploy", Key: "version", Value: "4"},
+		{EntityID: "d.5", EntityType: "deploy", Key: "version", Value: "5"},
+		{EntityID: "d.6", EntityType: "deploy", Key: "version", Value: "6"},
+		{EntityID: "d.7", EntityType: "deploy", Key: "version", Value: "7"},
+		{EntityID: "d.8", EntityType: "deploy", Key: "version", Value: "8"},
+		{EntityID: "d.9", EntityType: "deploy", Key: "version", Value: "9"},
+		{EntityID: "d.10", EntityType: "deploy", Key: "version", Value: "10"},
+		{EntityID: "d.11", EntityType: "deploy", Key: "version", Value: "11"},
+		{EntityID: "d.12", EntityType: "deploy", Key: "version", Value: "12"},
 	})
 
 	handler := NewTagHandler(store)
@@ -173,7 +182,51 @@ func TestFindTags_byVersion(t *testing.T) {
 				read(&tags)
 
 				r.AssertEqual(len(tags), 1)
-				r.AssertEqual(tags[0].EntityID, "d2")
+				r.AssertEqual(tags[0].EntityID, "d.2")
+			},
+		},
+		{
+			Name: "7",
+			Request: &TestRequest{
+				Query: "version=7",
+			},
+			Run: func(r *testutils.Reporter, _ interface{}, req *restful.Request, resp *restful.Response, read Readf) {
+				handler.FindTags(req, resp)
+
+				var tags []models.EntityWithTags
+				read(&tags)
+
+				r.AssertEqual(len(tags), 1)
+				r.AssertEqual(tags[0].EntityID, "d.7")
+			},
+		},
+		{
+			Name: "11",
+			Request: &TestRequest{
+				Query: "version=11",
+			},
+			Run: func(r *testutils.Reporter, _ interface{}, req *restful.Request, resp *restful.Response, read Readf) {
+				handler.FindTags(req, resp)
+
+				var tags []models.EntityWithTags
+				read(&tags)
+
+				r.AssertEqual(len(tags), 1)
+				r.AssertEqual(tags[0].EntityID, "d.11")
+			},
+		},
+		{
+			Name: "84",
+			Request: &TestRequest{
+				Query: "version=84",
+			},
+			Run: func(r *testutils.Reporter, _ interface{}, req *restful.Request, resp *restful.Response, read Readf) {
+				handler.FindTags(req, resp)
+
+				var tags []models.EntityWithTags
+				read(&tags)
+
+				r.AssertEqual(len(tags), 0)
 			},
 		},
 		{
@@ -188,7 +241,7 @@ func TestFindTags_byVersion(t *testing.T) {
 				read(&tags)
 
 				r.AssertEqual(len(tags), 1)
-				r.AssertEqual(tags[0].EntityID, "d3")
+				r.AssertEqual(tags[0].EntityID, "d.12")
 			},
 		},
 	}

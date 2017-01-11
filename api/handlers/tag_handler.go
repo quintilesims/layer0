@@ -6,6 +6,7 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -120,22 +121,40 @@ func (t *TagHandler) FindTags(request *restful.Request, response *restful.Respon
 	}
 
 	if latestVersion {
-		var latest string
-		var index int
+		var indexOfLatestVersion int
+		var max *models.Tag
 
 		for i, ewt := range ewts {
-			if tag := ewt.Tags.WithKey("version").First(); tag != nil {
-				if current := tag.Value; current > latest {
-					latest = current
-					index = i
+			if current := ewt.Tags.WithKey("version").First(); current != nil {
+				if max == nil {
+					max = current
+					indexOfLatestVersion = i
+					continue
+				}
+
+				maxVersion, err := strconv.Atoi(max.Value)
+				if err != nil {
+					ReturnError(response, err)
+					return
+				}
+
+				currentVersion, err := strconv.Atoi(current.Value)
+				if err != nil {
+					ReturnError(response, err)
+					return
+				}
+
+				if currentVersion > maxVersion {
+					max = current
+					indexOfLatestVersion = i
 				}
 			}
 		}
 
-		if latest == "" {
+		if max == nil {
 			ewts = models.EntitiesWithTags{}
 		} else {
-			ewts = models.EntitiesWithTags{ewts[index]}
+			ewts = models.EntitiesWithTags{ewts[indexOfLatestVersion]}
 		}
 	}
 
