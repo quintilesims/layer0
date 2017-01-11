@@ -176,7 +176,7 @@ func expandPorts(flattened []interface{}) []models.Port {
 		}
 
 		if v, ok := data["certificate"]; ok {
-			port.CertificateID = v.(string)
+			port.CertificateName = v.(string)
 		}
 
 		ports = append(ports, port)
@@ -195,8 +195,8 @@ func flattenPorts(ports []models.Port) []map[string]interface{} {
 			"protocol":       port.Protocol,
 		}
 
-		if port.CertificateID != "" {
-			data["certificate"] = port.CertificateID
+		if port.CertificateName != "" {
+			data["certificate"] = port.CertificateName
 		}
 
 		flattened = append(flattened, data)
