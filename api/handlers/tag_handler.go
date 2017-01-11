@@ -121,37 +121,25 @@ func (t *TagHandler) FindTags(request *restful.Request, response *restful.Respon
 	}
 
 	if latestVersion {
-		var indexOfLatestVersion int
-		var max *models.Tag
+		indexOfLatestVersion := -1
+		latestVersion := -1
 
 		for i, ewt := range ewts {
 			if current := ewt.Tags.WithKey("version").First(); current != nil {
-				if max == nil {
-					max = current
-					indexOfLatestVersion = i
-					continue
-				}
-
-				maxVersion, err := strconv.Atoi(max.Value)
-				if err != nil {
-					ReturnError(response, err)
-					return
-				}
-
 				currentVersion, err := strconv.Atoi(current.Value)
 				if err != nil {
 					ReturnError(response, err)
 					return
 				}
 
-				if currentVersion > maxVersion {
-					max = current
+				if currentVersion > latestVersion {
+					latestVersion = currentVersion
 					indexOfLatestVersion = i
 				}
 			}
 		}
 
-		if max == nil {
+		if latestVersion == -1 {
 			ewts = models.EntitiesWithTags{}
 		} else {
 			ewts = models.EntitiesWithTags{ewts[indexOfLatestVersion]}
