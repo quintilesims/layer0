@@ -43,7 +43,7 @@ func (a *AdminCommand) GetCommand() cli.Command {
 
 func (a *AdminCommand) Debug(c *cli.Context) error {
 	apiEndpoint := config.APIEndpoint()
-	cliAuth := config.CLIAuth()
+	cliAuth := config.AuthToken()
 	cliVersion := config.CLIVersion()
 
 	apiVersion, err := a.Client.GetVersion()

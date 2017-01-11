@@ -7,7 +7,7 @@ import (
 	"testing"
 )
 
-func TestGetTags(t *testing.T) {
+func TestSelectByQuery(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		testutils.AssertEqual(t, r.Method, "GET")
 		testutils.AssertEqual(t, r.URL.Path, "/tag")
@@ -36,7 +36,7 @@ func TestGetTags(t *testing.T) {
 		"key":     "val",
 	}
 
-	tags, err := client.GetTags(params)
+	tags, err := client.SelectByQuery(params)
 	if err != nil {
 		t.Fatal(err)
 	}

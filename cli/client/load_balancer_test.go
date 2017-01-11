@@ -10,16 +10,16 @@ import (
 func TestCreateLoadBalancer(t *testing.T) {
 	ports := []models.Port{
 		{
-			HostPort:      443,
-			ContainerPort: 80,
-			Protocol:      "https",
-			CertificateID: "certid",
+			HostPort:        443,
+			ContainerPort:   80,
+			Protocol:        "https",
+			CertificateName: "cert_name",
 		},
 		{
-			HostPort:      8000,
-			ContainerPort: 8000,
-			Protocol:      "http",
-			CertificateID: "",
+			HostPort:        8000,
+			ContainerPort:   8000,
+			Protocol:        "http",
+			CertificateName: "",
 		},
 	}
 
@@ -121,16 +121,16 @@ func TestListLoadBalancers(t *testing.T) {
 func TestUpdateLoadBalancer(t *testing.T) {
 	ports := []models.Port{
 		{
-			HostPort:      443,
-			ContainerPort: 80,
-			Protocol:      "https",
-			CertificateID: "certid",
+			HostPort:        443,
+			ContainerPort:   80,
+			Protocol:        "https",
+			CertificateName: "cert_name",
 		},
 		{
-			HostPort:      8000,
-			ContainerPort: 8000,
-			Protocol:      "http",
-			CertificateID: "",
+			HostPort:        8000,
+			ContainerPort:   8000,
+			Protocol:        "http",
+			CertificateName: "",
 		},
 	}
 

@@ -1,5 +1,4 @@
 #!/usr/bin/env bats
-load ../common/common
 
 @test "environment create test1" {
     l0 environment create test1

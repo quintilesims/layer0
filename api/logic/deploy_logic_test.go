@@ -1,477 +1,145 @@
 package logic
 
 import (
-	"fmt"
-	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/data"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
 
 func TestGetDeploy(t *testing.T) {
-	testCases := []testutils.TestCase{
-		testutils.TestCase{
-			Name: "Should call backend.GetDeploy with correct param",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
 
-				mockLogic.Backend.EXPECT().
-					GetDeploy("dpl_id").
-					Return(&models.Deploy{}, nil)
+	retDeploy := &models.Deploy{DeployID: "d1"}
 
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-				logic.GetDeploy("dpl_id")
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate backend.GetDeploy error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
+	testLogic.Backend.EXPECT().
+		GetDeploy("d1").
+		Return(retDeploy, nil)
 
-				mockLogic.Backend.EXPECT().
-					GetDeploy(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
+	testLogic.AddTags(t, []*models.Tag{
+		{EntityID: "d1", EntityType: "deploy", Key: "name", Value: "dpl"},
+		{EntityID: "d1", EntityType: "deploy", Key: "version", Value: "2"},
+		{EntityID: "extra", EntityType: "deploy", Key: "name", Value: "extra"},
+	})
 
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-
-				if _, err := logic.GetDeploy("dpl_id"); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should populate model with correct tags",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					GetDeploy(gomock.Any()).
-					Return(&models.Deploy{DeployID: "dpl_id"}, nil)
-
-				mockLogic.UseSQLite(t)
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "dpl_id",
-					EntityType: "deploy",
-					Key:        "name",
-					Value:      "some_name",
-				})
-
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-
-				deploy, err := logic.GetDeploy("dpl_id")
-				if err != nil {
-					reporter.Error(err)
-				}
-
-				reporter.AssertEqual(deploy.DeployID, "dpl_id")
-				reporter.AssertEqual(deploy.DeployName, "some_name")
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate tag error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					GetDeploy(gomock.Any()).
-					Return(&models.Deploy{}, nil)
-
-				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-
-				if _, err := logic.GetDeploy("dpl_id"); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
+	deployLogic := NewL0DeployLogic(testLogic.Logic())
+	received, err := deployLogic.GetDeploy("d1")
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	testutils.RunTests(t, testCases)
+	expected := &models.Deploy{DeployID: "d1", DeployName: "dpl", Version: "2"}
+	testutils.AssertEqual(t, received, expected)
 }
 
 func TestListDeploys(t *testing.T) {
-	testCases := []testutils.TestCase{
-		testutils.TestCase{
-			Name: "Should call backend.ListDeploys",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
 
-				mockLogic.Backend.EXPECT().
-					ListDeploys().
-					Return([]*models.Deploy{}, nil)
-
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-				logic.ListDeploys()
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate backend.ListDeploys error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					ListDeploys().
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-
-				if _, err := logic.ListDeploys(); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should populate models with correct tags",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				deploys := []*models.Deploy{
-					&models.Deploy{DeployID: "dpl_id_1"},
-					&models.Deploy{DeployID: "dpl_id_2"},
-				}
-
-				mockLogic.Backend.EXPECT().
-					ListDeploys().
-					Return(deploys, nil)
-
-				mockLogic.UseSQLite(t)
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "dpl_id_1",
-					EntityType: "deploy",
-					Key:        "name",
-					Value:      "some_name_1",
-				})
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "dpl_id_2",
-					EntityType: "deploy",
-					Key:        "name",
-					Value:      "some_name_2",
-				})
-
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-
-				deploys, err := logic.ListDeploys()
-				if err != nil {
-					reporter.Error(err)
-				}
-
-				reporter.AssertEqual(deploys[0].DeployID, "dpl_id_1")
-				reporter.AssertEqual(deploys[0].DeployName, "some_name_1")
-				reporter.AssertEqual(deploys[1].DeployID, "dpl_id_2")
-				reporter.AssertEqual(deploys[1].DeployName, "some_name_2")
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate tag error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				deploys := []*models.Deploy{
-					&models.Deploy{DeployID: "dpl_id_1"},
-					&models.Deploy{DeployID: "dpl_id_2"},
-				}
-
-				mockLogic.Backend.EXPECT().
-					ListDeploys().
-					Return(deploys, nil)
-
-				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-
-				if _, err := logic.ListDeploys(); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
+	retDeploys := []*models.Deploy{
+		{DeployID: "d1"},
+		{DeployID: "d2"},
 	}
 
-	testutils.RunTests(t, testCases)
+	testLogic.Backend.EXPECT().
+		ListDeploys().
+		Return(retDeploys, nil)
+
+	testLogic.AddTags(t, []*models.Tag{
+		{EntityID: "d1", EntityType: "deploy", Key: "name", Value: "dpl_1"},
+		{EntityID: "d1", EntityType: "deploy", Key: "version", Value: "2"},
+		{EntityID: "d2", EntityType: "deploy", Key: "name", Value: "dpl_2"},
+		{EntityID: "d2", EntityType: "deploy", Key: "version", Value: "3"},
+		{EntityID: "extra", EntityType: "deploy", Key: "name", Value: "extra"},
+	})
+
+	deployLogic := NewL0DeployLogic(testLogic.Logic())
+	received, err := deployLogic.ListDeploys()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := []*models.Deploy{
+		{DeployID: "d1", DeployName: "dpl_1", Version: "2"},
+		{DeployID: "d2", DeployName: "dpl_2", Version: "3"},
+	}
+
+	testutils.AssertEqual(t, received, expected)
 }
 
 func TestDeleteDeploy(t *testing.T) {
-	testCases := []testutils.TestCase{
-		testutils.TestCase{
-			Name: "Should call backend.DeleteDeploy with correct params",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
 
-				mockLogic.Backend.EXPECT().
-					DeleteDeploy("dpl_id").
-					Return(nil)
+	testLogic.Backend.EXPECT().
+		DeleteDeploy("d1").
+		Return(nil)
 
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-				logic.DeleteDeploy("dpl_id")
-			},
-		},
-		testutils.TestCase{
-			Name: "Should delete deploy tags",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
+	testLogic.AddTags(t, []*models.Tag{
+		{EntityID: "d1", EntityType: "deploy", Key: "name", Value: "dpl"},
+		{EntityID: "d1", EntityType: "deploy", Key: "version", Value: "2"},
+		{EntityID: "extra", EntityType: "deploy", Key: "name", Value: "extra"},
+	})
 
-				mockLogic.Backend.EXPECT().
-					DeleteDeploy(gomock.Any()).
-					Return(nil)
-
-				mockLogic.UseSQLite(t)
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "dpl_id",
-					EntityType: "deploy",
-					Key:        "name",
-					Value:      "some_name",
-				})
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "not_dpl_id",
-					EntityType: "deploy",
-					Key:        "name",
-					Value:      "some_name",
-				})
-
-				return map[string]interface{}{
-					"target": NewL0DeployLogic(mockLogic.Logic()),
-					"sqlite": mockLogic.SQLite,
-				}
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				testMap := target.(map[string]interface{})
-
-				logic := testMap["target"].(*L0DeployLogic)
-				logic.DeleteDeploy("dpl_id")
-
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
-				tags, err := sqlite.Select()
-				if err != nil {
-					reporter.Error(err)
-				}
-
-				reporter.AssertEqual(1, len(tags))
-				reporter.AssertEqual(tags[0].EntityID, "not_dpl_id")
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate backend.DeleteDeploy error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					DeleteDeploy(gomock.Any()).
-					Return(fmt.Errorf("some error"))
-
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-
-				if err := logic.DeleteDeploy(""); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate tag data error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					DeleteDeploy(gomock.Any()).
-					Return(nil)
-
-				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-
-				if err := logic.DeleteDeploy(""); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
+	deployLogic := NewL0DeployLogic(testLogic.Logic())
+	if err := deployLogic.DeleteDeploy("d1"); err != nil {
+		t.Fatal(err)
 	}
 
-	testutils.RunTests(t, testCases)
+	tags, err := testLogic.TagStore.SelectAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// make sure the 'extra' tag is the only one left
+	testutils.AssertEqual(t, len(tags), 1)
 }
 
 func TestCreateDeploy(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	retDeploy := &models.Deploy{DeployID: "d1", Version: "1"}
+
+	testLogic.Backend.EXPECT().
+		CreateDeploy("name", []byte("dockerrun")).
+		Return(retDeploy, nil)
+
 	request := models.CreateDeployRequest{
-		DeployName: "some_name",
-		Dockerrun:  []byte{},
+		DeployName: "name",
+		Dockerrun:  []byte("dockerrun"),
 	}
 
-	testCases := []testutils.TestCase{
-		testutils.TestCase{
-			Name: "Should error if request.DeployName is empty",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-
-				req := models.CreateDeployRequest{}
-				if _, err := logic.CreateDeploy(req); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should call backend.CreateDeploy with correct params",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
-
-				mockLogic.Backend.EXPECT().
-					CreateDeploy("some_name", []byte{}).
-					Return(&models.Deploy{}, nil)
-
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-				logic.CreateDeploy(request)
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate backend.CreateDeploy error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
-
-				mockLogic.Backend.EXPECT().
-					CreateDeploy(gomock.Any(), gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-
-				if _, err := logic.CreateDeploy(request); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should add correct name and version tag in database",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				model := &models.Deploy{
-					DeployID: "dpl_id",
-					Version:  "1",
-				}
-
-				mockLogic.Backend.EXPECT().
-					CreateDeploy(gomock.Any(), gomock.Any()).
-					Return(model, nil)
-
-				mockLogic.UseSQLite(t)
-
-				return map[string]interface{}{
-					"target": NewL0DeployLogic(mockLogic.Logic()),
-					"sqlite": mockLogic.SQLite,
-				}
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				testMap := target.(map[string]interface{})
-
-				logic := testMap["target"].(*L0DeployLogic)
-				if _, err := logic.CreateDeploy(request); err != nil {
-					reporter.Error(err)
-				}
-
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
-				tags, err := sqlite.Select()
-				if err != nil {
-					reporter.Error(err)
-				}
-
-				nameTag := models.EntityTag{
-					EntityID:   "dpl_id",
-					EntityType: "deploy",
-					Key:        "name",
-					Value:      "some_name",
-				}
-
-				versionTag := models.EntityTag{
-					EntityID:   "dpl_id",
-					EntityType: "deploy",
-					Key:        "version",
-					Value:      "1",
-				}
-
-				reporter.AssertEqual(len(tags), 2)
-				reporter.AssertInSlice(nameTag, tags)
-				reporter.AssertInSlice(versionTag, tags)
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate tag data error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					CreateDeploy(gomock.Any(), gomock.Any()).
-					Return(&models.Deploy{}, nil)
-
-				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0DeployLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0DeployLogic)
-
-				if _, err := logic.CreateDeploy(request); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
+	deployLogic := NewL0DeployLogic(testLogic.Logic())
+	received, err := deployLogic.CreateDeploy(request)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	testutils.RunTests(t, testCases)
+	expected := &models.Deploy{
+		DeployID:   "d1",
+		DeployName: "name",
+		Version:    "1",
+	}
+
+	testutils.AssertEqual(t, received, expected)
+	testLogic.AssertTagExists(t, models.Tag{EntityID: "d1", EntityType: "deploy", Key: "name", Value: "name"})
+	testLogic.AssertTagExists(t, models.Tag{EntityID: "d1", EntityType: "deploy", Key: "version", Value: "1"})
+}
+
+func TestCreateDeployError_missingRequiredParams(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	deployLogic := NewL0DeployLogic(testLogic.Logic())
+
+	cases := map[string]models.CreateDeployRequest{
+		"Missing DeployName": models.CreateDeployRequest{},
+	}
+
+	for name, request := range cases {
+		if _, err := deployLogic.CreateDeploy(request); err == nil {
+			t.Errorf("Case %s: error was nil!", name)
+		}
+	}
 }

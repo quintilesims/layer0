@@ -2,5 +2,12 @@ sudo: required
 
 language: go
 
+services:
+  - mysql
+
+before_install:
+  - mysql -u root -e "CREATE USER 'layer0'@'127.0.0.1' IDENTIFIED BY 'nohaxplz';"
+  - mysql -u root -e "GRANT ALL ON layer0_test.* TO 'layer0'@'127.0.0.1';"
+
 script:
   - make unittest

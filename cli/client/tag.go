@@ -5,7 +5,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func (c *APIClient) GetTags(params map[string]string) ([]*models.EntityWithTags, error) {
+func (c *APIClient) SelectByQuery(params map[string]string) ([]*models.EntityWithTags, error) {
 	query := "?"
 	for k, v := range params {
 		query += fmt.Sprintf("&%s=%s", k, v)

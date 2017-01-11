@@ -16,6 +16,10 @@ func AssertEqual(t *testing.T, result, expected interface{}) {
 	}
 }
 
+func AssertAny(t *testing.T, result interface{}, expected ...interface{}) {
+	AssertInSlice(t, result, expected)
+}
+
 func AssertInSlice(t *testing.T, expected, slice interface{}) {
 	if reflect.TypeOf(slice).Kind() != reflect.Slice {
 		t.Fatalf("\n\t%v (%v) is not a slice", slice, reflect.TypeOf(slice))

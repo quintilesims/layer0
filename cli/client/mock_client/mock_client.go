@@ -96,6 +96,16 @@ func (_mr *_MockClientRecorder) CreateTask(arg0, arg1, arg2, arg3, arg4 interfac
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTask", arg0, arg1, arg2, arg3, arg4)
 }
 
+func (_m *MockClient) Delete(_param0 string) error {
+	ret := _m.ctrl.Call(_m, "Delete", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockClientRecorder) Delete(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Delete", arg0)
+}
+
 func (_m *MockClient) DeleteCertificate(_param0 string) error {
 	ret := _m.ctrl.Call(_m, "DeleteCertificate", _param0)
 	ret0, _ := ret[0].(error)
@@ -125,16 +135,6 @@ func (_m *MockClient) DeleteEnvironment(_param0 string) (string, error) {
 
 func (_mr *_MockClientRecorder) DeleteEnvironment(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteEnvironment", arg0)
-}
-
-func (_m *MockClient) DeleteJob(_param0 string) error {
-	ret := _m.ctrl.Call(_m, "DeleteJob", _param0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-func (_mr *_MockClientRecorder) DeleteJob(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteJob", arg0)
 }
 
 func (_m *MockClient) DeleteLoadBalancer(_param0 string) (string, error) {
@@ -213,17 +213,6 @@ func (_mr *_MockClientRecorder) GetEnvironment(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetEnvironment", arg0)
 }
 
-func (_m *MockClient) GetJob(_param0 string) (*models.Job, error) {
-	ret := _m.ctrl.Call(_m, "GetJob", _param0)
-	ret0, _ := ret[0].(*models.Job)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) GetJob(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetJob", arg0)
-}
-
 func (_m *MockClient) GetLoadBalancer(_param0 string) (*models.LoadBalancer, error) {
 	ret := _m.ctrl.Call(_m, "GetLoadBalancer", _param0)
 	ret0, _ := ret[0].(*models.LoadBalancer)
@@ -255,17 +244,6 @@ func (_m *MockClient) GetServiceLogs(_param0 string, _param1 int) ([]*models.Log
 
 func (_mr *_MockClientRecorder) GetServiceLogs(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetServiceLogs", arg0, arg1)
-}
-
-func (_m *MockClient) GetTags(_param0 map[string]string) ([]*models.EntityWithTags, error) {
-	ret := _m.ctrl.Call(_m, "GetTags", _param0)
-	ret0, _ := ret[0].([]*models.EntityWithTags)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) GetTags(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTags", arg0)
 }
 
 func (_m *MockClient) GetTask(_param0 string) (*models.Task, error) {
@@ -334,17 +312,6 @@ func (_mr *_MockClientRecorder) ListEnvironments() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListEnvironments")
 }
 
-func (_m *MockClient) ListJobs() ([]*models.Job, error) {
-	ret := _m.ctrl.Call(_m, "ListJobs")
-	ret0, _ := ret[0].([]*models.Job)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) ListJobs() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListJobs")
-}
-
 func (_m *MockClient) ListLoadBalancers() ([]*models.LoadBalancer, error) {
 	ret := _m.ctrl.Call(_m, "ListLoadBalancers")
 	ret0, _ := ret[0].([]*models.LoadBalancer)
@@ -387,6 +354,39 @@ func (_m *MockClient) ScaleService(_param0 string, _param1 int) (*models.Service
 
 func (_mr *_MockClientRecorder) ScaleService(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ScaleService", arg0, arg1)
+}
+
+func (_m *MockClient) SelectAll() ([]*models.Job, error) {
+	ret := _m.ctrl.Call(_m, "SelectAll")
+	ret0, _ := ret[0].([]*models.Job)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockClientRecorder) SelectAll() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "SelectAll")
+}
+
+func (_m *MockClient) SelectByID(_param0 string) (*models.Job, error) {
+	ret := _m.ctrl.Call(_m, "SelectByID", _param0)
+	ret0, _ := ret[0].(*models.Job)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockClientRecorder) SelectByID(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "SelectByID", arg0)
+}
+
+func (_m *MockClient) SelectByQuery(_param0 map[string]string) ([]*models.EntityWithTags, error) {
+	ret := _m.ctrl.Call(_m, "SelectByQuery", _param0)
+	ret0, _ := ret[0].([]*models.EntityWithTags)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockClientRecorder) SelectByQuery(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "SelectByQuery", arg0)
 }
 
 func (_m *MockClient) UpdateEnvironment(_param0 string, _param1 int) (*models.Environment, error) {

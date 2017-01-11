@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func TestListJobs(t *testing.T) {
+func TestSelectAll(t *testing.T) {
 	jobs := []*models.Job{
 		&models.Job{
 			JobID:       "some_id_1",
@@ -34,14 +34,14 @@ func TestListJobs(t *testing.T) {
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockJobLogic(ctrl)
 				logicMock.EXPECT().
-					ListJobs().
+					SelectAll().
 					Return(jobs, nil)
 
 				return NewJobHandler(logicMock)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.ListJobs(req, resp)
+				handler.SelectAll(req, resp)
 
 				var response []*models.Job
 				read(&response)
@@ -53,19 +53,19 @@ func TestListJobs(t *testing.T) {
 			},
 		},
 		HandlerTestCase{
-			Name:    "Should propogate ListJobs error",
+			Name:    "Should propogate SelectAll error",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockJobLogic(ctrl)
 				logicMock.EXPECT().
-					ListJobs().
+					SelectAll().
 					Return(nil, errors.Newf(errors.UnexpectedError, "some error"))
 
 				return NewJobHandler(logicMock)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.ListJobs(req, resp)
+				handler.SelectAll(req, resp)
 
 				var response *models.ServerError
 				read(&response)
@@ -78,28 +78,28 @@ func TestListJobs(t *testing.T) {
 	RunHandlerTestCases(t, testCases)
 }
 
-func TestGetJob(t *testing.T) {
+func TestSelectByID(t *testing.T) {
 	job := &models.Job{
 		JobID: "some_id",
 	}
 
 	testCases := []HandlerTestCase{
 		HandlerTestCase{
-			Name: "Should call GetJob with proper params",
+			Name: "Should call SelectByID with proper params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
 			},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockJobLogic(ctrl)
 				logicMock.EXPECT().
-					GetJob("some_id").
+					SelectByID("some_id").
 					Return(job, nil)
 
 				return NewJobHandler(logicMock)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.GetJob(req, resp)
+				handler.SelectByID(req, resp)
 			},
 		},
 		HandlerTestCase{
@@ -110,14 +110,14 @@ func TestGetJob(t *testing.T) {
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockJobLogic(ctrl)
 				logicMock.EXPECT().
-					GetJob(gomock.Any()).
+					SelectByID(gomock.Any()).
 					Return(job, nil)
 
 				return NewJobHandler(logicMock)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.GetJob(req, resp)
+				handler.SelectByID(req, resp)
 
 				var response *models.Job
 				read(&response)
@@ -135,7 +135,7 @@ func TestGetJob(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.GetJob(req, resp)
+				handler.SelectByID(req, resp)
 
 				var response *models.ServerError
 				read(&response)
@@ -144,21 +144,21 @@ func TestGetJob(t *testing.T) {
 			},
 		},
 		HandlerTestCase{
-			Name: "Should propagate GetJob error",
+			Name: "Should propagate SelectByID error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
 			},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockJobLogic(ctrl)
 				logicMock.EXPECT().
-					GetJob(gomock.Any()).
+					SelectByID(gomock.Any()).
 					Return(nil, errors.Newf(errors.UnexpectedError, "some error"))
 
 				return NewJobHandler(logicMock)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.GetJob(req, resp)
+				handler.SelectByID(req, resp)
 
 				var response *models.ServerError
 				read(&response)
@@ -171,24 +171,24 @@ func TestGetJob(t *testing.T) {
 	RunHandlerTestCases(t, testCases)
 }
 
-func TestDeleteJob(t *testing.T) {
+func TestDelete(t *testing.T) {
 	testCases := []HandlerTestCase{
 		HandlerTestCase{
-			Name: "Should call DeleteJob with proper params",
+			Name: "Should call Delete with proper params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
 			},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockJobLogic(ctrl)
 				logicMock.EXPECT().
-					DeleteJob("some_id").
+					Delete("some_id").
 					Return(nil)
 
 				return NewJobHandler(logicMock)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.DeleteJob(req, resp)
+				handler.Delete(req, resp)
 			},
 		},
 		HandlerTestCase{
@@ -200,7 +200,7 @@ func TestDeleteJob(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.DeleteJob(req, resp)
+				handler.Delete(req, resp)
 
 				var response *models.ServerError
 				read(&response)
@@ -209,21 +209,21 @@ func TestDeleteJob(t *testing.T) {
 			},
 		},
 		HandlerTestCase{
-			Name: "Should propagate DeleteJob error",
+			Name: "Should propagate Delete error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
 			},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockJobLogic(ctrl)
 				logicMock.EXPECT().
-					DeleteJob(gomock.Any()).
+					Delete(gomock.Any()).
 					Return(errors.Newf(errors.UnexpectedError, "some error"))
 
 				return NewJobHandler(logicMock)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.DeleteJob(req, resp)
+				handler.Delete(req, resp)
 
 				var response *models.ServerError
 				read(&response)

@@ -22,9 +22,9 @@ type Client interface {
 	ListEnvironments() ([]*models.Environment, error)
 	UpdateEnvironment(id string, minCount int) (*models.Environment, error)
 
-	DeleteJob(id string) error
-	GetJob(id string) (*models.Job, error)
-	ListJobs() ([]*models.Job, error)
+	Delete(id string) error
+	SelectByID(id string) (*models.Job, error)
+	SelectAll() ([]*models.Job, error)
 	WaitForJob(jobID string, timeout time.Duration) error
 
 	CreateLoadBalancer(name, environmentID string, ports []models.Port, isPublic bool) (*models.LoadBalancer, error)
@@ -48,7 +48,7 @@ type Client interface {
 	GetTaskLogs(id string, tail int) ([]*models.LogFile, error)
 	ListTasks() ([]*models.Task, error)
 
-	GetTags(params map[string]string) ([]*models.EntityWithTags, error)
+	SelectByQuery(params map[string]string) ([]*models.EntityWithTags, error)
 	GetVersion() (string, error)
 	GetConfig() (*models.APIConfig, error)
 	UpdateSQL() error

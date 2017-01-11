@@ -1,13 +1,9 @@
 #!/usr/bin/env bats
-load ../common/common
+
+certificate_name="l0-$LAYER0_PREFIX-api"
 
 @test "create environment test" {
     l0 environment create test
-}
-
-@test "certificate create certificate1" {
-    create_cert
-    l0 certificate create certificate1 www.example.com.cert www.example.com.key
 }
 
 @test "loadbalancer create test loadbalancer1" {
@@ -34,8 +30,8 @@ load ../common/common
     l0 loadbalancer delete --wait loadbalancer1
 }
 
-@test "loadbalancer create --port 80:80/http --port 443:443/https --private --certificate certificate1 test loadbalancer2" {
-    l0 loadbalancer create --port 80:80/http --port 443:443/https --private --certificate certificate1 test loadbalancer2
+@test "loadbalancer create --port 80:80/http --port 443:443/https --private --certificate $certificate_name loadbalancer2" {
+    l0 loadbalancer create --port 80:80/http --port 443:443/https --private --certificate $certificate_name test loadbalancer2
 }
 
 @test "loadbalancer list" {

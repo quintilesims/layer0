@@ -53,7 +53,7 @@ func (this *L0DeployLogic) DeleteDeploy(deployID string) error {
 		return err
 	}
 
-	if err := this.deleteEntityTags(deployID, "deploy"); err != nil {
+	if err := this.deleteEntityTags("deploy", deployID); err != nil {
 		return err
 	}
 
@@ -86,23 +86,17 @@ func (this *L0DeployLogic) CreateDeploy(req models.CreateDeployRequest) (*models
 }
 
 func (this *L0DeployLogic) populateModel(model *models.Deploy) error {
-	filter := map[string]string{
-		"type": "deploy",
-		"id":   model.DeployID,
-	}
-
-	tags, err := this.TagData.GetTags(filter)
+	tags, err := this.TagStore.SelectByQuery("deploy", model.DeployID)
 	if err != nil {
 		return err
 	}
 
-	for _, tag := range rangeTags(tags) {
-		switch tag.Key {
-		case "name":
-			model.DeployName = tag.Value
-		case "version":
-			model.Version = tag.Value
-		}
+	if tag := tags.WithKey("name").First(); tag != nil {
+		model.DeployName = tag.Value
+	}
+
+	if tag := tags.WithKey("version").First(); tag != nil {
+		model.Version = tag.Value
 	}
 
 	return nil

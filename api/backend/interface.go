@@ -30,11 +30,6 @@ type Backend interface {
 	DeleteTask(envID, taskID string) error
 	GetTaskLogs(environmentID, taskID string, tail int) ([]*models.LogFile, error)
 
-	CreateCertificate(name, public, private, chain string) (*models.Certificate, error)
-	ListCertificates() ([]*models.Certificate, error)
-	GetCertificate(certificateID string) (*models.Certificate, error)
-	DeleteCertificate(certificateID string) error
-
 	ListLoadBalancers() ([]*models.LoadBalancer, error)
 	GetLoadBalancer(id string) (*models.LoadBalancer, error)
 	DeleteLoadBalancer(id string) error

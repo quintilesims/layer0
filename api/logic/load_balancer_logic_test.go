@@ -1,637 +1,228 @@
 package logic
 
 import (
-	"fmt"
-	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/data"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
 
 func TestGetLoadBalancer(t *testing.T) {
-	testCases := []testutils.TestCase{
-		testutils.TestCase{
-			Name: "Should call backend.GetLoadBalancer with correct param",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
 
-				mockLogic.Backend.EXPECT().
-					GetLoadBalancer("lbid").
-					Return(&models.LoadBalancer{}, nil)
+	retLoadBalancer := &models.LoadBalancer{LoadBalancerID: "l1"}
 
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-				logic.GetLoadBalancer("lbid")
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate backend.GetLoadBalancer error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
+	testLogic.Backend.EXPECT().
+		GetLoadBalancer("l1").
+		Return(retLoadBalancer, nil)
 
-				mockLogic.Backend.EXPECT().
-					GetLoadBalancer(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
+	testLogic.AddTags(t, []*models.Tag{
+		{EntityID: "l1", EntityType: "load_balancer", Key: "name", Value: "lb"},
+		{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "e1"},
+		{EntityID: "extra", EntityType: "load_balancer", Key: "name", Value: "extra"},
+	})
 
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				if _, err := logic.GetLoadBalancer("lbid"); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should populate model with correct tags",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					GetLoadBalancer(gomock.Any()).
-					Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil)
-
-				mockLogic.UseSQLite(t)
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "lbid",
-					EntityType: "load_balancer",
-					Key:        "name",
-					Value:      "some_name",
-				})
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "lbid",
-					EntityType: "load_balancer",
-					Key:        "environment_id",
-					Value:      "envid",
-				})
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				loadBalancer, err := logic.GetLoadBalancer("lbid")
-				if err != nil {
-					reporter.Error(err)
-				}
-
-				reporter.AssertEqual(loadBalancer.LoadBalancerID, "lbid")
-				reporter.AssertEqual(loadBalancer.LoadBalancerName, "some_name")
-				reporter.AssertEqual(loadBalancer.EnvironmentID, "envid")
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate tag error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					GetLoadBalancer(gomock.Any()).
-					Return(&models.LoadBalancer{}, nil)
-
-				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				if _, err := logic.GetLoadBalancer("lbid"); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+	received, err := loadBalancerLogic.GetLoadBalancer("l1")
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	testutils.RunTests(t, testCases)
+	expected := &models.LoadBalancer{
+		LoadBalancerID:   "l1",
+		LoadBalancerName: "lb",
+		EnvironmentID:    "e1",
+	}
+
+	testutils.AssertEqual(t, received, expected)
 }
 
 func TestListLoadBalancers(t *testing.T) {
-	testCases := []testutils.TestCase{
-		testutils.TestCase{
-			Name: "Should call backend.ListLoadBalancers",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
 
-				mockLogic.Backend.EXPECT().
-					ListLoadBalancers().
-					Return([]*models.LoadBalancer{}, nil)
+	retLoadBalancers := []*models.LoadBalancer{
+		{LoadBalancerID: "l1"},
+		{LoadBalancerID: "l2"},
+	}
 
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-				logic.ListLoadBalancers()
-			},
+	testLogic.Backend.EXPECT().
+		ListLoadBalancers().
+		Return(retLoadBalancers, nil)
+
+	testLogic.AddTags(t, []*models.Tag{
+		{EntityID: "l1", EntityType: "load_balancer", Key: "name", Value: "lb_1"},
+		{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "e1"},
+		{EntityID: "l2", EntityType: "load_balancer", Key: "name", Value: "lb_2"},
+		{EntityID: "l2", EntityType: "load_balancer", Key: "environment_id", Value: "e2"},
+		{EntityID: "extra", EntityType: "load_balancer", Key: "name", Value: "extra"},
+	})
+
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+	received, err := loadBalancerLogic.ListLoadBalancers()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := []*models.LoadBalancer{
+		{
+			LoadBalancerID:   "l1",
+			LoadBalancerName: "lb_1",
+			EnvironmentID:    "e1",
 		},
-		testutils.TestCase{
-			Name: "Should propagate backend.ListLoadBalancers error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					ListLoadBalancers().
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				if _, err := logic.ListLoadBalancers(); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should populate models with correct tags",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				loadBalancers := []*models.LoadBalancer{
-					&models.LoadBalancer{LoadBalancerID: "some_id_1"},
-					&models.LoadBalancer{LoadBalancerID: "some_id_2"},
-				}
-
-				mockLogic.Backend.EXPECT().
-					ListLoadBalancers().
-					Return(loadBalancers, nil)
-
-				mockLogic.UseSQLite(t)
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "some_id_1",
-					EntityType: "load_balancer",
-					Key:        "name",
-					Value:      "some_name_1",
-				})
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "some_id_1",
-					EntityType: "load_balancer",
-					Key:        "environment_id",
-					Value:      "some_env_1",
-				})
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "some_id_2",
-					EntityType: "load_balancer",
-					Key:        "name",
-					Value:      "some_name_2",
-				})
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "some_id_2",
-					EntityType: "load_balancer",
-					Key:        "environment_id",
-					Value:      "some_env_2",
-				})
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				loadBalancers, err := logic.ListLoadBalancers()
-				if err != nil {
-					reporter.Error(err)
-				}
-
-				reporter.AssertEqual(loadBalancers[0].LoadBalancerID, "some_id_1")
-				reporter.AssertEqual(loadBalancers[0].LoadBalancerName, "some_name_1")
-				reporter.AssertEqual(loadBalancers[0].EnvironmentID, "some_env_1")
-
-				reporter.AssertEqual(loadBalancers[1].LoadBalancerID, "some_id_2")
-				reporter.AssertEqual(loadBalancers[1].LoadBalancerName, "some_name_2")
-				reporter.AssertEqual(loadBalancers[1].EnvironmentID, "some_env_2")
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate tag error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				loadBalancers := []*models.LoadBalancer{
-					&models.LoadBalancer{LoadBalancerID: "some_id_1"},
-					&models.LoadBalancer{LoadBalancerID: "some_id_2"},
-				}
-
-				mockLogic.Backend.EXPECT().
-					ListLoadBalancers().
-					Return(loadBalancers, nil)
-
-				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				if _, err := logic.ListLoadBalancers(); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
+		{
+			LoadBalancerID:   "l2",
+			LoadBalancerName: "lb_2",
+			EnvironmentID:    "e2",
 		},
 	}
 
-	testutils.RunTests(t, testCases)
+	testutils.AssertEqual(t, received, expected)
 }
 
 func TestDeleteLoadBalancer(t *testing.T) {
-	testCases := []testutils.TestCase{
-		testutils.TestCase{
-			Name: "Should call backend.DeleteLoadBalancer with correct params",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
 
-				mockLogic.Backend.EXPECT().
-					DeleteLoadBalancer("lbid").
-					Return(nil)
+	testLogic.Backend.EXPECT().
+		DeleteLoadBalancer("l1").
+		Return(nil)
 
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-				logic.DeleteLoadBalancer("lbid")
-			},
-		},
-		testutils.TestCase{
-			Name: "Should delete loadBalancer tags",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
+	testLogic.AddTags(t, []*models.Tag{
+		{EntityID: "l1", EntityType: "load_balancer", Key: "name", Value: "lb"},
+		{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "e1"},
+		{EntityID: "extra", EntityType: "load_balancer", Key: "name", Value: "extra"},
+	})
 
-				mockLogic.Backend.EXPECT().
-					DeleteLoadBalancer(gomock.Any()).
-					Return(nil)
-
-				mockLogic.UseSQLite(t)
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "lbid",
-					EntityType: "load_balancer",
-					Key:        "name",
-					Value:      "some_name",
-				})
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "not_lbid",
-					EntityType: "load_balancer",
-					Key:        "name",
-					Value:      "some_name",
-				})
-
-				return map[string]interface{}{
-					"target": NewL0LoadBalancerLogic(mockLogic.Logic()),
-					"sqlite": mockLogic.SQLite,
-				}
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				testMap := target.(map[string]interface{})
-
-				logic := testMap["target"].(*L0LoadBalancerLogic)
-				logic.DeleteLoadBalancer("lbid")
-
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
-				tags, err := sqlite.Select()
-				if err != nil {
-					reporter.Error(err)
-				}
-
-				reporter.AssertEqual(1, len(tags))
-				reporter.AssertEqual(tags[0].EntityID, "not_lbid")
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate backend.DeleteLoadBalancer error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					DeleteLoadBalancer(gomock.Any()).
-					Return(fmt.Errorf("some error"))
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				if err := logic.DeleteLoadBalancer(""); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate tag data error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					DeleteLoadBalancer(gomock.Any()).
-					Return(nil)
-
-				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				if err := logic.DeleteLoadBalancer(""); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+	if err := loadBalancerLogic.DeleteLoadBalancer("l1"); err != nil {
+		t.Fatal(err)
 	}
 
-	testutils.RunTests(t, testCases)
+	tags, err := testLogic.TagStore.SelectAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// make sure the 'extra' tag is the only one left
+	testutils.AssertEqual(t, len(tags), 1)
 }
 
 func TestCreateLoadBalancer(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	retLoadBalancer := &models.LoadBalancer{
+		LoadBalancerID: "l1",
+		EnvironmentID:  "e1",
+		IsPublic:       true,
+		Ports:          []models.Port{},
+	}
+
+	testLogic.Backend.EXPECT().
+		CreateLoadBalancer("name", "e1", true, []models.Port{}).
+		Return(retLoadBalancer, nil)
+
 	request := models.CreateLoadBalancerRequest{
-		EnvironmentID:    "envid",
-		LoadBalancerName: "lb_name",
+		LoadBalancerName: "name",
+		EnvironmentID:    "e1",
 		IsPublic:         true,
-		Ports: []models.Port{
-			models.Port{
-				HostPort:      80,
-				ContainerPort: 80,
-				Protocol:      "tcp",
-			},
+		Ports:            []models.Port{},
+	}
+
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+	received, err := loadBalancerLogic.CreateLoadBalancer(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := &models.LoadBalancer{
+		LoadBalancerID:   "l1",
+		LoadBalancerName: "name",
+		EnvironmentID:    "e1",
+		IsPublic:         true,
+		Ports:            []models.Port{},
+	}
+
+	testutils.AssertEqual(t, received, expected)
+	testLogic.AssertTagExists(t, models.Tag{EntityID: "l1", EntityType: "load_balancer", Key: "name", Value: "name"})
+	testLogic.AssertTagExists(t, models.Tag{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "e1"})
+}
+
+func TestCreateLoadBalancerError_missingRequiredParams(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+
+	cases := map[string]models.CreateLoadBalancerRequest{
+		"Missing EnvironmentID": models.CreateLoadBalancerRequest{
+			LoadBalancerName: "name",
+		},
+		"Missing LoadBalancerName": models.CreateLoadBalancerRequest{
+			EnvironmentID: "e1",
 		},
 	}
 
-	testCases := []testutils.TestCase{
-		testutils.TestCase{
-			Name: "Should error if request.EnvironmentID is empty",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
+	for name, request := range cases {
+		if _, err := loadBalancerLogic.CreateLoadBalancer(request); err == nil {
+			t.Errorf("Case %s: error was nil!", name)
+		}
+	}
+}
 
-				request := models.CreateLoadBalancerRequest{LoadBalancerName: "lb_name"}
-				if _, err := logic.CreateLoadBalancer(request); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should error if request.LoadBalancerName is empty",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
+func TestCreateLoadBalancerError_duplicateName(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
 
-				request := models.CreateLoadBalancerRequest{EnvironmentID: "envid"}
-				if _, err := logic.CreateLoadBalancer(request); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should error if name/environment_id tags already exist",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
+	testLogic.AddTags(t, []*models.Tag{
+		{EntityID: "l1", EntityType: "load_balancer", Key: "name", Value: "lb_1"},
+		{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "e1"},
+	})
 
-				mockLogic.UseSQLite(t)
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "lbid",
-					EntityType: "load_balancer",
-					Key:        "name",
-					Value:      "some_name",
-				})
-
-				addTag(t, mockLogic.SQLite, models.EntityTag{
-					EntityID:   "lbid",
-					EntityType: "load_balancer",
-					Key:        "environment_id",
-					Value:      "envid",
-				})
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				request := models.CreateLoadBalancerRequest{
-					EnvironmentID:    "envid",
-					LoadBalancerName: "some_name",
-				}
-
-				if _, err := logic.CreateLoadBalancer(request); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should call backend.CreateLoadBalancer with correct params",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
-
-				mockLogic.Backend.EXPECT().
-					CreateLoadBalancer("lb_name", "envid", true, request.Ports).
-					Return(&models.LoadBalancer{}, nil)
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-				logic.CreateLoadBalancer(request)
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate backend.CreateLoadBalancer error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
-
-				mockLogic.Backend.EXPECT().
-					CreateLoadBalancer(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				if _, err := logic.CreateLoadBalancer(request); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should add correct name tag in database",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				loadBalancer := &models.LoadBalancer{
-					EnvironmentID:    "envid",
-					LoadBalancerID:   "lbid",
-					LoadBalancerName: "lb_name",
-				}
-
-				mockLogic.Backend.EXPECT().
-					CreateLoadBalancer(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(loadBalancer, nil)
-
-				mockLogic.UseSQLite(t)
-
-				return map[string]interface{}{
-					"target": NewL0LoadBalancerLogic(mockLogic.Logic()),
-					"sqlite": mockLogic.SQLite,
-				}
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				testMap := target.(map[string]interface{})
-
-				// todo: setup id generation
-
-				logic := testMap["target"].(*L0LoadBalancerLogic)
-				if _, err := logic.CreateLoadBalancer(request); err != nil {
-					reporter.Error(err)
-				}
-
-				sqlite := testMap["sqlite"].(*data.TagDataStoreSQLite)
-				tags, err := sqlite.Select()
-				if err != nil {
-					reporter.Error(err)
-				}
-
-				reporter.AssertEqual(len(tags), 2)
-
-				nameTag := models.EntityTag{
-					EntityID:   "lbid",
-					EntityType: "load_balancer",
-					Key:        "name",
-					Value:      "lb_name",
-				}
-
-				environmentTag := models.EntityTag{
-					EntityID:   "lbid",
-					EntityType: "load_balancer",
-					Key:        "environment_id",
-					Value:      "envid",
-				}
-
-				reporter.AssertInSlice(nameTag, tags)
-				reporter.AssertInSlice(environmentTag, tags)
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate tag data error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				if _, err := logic.CreateLoadBalancer(request); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
+	request := models.CreateLoadBalancerRequest{
+		EnvironmentID:    "e1",
+		LoadBalancerName: "lb_1",
 	}
 
-	testutils.RunTests(t, testCases)
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+	if _, err := loadBalancerLogic.CreateLoadBalancer(request); err == nil {
+		t.Errorf("Error was nil!")
+	}
 }
 
 func TestUpdateLoadBalancer(t *testing.T) {
-	request := models.UpdateLoadBalancerRequest{
-		Ports: []models.Port{
-			models.Port{
-				HostPort:      80,
-				ContainerPort: 80,
-				Protocol:      "tcp",
-			},
-		},
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	retLoadBalancer := &models.LoadBalancer{
+		LoadBalancerID: "l1",
+		EnvironmentID:  "e1",
+		Ports:          []models.Port{},
 	}
 
-	testCases := []testutils.TestCase{
-		testutils.TestCase{
-			Name: "Should call backend.UpdateLoadBalancer with correct params",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
+	testLogic.Backend.EXPECT().
+		UpdateLoadBalancer("l1", []models.Port{}).
+		Return(retLoadBalancer, nil)
 
-				mockLogic.Backend.EXPECT().
-					UpdateLoadBalancer("lbid", request.Ports).
-					Return(&models.LoadBalancer{}, nil)
+	testLogic.AddTags(t, []*models.Tag{
+		{EntityID: "l1", EntityType: "load_balancer", Key: "name", Value: "lb"},
+		{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "e1"},
+		{EntityID: "extra", EntityType: "load_balancer", Key: "name", Value: "extra"},
+	})
 
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-				logic.UpdateLoadBalancer("lbid", request.Ports)
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate backend.UpdateLoadBalancer error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-				mockLogic.StubTagMock()
-
-				mockLogic.Backend.EXPECT().
-					UpdateLoadBalancer(gomock.Any(), gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				if _, err := logic.UpdateLoadBalancer("", request.Ports); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
-		testutils.TestCase{
-			Name: "Should propagate tag data error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockLogic := NewMockLogic(ctrl)
-
-				mockLogic.Backend.EXPECT().
-					UpdateLoadBalancer(gomock.Any(), gomock.Any()).
-					Return(&models.LoadBalancer{}, nil)
-
-				mockLogic.Tag.EXPECT().
-					GetTags(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return NewL0LoadBalancerLogic(mockLogic.Logic())
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				logic := target.(*L0LoadBalancerLogic)
-
-				if _, err := logic.UpdateLoadBalancer("", request.Ports); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+	received, err := loadBalancerLogic.UpdateLoadBalancer("l1", []models.Port{})
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	testutils.RunTests(t, testCases)
+	expected := &models.LoadBalancer{
+		LoadBalancerID:   "l1",
+		LoadBalancerName: "lb",
+		EnvironmentID:    "e1",
+		Ports:            []models.Port{},
+	}
+
+	testutils.AssertEqual(t, received, expected)
 }

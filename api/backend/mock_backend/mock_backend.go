@@ -29,17 +29,6 @@ func (_m *MockBackend) EXPECT() *_MockBackendRecorder {
 	return _m.recorder
 }
 
-func (_m *MockBackend) CreateCertificate(_param0 string, _param1 string, _param2 string, _param3 string) (*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "CreateCertificate", _param0, _param1, _param2, _param3)
-	ret0, _ := ret[0].(*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockBackendRecorder) CreateCertificate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateCertificate", arg0, arg1, arg2, arg3)
-}
-
 func (_m *MockBackend) CreateDeploy(_param0 string, _param1 []byte) (*models.Deploy, error) {
 	ret := _m.ctrl.Call(_m, "CreateDeploy", _param0, _param1)
 	ret0, _ := ret[0].(*models.Deploy)
@@ -95,16 +84,6 @@ func (_mr *_MockBackendRecorder) CreateTask(arg0, arg1, arg2, arg3, arg4 interfa
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTask", arg0, arg1, arg2, arg3, arg4)
 }
 
-func (_m *MockBackend) DeleteCertificate(_param0 string) error {
-	ret := _m.ctrl.Call(_m, "DeleteCertificate", _param0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-func (_mr *_MockBackendRecorder) DeleteCertificate(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteCertificate", arg0)
-}
-
 func (_m *MockBackend) DeleteDeploy(_param0 string) error {
 	ret := _m.ctrl.Call(_m, "DeleteDeploy", _param0)
 	ret0, _ := ret[0].(error)
@@ -153,17 +132,6 @@ func (_m *MockBackend) DeleteTask(_param0 string, _param1 string) error {
 
 func (_mr *_MockBackendRecorder) DeleteTask(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteTask", arg0, arg1)
-}
-
-func (_m *MockBackend) GetCertificate(_param0 string) (*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "GetCertificate", _param0)
-	ret0, _ := ret[0].(*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockBackendRecorder) GetCertificate(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetCertificate", arg0)
 }
 
 func (_m *MockBackend) GetDeploy(_param0 string) (*models.Deploy, error) {
@@ -252,17 +220,6 @@ func (_m *MockBackend) GetTaskLogs(_param0 string, _param1 string, _param2 int) 
 
 func (_mr *_MockBackendRecorder) GetTaskLogs(arg0, arg1, arg2 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTaskLogs", arg0, arg1, arg2)
-}
-
-func (_m *MockBackend) ListCertificates() ([]*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "ListCertificates")
-	ret0, _ := ret[0].([]*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockBackendRecorder) ListCertificates() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListCertificates")
 }
 
 func (_m *MockBackend) ListDeploys() ([]*models.Deploy, error) {

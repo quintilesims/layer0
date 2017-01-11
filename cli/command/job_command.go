@@ -55,12 +55,12 @@ func (j *JobCommand) GetCommand() cli.Command {
 }
 
 func (j *JobCommand) Delete(c *cli.Context) error {
-	return j.delete(c, "job", j.Client.DeleteJob)
+	return j.delete(c, "job", j.Client.Delete)
 }
 
 func (j *JobCommand) Get(c *cli.Context) error {
 	return j.get(c, "job", func(id string) (entity.Entity, error) {
-		job, err := j.Client.GetJob(id)
+		job, err := j.Client.SelectByID(id)
 		if err != nil {
 			return nil, err
 		}
@@ -70,7 +70,7 @@ func (j *JobCommand) Get(c *cli.Context) error {
 }
 
 func (j *JobCommand) List(c *cli.Context) error {
-	jobs, err := j.Client.ListJobs()
+	jobs, err := j.Client.SelectAll()
 	if err != nil {
 		return err
 	}
@@ -89,7 +89,7 @@ func (j *JobCommand) Logs(c *cli.Context) error {
 		return err
 	}
 
-	job, err := j.Client.GetJob(id)
+	job, err := j.Client.SelectByID(id)
 	if err != nil {
 		return err
 	}

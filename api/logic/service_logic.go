@@ -18,13 +18,11 @@ type ServiceLogic interface {
 
 type L0ServiceLogic struct {
 	Logic
-	DeployLogic DeployLogic
 }
 
-func NewL0ServiceLogic(logic Logic, deployLogic DeployLogic) *L0ServiceLogic {
+func NewL0ServiceLogic(logic Logic) *L0ServiceLogic {
 	return &L0ServiceLogic{
-		Logic:       logic,
-		DeployLogic: deployLogic,
+		Logic: logic,
 	}
 }
 
@@ -71,7 +69,7 @@ func (this *L0ServiceLogic) DeleteService(serviceID string) error {
 		return err
 	}
 
-	if err := this.deleteEntityTags(serviceID, "service"); err != nil {
+	if err := this.deleteEntityTags("service", serviceID); err != nil {
 		return err
 	}
 
@@ -123,6 +121,10 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 		return nil, errors.Newf(errors.MissingParameter, "ServiceName not specified")
 	}
 
+	if req.DeployID == "" {
+		return nil, errors.Newf(errors.MissingParameter, "DeployID not specified")
+	}
+
 	exists, err := this.doesServiceTagExist(req.EnvironmentID, req.ServiceName)
 	if err != nil {
 		return nil, err
@@ -147,7 +149,7 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 		return service, err
 	}
 
-	environmentID := service.EnvironmentID
+	environmentID := req.EnvironmentID
 	if err := this.upsertTagf(serviceID, "service", "environment_id", environmentID); err != nil {
 		return service, err
 	}
@@ -180,122 +182,86 @@ func (this *L0ServiceLogic) GetServiceLogs(serviceID string, tail int) ([]*model
 }
 
 func (this *L0ServiceLogic) getEnvironmentID(serviceID string) (string, error) {
-	filter := map[string]string{
-		"type": "service",
-		"id":   serviceID,
-	}
-
-	tags, err := this.TagData.GetTags(filter)
+	tags, err := this.TagStore.SelectByQuery("service", serviceID)
 	if err != nil {
 		return "", err
 	}
 
-	for _, tag := range rangeTags(tags) {
-		if tag.Key == "environment_id" {
-			return tag.Value, nil
-		}
-
+	if tag := tags.WithKey("environment_id").First(); tag != nil {
+		return tag.Value, nil
 	}
 
 	return "", fmt.Errorf("Failed to find Environment ID for Service %s", serviceID)
 }
 
 func (this *L0ServiceLogic) doesServiceTagExist(environmentID, name string) (bool, error) {
-	filter := map[string]string{
-		"type":           "service",
-		"environment_id": environmentID,
-		"name":           name,
-	}
-
-	tags, err := this.TagData.GetTags(filter)
+	tags, err := this.TagStore.SelectByQuery("service", "")
 	if err != nil {
 		return false, err
 	}
 
-	return len(tags) > 0, nil
+	ewts := tags.GroupByEntity().
+		WithKey("environment_id").
+		WithValue(environmentID).
+		WithKey("name").
+		WithValue(name)
+
+	return len(ewts) > 0, nil
 }
 
 func (this *L0ServiceLogic) populateModel(model *models.Service) error {
-	filter := map[string]string{
-		"type": "service",
-		"id":   model.ServiceID,
-	}
-
-	tags, err := this.TagData.GetTags(filter)
+	tags, err := this.TagStore.SelectByQuery("service", model.ServiceID)
 	if err != nil {
 		return err
 	}
 
-	for _, tag := range rangeTags(tags) {
-		switch tag.Key {
-		case "environment_id":
-			model.EnvironmentID = tag.Value
-		case "load_balancer_id":
-			model.LoadBalancerID = tag.Value
-		case "name":
-			model.ServiceName = tag.Value
-		}
+	if tag := tags.WithKey("environment_id").First(); tag != nil {
+		model.EnvironmentID = tag.Value
 	}
 
-	// todo: make this errors for all environment-scoped entities
+	if tag := tags.WithKey("load_balancer_id").First(); tag != nil {
+		model.LoadBalancerID = tag.Value
+	}
+
+	if tag := tags.WithKey("name").First(); tag != nil {
+		model.ServiceName = tag.Value
+	}
+
 	if model.EnvironmentID != "" {
-		filter := map[string]string{
-			"type": "environment",
-			"id":   model.EnvironmentID,
-		}
-
-		tags, err := this.TagData.GetTags(filter)
+		tags, err := this.TagStore.SelectByQuery("environment", model.EnvironmentID)
 		if err != nil {
 			return err
 		}
 
-		for _, tag := range rangeTags(tags) {
-			if tag.Key == "name" {
-				model.EnvironmentName = tag.Value
-				break
-			}
+		if tag := tags.WithKey("name").First(); tag != nil {
+			model.EnvironmentName = tag.Value
 		}
 	}
 
-	// todo: lookupEntityName could be made generic
 	if model.LoadBalancerID != "" {
-		filter := map[string]string{
-			"type": "load_balancer",
-			"id":   model.LoadBalancerID,
-		}
-
-		tags, err := this.TagData.GetTags(filter)
+		tags, err := this.TagStore.SelectByQuery("load_balancer", model.LoadBalancerID)
 		if err != nil {
 			return err
 		}
 
-		for _, tag := range rangeTags(tags) {
-			if tag.Key == "name" {
-				model.LoadBalancerName = tag.Value
-				break
-			}
+		if tag := tags.WithKey("name").First(); tag != nil {
+			model.LoadBalancerName = tag.Value
 		}
 	}
 
 	deployments := []models.Deployment{}
 	for _, deploy := range model.Deployments {
-		filter = map[string]string{
-			"type": "deploy",
-			"id":   deploy.DeployID,
-		}
-
-		tags, err := this.TagData.GetTags(filter)
+		tags, err := this.TagStore.SelectByQuery("deploy", deploy.DeployID)
 		if err != nil {
 			return err
 		}
 
-		for _, tag := range rangeTags(tags) {
-			switch tag.Key {
-			case "name":
-				deploy.DeployName = tag.Value
-			case "version":
-				deploy.DeployVersion = tag.Value
-			}
+		if tag := tags.WithKey("name").First(); tag != nil {
+			deploy.DeployName = tag.Value
+		}
+
+		if tag := tags.WithKey("version").First(); tag != nil {
+			deploy.DeployVersion = tag.Value
 		}
 
 		deployments = append(deployments, deploy)

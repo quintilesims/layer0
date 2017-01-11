@@ -73,7 +73,10 @@ func runHandlerTestCase(t *testing.T, testCase HandlerTestCase) {
 		reporter.Fatal(err)
 	}
 
-	target := testCase.Setup(ctrl)
+	var target interface{}
+	if testCase.Setup != nil {
+		target = testCase.Setup(ctrl)
+	}
 
 	read := func(response interface{}) {
 		if err := json.Unmarshal(recorder.Body.Bytes(), &response); err != nil {

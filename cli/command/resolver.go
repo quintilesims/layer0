@@ -106,7 +106,7 @@ func (r *TagResolver) query(entityType string, target string, extraParams map[st
 		params[k] = v
 	}
 
-	tags, err := r.client.GetTags(params)
+	tags, err := r.client.SelectByQuery(params)
 	if err != nil {
 		return nil, err
 	}

@@ -22,27 +22,33 @@ const (
 	AWS_ECS_AGENT_SECURITY_GROUP_ID = "LAYER0_AWS_ECS_AGENT_SECURITY_GROUP_ID"
 	AWS_ECS_INSTANCE_PROFILE        = "LAYER0_AWS_ECS_INSTANCE_PROFILE"
 	JOB_ID                          = "LAYER0_JOB_ID"
-	MYSQL_CONNECTION                = "LAYER0_MYSQL_CONNECTION"
-	MYSQL_ADMIN_CONNECTION          = "LAYER0_MYSQL_ADMIN_CONNECTION"
 	AWS_SERVICE_AMI                 = "LAYER0_AWS_SERVICE_AMI"
 	AWS_REGION                      = "LAYER0_AWS_REGION"
-	API_AUTH_TOKEN                  = "LAYER0_API_AUTH_TOKEN"
+	AUTH_TOKEN                      = "LAYER0_AUTH_TOKEN"
 	API_ENDPOINT                    = "LAYER0_API_ENDPOINT"
 	API_PORT                        = "LAYER0_API_PORT"
 	API_LOG_LEVEL                   = "LAYER0_API_LOG_LEVEL"
-	CLI_AUTH                        = "LAYER0_CLI_AUTH"
 	PREFIX                          = "LAYER0_PREFIX"
 	RUNNER_LOG_LEVEL                = "LAYER0_RUNNER_LOG_LEVEL"
 	RUNNER_VERSION_TAG              = "LAYER0_RUNNER_VERSION_TAG"
 	SKIP_SSL_VERIFY                 = "LAYER0_SKIP_SSL_VERIFY"
 	SKIP_VERSION_VERIFY             = "LAYER0_SKIP_VERSION_VERIFY"
-	SQLITE_DB_PATH                  = "LAYER0_SQLITE_DB_PATH"
+	DB_CONNECTION                   = "LAYER0_DB_CONNECTION"
+	DB_NAME                         = "LAYER0_DB_NAME"
 )
 
-// non environment variable constants
+// defaults
+// bGF5ZXIwOm5vaGF4cGx6 = layer0:nohaxplz, base64 encoded (basic http auth)
 const (
-	API_CERTIFICATE_ID     = "api"
-	API_CERTIFICATE_NAME   = "api"
+	DEFAULT_DB_CONNECTION = "layer0:nohaxplz@tcp(127.0.0.1:3306)/"
+	DEFAULT_AUTH_TOKEN    = "bGF5ZXIwOm5vaGF4cGx6"
+	DEFAULT_API_ENDPOINT  = "http://localhost:9090/"
+	DEFAULT_API_PORT      = "9090"
+	DEFAULT_AWS_REGION    = "us-west-2"
+)
+
+// api resource tags
+const (
 	API_ENVIRONMENT_ID     = "api"
 	API_ENVIRONMENT_NAME   = "api"
 	API_LOAD_BALANCER_ID   = "api"
@@ -63,8 +69,6 @@ var RequiredAPIVariables = []string{
 	AWS_S3_BUCKET,
 	AWS_ECS_AGENT_SECURITY_GROUP_ID,
 	AWS_ECS_INSTANCE_PROFILE,
-	MYSQL_CONNECTION,
-	MYSQL_ADMIN_CONNECTION,
 }
 
 var RequiredCLIVariables = []string{}
@@ -75,7 +79,6 @@ var RequiredRunnerVariables = []string{
 	AWS_VPC_ID,
 	AWS_PRIVATE_SUBNETS,
 	AWS_PUBLIC_SUBNETS,
-	MYSQL_CONNECTION,
 }
 
 func Validate(required []string) error {
@@ -120,7 +123,7 @@ func SetCLIVersion(version string) {
 	cliVersion = version
 }
 
-var serviceAMI = map[string]string{
+var serviceAMIs = map[string]string{
 	"us-west-2": "ami-6cb9ac0d",
 	"us-east-1": "ami-804130ea",
 	"eu-west-1": "ami-e563bf96",
@@ -135,7 +138,7 @@ func AWSServiceAMI() string {
 		return ami
 	}
 
-	return serviceAMI[AWSRegion()]
+	return serviceAMIs[AWSRegion()]
 }
 
 func AWSAccountID() string {
@@ -151,7 +154,7 @@ func AWSSecretKey() string {
 }
 
 func AWSRegion() string {
-	return getOr(AWS_REGION, "us-west-2")
+	return getOr(AWS_REGION, DEFAULT_AWS_REGION)
 }
 
 func AWSVPCID() string {
@@ -178,35 +181,28 @@ func AWSS3Bucket() string {
 	return get(AWS_S3_BUCKET)
 }
 
-func APIAuthToken() string {
-	// usr:pwd = layer0:nohaxplz, base64 encoded (basic http auth)
-	return getOr(API_AUTH_TOKEN, "bGF5ZXIwOm5vaGF4cGx6")
+func AuthToken() string {
+	return getOr(AUTH_TOKEN, DEFAULT_AUTH_TOKEN)
 }
 
 func APIEndpoint() string {
-	return getOr(API_ENDPOINT, "http://localhost:9090/")
+	return getOr(API_ENDPOINT, DEFAULT_API_ENDPOINT)
 }
 
 func APIPort() string {
-	return getOr(API_PORT, "9090")
+	return getOr(API_PORT, DEFAULT_API_PORT)
 }
 
 func APILogLevel() string {
 	return getOr(API_LOG_LEVEL, "1")
 }
 
-func CLIAuth() string {
-	// usr:pwd = layer0:nohaxplz, base64 encoded (basic http auth
-	token := getOr(CLI_AUTH, "bGF5ZXIwOm5vaGF4cGx6")
-	return fmt.Sprintf("Basic %v", token)
+func DBName() string {
+	return getOr(DB_NAME, fmt.Sprintf("layer0_%s", Prefix()))
 }
 
-func MySQLConnection() string {
-	return get(MYSQL_CONNECTION)
-}
-
-func MySQLAdminConnection() string {
-	return get(MYSQL_ADMIN_CONNECTION)
+func DBConnection() string {
+	return getOr(DB_CONNECTION, DEFAULT_DB_CONNECTION)
 }
 
 func Prefix() string {
@@ -219,10 +215,6 @@ func RunnerLogLevel() string {
 
 func RunnerVersionTag() string {
 	return getOr(RUNNER_VERSION_TAG, "latest")
-}
-
-func SQLiteDbPath() string {
-	return getOr(SQLITE_DB_PATH, "")
 }
 
 func AWSAgentGroupID() string {
