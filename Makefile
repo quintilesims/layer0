@@ -22,4 +22,7 @@ unittest:
 	$(MAKE) -C runner test
 	$(MAKE) -C setup test
 
-.PHONY: release unittest
+smoketest:
+	$(MAKE) -C tests/smoke test
+
+.PHONY: release unittest smoketest

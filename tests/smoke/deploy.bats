@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 @test "deploy create guestbook1" {
-    l0 deploy create ./deploy/Guestbook.dockerrun.aws.json guestbook1
+    l0 deploy create ./common/Dockerrun.aws.json guestbook1
 }
 
 @test "deploy list" {
