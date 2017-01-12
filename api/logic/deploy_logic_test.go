@@ -59,7 +59,7 @@ func TestListDeploys(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []*models.Deploy{
+	expected := []*models.DeploySummary{
 		{DeployID: "d1", DeployName: "dpl_1", Version: "2"},
 		{DeployID: "d2", DeployName: "dpl_2", Version: "3"},
 	}

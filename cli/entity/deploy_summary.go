@@ -5,14 +5,14 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-type Deploy models.Deploy
+type DeploySummary models.DeploySummary
 
-func NewDeploy(model *models.Deploy) *Deploy {
-	deploy := Deploy(*model)
-	return &deploy
+func NewDeploySummary(model *models.DeploySummary) *DeploySummary {
+	summary := DeploySummary(*model)
+	return &summary
 }
 
-func (this *Deploy) Table() table.Table {
+func (this *DeploySummary) Table() table.Table {
 	table := []table.Column{
 		table.NewSingleRowColumn("DEPLOY ID", this.DeployID),
 		table.NewSingleRowColumn("DEPLOY NAME", this.DeployName),
