@@ -61,9 +61,9 @@ func (_mr *_MockDeployLogicRecorder) GetDeploy(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetDeploy", arg0)
 }
 
-func (_m *MockDeployLogic) ListDeploys() ([]*models.Deploy, error) {
+func (_m *MockDeployLogic) ListDeploys() ([]*models.DeploySummary, error) {
 	ret := _m.ctrl.Call(_m, "ListDeploys")
-	ret0, _ := ret[0].([]*models.Deploy)
+	ret0, _ := ret[0].([]*models.DeploySummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
