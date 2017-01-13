@@ -5,15 +5,15 @@
 }
 
 @test "deploy create guestbook" {
-    l0 deploy create ./deploy/Guestbook.dockerrun.aws.json guestbook
+    l0 deploy create ./common/Dockerrun.aws.json guestbook
 }
 
 @test "task create test task1 guestbook" {
     l0 task create test task1  guestbook
 }
 
-@test "task create --copies 2 --env l0-demo-guestbook:key=val test task2 guestbook" {
-    l0 task create --copies 2 --env l0-demo-guestbook:key=val test task2 guestbook 
+@test "task create --copies 2 --env guestbook:key=val test task2 guestbook" {
+    l0 task create --copies 2 --env guestbook:key=val test task2 guestbook 
 }
 
 @test "task list" {

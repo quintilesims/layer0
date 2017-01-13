@@ -16,8 +16,8 @@
     l0 environment get t\*
 }
 
-@test "environment create --user-data environment/user_data.sh test2" {
-    l0 environment create --user-data environment/user_data.sh test2 
+@test "environment create --user-data common/user_data.sh test2" {
+    l0 environment create --user-data common/user_data.sh test2 
 }
 
 @test "environment create --min-count 2 test3" {
