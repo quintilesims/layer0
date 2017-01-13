@@ -3,7 +3,6 @@ package printer
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/quintilesims/layer0/cli/entity"
 	"github.com/quintilesims/layer0/common/models"
 	"os"
 )
@@ -11,15 +10,28 @@ import (
 type JSONPrinter struct{}
 
 // don't use spinner for json output
-func (this *JSONPrinter) StartSpinner(string) {}
-func (this *JSONPrinter) StopSpinner()        {}
+func (j *JSONPrinter) StartSpinner(string) {}
+func (j *JSONPrinter) StopSpinner()        {}
 
-func (this *JSONPrinter) PrintEntity(e entity.Entity) error {
-	return this.PrintEntities([]entity.Entity{e})
+func (j *JSONPrinter) PrintDeploys(deploys ...*models.Deploy) error {
+	return fmt.Errorf("Print not implemented")
+}
+func (j *JSONPrinter) PrintDeploySummaries(deploys ...*models.DeploySummary) error {
+	return fmt.Errorf("Print not implemented")
 }
 
-func (this *JSONPrinter) PrintEntities(entities []entity.Entity) error {
-	js, err := json.MarshalIndent(entities, "", "    ")
+func (j *JSONPrinter) PrintEnvironments(environments ...*models.Environment) error {
+	return fmt.Errorf("Print not implemented")
+}
+
+func (j *JSONPrinter) PrintJobs(jobs ...*models.Job) error { return fmt.Errorf("Print not implemented") }
+
+func (j *JSONPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) error {
+	return fmt.Errorf("Print not implemented")
+}
+
+func (j *JSONPrinter) PrintLogs(logs ...*models.LogFile) error {
+	js, err := json.MarshalIndent(logs, "", "    ")
 	if err != nil {
 		return err
 	}
@@ -28,26 +40,24 @@ func (this *JSONPrinter) PrintEntities(entities []entity.Entity) error {
 	return nil
 }
 
-func (this *JSONPrinter) PrintLogs(logFiles []*models.LogFile) error {
-	js, err := json.MarshalIndent(logFiles, "", "    ")
-	if err != nil {
-		return err
-	}
+func (j *JSONPrinter) PrintServices(services ...*models.Service) error {
+	return fmt.Errorf("Print not ipmelmtled")
+}
 
-	fmt.Println(string(js))
-	return nil
+func (j *JSONPrinter) PrintTasks(tasks ...*models.Task) error {
+	return fmt.Errorf("Print not ipmelmtled")
 }
 
 type basicMessage struct {
 	Message string
 }
 
-func (this *JSONPrinter) Printf(format string, tokens ...interface{}) {
+func (j *JSONPrinter) Printf(format string, tokens ...interface{}) {
 	message := basicMessage{
 		Message: fmt.Sprintf(format, tokens...),
 	}
 
-	this.printf(message)
+	j.printf(message)
 }
 
 type errorMessage struct {
@@ -55,17 +65,17 @@ type errorMessage struct {
 	Code    int64
 }
 
-func (this *JSONPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
+func (j *JSONPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
 	message := errorMessage{
 		Message: fmt.Sprintf(format, tokens...),
 		Code:    code,
 	}
 
-	this.printf(message)
+	j.printf(message)
 	os.Exit(1)
 }
 
-func (this *JSONPrinter) printf(output interface{}) {
+func (j *JSONPrinter) printf(output interface{}) {
 	js, err := json.MarshalIndent(output, "", "    ")
 	if err != nil {
 		js = []byte(err.Error())

@@ -168,7 +168,7 @@ func (this *L0LoadBalancerLogic) populateModel(model *models.LoadBalancer) error
 	}
 
 	for _, tag := range tags.WithKey("load_balancer_id").WithValue(model.LoadBalancerID) {
-		model.Services = append(model.Services, tag.EntityID)
+		model.Service = tag.EntityID
 	}
 
 	return nil
