@@ -6,7 +6,7 @@ all: api cli
 
 api: logic data backend aws
 
-cli: client entity command
+cli: client command
 
 logic:
 	mockgen github.com/quintilesims/layer0/api/logic DeployLogic > ../api/logic/mock_logic/mock_deploy_logic.go &
@@ -35,9 +35,6 @@ aws:
 
 client:
 	mockgen github.com/quintilesims/layer0/cli/client Client > ../cli/client/mock_client/mock_client.go &
-
-entity:
-	mockgen github.com/quintilesims/layer0/cli/entity Entity > ../cli/entity/mock_entity/mock_entity.go &
 
 command:
 	mockgen github.com/quintilesims/layer0/cli/command Resolver > ../cli/command/mock_command/mock_resolver.go &

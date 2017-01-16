@@ -18,8 +18,8 @@ type Client interface {
 	UpdateEnvironment(id string, minCount int) (*models.Environment, error)
 
 	Delete(id string) error
-	SelectByID(id string) (*models.Job, error)
-	SelectAll() ([]*models.Job, error)
+	GetJob(id string) (*models.Job, error)
+	ListJobs() ([]*models.Job, error)
 	WaitForJob(jobID string, timeout time.Duration) error
 
 	CreateLoadBalancer(name, environmentID string, ports []models.Port, isPublic bool) (*models.LoadBalancer, error)

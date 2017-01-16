@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-	"github.com/quintilesims/layer0/cli/entity"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 	"strconv"
@@ -115,7 +114,7 @@ func (l *LoadBalancerCommand) AddPort(c *cli.Context) error {
 		return err
 	}
 
-	return l.printLoadBalancer(loadBalancer)
+	return l.Printer.PrintLoadBalancers(loadBalancer)
 }
 
 func (l *LoadBalancerCommand) Create(c *cli.Context) error {
@@ -154,7 +153,7 @@ func (l *LoadBalancerCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	return l.printLoadBalancer(loadBalancer)
+	return l.Printer.PrintLoadBalancers(loadBalancer)
 }
 
 func (l *LoadBalancerCommand) Delete(c *cli.Context) error {
@@ -199,19 +198,27 @@ func (l *LoadBalancerCommand) DropPort(c *cli.Context) error {
 		return err
 	}
 
-	return l.printLoadBalancer(loadBalancer)
+	return l.Printer.PrintLoadBalancers(loadBalancer)
 
 }
 
 func (l *LoadBalancerCommand) Get(c *cli.Context) error {
-	return l.get(c, "load_balancer", func(id string) (entity.Entity, error) {
+	loadBalancers := []*models.LoadBalancer{}
+	getLoadBalancerf := func(id string) error {
 		loadBalancer, err := l.Client.GetLoadBalancer(id)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		return entity.NewLoadBalancer(loadBalancer), nil
-	})
+		loadBalancers = append(loadBalancers, loadBalancer)
+		return nil
+	}
+
+	if err := l.get(c, "load_balancer", getLoadBalancerf); err != nil {
+		return err
+	}
+
+	return l.Printer.PrintLoadBalancers(loadBalancers...)
 }
 
 func (l *LoadBalancerCommand) List(c *cli.Context) error {
@@ -220,7 +227,7 @@ func (l *LoadBalancerCommand) List(c *cli.Context) error {
 		return err
 	}
 
-	return l.printLoadBalancers(loadBalancers)
+	return l.Printer.PrintLoadBalancers(loadBalancers...)
 }
 
 func parsePort(port, certificateName string) (*models.Port, error) {
@@ -255,18 +262,4 @@ func parsePort(port, certificateName string) (*models.Port, error) {
 	}
 
 	return model, nil
-}
-
-func (l *LoadBalancerCommand) printLoadBalancer(loadBalancer *models.LoadBalancer) error {
-	entity := entity.NewLoadBalancer(loadBalancer)
-	return l.Printer.PrintEntity(entity)
-}
-
-func (l *LoadBalancerCommand) printLoadBalancers(loadBalancers []*models.LoadBalancer) error {
-	entities := []entity.Entity{}
-	for _, loadBalancer := range loadBalancers {
-		entities = append(entities, entity.NewLoadBalancer(loadBalancer))
-	}
-
-	return l.Printer.PrintEntities(entities)
 }

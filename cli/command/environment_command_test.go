@@ -146,7 +146,7 @@ func TestListEnvironments(t *testing.T) {
 
 	tc.Client.EXPECT().
 		ListEnvironments().
-		Return([]*models.Environment{}, nil)
+		Return([]*models.EnvironmentSummary{}, nil)
 
 	c := getCLIContext(t, nil, nil)
 	if err := command.List(c); err != nil {

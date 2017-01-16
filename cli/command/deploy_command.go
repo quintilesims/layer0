@@ -1,7 +1,6 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/cli/entity"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 	"io/ioutil"
@@ -70,7 +69,7 @@ func (d *DeployCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	return d.printDeploy(deploy)
+	return d.Printer.PrintDeploys(deploy)
 }
 
 func (d *DeployCommand) Delete(c *cli.Context) error {
@@ -78,14 +77,23 @@ func (d *DeployCommand) Delete(c *cli.Context) error {
 }
 
 func (d *DeployCommand) Get(c *cli.Context) error {
-	return d.get(c, "deploy", func(id string) (entity.Entity, error) {
+	deploys := []*models.Deploy{}
+
+	getDeployf := func(id string) error {
 		deploy, err := d.Client.GetDeploy(id)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		return entity.NewDeploy(deploy), nil
-	})
+		deploys = append(deploys, deploy)
+		return nil
+	}
+
+	if err := d.get(c, "deploy", getDeployf); err != nil {
+		return err
+	}
+
+	return d.Printer.PrintDeploys(deploys...)
 }
 
 func (d *DeployCommand) List(c *cli.Context) error {
@@ -98,30 +106,7 @@ func (d *DeployCommand) List(c *cli.Context) error {
 		deploySummaries = filterDeploySummaries(deploySummaries)
 	}
 
-	return d.printDeploySummaries(deploySummaries)
-}
-
-func (d *DeployCommand) printDeploy(deploy *models.Deploy) error {
-	entity := entity.NewDeploy(deploy)
-	return d.Printer.PrintEntity(entity)
-}
-
-func (d *DeployCommand) printDeploys(deploys []*models.Deploy) error {
-	entities := []entity.Entity{}
-	for _, deploy := range deploys {
-		entities = append(entities, entity.NewDeploy(deploy))
-	}
-
-	return d.Printer.PrintEntities(entities)
-}
-
-func (d *DeployCommand) printDeploySummaries(deploys []*models.DeploySummary) error {
-	entities := []entity.Entity{}
-	for _, s := range deploys {
-		entities = append(entities, entity.NewDeploySummary(s))
-	}
-
-	return d.Printer.PrintEntities(entities)
+	return d.Printer.PrintDeploySummaries(deploySummaries...)
 }
 
 func filterDeploySummaries(deploys []*models.DeploySummary) []*models.DeploySummary {

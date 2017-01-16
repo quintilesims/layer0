@@ -17,7 +17,7 @@ func (c *APIClient) Delete(id string) error {
 	return nil
 }
 
-func (c *APIClient) SelectByID(id string) (*models.Job, error) {
+func (c *APIClient) GetJob(id string) (*models.Job, error) {
 	var job *models.Job
 	if err := c.Execute(c.Sling("job/").Get(id), &job); err != nil {
 		return nil, err
@@ -26,7 +26,7 @@ func (c *APIClient) SelectByID(id string) (*models.Job, error) {
 	return job, nil
 }
 
-func (c *APIClient) SelectAll() ([]*models.Job, error) {
+func (c *APIClient) ListJobs() ([]*models.Job, error) {
 	var jobs []*models.Job
 	if err := c.Execute(c.Sling("job/").Get(""), &jobs); err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (c *APIClient) WaitForJob(jobID string, timeout time.Duration) error {
 		Delay:   time.Second * 5,
 		Clock:   c.Clock,
 		Check: func() (bool, error) {
-			job, err := c.SelectByID(jobID)
+			job, err := c.GetJob(jobID)
 			if err != nil {
 				return false, err
 			}

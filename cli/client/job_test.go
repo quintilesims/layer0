@@ -1,7 +1,6 @@
 package client
 
 import (
-	// "encoding/base64"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/common/types"
@@ -36,7 +35,7 @@ func TestSelectByID(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	job, err := client.SelectByID("id")
+	job, err := client.GetJob("id")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,7 +59,7 @@ func TestSelectAll(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobs, err := client.SelectAll()
+	jobs, err := client.ListJobs()
 	if err != nil {
 		t.Fatal(err)
 	}
