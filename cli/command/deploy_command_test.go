@@ -127,8 +127,8 @@ func TestListDeploys(t *testing.T) {
 	}
 }
 
-func TestFilterDeploys(t *testing.T) {
-	input := []*models.Deploy{
+func TestFilterDeploySummaries(t *testing.T) {
+	input := []*models.DeploySummary{
 		{DeployName: "a", DeployID: "a.1", Version: "1"},
 		{DeployName: "a", DeployID: "a.2", Version: "2"},
 		{DeployName: "a", DeployID: "a.3", Version: "3"},
@@ -142,7 +142,7 @@ func TestFilterDeploys(t *testing.T) {
 		{DeployID: "nameless.2", Version: "2"},
 	}
 
-	output, err := filterDeploys(input)
+	output, err := filterDeploySummaries(input)
 	if err != nil {
 		t.Fatal(err)
 	}
