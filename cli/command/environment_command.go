@@ -117,12 +117,12 @@ func (e *EnvironmentCommand) Get(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) List(c *cli.Context) error {
-	environments, err := e.Client.ListEnvironments()
+	environmentSummaries, err := e.Client.ListEnvironments()
 	if err != nil {
 		return err
 	}
 
-	return e.printEnvironments(environments)
+	return e.Printer.PrintEnvironmentSummaries(environmentSummaries)
 }
 
 func (e *EnvironmentCommand) SetMinCount(c *cli.Context) error {
