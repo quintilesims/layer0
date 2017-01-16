@@ -119,7 +119,7 @@ func TestListDeploys(t *testing.T) {
 
 	tc.Client.EXPECT().
 		ListDeploys().
-		Return([]*models.Deploy{}, nil)
+		Return([]*models.DeploySummary{}, nil)
 
 	c := getCLIContext(t, nil, Flags{"all": true})
 	if err := command.List(c); err != nil {

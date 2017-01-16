@@ -11,13 +11,9 @@ import (
 )
 
 func TestListDeploys(t *testing.T) {
-	deploys := []*models.Deploy{
-		&models.Deploy{
-			DeployID: "some_id_1",
-		},
-		&models.Deploy{
-			DeployID: "some_id_2",
-		},
+	deploys := []*models.DeploySummary{
+		{DeployID: "d1"},
+		{DeployID: "d2"},
 	}
 
 	testCases := []HandlerTestCase{
@@ -36,7 +32,7 @@ func TestListDeploys(t *testing.T) {
 				handler := target.(*DeployHandler)
 				handler.ListDeploys(req, resp)
 
-				var response []*models.Deploy
+				var response []*models.DeploySummary
 				read(&response)
 
 				reporter.AssertEqual(response, deploys)

@@ -30,17 +30,6 @@ func (_m *MockClient) EXPECT() *_MockClientRecorder {
 	return _m.recorder
 }
 
-func (_m *MockClient) CreateCertificate(_param0 string, _param1 []byte, _param2 []byte, _param3 []byte) (*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "CreateCertificate", _param0, _param1, _param2, _param3)
-	ret0, _ := ret[0].(*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) CreateCertificate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateCertificate", arg0, arg1, arg2, arg3)
-}
-
 func (_m *MockClient) CreateDeploy(_param0 string, _param1 []byte) (*models.Deploy, error) {
 	ret := _m.ctrl.Call(_m, "CreateDeploy", _param0, _param1)
 	ret0, _ := ret[0].(*models.Deploy)
@@ -106,16 +95,6 @@ func (_mr *_MockClientRecorder) Delete(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Delete", arg0)
 }
 
-func (_m *MockClient) DeleteCertificate(_param0 string) error {
-	ret := _m.ctrl.Call(_m, "DeleteCertificate", _param0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-func (_mr *_MockClientRecorder) DeleteCertificate(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteCertificate", arg0)
-}
-
 func (_m *MockClient) DeleteDeploy(_param0 string) error {
 	ret := _m.ctrl.Call(_m, "DeleteDeploy", _param0)
 	ret0, _ := ret[0].(error)
@@ -167,17 +146,6 @@ func (_m *MockClient) DeleteTask(_param0 string) error {
 
 func (_mr *_MockClientRecorder) DeleteTask(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteTask", arg0)
-}
-
-func (_m *MockClient) GetCertificate(_param0 string) (*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "GetCertificate", _param0)
-	ret0, _ := ret[0].(*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) GetCertificate(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetCertificate", arg0)
 }
 
 func (_m *MockClient) GetConfig() (*models.APIConfig, error) {
@@ -279,20 +247,9 @@ func (_mr *_MockClientRecorder) GetVersion() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetVersion")
 }
 
-func (_m *MockClient) ListCertificates() ([]*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "ListCertificates")
-	ret0, _ := ret[0].([]*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) ListCertificates() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListCertificates")
-}
-
-func (_m *MockClient) ListDeploys() ([]*models.Deploy, error) {
+func (_m *MockClient) ListDeploys() ([]*models.DeploySummary, error) {
 	ret := _m.ctrl.Call(_m, "ListDeploys")
-	ret0, _ := ret[0].([]*models.Deploy)
+	ret0, _ := ret[0].([]*models.DeploySummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

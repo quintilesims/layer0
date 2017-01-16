@@ -72,7 +72,7 @@ func TestListDeploys(t *testing.T) {
 		testutils.AssertEqual(t, r.Method, "GET")
 		testutils.AssertEqual(t, r.URL.Path, "/deploy/")
 
-		deploys := []models.Deploy{
+		deploys := []models.DeploySummary{
 			{DeployID: "id1"},
 			{DeployID: "id2"},
 		}

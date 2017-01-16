@@ -9,12 +9,7 @@ type Client interface {
 	CreateDeploy(name string, content []byte) (*models.Deploy, error)
 	DeleteDeploy(id string) error
 	GetDeploy(id string) (*models.Deploy, error)
-	ListDeploys() ([]*models.Deploy, error)
-
-	CreateCertificate(name string, public, private, chain []byte) (*models.Certificate, error)
-	DeleteCertificate(id string) error
-	GetCertificate(id string) (*models.Certificate, error)
-	ListCertificates() ([]*models.Certificate, error)
+	ListDeploys() ([]*models.DeploySummary, error)
 
 	CreateEnvironment(name, instanceSize string, minCount int, userData []byte) (*models.Environment, error)
 	DeleteEnvironment(id string) (string, error)

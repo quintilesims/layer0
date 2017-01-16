@@ -6,7 +6,7 @@ import (
 )
 
 type DeployLogic interface {
-	ListDeploys() ([]*models.Deploy, error)
+	ListDeploys() ([]*models.DeploySummary, error)
 	GetDeploy(deployID string) (*models.Deploy, error)
 	DeleteDeploy(deployID string) error
 	CreateDeploy(model models.CreateDeployRequest) (*models.Deploy, error)
@@ -20,19 +20,26 @@ func NewL0DeployLogic(lgc Logic) *L0DeployLogic {
 	return &L0DeployLogic{lgc}
 }
 
-func (this *L0DeployLogic) ListDeploys() ([]*models.Deploy, error) {
+func (this *L0DeployLogic) ListDeploys() ([]*models.DeploySummary, error) {
 	deploys, err := this.Backend.ListDeploys()
 	if err != nil {
 		return nil, err
 	}
 
-	for _, deploy := range deploys {
+	summaries := make([]*models.DeploySummary, len(deploys))
+	for i, deploy := range deploys {
 		if err := this.populateModel(deploy); err != nil {
 			return nil, err
 		}
+
+		summaries[i] = &models.DeploySummary{
+			DeployID:   deploy.DeployID,
+			DeployName: deploy.DeployName,
+			Version:    deploy.Version,
+		}
 	}
 
-	return deploys, nil
+	return summaries, nil
 }
 
 func (this *L0DeployLogic) GetDeploy(deployID string) (*models.Deploy, error) {

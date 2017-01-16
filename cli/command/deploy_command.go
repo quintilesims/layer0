@@ -90,7 +90,7 @@ func (d *DeployCommand) Get(c *cli.Context) error {
 }
 
 func (d *DeployCommand) List(c *cli.Context) error {
-	deploys, err := d.Client.ListDeploys()
+	deploySummaries, err := d.Client.ListDeploys()
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func (d *DeployCommand) List(c *cli.Context) error {
 		}
 	}
 
-	return d.printDeploys(deploys)
+	return d.printDeploySummaries(deploySummaries)
 }
 
 func (d *DeployCommand) printDeploy(deploy *models.Deploy) error {
@@ -119,8 +119,22 @@ func (d *DeployCommand) printDeploys(deploys []*models.Deploy) error {
 	return d.Printer.PrintEntities(entities)
 }
 
+<<<<<<< HEAD
 func filterDeploys(deploys []*models.Deploy) ([]*models.Deploy, error) {
 	catalog := map[string]*models.Deploy{}
+=======
+func (d *DeployCommand) printDeploySummaries(deploys []*models.DeploySummary) error {
+	entities := []entity.Entity{}
+	for _, s := range deploys {
+		entities = append(entities, entity.NewDeploySummary(s))
+	}
+
+	return d.Printer.PrintEntities(entities)
+}
+
+func filterDeploySummaries(deploys []*models.DeploySummary) []*models.DeploySummary {
+	catalog := map[string]*models.DeploySummary{}
+>>>>>>> develop
 
 	for _, deploy := range deploys {
 		if name := deploy.DeployName; name != "" {
@@ -145,7 +159,7 @@ func filterDeploys(deploys []*models.Deploy) ([]*models.Deploy, error) {
 		}
 	}
 
-	filtered := []*models.Deploy{}
+	filtered := []*models.DeploySummary{}
 	for _, deploy := range catalog {
 		filtered = append(filtered, deploy)
 	}
