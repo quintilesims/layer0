@@ -34,6 +34,17 @@ func (t *TextPrinter) StopSpinner() {
 	}
 }
 
+func (t *TextPrinter) Printf(format string, tokens ...interface{}) {
+        t.StopSpinner()
+        fmt.Printf(format, tokens...)
+}
+
+func (t *TextPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
+        t.Printf(format, tokens...)
+        fmt.Println()
+        os.Exit(1)
+}
+
 func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
 	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION"}
 	for _, d := range deploys {
@@ -281,15 +292,4 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 
 	fmt.Println(columnize.SimpleFormat(rows))
 	return nil
-}
-
-func (t *TextPrinter) Printf(format string, tokens ...interface{}) {
-	t.StopSpinner()
-	fmt.Printf(format, tokens...)
-}
-
-func (t *TextPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
-	t.Printf(format, tokens...)
-	fmt.Println()
-	os.Exit(1)
 }

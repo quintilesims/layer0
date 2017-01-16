@@ -9,77 +9,76 @@ import (
 
 type JSONPrinter struct{}
 
-// don't use spinner for json output
 func (j *JSONPrinter) StartSpinner(string) {}
 func (j *JSONPrinter) StopSpinner()        {}
 
-func (j *JSONPrinter) PrintDeploys(deploys ...*models.Deploy) error {
-	return fmt.Errorf("Print not implemented")
-}
-func (j *JSONPrinter) PrintDeploySummaries(deploys ...*models.DeploySummary) error {
-	return fmt.Errorf("Print not implemented")
-}
-
-func (j *JSONPrinter) PrintEnvironments(environments ...*models.Environment) error {
-	return fmt.Errorf("Print not implemented")
-}
-
-func (j *JSONPrinter) PrintJobs(jobs ...*models.Job) error { return fmt.Errorf("Print not implemented") }
-
-func (j *JSONPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) error {
-	return fmt.Errorf("Print not implemented")
-}
-
-func (j *JSONPrinter) PrintLogs(logs ...*models.LogFile) error {
-	js, err := json.MarshalIndent(logs, "", "    ")
-	if err != nil {
-		return err
-	}
-
-	fmt.Println(string(js))
-	return nil
-}
-
-func (j *JSONPrinter) PrintServices(services ...*models.Service) error {
-	return fmt.Errorf("Print not ipmelmtled")
-}
-
-func (j *JSONPrinter) PrintTasks(tasks ...*models.Task) error {
-	return fmt.Errorf("Print not ipmelmtled")
-}
-
-type basicMessage struct {
-	Message string
-}
-
 func (j *JSONPrinter) Printf(format string, tokens ...interface{}) {
-	message := basicMessage{
+	message := struct{
+		Message string
+	}{
 		Message: fmt.Sprintf(format, tokens...),
 	}
-
-	j.printf(message)
-}
-
-type errorMessage struct {
-	Message string
-	Code    int64
+        
+	if err := j.print(message); err != nil{
+		fmt.Println(err)
+	}
 }
 
 func (j *JSONPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
-	message := errorMessage{
-		Message: fmt.Sprintf(format, tokens...),
-		Code:    code,
-	}
+        message := struct{
+                Code int64
+                Message string
+        }{
+                Code: code,
+                Message: fmt.Sprintf(format, tokens...),
+        }
 
-	j.printf(message)
-	os.Exit(1)
+        if err := j.print(message); err != nil{
+                fmt.Println(err)
+        }
+
+        os.Exit(1)
 }
 
-func (j *JSONPrinter) printf(output interface{}) {
-	js, err := json.MarshalIndent(output, "", "    ")
-	if err != nil {
-		js = []byte(err.Error())
-	}
+func (j *JSONPrinter) print(obj interface{}) error {
+        js, err := json.MarshalIndent(obj, "", "    ")
+        if err != nil {
+                js = []byte(err.Error())
+        }
 
-	fmt.Println(string(js))
+        fmt.Println(string(js))
+	return nil
+}
+
+
+func (j *JSONPrinter) PrintDeploys(deploys ...*models.Deploy) error {
+	return j.print(deploys)
+}
+
+func (j *JSONPrinter) PrintDeploySummaries(deploys ...*models.DeploySummary) error {
+	return j.print(deploys)
+}
+
+func (j *JSONPrinter) PrintEnvironments(environments ...*models.Environment) error {
+	return j.print(environments)
+}
+
+func (j *JSONPrinter) PrintJobs(jobs ...*models.Job) error { 
+	return j.print(jobs)
+}
+
+func (j *JSONPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) error {
+	return j.print(loadBalancers)
+}
+
+func (j *JSONPrinter) PrintLogs(logs ...*models.LogFile) error {
+	return j.print(logs)
+}
+
+func (j *JSONPrinter) PrintServices(services ...*models.Service) error {
+	return j.print(services)
+}
+
+func (j *JSONPrinter) PrintTasks(tasks ...*models.Task) error {
+	return j.print(tasks)
 }
