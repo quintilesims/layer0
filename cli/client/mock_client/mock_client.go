@@ -291,9 +291,9 @@ func (_mr *_MockClientRecorder) ListJobs() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListJobs")
 }
 
-func (_m *MockClient) ListLoadBalancers() ([]*models.LoadBalancer, error) {
+func (_m *MockClient) ListLoadBalancers() ([]*models.LoadBalancerSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListLoadBalancers")
-	ret0, _ := ret[0].([]*models.LoadBalancer)
+	ret0, _ := ret[0].([]*models.LoadBalancerSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

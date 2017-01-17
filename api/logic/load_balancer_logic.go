@@ -7,7 +7,7 @@ import (
 )
 
 type LoadBalancerLogic interface {
-	ListLoadBalancers() ([]*models.LoadBalancer, error)
+	ListLoadBalancers() ([]*models.LoadBalancerSummary, error)
 	GetLoadBalancer(loadBalancerID string) (*models.LoadBalancer, error)
 	DeleteLoadBalancer(loadBalancerID string) error
 	CreateLoadBalancer(req models.CreateLoadBalancerRequest) (*models.LoadBalancer, error)
@@ -24,19 +24,27 @@ func NewL0LoadBalancerLogic(logic Logic) *L0LoadBalancerLogic {
 	}
 }
 
-func (this *L0LoadBalancerLogic) ListLoadBalancers() ([]*models.LoadBalancer, error) {
+func (this *L0LoadBalancerLogic) ListLoadBalancers() ([]*models.LoadBalancerSummary, error) {
 	loadBalancers, err := this.Backend.ListLoadBalancers()
 	if err != nil {
 		return nil, err
 	}
 
-	for _, loadBalancer := range loadBalancers {
+	summaries := make([]*models.LoadBalancerSummary, len(loadBalancers))
+	for i, loadBalancer := range loadBalancers {
 		if err := this.populateModel(loadBalancer); err != nil {
 			return nil, err
 		}
+
+		summaries[i] = &models.LoadBalancerSummary{
+			LoadBalancerID:   loadBalancer.LoadBalancerID,
+			LoadBalancerName: loadBalancer.LoadBalancerName,
+			EnvironmentID:    loadBalancer.EnvironmentID,
+			EnvironmentName:  loadBalancer.EnvironmentName,
+		}
 	}
 
-	return loadBalancers, nil
+	return summaries, nil
 }
 
 func (this *L0LoadBalancerLogic) GetLoadBalancer(loadBalancerID string) (*models.LoadBalancer, error) {

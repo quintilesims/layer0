@@ -25,7 +25,7 @@ type Client interface {
 	CreateLoadBalancer(name, environmentID string, ports []models.Port, isPublic bool) (*models.LoadBalancer, error)
 	DeleteLoadBalancer(id string) (string, error)
 	GetLoadBalancer(id string) (*models.LoadBalancer, error)
-	ListLoadBalancers() ([]*models.LoadBalancer, error)
+	ListLoadBalancers() ([]*models.LoadBalancerSummary, error)
 	UpdateLoadBalancer(id string, ports []models.Port) (*models.LoadBalancer, error)
 
 	CreateService(name, environmentID, deployID, loadBalancerID string) (*models.Service, error)

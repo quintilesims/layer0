@@ -222,12 +222,12 @@ func (l *LoadBalancerCommand) Get(c *cli.Context) error {
 }
 
 func (l *LoadBalancerCommand) List(c *cli.Context) error {
-	loadBalancers, err := l.Client.ListLoadBalancers()
+	loadBalancerSummaries, err := l.Client.ListLoadBalancers()
 	if err != nil {
 		return err
 	}
 
-	return l.Printer.PrintLoadBalancers(loadBalancers...)
+	return l.Printer.PrintLoadBalancerSummaries(loadBalancerSummaries...)
 }
 
 func parsePort(port, certificateName string) (*models.Port, error) {
