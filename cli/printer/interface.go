@@ -15,6 +15,7 @@ type Printer interface {
 	PrintLogs(logs ...*models.LogFile) error
 	PrintServices(services ...*models.Service) error
 	PrintTasks(tasks ...*models.Task) error
+	PrintTaskSummaries(tasks ...*models.TaskSummary) error
 	Printf(format string, tokens ...interface{})
 	Fatalf(code int64, format string, tokens ...interface{})
 }

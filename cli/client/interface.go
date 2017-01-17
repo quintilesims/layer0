@@ -41,7 +41,7 @@ type Client interface {
 	DeleteTask(id string) error
 	GetTask(id string) (*models.Task, error)
 	GetTaskLogs(id string, tail int) ([]*models.LogFile, error)
-	ListTasks() ([]*models.Task, error)
+	ListTasks() ([]*models.TaskSummary, error)
 
 	SelectByQuery(params map[string]string) ([]*models.EntityWithTags, error)
 	GetVersion() (string, error)

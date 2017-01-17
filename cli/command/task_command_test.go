@@ -176,7 +176,7 @@ func TestListTasks(t *testing.T) {
 
 	tc.Client.EXPECT().
 		ListTasks().
-		Return([]*models.Task{}, nil)
+		Return([]*models.TaskSummary{}, nil)
 
 	c := getCLIContext(t, nil, nil)
 	if err := command.List(c); err != nil {

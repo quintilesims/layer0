@@ -8,7 +8,7 @@ import (
 
 type TaskLogic interface {
 	CreateTask(models.CreateTaskRequest) (*models.Task, error)
-	ListTasks() ([]*models.Task, error)
+	ListTasks() ([]*models.TaskSummary, error)
 	GetTask(string) (*models.Task, error)
 	DeleteTask(string) error
 	GetTaskLogs(string, int) ([]*models.LogFile, error)
@@ -24,19 +24,27 @@ func NewL0TaskLogic(logic Logic) *L0TaskLogic {
 	}
 }
 
-func (this *L0TaskLogic) ListTasks() ([]*models.Task, error) {
+func (this *L0TaskLogic) ListTasks() ([]*models.TaskSummary, error) {
 	tasks, err := this.Backend.ListTasks()
 	if err != nil {
 		return nil, err
 	}
 
-	for _, task := range tasks {
+	summaries := make([]*models.TaskSummary, len(tasks))
+	for i, task := range tasks {
 		if err := this.populateModel(task); err != nil {
 			return nil, err
 		}
+
+		summaries[i] = &models.TaskSummary{
+			TaskID:          task.TaskID,
+			TaskName:        task.TaskName,
+			EnvironmentID:   task.EnvironmentID,
+			EnvironmentName: task.EnvironmentName,
+		}
 	}
 
-	return tasks, nil
+	return summaries, nil
 }
 
 func (this *L0TaskLogic) GetTask(taskID string) (*models.Task, error) {

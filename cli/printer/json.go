@@ -81,3 +81,7 @@ func (j *JSONPrinter) PrintServices(services ...*models.Service) error {
 func (j *JSONPrinter) PrintTasks(tasks ...*models.Task) error {
 	return j.print(tasks)
 }
+
+func (j *JSONPrinter) PrintTaskSummaries(tasks ...*models.TaskSummary) error {
+	return j.print(tasks)
+}

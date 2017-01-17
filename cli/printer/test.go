@@ -20,3 +20,4 @@ func (t *TestPrinter) PrintLoadBalancers(...*models.LoadBalancer) error    { ret
 func (t *TestPrinter) PrintLogs(...*models.LogFile) error                  { return nil }
 func (t *TestPrinter) PrintServices(...*models.Service) error              { return nil }
 func (t *TestPrinter) PrintTasks(...*models.Task) error                    { return nil }
+func (t *TestPrinter) PrintTaskSummaries(...*models.TaskSummary) error     { return nil }

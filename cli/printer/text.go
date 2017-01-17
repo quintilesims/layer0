@@ -285,3 +285,26 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 	fmt.Println(columnize.SimpleFormat(rows))
 	return nil
 }
+
+func (t *TextPrinter) PrintTaskSummaries(tasks ...*models.TaskSummary) error {
+	getEnvironment := func(t *models.TaskSummary) string {
+		if t.EnvironmentName != "" {
+			return t.EnvironmentName
+		}
+
+		return t.EnvironmentID
+	}
+
+	rows := []string{"TASK ID | TASK NAME | ENVIRONMENT"}
+	for _, t := range tasks {
+		row := fmt.Sprintf("%s | %s | %s",
+			t.TaskID,
+			t.TaskName,
+			getEnvironment(t))
+
+		rows = append(rows, row)
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
