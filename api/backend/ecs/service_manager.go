@@ -11,7 +11,6 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/waitutils"
-	"strings"
 	"time"
 )
 
@@ -44,19 +43,20 @@ func NewECSServiceManager(
 }
 
 func (this *ECSServiceManager) ListServices() ([]*models.Service, error) {
-	descriptions, err := this.ECS.Helper_DescribeServices(id.PREFIX)
+	serviceARNs, err := this.ECS.Helper_ListServices(id.PREFIX)
 	if err != nil {
 		return nil, err
 	}
 
-	models := []*models.Service{}
-	for _, description := range descriptions {
-		if name := *description.ServiceName; strings.HasPrefix(name, id.PREFIX) {
-			models = append(models, this.populateModel(description))
+	services := make([]*models.Service, len(serviceARNs))
+	for i, arn := range serviceARNs {
+		ecsServiceID := id.ServiceARNToECSServiceID(*arn)
+		services[i] = &models.Service{
+			ServiceID: ecsServiceID.L0ServiceID(),
 		}
 	}
 
-	return models, nil
+	return services, nil
 }
 
 func (this *ECSServiceManager) GetService(environmentID, serviceID string) (*models.Service, error) {
