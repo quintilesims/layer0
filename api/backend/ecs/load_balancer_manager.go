@@ -42,13 +42,15 @@ func (this *ECSLoadBalancerManager) ListLoadBalancers() ([]*models.LoadBalancer,
 		return nil, err
 	}
 
-	loadBalancers := make([]*models.LoadBalancer, len(loadBalancerDescriptions))
-	for i, description := range loadBalancerDescriptions {
+	loadBalancers := []*models.LoadBalancer{}
+	for _, description := range loadBalancerDescriptions {
 		if name := *description.LoadBalancerName; strings.HasPrefix(name, id.PREFIX) {
 			ecsLoadBalancerID := id.ECSLoadBalancerID(name)
-			loadBalancers[i] = &models.LoadBalancer{
+			loadBalancer := &models.LoadBalancer{
 				LoadBalancerID: ecsLoadBalancerID.L0LoadBalancerID(),
 			}
+
+			loadBalancers = append(loadBalancers, loadBalancer)
 		}
 	}
 
