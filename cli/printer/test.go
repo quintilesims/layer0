@@ -4,6 +4,8 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// we use a TestPrinter instead of a mock because gomock doesn't support
+// using gomock.Any() for variadic functions
 type TestPrinter struct{}
 
 func (t *TestPrinter) StartSpinner(string)                                           {}

@@ -48,11 +48,7 @@ func (t *TextPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
 func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
 	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION"}
 	for _, d := range deploys {
-		row := fmt.Sprintf("%s | %s |  %s",
-			d.DeployID,
-			d.DeployName,
-			d.Version)
-
+		row := fmt.Sprintf("%s | %s |  %s", d.DeployID, d.DeployName, d.Version)
 		rows = append(rows, row)
 	}
 
@@ -63,11 +59,7 @@ func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
 func (t *TextPrinter) PrintDeploySummaries(deploys ...*models.DeploySummary) error {
 	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION"}
 	for _, d := range deploys {
-		row := fmt.Sprintf("%s | %s |  %s",
-			d.DeployID,
-			d.DeployName,
-			d.Version)
-
+		row := fmt.Sprintf("%s | %s |  %s", d.DeployID, d.DeployName, d.Version)
 		rows = append(rows, row)
 	}
 
@@ -84,17 +76,6 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 			e.ClusterCount,
 			e.InstanceSize)
 
-		rows = append(rows, row)
-	}
-
-	fmt.Println(columnize.SimpleFormat(rows))
-	return nil
-}
-
-func (t *TextPrinter) PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error {
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME"}
-	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s", e.EnvironmentID, e.EnvironmentName)
 		rows = append(rows, row)
 	}
 
@@ -139,7 +120,7 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 	}
 
 	getService := func(l *models.LoadBalancer) string {
-		if l.ServiceName == "" {
+		if l.ServiceName != "" {
 			return l.ServiceName
 		}
 
