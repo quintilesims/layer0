@@ -25,7 +25,7 @@ func TestDelete(t *testing.T) {
 	}
 }
 
-func TestDelete_UserInputErrors(t *testing.T) {
+func TestDelete_userInputErrors(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewJobCommand(tc.Command())
@@ -60,7 +60,7 @@ func TestGetJob(t *testing.T) {
 	}
 }
 
-func TestGetJob_UserInputErrors(t *testing.T) {
+func TestGetJob_userInputErrors(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewJobCommand(tc.Command())
@@ -114,7 +114,7 @@ func TestGetJobLogs(t *testing.T) {
 	}
 }
 
-func TestGetJobLogs_UserInputErrors(t *testing.T) {
+func TestGetJobLogs_userInputErrors(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewJobCommand(tc.Command())

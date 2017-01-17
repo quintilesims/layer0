@@ -18,49 +18,49 @@ func NewReporter(t *testing.T, name string) *Reporter {
 	}
 }
 
-func (this *Reporter) Error(err error) {
-	namedFormat := this.formatName(err.Error())
-	this.T.Errorf(namedFormat)
+func (r *Reporter) Error(err error) {
+	namedFormat := r.formatName(err.Error())
+	r.T.Errorf(namedFormat)
 }
 
-func (this *Reporter) Errorf(format string, args ...interface{}) {
-	namedFormat := this.formatName(format)
-	this.T.Errorf(namedFormat, args...)
+func (r *Reporter) Errorf(format string, args ...interface{}) {
+	namedFormat := r.formatName(format)
+	r.T.Errorf(namedFormat, args...)
 }
 
-func (this *Reporter) Fatal(err error) {
-	namedFormat := this.formatName(err.Error())
-	this.T.Fatalf(namedFormat)
+func (r *Reporter) Fatal(err error) {
+	namedFormat := r.formatName(err.Error())
+	r.T.Fatalf(namedFormat)
 }
 
-func (this *Reporter) Fatalf(format string, args ...interface{}) {
-	namedFormat := this.formatName(format)
-	this.T.Fatalf(namedFormat, args...)
+func (r *Reporter) Fatalf(format string, args ...interface{}) {
+	namedFormat := r.formatName(format)
+	r.T.Fatalf(namedFormat, args...)
 }
 
-func (this *Reporter) Log(str string) {
-	namedFormat := this.formatName(str)
-	this.T.Logf(namedFormat)
+func (r *Reporter) Log(str string) {
+	namedFormat := r.formatName(str)
+	r.T.Logf(namedFormat)
 }
 
-func (this *Reporter) Logf(format string, args ...interface{}) {
-	namedFormat := this.formatName(format)
-	this.T.Logf(namedFormat, args...)
+func (r *Reporter) Logf(format string, args ...interface{}) {
+	namedFormat := r.formatName(format)
+	r.T.Logf(namedFormat, args...)
 }
 
-func (this *Reporter) formatName(format string) string {
-	return fmt.Sprintf("Test Case '%s': %s", this.Name, format)
+func (r *Reporter) formatName(format string) string {
+	return fmt.Sprintf("Test Case '%s': %s", r.Name, format)
 }
 
-func (this *Reporter) AssertEqual(result, expected interface{}) {
-	this.AssertEqualf(result, expected, "")
+func (r *Reporter) AssertEqual(result, expected interface{}) {
+	r.AssertEqualf(result, expected, "")
 }
 
-func (this *Reporter) AssertAny(result interface{}, expected ...interface{}) {
-	this.AssertInSlice(result, expected)
+func (r *Reporter) AssertAny(result interface{}, expected ...interface{}) {
+	r.AssertInSlice(result, expected)
 }
 
-func (this *Reporter) AssertEqualf(result, expected interface{}, format string, args ...interface{}) {
+func (r *Reporter) AssertEqualf(result, expected interface{}, format string, args ...interface{}) {
 	message := fmt.Sprintf(format, args...)
 
 	if !reflect.DeepEqual(expected, result) {
@@ -71,13 +71,13 @@ func (this *Reporter) AssertEqualf(result, expected interface{}, format string, 
 			expected,
 			reflect.TypeOf(expected))
 
-		this.Errorf(message)
+		r.Fatalf(message)
 	}
 }
 
-func (this *Reporter) AssertInSlice(expected, slice interface{}) {
+func (r *Reporter) AssertInSlice(expected, slice interface{}) {
 	if reflect.TypeOf(slice).Kind() != reflect.Slice {
-		this.Errorf("\n\t%v (%v) is not a slice", slice, reflect.TypeOf(slice))
+		r.Errorf("\n\t%v (%v) is not a slice", slice, reflect.TypeOf(slice))
 		return
 	}
 
@@ -89,7 +89,7 @@ func (this *Reporter) AssertInSlice(expected, slice interface{}) {
 		}
 	}
 
-	this.Errorf(
+	r.Fatalf(
 		"\n\tExpected Object: %#v (%v) \n\tIs not in slice: %#v (%v)",
 		expected,
 		reflect.TypeOf(expected),

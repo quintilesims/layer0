@@ -4,6 +4,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 	"io/ioutil"
+	"strconv"
 )
 
 type DeployCommand struct {
@@ -78,7 +79,6 @@ func (d *DeployCommand) Delete(c *cli.Context) error {
 
 func (d *DeployCommand) Get(c *cli.Context) error {
 	deploys := []*models.Deploy{}
-
 	getDeployf := func(id string) error {
 		deploy, err := d.Client.GetDeploy(id)
 		if err != nil {
@@ -103,13 +103,16 @@ func (d *DeployCommand) List(c *cli.Context) error {
 	}
 
 	if !c.Bool("all") {
-		deploySummaries = filterDeploySummaries(deploySummaries)
+		deploySummaries, err = filterDeploySummaries(deploySummaries)
+		if err != nil {
+			return err
+		}
 	}
 
 	return d.Printer.PrintDeploySummaries(deploySummaries...)
 }
 
-func filterDeploySummaries(deploys []*models.DeploySummary) []*models.DeploySummary {
+func filterDeploySummaries(deploys []*models.DeploySummary) ([]*models.DeploySummary, error) {
 	catalog := map[string]*models.DeploySummary{}
 
 	for _, deploy := range deploys {
@@ -119,7 +122,17 @@ func filterDeploySummaries(deploys []*models.DeploySummary) []*models.DeploySumm
 				continue
 			}
 
-			if deploy.Version > catalog[name].Version {
+			max, err := strconv.Atoi(catalog[name].Version)
+			if err != nil {
+				return nil, err
+			}
+
+			current, err := strconv.Atoi(deploy.Version)
+			if err != nil {
+				return nil, err
+			}
+
+			if current > max {
 				catalog[name] = deploy
 			}
 		}
@@ -130,5 +143,5 @@ func filterDeploySummaries(deploys []*models.DeploySummary) []*models.DeploySumm
 		filtered = append(filtered, deploy)
 	}
 
-	return filtered
+	return filtered, nil
 }

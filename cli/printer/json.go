@@ -43,7 +43,7 @@ func (j *JSONPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
 func (j *JSONPrinter) print(obj interface{}) error {
 	js, err := json.MarshalIndent(obj, "", "    ")
 	if err != nil {
-		js = []byte(err.Error())
+		return err
 	}
 
 	fmt.Println(string(js))
