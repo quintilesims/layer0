@@ -78,7 +78,6 @@ func (d *DeployCommand) Delete(c *cli.Context) error {
 
 func (d *DeployCommand) Get(c *cli.Context) error {
 	deploys := []*models.Deploy{}
-
 	getDeployf := func(id string) error {
 		deploy, err := d.Client.GetDeploy(id)
 		if err != nil {

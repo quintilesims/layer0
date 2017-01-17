@@ -35,24 +35,20 @@ func (t *TextPrinter) StopSpinner() {
 }
 
 func (t *TextPrinter) Printf(format string, tokens ...interface{}) {
-        t.StopSpinner()
-        fmt.Printf(format, tokens...)
+	t.StopSpinner()
+	fmt.Printf(format, tokens...)
 }
 
 func (t *TextPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
-        t.Printf(format, tokens...)
-        fmt.Println()
-        os.Exit(1)
+	t.Printf(format, tokens...)
+	fmt.Println()
+	os.Exit(1)
 }
 
 func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
 	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION"}
 	for _, d := range deploys {
-		row := fmt.Sprintf("%s | %s |  %s",
-			d.DeployID,
-			d.DeployName,
-			d.Version)
-
+		row := fmt.Sprintf("%s | %s |  %s", d.DeployID, d.DeployName, d.Version)
 		rows = append(rows, row)
 	}
 
@@ -63,11 +59,7 @@ func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
 func (t *TextPrinter) PrintDeploySummaries(deploys ...*models.DeploySummary) error {
 	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION"}
 	for _, d := range deploys {
-		row := fmt.Sprintf("%s | %s |  %s",
-			d.DeployID,
-			d.DeployName,
-			d.Version)
-
+		row := fmt.Sprintf("%s | %s |  %s", d.DeployID, d.DeployName, d.Version)
 		rows = append(rows, row)
 	}
 
@@ -128,7 +120,7 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 	}
 
 	getService := func(l *models.LoadBalancer) string {
-		if l.ServiceName == "" {
+		if l.ServiceName != "" {
 			return l.ServiceName
 		}
 

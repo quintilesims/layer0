@@ -13,43 +13,42 @@ func (j *JSONPrinter) StartSpinner(string) {}
 func (j *JSONPrinter) StopSpinner()        {}
 
 func (j *JSONPrinter) Printf(format string, tokens ...interface{}) {
-	message := struct{
+	message := struct {
 		Message string
 	}{
 		Message: fmt.Sprintf(format, tokens...),
 	}
-        
-	if err := j.print(message); err != nil{
+
+	if err := j.print(message); err != nil {
 		fmt.Println(err)
 	}
 }
 
 func (j *JSONPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
-        message := struct{
-                Code int64
-                Message string
-        }{
-                Code: code,
-                Message: fmt.Sprintf(format, tokens...),
-        }
+	message := struct {
+		Code    int64
+		Message string
+	}{
+		Code:    code,
+		Message: fmt.Sprintf(format, tokens...),
+	}
 
-        if err := j.print(message); err != nil{
-                fmt.Println(err)
-        }
+	if err := j.print(message); err != nil {
+		fmt.Println(err)
+	}
 
-        os.Exit(1)
+	os.Exit(1)
 }
 
 func (j *JSONPrinter) print(obj interface{}) error {
-        js, err := json.MarshalIndent(obj, "", "    ")
-        if err != nil {
-                js = []byte(err.Error())
-        }
+	js, err := json.MarshalIndent(obj, "", "    ")
+	if err != nil {
+		return err
+	}
 
-        fmt.Println(string(js))
+	fmt.Println(string(js))
 	return nil
 }
-
 
 func (j *JSONPrinter) PrintDeploys(deploys ...*models.Deploy) error {
 	return j.print(deploys)
@@ -63,7 +62,7 @@ func (j *JSONPrinter) PrintEnvironments(environments ...*models.Environment) err
 	return j.print(environments)
 }
 
-func (j *JSONPrinter) PrintJobs(jobs ...*models.Job) error { 
+func (j *JSONPrinter) PrintJobs(jobs ...*models.Job) error {
 	return j.print(jobs)
 }
 

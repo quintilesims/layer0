@@ -167,8 +167,17 @@ func (this *L0LoadBalancerLogic) populateModel(model *models.LoadBalancer) error
 		return err
 	}
 
-	for _, tag := range tags.WithKey("load_balancer_id").WithValue(model.LoadBalancerID) {
+	if tag := tags.WithKey("load_balancer_id").WithValue(model.LoadBalancerID).First(); tag != nil {
 		model.ServiceID = tag.EntityID
+
+		serviceTags, err := this.TagStore.SelectByQuery("service", model.ServiceID)
+		if err != nil {
+			return err
+		}
+
+		if tag := serviceTags.WithKey("name").First(); tag != nil {
+			model.ServiceName = tag.Value
+		}
 	}
 
 	return nil
