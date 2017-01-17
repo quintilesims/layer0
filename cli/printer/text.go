@@ -94,10 +94,7 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 func (t *TextPrinter) PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error {
 	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME"}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s",
-			e.EnvironmentID,
-			e.EnvironmentName)
-
+		row := fmt.Sprintf("%s | %s", e.EnvironmentID, e.EnvironmentName)
 		rows = append(rows, row)
 	}
 
