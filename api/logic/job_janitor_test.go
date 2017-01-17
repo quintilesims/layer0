@@ -26,7 +26,7 @@ func TestJobJanitorPulse(t *testing.T) {
 	}
 
 	jobLogicMock.EXPECT().
-		SelectAll().
+		ListJobs().
 		Return(jobs, nil)
 
 	jobLogicMock.EXPECT().

@@ -19,7 +19,7 @@ func TestJobSelectByID(t *testing.T) {
 	})
 
 	jobLogic := NewL0JobLogic(testLogic.Logic(), nil, nil)
-	job, err := jobLogic.SelectByID("j1")
+	job, err := jobLogic.GetJob("j1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -37,7 +37,7 @@ func TestJobSelectAll(t *testing.T) {
 	})
 
 	jobLogic := NewL0JobLogic(testLogic.Logic(), nil, nil)
-	jobs, err := jobLogic.SelectAll()
+	jobs, err := jobLogic.ListJobs()
 	if err != nil {
 		t.Fatal(err)
 	}
