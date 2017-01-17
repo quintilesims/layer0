@@ -83,6 +83,17 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 	return nil
 }
 
+func (t *TextPrinter) PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error {
+        rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME"}
+        for _, e := range environments {
+                row := fmt.Sprintf("%s | %s", e.EnvironmentID, e.EnvironmentName)
+                rows = append(rows, row)
+        }
+
+        fmt.Println(columnize.SimpleFormat(rows))
+        return nil
+}
+
 func (t *TextPrinter) PrintJobs(jobs ...*models.Job) error {
 	getType := func(j *models.Job) string {
 		jobType := types.JobType(j.JobType).String()
