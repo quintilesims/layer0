@@ -49,16 +49,13 @@ func (this *ECSEnvironmentManager) ListEnvironments() ([]*models.Environment, er
 		return nil, err
 	}
 
-	environments := []*models.Environment{}
-	for _, cluster := range clusters {
+	environments := make([]*models.Environment, len(clusters))
+	for i, cluster := range clusters {
 		if strings.HasPrefix(*cluster.ClusterName, id.PREFIX) {
 			ecsEnvironmentID := id.ECSEnvironmentID(*cluster.ClusterName)
-
-			environment := &models.Environment{
+			environments[i] = &models.Environment{
 				EnvironmentID: ecsEnvironmentID.L0EnvironmentID(),
 			}
-
-			environments = append(environments, environment)
 		}
 	}
 
