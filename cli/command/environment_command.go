@@ -1,7 +1,6 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/cli/entity"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 	"io/ioutil"
@@ -98,7 +97,7 @@ func (e *EnvironmentCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	return e.printEnvironment(environment)
+	return e.Printer.PrintEnvironments(environment)
 }
 
 func (e *EnvironmentCommand) Delete(c *cli.Context) error {
@@ -106,14 +105,22 @@ func (e *EnvironmentCommand) Delete(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) Get(c *cli.Context) error {
-	return e.get(c, "environment", func(id string) (entity.Entity, error) {
+	environments := []*models.Environment{}
+	getEnvironmentf := func(id string) error {
 		environment, err := e.Client.GetEnvironment(id)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		return entity.NewEnvironment(environment), nil
-	})
+		environments = append(environments, environment)
+		return nil
+	}
+
+	if err := e.get(c, "environment", getEnvironmentf); err != nil {
+		return err
+	}
+
+	return e.Printer.PrintEnvironments(environments...)
 }
 
 func (e *EnvironmentCommand) List(c *cli.Context) error {
@@ -122,7 +129,7 @@ func (e *EnvironmentCommand) List(c *cli.Context) error {
 		return err
 	}
 
-	return e.printEnvironments(environments)
+	return e.Printer.PrintEnvironments(environments...)
 }
 
 func (e *EnvironmentCommand) SetMinCount(c *cli.Context) error {
@@ -146,19 +153,5 @@ func (e *EnvironmentCommand) SetMinCount(c *cli.Context) error {
 		return err
 	}
 
-	return e.printEnvironment(environment)
-}
-
-func (e *EnvironmentCommand) printEnvironment(environment *models.Environment) error {
-	entity := entity.NewEnvironment(environment)
-	return e.Printer.PrintEntity(entity)
-}
-
-func (e *EnvironmentCommand) printEnvironments(environments []*models.Environment) error {
-	entities := []entity.Entity{}
-	for _, environment := range environments {
-		entities = append(entities, entity.NewEnvironment(environment))
-	}
-
-	return e.Printer.PrintEntities(entities)
+	return e.Printer.PrintEnvironments(environment)
 }

@@ -2,7 +2,6 @@ package command
 
 import (
 	"github.com/quintilesims/layer0/cli/client"
-	"github.com/quintilesims/layer0/cli/entity"
 	"github.com/quintilesims/layer0/cli/printer"
 	"github.com/urfave/cli"
 )
@@ -99,9 +98,8 @@ func (cm *Command) delete(c *cli.Context, entityType string, deleteEntity func(s
 }
 
 // get will fetch the NAME arg and use it to resolve the entity id of the specified type
-// the getEntity function should wrap a Client Get<Entity> call and convert the returned model
-// into an entity.Entity
-func (cm *Command) get(c *cli.Context, entityType string, getEntity func(string) (entity.Entity, error)) error {
+// the getEntity function is called for each id that was resolved
+func (cm *Command) get(c *cli.Context, entityType string, getEntity func(id string) error) error {
 	args, err := extractArgs(c.Args(), "NAME")
 	if err != nil {
 		return err
@@ -112,15 +110,11 @@ func (cm *Command) get(c *cli.Context, entityType string, getEntity func(string)
 		return err
 	}
 
-	entities := []entity.Entity{}
 	for _, id := range ids {
-		entity, err := getEntity(id)
-		if err != nil {
+		if err := getEntity(id); err != nil {
 			return err
 		}
-
-		entities = append(entities, entity)
 	}
 
-	return cm.Printer.PrintEntities(entities)
+	return nil
 }

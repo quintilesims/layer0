@@ -1,7 +1,6 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/cli/entity"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -59,23 +58,31 @@ func (j *JobCommand) Delete(c *cli.Context) error {
 }
 
 func (j *JobCommand) Get(c *cli.Context) error {
-	return j.get(c, "job", func(id string) (entity.Entity, error) {
-		job, err := j.Client.SelectByID(id)
+	jobs := []*models.Job{}
+	getJobf := func(id string) error {
+		job, err := j.Client.GetJob(id)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		return entity.NewJob(job), nil
-	})
+		jobs = append(jobs, job)
+		return nil
+	}
+
+	if err := j.get(c, "job", getJobf); err != nil {
+		return err
+	}
+
+	return j.Printer.PrintJobs(jobs...)
 }
 
 func (j *JobCommand) List(c *cli.Context) error {
-	jobs, err := j.Client.SelectAll()
+	jobs, err := j.Client.ListJobs()
 	if err != nil {
 		return err
 	}
 
-	return j.printJobs(jobs)
+	return j.Printer.PrintJobs(jobs...)
 }
 
 func (j *JobCommand) Logs(c *cli.Context) error {
@@ -89,7 +96,7 @@ func (j *JobCommand) Logs(c *cli.Context) error {
 		return err
 	}
 
-	job, err := j.Client.SelectByID(id)
+	job, err := j.Client.GetJob(id)
 	if err != nil {
 		return err
 	}
@@ -99,19 +106,5 @@ func (j *JobCommand) Logs(c *cli.Context) error {
 		return err
 	}
 
-	return j.Printer.PrintLogs(logs)
-}
-
-func (j *JobCommand) printJob(job *models.Job) error {
-	entity := entity.NewJob(job)
-	return j.Printer.PrintEntity(entity)
-}
-
-func (j *JobCommand) printJobs(jobs []*models.Job) error {
-	entities := []entity.Entity{}
-	for _, job := range jobs {
-		entities = append(entities, entity.NewJob(job))
-	}
-
-	return j.Printer.PrintEntities(entities)
+	return j.Printer.PrintLogs(logs...)
 }
