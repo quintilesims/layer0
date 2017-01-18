@@ -25,4 +25,5 @@ pass_file
 *.save
 coverage.*
 *.tags*
-
+terraform.tfvars
+terraform.tfstate*
