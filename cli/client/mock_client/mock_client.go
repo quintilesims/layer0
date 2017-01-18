@@ -302,9 +302,9 @@ func (_mr *_MockClientRecorder) ListLoadBalancers() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListLoadBalancers")
 }
 
-func (_m *MockClient) ListServices() ([]*models.Service, error) {
+func (_m *MockClient) ListServices() ([]*models.ServiceSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListServices")
-	ret0, _ := ret[0].([]*models.Service)
+	ret0, _ := ret[0].([]*models.ServiceSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

@@ -33,7 +33,7 @@ type Client interface {
 	UpdateService(serviceID, deployID string) (*models.Service, error)
 	GetService(id string) (*models.Service, error)
 	GetServiceLogs(id string, tail int) ([]*models.LogFile, error)
-	ListServices() ([]*models.Service, error)
+	ListServices() ([]*models.ServiceSummary, error)
 	ScaleService(id string, scale int) (*models.Service, error)
 	WaitForDeployment(serviceID string, timeout time.Duration) (*models.Service, error)
 

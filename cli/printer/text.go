@@ -84,14 +84,14 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 }
 
 func (t *TextPrinter) PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error {
-        rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME"}
-        for _, e := range environments {
-                row := fmt.Sprintf("%s | %s", e.EnvironmentID, e.EnvironmentName)
-                rows = append(rows, row)
-        }
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME"}
+	for _, e := range environments {
+		row := fmt.Sprintf("%s | %s", e.EnvironmentID, e.EnvironmentName)
+		rows = append(rows, row)
+	}
 
-        fmt.Println(columnize.SimpleFormat(rows))
-        return nil
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
 }
 
 func (t *TextPrinter) PrintJobs(jobs ...*models.Job) error {
@@ -249,6 +249,29 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 			row := fmt.Sprintf(" | | | %s", getDeployment(s, i))
 			rows = append(rows, row)
 		}
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
+func (t *TextPrinter) PrintServiceSummaries(services ...*models.ServiceSummary) error {
+	getEnvironment := func(s *models.ServiceSummary) string {
+		if s.EnvironmentName != "" {
+			return s.EnvironmentName
+		}
+
+		return s.EnvironmentID
+	}
+
+	rows := []string{"SERVICE ID | SERVICE NAME | ENVIRONMENT"}
+	for _, s := range services {
+		row := fmt.Sprintf("%s | %s | %s ",
+			s.ServiceID,
+			s.ServiceName,
+			getEnvironment(s))
+
+		rows = append(rows, row)
 	}
 
 	fmt.Println(columnize.SimpleFormat(rows))

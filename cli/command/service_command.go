@@ -211,12 +211,12 @@ func (s *ServiceCommand) Get(c *cli.Context) error {
 }
 
 func (s *ServiceCommand) List(c *cli.Context) error {
-	services, err := s.Client.ListServices()
+	serviceSummaries, err := s.Client.ListServices()
 	if err != nil {
 		return err
 	}
 
-	return s.Printer.PrintServices(services...)
+	return s.Printer.PrintServiceSummaries(serviceSummaries...)
 }
 
 func (s *ServiceCommand) Logs(c *cli.Context) error {

@@ -173,6 +173,12 @@ func (id ECSServiceID) L0ServiceID() string {
 	return removePrefix(id.String())
 }
 
+func ServiceARNToECSServiceID(arn string) ECSServiceID {
+	split := strings.SplitN(arn, "/", -1)
+	serviceName := split[len(split)-1]
+	return ECSServiceID(serviceName)
+}
+
 type L0ServiceID string
 
 // we need to add a custom .String() function, or else string conversions add quotes
