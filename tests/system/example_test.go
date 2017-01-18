@@ -6,13 +6,14 @@ import (
 )
 
 func TestOne(t *testing.T) {
-	c := runSystemTest(t, "example")
+	c := runSystemTest(t, "cases/example")
 	defer c.Destroy()
 
 	demo := c.GetEnvironment("demo")
 	testutils.AssertEqual(t, demo.EnvironmentName, "some bogus name")
 }
 
+/*
 func TestTwo(t *testing.T) {
 	c := runSystemTest(t, "example")
 	defer c.Destroy()
@@ -26,3 +27,4 @@ func TestTwo(t *testing.T) {
 	apiSVC := c.GetService("api")
 	testutils.AssertEqual(t, apiSVC.ServiceName, "api-svc")
 }
+*/

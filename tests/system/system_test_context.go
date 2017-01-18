@@ -20,12 +20,11 @@ type SystemTestContext struct {
 	Resolver *command.TagResolver
 }
 
+// todo: tfvars - Should we just use env vars - TF_VAR_token/endpoint?
 func NewSystemTestContext(t *testing.T, dir string) *SystemTestContext {
 	apiClient := client.NewAPIClient(client.Config{
 		Endpoint:      config.APIEndpoint(),
 		Token:         fmt.Sprintf("Basic %s", config.AuthToken()),
-		VerifySSL:     false,
-		VerifyVersion: false,
 	})
 
 	return &SystemTestContext{
@@ -38,36 +37,36 @@ func NewSystemTestContext(t *testing.T, dir string) *SystemTestContext {
 
 func (s *SystemTestContext) GetEnvironment(name string) *models.Environment {
 	id := s.resolve("environment", name)
-	model, err := s.Client.GetEnvironment(id)
+	environment, err := s.Client.GetEnvironment(id)
 	if err != nil {
 		s.T.Fatal(err)
 	}
 
-	return model
+	return environment
 }
 
 func (s *SystemTestContext) GetLoadBalancer(name string) *models.LoadBalancer {
 	id := s.resolve("load_balancer", name)
-	model, err := s.Client.GetLoadBalancer(id)
+	loadBalancer, err := s.Client.GetLoadBalancer(id)
 	if err != nil {
 		s.T.Fatal(err)
 	}
 
-	return model
+	return loadBalancer
 }
 
 func (s *SystemTestContext) GetService(name string) *models.Service {
 	id := s.resolve("service", name)
-	model, err := s.Client.GetService(id)
+	service, err := s.Client.GetService(id)
 	if err != nil {
 		s.T.Fatal(err)
 	}
 
-	return model
+	return service
 }
 
 func (s *SystemTestContext) resolve(entityType, name string) string {
-	ids, err := s.Resolver.Resolve("environment", name)
+	ids, err := s.Resolver.Resolve(entityType, name)
 	if err != nil {
 		s.T.Fatal(err)
 	}
@@ -77,7 +76,7 @@ func (s *SystemTestContext) resolve(entityType, name string) string {
 	}
 
 	if len(ids) > 1 {
-		s.T.Fatalf("Faied to resolve %s '%s' - multiple ids found (%v)", entityType, name, ids)
+		s.T.Fatalf("Failed to resolve %s '%s' - multiple ids found (%v)", entityType, name, ids)
 	}
 
 	return ids[0]
@@ -85,7 +84,7 @@ func (s *SystemTestContext) resolve(entityType, name string) string {
 
 func (s *SystemTestContext) Apply() {
 	print("!!! WARNING: USING TERRAFORM PLAN INSTEAD OF APPLY !!!\n")
-	s.run("terraform", "plan")
+	s.run("terraform", "apply")
 }
 
 func (s *SystemTestContext) Destroy() {
@@ -98,7 +97,7 @@ func (s *SystemTestContext) run(name string, args ...string) {
 
 	// todo: send stdout to t.Log()  so it only shows up with 'go test -v'
 	cmd.Stdin = os.Stdin
-	//cmd.Stdout = os.Stdout
+	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
 	s.cleanupCommandOnSIGTERM(cmd)
