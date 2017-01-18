@@ -38,7 +38,7 @@ func (this *JobJanitor) Run() {
 }
 
 func (this *JobJanitor) pulse() error {
-	jobs, err := this.jobLogic.SelectAll()
+	jobs, err := this.jobLogic.ListJobs()
 	if err != nil {
 		jobLogger.Errorf("Failed to list jobs: %v", err)
 		return err

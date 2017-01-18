@@ -10,6 +10,7 @@ type Printer interface {
 	PrintDeploys(deploys ...*models.Deploy) error
 	PrintDeploySummaries(deploys ...*models.DeploySummary) error
 	PrintEnvironments(environments ...*models.Environment) error
+	PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error
 	PrintJobs(jobs ...*models.Job) error
 	PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) error
 	PrintLogs(logs ...*models.LogFile) error

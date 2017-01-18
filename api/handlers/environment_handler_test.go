@@ -13,11 +13,11 @@ import (
 )
 
 func TestListEnvironments(t *testing.T) {
-	environments := []*models.Environment{
-		&models.Environment{
+	environments := []*models.EnvironmentSummary{
+		{
 			EnvironmentID: "some_id_1",
 		},
-		&models.Environment{
+		{
 			EnvironmentID: "some_id_2",
 		},
 	}
@@ -40,7 +40,7 @@ func TestListEnvironments(t *testing.T) {
 				handler := target.(*EnvironmentHandler)
 				handler.ListEnvironments(req, resp)
 
-				var response []*models.Environment
+				var response []*models.EnvironmentSummary
 				read(&response)
 
 				reporter.AssertEqual(response, environments)

@@ -269,9 +269,9 @@ func (_mr *_MockClientRecorder) ListDeploys() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListDeploys")
 }
 
-func (_m *MockClient) ListEnvironments() ([]*models.Environment, error) {
+func (_m *MockClient) ListEnvironments() ([]*models.EnvironmentSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListEnvironments")
-	ret0, _ := ret[0].([]*models.Environment)
+	ret0, _ := ret[0].([]*models.EnvironmentSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

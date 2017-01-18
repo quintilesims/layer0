@@ -51,24 +51,24 @@ func (_mr *_MockJobLogicRecorder) Delete(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Delete", arg0)
 }
 
-func (_m *MockJobLogic) SelectAll() ([]*models.Job, error) {
-	ret := _m.ctrl.Call(_m, "SelectAll")
-	ret0, _ := ret[0].([]*models.Job)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockJobLogicRecorder) SelectAll() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "SelectAll")
-}
-
-func (_m *MockJobLogic) SelectByID(_param0 string) (*models.Job, error) {
-	ret := _m.ctrl.Call(_m, "SelectByID", _param0)
+func (_m *MockJobLogic) GetJob(_param0 string) (*models.Job, error) {
+	ret := _m.ctrl.Call(_m, "GetJob", _param0)
 	ret0, _ := ret[0].(*models.Job)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockJobLogicRecorder) SelectByID(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "SelectByID", arg0)
+func (_mr *_MockJobLogicRecorder) GetJob(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetJob", arg0)
+}
+
+func (_m *MockJobLogic) ListJobs() ([]*models.Job, error) {
+	ret := _m.ctrl.Call(_m, "ListJobs")
+	ret0, _ := ret[0].([]*models.Job)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockJobLogicRecorder) ListJobs() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListJobs")
 }

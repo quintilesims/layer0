@@ -6,7 +6,7 @@ import (
 )
 
 type EnvironmentLogic interface {
-	ListEnvironments() ([]*models.Environment, error)
+	ListEnvironments() ([]*models.EnvironmentSummary, error)
 	GetEnvironment(id string) (*models.Environment, error)
 	DeleteEnvironment(id string) error
 	CanCreateEnvironment(req models.CreateEnvironmentRequest) (bool, error)
@@ -24,48 +24,54 @@ func NewL0EnvironmentLogic(logic Logic) *L0EnvironmentLogic {
 	}
 }
 
-func (this *L0EnvironmentLogic) ListEnvironments() ([]*models.Environment, error) {
-	environments, err := this.Backend.ListEnvironments()
+func (e *L0EnvironmentLogic) ListEnvironments() ([]*models.EnvironmentSummary, error) {
+	environments, err := e.Backend.ListEnvironments()
 	if err != nil {
 		return nil, err
 	}
 
-	for _, environment := range environments {
-		if err := this.populateModel(environment); err != nil {
+	summaries := make([]*models.EnvironmentSummary, len(environments))
+	for i, environment := range environments {
+		if err := e.populateModel(environment); err != nil {
 			return nil, err
+		}
+
+		summaries[i] = &models.EnvironmentSummary{
+			EnvironmentID:   environment.EnvironmentID,
+			EnvironmentName: environment.EnvironmentName,
 		}
 	}
 
-	return environments, nil
+	return summaries, nil
 }
 
-func (this *L0EnvironmentLogic) GetEnvironment(environmentID string) (*models.Environment, error) {
-	environment, err := this.Backend.GetEnvironment(environmentID)
+func (e *L0EnvironmentLogic) GetEnvironment(environmentID string) (*models.Environment, error) {
+	environment, err := e.Backend.GetEnvironment(environmentID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := this.populateModel(environment); err != nil {
+	if err := e.populateModel(environment); err != nil {
 		return nil, err
 	}
 
 	return environment, nil
 }
 
-func (this *L0EnvironmentLogic) DeleteEnvironment(environmentID string) error {
-	if err := this.Backend.DeleteEnvironment(environmentID); err != nil {
+func (e *L0EnvironmentLogic) DeleteEnvironment(environmentID string) error {
+	if err := e.Backend.DeleteEnvironment(environmentID); err != nil {
 		return err
 	}
 
-	if err := this.deleteEntityTags("environment", environmentID); err != nil {
+	if err := e.deleteEntityTags("environment", environmentID); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (this *L0EnvironmentLogic) CanCreateEnvironment(req models.CreateEnvironmentRequest) (bool, error) {
-	tags, err := this.TagStore.SelectByQuery("environment", "")
+func (e *L0EnvironmentLogic) CanCreateEnvironment(req models.CreateEnvironmentRequest) (bool, error) {
+	tags, err := e.TagStore.SelectByQuery("environment", "")
 	if err != nil {
 		return false, err
 	}
@@ -74,42 +80,42 @@ func (this *L0EnvironmentLogic) CanCreateEnvironment(req models.CreateEnvironmen
 	return len(tags) == 0, nil
 }
 
-func (this *L0EnvironmentLogic) CreateEnvironment(req models.CreateEnvironmentRequest) (*models.Environment, error) {
+func (e *L0EnvironmentLogic) CreateEnvironment(req models.CreateEnvironmentRequest) (*models.Environment, error) {
 	if req.EnvironmentName == "" {
 		return nil, errors.Newf(errors.MissingParameter, "EnvironmentName is required")
 	}
 
-	environment, err := this.Backend.CreateEnvironment(req.EnvironmentName, req.InstanceSize, req.MinClusterCount, req.UserDataTemplate)
+	environment, err := e.Backend.CreateEnvironment(req.EnvironmentName, req.InstanceSize, req.MinClusterCount, req.UserDataTemplate)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := this.upsertTagf(environment.EnvironmentID, "environment", "name", req.EnvironmentName); err != nil {
+	if err := e.upsertTagf(environment.EnvironmentID, "environment", "name", req.EnvironmentName); err != nil {
 		return nil, err
 	}
 
-	if err := this.populateModel(environment); err != nil {
+	if err := e.populateModel(environment); err != nil {
 		return environment, err
 	}
 
 	return environment, nil
 }
 
-func (this *L0EnvironmentLogic) UpdateEnvironment(environmentID string, minClusterCount int) (*models.Environment, error) {
-	environment, err := this.Backend.UpdateEnvironment(environmentID, minClusterCount)
+func (e *L0EnvironmentLogic) UpdateEnvironment(environmentID string, minClusterCount int) (*models.Environment, error) {
+	environment, err := e.Backend.UpdateEnvironment(environmentID, minClusterCount)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := this.populateModel(environment); err != nil {
+	if err := e.populateModel(environment); err != nil {
 		return nil, err
 	}
 
 	return environment, nil
 }
 
-func (this *L0EnvironmentLogic) populateModel(model *models.Environment) error {
-	tags, err := this.TagStore.SelectByQuery("environment", model.EnvironmentID)
+func (e *L0EnvironmentLogic) populateModel(model *models.Environment) error {
+	tags, err := e.TagStore.SelectByQuery("environment", model.EnvironmentID)
 	if err != nil {
 		return err
 	}

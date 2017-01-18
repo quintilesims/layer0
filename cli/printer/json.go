@@ -62,6 +62,10 @@ func (j *JSONPrinter) PrintEnvironments(environments ...*models.Environment) err
 	return j.print(environments)
 }
 
+func (j *JSONPrinter) PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error {
+	return j.print(environments)
+}
+
 func (j *JSONPrinter) PrintJobs(jobs ...*models.Job) error {
 	return j.print(jobs)
 }

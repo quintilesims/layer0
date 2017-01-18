@@ -14,7 +14,7 @@ type Client interface {
 	CreateEnvironment(name, instanceSize string, minCount int, userData []byte) (*models.Environment, error)
 	DeleteEnvironment(id string) (string, error)
 	GetEnvironment(id string) (*models.Environment, error)
-	ListEnvironments() ([]*models.Environment, error)
+	ListEnvironments() ([]*models.EnvironmentSummary, error)
 	UpdateEnvironment(id string, minCount int) (*models.Environment, error)
 
 	Delete(id string) error

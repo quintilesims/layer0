@@ -20,15 +20,15 @@ func NewL0DeployLogic(lgc Logic) *L0DeployLogic {
 	return &L0DeployLogic{lgc}
 }
 
-func (this *L0DeployLogic) ListDeploys() ([]*models.DeploySummary, error) {
-	deploys, err := this.Backend.ListDeploys()
+func (d *L0DeployLogic) ListDeploys() ([]*models.DeploySummary, error) {
+	deploys, err := d.Backend.ListDeploys()
 	if err != nil {
 		return nil, err
 	}
 
 	summaries := make([]*models.DeploySummary, len(deploys))
 	for i, deploy := range deploys {
-		if err := this.populateModel(deploy); err != nil {
+		if err := d.populateModel(deploy); err != nil {
 			return nil, err
 		}
 
@@ -42,58 +42,58 @@ func (this *L0DeployLogic) ListDeploys() ([]*models.DeploySummary, error) {
 	return summaries, nil
 }
 
-func (this *L0DeployLogic) GetDeploy(deployID string) (*models.Deploy, error) {
-	deploy, err := this.Backend.GetDeploy(deployID)
+func (d *L0DeployLogic) GetDeploy(deployID string) (*models.Deploy, error) {
+	deploy, err := d.Backend.GetDeploy(deployID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := this.populateModel(deploy); err != nil {
+	if err := d.populateModel(deploy); err != nil {
 		return nil, err
 	}
 
 	return deploy, nil
 }
 
-func (this *L0DeployLogic) DeleteDeploy(deployID string) error {
-	if err := this.Backend.DeleteDeploy(deployID); err != nil {
+func (d *L0DeployLogic) DeleteDeploy(deployID string) error {
+	if err := d.Backend.DeleteDeploy(deployID); err != nil {
 		return err
 	}
 
-	if err := this.deleteEntityTags("deploy", deployID); err != nil {
+	if err := d.deleteEntityTags("deploy", deployID); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (this *L0DeployLogic) CreateDeploy(req models.CreateDeployRequest) (*models.Deploy, error) {
+func (d *L0DeployLogic) CreateDeploy(req models.CreateDeployRequest) (*models.Deploy, error) {
 	if req.DeployName == "" {
 		return nil, errors.Newf(errors.MissingParameter, "DeployName is required")
 	}
 
-	deploy, err := this.Backend.CreateDeploy(req.DeployName, req.Dockerrun)
+	deploy, err := d.Backend.CreateDeploy(req.DeployName, req.Dockerrun)
 	if err != nil {
 		return deploy, err
 	}
 
-	if err := this.upsertTagf(deploy.DeployID, "deploy", "name", req.DeployName); err != nil {
+	if err := d.upsertTagf(deploy.DeployID, "deploy", "name", req.DeployName); err != nil {
 		return deploy, err
 	}
 
-	if err := this.upsertTagf(deploy.DeployID, "deploy", "version", deploy.Version); err != nil {
+	if err := d.upsertTagf(deploy.DeployID, "deploy", "version", deploy.Version); err != nil {
 		return deploy, err
 	}
 
-	if err := this.populateModel(deploy); err != nil {
+	if err := d.populateModel(deploy); err != nil {
 		return deploy, err
 	}
 
 	return deploy, nil
 }
 
-func (this *L0DeployLogic) populateModel(model *models.Deploy) error {
-	tags, err := this.TagStore.SelectByQuery("deploy", model.DeployID)
+func (d *L0DeployLogic) populateModel(model *models.Deploy) error {
+	tags, err := d.TagStore.SelectByQuery("deploy", model.DeployID)
 	if err != nil {
 		return err
 	}
