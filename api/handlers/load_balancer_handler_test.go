@@ -12,11 +12,11 @@ import (
 )
 
 func TestListLoadBalancers(t *testing.T) {
-	loadBalancers := []*models.LoadBalancer{
-		&models.LoadBalancer{
+	loadBalancers := []*models.LoadBalancerSummary{
+		{
 			LoadBalancerID: "some_id_1",
 		},
-		&models.LoadBalancer{
+		{
 			LoadBalancerID: "some_id_2",
 		},
 	}
@@ -38,7 +38,7 @@ func TestListLoadBalancers(t *testing.T) {
 				handler := target.(*LoadBalancerHandler)
 				handler.ListLoadBalancers(req, resp)
 
-				var response []*models.LoadBalancer
+				var response []*models.LoadBalancerSummary
 				read(&response)
 
 				reporter.AssertEqual(response, loadBalancers)

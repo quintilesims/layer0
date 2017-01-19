@@ -171,6 +171,29 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 	return nil
 }
 
+func (t *TextPrinter) PrintLoadBalancerSummaries(loadBalancers ...*models.LoadBalancerSummary) error {
+	getEnvironment := func(l *models.LoadBalancerSummary) string {
+		if l.EnvironmentName != "" {
+			return l.EnvironmentName
+		}
+
+		return l.EnvironmentID
+	}
+
+	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT"}
+	for _, l := range loadBalancers {
+		row := fmt.Sprintf("%s | %s | %s ",
+			l.LoadBalancerID,
+			l.LoadBalancerName,
+			getEnvironment(l))
+
+		rows = append(rows, row)
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
 func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
 	for _, l := range logs {
 		fmt.Println(l.Name)

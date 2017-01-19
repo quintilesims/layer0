@@ -74,6 +74,10 @@ func (j *JSONPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 	return j.print(loadBalancers)
 }
 
+func (j *JSONPrinter) PrintLoadBalancerSummaries(loadBalancers ...*models.LoadBalancerSummary) error {
+	return j.print(loadBalancers)
+}
+
 func (j *JSONPrinter) PrintLogs(logs ...*models.LogFile) error {
 	return j.print(logs)
 }

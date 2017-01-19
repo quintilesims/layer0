@@ -13,6 +13,7 @@ type Printer interface {
 	PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error
 	PrintJobs(jobs ...*models.Job) error
 	PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) error
+	PrintLoadBalancerSummaries(loadBalancers ...*models.LoadBalancerSummary) error
 	PrintLogs(logs ...*models.LogFile) error
 	PrintServices(services ...*models.Service) error
 	PrintServiceSummaries(services ...*models.ServiceSummary) error

@@ -37,20 +37,24 @@ func NewECSLoadBalancerManager(ec2 ec2.Provider, elb elb.Provider, iam iam.Provi
 }
 
 func (this *ECSLoadBalancerManager) ListLoadBalancers() ([]*models.LoadBalancer, error) {
-	loadBalancers, err := this.ELB.DescribeLoadBalancers()
+	loadBalancerDescriptions, err := this.ELB.DescribeLoadBalancers()
 	if err != nil {
 		return nil, err
 	}
 
-	models := []*models.LoadBalancer{}
-	for _, loadBalancer := range loadBalancers {
-		if name := *loadBalancer.LoadBalancerName; strings.HasPrefix(name, id.PREFIX) {
-			model := this.populateModel(loadBalancer)
-			models = append(models, model)
+	loadBalancers := []*models.LoadBalancer{}
+	for _, description := range loadBalancerDescriptions {
+		if name := *description.LoadBalancerName; strings.HasPrefix(name, id.PREFIX) {
+			ecsLoadBalancerID := id.ECSLoadBalancerID(name)
+			loadBalancer := &models.LoadBalancer{
+				LoadBalancerID: ecsLoadBalancerID.L0LoadBalancerID(),
+			}
+
+			loadBalancers = append(loadBalancers, loadBalancer)
 		}
 	}
 
-	return models, nil
+	return loadBalancers, nil
 }
 
 func (this *ECSLoadBalancerManager) GetLoadBalancer(loadBalancerID string) (*models.LoadBalancer, error) {

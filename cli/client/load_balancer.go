@@ -38,8 +38,8 @@ func (c *APIClient) GetLoadBalancer(id string) (*models.LoadBalancer, error) {
 	return loadBalancer, nil
 }
 
-func (c *APIClient) ListLoadBalancers() ([]*models.LoadBalancer, error) {
-	var loadBalancers []*models.LoadBalancer
+func (c *APIClient) ListLoadBalancers() ([]*models.LoadBalancerSummary, error) {
+	var loadBalancers []*models.LoadBalancerSummary
 	if err := c.Execute(c.Sling("loadbalancer/").Get(""), &loadBalancers); err != nil {
 		return nil, err
 	}

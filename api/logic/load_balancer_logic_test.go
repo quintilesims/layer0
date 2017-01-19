@@ -64,7 +64,7 @@ func TestListLoadBalancers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []*models.LoadBalancer{
+	expected := []*models.LoadBalancerSummary{
 		{
 			LoadBalancerID:   "l1",
 			LoadBalancerName: "lb_1",

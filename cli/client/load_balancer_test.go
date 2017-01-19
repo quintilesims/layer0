@@ -97,7 +97,7 @@ func TestListLoadBalancers(t *testing.T) {
 		testutils.AssertEqual(t, r.Method, "GET")
 		testutils.AssertEqual(t, r.URL.Path, "/loadbalancer/")
 
-		loadBalancers := []models.LoadBalancer{
+		loadBalancers := []models.LoadBalancerSummary{
 			{LoadBalancerID: "id1"},
 			{LoadBalancerID: "id2"},
 		}
