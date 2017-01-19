@@ -313,9 +313,9 @@ func (_mr *_MockClientRecorder) ListServices() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListServices")
 }
 
-func (_m *MockClient) ListTasks() ([]*models.Task, error) {
+func (_m *MockClient) ListTasks() ([]*models.TaskSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListTasks")
-	ret0, _ := ret[0].([]*models.Task)
+	ret0, _ := ret[0].([]*models.TaskSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

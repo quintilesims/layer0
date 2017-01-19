@@ -60,8 +60,8 @@ func (c *APIClient) GetTaskLogs(id string, tail int) ([]*models.LogFile, error) 
 	return logFiles, nil
 }
 
-func (c *APIClient) ListTasks() ([]*models.Task, error) {
-	var tasks []*models.Task
+func (c *APIClient) ListTasks() ([]*models.TaskSummary, error) {
+	var tasks []*models.TaskSummary
 	if err := c.Execute(c.Sling("task/").Get(""), &tasks); err != nil {
 		return nil, err
 	}

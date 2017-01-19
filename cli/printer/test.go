@@ -23,3 +23,4 @@ func (t *TestPrinter) PrintLogs(...*models.LogFile) error                       
 func (t *TestPrinter) PrintServices(...*models.Service) error                          { return nil }
 func (t *TestPrinter) PrintServiceSummaries(...*models.ServiceSummary) error           { return nil }
 func (t *TestPrinter) PrintTasks(...*models.Task) error                                { return nil }
+func (t *TestPrinter) PrintTaskSummaries(...*models.TaskSummary) error     { return nil }
