@@ -219,17 +219,17 @@ func TestGetTaskLogs_userInputErrors(t *testing.T) {
 }
 
 func TestFilterTaskSummaries(t *testing.T) {
-        input := []*models.TaskSummary{
-                {TaskName: "a", TaskID: "a1"},
-                {TaskName: "b", TaskID: "b1"},
-                {TaskID: "nameless1"},
-                {TaskID: "nameless2"},
-        }
+	input := []*models.TaskSummary{
+		{TaskName: "a", TaskID: "a1"},
+		{TaskName: "b", TaskID: "b1"},
+		{TaskID: "nameless1"},
+		{TaskID: "nameless2"},
+	}
 
-        output := filterTaskSummaries(input)
+	output := filterTaskSummaries(input)
 
-        testutils.AssertEqual(t, len(output), 2)
-        // only 'a' and 'b' tasks
+	testutils.AssertEqual(t, len(output), 2)
+	// only 'a' and 'b' tasks
 	testutils.AssertInSlice(t, input[0], output)
-        testutils.AssertInSlice(t, input[1], output)
+	testutils.AssertInSlice(t, input[1], output)
 }
