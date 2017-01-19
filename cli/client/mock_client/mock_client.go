@@ -269,9 +269,9 @@ func (_mr *_MockClientRecorder) ListDeploys() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListDeploys")
 }
 
-func (_m *MockClient) ListEnvironments() ([]*models.Environment, error) {
+func (_m *MockClient) ListEnvironments() ([]*models.EnvironmentSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListEnvironments")
-	ret0, _ := ret[0].([]*models.Environment)
+	ret0, _ := ret[0].([]*models.EnvironmentSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -291,9 +291,9 @@ func (_mr *_MockClientRecorder) ListJobs() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListJobs")
 }
 
-func (_m *MockClient) ListLoadBalancers() ([]*models.LoadBalancer, error) {
+func (_m *MockClient) ListLoadBalancers() ([]*models.LoadBalancerSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListLoadBalancers")
-	ret0, _ := ret[0].([]*models.LoadBalancer)
+	ret0, _ := ret[0].([]*models.LoadBalancerSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -302,9 +302,9 @@ func (_mr *_MockClientRecorder) ListLoadBalancers() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListLoadBalancers")
 }
 
-func (_m *MockClient) ListServices() ([]*models.Service, error) {
+func (_m *MockClient) ListServices() ([]*models.ServiceSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListServices")
-	ret0, _ := ret[0].([]*models.Service)
+	ret0, _ := ret[0].([]*models.ServiceSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

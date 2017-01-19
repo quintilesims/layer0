@@ -266,7 +266,7 @@ func TestListLoadBalancers(t *testing.T) {
 
 	tc.Client.EXPECT().
 		ListLoadBalancers().
-		Return([]*models.LoadBalancer{}, nil)
+		Return([]*models.LoadBalancerSummary{}, nil)
 
 	c := getCLIContext(t, nil, nil)
 	if err := command.List(c); err != nil {

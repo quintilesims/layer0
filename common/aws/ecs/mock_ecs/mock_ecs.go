@@ -180,6 +180,17 @@ func (_mr *_MockProviderRecorder) Helper_DescribeTaskDefinitions(arg0 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Helper_DescribeTaskDefinitions", arg0)
 }
 
+func (_m *MockProvider) Helper_ListServices(_param0 string) ([]*string, error) {
+	ret := _m.ctrl.Call(_m, "Helper_ListServices", _param0)
+	ret0, _ := ret[0].([]*string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockProviderRecorder) Helper_ListServices(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Helper_ListServices", arg0)
+}
+
 func (_m *MockProvider) Helper_ListTaskDefinitions(_param0 string) ([]*string, error) {
 	ret := _m.ctrl.Call(_m, "Helper_ListTaskDefinitions", _param0)
 	ret0, _ := ret[0].([]*string)

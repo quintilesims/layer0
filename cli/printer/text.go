@@ -83,6 +83,17 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 	return nil
 }
 
+func (t *TextPrinter) PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error {
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME"}
+	for _, e := range environments {
+		row := fmt.Sprintf("%s | %s", e.EnvironmentID, e.EnvironmentName)
+		rows = append(rows, row)
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
 func (t *TextPrinter) PrintJobs(jobs ...*models.Job) error {
 	getType := func(j *models.Job) string {
 		jobType := types.JobType(j.JobType).String()
@@ -154,6 +165,29 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 			row := fmt.Sprintf(" | | | | %s | |", getPort(l, i))
 			rows = append(rows, row)
 		}
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
+func (t *TextPrinter) PrintLoadBalancerSummaries(loadBalancers ...*models.LoadBalancerSummary) error {
+	getEnvironment := func(l *models.LoadBalancerSummary) string {
+		if l.EnvironmentName != "" {
+			return l.EnvironmentName
+		}
+
+		return l.EnvironmentID
+	}
+
+	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT"}
+	for _, l := range loadBalancers {
+		row := fmt.Sprintf("%s | %s | %s ",
+			l.LoadBalancerID,
+			l.LoadBalancerName,
+			getEnvironment(l))
+
+		rows = append(rows, row)
 	}
 
 	fmt.Println(columnize.SimpleFormat(rows))
@@ -238,6 +272,29 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 			row := fmt.Sprintf(" | | | %s", getDeployment(s, i))
 			rows = append(rows, row)
 		}
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
+func (t *TextPrinter) PrintServiceSummaries(services ...*models.ServiceSummary) error {
+	getEnvironment := func(s *models.ServiceSummary) string {
+		if s.EnvironmentName != "" {
+			return s.EnvironmentName
+		}
+
+		return s.EnvironmentID
+	}
+
+	rows := []string{"SERVICE ID | SERVICE NAME | ENVIRONMENT"}
+	for _, s := range services {
+		row := fmt.Sprintf("%s | %s | %s ",
+			s.ServiceID,
+			s.ServiceName,
+			getEnvironment(s))
+
+		rows = append(rows, row)
 	}
 
 	fmt.Println(columnize.SimpleFormat(rows))

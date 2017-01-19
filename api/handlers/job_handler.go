@@ -30,13 +30,13 @@ func (j *JobHandler) Routes() *restful.WebService {
 
 	service.Route(service.GET("/").
 		Filter(basicAuthenticate).
-		To(j.SelectAll).
+		To(j.ListJobs).
 		Doc("List all Jobs").
 		Returns(200, "OK", []models.Job{}))
 
 	service.Route(service.GET("{id}").
 		Filter(basicAuthenticate).
-		To(j.SelectByID).
+		To(j.GetJob).
 		Doc("Return a single Job").
 		Param(id).
 		Writes(models.Job{}))
@@ -51,8 +51,8 @@ func (j *JobHandler) Routes() *restful.WebService {
 	return service
 }
 
-func (j *JobHandler) SelectAll(request *restful.Request, response *restful.Response) {
-	jobs, err := j.JobLogic.SelectAll()
+func (j *JobHandler) ListJobs(request *restful.Request, response *restful.Response) {
+	jobs, err := j.JobLogic.ListJobs()
 	if err != nil {
 		ReturnError(response, err)
 		return
@@ -61,7 +61,7 @@ func (j *JobHandler) SelectAll(request *restful.Request, response *restful.Respo
 	response.WriteAsJson(jobs)
 }
 
-func (j *JobHandler) SelectByID(request *restful.Request, response *restful.Response) {
+func (j *JobHandler) GetJob(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("id")
 	if id == "" {
 		err := fmt.Errorf("Parameter 'id' is required")
@@ -69,7 +69,7 @@ func (j *JobHandler) SelectByID(request *restful.Request, response *restful.Resp
 		return
 	}
 
-	job, err := j.JobLogic.SelectByID(id)
+	job, err := j.JobLogic.GetJob(id)
 	if err != nil {
 		ReturnError(response, err)
 		return

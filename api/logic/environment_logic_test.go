@@ -62,7 +62,7 @@ func TestListEnvironments(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []*models.Environment{
+	expected := []*models.EnvironmentSummary{
 		{
 			EnvironmentID:   "e1",
 			EnvironmentName: "env_1",

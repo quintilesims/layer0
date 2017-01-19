@@ -61,9 +61,9 @@ func (_mr *_MockLoadBalancerLogicRecorder) GetLoadBalancer(arg0 interface{}) *go
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetLoadBalancer", arg0)
 }
 
-func (_m *MockLoadBalancerLogic) ListLoadBalancers() ([]*models.LoadBalancer, error) {
+func (_m *MockLoadBalancerLogic) ListLoadBalancers() ([]*models.LoadBalancerSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListLoadBalancers")
-	ret0, _ := ret[0].([]*models.LoadBalancer)
+	ret0, _ := ret[0].([]*models.LoadBalancerSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

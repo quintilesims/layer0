@@ -62,6 +62,10 @@ func (j *JSONPrinter) PrintEnvironments(environments ...*models.Environment) err
 	return j.print(environments)
 }
 
+func (j *JSONPrinter) PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error {
+	return j.print(environments)
+}
+
 func (j *JSONPrinter) PrintJobs(jobs ...*models.Job) error {
 	return j.print(jobs)
 }
@@ -70,11 +74,19 @@ func (j *JSONPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 	return j.print(loadBalancers)
 }
 
+func (j *JSONPrinter) PrintLoadBalancerSummaries(loadBalancers ...*models.LoadBalancerSummary) error {
+	return j.print(loadBalancers)
+}
+
 func (j *JSONPrinter) PrintLogs(logs ...*models.LogFile) error {
 	return j.print(logs)
 }
 
 func (j *JSONPrinter) PrintServices(services ...*models.Service) error {
+	return j.print(services)
+}
+
+func (j *JSONPrinter) PrintServiceSummaries(services ...*models.ServiceSummary) error {
 	return j.print(services)
 }
 
