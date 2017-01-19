@@ -9,22 +9,40 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"strings"
 	"syscall"
 	"testing"
 )
+
+func startSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTestContext {
+	t.Parallel()
+
+	if vars == nil {
+		vars = map[string]string{}
+	}
+
+	// add default terraform variables
+	vars["endpoint"] = config.APIEndpoint()
+	vars["token"] = config.AuthToken()
+
+	c := NewSystemTestContext(t, dir, vars)
+	c.Apply()
+
+	return c
+}
 
 type SystemTestContext struct {
 	T        *testing.T
 	Dir      string
 	Client   *client.APIClient
 	Resolver *command.TagResolver
+	Vars     map[string]string
 }
 
-// todo: tfvars - Should we just use env vars - TF_VAR_token/endpoint?
-func NewSystemTestContext(t *testing.T, dir string) *SystemTestContext {
+func NewSystemTestContext(t *testing.T, dir string, vars map[string]string) *SystemTestContext {
 	apiClient := client.NewAPIClient(client.Config{
-		Endpoint:      config.APIEndpoint(),
-		Token:         fmt.Sprintf("Basic %s", config.AuthToken()),
+		Endpoint: config.APIEndpoint(),
+		Token:    fmt.Sprintf("Basic %s", config.AuthToken()),
 	})
 
 	return &SystemTestContext{
@@ -32,6 +50,7 @@ func NewSystemTestContext(t *testing.T, dir string) *SystemTestContext {
 		Dir:      dir,
 		Client:   apiClient,
 		Resolver: command.NewTagResolver(apiClient),
+		Vars:     vars,
 	}
 }
 
@@ -45,8 +64,12 @@ func (s *SystemTestContext) GetEnvironment(name string) *models.Environment {
 	return environment
 }
 
-func (s *SystemTestContext) GetLoadBalancer(name string) *models.LoadBalancer {
-	id := s.resolve("load_balancer", name)
+func (s *SystemTestContext) GetLoadBalancer(environmentID, target string) *models.LoadBalancer {
+	if environmentID != "" {
+		target = fmt.Sprintf("%s:%s", environmentID, target)
+	}
+
+	id := s.resolve("load_balancer", target)
 	loadBalancer, err := s.Client.GetLoadBalancer(id)
 	if err != nil {
 		s.T.Fatal(err)
@@ -55,8 +78,12 @@ func (s *SystemTestContext) GetLoadBalancer(name string) *models.LoadBalancer {
 	return loadBalancer
 }
 
-func (s *SystemTestContext) GetService(name string) *models.Service {
-	id := s.resolve("service", name)
+func (s *SystemTestContext) GetService(environmentID, target string) *models.Service {
+	if environmentID != "" {
+		target = fmt.Sprintf("%s:%s", environmentID, target)
+	}
+
+	id := s.resolve("service", target)
 	service, err := s.Client.GetService(id)
 	if err != nil {
 		s.T.Fatal(err)
@@ -83,39 +110,53 @@ func (s *SystemTestContext) resolve(entityType, name string) string {
 }
 
 func (s *SystemTestContext) Apply() {
-	print("!!! WARNING: USING TERRAFORM PLAN INSTEAD OF APPLY !!!\n")
-	s.run("terraform", "apply")
+	if *dry {
+		s.runTerraform("plan")
+		return
+	}
+
+	s.runTerraform("apply")
 }
 
 func (s *SystemTestContext) Destroy() {
-	s.run("terraform", "destroy", "-force")
+	if *dry {
+		s.runTerraform("plan", "-destroy")
+		return
+	}
+
+	s.runTerraform("destroy", "-force")
 }
 
-func (s *SystemTestContext) run(name string, args ...string) {
-	cmd := exec.Command(name, args...)
+func (s *SystemTestContext) runTerraform(args ...string) {
+	// set terraform environment variables using TF_VAR_<var>
+	env := []string{}
+	for k, v := range s.Vars {
+		env = append(env, fmt.Sprintf("TF_VAR_%s=%s", k, v))
+	}
+
+	cmd := exec.Command("terraform", args...)
 	cmd.Dir = s.Dir
+	cmd.Env = env
 
-	// todo: send stdout to t.Log()  so it only shows up with 'go test -v'
-	cmd.Stdin = os.Stdin
-	cmd.Stdout = os.Stdout
-	cmd.Stderr = os.Stderr
-
-	s.cleanupCommandOnSIGTERM(cmd)
-
-	if err := cmd.Start(); err != nil {
-		s.T.Fatal(err)
-	}
-
-	if err := cmd.Wait(); err != nil {
-		s.T.Fatal(err)
-	}
-}
-
-func (s *SystemTestContext) cleanupCommandOnSIGTERM(cmd *exec.Cmd) {
-	c := make(chan os.Signal, 2)
-	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	// kill the process if a SIGTERM signal is sent
+	sigtermChan := make(chan os.Signal, 2)
+	signal.Notify(sigtermChan, os.Interrupt, syscall.SIGTERM)
 	go func() {
-		<-c
+		<-sigtermChan
 		cmd.Process.Kill()
 	}()
+
+	if verbose {
+		fmt.Printf("Running terraform %s from %s \n", args[0], cmd.Dir)
+	}
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		text := fmt.Sprintf("Error running terraform %s from %s: %v\n", args[0], cmd.Dir, err)
+		for _, line := range strings.Split(string(output), "\n") {
+			text += line + "\n"
+		}
+
+		s.T.Fatal(text)
+	}
 }

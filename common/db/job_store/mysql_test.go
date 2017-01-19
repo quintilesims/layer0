@@ -1,6 +1,8 @@
 package job_store
 
 import (
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/common/types"
@@ -54,7 +56,10 @@ func getTestJobs() []*models.Job {
 }
 
 func NewTestJobStore(t *testing.T) *MysqlJobStore {
-	store := NewMysqlJobStore(testutils.GetDBConfig())
+	store := NewMysqlJobStore(db.Config{
+		Connection: config.DBConnection(),
+		DBName:     config.DBName(),
+	})
 
 	if err := store.Init(); err != nil {
 		t.Fatal(err)

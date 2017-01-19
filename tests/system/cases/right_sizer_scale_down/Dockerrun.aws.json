@@ -1,0 +1,17 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+        {
+            "name": "baxter",
+            "image": "baxter",
+            "essential": true,
+            "memory": 128,
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80
+                }
+            ]
+        }
+    ]
+}
