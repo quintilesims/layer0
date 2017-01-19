@@ -12,11 +12,11 @@ import (
 )
 
 func TestListServices(t *testing.T) {
-	services := []*models.Service{
-		&models.Service{
+	services := []*models.ServiceSummary{
+		{
 			ServiceID: "some_id_1",
 		},
-		&models.Service{
+		{
 			ServiceID: "some_id_2",
 		},
 	}
@@ -39,7 +39,7 @@ func TestListServices(t *testing.T) {
 				handler := target.(*ServiceHandler)
 				handler.ListServices(req, resp)
 
-				var response []*models.Service
+				var response []*models.ServiceSummary
 				read(&response)
 
 				reporter.AssertEqual(response, services)

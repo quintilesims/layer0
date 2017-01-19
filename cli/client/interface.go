@@ -14,7 +14,7 @@ type Client interface {
 	CreateEnvironment(name, instanceSize string, minCount int, userData []byte) (*models.Environment, error)
 	DeleteEnvironment(id string) (string, error)
 	GetEnvironment(id string) (*models.Environment, error)
-	ListEnvironments() ([]*models.Environment, error)
+	ListEnvironments() ([]*models.EnvironmentSummary, error)
 	UpdateEnvironment(id string, minCount int) (*models.Environment, error)
 
 	Delete(id string) error
@@ -33,7 +33,7 @@ type Client interface {
 	UpdateService(serviceID, deployID string) (*models.Service, error)
 	GetService(id string) (*models.Service, error)
 	GetServiceLogs(id string, tail int) ([]*models.LogFile, error)
-	ListServices() ([]*models.Service, error)
+	ListServices() ([]*models.ServiceSummary, error)
 	ScaleService(id string, scale int) (*models.Service, error)
 	WaitForDeployment(serviceID string, timeout time.Duration) (*models.Service, error)
 

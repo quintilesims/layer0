@@ -110,7 +110,7 @@ func TestListServices(t *testing.T) {
 		testutils.AssertEqual(t, r.Method, "GET")
 		testutils.AssertEqual(t, r.URL.Path, "/service/")
 
-		services := []models.Service{
+		services := []models.ServiceSummary{
 			{ServiceID: "id1"},
 			{ServiceID: "id2"},
 		}

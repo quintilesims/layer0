@@ -15,9 +15,11 @@ func (t *TestPrinter) Fatalf(int64, string, ...interface{})                     
 func (t *TestPrinter) PrintDeploys(...*models.Deploy) error                            { return nil }
 func (t *TestPrinter) PrintDeploySummaries(...*models.DeploySummary) error             { return nil }
 func (t *TestPrinter) PrintEnvironments(...*models.Environment) error                  { return nil }
+func (t *TestPrinter) PrintEnvironmentSummaries(...*models.EnvironmentSummary) error   { return nil }
 func (t *TestPrinter) PrintJobs(...*models.Job) error                                  { return nil }
 func (t *TestPrinter) PrintLoadBalancers(...*models.LoadBalancer) error                { return nil }
 func (t *TestPrinter) PrintLoadBalancerSummaries(...*models.LoadBalancerSummary) error { return nil }
 func (t *TestPrinter) PrintLogs(...*models.LogFile) error                              { return nil }
 func (t *TestPrinter) PrintServices(...*models.Service) error                          { return nil }
+func (t *TestPrinter) PrintServiceSummaries(...*models.ServiceSummary) error           { return nil }
 func (t *TestPrinter) PrintTasks(...*models.Task) error                                { return nil }
