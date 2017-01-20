@@ -12,6 +12,7 @@ import (
 	"strings"
 	"syscall"
 	"testing"
+	"time"
 )
 
 func startSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTestContext {
@@ -51,6 +52,20 @@ func NewSystemTestContext(t *testing.T, dir string, vars map[string]string) *Sys
 		Client:   apiClient,
 		Resolver: command.NewTagResolver(apiClient),
 		Vars:     vars,
+	}
+}
+
+func (s *SystemTestContext) WaitForAllDeployments(timeout time.Duration) {
+	services, err := s.Client.ListServices()
+	if err != nil {
+		s.T.Fatal(err)
+	}
+
+	for _, service := range services {
+		print("Waiting for service deployment ", service.ServiceID)
+		if _, err := s.Client.WaitForDeployment(service.ServiceID, timeout); err != nil {
+			s.T.Fatal(err)
+		}
 	}
 }
 

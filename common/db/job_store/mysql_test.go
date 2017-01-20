@@ -58,7 +58,7 @@ func getTestJobs() []*models.Job {
 func NewTestJobStore(t *testing.T) *MysqlJobStore {
 	store := NewMysqlJobStore(db.Config{
 		Connection: config.DBConnection(),
-		DBName:     config.DBName(),
+		DBName:     config.DBName() + "_job_store",
 	})
 
 	if err := store.Init(); err != nil {

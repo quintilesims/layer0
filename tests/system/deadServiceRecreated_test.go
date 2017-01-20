@@ -11,6 +11,7 @@ func TestDeadServiceRecreated(t *testing.T) {
 	c := startSystemTest(t, "cases/dead_service_recreated", nil)
 	defer c.Destroy()
 
+	c.WaitForAllDeployments(time.Minute * 5)
 	/*
 		env := c.GetEnvironment("dsr")
 		svc := c.GetService(env.EnvironmentID, "baxter")

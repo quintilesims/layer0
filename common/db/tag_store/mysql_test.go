@@ -31,7 +31,7 @@ func getTestTags() models.Tags {
 func NewTestTagStore(t *testing.T) *MysqlTagStore {
 	store := NewMysqlTagStore(db.Config{
 		Connection: config.DBConnection(),
-		DBName:     config.DBName(),
+		DBName:     config.DBName() + "_tag_store",
 	})
 
 	if err := store.Init(); err != nil {
