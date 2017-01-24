@@ -7,6 +7,7 @@ import (
 type AdminLogic interface {
 	UpdateSQL() error
 	GetHealth() (string, error)
+	RunRightSizer() error
 }
 
 type L0AdminLogic struct {
@@ -19,6 +20,10 @@ func NewL0AdminLogic(lgc Logic) *L0AdminLogic {
 
 func (a *L0AdminLogic) GetHealth() (string, error) {
 	return a.Backend.GetRightSizerHealth()
+}
+
+func (a L0AdminLogic) RunRightSizer() error {
+	return	a.Backend.RunRightSizer()
 }
 
 func (a *L0AdminLogic) UpdateSQL() error {

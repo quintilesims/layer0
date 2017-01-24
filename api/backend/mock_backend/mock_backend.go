@@ -277,6 +277,16 @@ func (_mr *_MockBackendRecorder) ListTasks() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListTasks")
 }
 
+func (_m *MockBackend) RunRightSizer() error {
+	ret := _m.ctrl.Call(_m, "RunRightSizer")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockBackendRecorder) RunRightSizer() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunRightSizer")
+}
+
 func (_m *MockBackend) ScaleService(_param0 string, _param1 string, _param2 int) (*models.Service, error) {
 	ret := _m.ctrl.Call(_m, "ScaleService", _param0, _param1, _param2)
 	ret0, _ := ret[0].(*models.Service)

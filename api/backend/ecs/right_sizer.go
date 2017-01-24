@@ -40,7 +40,7 @@ func (this *ECSRightSizer) StartRightSizer() {
 	go func() {
 		for {
 			this.lastRunTime = this.Clock.Now()
-			if err := this.run(); err != nil {
+			if err := this.RunRightSizer(); err != nil {
 				rsLogger.Errorf("%v", err)
 			}
 
@@ -49,7 +49,7 @@ func (this *ECSRightSizer) StartRightSizer() {
 	}()
 }
 
-func (this *ECSRightSizer) run() error {
+func (this *ECSRightSizer) RunRightSizer() error {
 	environments, err := this.Backend.ListEnvironments()
 	if err != nil {
 		return err
