@@ -2,8 +2,8 @@
     "AWSEBDockerrunVersion": 2,
     "containerDefinitions": [
         {
-            "name": "baxter",
-            "image": "baxter",
+            "name": "sts",
+            "image": "quintilesims/sts",
             "essential": true,
             "memory": 128,
             "portMappings": [

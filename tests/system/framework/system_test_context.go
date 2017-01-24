@@ -1,4 +1,4 @@
-package system
+package framework
 
 import (
 	"fmt"
@@ -6,71 +6,58 @@ import (
 	"github.com/quintilesims/layer0/cli/command"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
+	stsclient "github.com/quintilesims/layer0/tests/system/sts/client"
 	"os"
 	"os/exec"
 	"os/signal"
 	"strings"
 	"syscall"
 	"testing"
-	"time"
 )
 
-func startSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTestContext {
-	t.Parallel()
-
-	if vars == nil {
-		vars = map[string]string{}
-	}
-
-	// add default terraform variables
-	vars["endpoint"] = config.APIEndpoint()
-	vars["token"] = config.AuthToken()
-
-	c := NewSystemTestContext(t, dir, vars)
-	c.Apply()
-
-	return c
+type Config struct {
+	T       *testing.T
+	Dir     string
+	DryRun  bool
+	Verbose bool
+	Vars    map[string]string
 }
 
 type SystemTestContext struct {
 	T        *testing.T
 	Dir      string
+	DryRun   bool
+	Verbose  bool
+	Vars     map[string]string
 	Client   *client.APIClient
 	Resolver *command.TagResolver
-	Vars     map[string]string
 }
 
-func NewSystemTestContext(t *testing.T, dir string, vars map[string]string) *SystemTestContext {
+func NewSystemTestContext(c Config) *SystemTestContext {
 	apiClient := client.NewAPIClient(client.Config{
 		Endpoint: config.APIEndpoint(),
 		Token:    fmt.Sprintf("Basic %s", config.AuthToken()),
 	})
 
 	return &SystemTestContext{
-		T:        t,
-		Dir:      dir,
+		T:        c.T,
+		Dir:      c.Dir,
+		DryRun:   c.DryRun,
+		Verbose:  c.Verbose,
+		Vars:     c.Vars,
 		Client:   apiClient,
 		Resolver: command.NewTagResolver(apiClient),
-		Vars:     vars,
 	}
 }
 
-func (s *SystemTestContext) WaitForAllDeployments(timeout time.Duration) {
-	services, err := s.Client.ListServices()
-	if err != nil {
-		s.T.Fatal(err)
-	}
-
-	for _, service := range services {
-		print("Waiting for service deployment ", service.ServiceID)
-		if _, err := s.Client.WaitForDeployment(service.ServiceID, timeout); err != nil {
-			s.T.Fatal(err)
-		}
-	}
+func (s *SystemTestContext) GetSystemTestService(environmentName, loadBalancerName string) *stsclient.SystemTestService {
+	env := s.GetEnvironment(environmentName)
+	lb := s.GetLoadBalancer(env.EnvironmentID, loadBalancerName)
+	return stsclient.NewSystemTestService(s.T, lb.URL)
 }
 
-func (s *SystemTestContext) GetEnvironment(name string) *models.Environment {
-	id := s.resolve("environment", name)
+func (s *SystemTestContext) GetEnvironment(target string) *models.Environment {
+	id := s.resolve("environment", target)
 	environment, err := s.Client.GetEnvironment(id)
 	if err != nil {
 		s.T.Fatal(err)
@@ -79,9 +66,9 @@ func (s *SystemTestContext) GetEnvironment(name string) *models.Environment {
 	return environment
 }
 
-func (s *SystemTestContext) GetLoadBalancer(environmentID, target string) *models.LoadBalancer {
-	if environmentID != "" {
-		target = fmt.Sprintf("%s:%s", environmentID, target)
+func (s *SystemTestContext) GetLoadBalancer(environment, target string) *models.LoadBalancer {
+	if environment != "" {
+		target = fmt.Sprintf("%s:%s", environment, target)
 	}
 
 	id := s.resolve("load_balancer", target)
@@ -93,9 +80,9 @@ func (s *SystemTestContext) GetLoadBalancer(environmentID, target string) *model
 	return loadBalancer
 }
 
-func (s *SystemTestContext) GetService(environmentID, target string) *models.Service {
-	if environmentID != "" {
-		target = fmt.Sprintf("%s:%s", environmentID, target)
+func (s *SystemTestContext) GetService(environment, target string) *models.Service {
+	if environment != "" {
+		target = fmt.Sprintf("%s:%s", environment, target)
 	}
 
 	id := s.resolve("service", target)
@@ -125,7 +112,7 @@ func (s *SystemTestContext) resolve(entityType, name string) string {
 }
 
 func (s *SystemTestContext) Apply() {
-	if *dry {
+	if s.DryRun {
 		s.runTerraform("plan")
 		return
 	}
@@ -134,7 +121,7 @@ func (s *SystemTestContext) Apply() {
 }
 
 func (s *SystemTestContext) Destroy() {
-	if *dry {
+	if s.DryRun {
 		s.runTerraform("plan", "-destroy")
 		return
 	}
@@ -154,14 +141,14 @@ func (s *SystemTestContext) runTerraform(args ...string) {
 	cmd.Env = env
 
 	// kill the process if a SIGTERM signal is sent
-	sigtermChan := make(chan os.Signal, 2)
+	sigtermChan := make(chan os.Signal)
 	signal.Notify(sigtermChan, os.Interrupt, syscall.SIGTERM)
 	go func() {
 		<-sigtermChan
 		cmd.Process.Kill()
 	}()
 
-	if verbose {
+	if s.Verbose {
 		fmt.Printf("Running terraform %s from %s \n", args[0], cmd.Dir)
 	}
 

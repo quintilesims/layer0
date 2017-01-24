@@ -2,23 +2,21 @@ package system
 
 import (
 	"testing"
+	"time"
 )
 
-// todo: use terraform modules to reduce layer0.tf duplication
 func TestRightSizerScaleUp(t *testing.T) {
 	c := startSystemTest(t, "cases/right_sizer_scale_up", nil)
 	defer c.Destroy()
 
-	/*
-		env := c.GetEnvironment("rssu")
-		svc := c.GetService(env.EnvironmentID, "baxter")
-		//lb := c.GetLoadBalancer(env.EnvironmentID, "baxter")
+	svc := c.GetService("rssu", "sts")
+	if _, err := c.Client.ScaleService(svc.ServiceID, 3); err != nil {
+		t.Fatal(err)
+	}
 
-		t.Log("Waiting up to 5 minutes for service to be running")
-		waitFor(t, time.Minute*5, func() bool {
-			print("waiting for service to be running")
-			svc = c.GetService("", svc.ServiceID)
-			return svc.RunningCount == 1
-		})
-	*/
+	// wait up to 5 minutes for the cluster to scale up
+	waitFor(t, "Cluster to Scale Up", time.Minute, func() bool {
+		env := c.GetEnvironment("rssu")
+		return env.ClusterCount == 3
+	})
 }
