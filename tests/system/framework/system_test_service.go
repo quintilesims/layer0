@@ -1,9 +1,9 @@
-package sts
+package framework
 
 import (
 	"fmt"
 	"github.com/dghubble/sling"
-	"github.com/quintilesims/layer0/tests/system/sts/api/models"
+	"github.com/quintilesims/sts/models"
 	"testing"
 )
 

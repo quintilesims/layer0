@@ -6,7 +6,6 @@ import (
 	"github.com/quintilesims/layer0/cli/command"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
-	stsclient "github.com/quintilesims/layer0/tests/system/sts/client"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -50,10 +49,10 @@ func NewSystemTestContext(c Config) *SystemTestContext {
 	}
 }
 
-func (s *SystemTestContext) GetSystemTestService(environmentName, loadBalancerName string) *stsclient.SystemTestService {
+func (s *SystemTestContext) GetSystemTestService(environmentName, loadBalancerName string) *SystemTestService {
 	env := s.GetEnvironment(environmentName)
 	lb := s.GetLoadBalancer(env.EnvironmentID, loadBalancerName)
-	return stsclient.NewSystemTestService(s.T, lb.URL)
+	return NewSystemTestService(s.T, lb.URL)
 }
 
 func (s *SystemTestContext) GetEnvironment(target string) *models.Environment {
