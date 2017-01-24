@@ -15,7 +15,7 @@ func TestRightSizerScaleUp(t *testing.T) {
 	}
 
 	// wait up to 5 minutes for the cluster to scale up
-	waitFor(t, "Cluster to Scale Up", time.Minute, func() bool {
+	waitFor(t, "Cluster to Scale Up", time.Minute*5, func() bool {
 		env := c.GetEnvironment("rssu")
 		return env.ClusterCount == 3
 	})

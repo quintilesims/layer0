@@ -6,10 +6,8 @@ import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/tests/system/framework"
 	"os"
-	"os/signal"
 	"path/filepath"
 	"strings"
-	"syscall"
 	"testing"
 	"time"
 )
@@ -33,16 +31,6 @@ func setup() {
 	if v := flag.Lookup("test.v"); v != nil {
 		verbose = v.Value.String() == "true"
 	}
-
-	sigtermChan := make(chan os.Signal)
-	signal.Notify(sigtermChan, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-sigtermChan
-		fmt.Println("\nInterrupt received. Shutting down")
-		// todo: wait for subprocesses to die instead of just waiting here
-		time.Sleep(time.Second * 1)
-		os.Exit(1)
-	}()
 }
 
 func teardown() {

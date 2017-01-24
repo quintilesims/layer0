@@ -6,11 +6,8 @@ import (
 	"github.com/quintilesims/layer0/cli/command"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
-	"os"
 	"os/exec"
-	"os/signal"
 	"strings"
-	"syscall"
 	"testing"
 )
 
@@ -138,14 +135,6 @@ func (s *SystemTestContext) runTerraform(args ...string) {
 	cmd := exec.Command("terraform", args...)
 	cmd.Dir = s.Dir
 	cmd.Env = env
-
-	// kill the process if a SIGTERM signal is sent
-	sigtermChan := make(chan os.Signal)
-	signal.Notify(sigtermChan, os.Interrupt, syscall.SIGTERM)
-	go func() {
-		<-sigtermChan
-		cmd.Process.Kill()
-	}()
 
 	if s.Verbose {
 		fmt.Printf("Running terraform %s from %s \n", args[0], cmd.Dir)
