@@ -139,7 +139,7 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 	}
 
 	getPort := func(l *models.LoadBalancer, i int) string {
-		if len(l.Ports) < i-1 {
+		if i > len(l.Ports)-1 {
 			return ""
 		}
 
@@ -229,7 +229,7 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 	}
 
 	getDeployment := func(s *models.Service, i int) string {
-		if len(s.Deployments) < i-1 {
+		if i > len(s.Deployments)-1 {
 			return ""
 		}
 
