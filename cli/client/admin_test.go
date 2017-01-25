@@ -67,17 +67,17 @@ func TestUpdateSQL(t *testing.T) {
 }
 
 func TestRunRightSizer(t *testing.T) {
-        handler := func(w http.ResponseWriter, r *http.Request) {
-                testutils.AssertEqual(t, r.Method, "POST")
-                testutils.AssertEqual(t, r.URL.Path, "/admin/health")
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		testutils.AssertEqual(t, r.Method, "POST")
+		testutils.AssertEqual(t, r.URL.Path, "/admin/health")
 
-                MarshalAndWrite(t, w, "", 200)
-        }
+		MarshalAndWrite(t, w, "", 200)
+	}
 
-        client, server := newClientAndServer(handler)
-        defer server.Close()
+	client, server := newClientAndServer(handler)
+	defer server.Close()
 
-        if err := client.RunRightSizer(); err != nil {
-                t.Fatal(err)
-        }
+	if err := client.RunRightSizer(); err != nil {
+		t.Fatal(err)
+	}
 }

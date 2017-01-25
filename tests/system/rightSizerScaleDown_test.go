@@ -15,12 +15,12 @@ func TestRightSizerScaleDown(t *testing.T) {
 	}
 
 	// wait up to 3 minutes for the service to scale down
-        waitFor(t, "Service to scale down", time.Minute*3, func() bool {
-                svc := c.GetService("rssd", "sts")
-                return svc.RunningCount == 1
-        })
+	waitFor(t, "Service to scale down", time.Minute*3, func() bool {
+		svc := c.GetService("rssd", "sts")
+		return svc.RunningCount == 1
+	})
 
-	if err := c.Client.RunRightSizer(); err != nil{
+	if err := c.Client.RunRightSizer(); err != nil {
 		t.Fatal(err)
 	}
 

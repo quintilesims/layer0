@@ -23,7 +23,7 @@ func (a *L0AdminLogic) GetHealth() (string, error) {
 }
 
 func (a L0AdminLogic) RunRightSizer() error {
-	return	a.Backend.RunRightSizer()
+	return a.Backend.RunRightSizer()
 }
 
 func (a *L0AdminLogic) UpdateSQL() error {
