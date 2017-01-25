@@ -128,7 +128,7 @@ func (this *ECSLoadBalancerManager) DeleteLoadBalancer(loadBalancerID string) er
 
 		waiter := waitutils.Waiter{
 			Name:    fmt.Sprintf("SecurityGroup delete for '%s'", securityGroup),
-			Retries: 30,
+			Retries: 50,
 			Delay:   time.Second * 10,
 			Clock:   this.Clock,
 			Check:   check,
@@ -451,8 +451,8 @@ func (this *ECSLoadBalancerManager) upsertSecurityGroup(ecsLoadBalancerID id.ECS
 
 		waiter := waitutils.Waiter{
 			Name:    fmt.Sprintf("SecurityGroup setup for '%s'", ecsLoadBalancerID),
-			Retries: 60,
-			Delay:   time.Second * 1,
+			Retries: 50,
+			Delay:   time.Second * 10,
 			Clock:   this.Clock,
 			Check:   check,
 		}
