@@ -1,4 +1,10 @@
-test:
+SHELL:=/bin/bash
+
+deps:
+	git clone https://github.com/sstephenson/bats.git
+	./bats/install.sh ~/bin
+
+test: deps
 	bats admin.bats
 	bats deploy.bats
 	bats environment.bats
@@ -7,4 +13,4 @@ test:
 	bats service.bats
 	bats task.bats
 
-.PHONY: test
+.PHONY: deps test
