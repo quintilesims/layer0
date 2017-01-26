@@ -1,13 +1,18 @@
 sudo: required
 
+git:
+  depth: 99999
+
 language: go
 
 services:
   - mysql
+  - docker
 
 before_install:
-  - mysql -u root -e "CREATE USER 'layer0'@'127.0.0.1' IDENTIFIED BY 'nohaxplz';"
-  - mysql -u root -e "GRANT ALL ON *.* TO 'layer0'@'127.0.0.1';"
+  - git tag smoketest
+  - docker build -t smoketest . > /dev/null 2>&1
 
 script:
-  - make unittest
+  - docker run smoketest /bin/sh -c "make unittest"
+  - if [ "$TRAVIS_BRANCH" == "master" ]; then docker run -e LAYER0_PREFIX -e TF_VAR_key_pair -e TF_VAR_access_key -e TF_VAR_secret_key -e AWS_ACCESS_KEY_ID -e AWS_SECRET_ACCESS_KEY -e DOCKERHUB_USERNAME -e DOCKERHUB_PASSWORD -v /var/run/docker.sock:/var/run/docker.sock smoketest /bin/sh -c "make full-smoketest; make destroy-smoketest"; else echo "[INFO] Skipping Smoketest"; fi

@@ -375,7 +375,6 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 		settings["service_ami"] = config.AWS_SERVICE_AMI
 	}
 
-	fmt.Println("# Load the following environment variables into your session by running: ")
 	for tfvar, envvar := range settings {
 		val, err := getTerraformOutputVariable(c, false, tfvar)
 		if err != nil {
@@ -397,6 +396,8 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 	if quiet {
 		fmt.Printf(format, config.SKIP_VERSION_VERIFY, "1")
 	}
+	fmt.Println("# Run this command to configure your shell:")
+	fmt.Println("# eval $(./l0-setup endpoint -i", c.Instance, ")")
 
 	return nil
 }

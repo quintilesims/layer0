@@ -1,3 +1,7 @@
+deps:
+	git clone https://github.com/sstephenson/bats.git
+	./bats/install.sh /usr/local
+
 test:
 	bats admin.bats
 	bats deploy.bats
@@ -7,4 +11,4 @@ test:
 	bats service.bats
 	bats task.bats
 
-.PHONY: test
+.PHONY: deps test
