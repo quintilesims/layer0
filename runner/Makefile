@@ -1,3 +1,4 @@
+SHELL:=/bin/bash
 L0_VERSION?=$(shell git describe --tags)
 RUNNER_DOCKER_IMAGE=quintilesims/l0-runner:$(L0_VERSION)
 

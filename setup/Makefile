@@ -1,5 +1,9 @@
+SHELL:=/bin/bash
 L0_VERSION?=$(shell git describe --tags)
-TERRAFORM_VERSION=0.7.13
+TERRAFORM_VERSION=0.8.5
+
+deps:
+	sudo pip install awscli
 
 build-directories:
 	rm -rf build
@@ -16,16 +20,28 @@ download-terraform: build-directories
 		unzip terraform_$(TERRAFORM_VERSION)_$$os.zip ; \
 		rm terraform_$(TERRAFORM_VERSION)_$$os.zip ; \
 		cd - ; \
-        done
+    done
 
 build: download-terraform
 	CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 go build -ldflags "-s -X main.Version=$(L0_VERSION)" -a -o build/linux/l0-setup .
 	CGO_ENABLED=0 GOOS=darwin  GOARCH=amd64 go build -ldflags "-s -X main.Version=$(L0_VERSION)" -a -o build/darwin/l0-setup .
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -X main.Version=$(L0_VERSION)" -a -o build/windows/l0-setup.exe .
 
+install-smoketest: deps
+	aws s3 cp s3://xfra-layer0/terraform/linux/terraform_$(TERRAFORM_VERSION)_linux.zip .
+	unzip terraform_$(TERRAFORM_VERSION)_linux.zip && rm terraform_$(TERRAFORM_VERSION)_linux.zip
+	sudo cp terraform /usr/local/bin
+	CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 go build -ldflags "-s -X main.Version=$(L0_VERSION)" -a -o ./l0-setup .
+
+apply-smoketest:
+	./l0-setup apply --force smoketest
+
+destroy-smoketest:
+	./l0-setup destroy --force smoketest
+
 release: build
 
 test:
 	go test ./...
 
-.PHONY: build-directories download-terraform build release test
+.PHONY: deps build-directories download-terraform build install-smoketest apply-smoketest destroy-smoketest release test
