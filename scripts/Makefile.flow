@@ -1,0 +1,12 @@
+api:
+	./flow.sh api
+
+runner:
+	./flow.sh runner
+
+push: api runner
+
+delete:
+	./flow.sh delete
+
+.PHONY: api runner push delete
