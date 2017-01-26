@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-
 set -e
 
 # kill all subprocesses on exit
