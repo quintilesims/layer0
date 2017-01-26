@@ -15,4 +15,4 @@ script:
   - ./scripts/ci-smoketest.sh
 
 after_script:
-  - make destroy-smoketest
+  - make destroy smoketest
