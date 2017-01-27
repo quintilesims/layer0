@@ -120,12 +120,28 @@ func (this *ECSServiceManager) DeleteService(environmentID, serviceID string) er
 	ecsServiceID := id.L0ServiceID(serviceID).ECSServiceID()
 	desiredCount := int64(0)
 
-	if err := this.ECS.UpdateService(ecsEnvironmentID.String(), ecsServiceID.String(), nil, &desiredCount); err != nil {
-		return err
+	service, err := this.GetService(environmentID, serviceID)
+        if err != nil {
+                return  err
+        }
+
+        taskARNs := []*string{}
+        for _, deployment := range service.Deployments {
+                arns, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(deployment.DeploymentID))
+                if err != nil {
+                        return err
+                }
+
+                taskARNs = append(taskARNs, arns...)
+        }
+
+	for _, arn := range taskARNs{
+		if err := this.ECS.StopTask(ecsEnvironmentID.String(), "Service deleted by User", *arn); err != nil{
+			log.Warnf("Stop Task for Service '%s' had error: %v", serviceID, err)
+		}
 	}
 
-	log.Debugf("Waiting for service to stop")
-	if err := this.waitUntilServiceStopped(ecsEnvironmentID, ecsServiceID); err != nil {
+	if err := this.ECS.UpdateService(ecsEnvironmentID.String(), ecsServiceID.String(), nil, &desiredCount); err != nil {
 		return err
 	}
 
@@ -310,27 +326,6 @@ func (this *ECSServiceManager) GetServiceLogs(environmentID, serviceID string, t
 	}
 
 	return GetLogs(this.CloudWatchLogs, taskARNs, tail)
-}
-
-func (this *ECSServiceManager) waitUntilServiceStopped(ecsEnvironmentID id.ECSEnvironmentID, ecsServiceID id.ECSServiceID) error {
-	check := func() (bool, error) {
-		service, err := this.ECS.DescribeService(ecsEnvironmentID.String(), ecsServiceID.String())
-		if err != nil {
-			return false, err
-		}
-
-		return int64OrZero(service.RunningCount) == 0, nil
-	}
-
-	waiter := waitutils.Waiter{
-		Name:    fmt.Sprintf("Stop Service %s", ecsServiceID),
-		Retries: 10,
-		Delay:   time.Second * 4,
-		Clock:   this.Clock,
-		Check:   check,
-	}
-
-	return waiter.Wait()
 }
 
 func (this *ECSServiceManager) populateModel(service *ecs.Service) *models.Service {

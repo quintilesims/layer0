@@ -323,7 +323,7 @@ func (this *ECSEnvironmentManager) waitForAutoScalingGroupInactive(ecsEnvironmen
 
 	waiter := waitutils.Waiter{
 		Name:    fmt.Sprintf("Stop Autoscaling %s", autoScalingGroupName),
-		Retries: 30,
+		Retries: 50,
 		Delay:   time.Second * 10,
 		Clock:   this.Clock,
 		Check:   check,
@@ -343,7 +343,7 @@ func (this *ECSEnvironmentManager) waitForSecurityGroupDeleted(securityGroup *ec
 
 	waiter := waitutils.Waiter{
 		Name:    fmt.Sprintf("SecurityGroup delete for '%v'", securityGroup),
-		Retries: 30,
+		Retries: 50,
 		Delay:   time.Second * 10,
 		Clock:   this.Clock,
 		Check:   check,
