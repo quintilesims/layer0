@@ -1,11 +1,6 @@
 deps:
 	git clone https://github.com/sstephenson/bats.git
-	cd bats
-	sudo ./install.sh /usr/local
-
-build:
-	l0-setup apply --force smoketest 
-	eval $(l0-setup endpoint -i)
+	./bats/install.sh /usr/local
 
 test:
 	bats admin.bats
@@ -16,9 +11,4 @@ test:
 	bats service.bats
 	bats task.bats
 
-destroy:
-	l0-setup destroy smoketest
-
-fulltest: build deps test destroy
-
-.PHONY: deps build test destroy fulltest
+.PHONY: deps test

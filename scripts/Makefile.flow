@@ -1,12 +1,15 @@
+deps:
+	docker login -u $(DOCKERHUB_USERNAME) -p $(DOCKERHUB_PASSWORD)
+
 api:
 	./flow.sh api
 
 runner:
 	./flow.sh runner
 
-push: api runner
+push: deps api runner
 
 delete:
 	./flow.sh delete
 
-.PHONY: api runner push delete
+.PHONY: deps api runner push delete

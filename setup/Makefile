@@ -1,5 +1,5 @@
 L0_VERSION?=$(shell git describe --tags)
-TERRAFORM_VERSION=0.7.13
+TERRAFORM_VERSION=0.8.5
 
 build-directories:
 	rm -rf build
