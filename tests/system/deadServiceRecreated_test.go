@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// Test Resources:
+// This test creates an environment named 'dsr' that has a 
+// SystemTestService named 'sts'
 func TestDeadServiceRecreated(t *testing.T) {
 	c := startSystemTest(t, "cases/dead_service_recreated", nil)
 	defer c.Destroy()

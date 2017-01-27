@@ -3,7 +3,9 @@ package system
 import (
 	"flag"
 	"fmt"
+	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/tests/system/framework"
 	"os"
 	"path/filepath"
@@ -13,8 +15,9 @@ import (
 )
 
 var (
-	dry     = flag.Bool("dry", false, "Perform a dry run - don't execute terraform 'apply' commands")
-	verbose = false
+	dry   = flag.Bool("dry", false, "Perform a dry run - don't execute terraform 'apply' commands")
+	debug = flag.Bool("debug", false, "Print debug statements")
+	log   = logutils.NewStandardLogger("Test")
 )
 
 func TestMain(m *testing.M) {
@@ -27,10 +30,11 @@ func TestMain(m *testing.M) {
 func setup() {
 	flag.Parse()
 
-	// use `go test -v` flag to determine verbosity
-	if v := flag.Lookup("test.v"); v != nil {
-		verbose = v.Value.String() == "true"
+	if *debug {
+		logrus.SetLevel(logrus.DebugLevel)
 	}
+	
+	logutils.SetGlobalLogger(log)
 }
 
 func teardown() {
@@ -65,11 +69,10 @@ func startSystemTest(t *testing.T, dir string, vars map[string]string) *framewor
 	vars["token"] = config.AuthToken()
 
 	c := framework.NewSystemTestContext(framework.Config{
-		T:       t,
-		Dir:     dir,
-		DryRun:  *dry,
-		Verbose: verbose,
-		Vars:    vars,
+		T:      t,
+		Dir:    dir,
+		DryRun: *dry,
+		Vars:   vars,
 	})
 
 	c.Apply()
@@ -78,9 +81,7 @@ func startSystemTest(t *testing.T, dir string, vars map[string]string) *framewor
 
 func waitFor(t *testing.T, name string, timeout time.Duration, conditionSatisfied func() bool) {
 	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 1) {
-		if verbose {
-			fmt.Printf("Waiting for '%s' (waited %s of %s)\n", name, time.Since(start), timeout)
-		}
+		log.Debugf("Waiting for '%s' (waited %s of %s)\n", name, time.Since(start), timeout)
 
 		if conditionSatisfied() {
 			return

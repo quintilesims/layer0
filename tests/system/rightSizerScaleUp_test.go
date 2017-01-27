@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// Test Resources:
+// This test creates an environment named 'rssu' that has a
+// SystemTestService named 'sts'
 func TestRightSizerScaleUp(t *testing.T) {
 	c := startSystemTest(t, "cases/right_sizer_scale_up", nil)
 	defer c.Destroy()

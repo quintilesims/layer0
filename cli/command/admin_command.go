@@ -73,7 +73,7 @@ func (a *AdminCommand) Debug(c *cli.Context) error {
 	a.Printer.Printf("API Version:    %v\n", apiVersion)
 	a.Printer.Printf("CLI Version:    %v\n", cliVersion)
 	a.Printer.Printf("CLI Auth:       %v\n", cliAuth)
-	a.Printer.Printf("SSL Verify::    %v\n", sslVerify)
+	a.Printer.Printf("SSL Verify:     %v\n", sslVerify)
 	a.Printer.Printf("Version Verify: %v\n", versionVerify)
 
 	return nil

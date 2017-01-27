@@ -5,6 +5,9 @@ import (
 	"time"
 )
 
+// Test Resources:
+// This test creates an environment named 'rssd' that has a 
+// SystemTestService named 'sts' running at a scale of 3
 func TestRightSizerScaleDown(t *testing.T) {
 	c := startSystemTest(t, "cases/right_sizer_scale_down", nil)
 	defer c.Destroy()

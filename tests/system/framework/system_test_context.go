@@ -2,6 +2,7 @@ package framework
 
 import (
 	"fmt"
+	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/cli/command"
 	"github.com/quintilesims/layer0/common/config"
@@ -12,18 +13,16 @@ import (
 )
 
 type Config struct {
-	T       *testing.T
-	Dir     string
-	DryRun  bool
-	Verbose bool
-	Vars    map[string]string
+	T      *testing.T
+	Dir    string
+	DryRun bool
+	Vars   map[string]string
 }
 
 type SystemTestContext struct {
 	T        *testing.T
 	Dir      string
 	DryRun   bool
-	Verbose  bool
 	Vars     map[string]string
 	Client   *client.APIClient
 	Resolver *command.TagResolver
@@ -39,7 +38,6 @@ func NewSystemTestContext(c Config) *SystemTestContext {
 		T:        c.T,
 		Dir:      c.Dir,
 		DryRun:   c.DryRun,
-		Verbose:  c.Verbose,
 		Vars:     c.Vars,
 		Client:   apiClient,
 		Resolver: command.NewTagResolver(apiClient),
@@ -108,6 +106,9 @@ func (s *SystemTestContext) resolve(entityType, name string) string {
 }
 
 func (s *SystemTestContext) Apply() {
+	// sync terraform modules prior to execution
+	s.runTerraform("get")
+
 	if s.DryRun {
 		s.runTerraform("plan")
 		return
@@ -117,6 +118,9 @@ func (s *SystemTestContext) Apply() {
 }
 
 func (s *SystemTestContext) Destroy() {
+	// sync terraform modules prior to execution
+	s.runTerraform("get")
+
 	if s.DryRun {
 		s.runTerraform("plan", "-destroy")
 		return
@@ -136,9 +140,7 @@ func (s *SystemTestContext) runTerraform(args ...string) {
 	cmd.Dir = s.Dir
 	cmd.Env = env
 
-	if s.Verbose {
-		fmt.Printf("Running terraform %s from %s \n", args[0], cmd.Dir)
-	}
+	logrus.Debugf("Running terraform %s from %s \n", args[0], cmd.Dir)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
