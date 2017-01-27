@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/local/bin/bash
 
 set -e
 
@@ -64,7 +64,7 @@ delete() {
     job_ids=$(l0 -o json job list | jq -r .[].job_id)
     for id in $job_ids; do
         l0 job delete $id
-        echo -e $BULLET "$id" 
+        echo -e $BULLET "$id"
     done
 }
 
@@ -80,7 +80,7 @@ run_jobs() {
             jobs[$!]=$id
         done
 
-        for pid in ${!jobs[@]}; do 
+        for pid in ${!jobs[@]}; do
             wait $pid
             echo -e $BULLET ${jobs[$pid]}
         done

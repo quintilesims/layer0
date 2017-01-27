@@ -429,7 +429,6 @@ func (this *ECS) StartTask(cluster, taskDefinition string, overrides *TaskOverri
 }
 
 func (this *ECS) StopTask(cluster, reason, task string) (err error) {
-
 	input := &ecs.StopTaskInput{
 		Cluster: aws.String(cluster),
 		Reason:  aws.String(reason),

@@ -41,12 +41,12 @@ func (this Waiter) Wait() error {
 			return nil
 		}
 
-		retryStr := fmt.Sprintf("%s", this.Retries)
+		retryStr := fmt.Sprintf("%d", this.Retries)
 		if this.Retries < 0 {
-			retryStr = "∞"
+			retryStr = "<infinite>"
 		}
 
-		log.Debugf("Wait %s iteration %v of %v", this.Name, i+1, retryStr)
+		log.Debugf("Wait %s iteration %d of %s", this.Name, i+1, retryStr)
 		this.Clock.Sleep(this.Delay)
 	}
 

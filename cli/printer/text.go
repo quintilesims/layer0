@@ -139,7 +139,7 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 	}
 
 	getPort := func(l *models.LoadBalancer, i int) string {
-		if len(l.Ports) < i-1 {
+		if i > len(l.Ports)-1 {
 			return ""
 		}
 
@@ -194,6 +194,32 @@ func (t *TextPrinter) PrintLoadBalancerSummaries(loadBalancers ...*models.LoadBa
 	return nil
 }
 
+func (t *TextPrinter) PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBalancer) error {
+	getEnvironment := func(l *models.LoadBalancer) string {
+		if l.EnvironmentName != "" {
+			return l.EnvironmentName
+		}
+
+		return l.EnvironmentID
+	}
+
+	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT | TARGET | INTERVAL | TIMEOUT | HEALTHY THRESHOLD | UNHEALTHY THRESHOLD "}
+	row := fmt.Sprintf("%s | %s | %s | %s | %d | %d | %d | %d",
+		loadBalancer.LoadBalancerID,
+		loadBalancer.LoadBalancerName,
+		getEnvironment(loadBalancer),
+		loadBalancer.HealthCheck.Target,
+		loadBalancer.HealthCheck.Interval,
+		loadBalancer.HealthCheck.Timeout,
+		loadBalancer.HealthCheck.HealthyThreshold,
+		loadBalancer.HealthCheck.UnhealthyThreshold)
+
+	rows = append(rows, row)
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
 func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
 	for _, l := range logs {
 		fmt.Println(l.Name)
@@ -229,7 +255,7 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 	}
 
 	getDeployment := func(s *models.Service, i int) string {
-		if len(s.Deployments) < i-1 {
+		if i > len(s.Deployments)-1 {
 			return ""
 		}
 

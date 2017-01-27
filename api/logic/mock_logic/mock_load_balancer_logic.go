@@ -4,8 +4,8 @@
 package mock_logic
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // Mock of LoadBalancerLogic interface
@@ -72,13 +72,24 @@ func (_mr *_MockLoadBalancerLogicRecorder) ListLoadBalancers() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListLoadBalancers")
 }
 
-func (_m *MockLoadBalancerLogic) UpdateLoadBalancer(_param0 string, _param1 []models.Port) (*models.LoadBalancer, error) {
-	ret := _m.ctrl.Call(_m, "UpdateLoadBalancer", _param0, _param1)
+func (_m *MockLoadBalancerLogic) UpdateLoadBalancerHealthCheck(_param0 string, _param1 models.HealthCheck) (*models.LoadBalancer, error) {
+	ret := _m.ctrl.Call(_m, "UpdateLoadBalancerHealthCheck", _param0, _param1)
 	ret0, _ := ret[0].(*models.LoadBalancer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockLoadBalancerLogicRecorder) UpdateLoadBalancer(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateLoadBalancer", arg0, arg1)
+func (_mr *_MockLoadBalancerLogicRecorder) UpdateLoadBalancerHealthCheck(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateLoadBalancerHealthCheck", arg0, arg1)
+}
+
+func (_m *MockLoadBalancerLogic) UpdateLoadBalancerPorts(_param0 string, _param1 []models.Port) (*models.LoadBalancer, error) {
+	ret := _m.ctrl.Call(_m, "UpdateLoadBalancerPorts", _param0, _param1)
+	ret0, _ := ret[0].(*models.LoadBalancer)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockLoadBalancerLogicRecorder) UpdateLoadBalancerPorts(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateLoadBalancerPorts", arg0, arg1)
 }
