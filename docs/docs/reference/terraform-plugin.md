@@ -1,30 +1,30 @@
 # Layer0 Terraform Provider Reference
 
-Terraform is an open-source tool for provisioning and managing infrastructure. 
+Terraform is an open-source tool for provisioning and managing infrastructure.
 If you are new to Terraform, we recommend checking out their [documentation](https://www.Terraform.io/intro/index.html).
 
 Layer0 has built a custom [provider](https://www.Terraform.io/docs/providers/index.html) for Layer0.
 This provider allows users to create, manage, and update Layer0 entities using Terraform.
 
+## Prerequisites
+To use the Layer0 Terraform provider plugin, first ensure that you have a copy of Terraform and that it is accessible in your system path. A Terraform binary can be found in the `/bin` directory of a [Layer0 release](/releases). Alternatively, you can [download Terraform](https://www.Terraform.io/downloads.html) for the latest version.
+
+The Layer0 Terraform provider plugin in compatible with Terraform v0.2+.
+
 ## Install
-To use the Layer0 Terraform plugin, you will need to [download](https://www.Terraform.io/downloads.html) Terraform. 
-The plugin in compatible with Terraform v0.2+.
+Download a Layer0 v0.8.4+ [release](/releases). The Terraform plugin binary is located in the release zip file as `terraform-provider-layer0`. Copy this `terraform-provider-layer0` binary into the same directory you installed Terraform - and you're done!
 
-Next, you can download the `terraform-provider-layer0` binary from a Layer0 [release](/releases) v0.8.4+. 
-The Terraform plugin binary is located in the release zip file as `terraform-provider-layer0`.
-Copy `terraform-provider-layer0` into the same directory you installed Terraform - and you're done!
-
-For Terraform's documentation on installing a plugin, see the "Installing a Plugin" section [here](https://www.terraform.io/docs/plugins/basics.html).
+For further information, see Terraform's documentation on installing a Terraform plugin [here](https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin).
 
 ## Getting Started
 
-* Checkout the `Terraform` section of the Guestbook walkthrough [here](/guides/guestbook#terraform)
-* We've added some tips and links to helpful resources in the [Best Practices](#best-practices) section below
+* Checkout the `Terraform` section of the Guestbook walkthrough [here](/guides/guestbook#terraform).
+* We've added some tips and links to helpful resources in the [Best Practices](#best-practices) section below.
 
 ---
 
 ##Provider
-The Layer0 provider is used to interact with a Layer0 API. 
+The Layer0 provider is used to interact with a Layer0 API.
 The provider needs to be configured with the proper credentials before it can be used.
 
 ### Example Usage
@@ -46,7 +46,7 @@ provider "layer0" {
 ### Argument Reference
 The following arguments are supported:
 
-!!! note "Configuration" 
+!!! note "Configuration"
 	The `endpoint` and `token` variables for your layer0 api can be found using the [l0-setup endpoint](/reference/setup-cli/#endpoint) command
 
 * `endpoint` - (Required) The endpoint of the layer0 api
@@ -136,11 +136,11 @@ resource "layer0_environment" "demo" {
 The following arguments are supported:
 
 * `name` - (Required) The name of the environment
-* `size` - (Optional, Default: "m3.medium") The size of the instances in the environment. 
+* `size` - (Optional, Default: "m3.medium") The size of the instances in the environment.
 Available instance sizes can be found [here](https://aws.amazon.com/ec2/instance-types/)
 * `min_count` - (Optional, Default: 0) The minimum number of instances allowed in the environment
-* `user-data` - (Optional) The user data template to use for the environment's autoscaling group. 
-See the [cli reference](/reference/cli/#environment) for the default template. 
+* `user-data` - (Optional) The user data template to use for the environment's autoscaling group.
+See the [cli reference](/reference/cli/#environment) for the default template.
 
 ### Attribute Reference
 The following attributes are exported:
@@ -239,20 +239,19 @@ The following attributes are exported:
 * `name` - The name of the service
 * `environment` - The id of the environment the service exists in
 * `deploy` - The id of the deploy the service is running
-* `load_balancer` - The id of the load balancer the service is behind (if `load_balancer` was set) 
+* `load_balancer` - The id of the load balancer the service is behind (if `load_balancer` was set)
 * `scale` - The current desired scale of the service
 
 ---
 
 ## Best Practices
 
-* Always run `Terraform plan` before `terraform apply`. 
-This will show you what action(s) Terraform plans to make before actually executing them. 
-* Use [variables](https://www.Terraform.io/intro/getting-started/variables.html) to reference secrets. 
+* Always run `Terraform plan` before `terraform apply`.
+This will show you what action(s) Terraform plans to make before actually executing them.
+* Use [variables](https://www.Terraform.io/intro/getting-started/variables.html) to reference secrets.
 Secrets can be placed in a file named `Terraform.tfvars`, or by setting `TF_VAR_*` environment variables.
 More information can be found [here](https://www.Terraform.io/intro/getting-started/variables.html).
-* Use Terraform's `remote` command to backup and sync your `terraform.tfstate` file across different members in your organization. 
+* Use Terraform's `remote` command to backup and sync your `terraform.tfstate` file across different members in your organization.
 Terraform has documentation for using S3 as a backend [here](https://www.Terraform.io/docs/state/remote/s3.html).
 * Terraform [modules](https://www.Terraform.io/intro/getting-started/modules.html) allow you to define and consume reusable components.
 * Example configurations can be found [here](https://github.com/hashicorp/Terraform/tree/master/examples)
- 
