@@ -25,5 +25,7 @@ pass_file
 *.save
 coverage.*
 *.tags*
-
 .python-version
+
+# Ignore documentation build output directory
+/docs/

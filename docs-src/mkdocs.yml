@@ -36,6 +36,7 @@ pages:
     - Common Issues: troubleshooting/commonissues.md
     - Secure Shell (SSH): troubleshooting/ssh.md
 
+site_dir: ../docs
 theme_dir: material
 extra:
     version: v0.8.4
