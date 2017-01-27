@@ -8,9 +8,9 @@ import (
 	"github.com/quintilesims/layer0/common/db/job_store"
 	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/common/testutils"
 	"os"
 	"testing"
+	"github.com/quintilesims/layer0/common/db"
 )
 
 func TestMain(m *testing.M) {
@@ -30,8 +30,11 @@ type TestLogic struct {
 func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 
-	config := testutils.GetDBConfig()
-	tagStore := tag_store.NewMysqlTagStore(config)
+	tagStore := tag_store.NewMysqlTagStore(db.Config{
+ 		Connection: config.DBConnection(),
+ 		DBName:     config.DBName() + "_logic",
+ 	})
+
 	if err := tagStore.Init(); err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +43,11 @@ func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
 		t.Fatal(err)
 	}
 
-	jobStore := job_store.NewMysqlJobStore(config)
+	jobStore := job_store.NewMysqlJobStore(db.Config{
+ 		Connection: config.DBConnection(),
+ 		DBName:     config.DBName() + "_logic",
+ 	})
+
 	if err := jobStore.Init(); err != nil {
 		t.Fatal(err)
 	}

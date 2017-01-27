@@ -490,7 +490,7 @@ func (e *ECSLoadBalancerManager) upsertSecurityGroup(ecsLoadBalancerID id.ECSLoa
 			Name:    fmt.Sprintf("SecurityGroup setup for '%s'", ecsLoadBalancerID),
 			Retries: 50,
 			Delay:   time.Second * 10,
-			Clock:   this.Clock,
+			Clock:   e.Clock,
 			Check:   check,
 		}
 
