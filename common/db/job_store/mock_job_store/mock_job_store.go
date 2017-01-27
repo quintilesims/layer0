@@ -4,9 +4,9 @@
 package mock_job_store
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
 	types "github.com/quintilesims/layer0/common/types"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // Mock of JobStore interface
