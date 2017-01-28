@@ -1,5 +1,8 @@
 sudo: required
 
+git:
+  depth: 99999
+
 language: go
 
 services:
@@ -7,6 +10,7 @@ services:
   - docker
 
 before_install:
+  - git fetch --unshallow --tags
   - docker build -t smoketest . > /dev/null 2>&1
 
 script:
