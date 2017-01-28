@@ -10,7 +10,7 @@ services:
   - docker
 
 before_install:
-  - git fetch --unshallow --tags
+  - git fetch --tags
   - docker build -t smoketest . > /dev/null 2>&1
 
 script:
