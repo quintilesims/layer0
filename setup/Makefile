@@ -48,4 +48,4 @@ release: build
 test:
 	go test ./...
 
-.PHONY: build-directories download-terraform build install-smoketest build-smoketest destroy-smoketest release test
+.PHONY: build-directories download-terraform build install-smoketest apply-smoketest destroy-smoketest release test
