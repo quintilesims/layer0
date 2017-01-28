@@ -30,16 +30,12 @@ type Backend interface {
 	DeleteTask(envID, taskID string) error
 	GetTaskLogs(environmentID, taskID string, tail int) ([]*models.LogFile, error)
 
-	CreateCertificate(name, public, private, chain string) (*models.Certificate, error)
-	ListCertificates() ([]*models.Certificate, error)
-	GetCertificate(certificateID string) (*models.Certificate, error)
-	DeleteCertificate(certificateID string) error
-
 	ListLoadBalancers() ([]*models.LoadBalancer, error)
 	GetLoadBalancer(id string) (*models.LoadBalancer, error)
 	DeleteLoadBalancer(id string) error
-	CreateLoadBalancer(loadBalancerName, environmentID string, isPublic bool, ports []models.Port) (*models.LoadBalancer, error)
-	UpdateLoadBalancer(loadBalancerID string, ports []models.Port) (*models.LoadBalancer, error)
+	CreateLoadBalancer(loadBalancerName, environmentID string, isPublic bool, ports []models.Port, healthCheck models.HealthCheck) (*models.LoadBalancer, error)
+	UpdateLoadBalancerPorts(loadBalancerID string, ports []models.Port) (*models.LoadBalancer, error)
+	UpdateLoadBalancerHealthCheck(loadBalancerID string, healthCheck models.HealthCheck) (*models.LoadBalancer, error)
 
 	StartRightSizer()
 	GetRightSizerHealth() (string, error)

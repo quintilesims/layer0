@@ -171,24 +171,24 @@ func TestGetJob(t *testing.T) {
 	RunHandlerTestCases(t, testCases)
 }
 
-func TestDeleteJob(t *testing.T) {
+func TestDelete(t *testing.T) {
 	testCases := []HandlerTestCase{
 		HandlerTestCase{
-			Name: "Should call DeleteJob with proper params",
+			Name: "Should call Delete with proper params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
 			},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockJobLogic(ctrl)
 				logicMock.EXPECT().
-					DeleteJob("some_id").
+					Delete("some_id").
 					Return(nil)
 
 				return NewJobHandler(logicMock)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.DeleteJob(req, resp)
+				handler.Delete(req, resp)
 			},
 		},
 		HandlerTestCase{
@@ -200,7 +200,7 @@ func TestDeleteJob(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.DeleteJob(req, resp)
+				handler.Delete(req, resp)
 
 				var response *models.ServerError
 				read(&response)
@@ -209,21 +209,21 @@ func TestDeleteJob(t *testing.T) {
 			},
 		},
 		HandlerTestCase{
-			Name: "Should propagate DeleteJob error",
+			Name: "Should propagate Delete error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
 			},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockJobLogic(ctrl)
 				logicMock.EXPECT().
-					DeleteJob(gomock.Any()).
+					Delete(gomock.Any()).
 					Return(errors.Newf(errors.UnexpectedError, "some error"))
 
 				return NewJobHandler(logicMock)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*JobHandler)
-				handler.DeleteJob(req, resp)
+				handler.Delete(req, resp)
 
 				var response *models.ServerError
 				read(&response)

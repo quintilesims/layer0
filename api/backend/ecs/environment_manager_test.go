@@ -150,29 +150,11 @@ func TestListEnvironments(t *testing.T) {
 				mockEnvironment := NewMockECSEnvironmentManager(ctrl)
 
 				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
-				autoScalingGroupName := ecsEnvironmentID.AutoScalingGroupName()
 				clusterName := ecsEnvironmentID.String()
-				securityGroupName := ecsEnvironmentID.SecurityGroupName()
 
 				mockEnvironment.ECS.EXPECT().
 					Helper_DescribeClusters().
 					Return([]*ecs.Cluster{ecs.NewCluster(clusterName)}, nil)
-
-				asg := autoscaling.NewGroup()
-				asg.LaunchConfigurationName = stringp(clusterName)
-
-				mockEnvironment.AutoScaling.EXPECT().
-					DescribeAutoScalingGroup(autoScalingGroupName).
-					Return(asg, nil)
-
-				mockEnvironment.AutoScaling.EXPECT().
-					DescribeLaunchConfiguration(clusterName).
-					Return(autoscaling.NewLaunchConfiguration("m3.medium"), nil)
-
-				securityGroup := ec2.NewSecurityGroup("some_sg_id")
-				mockEnvironment.EC2.EXPECT().
-					DescribeSecurityGroup(securityGroupName).
-					Return(securityGroup, nil)
 
 				return mockEnvironment.Environment()
 			},

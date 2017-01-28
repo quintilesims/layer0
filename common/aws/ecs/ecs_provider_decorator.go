@@ -161,6 +161,15 @@ func (this *ProviderDecorator) ListServices(p0 string) (v0 []*string, err error)
 	err = this.Decorator("ListServices", call)
 	return v0, err
 }
+func (this *ProviderDecorator) Helper_ListServices(p0 string) (v0 []*string, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.Helper_ListServices(p0)
+		return err
+	}
+	err = this.Decorator("Helper_ListServices", call)
+	return v0, err
+}
 func (this *ProviderDecorator) ListTasks(p0 string, p1 *string, p2 *string, p3 *string, p4 *string) (v0 []*string, err error) {
 	call := func() error {
 		var err error
@@ -260,3 +269,4 @@ func (this *ProviderDecorator) UpdateService(p0 string, p1 string, p2 *string, p
 	err = this.Decorator("UpdateService", call)
 	return err
 }
+

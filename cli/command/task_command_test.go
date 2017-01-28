@@ -176,7 +176,7 @@ func TestListTasks(t *testing.T) {
 
 	tc.Client.EXPECT().
 		ListTasks().
-		Return([]*models.Task{}, nil)
+		Return([]*models.TaskSummary{}, nil)
 
 	c := getCLIContext(t, nil, nil)
 	if err := command.List(c); err != nil {
@@ -216,4 +216,20 @@ func TestGetTaskLogs_userInputErrors(t *testing.T) {
 			t.Fatalf("%s: error was nil!", name)
 		}
 	}
+}
+
+func TestFilterTaskSummaries(t *testing.T) {
+	input := []*models.TaskSummary{
+		{TaskName: "a", TaskID: "a1"},
+		{TaskName: "b", TaskID: "b1"},
+		{TaskID: "nameless1"},
+		{TaskID: "nameless2"},
+	}
+
+	output := filterTaskSummaries(input)
+
+	testutils.AssertEqual(t, len(output), 2)
+	// only 'a' and 'b' tasks
+	testutils.AssertInSlice(t, input[0], output)
+	testutils.AssertInSlice(t, input[1], output)
 }

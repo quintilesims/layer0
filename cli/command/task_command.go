@@ -1,7 +1,6 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/cli/entity"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 	"strings"
@@ -103,7 +102,7 @@ func (t *TaskCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	return t.printTask(task)
+	return t.Printer.PrintTasks(task)
 }
 
 func (t *TaskCommand) Delete(c *cli.Context) error {
@@ -111,27 +110,35 @@ func (t *TaskCommand) Delete(c *cli.Context) error {
 }
 
 func (t *TaskCommand) Get(c *cli.Context) error {
-	return t.get(c, "task", func(id string) (entity.Entity, error) {
+	tasks := []*models.Task{}
+	getTaskf := func(id string) error {
 		task, err := t.Client.GetTask(id)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		return entity.NewTask(task), nil
-	})
+		tasks = append(tasks, task)
+		return nil
+	}
+
+	if err := t.get(c, "task", getTaskf); err != nil {
+		return err
+	}
+
+	return t.Printer.PrintTasks(tasks...)
 }
 
 func (t *TaskCommand) List(c *cli.Context) error {
-	tasks, err := t.Client.ListTasks()
+	taskSummaries, err := t.Client.ListTasks()
 	if err != nil {
 		return err
 	}
 
 	if !c.Bool("all") {
-		tasks = filterTasks(tasks)
+		taskSummaries = filterTaskSummaries(taskSummaries)
 	}
 
-	return t.printTasks(tasks)
+	return t.Printer.PrintTaskSummaries(taskSummaries...)
 }
 
 func (t *TaskCommand) Logs(c *cli.Context) error {
@@ -150,25 +157,11 @@ func (t *TaskCommand) Logs(c *cli.Context) error {
 		return err
 	}
 
-	return t.Printer.PrintLogs(logs)
+	return t.Printer.PrintLogs(logs...)
 }
 
-func (t *TaskCommand) printTask(task *models.Task) error {
-	entity := entity.NewTask(task)
-	return t.Printer.PrintEntity(entity)
-}
-
-func (t *TaskCommand) printTasks(tasks []*models.Task) error {
-	entities := []entity.Entity{}
-	for _, task := range tasks {
-		entities = append(entities, entity.NewTask(task))
-	}
-
-	return t.Printer.PrintEntities(entities)
-}
-
-func filterTasks(tasks []*models.Task) []*models.Task {
-	filtered := []*models.Task{}
+func filterTaskSummaries(tasks []*models.TaskSummary) []*models.TaskSummary {
+	filtered := []*models.TaskSummary{}
 
 	for _, task := range tasks {
 		if task.TaskName != "" {

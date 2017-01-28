@@ -11,7 +11,7 @@ import (
 
 type Provider interface {
 	UploadServerCertificate(string, string, string, string, *string) (*ServerCertificateMetadata, error)
-	ListCertificates(path string) ([]*ServerCertificateMetadata, error)
+	ListCertificates() ([]*ServerCertificateMetadata, error)
 	GetUser(username *string) (*User, error)
 	DeleteServerCertificate(certName string) error
 	CreateRole(roleName, servicePrincipal string) (*Role, error)
@@ -116,17 +116,13 @@ func (this *IAM) UploadServerCertificate(name, path, body, pk string, optionalCh
 	return &ServerCertificateMetadata{metadata}, nil
 }
 
-func (this *IAM) ListCertificates(path string) ([]*ServerCertificateMetadata, error) {
-	input := &iam.ListServerCertificatesInput{
-		PathPrefix: aws.String(path),
-	}
-
+func (this *IAM) ListCertificates() ([]*ServerCertificateMetadata, error) {
 	connection, err := this.Connect()
 	if err != nil {
 		return nil, err
 	}
 
-	output, err := connection.ListServerCertificates(input)
+	output, err := connection.ListServerCertificates(&iam.ListServerCertificatesInput{})
 	if err != nil {
 		return nil, err
 	}

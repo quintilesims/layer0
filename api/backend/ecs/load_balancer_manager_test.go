@@ -12,6 +12,7 @@ import (
 	"github.com/quintilesims/layer0/common/aws/elb"
 	"github.com/quintilesims/layer0/common/aws/elb/mock_elb"
 	"github.com/quintilesims/layer0/common/aws/iam/mock_iam"
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
@@ -46,7 +47,7 @@ func makeSubnet(az string) *ec2.Subnet {
 
 func TestGetLoadBalancer(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call ecs.DescribeLoadBalancer with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -65,7 +66,7 @@ func TestGetLoadBalancer(t *testing.T) {
 				manager.GetLoadBalancer("lbid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should return layer0-formatted load balancer id",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -90,7 +91,7 @@ func TestGetLoadBalancer(t *testing.T) {
 				reporter.AssertEqual(loadBalancer.LoadBalancerID, "lbid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate elb.DescribeLoadBalancer error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -116,7 +117,7 @@ func TestGetLoadBalancer(t *testing.T) {
 
 func TestListLoadBalancers(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should return layer0-formatted load balancer ids",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -142,7 +143,7 @@ func TestListLoadBalancers(t *testing.T) {
 				reporter.AssertEqual(loadBalancers[0].LoadBalancerID, "lbid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate elb.DescribeLoadBalancers error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -176,7 +177,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	}
 
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should use ECS-formatted IDs in AWS calls",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -215,14 +216,18 @@ func TestCreateLoadBalancer(t *testing.T) {
 				mockLB.ELB.EXPECT().
 					CreateLoadBalancer(loadBalancerID.String(), "internet-facing", gomock.Any(), gomock.Any(), gomock.Any())
 
+				elbHealthCheck := elb.NewHealthCheck("", 0, 0, 0, 0)
+				mockLB.ELB.EXPECT().
+					ConfigureHealthCheck(loadBalancerID.String(), elbHealthCheck)
+
 				return mockLB.LoadBalancer()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSLoadBalancerManager)
-				manager.CreateLoadBalancer("lb_name", "envid", true, nil)
+				manager.CreateLoadBalancer("lb_name", "envid", true, nil, models.HealthCheck{})
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should pass through idempotent aws errors",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -255,14 +260,17 @@ func TestCreateLoadBalancer(t *testing.T) {
 				mockLB.ELB.EXPECT().
 					CreateLoadBalancer(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any())
 
+				mockLB.ELB.EXPECT().
+					ConfigureHealthCheck(gomock.Any(), gomock.Any())
+
 				return mockLB.LoadBalancer()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSLoadBalancerManager)
-				manager.CreateLoadBalancer("lb_name", "envid", true, nil)
+				manager.CreateLoadBalancer("lb_name", "envid", true, nil, models.HealthCheck{})
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should return L0-formatted IDs",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -294,6 +302,9 @@ func TestCreateLoadBalancer(t *testing.T) {
 				mockLB.ELB.EXPECT().
 					CreateLoadBalancer(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any())
 
+				mockLB.ELB.EXPECT().
+					ConfigureHealthCheck(gomock.Any(), gomock.Any())
+
 				return mockLB.LoadBalancer()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -302,7 +313,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 				loadBalancerID := id.L0LoadBalancerID("lbid")
 				environmentID := id.L0EnvironmentID("envid")
 
-				model, err := manager.CreateLoadBalancer("lb_name", environmentID.String(), true, nil)
+				model, err := manager.CreateLoadBalancer("lb_name", environmentID.String(), true, nil, models.HealthCheck{})
 				if err != nil {
 					reporter.Fatal(err)
 				}
@@ -311,7 +322,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 				reporter.AssertEqual(model.EnvironmentID, environmentID.String())
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate unexpected aws errors",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				return func(g testutils.ErrorGenerator) interface{} {
@@ -364,7 +375,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 					g.Set(i+1, fmt.Errorf("some error"))
 
 					manager := setup(g).(*ECSLoadBalancerManager)
-					if _, err := manager.CreateLoadBalancer("", "", true, nil); err == nil {
+					if _, err := manager.CreateLoadBalancer("", "", true, nil, models.HealthCheck{}); err == nil {
 						reporter.Errorf("Error on variation %d, Error was nil!", i)
 					}
 				}
@@ -377,7 +388,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 func TestDeleteLoadBalancer(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should delete role policies and role correctly",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -417,7 +428,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 				manager.DeleteLoadBalancer("lbid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should call manager.DeleteLoadBalancer with correct params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -444,7 +455,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 				manager.DeleteLoadBalancer("lbid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should delete security groups correctly",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -478,7 +489,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 				manager.DeleteLoadBalancer("lbid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should pass through idempotent aws errors",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)
@@ -523,7 +534,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 				}
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate unexpected aws errors",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				return func(g testutils.ErrorGenerator) interface{} {
@@ -571,4 +582,47 @@ func TestDeleteLoadBalancer(t *testing.T) {
 	testutils.RunTests(t, testCases)
 }
 
-// todo: UpdateLoadBalancer
+func TestUpdateLoadBalancerHealthCheck(t *testing.T) {
+	testCases := []testutils.TestCase{
+		{
+			Name: "Should pass proper params to ELB.ConfigureHealthCheck.",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				mockLB := NewMockECSLoadBalancerManager(ctrl)
+
+				loadBalancerID := id.L0LoadBalancerID("lbid").ECSLoadBalancerID()
+				loadBalancer := elb.NewLoadBalancerDescription(loadBalancerID.String(), "", nil)
+
+				mockLB.ELB.EXPECT().
+					DescribeLoadBalancer(loadBalancerID.String()).
+					Return(loadBalancer, nil)
+
+				mockLB.ELB.EXPECT().
+					ConfigureHealthCheck(loadBalancerID.String(), elb.NewHealthCheck("TCP:80", 30, 5, 2, 2))
+
+				return mockLB.LoadBalancer()
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				manager := target.(*ECSLoadBalancerManager)
+
+				healthCheck := models.HealthCheck{
+					Target:             "TCP:80",
+					Interval:           30,
+					Timeout:            5,
+					HealthyThreshold:   2,
+					UnhealthyThreshold: 2,
+				}
+
+				model, err := manager.UpdateLoadBalancerHealthCheck("lbid", healthCheck)
+				if err != nil {
+					reporter.Fatal(err)
+				}
+
+				reporter.AssertEqual(healthCheck, model.HealthCheck)
+			},
+		},
+	}
+
+	testutils.RunTests(t, testCases)
+}
+
+// todo: UpdateLoadBalancerPorts

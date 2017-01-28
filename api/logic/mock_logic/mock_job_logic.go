@@ -4,8 +4,8 @@
 package mock_logic
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
+	gomock "github.com/golang/mock/gomock"
 	types "github.com/quintilesims/layer0/common/types"
 )
 
@@ -41,14 +41,14 @@ func (_mr *_MockJobLogicRecorder) CreateJob(arg0, arg1 interface{}) *gomock.Call
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateJob", arg0, arg1)
 }
 
-func (_m *MockJobLogic) DeleteJob(_param0 string) error {
-	ret := _m.ctrl.Call(_m, "DeleteJob", _param0)
+func (_m *MockJobLogic) Delete(_param0 string) error {
+	ret := _m.ctrl.Call(_m, "Delete", _param0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-func (_mr *_MockJobLogicRecorder) DeleteJob(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteJob", arg0)
+func (_mr *_MockJobLogicRecorder) Delete(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Delete", arg0)
 }
 
 func (_m *MockJobLogic) GetJob(_param0 string) (*models.Job, error) {

@@ -1,10 +1,10 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/cli/entity"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 	"io/ioutil"
+	"strconv"
 )
 
 type DeployCommand struct {
@@ -70,7 +70,7 @@ func (d *DeployCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	return d.printDeploy(deploy)
+	return d.Printer.PrintDeploys(deploy)
 }
 
 func (d *DeployCommand) Delete(c *cli.Context) error {
@@ -78,45 +78,42 @@ func (d *DeployCommand) Delete(c *cli.Context) error {
 }
 
 func (d *DeployCommand) Get(c *cli.Context) error {
-	return d.get(c, "deploy", func(id string) (entity.Entity, error) {
+	deploys := []*models.Deploy{}
+	getDeployf := func(id string) error {
 		deploy, err := d.Client.GetDeploy(id)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		return entity.NewDeploy(deploy), nil
-	})
+		deploys = append(deploys, deploy)
+		return nil
+	}
+
+	if err := d.get(c, "deploy", getDeployf); err != nil {
+		return err
+	}
+
+	return d.Printer.PrintDeploys(deploys...)
 }
 
 func (d *DeployCommand) List(c *cli.Context) error {
-	deploys, err := d.Client.ListDeploys()
+	deploySummaries, err := d.Client.ListDeploys()
 	if err != nil {
 		return err
 	}
 
 	if !c.Bool("all") {
-		deploys = filterDeploys(deploys)
+		deploySummaries, err = filterDeploySummaries(deploySummaries)
+		if err != nil {
+			return err
+		}
 	}
 
-	return d.printDeploys(deploys)
+	return d.Printer.PrintDeploySummaries(deploySummaries...)
 }
 
-func (d *DeployCommand) printDeploy(deploy *models.Deploy) error {
-	entity := entity.NewDeploy(deploy)
-	return d.Printer.PrintEntity(entity)
-}
-
-func (d *DeployCommand) printDeploys(deploys []*models.Deploy) error {
-	entities := []entity.Entity{}
-	for _, deploy := range deploys {
-		entities = append(entities, entity.NewDeploy(deploy))
-	}
-
-	return d.Printer.PrintEntities(entities)
-}
-
-func filterDeploys(deploys []*models.Deploy) []*models.Deploy {
-	catalog := map[string]*models.Deploy{}
+func filterDeploySummaries(deploys []*models.DeploySummary) ([]*models.DeploySummary, error) {
+	catalog := map[string]*models.DeploySummary{}
 
 	for _, deploy := range deploys {
 		if name := deploy.DeployName; name != "" {
@@ -125,16 +122,26 @@ func filterDeploys(deploys []*models.Deploy) []*models.Deploy {
 				continue
 			}
 
-			if deploy.Version > catalog[name].Version {
+			max, err := strconv.Atoi(catalog[name].Version)
+			if err != nil {
+				return nil, err
+			}
+
+			current, err := strconv.Atoi(deploy.Version)
+			if err != nil {
+				return nil, err
+			}
+
+			if current > max {
 				catalog[name] = deploy
 			}
 		}
 	}
 
-	filtered := []*models.Deploy{}
+	filtered := []*models.DeploySummary{}
 	for _, deploy := range catalog {
 		filtered = append(filtered, deploy)
 	}
 
-	return filtered
+	return filtered, nil
 }

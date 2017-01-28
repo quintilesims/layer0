@@ -28,23 +28,22 @@ func (this *ECSDeployManager) ListDeploys() ([]*models.Deploy, error) {
 		return nil, err
 	}
 
-	models := []*models.Deploy{}
-	for _, taskDefinitionARN := range taskDefinitionARNs {
+	deploys := make([]*models.Deploy, len(taskDefinitionARNs))
+	for i, taskDefinitionARN := range taskDefinitionARNs {
 		ecsDeployID := id.TaskDefinitionARNToECSDeployID(*taskDefinitionARN)
-
-		if strings.HasPrefix(ecsDeployID.String(), id.PREFIX) {
-			model := this.populateModel(ecsDeployID)
-			models = append(models, model)
+		deploys[i] = &models.Deploy{
+			DeployID: ecsDeployID.L0DeployID(),
 		}
 	}
 
-	return models, nil
+	return deploys, nil
 }
 
 func (this *ECSDeployManager) GetDeploy(deployID string) (*models.Deploy, error) {
 	ecsDeployID := id.L0DeployID(deployID).ECSDeployID()
 
-	if _, err := this.ECS.DescribeTaskDefinition(ecsDeployID.TaskDefinition()); err != nil {
+	taskDef, err := this.ECS.DescribeTaskDefinition(ecsDeployID.TaskDefinition())
+	if err != nil {
 		if ContainsErrMsg(err, "Unable to describe task definition") {
 			err := fmt.Errorf("Deploy with id '%s' does not exist", deployID)
 			return nil, errors.New(errors.InvalidDeployID, err)
@@ -53,7 +52,7 @@ func (this *ECSDeployManager) GetDeploy(deployID string) (*models.Deploy, error)
 		return nil, err
 	}
 
-	return this.populateModel(ecsDeployID), nil
+	return this.populateModel(taskDef)
 }
 
 func (this *ECSDeployManager) DeleteDeploy(deployID string) error {
@@ -88,7 +87,7 @@ func (this *ECSDeployManager) CreateDeploy(deployName string, body []byte) (*mod
 		return nil, fmt.Errorf("Custom family names are currently unsupported in Layer0")
 	}
 
-	taskDefinition, err := this.ECS.RegisterTaskDefinition(
+	taskDef, err := this.ECS.RegisterTaskDefinition(
 		familyName,
 		deploy.TaskRoleARN,
 		deploy.NetworkMode,
@@ -98,17 +97,24 @@ func (this *ECSDeployManager) CreateDeploy(deployName string, body []byte) (*mod
 		return nil, err
 	}
 
-	// unlike other entities, let aws generate our entity id
-	// ecs returns <deployName>:<revision> as the unique deploy id
-	ecsDeployID := id.TaskDefinitionARNToECSDeployID(*taskDefinition.TaskDefinitionArn)
-	return this.populateModel(ecsDeployID), nil
+	return this.populateModel(taskDef)
 }
 
-func (this *ECSDeployManager) populateModel(ecsDeployID id.ECSDeployID) *models.Deploy {
-	return &models.Deploy{
-		DeployID: ecsDeployID.L0DeployID(),
-		Version:  ecsDeployID.Revision(),
+func (this *ECSDeployManager) populateModel(taskDef *ecs.TaskDefinition) (*models.Deploy, error) {
+	ecsDeployID := id.TaskDefinitionARNToECSDeployID(*taskDef.TaskDefinitionArn)
+
+	dockerrun, err := extractDockerrun(taskDef)
+	if err != nil {
+		return nil, err
 	}
+
+	deploy := &models.Deploy{
+		DeployID:  ecsDeployID.L0DeployID(),
+		Version:   ecsDeployID.Revision(),
+		Dockerrun: dockerrun,
+	}
+
+	return deploy, nil
 }
 
 type deploy struct {
@@ -131,4 +137,32 @@ func marshalDeploy(body []byte) (*deploy, error) {
 	}
 
 	return &d, nil
+}
+
+func extractDockerrun(taskDef *ecs.TaskDefinition) ([]byte, error) {
+	containers := make([]*ecs.ContainerDefinition, len(taskDef.ContainerDefinitions))
+	for i, c := range taskDef.ContainerDefinitions {
+		containers[i] = &ecs.ContainerDefinition{c}
+	}
+
+	volumes := make([]*ecs.Volume, len(taskDef.Volumes))
+	for i, v := range taskDef.Volumes {
+		volumes[i] = &ecs.Volume{v}
+	}
+
+	d := deploy{
+		ContainerDefinitions: containers,
+		Volumes:              volumes,
+		Family:               pstring(taskDef.Family),
+		NetworkMode:          pstring(taskDef.NetworkMode),
+		TaskRoleARN:          pstring(taskDef.TaskRoleArn),
+	}
+
+	bytes, err := json.Marshal(d)
+	if err != nil {
+		err := fmt.Errorf("Failed to extract dockerrun: %s", err.Error())
+		return nil, errors.New(errors.InvalidJSON, err)
+	}
+
+	return bytes, nil
 }

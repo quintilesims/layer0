@@ -4,8 +4,8 @@
 package mock_backend
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // Mock of Backend interface
@@ -27,17 +27,6 @@ func NewMockBackend(ctrl *gomock.Controller) *MockBackend {
 
 func (_m *MockBackend) EXPECT() *_MockBackendRecorder {
 	return _m.recorder
-}
-
-func (_m *MockBackend) CreateCertificate(_param0 string, _param1 string, _param2 string, _param3 string) (*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "CreateCertificate", _param0, _param1, _param2, _param3)
-	ret0, _ := ret[0].(*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockBackendRecorder) CreateCertificate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateCertificate", arg0, arg1, arg2, arg3)
 }
 
 func (_m *MockBackend) CreateDeploy(_param0 string, _param1 []byte) (*models.Deploy, error) {
@@ -62,15 +51,15 @@ func (_mr *_MockBackendRecorder) CreateEnvironment(arg0, arg1, arg2, arg3 interf
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0, arg1, arg2, arg3)
 }
 
-func (_m *MockBackend) CreateLoadBalancer(_param0 string, _param1 string, _param2 bool, _param3 []models.Port) (*models.LoadBalancer, error) {
-	ret := _m.ctrl.Call(_m, "CreateLoadBalancer", _param0, _param1, _param2, _param3)
+func (_m *MockBackend) CreateLoadBalancer(_param0 string, _param1 string, _param2 bool, _param3 []models.Port, _param4 models.HealthCheck) (*models.LoadBalancer, error) {
+	ret := _m.ctrl.Call(_m, "CreateLoadBalancer", _param0, _param1, _param2, _param3, _param4)
 	ret0, _ := ret[0].(*models.LoadBalancer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockBackendRecorder) CreateLoadBalancer(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateLoadBalancer", arg0, arg1, arg2, arg3)
+func (_mr *_MockBackendRecorder) CreateLoadBalancer(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateLoadBalancer", arg0, arg1, arg2, arg3, arg4)
 }
 
 func (_m *MockBackend) CreateService(_param0 string, _param1 string, _param2 string, _param3 string) (*models.Service, error) {
@@ -93,16 +82,6 @@ func (_m *MockBackend) CreateTask(_param0 string, _param1 string, _param2 string
 
 func (_mr *_MockBackendRecorder) CreateTask(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTask", arg0, arg1, arg2, arg3, arg4)
-}
-
-func (_m *MockBackend) DeleteCertificate(_param0 string) error {
-	ret := _m.ctrl.Call(_m, "DeleteCertificate", _param0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-func (_mr *_MockBackendRecorder) DeleteCertificate(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteCertificate", arg0)
 }
 
 func (_m *MockBackend) DeleteDeploy(_param0 string) error {
@@ -153,17 +132,6 @@ func (_m *MockBackend) DeleteTask(_param0 string, _param1 string) error {
 
 func (_mr *_MockBackendRecorder) DeleteTask(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteTask", arg0, arg1)
-}
-
-func (_m *MockBackend) GetCertificate(_param0 string) (*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "GetCertificate", _param0)
-	ret0, _ := ret[0].(*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockBackendRecorder) GetCertificate(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetCertificate", arg0)
 }
 
 func (_m *MockBackend) GetDeploy(_param0 string) (*models.Deploy, error) {
@@ -254,17 +222,6 @@ func (_mr *_MockBackendRecorder) GetTaskLogs(arg0, arg1, arg2 interface{}) *gomo
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTaskLogs", arg0, arg1, arg2)
 }
 
-func (_m *MockBackend) ListCertificates() ([]*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "ListCertificates")
-	ret0, _ := ret[0].([]*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockBackendRecorder) ListCertificates() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListCertificates")
-}
-
 func (_m *MockBackend) ListDeploys() ([]*models.Deploy, error) {
 	ret := _m.ctrl.Call(_m, "ListDeploys")
 	ret0, _ := ret[0].([]*models.Deploy)
@@ -350,15 +307,26 @@ func (_mr *_MockBackendRecorder) UpdateEnvironment(arg0, arg1 interface{}) *gomo
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateEnvironment", arg0, arg1)
 }
 
-func (_m *MockBackend) UpdateLoadBalancer(_param0 string, _param1 []models.Port) (*models.LoadBalancer, error) {
-	ret := _m.ctrl.Call(_m, "UpdateLoadBalancer", _param0, _param1)
+func (_m *MockBackend) UpdateLoadBalancerHealthCheck(_param0 string, _param1 models.HealthCheck) (*models.LoadBalancer, error) {
+	ret := _m.ctrl.Call(_m, "UpdateLoadBalancerHealthCheck", _param0, _param1)
 	ret0, _ := ret[0].(*models.LoadBalancer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockBackendRecorder) UpdateLoadBalancer(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateLoadBalancer", arg0, arg1)
+func (_mr *_MockBackendRecorder) UpdateLoadBalancerHealthCheck(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateLoadBalancerHealthCheck", arg0, arg1)
+}
+
+func (_m *MockBackend) UpdateLoadBalancerPorts(_param0 string, _param1 []models.Port) (*models.LoadBalancer, error) {
+	ret := _m.ctrl.Call(_m, "UpdateLoadBalancerPorts", _param0, _param1)
+	ret0, _ := ret[0].(*models.LoadBalancer)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockBackendRecorder) UpdateLoadBalancerPorts(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateLoadBalancerPorts", arg0, arg1)
 }
 
 func (_m *MockBackend) UpdateService(_param0 string, _param1 string, _param2 string) (*models.Service, error) {

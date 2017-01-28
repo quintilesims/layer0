@@ -70,8 +70,8 @@ func (c *APIClient) GetServiceLogs(id string, tail int) ([]*models.LogFile, erro
 	return logFiles, nil
 }
 
-func (c *APIClient) ListServices() ([]*models.Service, error) {
-	var services []*models.Service
+func (c *APIClient) ListServices() ([]*models.ServiceSummary, error) {
+	var services []*models.ServiceSummary
 	if err := c.Execute(c.Sling("service/").Get(""), &services); err != nil {
 		return nil, err
 	}

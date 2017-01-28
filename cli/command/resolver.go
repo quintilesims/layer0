@@ -76,18 +76,17 @@ func (r *TagResolver) resolveEnvironmentScope(entityType string, target string) 
 }
 
 func (r *TagResolver) resolveDeploy(entityType, target string) ([]string, error) {
-	version := "latest"
+	extraParams := map[string]string{}
 
 	targets := strings.Split(target, ":")
 	if len(targets) == 2 {
-		version = targets[1]
+		extraParams["version"] = targets[1]
 	}
 
 	if len(targets) > 2 {
 		return nil, fmt.Errorf("Invalid target format (expected DEPLOY[:VERSION])")
 	}
 
-	extraParams := map[string]string{"version": version}
 	return r.query(entityType, targets[0], extraParams)
 }
 
@@ -106,7 +105,7 @@ func (r *TagResolver) query(entityType string, target string, extraParams map[st
 		params[k] = v
 	}
 
-	tags, err := r.client.GetTags(params)
+	tags, err := r.client.SelectByQuery(params)
 	if err != nil {
 		return nil, err
 	}

@@ -6,6 +6,7 @@ import (
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/autoscaling"
 	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/models"
 	"strconv"
 )
 
@@ -191,7 +192,7 @@ func (this *ECSClusterScaler) calculateNewInstancesNeeded(
 	// Account for Layer0 1-Off Tasks resource commit
 	// Use the backend call which will include all running and pending (including
 	// unallocated) tasks
-	tasks, err := this.Backend.ListTasks()
+	tasks, err := this.getAllTasks()
 	if err != nil {
 		return 0, false, err
 	}
@@ -335,4 +336,23 @@ OuterLoop:
 	}
 
 	return resourceWithMinTasks == nil
+}
+
+func (this *ECSClusterScaler) getAllTasks() ([]*models.Task, error) {
+	summaries, err := this.Backend.ListTasks()
+	if err != nil {
+		return nil, err
+	}
+
+	tasks := make([]*models.Task, len(summaries))
+	for i, summary := range summaries {
+		task, err := this.Backend.GetTask(summary.EnvironmentID, summary.TaskID)
+		if err != nil {
+			return nil, err
+		}
+
+		tasks[i] = task
+	}
+
+	return tasks, nil
 }

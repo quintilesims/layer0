@@ -38,8 +38,8 @@ func (c *APIClient) GetEnvironment(id string) (*models.Environment, error) {
 	return environment, nil
 }
 
-func (c *APIClient) ListEnvironments() ([]*models.Environment, error) {
-	var environments []*models.Environment
+func (c *APIClient) ListEnvironments() ([]*models.EnvironmentSummary, error) {
+	var environments []*models.EnvironmentSummary
 	if err := c.Execute(c.Sling("environment/").Get(""), &environments); err != nil {
 		return nil, err
 	}

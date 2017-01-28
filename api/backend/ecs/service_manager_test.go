@@ -115,18 +115,16 @@ func TestGetService(t *testing.T) {
 func TestListServices(t *testing.T) {
 	testCases := []testutils.TestCase{
 		testutils.TestCase{
-			Name: "Should call ecs.Helper_DescribeServices with proper params",
+			Name: "Should call ecs.Helper_ListServices with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
 
-				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
-				clusterARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:cluster/%s", environmentID.String())
 				serviceID := id.L0ServiceID("svcid").ECSServiceID()
-				service := ecs.NewService(clusterARN, serviceID.String())
+				serviceARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:service/%s", serviceID.String())
 
 				mockService.ECS.EXPECT().
-					Helper_DescribeServices(id.PREFIX).
-					Return([]*ecs.Service{service}, nil)
+					Helper_ListServices(id.PREFIX).
+					Return([]*string{&serviceARN}, nil)
 
 				return mockService.Service()
 			},
@@ -140,14 +138,12 @@ func TestListServices(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
 
-				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
-				clusterARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:cluster/%s", environmentID.String())
 				serviceID := id.L0ServiceID("svcid").ECSServiceID()
-				service := ecs.NewService(clusterARN, serviceID.String())
+				serviceARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:service/%s", serviceID.String())
 
 				mockService.ECS.EXPECT().
-					Helper_DescribeServices(gomock.Any()).
-					Return([]*ecs.Service{service}, nil)
+					Helper_ListServices(id.PREFIX).
+					Return([]*string{&serviceARN}, nil)
 
 				return mockService.Service()
 			},
@@ -160,17 +156,16 @@ func TestListServices(t *testing.T) {
 				}
 
 				reporter.AssertEqual(len(services), 1)
-				reporter.AssertEqual(services[0].EnvironmentID, "envid")
 				reporter.AssertEqual(services[0].ServiceID, "svcid")
 			},
 		},
 		testutils.TestCase{
-			Name: "Should propagate ecs.ListServices error",
+			Name: "Should propagate ecs.Helper_ListServices error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
 
 				mockService.ECS.EXPECT().
-					Helper_DescribeServices(gomock.Any()).
+					Helper_ListServices(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return mockService.Service()

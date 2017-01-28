@@ -4,8 +4,8 @@
 package mock_logic
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // Mock of EnvironmentLogic interface
@@ -72,9 +72,9 @@ func (_mr *_MockEnvironmentLogicRecorder) GetEnvironment(arg0 interface{}) *gomo
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetEnvironment", arg0)
 }
 
-func (_m *MockEnvironmentLogic) ListEnvironments() ([]*models.Environment, error) {
+func (_m *MockEnvironmentLogic) ListEnvironments() ([]*models.EnvironmentSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListEnvironments")
-	ret0, _ := ret[0].([]*models.Environment)
+	ret0, _ := ret[0].([]*models.EnvironmentSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

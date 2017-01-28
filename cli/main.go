@@ -50,7 +50,7 @@ func RunApp() {
 
 	apiClient := client.NewAPIClient(client.Config{
 		Endpoint:      config.APIEndpoint(),
-		Token:         config.CLIAuth(),
+		Token:         fmt.Sprintf("Basic %s", config.AuthToken()),
 		VerifySSL:     config.ShouldVerifySSL(),
 		VerifyVersion: config.ShouldVerifyVersion(),
 		Clock:         waitutils.RealClock{},
@@ -123,7 +123,6 @@ func getCommands(client *client.APIClient) []command.CommandGroup {
 
 	return []command.CommandGroup{
 		command.NewAdminCommand(cmd),
-		command.NewCertificateCommand(cmd),
 		command.NewDeployCommand(cmd),
 		command.NewEnvironmentCommand(cmd),
 		command.NewJobCommand(cmd),

@@ -4,8 +4,8 @@
 package mock_iam
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	iam "github.com/quintilesims/layer0/common/aws/iam"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // Mock of Provider interface
@@ -103,15 +103,15 @@ func (_mr *_MockProviderRecorder) GetUser(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetUser", arg0)
 }
 
-func (_m *MockProvider) ListCertificates(_param0 string) ([]*iam.ServerCertificateMetadata, error) {
-	ret := _m.ctrl.Call(_m, "ListCertificates", _param0)
+func (_m *MockProvider) ListCertificates() ([]*iam.ServerCertificateMetadata, error) {
+	ret := _m.ctrl.Call(_m, "ListCertificates")
 	ret0, _ := ret[0].([]*iam.ServerCertificateMetadata)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockProviderRecorder) ListCertificates(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListCertificates", arg0)
+func (_mr *_MockProviderRecorder) ListCertificates() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListCertificates")
 }
 
 func (_m *MockProvider) ListRolePolicies(_param0 string) ([]*string, error) {
