@@ -16,6 +16,7 @@ RUN pip install awscli
 ENV APP github.com/quintilesims/layer0
 RUN mkdir -p /go/src/$APP
 WORKDIR /go/src/$APP
+ENV DEBIAN_FRONTEND interactive
 ENTRYPOINT [ "./scripts/entrypoint.sh" ]
 
 COPY . /go/src/$APP/

@@ -38,4 +38,4 @@ full-smoketest:
 destroy-smoketest:
 	$(MAKE) -C setup destroy-smoketest
 
-.PHONY: release unittest smoketest full-smoketest destroy-smoketest fail-smoketest
+.PHONY: release unittest smoketest full-smoketest destroy-smoketest
