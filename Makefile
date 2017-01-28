@@ -28,12 +28,14 @@ smoketest:
 full-smoketest:
 	$(MAKE) -C cli install-smoketest
 	$(MAKE) -C setup install-smoketest
-	$(MAKE) -C setup apply-smoketest & $(MAKE) -C scripts -f Makefile.flow push
+	$(MAKE) -C api deps
+	$(MAKE) -C api release
+	$(MAKE) -C runner release
+	$(MAKE) -C setup apply-smoketest
 	$(MAKE) -C tests/smoke deps
 	$(MAKE) -C tests/smoke test
 
 destroy-smoketest:
-	$(MAKE) -C scripts -f Makefile.flow delete
 	$(MAKE) -C setup destroy-smoketest
 
-.PHONY: release unittest smoketest full-smoketest destroy-smoketest
+.PHONY: release unittest smoketest full-smoketest destroy-smoketest fail-smoketest

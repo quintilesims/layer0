@@ -7,6 +7,7 @@ RUN apt-get update && apt-get install -y \
 	zip \ 
 	python \
     mysql-server \
+    jq \
 	python-pip
 
 RUN curl -sSL https://get.docker.com/ | sh
