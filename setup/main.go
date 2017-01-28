@@ -76,7 +76,7 @@ func main() {
 	app.Command("apply", "Create/Update a Layer0", func(cmd *cli.Cmd) {
 		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region"})
 
-		dockercfg := cmd.StringOpt("dockercfg", "", "Path to valid dockercfg file")
+		dockercfg := cmd.StringOpt("dockercfg", "", "Path to valid config.json or dockercfg file")
 
 		force := cmd.BoolOpt("force", false, "Set this flag to skip prompting on a missing dockercfg file")
 

@@ -64,7 +64,7 @@ func Apply(c *Context, force bool, dockercfg string) error {
 	}
 
 	if dockercfg != "" {
-		fmt.Printf("Detected dockercfg: `%s`\n", dockercfg)
+		fmt.Printf("Detected provided dockercfg path: `%s`\n", dockercfg)
 		instancePath := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
 
 		if err := CopyFile(dockercfg, instancePath); err != nil {
