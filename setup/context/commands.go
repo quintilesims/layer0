@@ -295,6 +295,11 @@ func s3Action(c *Context, mustExist bool, action func(s3.Provider, string, strin
 		return err
 	}
 
+	dockerConfigKey := "bootstrap/dockercfg"
+	if err := action(conn, bucket, dockerConfigKey, c.DockerConfigFile); err != nil {
+		return err
+	}
+
 	return nil
 }
 
