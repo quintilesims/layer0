@@ -71,23 +71,15 @@ func TestMySimpleExample(t *testing.T) {
 ### Test Flags
 In addition to the standard `go test` flags, the following have been implemented for system tests:
 
-**-debug**
-Test verbosity can be increased using the builtin `-v` flag, but this only shows output once the test has completed. 
-If you need real time output, use the `-debug` flag and print statements with `logrus.Debugf()`:
-```
-go test -debug
-```
+**-debug** - Test verbosity can be increased using the builtin `-v` flag, but this only shows output once the test has completed. 
+If you need real time output, use the `-debug` flag and print statements with `logrus.Debugf()`.
 
-**-dry**
-Using the `-dry` flag will swap terraform `apply and `destroy` commands with `plan`.
+**-dry** - Using the `-dry` flag will swap terraform `apply` and `destroy` commands with `plan`.
 When developing a system test, waiting for terraform to setup/destroy the test resources can very time consuming. 
-Using this method, you can run your test multiple times without terraform destroying and rebuilding the resources:
-```
-go test -dry
-```
+Using this method, you can run your test multiple times without terraform destroying and rebuilding the resources.
 
 Some useful builtin flags:
-* `-run <name of test>` - Executes tests that match the specified name (can be used to run a single test case)
+* `-run nameOfTest` - Executes tests that match the specified name (can be used to run a single test case)
 * `-parallel n` - Specifies the number of tests to run in parallel at once
 * `-timeout t` - Specifies the timeout for the tests. 
 The default is `10m`, which typically isn't long enough to complete all of the system tests. 
