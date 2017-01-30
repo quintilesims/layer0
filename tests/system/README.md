@@ -27,6 +27,9 @@ import (
         "testing"
 )
 
+// Test Resources:
+// This test creates an environment named 'sme' that has a
+// SystemTestService named 'sts'
 func TestMySimpleExample(t *testing.T) {
     c := startSystemTest(t, "cases/my_simple_example", nil)
     defer c.Destroy()
@@ -35,38 +38,56 @@ func TestMySimpleExample(t *testing.T) {
 }
 ```
 
+Each test case should have its own file with a matching name. 
+The test function has some comments about what resources are created by terraform.
 The `startSystemTest` function tells the test to run in parallel, creates a new `framework.SystemTestContext` object using the specified directory (`"cases/my_simple_example"` in this example), and runs `terraform apply`.
+The `defer c.Destroy()` statement ensures any resources created by terraform at the start of the test will be destroyed once the test has finished.
 
-In addition to wrapping terraform commands, the `SystemTestContext` object contains some wrappers around the `cli/client` package, e.g.:
+### The SystemTestContext object
+In addition to wrapping terraform commands, the `SystemTestContext` object contains some wrappers around the `cli/client` package:
 ```
 env := c.GetEnvironment("environment_name")
 svc := c.GetService("environment_name", "service_name")
 lb := c.GetLoadBalancer("environment_name", "load_balancer_name")
+fmt.Println("The loadbalancer url is: ", lb.URL)
 ```
 
+### The SystemTestService
+Many system tests use the System Test Service, or [STS](https://github.com/quintilesims/sts).
+This is a simple web service whose behavior can be changed through an API.
 
-### Running a Test
-Typically, when writing a new system test you only want to test the one you are working on.
-This can be done using the `-run` flag with the name of your test function:
+The `SystemTestContext` service can create a wrapper around an STS service's API using the `GetSystemTestService` function:
 ```
-go test -run TestMySimpleExample
+func TestMySimpleExample(t *testing.T) {
+    c := startSystemTest(t, "cases/my_simple_example", nil)
+    defer c.Destroy()
+
+    sts := c.GetSystemTestService("environment_name", "load_balancer_name")
+
+    // tell the sts service to exit its main process
+    sts.Die() 
 ```
 
-Test verbosity can be increased using the `-v` flag, but this only shows output once the test has completed. 
+### Test Flags
+In addition to the standard `go test` flags, the following have been implemented for system tests:
+
+**-debug**
+Test verbosity can be increased using the builtin `-v` flag, but this only shows output once the test has completed. 
 If you need real time output, use the `-debug` flag and print statements with `logrus.Debugf()`:
 ```
-go test -debug -run TestMySimpleExample
+go test -debug
 ```
 
+**-dry**
+Using the `-dry` flag will swap terraform `apply and `destroy` commands with `plan`.
 When developing a system test, waiting for terraform to setup/destroy the test resources can very time consuming. 
-Using the `-dry` flag will tell terraform to use `plan` instead of `apply`. 
-Using this method, you can manually create the resources that terraform would make, and then run your test multiple times without terraform destroying and rebuilding the resources:
+Using this method, you can run your test multiple times without terraform destroying and rebuilding the resources:
 ```
-go test -dry -run TestMySimpleExample
+go test -dry
 ```
 
-Some other helpful test flags:
+Some useful builtin flags:
+* `-run <name of test>` - Executes tests that match the specified name (can be used to run a single test case)
 * `-parallel n` - Specifies the number of tests to run in parallel at once
-* `-timeout t` - Specifies the timeout for the tests. The default is `10m`, which typically isn't long enough to complete all of the system tests. 
-
-
+* `-timeout t` - Specifies the timeout for the tests. 
+The default is `10m`, which typically isn't long enough to complete all of the system tests. 
