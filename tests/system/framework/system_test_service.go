@@ -32,15 +32,15 @@ func (s *SystemTestService) sling() *sling.Sling {
 	return sling.New().Base(s.URL)
 }
 
-func (s *SystemTestService) execute(sling *sling.Sling, receive interface{}) {
+func (s *SystemTestService) execute(sling *sling.Sling, v interface{}) {
 	var jsonerr struct{ Error string }
-	resp, err := sling.Receive(receive, &jsonerr)
+	resp, err := sling.Receive(v, &jsonerr)
 	if err != nil {
-		s.T.Fatal(err)
+		s.T.Fatalf("Error executing STS: %v", err)
 	}
 
 	if err := jsonerr.Error; err != "" {
-		s.T.Fatal(err)
+		s.T.Fatalf("Error from STS: %v", err)
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {

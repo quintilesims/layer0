@@ -80,7 +80,7 @@ func startSystemTest(t *testing.T, dir string, vars map[string]string) *framewor
 }
 
 func waitFor(t *testing.T, name string, timeout time.Duration, conditionSatisfied func() bool) {
-	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 1) {
+	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 5) {
 		log.Debugf("Waiting for '%s' (waited %s of %s)\n", name, time.Since(start), timeout)
 
 		if conditionSatisfied() {

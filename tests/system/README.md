@@ -28,7 +28,7 @@ import (
 )
 
 // Test Resources:
-// This test creates an environment named 'sme' that has a
+// This test creates an environment named 'mse' that has a
 // SystemTestService named 'sts'
 func TestMySimpleExample(t *testing.T) {
     c := startSystemTest(t, "cases/my_simple_example", nil)
@@ -39,7 +39,8 @@ func TestMySimpleExample(t *testing.T) {
 ```
 
 Each test case should have its own file with a matching name. 
-The test function has some comments about what resources are created by terraform.
+The test function has some comments about what resources are created by terraform 
+(note: environment names are typically acronyms of the test case, e.g. "my_simple_example" = "mse").
 The `startSystemTest` function tells the test to run in parallel, creates a new `framework.SystemTestContext` object using the specified directory (`"cases/my_simple_example"` in this example), and runs `terraform apply`.
 The `defer c.Destroy()` statement ensures any resources created by terraform at the start of the test will be destroyed once the test has finished.
 
