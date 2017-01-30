@@ -33,8 +33,9 @@ type Backend interface {
 	ListLoadBalancers() ([]*models.LoadBalancer, error)
 	GetLoadBalancer(id string) (*models.LoadBalancer, error)
 	DeleteLoadBalancer(id string) error
-	CreateLoadBalancer(loadBalancerName, environmentID string, isPublic bool, ports []models.Port) (*models.LoadBalancer, error)
-	UpdateLoadBalancer(loadBalancerID string, ports []models.Port) (*models.LoadBalancer, error)
+	CreateLoadBalancer(loadBalancerName, environmentID string, isPublic bool, ports []models.Port, healthCheck models.HealthCheck) (*models.LoadBalancer, error)
+	UpdateLoadBalancerPorts(loadBalancerID string, ports []models.Port) (*models.LoadBalancer, error)
+	UpdateLoadBalancerHealthCheck(loadBalancerID string, healthCheck models.HealthCheck) (*models.LoadBalancer, error)
 
 	StartRightSizer()
 	RunRightSizer() error

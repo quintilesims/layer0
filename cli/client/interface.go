@@ -14,7 +14,7 @@ type Client interface {
 	CreateEnvironment(name, instanceSize string, minCount int, userData []byte) (*models.Environment, error)
 	DeleteEnvironment(id string) (string, error)
 	GetEnvironment(id string) (*models.Environment, error)
-	ListEnvironments() ([]*models.Environment, error)
+	ListEnvironments() ([]*models.EnvironmentSummary, error)
 	UpdateEnvironment(id string, minCount int) (*models.Environment, error)
 
 	Delete(id string) error
@@ -22,18 +22,19 @@ type Client interface {
 	ListJobs() ([]*models.Job, error)
 	WaitForJob(jobID string, timeout time.Duration) error
 
-	CreateLoadBalancer(name, environmentID string, ports []models.Port, isPublic bool) (*models.LoadBalancer, error)
+	CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool) (*models.LoadBalancer, error)
 	DeleteLoadBalancer(id string) (string, error)
 	GetLoadBalancer(id string) (*models.LoadBalancer, error)
-	ListLoadBalancers() ([]*models.LoadBalancer, error)
-	UpdateLoadBalancer(id string, ports []models.Port) (*models.LoadBalancer, error)
+	ListLoadBalancers() ([]*models.LoadBalancerSummary, error)
+	UpdateLoadBalancerHealthCheck(id string, healthCheck models.HealthCheck) (*models.LoadBalancer, error)
+	UpdateLoadBalancerPorts(id string, ports []models.Port) (*models.LoadBalancer, error)
 
 	CreateService(name, environmentID, deployID, loadBalancerID string) (*models.Service, error)
 	DeleteService(id string) (string, error)
 	UpdateService(serviceID, deployID string) (*models.Service, error)
 	GetService(id string) (*models.Service, error)
 	GetServiceLogs(id string, tail int) ([]*models.LogFile, error)
-	ListServices() ([]*models.Service, error)
+	ListServices() ([]*models.ServiceSummary, error)
 	ScaleService(id string, scale int) (*models.Service, error)
 	WaitForDeployment(serviceID string, timeout time.Duration) (*models.Service, error)
 
@@ -41,7 +42,7 @@ type Client interface {
 	DeleteTask(id string) error
 	GetTask(id string) (*models.Task, error)
 	GetTaskLogs(id string, tail int) ([]*models.LogFile, error)
-	ListTasks() ([]*models.Task, error)
+	ListTasks() ([]*models.TaskSummary, error)
 
 	SelectByQuery(params map[string]string) ([]*models.EntityWithTags, error)
 	GetVersion() (string, error)

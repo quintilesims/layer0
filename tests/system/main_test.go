@@ -33,7 +33,7 @@ func setup() {
 	if *debug {
 		logrus.SetLevel(logrus.DebugLevel)
 	}
-	
+
 	logutils.SetGlobalLogger(log)
 }
 

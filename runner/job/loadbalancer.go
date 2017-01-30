@@ -8,7 +8,7 @@ import (
 var DeleteLoadBalancerSteps = []Step{
 	Step{
 		Name:    "Delete Load Balancer",
-		Timeout: time.Minute * 5,
+		Timeout: time.Minute * 10,
 		Action:  DeleteLoadBalancer,
 	},
 }

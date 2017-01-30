@@ -27,3 +27,4 @@ coverage.*
 *.tags*
 terraform.tfvars
 terraform.tfstate*
+.python-version

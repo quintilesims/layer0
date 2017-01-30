@@ -7,7 +7,7 @@ import (
 )
 
 type ServiceLogic interface {
-	ListServices() ([]*models.Service, error)
+	ListServices() ([]*models.ServiceSummary, error)
 	GetService(serviceID string) (*models.Service, error)
 	CreateService(req models.CreateServiceRequest) (*models.Service, error)
 	DeleteService(serviceID string) error
@@ -26,19 +26,27 @@ func NewL0ServiceLogic(logic Logic) *L0ServiceLogic {
 	}
 }
 
-func (this *L0ServiceLogic) ListServices() ([]*models.Service, error) {
+func (this *L0ServiceLogic) ListServices() ([]*models.ServiceSummary, error) {
 	services, err := this.Backend.ListServices()
 	if err != nil {
 		return nil, err
 	}
 
-	for _, service := range services {
+	summaries := make([]*models.ServiceSummary, len(services))
+	for i, service := range services {
 		if err := this.populateModel(service); err != nil {
 			return nil, err
 		}
+
+		summaries[i] = &models.ServiceSummary{
+			ServiceID:       service.ServiceID,
+			ServiceName:     service.ServiceName,
+			EnvironmentID:   service.EnvironmentID,
+			EnvironmentName: service.EnvironmentName,
+		}
 	}
 
-	return services, nil
+	return summaries, nil
 }
 
 func (this *L0ServiceLogic) GetService(serviceID string) (*models.Service, error) {

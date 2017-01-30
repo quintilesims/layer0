@@ -14,8 +14,8 @@ import (
 )
 
 type JobLogic interface {
-	SelectAll() ([]*models.Job, error)
-	SelectByID(string) (*models.Job, error)
+	ListJobs() ([]*models.Job, error)
+	GetJob(string) (*models.Job, error)
 	CreateJob(types.JobType, interface{}) (*models.Job, error)
 	Delete(string) error
 }
@@ -34,7 +34,7 @@ func NewL0JobLogic(logic Logic, taskLogic TaskLogic, deployLogic DeployLogic) *L
 	}
 }
 
-func (this *L0JobLogic) SelectAll() ([]*models.Job, error) {
+func (this *L0JobLogic) ListJobs() ([]*models.Job, error) {
 	jobs, err := this.JobStore.SelectAll()
 	if err != nil {
 		return nil, err
@@ -43,7 +43,7 @@ func (this *L0JobLogic) SelectAll() ([]*models.Job, error) {
 	return jobs, nil
 }
 
-func (this *L0JobLogic) SelectByID(jobID string) (*models.Job, error) {
+func (this *L0JobLogic) GetJob(jobID string) (*models.Job, error) {
 	job, err := this.JobStore.SelectByID(jobID)
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (this *L0JobLogic) SelectByID(jobID string) (*models.Job, error) {
 }
 
 func (this *L0JobLogic) Delete(jobID string) error {
-	job, err := this.SelectByID(jobID)
+	job, err := this.GetJob(jobID)
 	if err != nil {
 		return err
 	}

@@ -64,7 +64,7 @@ func TestListLoadBalancers(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []*models.LoadBalancer{
+	expected := []*models.LoadBalancerSummary{
 		{
 			LoadBalancerID:   "l1",
 			LoadBalancerName: "lb_1",
@@ -112,15 +112,24 @@ func TestCreateLoadBalancer(t *testing.T) {
 	testLogic, ctrl := NewTestLogic(t)
 	defer ctrl.Finish()
 
+	healthCheck := models.HealthCheck{
+		Target:             "TCP:80:",
+		Interval:           30,
+		Timeout:            5,
+		HealthyThreshold:   2,
+		UnhealthyThreshold: 2,
+	}
+
 	retLoadBalancer := &models.LoadBalancer{
 		LoadBalancerID: "l1",
 		EnvironmentID:  "e1",
 		IsPublic:       true,
 		Ports:          []models.Port{},
+		HealthCheck:    healthCheck,
 	}
 
 	testLogic.Backend.EXPECT().
-		CreateLoadBalancer("name", "e1", true, []models.Port{}).
+		CreateLoadBalancer("name", "e1", true, []models.Port{}, healthCheck).
 		Return(retLoadBalancer, nil)
 
 	request := models.CreateLoadBalancerRequest{
@@ -128,6 +137,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		EnvironmentID:    "e1",
 		IsPublic:         true,
 		Ports:            []models.Port{},
+		HealthCheck:      healthCheck,
 	}
 
 	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
@@ -142,6 +152,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		EnvironmentID:    "e1",
 		IsPublic:         true,
 		Ports:            []models.Port{},
+		HealthCheck:      healthCheck,
 	}
 
 	testutils.AssertEqual(t, received, expected)
@@ -156,10 +167,10 @@ func TestCreateLoadBalancerError_missingRequiredParams(t *testing.T) {
 	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
 
 	cases := map[string]models.CreateLoadBalancerRequest{
-		"Missing EnvironmentID": models.CreateLoadBalancerRequest{
+		"Missing EnvironmentID": {
 			LoadBalancerName: "name",
 		},
-		"Missing LoadBalancerName": models.CreateLoadBalancerRequest{
+		"Missing LoadBalancerName": {
 			EnvironmentID: "e1",
 		},
 	}
@@ -191,7 +202,7 @@ func TestCreateLoadBalancerError_duplicateName(t *testing.T) {
 	}
 }
 
-func TestUpdateLoadBalancer(t *testing.T) {
+func TestUpdateLoadBalancerPorts(t *testing.T) {
 	testLogic, ctrl := NewTestLogic(t)
 	defer ctrl.Finish()
 
@@ -202,7 +213,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	}
 
 	testLogic.Backend.EXPECT().
-		UpdateLoadBalancer("l1", []models.Port{}).
+		UpdateLoadBalancerPorts("l1", []models.Port{}).
 		Return(retLoadBalancer, nil)
 
 	testLogic.AddTags(t, []*models.Tag{
@@ -212,7 +223,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	})
 
 	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
-	received, err := loadBalancerLogic.UpdateLoadBalancer("l1", []models.Port{})
+	received, err := loadBalancerLogic.UpdateLoadBalancerPorts("l1", []models.Port{})
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -225,4 +236,29 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	}
 
 	testutils.AssertEqual(t, received, expected)
+}
+
+func TestUpdateLoadBalancerHealthCheck(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	healthCheck := models.HealthCheck{
+		Target:             "TCP:80",
+		Interval:           30,
+		Timeout:            5,
+		HealthyThreshold:   2,
+		UnhealthyThreshold: 2,
+	}
+
+	testLogic.Backend.EXPECT().
+		UpdateLoadBalancerHealthCheck("lb_id", healthCheck).
+		Return(&models.LoadBalancer{HealthCheck: healthCheck}, nil)
+
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+	received, err := loadBalancerLogic.UpdateLoadBalancerHealthCheck("lb_id", healthCheck)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutils.AssertEqual(t, received.HealthCheck, healthCheck)
 }

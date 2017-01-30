@@ -51,6 +51,31 @@ func (l *LoadBalancerCommand) GetCommand() cli.Command {
 						Name:  "private",
 						Usage: "if specified, creates a private load balancer (default is public)",
 					},
+					cli.StringFlag{
+						Name:  "healthcheck-target",
+						Value: "TCP:80",
+						Usage: "health check target in format 'PROTOCOL:PORT' or 'PROTOCOL:PORT/WITH/PATH'",
+					},
+					cli.IntFlag{
+						Name:  "healthcheck-interval",
+						Value: 30,
+						Usage: "health check interval in seconds",
+					},
+					cli.IntFlag{
+						Name:  "healthcheck-timeout",
+						Value: 5,
+						Usage: "health check timeout in seconds",
+					},
+					cli.IntFlag{
+						Name:  "healthcheck-healthy-threshold",
+						Value: 2,
+						Usage: "number of consecutive successes required to count as healthy",
+					},
+					cli.IntFlag{
+						Name:  "healthcheck-unhealthy-threshold",
+						Value: 2,
+						Usage: "number of consecutive failures required to count as unhealthy",
+					},
 				},
 			},
 			{
@@ -76,6 +101,34 @@ func (l *LoadBalancerCommand) GetCommand() cli.Command {
 				Usage:     "describe a load balancer",
 				Action:    wrapAction(l.Command, l.Get),
 				ArgsUsage: "NAME",
+			},
+			{
+				Name:      "healthcheck",
+				Usage:     "view or update the health check for a load balancer",
+				Action:    wrapAction(l.Command, l.HealthCheck),
+				ArgsUsage: "NAME",
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:  "set-target",
+						Usage: "health check target in format 'PROTOCOL:PORT' or 'PROTOCOL:PORT/WITH/PATH'",
+					},
+					cli.StringFlag{
+						Name:  "set-interval",
+						Usage: "health check interval in seconds",
+					},
+					cli.StringFlag{
+						Name:  "set-timeout",
+						Usage: "health check timeout in seconds",
+					},
+					cli.StringFlag{
+						Name:  "set-healthy-threshold",
+						Usage: "number of consecutive successes required to count as healthy",
+					},
+					cli.StringFlag{
+						Name:  "set-unhealthy-threshold",
+						Usage: "number of consecutive failures required to count as unhealthy",
+					},
+				},
 			},
 			{
 				Name:      "list",
@@ -109,7 +162,7 @@ func (l *LoadBalancerCommand) AddPort(c *cli.Context) error {
 	}
 
 	loadBalancer.Ports = append(loadBalancer.Ports, *port)
-	loadBalancer, err = l.Client.UpdateLoadBalancer(id, loadBalancer.Ports)
+	loadBalancer, err = l.Client.UpdateLoadBalancerPorts(id, loadBalancer.Ports)
 	if err != nil {
 		return err
 	}
@@ -143,12 +196,20 @@ func (l *LoadBalancerCommand) Create(c *cli.Context) error {
 		ports = append(ports, port)
 	}
 
+	healthCheck := models.HealthCheck{
+		Target:             c.String("healthcheck-target"),
+		Interval:           c.Int("healthcheck-interval"),
+		Timeout:            c.Int("healthcheck-timeout"),
+		HealthyThreshold:   c.Int("healthcheck-healthy-threshold"),
+		UnhealthyThreshold: c.Int("healthcheck-unhealthy-threshold"),
+	}
+
 	environmentID, err := l.resolveSingleID("environment", args["ENVIRONMENT"])
 	if err != nil {
 		return err
 	}
 
-	loadBalancer, err := l.Client.CreateLoadBalancer(args["NAME"], environmentID, ports, !c.Bool("private"))
+	loadBalancer, err := l.Client.CreateLoadBalancer(args["NAME"], environmentID, healthCheck, ports, !c.Bool("private"))
 	if err != nil {
 		return err
 	}
@@ -193,13 +254,12 @@ func (l *LoadBalancerCommand) DropPort(c *cli.Context) error {
 		return fmt.Errorf("Host port '%v' doesn't exist on this Load Balancer", port)
 	}
 
-	loadBalancer, err = l.Client.UpdateLoadBalancer(id, loadBalancer.Ports)
+	loadBalancer, err = l.Client.UpdateLoadBalancerPorts(id, loadBalancer.Ports)
 	if err != nil {
 		return err
 	}
 
 	return l.Printer.PrintLoadBalancers(loadBalancer)
-
 }
 
 func (l *LoadBalancerCommand) Get(c *cli.Context) error {
@@ -221,13 +281,107 @@ func (l *LoadBalancerCommand) Get(c *cli.Context) error {
 	return l.Printer.PrintLoadBalancers(loadBalancers...)
 }
 
-func (l *LoadBalancerCommand) List(c *cli.Context) error {
-	loadBalancers, err := l.Client.ListLoadBalancers()
+func (l *LoadBalancerCommand) HealthCheck(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "NAME")
 	if err != nil {
 		return err
 	}
 
-	return l.Printer.PrintLoadBalancers(loadBalancers...)
+	updateIsRequired := false
+	healthCheck := models.HealthCheck{}
+
+	if target := c.String("set-target"); target != "" {
+		updateIsRequired = true
+		healthCheck.Target = target
+	}
+
+	if interval := c.String("set-interval"); interval != "" {
+		i, err := strconv.Atoi(interval)
+		if err != nil {
+			return err
+		}
+
+		updateIsRequired = true
+		healthCheck.Interval = i
+	}
+
+	if timeout := c.String("set-timeout"); timeout != "" {
+		t, err := strconv.Atoi(timeout)
+		if err != nil {
+			return err
+		}
+
+		updateIsRequired = true
+		healthCheck.Timeout = t
+	}
+
+	if healthyThreshold := c.String("set-healthy-threshold"); healthyThreshold != "" {
+		h, err := strconv.Atoi(healthyThreshold)
+		if err != nil {
+			return err
+		}
+
+		updateIsRequired = true
+		healthCheck.HealthyThreshold = h
+	}
+
+	if unhealthyThreshold := c.String("set-unhealthy-threshold"); unhealthyThreshold != "" {
+		u, err := strconv.Atoi(unhealthyThreshold)
+		if err != nil {
+			return err
+		}
+
+		updateIsRequired = true
+		healthCheck.UnhealthyThreshold = u
+	}
+
+	id, err := l.resolveSingleID("load_balancer", args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	loadBalancer, err := l.Client.GetLoadBalancer(id)
+	if err != nil {
+		return err
+	}
+
+	if updateIsRequired {
+		if healthCheck.Target != "" {
+			loadBalancer.HealthCheck.Target = healthCheck.Target
+		}
+
+		if healthCheck.Interval != 0 {
+			loadBalancer.HealthCheck.Interval = healthCheck.Interval
+		}
+
+		if healthCheck.Timeout != 0 {
+			loadBalancer.HealthCheck.Timeout = healthCheck.Timeout
+		}
+
+		if healthCheck.HealthyThreshold != 0 {
+			loadBalancer.HealthCheck.HealthyThreshold = healthCheck.HealthyThreshold
+		}
+
+		if healthCheck.UnhealthyThreshold != 0 {
+			loadBalancer.HealthCheck.UnhealthyThreshold = healthCheck.UnhealthyThreshold
+		}
+
+		loadBalancer, err = l.Client.UpdateLoadBalancerHealthCheck(id, loadBalancer.HealthCheck)
+		if err != nil {
+			return err
+		}
+	}
+
+	return l.Printer.PrintLoadBalancerHealthCheck(loadBalancer)
+}
+
+func (l *LoadBalancerCommand) List(c *cli.Context) error {
+	loadBalancerSummaries, err := l.Client.ListLoadBalancers()
+	if err != nil {
+		return err
+	}
+
+	return l.Printer.PrintLoadBalancerSummaries(loadBalancerSummaries...)
 }
 
 func parsePort(port, certificateName string) (*models.Port, error) {

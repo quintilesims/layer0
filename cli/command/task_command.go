@@ -129,16 +129,16 @@ func (t *TaskCommand) Get(c *cli.Context) error {
 }
 
 func (t *TaskCommand) List(c *cli.Context) error {
-	tasks, err := t.Client.ListTasks()
+	taskSummaries, err := t.Client.ListTasks()
 	if err != nil {
 		return err
 	}
 
 	if !c.Bool("all") {
-		tasks = filterTasks(tasks)
+		taskSummaries = filterTaskSummaries(taskSummaries)
 	}
 
-	return t.Printer.PrintTasks(tasks...)
+	return t.Printer.PrintTaskSummaries(taskSummaries...)
 }
 
 func (t *TaskCommand) Logs(c *cli.Context) error {
@@ -160,8 +160,8 @@ func (t *TaskCommand) Logs(c *cli.Context) error {
 	return t.Printer.PrintLogs(logs...)
 }
 
-func filterTasks(tasks []*models.Task) []*models.Task {
-	filtered := []*models.Task{}
+func filterTaskSummaries(tasks []*models.TaskSummary) []*models.TaskSummary {
+	filtered := []*models.TaskSummary{}
 
 	for _, task := range tasks {
 		if task.TaskName != "" {

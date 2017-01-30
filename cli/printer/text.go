@@ -83,6 +83,17 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 	return nil
 }
 
+func (t *TextPrinter) PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error {
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME"}
+	for _, e := range environments {
+		row := fmt.Sprintf("%s | %s", e.EnvironmentID, e.EnvironmentName)
+		rows = append(rows, row)
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
 func (t *TextPrinter) PrintJobs(jobs ...*models.Job) error {
 	getType := func(j *models.Job) string {
 		jobType := types.JobType(j.JobType).String()
@@ -128,7 +139,7 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 	}
 
 	getPort := func(l *models.LoadBalancer, i int) string {
-		if len(l.Ports) < i-1 {
+		if i > len(l.Ports)-1 {
 			return ""
 		}
 
@@ -155,6 +166,55 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 			rows = append(rows, row)
 		}
 	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
+func (t *TextPrinter) PrintLoadBalancerSummaries(loadBalancers ...*models.LoadBalancerSummary) error {
+	getEnvironment := func(l *models.LoadBalancerSummary) string {
+		if l.EnvironmentName != "" {
+			return l.EnvironmentName
+		}
+
+		return l.EnvironmentID
+	}
+
+	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT"}
+	for _, l := range loadBalancers {
+		row := fmt.Sprintf("%s | %s | %s ",
+			l.LoadBalancerID,
+			l.LoadBalancerName,
+			getEnvironment(l))
+
+		rows = append(rows, row)
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
+func (t *TextPrinter) PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBalancer) error {
+	getEnvironment := func(l *models.LoadBalancer) string {
+		if l.EnvironmentName != "" {
+			return l.EnvironmentName
+		}
+
+		return l.EnvironmentID
+	}
+
+	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT | TARGET | INTERVAL | TIMEOUT | HEALTHY THRESHOLD | UNHEALTHY THRESHOLD "}
+	row := fmt.Sprintf("%s | %s | %s | %s | %d | %d | %d | %d",
+		loadBalancer.LoadBalancerID,
+		loadBalancer.LoadBalancerName,
+		getEnvironment(loadBalancer),
+		loadBalancer.HealthCheck.Target,
+		loadBalancer.HealthCheck.Interval,
+		loadBalancer.HealthCheck.Timeout,
+		loadBalancer.HealthCheck.HealthyThreshold,
+		loadBalancer.HealthCheck.UnhealthyThreshold)
+
+	rows = append(rows, row)
 
 	fmt.Println(columnize.SimpleFormat(rows))
 	return nil
@@ -195,7 +255,7 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 	}
 
 	getDeployment := func(s *models.Service, i int) string {
-		if len(s.Deployments) < i-1 {
+		if i > len(s.Deployments)-1 {
 			return ""
 		}
 
@@ -244,6 +304,29 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 	return nil
 }
 
+func (t *TextPrinter) PrintServiceSummaries(services ...*models.ServiceSummary) error {
+	getEnvironment := func(s *models.ServiceSummary) string {
+		if s.EnvironmentName != "" {
+			return s.EnvironmentName
+		}
+
+		return s.EnvironmentID
+	}
+
+	rows := []string{"SERVICE ID | SERVICE NAME | ENVIRONMENT"}
+	for _, s := range services {
+		row := fmt.Sprintf("%s | %s | %s ",
+			s.ServiceID,
+			s.ServiceName,
+			getEnvironment(s))
+
+		rows = append(rows, row)
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
 func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 	getEnvironment := func(t *models.Task) string {
 		if t.EnvironmentName != "" {
@@ -278,6 +361,29 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 			getEnvironment(t),
 			getDeploy(t),
 			getScale(t))
+
+		rows = append(rows, row)
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
+func (t *TextPrinter) PrintTaskSummaries(tasks ...*models.TaskSummary) error {
+	getEnvironment := func(t *models.TaskSummary) string {
+		if t.EnvironmentName != "" {
+			return t.EnvironmentName
+		}
+
+		return t.EnvironmentID
+	}
+
+	rows := []string{"TASK ID | TASK NAME | ENVIRONMENT"}
+	for _, t := range tasks {
+		row := fmt.Sprintf("%s | %s | %s",
+			t.TaskID,
+			t.TaskName,
+			getEnvironment(t))
 
 		rows = append(rows, row)
 	}
