@@ -11,7 +11,7 @@ It holds our [terraform modules](https://www.terraform.io/docs/modules/usage.htm
 If your test case was named `my_simple_example`, you should create the following files and directories:
 ```
 layer0/tests/system
-| -- mySimpleExample_test.go
+|-- mySimpleExample_test.go
 |-- cases
 |   |-- my_simple_example
 |   |    |-- main.tf

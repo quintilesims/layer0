@@ -41,7 +41,7 @@ func (this Waiter) Wait() error {
 			return nil
 		}
 
-		retryStr := fmt.Sprintf("%s", this.Retries)
+		retryStr := fmt.Sprintf("%v", this.Retries)
 		if this.Retries < 0 {
 			retryStr = "∞"
 		}
