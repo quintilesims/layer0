@@ -28,3 +28,4 @@ coverage.*
 terraform.tfvars
 terraform.tfstate*
 .python-version
+.terraform/
