@@ -51,7 +51,14 @@ func errorSuggestion(err error) (string, bool) {
 		return text, true
 	case errorContains("Layer0 API returned invalid status code: 401 Unauthorized"):
 		text := "It appears your Layer0 CLI is using invalid credentials.\n"
-		text += "Have you ran ./l0-setup endpoint <instance>?"
+		text += "Have you run ./l0-setup endpoint <instance>?"
+		return text, true
+	case errorContains("Unable to connect to API with error"):
+		text := fmt.Sprintf("%s\n", err.Error())
+		if errorContains("localhost:9090") {
+			text += "\nIt appears you may not have set your LAYER0_API_ENDPOINT environment variable."
+		}
+		text += "\nHave you run ./l0-setup endpoint <instance>?"
 		return text, true
 	}
 
