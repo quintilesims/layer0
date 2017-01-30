@@ -12,6 +12,7 @@ import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/waitutils"
 	"net/http"
+	"net/url"
 	"strings"
 	"sync"
 )
@@ -133,6 +134,7 @@ func (c *APIClient) ExecuteWithJob(sling *sling.Sling) (string, error) {
 func (c *APIClient) execute(sling *sling.Sling, receive interface{}) (*http.Response, error) {
 	var serverError *ServerError
 	resp, err := sling.Receive(receive, &serverError)
+
 	if err != nil {
 		if strings.Contains(err.Error(), "x509: certificate is valid for") {
 			return nil, sslError(err)
@@ -140,6 +142,10 @@ func (c *APIClient) execute(sling *sling.Sling, receive interface{}) (*http.Resp
 
 		if resp != nil && resp.StatusCode == 401 {
 			return nil, fmt.Errorf("Invalid Auth Token. Have you tried running `l0-setup endpoint <prefix>`?")
+		}
+
+		if _, ok := err.(*url.Error); ok {
+			return nil, fmt.Errorf("Unable to connect to API with error: %v", err)
 		}
 
 		return nil, err

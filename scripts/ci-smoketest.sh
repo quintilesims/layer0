@@ -7,10 +7,10 @@ set -e
 set -x
 
 # Ignore if master branch is not target
-if [ ! "$TRAVIS_BRANCH" == "master" ]; then
-  echo "[INFO] Skipping Smoketest";
-  exit 0
-fi
+# if [ ! "$TRAVIS_BRANCH" == "master" ]; then
+#   echo "[INFO] Skipping Smoketest";
+#   exit 0
+# fi
 
 # Install and apply smoketest
 make install-smoketest
