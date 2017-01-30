@@ -3,7 +3,7 @@
     "containerDefinitions": [
         {
             "name": "guestbook",
-            "image": "quintilesims/guestbook",
+            "image": "quintilesims/guestbook:latest",
             "essential": true,
             "memory": 128,
             "portMappings": [
