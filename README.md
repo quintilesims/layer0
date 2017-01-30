@@ -2,7 +2,7 @@
 
 Layer0 is a framework that helps you deploy your docker container to the cloud with minimal fuss. Using a simple command line interface (CLI), you can manage the entire life cycle of your application without having to focus on infrastructure.
 
-To get started with Layer0, see [docs.xfra.ims.io](http://docs.xfra.ims.io/).
+To get started with Layer0, see [docs.xfra.ims.io](https://quintilesims.github.io/layer0/).
 
 ## Layer0 Developers
 
