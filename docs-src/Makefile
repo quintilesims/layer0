@@ -1,5 +1,5 @@
 deps:
-	pip install awscli mkdocs
+	pip install mkdocs
 
 build:
 	mkdocs build --clean

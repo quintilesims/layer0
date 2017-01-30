@@ -3,7 +3,7 @@
 
 ## Local Development
 
-- `make deps` to ensure you have `mkdocs` and `awscli` installed.
+- `make deps` to ensure you have `mkdocs` installed.
 - Make changes as desired.
 - `make build` to compile everything together into the static `site` directory.
 - `mkdocs serve` to spin up a local dev server and test with a browser.

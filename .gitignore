@@ -26,6 +26,3 @@ pass_file
 coverage.*
 *.tags*
 .python-version
-
-# Ignore documentation build output directory
-/docs/
