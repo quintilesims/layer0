@@ -128,7 +128,7 @@ Use the **delete** subcommand to delete a certificate that has already been uplo
     <div class="divCellNoPadding">You will not be able to use the **delete** subcommand if a load balancer that uses that certificate is currently running.</div>
   </div>
 </div>
-  
+
 ### certificate get
 Use the **get** subcommand to display information about an existing certificate in Layer0.
 
@@ -198,11 +198,11 @@ Use the **create** subcommand to upload a Docker task definition into Layer0. Th
   <div class="divRow">
     <div class="divCellNoPadding">If you use Visual Studio to modify or create your Dockerrun file, you may see an "Invalid Dockerrun.aws.json" error. This error is caused by the default encoding used by Visual Studio. See the ["Common issues" page](http://localhost:8000/troubleshooting/commonissues/#invalid-dockerrunawsjson-error-when-creating-a-deploy) for steps to resolve this issue.</div>
   </div>  <br />
-  <div class="divRow"> 
+  <div class="divRow">
     <div class="divCellNoPadding">
 Deploys created through Layer0 are rendered with a `logConfiguration` section for each container.
-If a `logConfiguration` section already exists, no changes are made to the section. 
-The additional section enables logs from each container to be sent to the the Layer0 log group. 
+If a `logConfiguration` section already exists, no changes are made to the section.
+The additional section enables logs from each container to be sent to the the Layer0 log group.
 This is where logs are looked up during `l0 <entity> logs` commands.
 The added `logConfiguration` section uses the following template:
 ```
@@ -314,11 +314,11 @@ Use the **create** subcommand to create an additional Layer0 environment (_envir
   </div>
 </div>
 
-The user data template can be used to add custom configuration to your Layer0 environment. 
-Layer0 uses [Go Templates](https://golang.org/pkg/text/template) to render user data. 
+The user data template can be used to add custom configuration to your Layer0 environment.
+Layer0 uses [Go Templates](https://golang.org/pkg/text/template) to render user data.
 Currently, two variables are passed into the template: **ECSEnvironmentID** and **S3Bucket**.
 Please review the [ECS Tutorial](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html)
-to better understand how to write a user data template, and use at your own risk! 
+to better understand how to write a user data template, and use at your own risk!
 The default Layer0 user data template is:
 
 ```
@@ -331,7 +331,7 @@ cfg=$(cat dockercfg)
 echo ECS_ENGINE_AUTH_DATA=$cfg >> /etc/ecs/ecs.config
 docker pull amazon/amazon-ecs-agent:latest
 start ecs
-``` 
+```
 
 ### environment delete
 Use the **delete** subcommand to delete an existing Layer0 environment.
@@ -359,7 +359,7 @@ Use the **delete** subcommand to delete an existing Layer0 environment.
   </div>
 </div>
 
-####Additional information 
+####Additional information
 <div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding">This operation performs several tasks asynchronously. When run without the _--wait_ option, this operation will most likely exit before all of these tasks are complete; when run with the _--wait_ option, this operation will only exit once these tasks have completed.</div>
@@ -427,7 +427,7 @@ Use the **setmincount** subcommand to set the minimum number of EC2 instances al
 
 ##Job
 A Job is a long-running unit of work performed on behalf of the Layer0 API.
-Jobs are executed as Layer0 tasks that run in the **api** Environment. 
+Jobs are executed as Layer0 tasks that run in the **api** Environment.
 The **job** command is used with the following subcommands: [logs](#job-logs), [delete](#job-delete), [get](#job-get), and [list](#job-list).
 
 ### job logs
@@ -529,7 +529,7 @@ Use the **list** subcommand to display information about all of the existing job
 ---
 
 ##Loadbalancer
-A load balancer is a component of a Layer0 environment. Load balancers listen for traffic on certain ports, and then forward that traffic to Layer0 [services](#service). The **loadbalancer** command is used with the following subcommands: [create](#loadbalancer-create), [delete](#loadbalancer-delete), [addport](#loadbalancer-addport), [dropport](#loadbalancer-dropport), [get](#loadbalancer-get), and [list](#loadbalancer-list).
+A load balancer is a component of a Layer0 environment. Load balancers listen for traffic on certain ports, and then forward that traffic to Layer0 [services](#service). The **loadbalancer** command is used with the following subcommands: [create](#loadbalancer-create), [delete](#loadbalancer-delete), [addport](#loadbalancer-addport), [dropport](#loadbalancer-dropport), [get](#loadbalancer-get), [list](#loadbalancer-list), and [healthcheck](#loadbalancer-healthcheck).
 
 ###loadbalancer create
 Use the **create** subcommand to create a new load balancer.
@@ -537,7 +537,7 @@ Use the **create** subcommand to create a new load balancer.
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 loadbalancer create** [--port _port_ --port _port_ ...] [--certificate _certificateName_] [--private] _environmentName loadBalancerName_</div>
+    <div class="divCellNoPadding">**l0 loadbalancer create** [--port _port_ --port _port_ ...] [--certificate _certificateName_] [--private] [healthcheck-flags]_environmentName loadBalancerName_</div>
   </div>
 </div>
 
@@ -566,6 +566,34 @@ Use the **create** subcommand to create a new load balancer.
   <div class="divRow">
     <div class="divCellNoWrap">--private</div>
     <div class="divCell">When you use this option, the load balancer will only be accessible from within the Layer0 environment.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--healthcheck-target _target_</div>
+    <div class="divCell">The target of the check. Valid pattern is "${PROTOCOL}:${PORT}${PATH}", where PROTOCOL values are:</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"></div>
+    <div class="divCell">`HTTP`, `HTTPS` - PORT and PATH are required</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"></div>
+    <div class="divCell">`TCP`, `SSL` - PORT is required, PATH is not supported</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--healthcheck-interval _interval_</div>
+    <div class="divCell">The interval between checks.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--healthcheck-timeout _timeout_</div>
+    <div class="divCell">The length of time before the check times out.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--healthcheck-healthy-threshold _healthyThreshold_</div>
+    <div class="divCell">The number of checks before the instance is declared healthy.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--healthcheck-unhealthy-threshold _unhealthyThreshold_</div>
+    <div class="divCell">The number of checks before the instance is declared unhealthy.</div>
   </div>
 </div>
 
@@ -651,7 +679,7 @@ Use the **addport** subcommand to add a new port configuration to an existing La
 </div>
 
 ###loadbalancer dropport
-Use the **dropport** subcommand to remove a port configuration from an existing Layer0 load balancer. 
+Use the **dropport** subcommand to remove a port configuration from an existing Layer0 load balancer.
 
 ####Usage
 <div class="divTable">
@@ -673,7 +701,7 @@ Use the **dropport** subcommand to remove a port configuration from an existing 
 </div>
 
 ###loadbalancer get
-Use the **get** subcommand to display information about an existing Layer0 load balancer. 
+Use the **get** subcommand to display information about an existing Layer0 load balancer.
 
 ####Usage
 <div class="divTable">
@@ -702,12 +730,62 @@ Use the **get** subcommand to display information about an existing Layer0 load 
 </div>
 
 ###loadbalancer list
-Use the **list** subcommand to display information about all of the existing load balancers in an instance of Layer0. 
+Use the **list** subcommand to display information about all of the existing load balancers in an instance of Layer0.
 
 ####Usage
 <div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding">**l0 loadbalancer list**</div>
+  </div>
+</div>
+
+###loadbalancer healthcheck
+Use the **healthcheck** subcommand to display information about or update the configuration of a load balancer's health check.
+
+####Usage
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">**l0 loadbalancer healthcheck** [healthcheck-flags] *loadbalancerName*</div>
+  </div>
+</div>
+
+####Optional arguments
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--set-target _target_</div>
+    <div class="divCell">The target of the check. Valid pattern is "${PROTOCOL}:${PORT}${PATH}", where PROTOCOL values are:</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"></div>
+    <div class="divCell">`HTTP`, `HTTPS` - PORT and PATH are required</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"></div>
+    <div class="divCell">`TCP`, `SSL` - PORT is required, PATH is not supported</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--set-interval _interval_</div>
+    <div class="divCell">The interval between checks.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--set-timeout _timeout_</div>
+    <div class="divCell">The length of time before the check times out.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--set-healthy-threshold _healthyThreshold_</div>
+    <div class="divCell">The number of checks before the instance is declared healthy.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--set-unhealthy-threshold _unhealthyThreshold_</div>
+    <div class="divCell">The number of checks before the instance is declared unhealthy.</div>
+  </div>
+</div>
+
+####Additional information
+
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">Calling the subcommand without flags will display the current configuration of the load balancer's health check. Setting any of the flags will update the corresponding field in the health check, and all omitted flags will leave the corresponding fields unchanged.</div>
   </div>
 </div>
 
@@ -719,7 +797,7 @@ A service is a component of a Layer0 environment. The purpose of a service is to
 The **service** command is used with the following subcommands: [create](#service-create), [delete](#service-delete), [get](#service-get), [list](#service-list), [logs](#service-logs), and [scale](#service-scale).
 
 ###service create
-Use the **create** subcommand to create a Layer0 service. 
+Use the **create** subcommand to create a Layer0 service.
 
 ####Usage
 <div class="divTable">
@@ -737,15 +815,15 @@ Use the **create** subcommand to create a Layer0 service.
   <div class="divRow">
     <div class="divCellNoWrap">_environmentName_</div>
     <div class="divCell">The name of an existing Layer0 environment.</div>
-  </div>  
+  </div>
   <div class="divRow">
     <div class="divCellNoWrap">_deployName_</div>
     <div class="divCell">The name of a Layer0 deploy that exists in the environment _environmentName_.</div>
-  </div> 
+  </div>
   <div class="divRow">
     <div class="divCellNoWrap">_deployVersion_</div>
     <div class="divCell">The version number of the Layer0 deploy that you want to deploy. If you do not specify a version number, the latest version of the deploy will be used.</div>
-  </div> 
+  </div>
 </div>
 
 ####Optional arguments
@@ -822,7 +900,7 @@ Use the **delete** subcommand to delete an existing Layer0 service.
   <div class="divRow">
     <div class="divCellNoWrap">_serviceName_</div>
     <div class="divCell">The name of the Layer0 service that you want to delete.</div>
-  </div> 
+  </div>
 </div>
 
 ####Optional arguments
@@ -855,11 +933,11 @@ Use the **get** subcommand to display information about an existing Layer0 servi
   <div class="divRow">
     <div class="divCellNoWrap">_environmentName_</div>
     <div class="divCell">The name of an existing Layer0 environment.</div>
-  </div> 
+  </div>
   <div class="divRow">
     <div class="divCellNoWrap">_serviceName_</div>
     <div class="divCell">The name of an existing Layer0 service.</div>
-  </div> 
+  </div>
 </div>
 
 ###service list
@@ -956,7 +1034,7 @@ Use the **create** subcommand to create a Layer0 task.
     <div class="divCell">The name of an existing Layer0 deploy that the task should use.</div>
   </div>
 </div>
-  
+
 ####Optional arguments
 <div class="divTable">
   <div class="divRow">
@@ -995,7 +1073,7 @@ Use the **delete** subcommand to delete an existing Layer0 task.
   </div>
 </div>
 
-#### Additional information 
+#### Additional information
 <div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding">Until the record has been purged, the API may indicate that the task is still running. Task records are typically purged within an hour.</div>
