@@ -20,46 +20,76 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 		Delete: resourceLayer0LoadBalancerDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"environment": &schema.Schema{
+			"environment": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"private": &schema.Schema{
+			"private": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 			},
-			"url": &schema.Schema{
+			"url": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"port": &schema.Schema{
+			"port": {
 				Type:     schema.TypeSet,
 				Required: true,
 				Set:      resourceLayer0PortHash,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"host_port": &schema.Schema{
+						"host_port": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
-						"container_port": &schema.Schema{
+						"container_port": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
-						"protocol": &schema.Schema{
+						"protocol": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"certificate": &schema.Schema{
+						"certificate": {
 							Type:     schema.TypeString,
 							Optional: true,
+						},
+					},
+				},
+			},
+			"health_check": {
+				Type:     schema.TypeList,
+				Optional: true,
+				Computed: true,
+				MaxItems: 1,
+				Elem: &schema.Resource{
+					Schema: map[string]*schema.Schema{
+						"target": {
+							Type:     schema.TypeString,
+							Required: true,
+						},
+						"interval": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"timeout": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"healthy_threshold": {
+							Type:     schema.TypeInt,
+							Required: true,
+						},
+						"unhealthy_threshold": {
+							Type:     schema.TypeInt,
+							Required: true,
 						},
 					},
 				},
@@ -75,8 +105,9 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 	environmentID := d.Get("environment").(string)
 	private := d.Get("private").(bool)
 	ports := expandPorts(d.Get("port").(*schema.Set).List())
+	healthCheck := expandHealthCheck(d.Get("health_check"))
 
-	loadBalancer, err := client.CreateLoadBalancer(name, environmentID, ports, !private)
+	loadBalancer, err := client.CreateLoadBalancer(name, environmentID, healthCheck, ports, !private)
 	if err != nil {
 		return err
 	}
@@ -102,6 +133,7 @@ func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) er
 
 	d.Set("name", loadBalancer.LoadBalancerName)
 	d.Set("environment", loadBalancer.EnvironmentID)
+	d.Set("health_check", flattenHealthCheck(loadBalancer.HealthCheck))
 	d.Set("private", !loadBalancer.IsPublic)
 	d.Set("port", flattenPorts(loadBalancer.Ports))
 	d.Set("url", loadBalancer.URL)
@@ -116,7 +148,15 @@ func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("port") {
 		ports := expandPorts(d.Get("port").(*schema.Set).List())
 
-		if _, err := client.UpdateLoadBalancer(loadBalancerID, ports); err != nil {
+		if _, err := client.UpdateLoadBalancerPorts(loadBalancerID, ports); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("health_check") {
+		healthCheck := expandHealthCheck(d.Get("health_check"))
+
+		if _, err := client.UpdateLoadBalancerHealthCheck(loadBalancerID, healthCheck); err != nil {
 			return err
 		}
 	}
@@ -161,6 +201,41 @@ func resourceLayer0PortHash(v interface{}) int {
 	}
 
 	return hashcode.String(buf.String())
+}
+
+func expandHealthCheck(flattened interface{}) models.HealthCheck {
+	hc := flattened.([]interface{})
+
+	var model models.HealthCheck
+
+	if len(hc) > 0 {
+		check := hc[0].(map[string]interface{})
+
+		model = models.HealthCheck{
+			Target:             check["target"].(string),
+			Interval:           check["interval"].(int),
+			Timeout:            check["timeout"].(int),
+			HealthyThreshold:   check["healthy_threshold"].(int),
+			UnhealthyThreshold: check["unhealthy_threshold"].(int),
+		}
+	}
+
+	return model
+}
+
+func flattenHealthCheck(healthCheck models.HealthCheck) []map[string]interface{} {
+	result := make([]map[string]interface{}, 0, 1)
+
+	check := make(map[string]interface{})
+	check["target"] = healthCheck.Target
+	check["interval"] = healthCheck.Interval
+	check["timeout"] = healthCheck.Timeout
+	check["healthy_threshold"] = healthCheck.HealthyThreshold
+	check["unhealthy_threshold"] = healthCheck.UnhealthyThreshold
+
+	result = append(result, check)
+
+	return result
 }
 
 func expandPorts(flattened []interface{}) []models.Port {
