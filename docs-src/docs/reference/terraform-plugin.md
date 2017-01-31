@@ -176,6 +176,14 @@ resource "layer0_load_balancer" "guestbook" {
     protocol       = "https"
     certificate    = "cert"
   }
+
+  health_check {
+    target              = "tcp:80"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
 }
 ```
 
@@ -186,6 +194,7 @@ The following arguments are supported:
 * `environment` - (Required) The id of the environment to place the load balancer inside of
 * `private` - (Optional) If true, the load balancer will not be exposed to the public internet
 * `port` - (Optional, Default: 80:80/tcp) A list of port blocks. Ports documented below
+* `health_check` - (Optional, Default: {"TCP:80" 30 5 2 2}) A health_check block. Health check documented below
 
 Ports (`port`) support the following:
 
@@ -193,6 +202,16 @@ Ports (`port`) support the following:
 * `container_port` - (Required) The port on the docker container to route to
 * `protocol` - (Required) The protocol to listen on. Valid values are `HTTP, HTTPS, TCP, or SSL`
 * `certificate` - (Optional) The name of an SSL certificate. Only required if the `HTTP` or `SSL` protocol is used.
+
+Healthcheck (`health_check`) supports the following:
+
+* `target` - (Required) The target of the check. Valid pattern is "${PROTOCOL}:${PORT}${PATH}", where PROTOCOL values are:
+    * `HTTP`, `HTTPS` - PORT and PATH are required
+    * `TCP`, `SSL` - PORT is required, PATH is not supported
+* `interval` - (Required) The interval between checks.
+* `timeout` - (Required) The length of time before the check times out.
+* `healthy_threshold` - (Required) The number of checks before the instance is declared healthy.
+* `unhealthy_threshold` - (Required) The number of checks before the instance is declared unhealthy.
 
 ### Attribute Reference
 The following attributes are exported:
