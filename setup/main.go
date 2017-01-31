@@ -76,7 +76,7 @@ func main() {
 	app.Command("apply", "Create/Update a Layer0", func(cmd *cli.Cmd) {
 		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region"})
 
-		dockercfg := cmd.StringOpt("dockercfg", "", "Path to valid dockercfg file")
+		dockerCfgDir := cmd.StringOpt("docker-config-dir", "", "Path to directory containing valid dockercfg or config.json file")
 
 		force := cmd.BoolOpt("force", false, "Set this flag to skip prompting on a missing dockercfg file")
 
@@ -84,7 +84,7 @@ func main() {
 		flags["vpc_id"] = vpc
 
 		command := func(c *context.Context) error {
-			return context.Apply(c, *force, *dockercfg)
+			return context.Apply(c, *force, *dockerCfgDir)
 		}
 
 		flagsCommand(cmd, command, flags)
