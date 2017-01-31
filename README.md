@@ -119,7 +119,7 @@ If any changes are made to decorated interfaces, the code generation will need t
 
 ## Flow
 Flow is a bash script that automates common workflows when developing with Layer0. 
-This tool requires to have an environment variable `LAYER0_PREFIX` set to the name of you Layer0 instance, 
+This tool requires that the environment variable `LAYER0_PREFIX` is set to the name of you Layer0 instance, 
 or that the `-p <prefix>` flag is used with any command.
 
 #### Common Functions
@@ -177,7 +177,7 @@ make unittest
 
 Once the unit tests are passing, you should run the smoke tests and system tests. 
 However, these tests require that your update changes are running in AWS. 
-This requires bubilding a new docker image for the API and Runner, pushing them to github, and updating your Layer0 instance to run the new images. 
+This requires bubilding a new docker image for the API and Runner, pushing them to Dockerhub, and updating your Layer0 instance to run the new images. 
 This can be done using the `flow.sh` script
 ```
 ./scripts/flow.sh -p <instance> api runner
