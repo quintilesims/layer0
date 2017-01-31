@@ -12,6 +12,7 @@ The Layer0 Setup tool (commonly called `l0-setup`) is used to provision and mana
 
 #### Common Functions
 *The following commands should be ran from the `layer0/setup` directory*
+
 | Function      | Command       |
 | ------------- |:--------------|
 | Run program   | `go run main.go` |
@@ -24,6 +25,7 @@ The Layer0 CLI (commonly called `l0`) is used to manage Layer0 resources from th
 
 #### Common Functions
 *The following commands should be ran from the `layer0/cli` directory*
+
 | Function      | Command       |
 | ------------- |:--------------|
 | Run program   | `go run main.go` |
@@ -36,6 +38,7 @@ The Layer0 API is a web service that provisions and manages Layer0 resources in 
 
 #### Common Functions
 *The following commands should be ran from the `layer0/api` directory*
+
 | Function      | Command       |
 | ------------- |:--------------|
 | Run program        | `go run main.go` |
@@ -48,6 +51,7 @@ The Layer0 Runner is a service that runs jobs created by the Layer0 API.
 
 #### Common Functions
 *The following commands should be ran from the `layer0/runner` directory*
+
 | Function      | Command       |
 | ------------- |:--------------|
 | Run program        | `go run main.go` |
@@ -61,6 +65,7 @@ We use [mkdocs](http://www.mkdocs.org/) to compile our markdown docs into html a
 
 #### Common Functions
 *The following commands should be ran from the `layer0/docs-src` directory*
+
 | Function      | Command       |
 | ------------- |:--------------|
 | Install Deps       | `make deps` |
@@ -73,6 +78,7 @@ The smoke tests and system tests require that you have a running Layer0 API serv
 
 #### Common Functions
 *The following commands should be ran from the `layer0` directory*
+
 | Function      | Command       |
 | ------------- |:--------------|
 | Run Unit tests       | `make unittest` |
@@ -90,6 +96,7 @@ If any changes are made to mocked interfaces, the code generation will need to r
 
 #### Common Functions
 *The following commands should be ran from the `layer0/scripts` directory*
+
 | Function      | Command       |
 | ------------- |:--------------|
 | Install Deps               | `make -f Makefile.mocks deps` |
@@ -103,6 +110,7 @@ If any changes are made to decorated interfaces, the code generation will need t
 
 #### Common Functions
 *The following commands should be ran from the `layer0/scripts` directory*
+
 | Function      | Command       |
 | ------------- |:--------------|
 | Install Deps                    | `make -f Makefile.decorators deps` |
@@ -116,6 +124,7 @@ or that the `-p <prefix>` flag is used with any command.
 
 #### Common Functions
 *The following commands should be ran from the `layer0/scripts` directory*
+
 | Function      | Command       |
 | ------------- |:--------------|
 | Build the API Docker image, push it to Dockerhub, and run the new image as your Layer0 API | `flow.sh api` |
