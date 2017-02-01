@@ -170,20 +170,23 @@ $ go run cli/main.go environment list
 ```
 
 #### Test your Changes
-Once you have make changes to your code, you should run all of the unit tests:
+Once you have made changes to the code, you should run all of the unit tests:
 ```
 make unittest
 ```
 
 Once the unit tests are passing, you should run the smoke tests and system tests. 
-However, these tests require that your update changes are running in AWS. 
+However, these tests require that your updated changes are running in AWS. 
 This requires building a new docker image for the API and Runner, pushing them to Dockerhub, and updating your Layer0 instance to run the new images. 
-This can be done using the `flow.sh` script
+This can be done using the `flow.sh` script:
 ```
+# use flow to update the API and Runner
 ./scripts/flow.sh -p <instance> api runner
+
+# note: instead of using the '-p <instance>', you can set a LAYER0_PREFIX environment variable
 ```
 
-Once your Layer0 has finished running, you can run the smoketests and system tests
+Once your Layer0 has finished updating, you can run the smoketests and system tests
 ```
 # set the endpoint variables
 $ l0-setup endpoint <instance>
