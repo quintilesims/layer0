@@ -8,7 +8,7 @@ import (
 
 func basicAuthenticate(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
 	encoded := req.Request.Header.Get("Authorization")
-	expected := "Basic " + config.APIAuthToken()
+	expected := "Basic " + config.AuthToken()
 
 	// a better implementation would connect to an external service
 	if len(encoded) == 0 || expected != encoded {

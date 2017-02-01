@@ -49,19 +49,19 @@ func (this *ECSEnvironmentManager) ListEnvironments() ([]*models.Environment, er
 		return nil, err
 	}
 
-	models := []*models.Environment{}
+	environments := []*models.Environment{}
 	for _, cluster := range clusters {
 		if strings.HasPrefix(*cluster.ClusterName, id.PREFIX) {
-			model, err := this.populateModel(cluster)
-			if err != nil {
-				return nil, err
+			ecsEnvironmentID := id.ECSEnvironmentID(*cluster.ClusterName)
+			environment := &models.Environment{
+				EnvironmentID: ecsEnvironmentID.L0EnvironmentID(),
 			}
 
-			models = append(models, model)
+			environments = append(environments, environment)
 		}
 	}
 
-	return models, nil
+	return environments, nil
 }
 
 func (this *ECSEnvironmentManager) GetEnvironment(environmentID string) (*models.Environment, error) {
@@ -323,7 +323,7 @@ func (this *ECSEnvironmentManager) waitForAutoScalingGroupInactive(ecsEnvironmen
 
 	waiter := waitutils.Waiter{
 		Name:    fmt.Sprintf("Stop Autoscaling %s", autoScalingGroupName),
-		Retries: 30,
+		Retries: 50,
 		Delay:   time.Second * 10,
 		Clock:   this.Clock,
 		Check:   check,
@@ -343,7 +343,7 @@ func (this *ECSEnvironmentManager) waitForSecurityGroupDeleted(securityGroup *ec
 
 	waiter := waitutils.Waiter{
 		Name:    fmt.Sprintf("SecurityGroup delete for '%v'", securityGroup),
-		Retries: 30,
+		Retries: 50,
 		Delay:   time.Second * 10,
 		Clock:   this.Clock,
 		Check:   check,

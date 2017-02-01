@@ -23,13 +23,13 @@ func NewJobRunner(logic *logic.Logic, jobID string) *JobRunner {
 }
 
 func (this *JobRunner) MarkStatus(status types.JobStatus) error {
-	return this.Logic.JobData.UpdateJobStatus(this.jobID, status)
+	return this.Logic.JobStore.UpdateJobStatus(this.jobID, status)
 }
 
 func (this *JobRunner) Load() error {
 	log.Infof("Loading job '%s'", this.jobID)
 
-	model, err := this.Logic.JobData.GetJob(this.jobID)
+	model, err := this.Logic.JobStore.SelectByID(this.jobID)
 	if err != nil {
 		return err
 	}

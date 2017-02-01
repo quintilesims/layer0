@@ -1,7 +1,6 @@
 package client
 
 import (
-	// "encoding/base64"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/common/types"
@@ -9,7 +8,7 @@ import (
 	"testing"
 )
 
-func TestDeleteJob(t *testing.T) {
+func TestDelete(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		testutils.AssertEqual(t, r.Method, "DELETE")
 		testutils.AssertEqual(t, r.URL.Path, "/job/id")
@@ -20,12 +19,12 @@ func TestDeleteJob(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	if err := client.DeleteJob("id"); err != nil {
+	if err := client.Delete("id"); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestGetJob(t *testing.T) {
+func TestSelectByID(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		testutils.AssertEqual(t, r.Method, "GET")
 		testutils.AssertEqual(t, r.URL.Path, "/job/id")
@@ -44,7 +43,7 @@ func TestGetJob(t *testing.T) {
 	testutils.AssertEqual(t, job.JobID, "id")
 }
 
-func TestListJobs(t *testing.T) {
+func TestSelectAll(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		testutils.AssertEqual(t, r.Method, "GET")
 		testutils.AssertEqual(t, r.URL.Path, "/job/")

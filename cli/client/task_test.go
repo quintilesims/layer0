@@ -107,7 +107,7 @@ func TestListTasks(t *testing.T) {
 		testutils.AssertEqual(t, r.Method, "GET")
 		testutils.AssertEqual(t, r.URL.Path, "/task/")
 
-		tasks := []models.Task{
+		tasks := []models.TaskSummary{
 			{TaskID: "id1"},
 			{TaskID: "id2"},
 		}

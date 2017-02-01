@@ -22,7 +22,7 @@ func NewLoadBalancerHandler(loadBalancerLogic logic.LoadBalancerLogic, jobLogic 
 	}
 }
 
-func (this *LoadBalancerHandler) Routes() *restful.WebService {
+func (l *LoadBalancerHandler) Routes() *restful.WebService {
 	service := new(restful.WebService)
 	service.Path("/loadbalancer").
 		Consumes(restful.MIME_JSON).
@@ -33,20 +33,20 @@ func (this *LoadBalancerHandler) Routes() *restful.WebService {
 
 	service.Route(service.GET("/").
 		Filter(basicAuthenticate).
-		To(this.ListLoadBalancers).
+		To(l.ListLoadBalancers).
 		Doc("List all LoadBalancers").
 		Returns(200, "OK", []models.LoadBalancer{}))
 
 	service.Route(service.GET("{id}").
 		Filter(basicAuthenticate).
-		To(this.GetLoadBalancer).
+		To(l.GetLoadBalancer).
 		Doc("Return a single LoadBalancer").
 		Param(id).
 		Writes(models.LoadBalancer{}))
 
 	service.Route(service.POST("/").
 		Filter(basicAuthenticate).
-		To(this.CreateLoadBalancer).
+		To(l.CreateLoadBalancer).
 		Doc("Create a new LoadBalancer").
 		Reads(models.CreateLoadBalancerRequest{}).
 		Returns(http.StatusCreated, "Created", models.LoadBalancer{}).
@@ -54,24 +54,32 @@ func (this *LoadBalancerHandler) Routes() *restful.WebService {
 
 	service.Route(service.DELETE("{id}").
 		Filter(basicAuthenticate).
-		To(this.DeleteLoadBalancer).
+		To(l.DeleteLoadBalancer).
 		Doc("Delete a LoadBalancer").
 		Param(id).
 		Returns(http.StatusNoContent, "Deleted", nil))
 
 	service.Route(service.PUT("{id}/ports").
 		Filter(basicAuthenticate).
-		To(this.UpdateLoadBalancer).
-		Reads(models.UpdateLoadBalancerRequest{}).
+		To(l.UpdateLoadBalancerPorts).
+		Reads(models.UpdateLoadBalancerPortsRequest{}).
 		Param(id).
-		Doc("Update load balancer").
+		Doc("Update load balancer ports").
+		Writes(models.LoadBalancer{}))
+
+	service.Route(service.PUT("{id}/healthcheck").
+		Filter(basicAuthenticate).
+		To(l.UpdateLoadBalancerHealthCheck).
+		Reads(models.UpdateLoadBalancerHealthCheckRequest{}).
+		Param(id).
+		Doc("Update load balancer health check").
 		Writes(models.LoadBalancer{}))
 
 	return service
 }
 
-func (this *LoadBalancerHandler) ListLoadBalancers(request *restful.Request, response *restful.Response) {
-	loadbalancers, err := this.LoadBalancerLogic.ListLoadBalancers()
+func (l *LoadBalancerHandler) ListLoadBalancers(request *restful.Request, response *restful.Response) {
+	loadbalancers, err := l.LoadBalancerLogic.ListLoadBalancers()
 	if err != nil {
 		ReturnError(response, err)
 		return
@@ -80,7 +88,7 @@ func (this *LoadBalancerHandler) ListLoadBalancers(request *restful.Request, res
 	response.WriteAsJson(loadbalancers)
 }
 
-func (this *LoadBalancerHandler) GetLoadBalancer(request *restful.Request, response *restful.Response) {
+func (l *LoadBalancerHandler) GetLoadBalancer(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("id")
 	if id == "" {
 		err := fmt.Errorf("Parameter 'id' is required")
@@ -88,7 +96,7 @@ func (this *LoadBalancerHandler) GetLoadBalancer(request *restful.Request, respo
 		return
 	}
 
-	loadbalancer, err := this.LoadBalancerLogic.GetLoadBalancer(id)
+	loadbalancer, err := l.LoadBalancerLogic.GetLoadBalancer(id)
 	if err != nil {
 		ReturnError(response, err)
 		return
@@ -97,7 +105,7 @@ func (this *LoadBalancerHandler) GetLoadBalancer(request *restful.Request, respo
 	response.WriteAsJson(loadbalancer)
 }
 
-func (this *LoadBalancerHandler) DeleteLoadBalancer(request *restful.Request, response *restful.Response) {
+func (l *LoadBalancerHandler) DeleteLoadBalancer(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("id")
 	if id == "" {
 		err := fmt.Errorf("Paramter 'id' is required")
@@ -105,7 +113,7 @@ func (this *LoadBalancerHandler) DeleteLoadBalancer(request *restful.Request, re
 		return
 	}
 
-	job, err := this.JobLogic.CreateJob(types.DeleteLoadBalancerJob, id)
+	job, err := l.JobLogic.CreateJob(types.DeleteLoadBalancerJob, id)
 	if err != nil {
 		ReturnError(response, err)
 		return
@@ -114,14 +122,14 @@ func (this *LoadBalancerHandler) DeleteLoadBalancer(request *restful.Request, re
 	WriteJobResponse(response, job.JobID)
 }
 
-func (this *LoadBalancerHandler) CreateLoadBalancer(request *restful.Request, response *restful.Response) {
+func (l *LoadBalancerHandler) CreateLoadBalancer(request *restful.Request, response *restful.Response) {
 	var req models.CreateLoadBalancerRequest
 	if err := request.ReadEntity(&req); err != nil {
 		BadRequest(response, errors.InvalidJSON, err)
 		return
 	}
 
-	loadBalancer, err := this.LoadBalancerLogic.CreateLoadBalancer(req)
+	loadBalancer, err := l.LoadBalancerLogic.CreateLoadBalancer(req)
 	if err != nil {
 		ReturnError(response, err)
 		return
@@ -130,7 +138,7 @@ func (this *LoadBalancerHandler) CreateLoadBalancer(request *restful.Request, re
 	response.WriteAsJson(loadBalancer)
 }
 
-func (this *LoadBalancerHandler) UpdateLoadBalancer(request *restful.Request, response *restful.Response) {
+func (l *LoadBalancerHandler) UpdateLoadBalancerPorts(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("id")
 	if id == "" {
 		err := fmt.Errorf("Parameter 'id' is required")
@@ -138,13 +146,36 @@ func (this *LoadBalancerHandler) UpdateLoadBalancer(request *restful.Request, re
 		return
 	}
 
-	var req models.UpdateLoadBalancerRequest
+	var req models.UpdateLoadBalancerPortsRequest
 	if err := request.ReadEntity(&req); err != nil {
 		BadRequest(response, errors.InvalidJSON, err)
 		return
 	}
 
-	loadBalancer, err := this.LoadBalancerLogic.UpdateLoadBalancer(id, req.Ports)
+	loadBalancer, err := l.LoadBalancerLogic.UpdateLoadBalancerPorts(id, req.Ports)
+	if err != nil {
+		ReturnError(response, err)
+		return
+	}
+
+	response.WriteAsJson(loadBalancer)
+}
+
+func (l *LoadBalancerHandler) UpdateLoadBalancerHealthCheck(request *restful.Request, response *restful.Response) {
+	id := request.PathParameter("id")
+	if id == "" {
+		err := fmt.Errorf("Parameter 'id' is required")
+		BadRequest(response, errors.MissingParameter, err)
+		return
+	}
+
+	var req models.UpdateLoadBalancerHealthCheckRequest
+	if err := request.ReadEntity(&req); err != nil {
+		BadRequest(response, errors.InvalidJSON, err)
+		return
+	}
+
+	loadBalancer, err := l.LoadBalancerLogic.UpdateLoadBalancerHealthCheck(id, req.HealthCheck)
 	if err != nil {
 		ReturnError(response, err)
 		return

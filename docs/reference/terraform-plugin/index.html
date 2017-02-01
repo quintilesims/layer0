@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Layer0 Terraform Plugin - Layer0</title>
+      
+      
+      
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/reference/terraform-plugin/">
+      
+      
+        <meta name="author" content="xfra">
+      
+    
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/reference/terraform-plugin/">
+    <meta property="og:title" content="Layer0">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/reference/terraform-plugin//../../static/logo_icon.png">
+    <meta name="apple-mobile-web-app-title" content="Layer0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+      <link rel="apple-touch-icon" href="../../static/logo_icon.png">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../../assets/fonts/icon.eot?52m981');
+      	src: url('../../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../../assets/stylesheets/application-b64b728552.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Roboto+Mono">
+      <style>
+        body, input {
+          font-family: 'Roboto', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Roboto Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+              
+                Reference <i class="icon icon-link"></i>
+              
+            
+          </span>
+        
+        Layer0 Terraform Plugin
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/quintilesims/layer0/" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="../../static/logo_icon.png">
+        </div>
+      
+      <div class="name">
+        <strong>Layer0 v0.8.4</strong>
+        
+          <br>
+          quintilesims/layer0
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="../../#download" title="Download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="../..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Releases" href="../../releases/">
+      Releases
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Introduction" href="../../intro/">
+      Introduction
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Setup</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Install" href="../../setup/install/">
+      Install
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Upgrade" href="../../setup/update/">
+      Upgrade
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Destroy" href="../../setup/destroy/">
+      Destroy
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Guides</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Guestbook" href="../../guides/guestbook/">
+      Guestbook
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Guestbook with RDS" href="../../guides/guestbook_rds/">
+      Guestbook with RDS
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../../guides/consul/">
+      Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Guestbook with Consul" href="../../guides/guestbook_consul/">
+      Guestbook with Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="One-off Task" href="../../guides/one_off_task/">
+      One-off Task
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Reference</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Layer0 CLI" href="../cli/">
+      Layer0 CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Layer0 Setup CLI" href="../setup-cli/">
+      Layer0 Setup CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="current" title="Layer0 Terraform Plugin" href="./">
+      Layer0 Terraform Plugin
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Prerequisites" href="#prerequisites">
+                Prerequisites
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Install" href="#install">
+                Install
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Getting Started" href="#getting-started">
+                Getting Started
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Provider" href="#provider">
+                Provider
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="API Data Source" href="#api-data-source">
+                API Data Source
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Deploy" href="#deploy">
+                Deploy
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Environment" href="#environment">
+                Environment
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Load Balancer" href="#load-balancer">
+                Load Balancer
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Service" href="#service">
+                Service
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Best Practices" href="#best-practices">
+                Best Practices
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Updating a Service" href="../updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../consul/">
+      Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Task Definitions" href="../task_definition/">
+      Task Definitions
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Architecture" href="../architecture/">
+      Architecture
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="ECR" href="../ecr/">
+      ECR
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Troubleshooting</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Common Issues" href="../../troubleshooting/commonissues/">
+      Common Issues
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Secure Shell (SSH)" href="../../troubleshooting/ssh/">
+      Secure Shell (SSH)
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+          <hr>
+          <span class="section">The author</span>
+          <ul>
+            
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <h1 id="layer0-terraform-provider-reference">Layer0 Terraform Provider Reference<a class="headerlink" href="#layer0-terraform-provider-reference" title="Permanent link">#</a></h1>
+<p>Terraform is an open-source tool for provisioning and managing infrastructure.
+If you are new to Terraform, we recommend checking out their <a href="https://www.Terraform.io/intro/index.html">documentation</a>.</p>
+<p>Layer0 has built a custom <a href="https://www.Terraform.io/docs/providers/index.html">provider</a> for Layer0.
+This provider allows users to create, manage, and update Layer0 entities using Terraform.</p>
+<h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h2>
+<p>To use the Layer0 Terraform provider plugin, first ensure that you have a copy of Terraform and that it is accessible in your system path. A Terraform binary can be found in the <code>/bin</code> directory of a <a href="../../releases">Layer0 release</a>. Alternatively, you can <a href="https://www.Terraform.io/downloads.html">download Terraform</a> for the latest version.</p>
+<p>The Layer0 Terraform provider plugin in compatible with Terraform v0.2+.</p>
+<h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">#</a></h2>
+<p>Download a Layer0 v0.8.4+ <a href="../../releases">release</a>. The Terraform plugin binary is located in the release zip file as <code>terraform-provider-layer0</code>. Copy this <code>terraform-provider-layer0</code> binary into the same directory you installed Terraform - and you're done!</p>
+<p>For further information, see Terraform's documentation on installing a Terraform plugin <a href="https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin">here</a>.</p>
+<h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">#</a></h2>
+<ul>
+<li>Checkout the <code>Terraform</code> section of the Guestbook walkthrough <a href="../../guides/guestbook#terraform">here</a>.</li>
+<li>We've added some tips and links to helpful resources in the <a href="#best-practices">Best Practices</a> section below.</li>
+</ul>
+<hr />
+<h2 id="provider">Provider<a class="headerlink" href="#provider" title="Permanent link">#</a></h2>
+<p>The Layer0 provider is used to interact with a Layer0 API.
+The provider needs to be configured with the proper credentials before it can be used.</p>
+<h3 id="example-usage">Example Usage<a class="headerlink" href="#example-usage" title="Permanent link">#</a></h3>
+<pre class="code"><code># Add 'endpoint' and 'token' variables
+variable &quot;endpoint&quot; {}
+
+variable &quot;token&quot; {}
+
+# Configure the layer0 provider
+provider &quot;layer0&quot; {
+  endpoint        = &quot;${var.endpoint}&quot;
+  token           = &quot;${var.token}&quot;
+  skip_ssl_verify = true
+}</code></pre>
+
+
+<h3 id="argument-reference">Argument Reference<a class="headerlink" href="#argument-reference" title="Permanent link">#</a></h3>
+<p>The following arguments are supported:</p>
+<div class="admonition note">
+<p class="admonition-title">Configuration</p>
+<p>The <code>endpoint</code> and <code>token</code> variables for your layer0 api can be found using the <a href="../../reference/setup-cli/#endpoint">l0-setup endpoint</a> command</p>
+</div>
+<ul>
+<li><code>endpoint</code> - (Required) The endpoint of the layer0 api</li>
+<li><code>token</code> - (Required) The authentication token for the layer0 api</li>
+<li><code>skip_ssl_verify</code> - (Optional) If true, ssl certificate mismatch warnings will be ignored</li>
+</ul>
+<hr />
+<h2 id="api-data-source">API Data Source<a class="headerlink" href="#api-data-source" title="Permanent link">#</a></h2>
+<p>The API data source is used to extract useful read-only variables from the Layer0 API.</p>
+<h3 id="example-usage_1">Example Usage<a class="headerlink" href="#example-usage_1" title="Permanent link">#</a></h3>
+<pre class="code"><code># Configure the api data source
+data &quot;layer0_api&quot; &quot;config&quot; {}
+
+# Output the layer0 vpc id
+output &quot;vpc id&quot; {
+  val = &quot;${data.layer0_api.vpc_id}&quot;
+}</code></pre>
+
+
+<h3 id="attribute-reference">Attribute Reference<a class="headerlink" href="#attribute-reference" title="Permanent link">#</a></h3>
+<p>The following attributes are exported:</p>
+<ul>
+<li><code>prefix</code> - The prefix of the layer0 instance</li>
+<li><code>vpc_id</code> - The vpc id of the layer0 instance</li>
+<li><code>public_subnets</code> - A list containing the 2 public subnet ids in the layer0 vpc</li>
+<li><code>private_subnets</code> - A list containing the 2 private subnet ids in the layer0 vpc</li>
+</ul>
+<hr />
+<h2 id="deploy">Deploy<a class="headerlink" href="#deploy" title="Permanent link">#</a></h2>
+<p>Provides a Layer0 Deploy.</p>
+<p>Performing variable substitution inside of your deploy's json file (typically named <code>Dockerrun.aws.json</code>) can be done through Terraform's <a href="https://www.terraform.io/docs/providers/template/">template_file</a>.
+For a working example, please see the sample <a href="https://github.com/quintilesims/layer0-samples/blob/master/guestbook/app/layer0.tf">Guestbook</a> application</p>
+<h3 id="example-usage_2">Example Usage<a class="headerlink" href="#example-usage_2" title="Permanent link">#</a></h3>
+<pre class="code"><code># Configure the deploy template
+data &quot;template_file&quot; &quot;guestbook&quot; {
+  template = &quot;${file(&quot;Dockerrun.aws.json&quot;)}&quot;
+  vars {
+    docker_image_tag = &quot;latest&quot;
+  }
+}
+
+# Create a deploy using the rendered template
+resource &quot;layer0_deploy&quot; &quot;guestbook&quot; {
+  name    = &quot;guestbook&quot;
+  content = &quot;${data.template_file.guestbook.rendered}&quot;
+}</code></pre>
+
+
+<h3 id="argument-reference_1">Argument Reference<a class="headerlink" href="#argument-reference_1" title="Permanent link">#</a></h3>
+<p>The following arguments are supported:</p>
+<ul>
+<li><code>name</code> - (Required) The name of the deploy</li>
+<li><code>content</code> - (Required) The content of the deploy</li>
+</ul>
+<h3 id="attribute-reference_1">Attribute Reference<a class="headerlink" href="#attribute-reference_1" title="Permanent link">#</a></h3>
+<p>The following attributes are exported:</p>
+<ul>
+<li><code>id</code> - The id of the deploy</li>
+<li><code>name</code> - The name of the deploy</li>
+<li><code>version</code> - The version number of the deploy</li>
+</ul>
+<hr />
+<h2 id="environment">Environment<a class="headerlink" href="#environment" title="Permanent link">#</a></h2>
+<p>Provides a Layer0 Environment</p>
+<h3 id="example-usage_3">Example Usage<a class="headerlink" href="#example-usage_3" title="Permanent link">#</a></h3>
+<pre class="code"><code># Create a new environment
+resource &quot;layer0_environment&quot; &quot;demo&quot; {
+  name      = &quot;demo&quot;
+  size      = &quot;m3.medium&quot;
+  min_count = 0
+  user_data = &quot;echo hello, world&quot;
+}</code></pre>
+
+
+<h3 id="argument-reference_2">Argument Reference<a class="headerlink" href="#argument-reference_2" title="Permanent link">#</a></h3>
+<p>The following arguments are supported:</p>
+<ul>
+<li><code>name</code> - (Required) The name of the environment</li>
+<li><code>size</code> - (Optional, Default: "m3.medium") The size of the instances in the environment.
+Available instance sizes can be found <a href="https://aws.amazon.com/ec2/instance-types/">here</a></li>
+<li><code>min_count</code> - (Optional, Default: 0) The minimum number of instances allowed in the environment</li>
+<li><code>user-data</code> - (Optional) The user data template to use for the environment's autoscaling group.
+See the <a href="../../reference/cli/#environment">cli reference</a> for the default template.</li>
+</ul>
+<h3 id="attribute-reference_2">Attribute Reference<a class="headerlink" href="#attribute-reference_2" title="Permanent link">#</a></h3>
+<p>The following attributes are exported:</p>
+<ul>
+<li><code>id</code> - The id of the environment</li>
+<li><code>name</code> - The name of the environment</li>
+<li><code>size</code> - The size of the instances in the environment</li>
+<li><code>cluster_count</code> - The current number instances in the environment</li>
+<li><code>security_group_id</code> - The ID of the environment's security group</li>
+</ul>
+<hr />
+<h2 id="load-balancer">Load Balancer<a class="headerlink" href="#load-balancer" title="Permanent link">#</a></h2>
+<p>Provides a Layer0 Load Balancer</p>
+<h3 id="example-usage_4">Example Usage<a class="headerlink" href="#example-usage_4" title="Permanent link">#</a></h3>
+<pre class="code"><code># Create a new load balancer
+resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
+  name        = &quot;guestbook&quot;
+  environment = &quot;demo123&quot;
+  private     = false
+
+  port {
+    host_port      = 80
+    container_port = 80
+    protocol       = &quot;http&quot;
+  }
+
+  port {
+    host_port      = 443
+    container_port = 443
+    protocol       = &quot;https&quot;
+    certificate    = &quot;cert&quot;
+  }
+}</code></pre>
+
+
+<h3 id="argument-reference_3">Argument Reference<a class="headerlink" href="#argument-reference_3" title="Permanent link">#</a></h3>
+<p>The following arguments are supported:</p>
+<ul>
+<li><code>name</code> - (Required) The name of the load balancer</li>
+<li><code>environment</code> - (Required) The id of the environment to place the load balancer inside of</li>
+<li><code>private</code> - (Optional) If true, the load balancer will not be exposed to the public internet</li>
+<li><code>port</code> - (Optional, Default: 80:80/tcp) A list of port blocks. Ports documented below</li>
+</ul>
+<p>Ports (<code>port</code>) support the following:</p>
+<ul>
+<li><code>host_port</code> - (Required) The port on the load balancer to listen on</li>
+<li><code>container_port</code> - (Required) The port on the docker container to route to</li>
+<li><code>protocol</code> - (Required) The protocol to listen on. Valid values are <code>HTTP, HTTPS, TCP, or SSL</code></li>
+<li><code>certificate</code> - (Optional) The name of an SSL certificate. Only required if the <code>HTTP</code> or <code>SSL</code> protocol is used.</li>
+</ul>
+<h3 id="attribute-reference_3">Attribute Reference<a class="headerlink" href="#attribute-reference_3" title="Permanent link">#</a></h3>
+<p>The following attributes are exported:</p>
+<ul>
+<li><code>id</code> - The id of the load balancer</li>
+<li><code>name</code> - The name of the load balancer</li>
+<li><code>environment</code> - The id of the environment the load balancer exists in</li>
+<li><code>private</code> - Whether or not the load balancer is private</li>
+<li><code>url</code> - The URL of the load balancer</li>
+</ul>
+<hr />
+<h2 id="service">Service<a class="headerlink" href="#service" title="Permanent link">#</a></h2>
+<p>Provides a Layer0 Service</p>
+<h3 id="example-usage_5">Example Usage<a class="headerlink" href="#example-usage_5" title="Permanent link">#</a></h3>
+<pre class="code"><code># Create a new service
+resource &quot;layer0_service&quot; &quot;guestbook&quot; {
+  name          = &quot;guestbook&quot;
+  environment   = &quot;environment123&quot;
+  deploy        = &quot;deploy123&quot;
+  load_balancer = &quot;loadbalancer123&quot;
+  scale         = 3
+  wait          = true
+}</code></pre>
+
+
+<h3 id="argument-reference_4">Argument Reference<a class="headerlink" href="#argument-reference_4" title="Permanent link">#</a></h3>
+<p>The following arguments are supported:</p>
+<ul>
+<li><code>name</code> - (Required) The name of the service</li>
+<li><code>environment</code> - (Required) The id of the environment to place the service inside of</li>
+<li><code>deploy</code> - (Required) The id of the deploy for the service to run</li>
+<li><code>load_balancer</code> (Optional) The id of the load balancer to place the service behind</li>
+<li><code>scale</code> (Optional, Default: 1) The number of copies of the service to run</li>
+<li><code>wait</code> (Optional) If true, will wait until the service's deployment completes before returning</li>
+</ul>
+<h3 id="attribute-reference_4">Attribute Reference<a class="headerlink" href="#attribute-reference_4" title="Permanent link">#</a></h3>
+<p>The following attributes are exported:</p>
+<ul>
+<li><code>id</code> - The id of the service</li>
+<li><code>name</code> - The name of the service</li>
+<li><code>environment</code> - The id of the environment the service exists in</li>
+<li><code>deploy</code> - The id of the deploy the service is running</li>
+<li><code>load_balancer</code> - The id of the load balancer the service is behind (if <code>load_balancer</code> was set)</li>
+<li><code>scale</code> - The current desired scale of the service</li>
+</ul>
+<hr />
+<h2 id="best-practices">Best Practices<a class="headerlink" href="#best-practices" title="Permanent link">#</a></h2>
+<ul>
+<li>Always run <code>Terraform plan</code> before <code>terraform apply</code>.
+This will show you what action(s) Terraform plans to make before actually executing them.</li>
+<li>Use <a href="https://www.Terraform.io/intro/getting-started/variables.html">variables</a> to reference secrets.
+Secrets can be placed in a file named <code>Terraform.tfvars</code>, or by setting <code>TF_VAR_*</code> environment variables.
+More information can be found <a href="https://www.Terraform.io/intro/getting-started/variables.html">here</a>.</li>
+<li>Use Terraform's <code>remote</code> command to backup and sync your <code>terraform.tfstate</code> file across different members in your organization.
+Terraform has documentation for using S3 as a backend <a href="https://www.Terraform.io/docs/state/remote/s3.html">here</a>.</li>
+<li>Terraform <a href="https://www.Terraform.io/intro/getting-started/modules.html">modules</a> allow you to define and consume reusable components.</li>
+<li>Example configurations can be found <a href="https://github.com/hashicorp/Terraform/tree/master/examples">here</a></li>
+</ul>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../setup-cli/" title="Layer0 Setup CLI">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Layer0 Setup CLI
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../updateservice/" title="Updating a Service">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Updating a Service
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '../..';
+      var repo_id  = 'quintilesims/layer0';
+    </script>
+    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
+    
+    
+  </body>
+</html>

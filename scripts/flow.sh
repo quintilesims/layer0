@@ -1,5 +1,4 @@
-#!/bin/bash
-
+#!/usr/bin/env bash
 set -e
 
 # kill all subprocesses on exit
@@ -60,20 +59,11 @@ delete() {
         echo -e $BULLET "$id"
     done
 
-    echo "Deleting Certificates"
-    certificate_ids=$(l0 -o json certificate list | jq -r .[].certificate_id)
-    for id in $certificate_ids; do
-        if [ "$id" != "api" ]; then
-            l0 certificate delete $id > /dev/null
-            echo -e $BULLET "$id"
-        fi
-    done
-
     echo "Deleting Jobs"
     job_ids=$(l0 -o json job list | jq -r .[].job_id)
     for id in $job_ids; do
         l0 job delete $id
-        echo -e $BULLET "$id" 
+        echo -e $BULLET "$id"
     done
 }
 
@@ -89,7 +79,7 @@ run_jobs() {
             jobs[$!]=$id
         done
 
-        for pid in ${!jobs[@]}; do 
+        for pid in ${!jobs[@]}; do
             wait $pid
             echo -e $BULLET ${jobs[$pid]}
         done

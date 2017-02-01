@@ -1,7 +1,6 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/cli/entity"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 	"strconv"
@@ -132,7 +131,7 @@ func (s *ServiceCommand) Create(c *cli.Context) error {
 	}
 
 	if !c.Bool("wait") {
-		return s.printService(service)
+		return s.Printer.PrintServices(service)
 	}
 
 	timeout, err := getTimeout(c)
@@ -146,7 +145,7 @@ func (s *ServiceCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	return s.printService(service)
+	return s.Printer.PrintServices(service)
 }
 
 func (s *ServiceCommand) Delete(c *cli.Context) error {
@@ -175,7 +174,7 @@ func (s *ServiceCommand) Update(c *cli.Context) error {
 	}
 
 	if !c.Bool("wait") {
-		return s.printService(service)
+		return s.Printer.PrintServices(service)
 	}
 
 	timeout, err := getTimeout(c)
@@ -189,27 +188,35 @@ func (s *ServiceCommand) Update(c *cli.Context) error {
 		return err
 	}
 
-	return s.printService(service)
+	return s.Printer.PrintServices(service)
 }
 
 func (s *ServiceCommand) Get(c *cli.Context) error {
-	return s.get(c, "service", func(id string) (entity.Entity, error) {
+	services := []*models.Service{}
+	getServicef := func(id string) error {
 		service, err := s.Client.GetService(id)
 		if err != nil {
-			return nil, err
+			return err
 		}
 
-		return entity.NewService(service), nil
-	})
+		services = append(services, service)
+		return nil
+	}
+
+	if err := s.get(c, "service", getServicef); err != nil {
+		return err
+	}
+
+	return s.Printer.PrintServices(services...)
 }
 
 func (s *ServiceCommand) List(c *cli.Context) error {
-	services, err := s.Client.ListServices()
+	serviceSummaries, err := s.Client.ListServices()
 	if err != nil {
 		return err
 	}
 
-	return s.printServices(services)
+	return s.Printer.PrintServiceSummaries(serviceSummaries...)
 }
 
 func (s *ServiceCommand) Logs(c *cli.Context) error {
@@ -228,7 +235,7 @@ func (s *ServiceCommand) Logs(c *cli.Context) error {
 		return err
 	}
 
-	return s.Printer.PrintLogs(logs)
+	return s.Printer.PrintLogs(logs...)
 }
 
 func (s *ServiceCommand) Scale(c *cli.Context) error {
@@ -253,7 +260,7 @@ func (s *ServiceCommand) Scale(c *cli.Context) error {
 	}
 
 	if !c.Bool("wait") {
-		return s.printService(service)
+		return s.Printer.PrintServices(service)
 	}
 
 	timeout, err := getTimeout(c)
@@ -267,19 +274,5 @@ func (s *ServiceCommand) Scale(c *cli.Context) error {
 		return err
 	}
 
-	return s.printService(service)
-}
-
-func (s *ServiceCommand) printService(service *models.Service) error {
-	entity := entity.NewService(service)
-	return s.Printer.PrintEntity(entity)
-}
-
-func (s *ServiceCommand) printServices(services []*models.Service) error {
-	entities := []entity.Entity{}
-	for _, service := range services {
-		entities = append(entities, entity.NewService(service))
-	}
-
-	return s.Printer.PrintEntities(entities)
+	return s.Printer.PrintServices(service)
 }
