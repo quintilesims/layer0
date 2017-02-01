@@ -11,7 +11,7 @@ The following components comprise the Layer0 Application.
 The Layer0 Setup tool (commonly called `l0-setup`) is used to provision and manage resources in AWS that a Layer0 instance needs to run correctly. 
 
 #### Common Functions
-*The following commands should be ran from the `layer0/setup` directory*
+*The following commands should be run from the `layer0/setup` directory*
 
 | Function      | Command       |
 | ------------- |:--------------|
@@ -24,7 +24,7 @@ The Layer0 Setup tool (commonly called `l0-setup`) is used to provision and mana
 The Layer0 CLI (commonly called `l0`) is used to manage Layer0 resources from the shell.
 
 #### Common Functions
-*The following commands should be ran from the `layer0/cli` directory*
+*The following commands should be run from the `layer0/cli` directory*
 
 | Function      | Command       |
 | ------------- |:--------------|
@@ -37,7 +37,7 @@ The Layer0 CLI (commonly called `l0`) is used to manage Layer0 resources from th
 The Layer0 API is a web service that provisions and manages Layer0 resources in AWS.
 
 #### Common Functions
-*The following commands should be ran from the `layer0/api` directory*
+*The following commands should be run from the `layer0/api` directory*
 
 | Function      | Command       |
 | ------------- |:--------------|
@@ -50,7 +50,7 @@ The Layer0 API is a web service that provisions and manages Layer0 resources in 
 The Layer0 Runner is a service that runs jobs created by the Layer0 API.
 
 #### Common Functions
-*The following commands should be ran from the `layer0/runner` directory*
+*The following commands should be run from the `layer0/runner` directory*
 
 | Function      | Command       |
 | ------------- |:--------------|
@@ -61,10 +61,10 @@ The Layer0 Runner is a service that runs jobs created by the Layer0 API.
 
 ## Docs
 The documentation for Layer0 exists in `layer0/docs-src`. 
-We use [mkdocs](http://www.mkdocs.org/) to compile our markdown docs into html and css.
+We use [mkdocs](http://www.mkdocs.org/) (version >= v0.16.0) to compile our markdown docs into html and css.
 
 #### Common Functions
-*The following commands should be ran from the `layer0/docs-src` directory*
+*The following commands should be run from the `layer0/docs-src` directory*
 
 | Function      | Command       |
 | ------------- |:--------------|
@@ -77,7 +77,7 @@ Any package or subpackage in Layer0 can be tested using the standard `go test` t
 The smoke tests and system tests require that you have a running Layer0 API server with the proper environment variables in place (which can be gathered from the `l0-setup endpoint` command).
 
 #### Common Functions
-*The following commands should be ran from the `layer0` directory*
+*The following commands should be run from the `layer0` directory*
 
 | Function      | Command       |
 | ------------- |:--------------|
@@ -95,7 +95,7 @@ It uses code generation to create mockable objects.
 If any changes are made to mocked interfaces, the code generation will need to run again.
 
 #### Common Functions
-*The following commands should be ran from the `layer0/scripts` directory*
+*The following commands should be run from the `layer0/scripts` directory*
 
 | Function      | Command       |
 | ------------- |:--------------|
@@ -109,7 +109,7 @@ It uses code generation to create decorated objects.
 If any changes are made to decorated interfaces, the code generation will need to run again.
 
 #### Common Functions
-*The following commands should be ran from the `layer0/scripts` directory*
+*The following commands should be run from the `layer0/scripts` directory*
 
 | Function      | Command       |
 | ------------- |:--------------|
@@ -123,7 +123,7 @@ This tool requires that the environment variable `LAYER0_PREFIX` is set to the n
 or that the `-p <prefix>` flag is used with any command.
 
 #### Common Functions
-*The following commands should be ran from the `layer0/scripts` directory*
+*The following commands should be run from the `layer0/scripts` directory*
 
 | Function      | Command       |
 | ------------- |:--------------|
@@ -177,7 +177,7 @@ make unittest
 
 Once the unit tests are passing, you should run the smoke tests and system tests. 
 However, these tests require that your update changes are running in AWS. 
-This requires bubilding a new docker image for the API and Runner, pushing them to Dockerhub, and updating your Layer0 instance to run the new images. 
+This requires building a new docker image for the API and Runner, pushing them to Dockerhub, and updating your Layer0 instance to run the new images. 
 This can be done using the `flow.sh` script
 ```
 ./scripts/flow.sh -p <instance> api runner
