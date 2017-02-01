@@ -1,7 +1,7 @@
 package printer
 
 import (
-    "github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 // we use a TestPrinter instead of a mock because gomock doesn't support

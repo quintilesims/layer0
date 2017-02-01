@@ -4,9 +4,9 @@
 package mock_client
 
 import (
+	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
 	time "time"
-	gomock "github.com/golang/mock/gomock"
 )
 
 // Mock of Client interface
@@ -322,6 +322,16 @@ func (_m *MockClient) ListTasks() ([]*models.TaskSummary, error) {
 
 func (_mr *_MockClientRecorder) ListTasks() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListTasks")
+}
+
+func (_m *MockClient) RunRightSizer() error {
+	ret := _m.ctrl.Call(_m, "RunRightSizer")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockClientRecorder) RunRightSizer() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunRightSizer")
 }
 
 func (_m *MockClient) ScaleService(_param0 string, _param1 int) (*models.Service, error) {

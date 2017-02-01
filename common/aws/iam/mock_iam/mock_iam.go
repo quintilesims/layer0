@@ -4,8 +4,8 @@
 package mock_iam
 
 import (
-	iam "github.com/quintilesims/layer0/common/aws/iam"
 	gomock "github.com/golang/mock/gomock"
+	iam "github.com/quintilesims/layer0/common/aws/iam"
 )
 
 // Mock of Provider interface

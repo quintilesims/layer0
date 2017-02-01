@@ -4,8 +4,8 @@
 package mock_ecsbackend
 
 import (
-	id "github.com/quintilesims/layer0/api/backend/ecs/id"
 	gomock "github.com/golang/mock/gomock"
+	id "github.com/quintilesims/layer0/api/backend/ecs/id"
 )
 
 // Mock of ClusterScaler interface

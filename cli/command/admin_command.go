@@ -37,6 +37,12 @@ func (a *AdminCommand) GetCommand() cli.Command {
 				Action:    wrapAction(a.Command, a.Version),
 				ArgsUsage: " ",
 			},
+			{
+				Name:      "rightsizer",
+				Usage:     "Run the right sizer on the layer0 api",
+				Action:    wrapAction(a.Command, a.RightSizer),
+				ArgsUsage: " ",
+			},
 		},
 	}
 }
@@ -67,7 +73,7 @@ func (a *AdminCommand) Debug(c *cli.Context) error {
 	a.Printer.Printf("API Version:    %v\n", apiVersion)
 	a.Printer.Printf("CLI Version:    %v\n", cliVersion)
 	a.Printer.Printf("CLI Auth:       %v\n", cliAuth)
-	a.Printer.Printf("SSL Verify::    %v\n", sslVerify)
+	a.Printer.Printf("SSL Verify:     %v\n", sslVerify)
 	a.Printer.Printf("Version Verify: %v\n", versionVerify)
 
 	return nil
@@ -90,5 +96,14 @@ func (a *AdminCommand) Version(c *cli.Context) error {
 	}
 
 	a.Printer.Printf("%s\n", version)
+	return nil
+}
+
+func (a *AdminCommand) RightSizer(c *cli.Context) error {
+	if err := a.Client.RunRightSizer(); err != nil {
+		return err
+	}
+
+	a.Printer.Printf("Right Sizer finished successfully\n")
 	return nil
 }

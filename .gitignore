@@ -25,5 +25,8 @@ pass_file
 *.save
 coverage.*
 *.tags*
+terraform.tfvars
+terraform.tfstate*
 .python-version
+.terraform/
 terraform-provider-layer0

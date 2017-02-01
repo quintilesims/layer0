@@ -4,8 +4,8 @@
 package mock_cloudwatchlogs
 
 import (
-	cloudwatchlogs "github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
 	gomock "github.com/golang/mock/gomock"
+	cloudwatchlogs "github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
 )
 
 // Mock of Provider interface

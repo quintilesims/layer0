@@ -1,5 +1,5 @@
 package models
 
 type UpdateLoadBalancerHealthCheckRequest struct {
-    HealthCheck HealthCheck `json:"health_check"`
+	HealthCheck HealthCheck `json:"health_check"`
 }

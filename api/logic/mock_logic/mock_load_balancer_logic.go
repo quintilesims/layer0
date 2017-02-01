@@ -4,8 +4,8 @@
 package mock_logic
 
 import (
-	models "github.com/quintilesims/layer0/common/models"
 	gomock "github.com/golang/mock/gomock"
+	models "github.com/quintilesims/layer0/common/models"
 )
 
 // Mock of LoadBalancerLogic interface

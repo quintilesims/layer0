@@ -5,12 +5,12 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/mock_backend"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/db/job_store"
 	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/models"
 	"os"
 	"testing"
-	"github.com/quintilesims/layer0/common/db"
 )
 
 func TestMain(m *testing.M) {
@@ -31,9 +31,9 @@ func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 
 	tagStore := tag_store.NewMysqlTagStore(db.Config{
- 		Connection: config.DBConnection(),
- 		DBName:     config.DBName() + "_logic",
- 	})
+		Connection: config.DBConnection(),
+		DBName:     config.DBName() + "_logic",
+	})
 
 	if err := tagStore.Init(); err != nil {
 		t.Fatal(err)
@@ -44,9 +44,9 @@ func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
 	}
 
 	jobStore := job_store.NewMysqlJobStore(db.Config{
- 		Connection: config.DBConnection(),
- 		DBName:     config.DBName() + "_logic",
- 	})
+		Connection: config.DBConnection(),
+		DBName:     config.DBName() + "_logic",
+	})
 
 	if err := jobStore.Init(); err != nil {
 		t.Fatal(err)

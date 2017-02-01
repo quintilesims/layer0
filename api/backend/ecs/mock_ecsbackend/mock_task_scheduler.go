@@ -6,8 +6,8 @@ package mock_ecsbackend
 import (
 	gomock "github.com/golang/mock/gomock"
 	id "github.com/quintilesims/layer0/api/backend/ecs/id"
-	models "github.com/quintilesims/layer0/common/models"
 	ecs "github.com/quintilesims/layer0/common/aws/ecs"
+	models "github.com/quintilesims/layer0/common/models"
 )
 
 // Mock of TaskScheduler interface
