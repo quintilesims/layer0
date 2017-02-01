@@ -2,6 +2,7 @@ SHELL:=/bin/bash
 
 deps:
 	git clone https://github.com/sstephenson/bats.git
+	mkdir ~/bin || :
 	./bats/install.sh ~/bin
 	export PATH=~/bin:$PATH
 

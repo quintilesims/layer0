@@ -13,6 +13,8 @@ test:
 
 install-smoketest:
 		CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 go build -ldflags "-s -X main.Version=$(L0_VERSION)" -a -o build/linux/l0 .
+		mkdir ~/bin || :
 		cp ./build/linux/l0 ~/bin
+		export PATH=~/bin:$PATH
 
 .PHONY: build release test install-smoketest

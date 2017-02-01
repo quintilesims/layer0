@@ -4,10 +4,7 @@ TERRAFORM_VERSION=0.8.5
 LAYER0_PATH=$GOPATH/src/github.com/quintilesims/layer0
 
 deps:
-	curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-	unzip awscli-bundle.zip
-	./awscli-bundle/install -b ~/bin/aws
-	export PATH=~/bin:$PATH
+	sudo pip install awscli
 
 build-directories:
 	rm -rf build
