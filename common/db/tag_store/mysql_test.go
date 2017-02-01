@@ -1,12 +1,12 @@
 package tag_store
 
 import (
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"reflect"
 	"testing"
-	"github.com/quintilesims/layer0/common/config"
- 	"github.com/quintilesims/layer0/common/db"
 )
 
 func getTestTags() models.Tags {
@@ -30,9 +30,9 @@ func getTestTags() models.Tags {
 
 func NewTestTagStore(t *testing.T) *MysqlTagStore {
 	store := NewMysqlTagStore(db.Config{
- 		Connection: config.DBConnection(),
- 		DBName:     config.DBName() + "_tag_store",
- 	})
+		Connection: config.DBConnection(),
+		DBName:     config.DBName() + "_tag_store",
+	})
 
 	if err := store.Init(); err != nil {
 		t.Fatal(err)

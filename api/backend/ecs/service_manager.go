@@ -121,22 +121,22 @@ func (this *ECSServiceManager) DeleteService(environmentID, serviceID string) er
 	desiredCount := int64(0)
 
 	service, err := this.GetService(environmentID, serviceID)
-        if err != nil {
-                return  err
-        }
+	if err != nil {
+		return err
+	}
 
-        taskARNs := []*string{}
-        for _, deployment := range service.Deployments {
-                arns, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(deployment.DeploymentID))
-                if err != nil {
-                        return err
-                }
+	taskARNs := []*string{}
+	for _, deployment := range service.Deployments {
+		arns, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(deployment.DeploymentID))
+		if err != nil {
+			return err
+		}
 
-                taskARNs = append(taskARNs, arns...)
-        }
+		taskARNs = append(taskARNs, arns...)
+	}
 
-	for _, arn := range taskARNs{
-		if err := this.ECS.StopTask(ecsEnvironmentID.String(), "Service deleted by User", *arn); err != nil{
+	for _, arn := range taskARNs {
+		if err := this.ECS.StopTask(ecsEnvironmentID.String(), "Service deleted by User", *arn); err != nil {
 			log.Warnf("Stop Task for Service '%s' had error: %v", serviceID, err)
 		}
 	}

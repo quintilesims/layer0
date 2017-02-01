@@ -38,5 +38,6 @@ type Backend interface {
 	UpdateLoadBalancerHealthCheck(loadBalancerID string, healthCheck models.HealthCheck) (*models.LoadBalancer, error)
 
 	StartRightSizer()
+	RunRightSizer() error
 	GetRightSizerHealth() (string, error)
 }

@@ -34,6 +34,12 @@ func (this AdminHandler) Routes() *restful.WebService {
 		To(this.GetHealth).
 		Doc("Returns Health of API Server"))
 
+	service.Route(service.POST("/health").
+		Filter(basicAuthenticate).
+		To(this.RunRightSizer).
+		Reads("").
+		Doc("Run right sizer"))
+
 	service.Route(service.GET("/config").
 		To(this.GetConfig).
 		Doc("Returns Configuration of the API Server").
@@ -82,6 +88,15 @@ func (this *AdminHandler) GetHealth(request *restful.Request, response *restful.
 	}
 
 	response.WriteAsJson(message)
+}
+
+func (this *AdminHandler) RunRightSizer(request *restful.Request, response *restful.Response) {
+	if err := this.AdminLogic.RunRightSizer(); err != nil {
+		ReturnError(response, err)
+		return
+	}
+
+	response.WriteAsJson("")
 }
 
 func (this *AdminHandler) UpdateSQL(request *restful.Request, response *restful.Response) {

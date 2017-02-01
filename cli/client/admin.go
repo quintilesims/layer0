@@ -33,3 +33,12 @@ func (c *APIClient) UpdateSQL() error {
 
 	return nil
 }
+
+func (c *APIClient) RunRightSizer() error {
+	var output string
+	if err := c.Execute(c.Sling("admin/").Post("health").BodyJSON(""), &output); err != nil {
+		return err
+	}
+
+	return nil
+}

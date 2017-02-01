@@ -25,4 +25,7 @@ unittest:
 smoketest:
 	$(MAKE) -C tests/smoke test
 
-.PHONY: release unittest smoketest
+systemtest:
+	 $(MAKE) -C tests/system test
+
+.PHONY: release unittest smoketest systemtest

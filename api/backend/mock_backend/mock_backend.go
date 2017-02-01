@@ -4,8 +4,8 @@
 package mock_backend
 
 import (
-	models "github.com/quintilesims/layer0/common/models"
 	gomock "github.com/golang/mock/gomock"
+	models "github.com/quintilesims/layer0/common/models"
 )
 
 // Mock of Backend interface
@@ -275,6 +275,16 @@ func (_m *MockBackend) ListTasks() ([]*models.Task, error) {
 
 func (_mr *_MockBackendRecorder) ListTasks() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListTasks")
+}
+
+func (_m *MockBackend) RunRightSizer() error {
+	ret := _m.ctrl.Call(_m, "RunRightSizer")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockBackendRecorder) RunRightSizer() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunRightSizer")
 }
 
 func (_m *MockBackend) ScaleService(_param0 string, _param1 string, _param2 int) (*models.Service, error) {

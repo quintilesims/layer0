@@ -4,8 +4,8 @@
 package mock_s3
 
 import (
-	os "os"
 	gomock "github.com/golang/mock/gomock"
+	os "os"
 )
 
 // Mock of Provider interface
