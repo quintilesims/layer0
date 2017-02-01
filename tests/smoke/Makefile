@@ -3,6 +3,7 @@ SHELL:=/bin/bash
 deps:
 	git clone https://github.com/sstephenson/bats.git
 	./bats/install.sh ~/bin
+	export PATH=~/bin:$PATH
 
 test: deps
 	bats admin.bats
