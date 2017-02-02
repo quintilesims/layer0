@@ -5,7 +5,7 @@ In this example, you will learn how to use layer0 to run a one-off task. In this
 ---
 
 ## Before you start
-In order to complete the procedures in this section, you must install and configure Layer0 v0.8.3 or later. If you have not already configured Layer0, see the [installation guide](/setup/install). If you are running an older version of Layer0, see the [upgrade instructions](/setup/update#upgrading-older-versions-of-layer0).
+In order to complete the procedures in this section, you must install and configure Layer0 v0.8.4 or later. If you have not already configured Layer0, see the [installation guide](/setup/install). If you are running an older version of Layer0, see the [upgrade instructions](/setup/upgrade#upgrading-older-versions-of-layer0).
 
 This guide expands upon the [Guestbook deployment guide](/guides/guestbook) deployment guide. You must complete the procedures in that guide before you can complete the procedures listed here. After completing the procedures in the Guestbook guide, your Layer0 should contain a service named "guestbooksvc", running a deploy named "guestbook", behind a load balancer named "guestbooklb", all within an environment named "demo".
 

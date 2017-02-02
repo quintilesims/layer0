@@ -35,43 +35,34 @@ This step will create an Identity & Access Management (IAM) access key from your
 
 8. Select the group **Administrators** and click **Add to Groups**. This will make your newly created user an administrator for your AWS account, so be sure to keep your security credentials safe!
 
-## (Optional) Part 3: Configure the dockercfg file to use a private Docker registry
-
-!!! note
-        The procedures in this section are optional, but are highly recommended for production use.
-
-Before you create your Layer0, if you require private registry authentication, you need to create a file named `dockercfg` your layer0 instance directory, located at `~/layer0/instances/<prefix>/dockercfg`.
-If you do not add this file prior to running `l0-setup apply`, you will be prompted to continue.
-
-To add private registry authentication, add the file `~/layer0/instances/<prefix>/dockercfg` with the authentication information for your private registry.
-The format should be similar to:
-<pre class="code"><code>{
-  "https://index.docker.io/v1/": {
-    "username": "my_name",
-    "password": "my_password",
-    "email": "email@example.com"
-  }
-}</code></pre>
-
-After you run the ```l0-setup apply``` command on your Layer0, the `dockercfg` file (along with other configuration files) for your layer0 will be stored in `~/layer0/instances/<prefix>/`.
-You can modify this file and re-run `l0-setup apply` to make changes to your authentication. 
-Note that any EC2 instances created prior to changing your `dockercfg` file will need to be manually terminated since they only grab the `dockercfg` authentication file once during instance creation. 
-Terminated EC2 instances will be automatically re-created by autoscaling. 
-
-## Part 4: Configure your Layer0
+## Part 3: Configure your Layer0
 Now that you have downloaded Layer0 and configured your AWS instance, you can create your Layer0.
 
 **To configure Layer0:**
 
 1. At the command prompt, navigate to the **l0-setup** subdirectory in the folder in which you extracted the Layer0 files.
-2. Type the following command, replacing ``[prefix]`` with a unique name for your Layer0: ```l0-setup apply [prefix]```
+
+2. Type the following command, replacing ``[prefix]`` with a unique name for your Layer0: ```l0-setup apply [prefix]``` <div class="admonition note">
+<p class="admonition-title">Using a private Docker registry</p>
+<br /><br />
+<p>**The procedures in this section are optional, but are highly recommended for production use.**</p>
+<br /><br />
+<p>If you require authentication to a private Docker registry, you will need to populate a file named `dockercfg` inside your Layer0 instance directory, located at `~/layer0/instances/[prefix]/dockercfg`. When you run `l0-setup` for the first time, use the `--dockercfg` flag, like so:</p>
+<br /><br />
+<p>`l0-setup apply --dockercfg [path/to/config/file] [prefix]`</p>
+<br /><br />
+<p>If you don't have a config file yet, you can generate one by running `docker login [registry-address]`. A configuration file will be generated at `~/.docker/config.json` for Docker versions 1.7 or higher, or at `~/.dockercfg` for Docker versions below 1.7.</p>
+<br /><br />
+<p>You can modify an instance's `dockercfg` file (the one located at `~/layer0/instances/[instance]/dockercfg`) and re-run `l0-setup apply` to make changes to your authentication. Note that any EC2 instances created prior to changing your `dockercfg` file will need to be manually terminated since they only grab the `dockercfg` authentication file once during instance creation. Terminated EC2 instances will be automatically re-created by autoscaling.</p>
+</div>
+
 3. When prompted, enter the following information:
 	* **AWS Access Key ID**: The access key ID contained in the credential file that you downloaded in step 6 of the previous section.
 	* **AWS Secret Access Key**: The secret access key contained in the credential file that you downloaded in step 6 of the previous section.
 	* **Key Pair**: The name of the key pair that you created in the Prerequisites section.
 The first time you run the ```apply``` command, it may take around 15 minutes to complete. If the ```apply``` command fails to complete successfully, it is safe to run it again until it succeeds.
 
-## Part 5: Configure the environment variables
+## Part 4: Configure the environment variables
 Once the ```apply``` command has run successfully, you can configure the Layer0 environment variables using the ```endpoint``` command.
 
 To view the environment variables for your Layer0 and apply them to your shell, type the following command, replacing ```[prefix]``` with the name of the Layer0 prefix you created in Part 3:
@@ -84,13 +75,13 @@ To view the environment variables for your Layer0 and apply them to your shell, 
 !!! note
 	The procedures in this section are optional, but are highly recommended for production use.
 
-Layer0 uses a self-signed certificate to run the API. 
+Layer0 uses a self-signed certificate to run the API.
 In a production setting, we recommend using a certificate from a trusted CA.
 
 **To use a custom certificate:**
 
 <ol>
-	<li>In a text editor, open the file in your Layer0 directory named elb.tf.template. 
+	<li>In a text editor, open the file in your Layer0 directory named elb.tf.template.
 The full path will be `~/layer0/instances/<prefix>/elb.tf.template`.
 Update the following line the file:
 <pre class="code"><code>

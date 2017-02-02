@@ -115,10 +115,6 @@ func main() {
 		basicCommand(cmd, command)
 	})
 
-	app.Command("migrate", "Migrate old state files to the current version", func(cmd *cli.Cmd) {
-		basicCommand(cmd, context.Migrate)
-	})
-
 	app.Command("restore", "Restore Layer0 resource files from S3", func(cmd *cli.Cmd) {
 		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region"})
 		flagsCommand(cmd, context.Restore, flags)

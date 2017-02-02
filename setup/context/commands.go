@@ -472,10 +472,6 @@ func Terraform(c *Context, args []string) error {
 	return nil
 }
 
-func Migrate(c *Context) error {
-	return fmt.Errorf("No migration available for l0-setup version %s", c.TerraformVars["setup_version"])
-}
-
 func getTerraformOutputVariable(c *Context, showOutput bool, variable string) (string, error) {
 	val, err := c.Terraformf(showOutput, "output", variable)
 	if err != nil {

@@ -5,7 +5,7 @@ Consul is a tool for configuring services in your infrastructure. It includes se
 This guide provides step-by-step instructions for deploying Consul in a Layer0 instance. These procedures build upon the [Guestbook](/guides/guestbook) and [Guestbook with RDS](/guides/guestbook_rds) deployment guides; you must complete the procedures in those guides before you can complete the procedures in this guide.
 
 ## Before you start
-In order to complete the procedures in this section, you must install and configure Layer0 v0.7.0 or later. If you have not already configured Layer0, see the [installation guide](/setup/install). If you are running an older version of Layer0, see the [upgrade instructions](/setup/update#upgrading-older-versions-of-layer0).
+In order to complete the procedures in this section, you must install and configure Layer0 v0.8.4 or later. If you have not already configured Layer0, see the [installation guide](/setup/install). If you are running an older version of Layer0, see the [upgrade instructions](/setup/upgrade#upgrading-older-versions-of-layer0).
 
 This guide expands upon the [Guestbook with RDS Database deployment guide](/guides/guestbook_rds). The procedures in this guide assume that you completed the Guestbook with RDS deployment guide and all of its prerequisites.
 

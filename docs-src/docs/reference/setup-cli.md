@@ -1,8 +1,8 @@
 # Layer0 Setup (l0-setup) command-line interface reference
 
-The **l0-setup** application is designed to be used with one of several commands; these commands are detailed in the sections below.
+The **l0-setup** application is designed to be used with one of several commands: [apply](#apply), [backup](#backup), [destroy](#destroy), [endpoint](#endpoint), [plan](#plan), [restore](#restore), [terraform](#terraform), and [vpc](#vpc). These commands are detailed in the sections below.
 
-####General Usage
+##General Usage
 <div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding">**l0-setup** [--version] _command_ [_options_] [_parameters_]</div>
@@ -17,7 +17,7 @@ The **apply** command is used to create and update Layer0 instances.
 ### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0-setup apply** [--force] [--access\_key=_awsAccessKeyID_] [--secret\_key=_awsSecretAccessKeyID_] [--region=_awsRegion_] [--docker\_token=_dockerToken_] [--vpc=_vpcID_] _prefixName_</div>
+    <div class="divCellNoPadding">**l0-setup apply** [--force] [--access\_key=_awsAccessKeyID_] [--secret\_key=_awsSecretAccessKeyID_] [--region=_awsRegion_] [--dockercfg=_filepath_] [--vpc=_vpcID_] _prefixName_</div>
   </div>
 </div>
 
@@ -48,8 +48,8 @@ The **apply** command is used to create and update Layer0 instances.
     <div class="divCell">The AWS region in which the Layer0 instance resides.</div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">--docker\_token=_dockerToken_</div>
-    <div class="divCell">A valid d.ims.io Docker token.</div>
+    <div class="divCellNoWrap">--dockercfg=_filepath_</div>
+    <div class="divCell">The path to a valid Docker configuration file (likely found at `~/.docker/config.json` for Docker versions 1.7 or greater, or `~/.dockercfg` for versions less than 1.7).</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">--vpc=_vpcID_</div>
@@ -74,46 +74,6 @@ The **backup** command is used to back up your Layer0 configuration files to an 
   <div class="divRow">
     <div class="divCellNoWrap">_prefixName_</div>
     <div class="divCell">The name of the Layer0Prefix that you want to back up.</div>
-  </div>
-</div>
-
----
-
-##Restore
-The **restore** command is used to restore Layer0 configuration files that were previously backed up to an S3 bucket using the [**backup**](#backup) command.
-
-### Usage
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding">**l0-setup restore** [--access\_key=_awsAccessKeyID_] [--secret\_key=_awsSecretAccessKeyID_] [--region=_awsRegion_] [--docker\_token=_dockerToken_] _prefixName_</div>
-  </div>
-</div>
-
-###Required parameters
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap">_prefixName_</div>
-    <div class="divCell">The name of the Layer0Prefix that you want to restore.</div>
-  </div>
-</div>
-
-###Optional arguments
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap">--access\_key=_awsAccessKeyID_</div>
-    <div class="divCell">The Access Key ID of an IAM user associated with the AWS stack in which the Layer0 instance was created.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">--secret\_key=_awsSecretAccessKeyID_</div>
-    <div class="divCell">The Secret Access Key ID of an IAM user associated with the AWS stack in which the Layer0 instance was created.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">--region=_awsRegion_</div>
-    <div class="divCell">The AWS region in which the Layer0 instance resides.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">--docker\_token=_dockerToken_</div>
-    <div class="divCell">A valid d.ims.io Docker token.</div>
   </div>
 </div>
 
@@ -158,7 +118,7 @@ The **endpoint** command is used to look up the details of a Layer0 endpoint so 
 ### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0-setup endpoint** [-iq] [-s _syntax_] _prefixName_</div>
+    <div class="divCellNoPadding">**l0-setup endpoint** [-diq] [-s _syntax_] _prefixName_</div>
   </div>
 </div>
 
@@ -173,8 +133,8 @@ The **endpoint** command is used to look up the details of a Layer0 endpoint so 
 ###Optional arguments
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">-s, --syntax="bash"</div>
-    <div class="divCell">Show commands using the specified syntax (bash, powershell, cmd)</div>
+    <div class="divCellNoWrap">-d, --dev=false</div>
+    <div class="divCell">Show configuration variables required for local development</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">-i, --insecure=false</div>
@@ -184,18 +144,21 @@ The **endpoint** command is used to look up the details of a Layer0 endpoint so 
     <div class="divCellNoWrap">-q, --quiet=false</div>
     <div class="divCell">Silence CLI and API version mismatch warning messages</div>
   </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">-s, --syntax="bash"</div>
+    <div class="divCell">Show commands using the specified syntax (bash, powershell, cmd)</div>
+  </div>
 </div>
 
 ---
 
-##VPC
-
-The **vpc** command is used to look up details from a Virtual Private Cloud (VPC) instance.
+##Plan
+The **plan** command is used to dry-run an **apply**, displaying what _would_ happen without actually making any changes.
 
 ### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0-setup vpc** [--access\_key=_awsAccessKeyID_] [--secret\_key=_awsSecretAccessKeyID_] [--region=_awsRegion_] [--docker\_token=_dockerToken_] _prefixName_</div>
+    <div class="divCellNoPadding">**l0-setup plan** _prefixName_ _terraformArguments_</div>
   </div>
 </div>
 
@@ -203,7 +166,35 @@ The **vpc** command is used to look up details from a Virtual Private Cloud (VPC
 <div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap">_prefixName_</div>
-    <div class="divCell">The name of a Layer0Prefix for which you want to view VPC information.</div>
+    <div class="divCell">The name of a Layer0Prefix for which you want to plan an update.</div>
+  </div>
+</div>
+
+###Optional arguments
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">_terraformArguments_</div>
+    <div class="divCell">The terraform arguments to pass to Layer0. Arguments passed in this way must follow the syntax specified in the [Terraform Commands (CLI) Documentation](https://www.terraform.io/docs/commands/index.html).</div>
+  </div>
+</div>
+
+---
+
+##Restore
+The **restore** command is used to restore Layer0 configuration files that were previously backed up to an S3 bucket using the [**backup**](#backup) command.
+
+### Usage
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">**l0-setup restore** [--access\_key=_awsAccessKeyID_] [--secret\_key=_awsSecretAccessKeyID_] [--region=_awsRegion_] _prefixName_</div>
+  </div>
+</div>
+
+###Required parameters
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">_prefixName_</div>
+    <div class="divCell">The name of the Layer0Prefix that you want to restore.</div>
   </div>
 </div>
 
@@ -211,19 +202,15 @@ The **vpc** command is used to look up details from a Virtual Private Cloud (VPC
 <div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap">--access\_key=_awsAccessKeyID_</div>
-    <div class="divCell">The Access Key ID of an IAM user associated with the AWS stack in which you are creating the Layer0 instance.</div>
+    <div class="divCell">The Access Key ID of an IAM user associated with the AWS stack in which the Layer0 instance was created.</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">--secret\_key=_awsSecretAccessKeyID_</div>
-    <div class="divCell">The Secret Access Key ID of an IAM user associated with the AWS stack in which you are creating the Layer0 instance.</div>
+    <div class="divCell">The Secret Access Key ID of an IAM user associated with the AWS stack in which the Layer0 instance was created.</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">--region=_awsRegion_</div>
     <div class="divCell">The AWS region in which the Layer0 instance resides.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">--docker\_token=_dockerToken_</div>
-    <div class="divCell">A valid d.ims.io Docker token.</div>
   </div>
 </div>
 
@@ -255,7 +242,37 @@ For more information about the capabilities and syntax of terraform commands, se
 
 ---
 
-##Migrate
+##VPC
 
-!!! note
-	The **migrate** command has been deprecated and should not be used. This command will be removed from future versions of l0-setup.
+The **vpc** command is used to look up details from a Virtual Private Cloud (VPC) instance.
+
+### Usage
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">**l0-setup vpc** [--access\_key=_awsAccessKeyID_] [--secret\_key=_awsSecretAccessKeyID_] [--region=_awsRegion_] _prefixName_</div>
+  </div>
+</div>
+
+###Required parameters
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">_prefixName_</div>
+    <div class="divCell">The name of a Layer0Prefix for which you want to view VPC information.</div>
+  </div>
+</div>
+
+###Optional arguments
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--access\_key=_awsAccessKeyID_</div>
+    <div class="divCell">The Access Key ID of an IAM user associated with the AWS stack in which you are creating the Layer0 instance.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--secret\_key=_awsSecretAccessKeyID_</div>
+    <div class="divCell">The Secret Access Key ID of an IAM user associated with the AWS stack in which you are creating the Layer0 instance.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--region=_awsRegion_</div>
+    <div class="divCell">The AWS region in which the Layer0 instance resides.</div>
+  </div>
+</div>

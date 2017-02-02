@@ -15,7 +15,7 @@ pages:
   - Introduction: intro.md
   - Setup:
     - Install: setup/install.md
-    - Upgrade: setup/update.md
+    - Upgrade: setup/upgrade.md
     - Destroy: setup/destroy.md
   - Guides:
     - Guestbook: guides/guestbook.md
