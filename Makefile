@@ -24,6 +24,7 @@ unittest:
 	$(MAKE) -C setup test
 
 smoketest:
+	$(MAKE) -C tests/smoke deps
 	$(MAKE) -C tests/smoke test
 
 systemtest:
