@@ -4,7 +4,7 @@ deps:
 	git clone https://github.com/sstephenson/bats.git
 	sudo ./bats/install.sh /usr/local
 
-test: deps
+test:
 	bats admin.bats
 	bats deploy.bats
 	bats environment.bats
