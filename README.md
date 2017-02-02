@@ -5,10 +5,10 @@ Layer0 is a framework that helps you deploy your docker container to the cloud w
 To get started with Layer0, see [quintilesims.github.io/layer0](https://quintilesims.github.io/layer0/).
 
 # Components
-The following components comprise the Layer0 Application. 
+The following components comprise the Layer0 Application.
 
 ## Layer0 Setup
-The Layer0 Setup tool (commonly called `l0-setup`) is used to provision and manage resources in AWS that a Layer0 instance needs to run correctly. 
+The Layer0 Setup tool (commonly called `l0-setup`) is used to provision and manage resources in AWS that a Layer0 instance needs to run correctly.
 
 #### Common Functions
 *The following commands should be run from the `layer0/setup` directory*
@@ -60,7 +60,7 @@ The Layer0 Runner is a service that runs jobs created by the Layer0 API.
 | Release            | `make release` |
 
 ## Docs
-The documentation for Layer0 exists in `layer0/docs-src`. 
+The documentation for Layer0 exists in `layer0/docs-src`.
 We use [mkdocs](http://www.mkdocs.org/) (version >= v0.16.0) to compile our markdown docs into html and css.
 
 #### Common Functions
@@ -86,12 +86,12 @@ The smoke tests and system tests require that you have a running Layer0 API serv
 | Run System Tests     | `make systemtest` |
 
 
-# Tools 
+# Tools
 The following tools are used to help make development with Layer0 easier.
 
 ## Gomock
-The [Gomock](https://github.com/golang/mock) tool is a mocking framework for Golang. 
-It uses code generation to create mockable objects. 
+The [Gomock](https://github.com/golang/mock) tool is a mocking framework for Golang.
+It uses code generation to create mockable objects.
 If any changes are made to mocked interfaces, the code generation will need to run again.
 
 #### Common Functions
@@ -105,7 +105,7 @@ If any changes are made to mocked interfaces, the code generation will need to r
 
 ## Go-decorator
 The [Go-Decorator](https://github.com/imshealth/go-decorator) tool implements the decorator pattern for Golang.
-It uses code generation to create decorated objects. 
+It uses code generation to create decorated objects.
 If any changes are made to decorated interfaces, the code generation will need to run again.
 
 #### Common Functions
@@ -118,8 +118,8 @@ If any changes are made to decorated interfaces, the code generation will need t
 | Recreate a subset of decorators | `make -f Makefile.decorators <subset>` |
 
 ## Flow
-Flow is a bash script that automates common workflows when developing with Layer0. 
-This tool requires that the environment variable `LAYER0_PREFIX` is set to the name of you Layer0 instance, 
+Flow is a bash script that automates common workflows when developing with Layer0.
+This tool requires that the environment variable `LAYER0_PREFIX` is set to the name of you Layer0 instance,
 or that the `-p <prefix>` flag is used with any command.
 
 #### Common Functions
@@ -145,15 +145,19 @@ $ cd setup && go run main.go apply <instance>
 ```
 
 #### Run the API Locally
-Now that you have a Layer0 API running in AWS, we can test changes we make against it. 
-However, it is often much faster to run the Layer0 API locally and test changes against that. 
+Now that you have a Layer0 API running in AWS, we can test changes we make against it.
+However, it is often much faster to run the Layer0 API locally and test changes against that.
 Running the Layer0 API locally requires quite a few environment variables - luckily, those can all be grabbed using the `l0-setup endpoint` command.
 
 ```
 # get the required environment variables to run your Layer0 API locally using the '-d' flag
-$ go run setup/main.go endpoint -d <instance>
+$ cd setup && go run main.go endpoint -d <instance>
 
 # set the environment variables returned by the previous command
+
+# then, unset the LAYER0_AUTH_TOKEN environment variable
+$ unset LAYER0_AUTH_TOKEN
+
 # run the layer0 api locally
 $ go run api/main.go
 ```
@@ -175,9 +179,9 @@ Once you have made changes to the code, you should run all of the unit tests:
 make unittest
 ```
 
-Once the unit tests are passing, you should run the smoke tests and system tests. 
-However, these tests require that your updated changes are running in AWS. 
-This requires building a new docker image for the API and Runner, pushing them to Dockerhub, and updating your Layer0 instance to run the new images. 
+Once the unit tests are passing, you should run the smoke tests and system tests.
+However, these tests require that your updated changes are running in AWS.
+This requires building a new docker image for the API and Runner, pushing them to Dockerhub, and updating your Layer0 instance to run the new images.
 This can be done using the `flow.sh` script:
 ```
 # use flow to update the API and Runner
@@ -196,4 +200,3 @@ $ make systemtest
 
 ### Release Process
 * Please see [RELEASE.md](RELEASE.md) for instructions on releasing a new version of Layer0.
-
