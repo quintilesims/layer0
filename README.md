@@ -141,7 +141,7 @@ We will use the Layer0 instances to test our changes AWS.
 
 ```
 # install a new Layer0
-$ go run setup/main.go apply <instance>
+$ cd setup && go run main.go apply <instance>
 ```
 
 #### Run the API Locally
