@@ -159,17 +159,23 @@ func (c *APIClient) execute(sling *sling.Sling, receive interface{}) (*http.Resp
 		return nil, fmt.Errorf("Layer0 API returned invalid status code: %s", resp.Status)
 	}
 
-	if c.VerifyVersion {
-		c.once.Do(func() { c.verifyVersion(resp) })
+	if err := c.verifyVersion(resp); err != nil {
+		return nil, err
 	}
 
 	return resp, nil
 }
 
-func (c *APIClient) verifyVersion(resp *http.Response) {
-	if cli, api := config.CLIVersion(), resp.Header.Get("Version"); cli != api {
-		message := fmt.Sprintf("API and CLI version mismatch (CLI: '%s', API: '%s')\n", cli, api)
-		message += fmt.Sprintf("To disable this warning, set %s=\"1\"", config.SKIP_VERSION_VERIFY)
-		fmt.Printf("[WARNING] %s\n", message)
+func (c *APIClient) verifyVersion(resp *http.Response) error {
+	if !c.VerifyVersion {
+		return nil
 	}
+
+	if cli, api := config.CLIVersion(), resp.Header.Get("Version"); cli != api {
+		text := fmt.Sprintf("API and CLI version mismatch (CLI: '%s', API: '%s')\n", cli, api)
+		text += fmt.Sprintf("To disable this warning, set %s=\"1\"", config.SKIP_VERSION_VERIFY)
+		return fmt.Errorf(text)
+	}
+
+	return nil
 }
