@@ -1,7 +1,7 @@
 SHELL:=/bin/bash
 L0_VERSION?=$(shell git describe --tags)
-LATEST_RUNNER_DOCKER_IMAGE=quintilesims/l0-runner:$(L0_VERSION)
-CURRENT_RUNNER_DOCKER_IMAGE=quintilesims/l0-runner:latest
+CURRENT_RUNNER_DOCKER_IMAGE=quintilesims/l0-runner:$(L0_VERSION)
+LATEST_RUNNER_DOCKER_IMAGE=quintilesims/l0-runner:latest
 
 build:
 	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags "-X main.Version=$(L0_VERSION)" -o l0-runner .
