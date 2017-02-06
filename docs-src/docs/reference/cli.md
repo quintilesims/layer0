@@ -2,7 +2,7 @@
 
 ##Global options
 
-The **l0** application is designed to be used with one of several subcommands; these subcommands are detailed in the sections below. There are, however, some global parameters that you may specify when using **l0**.
+The **l0** application is designed to be used with one of several subcommands: [admin](#admin), [deploy](#deploy), [environment](#environment), [job](#job), [loadbalancer](#loadbalancer), [service](#service), and [task](#task). These subcommands are detailed in the sections below. There are, however, some global parameters that you may specify when using **l0**.
 
 ####Usage
 <div class="divTable">
@@ -67,109 +67,10 @@ Use the **version** subcommand to display the current version of the Layer0 API.
 
 ---
 
-##Certificate
-In order to use HTTPS ports in a Layer0 load balancer, you must create a certificate. You can use the Layer0 **certificate** command to upload and manage these certificates. This command is used with the following subcommands: [create](#certificate-create), [delete](#certificate-delete), [get](#certificate-get) and [list](#certificate-list).
-
-### certificate create
-Use the **create** subcommand to upload a certificate into Layer0. Once you have uploaded the certificate, you can use it when configuring HTTPS ports on Layer0 load balancers.
-
-#### Usage
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding">**l0 certificate create** _certificateName publicKeyPath privateKeyPath_ [_intermediateChainPath_ ]</div>
-  </div>
-</div>
-
-####Required parameters
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap">_certificateName_</div>
-    <div class="divCell">A name for the certificate.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">_publicKeyPath_</div>
-    <div class="divCell">The path to a public key associated with the certificate.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">_privateKeyPath_</div>
-    <div class="divCell">The path to the private key associated with the public key.</div>
-  </div>
-</div>
-
-####Optional arguments
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap">*intermediateChainPath*</div>
-    <div class="divCell">The path to an intermediate certificate authority.</div>
-  </div>
-</div>
-
-### certificate delete
-Use the **delete** subcommand to delete a certificate that has already been uploaded to Layer0.
-
-#### Usage
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding">**l0 certificate delete** _certificateName_</div>
-  </div>
-</div>
-
-####Required parameters
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap">_certificateName_</div>
-    <div class="divCell">The name of the certificate you want to delete.</div>
-  </div>
-</div>
-
-####Additional information
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding">You will not be able to use the **delete** subcommand if a load balancer that uses that certificate is currently running.</div>
-  </div>
-</div>
-
-### certificate get
-Use the **get** subcommand to display information about an existing certificate in Layer0.
-
-#### Usage
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding">**l0 certificate get** _certificateName_</div>
-  </div>
-</div>
-
-####Required parameters
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap">_certificateName_</div>
-    <div class="divCell">The name of the Layer0 certificate for which you want to view additional information.</div>
-  </div>
-</div>
-
-####Additional information
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding">The value of _certificateName_ does not need to exactly match the name of an existing certificate. If multiple results are found that match the pattern you specified in _certificateName_, then information about all matching certificates will be returned.</div>
-  </div>
-</div>
-
-### certificate list
-Use the **list** subcommand to list all of the certificates used in an instance of Layer0.
-
-#### Usage
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding">**l0 certificate list**</div>
-  </div>
-</div>
-
----
-
 ##Deploy
 
 ### deploy create
-Use the **create** subcommand to upload a Docker task definition into Layer0. This command is used with the following subcommands: [create](#deploy-create), [apply](#deploy-apply),  [delete](#deploy-delete), [get](#deploy-get) and [list](#deploy-list).
+Use the **create** subcommand to upload a Docker task definition into Layer0. This command is used with the following subcommands: [create](#deploy-create), [delete](#deploy-delete), [get](#deploy-get) and [list](#deploy-list).
 
 #### Usage
 <div class="divTable">
@@ -260,7 +161,7 @@ Use the **get** subcommand to view information about an existing Layer0 deploy.
 ####Additional information
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">The value of _deployName_ does not need to exactly match the name of an existing deploy. If multiple results are found that match the pattern you specified in _deployName_, then information about all matching deploys will be returned.</div>
+    <div class="divCellNoPadding">The **get** subcommand supports wildcard matching: `l0 deploy get dep*` would return all deploys beginning with `dep`.</div>
   </div>
 </div>
 
@@ -387,7 +288,7 @@ Use the **get** subcommand to display information about an existing Layer0 envir
 ####Additional information
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">The value of _environmentName_ does not need to exactly match the name of an existing environment. If multiple results are found that match the pattern you specified in _environmentName_, then information about all matching environments will be returned.</div>
+    <div class="divCellNoPadding">The **get** subcommand supports wildcard matching: `l0 environment get test*` would return all environments beginning with `test`.</div>
   </div>
 </div>
 
@@ -512,7 +413,7 @@ Use the **get** subcommand to display information about an existing Layer0 job.
 ####Additional information
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">The value of _jobName_ does not need to exactly match the name of an existing job. If multiple results are found that match the pattern you specified in _jobName_, then information about all matching jobs will be returned.</div>
+    <div class="divCellNoPadding">The **get** subcommand supports wildcard matching: `l0 job get 2a55*` would return all jobs beginning with `2a55`.</div>
   </div>
 </div>
 
@@ -556,44 +457,76 @@ Use the **create** subcommand to create a new load balancer.
 ####Optional arguments
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">--port _hostPort:containerPort/protocol_</div>
-    <div class="divCell">The port configuration for the load balancer. _hostPort_ is the port on which the load balancer will listen for traffic; _containerPort_ is the port that traffic will be forwarded to. You can specify multiple ports using _--port xxx --port yyy_. If this option is not specified, Layer0 will use the following configuration: 80:80/tcp</div>
+    <div class="divCellNoWrap">
+      --port _hostPort:containerPort/protocol_
+    </div>
+    <div class="divCell">
+      <p>The port configuration for the load balancer. _hostPort_ is the port on which the load balancer will listen for traffic; _containerPort_ is the port that traffic will be forwarded to. You can specify multiple ports using _--port xxx --port yyy_. If this option is not specified, Layer0 will use the following configuration: 80:80/tcp</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">--certificate _certificateName_</div>
-    <div class="divCell">The name of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.</div>
+    <div class="divCellNoWrap">
+      --certificate _certificateName_
+    </div>
+    <div class="divCell">
+      <p>The name of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">--private</div>
-    <div class="divCell">When you use this option, the load balancer will only be accessible from within the Layer0 environment.</div>
+    <div class="divCellNoWrap">
+      --private
+    </div>
+    <div class="divCell">
+      <p>When you use this option, the load balancer will only be accessible from within the Layer0 environment.</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">--healthcheck-target _target_</div>
-    <div class="divCell">The target of the check. Valid pattern is "${PROTOCOL}:${PORT}${PATH}", where PROTOCOL values are:</div>
+    <div class="divCellNoWrap">
+      --healthcheck-target _target_
+    </div>
+    <div class="divCell">
+      <p>The target of the check. Valid pattern is `PROTOCOL:PORT/PATH`, where PROTOCOL values are:
+      <br />
+      `HTTP` or `HTTPS`: both PORT and PATH are required
+      <br />
+      - _example: `HTTP:80/admin/healthcheck`_
+      <br />
+      `TCP` or `SSL`: PORT is required, PATH is not supported
+      <br />
+      - _example: `TCP:80`_</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap"></div>
-    <div class="divCell">`HTTP`, `HTTPS` - PORT and PATH are required</div>
+    <div class="divCellNoWrap">
+      --healthcheck-interval _interval_
+    </div>
+    <div class="divCell">
+      <p>The interval between checks.</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap"></div>
-    <div class="divCell">`TCP`, `SSL` - PORT is required, PATH is not supported</div>
+    <div class="divCellNoWrap">
+      --healthcheck-timeout _timeout_
+    </div>
+    <div class="divCell">
+      <p>The length of time before the check times out.</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">--healthcheck-interval _interval_</div>
-    <div class="divCell">The interval between checks.</div>
+    <div class="divCellNoWrap">
+      --healthcheck-healthy-threshold _healthyThreshold_
+    </div>
+    <div class="divCell">
+      <p>The number of checks before the instance is declared healthy.</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">--healthcheck-timeout _timeout_</div>
-    <div class="divCell">The length of time before the check times out.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">--healthcheck-healthy-threshold _healthyThreshold_</div>
-    <div class="divCell">The number of checks before the instance is declared healthy.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">--healthcheck-unhealthy-threshold _unhealthyThreshold_</div>
-    <div class="divCell">The number of checks before the instance is declared unhealthy.</div>
+    <div class="divCellNoWrap">
+      --healthcheck-unhealthy-threshold _unhealthyThreshold_
+    </div>
+    <div class="divCell">
+      <p>The number of checks before the instance is declared unhealthy.</p>
+    </div>
   </div>
 </div>
 
@@ -725,7 +658,7 @@ Use the **get** subcommand to display information about an existing Layer0 load 
 ####Additional information
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">The value of _loadBalancerName_ does not need to exactly match the name of an existing load balancer. If multiple results are found that match the pattern you specified in _loadBalancerName_, then information about all matching load balancers will be returned.</div>
+    <div class="divCellNoPadding">The **get** subcommand supports wildcard matching: `l0 loadbalancer get entrypoint*` would return all jobs beginning with `entrypoint`.</div>
   </div>
 </div>
 
@@ -752,32 +685,52 @@ Use the **healthcheck** subcommand to display information about or update the co
 ####Optional arguments
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">--set-target _target_</div>
-    <div class="divCell">The target of the check. Valid pattern is "${PROTOCOL}:${PORT}${PATH}", where PROTOCOL values are:</div>
+    <div class="divCellNoWrap">
+      --set-target _target_
+    </div>
+    <div class="divCell">
+      <p>The target of the check. Valid pattern is `PROTOCOL:PORT/PATH`, where PROTOCOL values are:
+      <br />
+      `HTTP` or `HTTPS`: both PORT and PATH are required
+      <br />
+      - _example: `HTTP:80/admin/healthcheck`_
+      <br />
+      `TCP` or `SSL`: PORT is required, PATH is not supported
+      <br />
+      - _example: `TCP:80`_</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap"></div>
-    <div class="divCell">`HTTP`, `HTTPS` - PORT and PATH are required</div>
+    <div class="divCellNoWrap">
+      --set-interval _interval_
+    </div>
+    <div class="divCell">
+      <p>The interval between checks.</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap"></div>
-    <div class="divCell">`TCP`, `SSL` - PORT is required, PATH is not supported</div>
+    <div class="divCellNoWrap">
+      --set-timeout _timeout_
+    </div>
+    <div class="divCell">
+      <p>The length of time before the check times out.</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">--set-interval _interval_</div>
-    <div class="divCell">The interval between checks.</div>
+    <div class="divCellNoWrap">
+      --set-healthy-threshold _healthyThreshold_
+    </div>
+    <div class="divCell">
+      <p>The number of checks before the instance is declared healthy.</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">--set-timeout _timeout_</div>
-    <div class="divCell">The length of time before the check times out.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">--set-healthy-threshold _healthyThreshold_</div>
-    <div class="divCell">The number of checks before the instance is declared healthy.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">--set-unhealthy-threshold _unhealthyThreshold_</div>
-    <div class="divCell">The number of checks before the instance is declared unhealthy.</div>
+    <div class="divCellNoWrap">
+      --set-unhealthy-threshold _unhealthyThreshold_
+    </div>
+    <div class="divCell">
+      <p>The number of checks before the instance is declared unhealthy.</p>
+    </div>
   </div>
 </div>
 
@@ -794,7 +747,7 @@ Use the **healthcheck** subcommand to display information about or update the co
 ## Service
 A service is a component of a Layer0 environment. The purpose of a service is to execute a Docker image specified in a [deploy](#deploy). In order to create a service, you must first create an [environment](#environment) and a [deploy](#deploy); in most cases, you should also create a [load balancer](#loadbalancer) before creating the service.
 
-The **service** command is used with the following subcommands: [create](#service-create), [delete](#service-delete), [get](#service-get), [list](#service-list), [logs](#service-logs), and [scale](#service-scale).
+The **service** command is used with the following subcommands: [create](#service-create), [delete](#service-delete), [get](#service-get), [update](#service-update), [list](#service-list), [logs](#service-logs), and [scale](#service-scale).
 
 ###service create
 Use the **create** subcommand to create a Layer0 service.

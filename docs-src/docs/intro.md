@@ -13,20 +13,20 @@ The following concepts are core Layer0 abstractions for the technologies and fea
 
 ### Certificates
 
-An SSL certificate obtained from a valid [Certificate Authority (CA)](http://wikit.rxcorp.com/index.php/Production_Dns_Request#CSR). You can use these certificates to secure your HTTPS services by applying them to your Layer0 load balancers.
+SSL certificates obtained from a valid [Certificate Authority (CA)](https://en.wikipedia.org/wiki/Certificate_authority). You can use these certificates to secure your HTTPS services by applying them to your Layer0 load balancers.
 
 ### Deploys
 
-A [multicontainer docker configuration](http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_docker_v2config.html). This configuration file details how to deploy your application. We have several [sample applications](https://github.com/quintilesims/layer0-samples) available that show what these files look like --- they're called `Dockerrun.aws.json` within each sample app.
+[ECS Task Definitions](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html). These configuration files detail how to deploy your application. We have several [sample applications](https://github.com/quintilesims/layer0-examples) available that show what these files look like --- they're called `Dockerrun.aws.json` within each sample app.
 
 ### Load Balancers
 
-A powerful tool that gives you the basic building blocks for high-availability, scaling, and HTTPS. We currently use Amazon's [Elastic Load Balancing](https://aws.amazon.com/elasticloadbalancing/), and it pays to understand the basics of this service when working with Layer0.
+Powerful tools that give you the basic building blocks for high-availability, scaling, and HTTPS. We currently use Amazon's [Elastic Load Balancing](https://aws.amazon.com/elasticloadbalancing/), and it pays to understand the basics of this service when working with Layer0.
 
 ### Services
 
-Your running Layer0 application. We also use the term `service` for tools such as Consul, Logstash, and Shinken because they are Layer0 applications that we've pre-built for you.
+Your running Layer0 applications. We also use the term `service` for tools such as Consul, for which we provide a pre-built [sample implementation](guides/consul) using Layer0.
 
 ### Environments
 
-A logical grouping of services. Typically, you would make a single environment for each tier of your application, such as `dev`, `staging`, and `prod`.
+Logical groupings of services. Typically, you would make a single environment for each tier of your application, such as `dev`, `staging`, and `prod`.

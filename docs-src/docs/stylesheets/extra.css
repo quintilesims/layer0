@@ -27,6 +27,14 @@
   list-style-type: none;
 }
 
+.admonition.note code {
+  color: #7ff;
+}
+
+.admonition.note a {
+  color: #7ff;
+}
+
 .divTable {
   display:table;
   width:auto;
@@ -57,7 +65,7 @@
 }
 
 .article a.note {
-  color:#ffffff; 
+  color:#ffffff;
   border-bottom:1px dotted;
 }
 
