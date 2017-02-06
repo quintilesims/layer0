@@ -73,23 +73,28 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 					Schema: map[string]*schema.Schema{
 						"target": {
 							Type:     schema.TypeString,
-							Required: true,
+							Optional: true,
+							Default:  "TCP:80",
 						},
 						"interval": {
 							Type:     schema.TypeInt,
-							Required: true,
+							Optional: true,
+							Default:  30,
 						},
 						"timeout": {
 							Type:     schema.TypeInt,
-							Required: true,
+							Optional: true,
+							Default:  5,
 						},
 						"healthy_threshold": {
 							Type:     schema.TypeInt,
-							Required: true,
+							Optional: true,
+							Default:  2,
 						},
 						"unhealthy_threshold": {
 							Type:     schema.TypeInt,
-							Required: true,
+							Optional: true,
+							Default:  2,
 						},
 					},
 				},
@@ -106,6 +111,16 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 	private := d.Get("private").(bool)
 	ports := expandPorts(d.Get("port").(*schema.Set).List())
 	healthCheck := expandHealthCheck(d.Get("health_check"))
+
+	if !healthCheck {
+		healthCheck = models.HealthCheck{
+			Target:             "TCP:80",
+			Interval:           30,
+			Timeout:            5,
+			HealthyThreshold:   2,
+			UnhealthyThreshold: 2,
+		}
+	}
 
 	loadBalancer, err := client.CreateLoadBalancer(name, environmentID, healthCheck, ports, !private)
 	if err != nil {
