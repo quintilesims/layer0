@@ -19,22 +19,12 @@ const (
 
 // AuthConfig contains authorization information for connecting to a Registry.
 type AuthConfig struct {
-	Username string `json:"username,omitempty"`
-	Password string `json:"password,omitempty"`
-	Auth     string `json:"auth,omitempty"`
-
-	// Email is an optional value associated with the username.
-	// This field is deprecated and will be removed in a later
-	// version of docker.
-	Email string `json:"email,omitempty"`
-
+	Username      string `json:"username,omitempty"`
+	Password      string `json:"password,omitempty"`
+	Auth          string `json:"auth,omitempty"`
+	Email         string `json:"email,omitempty"`
 	ServerAddress string `json:"serveraddress,omitempty"`
-
-	// IdentityToken is used to authenticate the user and get
-	// an access token for the registry.
 	IdentityToken string `json:"identitytoken,omitempty"`
-
-	// RegistryToken is a bearer token to be sent to a registry
 	RegistryToken string `json:"registrytoken,omitempty"`
 }
 
@@ -43,57 +33,86 @@ type AuthConfig struct {
 type DockerConfigFile struct {
 	AuthConfigs map[string]AuthConfig `json:"auths"`
 	HTTPHeaders map[string]string     `json:"HttpHeaders,omitempty"`
-	filename    string                // Note: not serialized - for internal use only
-	Empty       bool                  // Note: not serialized - for internal use only
+	filename    string
+	empty       bool
 }
 
 // LoadDockerConfig loads docker config files of config.json or dockercfg formats.
-func LoadDockerConfig(configDir string) (*DockerConfigFile, error) {
-	if configDir == "" {
-		return nil, fmt.Errorf("No configdir supplied.")
-	}
-
+func LoadDockerConfig(dockercfg string) (*DockerConfigFile, error) {
 	configFile := DockerConfigFile{
 		AuthConfigs: make(map[string]AuthConfig),
-		filename:    filepath.Join(configDir, CONFIGFILE),
+		filename:    filepath.Clean(dockercfg),
+	}
+	configFileType := filepath.Base(configFile.filename)
+
+	if _, err := os.Stat(configFile.filename); err != nil {
+		return nil, err // NOTE setting this to `nil, err` causes a runtime error nil pointer dereference
 	}
 
-	// Try config.json file first
-	if _, err := os.Stat(configFile.filename); err == nil {
+	if configFileType == CONFIGFILE {
 		file, err := os.Open(configFile.filename)
 		if err != nil {
-			return &configFile, err
+			return nil, err
 		}
 		defer file.Close()
 
 		if err := json.NewDecoder(file).Decode(&configFile); err != nil {
-			return &configFile, err
+			return nil, err
 		}
 
 		return &configFile, nil
-	} else if !os.IsNotExist(err) {
-		// if file is there but we can't stat it for any reason other
-		// than it doesn't exist then stop
-		return &configFile, err
 	}
 
-	// Can't find latest config file so check for the old one
-	configFile.filename = filepath.Join(configDir, OLD_CONFIGFILE)
+	if configFileType == OLD_CONFIGFILE {
+		b, err := ioutil.ReadFile(configFile.filename)
+		if err != nil {
+			return nil, err
+		}
 
-	if _, err := os.Stat(configFile.filename); err != nil {
-		return &configFile, fmt.Errorf("No docker config file found at: %v", configDir)
+		if err := json.Unmarshal(b, &configFile.AuthConfigs); err != nil {
+			return nil, err
+		}
+		return &configFile, nil
 	}
 
-	b, err := ioutil.ReadFile(configFile.filename)
-	if err != nil {
-		return &configFile, err
-	}
+	return nil, fmt.Errorf("Could load docker config file.")
 
-	if err := json.Unmarshal(b, &configFile.AuthConfigs); err != nil {
-		//TODO Case of cannot unmarshal; what to do here?
-		return &configFile, fmt.Errorf("Invalid Auth config file")
-	}
-	return &configFile, nil
+	// // Try config.json file first
+	// if _, err := os.Stat(configFile.filename); err == nil {
+	// 	file, err := os.Open(configFile.filename)
+	// 	if err != nil {
+	// 		return &configFile, err
+	// 	}
+	// 	defer file.Close()
+	//
+	// 	if err := json.NewDecoder(file).Decode(&configFile); err != nil {
+	// 		return &configFile, err
+	// 	}
+	//
+	// 	return &configFile, nil
+	// } else if !os.IsNotExist(err) {
+	// 	// if file is there but we can't stat it for any reason other
+	// 	// than it doesn't exist then stop
+	// 	return &configFile, err
+	// }
+	//
+	// // Can't find latest config file so check for the old one
+	// configFile.filename = filepath.Join(dockercfg, OLD_CONFIGFILE)
+	//
+	// if _, err := os.Stat(configFile.filename); err != nil {
+	// 	return &configFile, fmt.Errorf("No docker config file found at: %v", dockercfg)
+	// }
+	//
+	// b, err := ioutil.ReadFile(configFile.filename)
+	// if err != nil {
+	// 	return &configFile, err
+	// }
+	//
+	// if err := json.Unmarshal(b, &configFile.AuthConfigs); err != nil {
+	// 	//TODO Case of cannot unmarshal; what to do here?
+	// 	return &configFile, fmt.Errorf("Invalid Auth config file")
+	// }
+	// return &configFile, nil
 }
 
 // Save a docker config file as `dockercfg` in JSON format.
@@ -107,8 +126,7 @@ func (configFile *DockerConfigFile) Save(saveDir string) error {
 		return err
 	}
 
-	err = ioutil.WriteFile(filepath.Join(saveDir, OLD_CONFIGFILE), data, 0600)
-	if err != nil {
+	if err := ioutil.WriteFile(filepath.Join(saveDir, OLD_CONFIGFILE), data, 0600); err != nil {
 		return err
 	}
 

@@ -5,7 +5,6 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/docker/docker/pkg/homedir"
 	"github.com/quintilesims/layer0/common/aws/provider"
 	"github.com/quintilesims/layer0/common/aws/s3"
 	"github.com/quintilesims/layer0/common/config"
@@ -29,7 +28,7 @@ type TFModule struct {
 	Resources map[string]interface{} `json:"resources"`
 }
 
-func Apply(c *Context, force bool, dockerCfgDir string) error {
+func Apply(c *Context, force bool, dockercfg string) error {
 	if err := c.Load(false); err != nil {
 		return err
 	}
@@ -65,9 +64,15 @@ func Apply(c *Context, force bool, dockerCfgDir string) error {
 		}
 	}
 
+	if dockercfg == "" {
+		dockercfg = filepath.Join(c.InstanceDir, "dockercfg")
+	} else {
+		fmt.Printf("Checking for docker config file at: `%s`\n", dockercfg)
+	}
+
 	// Check for docker config file (config.json or dockercfg) and copy it to
 	// instance directory in `dockercfg` format.
-	if err = checkDockercfg(c, dockerCfgDir, force); err != nil {
+	if err = checkDockercfg(c, dockercfg, force); err != nil {
 		return err
 	}
 
@@ -402,7 +407,8 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 }
 
 func Plan(c *Context, args []string) error {
-	if err := checkDockercfg(c, c.InstanceDir, false); err != nil {
+	dockercfg := filepath.Join(c.InstanceDir, "dockercfg")
+	if err := checkDockercfg(c, dockercfg, false); err != nil {
 		return err
 	}
 
@@ -410,31 +416,17 @@ func Plan(c *Context, args []string) error {
 	return Terraform(c, args)
 }
 
-// checkDockercfg looks for docker config file (config.json or dockercfg) from
-// given directory and saves in `dockercfg` format in instance directory.
-func checkDockercfg(c *Context, dockerCfgDir string, force bool) error {
-	if dockerCfgDir == "" {
-		dockerCfgDir = c.InstanceDir
-	} else {
-		fmt.Printf("Checking for docker config file at: `%s`\n", dockerCfgDir)
-	}
-
-	// Load docker config file from given dockerCfgDir
-	configFile, err := LoadDockerConfig(dockerCfgDir)
+// checkDockercfg checks provied docker config file (config.json or dockercfg)
+// and saves in `dockercfg` format in instance directory.
+func checkDockercfg(c *Context, dockercfg string, force bool) error {
+	configFile, err := LoadDockerConfig(dockercfg)
 	if err != nil {
-		fmt.Printf("Could not load docker config from `%v`.\n", dockerCfgDir)
-
-		// Try global docker config directory
-		dockerCfgDir = filepath.Join(homedir.Get(), ".docker")
-		fmt.Printf("Attempting to load global docker config from `%v`.\n", dockerCfgDir)
-
-		configFile, err = LoadDockerConfig(dockerCfgDir)
-		if err != nil {
-			// Fallback: configFile will yield "empty" dockercfg ({})
-			configFile.Empty = true
-			fmt.Println("Unable to load global docker config.")
-		} else {
-			fmt.Println("Successfully loaded global docker config.")
+		fmt.Printf("Could not load docker config from `%v`.\n", dockercfg)
+		// Fallback: configFile will yield "empty" dockercfg ({})
+		configFile = &DockerConfigFile{
+			AuthConfigs: make(map[string]AuthConfig),
+			filename:    filepath.Clean(dockercfg),
+			empty:       true,
 		}
 	}
 
@@ -442,7 +434,7 @@ func checkDockercfg(c *Context, dockerCfgDir string, force bool) error {
 		return fmt.Errorf("Error saving dockercfg: %v", err)
 	}
 
-	if configFile.Empty == true {
+	if configFile.empty == true {
 		fmt.Println("Created default 'dockercfg' file.")
 
 		if !force {
