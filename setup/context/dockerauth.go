@@ -46,7 +46,7 @@ func LoadDockerConfig(dockercfg string) (*DockerConfigFile, error) {
 	configFileType := filepath.Base(configFile.filename)
 
 	if _, err := os.Stat(configFile.filename); err != nil {
-		return nil, err // NOTE setting this to `nil, err` causes a runtime error nil pointer dereference
+		return nil, err
 	}
 
 	if configFileType == CONFIGFILE {
@@ -76,43 +76,6 @@ func LoadDockerConfig(dockercfg string) (*DockerConfigFile, error) {
 	}
 
 	return nil, fmt.Errorf("Could load docker config file.")
-
-	// // Try config.json file first
-	// if _, err := os.Stat(configFile.filename); err == nil {
-	// 	file, err := os.Open(configFile.filename)
-	// 	if err != nil {
-	// 		return &configFile, err
-	// 	}
-	// 	defer file.Close()
-	//
-	// 	if err := json.NewDecoder(file).Decode(&configFile); err != nil {
-	// 		return &configFile, err
-	// 	}
-	//
-	// 	return &configFile, nil
-	// } else if !os.IsNotExist(err) {
-	// 	// if file is there but we can't stat it for any reason other
-	// 	// than it doesn't exist then stop
-	// 	return &configFile, err
-	// }
-	//
-	// // Can't find latest config file so check for the old one
-	// configFile.filename = filepath.Join(dockercfg, OLD_CONFIGFILE)
-	//
-	// if _, err := os.Stat(configFile.filename); err != nil {
-	// 	return &configFile, fmt.Errorf("No docker config file found at: %v", dockercfg)
-	// }
-	//
-	// b, err := ioutil.ReadFile(configFile.filename)
-	// if err != nil {
-	// 	return &configFile, err
-	// }
-	//
-	// if err := json.Unmarshal(b, &configFile.AuthConfigs); err != nil {
-	// 	//TODO Case of cannot unmarshal; what to do here?
-	// 	return &configFile, fmt.Errorf("Invalid Auth config file")
-	// }
-	// return &configFile, nil
 }
 
 // Save a docker config file as `dockercfg` in JSON format.
