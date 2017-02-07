@@ -77,9 +77,7 @@ func main() {
 		flags := loadFlags(cmd, []string{"access_key", "secret_key", "region"})
 
 		dockercfg := cmd.StringOpt("dockercfg", "", "Path to valid dockercfg file")
-
 		force := cmd.BoolOpt("force", false, "Set this flag to skip prompting on a missing dockercfg file")
-
 		vpc := cmd.StringOpt("vpc", "", "VPC id to target.  Will create new VPC if blank.")
 		flags["vpc_id"] = vpc
 
@@ -91,11 +89,14 @@ func main() {
 	})
 
 	app.Command("plan", "Plan an update for a Layer0", func(cmd *cli.Cmd) {
+		dockercfg := cmd.StringOpt("dockercfg", "", "Path to valid dockercfg file")
+		force := cmd.BoolOpt("force", false, "Set this flag to skip prompting on a missing dockercfg file")
+
 		args := cmd.StringsArg("ARGS", nil, "Terraform arguments")
-		cmd.Spec = "INSTANCE [-- ARGS...]"
+		cmd.Spec = "[--force] [--dockercfg] INSTANCE [-- ARGS...]"
 
 		command := func(c *context.Context) error {
-			return context.Plan(c, *args)
+			return context.Plan(c, *dockercfg, *force, *args)
 		}
 
 		basicCommand(cmd, command)
