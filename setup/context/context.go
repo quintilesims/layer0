@@ -3,7 +3,7 @@ package context
 import (
 	"bufio"
 	"fmt"
-	"github.com/mitchellh/go-homedir"
+	"github.com/docker/docker/pkg/homedir"
 	"os"
 	"os/exec"
 	"regexp"
@@ -30,12 +30,7 @@ func NewContext(instance, version string, flags map[string]*string) (*Context, e
 		flags = map[string]*string{}
 	}
 
-	// go-homedir is required for cross-compilation
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		return nil, err
-	}
-
+	homeDir := homedir.Get()
 	instanceDir := fmt.Sprintf("%s/layer0/instances/%s", homeDir, instance)
 
 	executionDir, err := GetExecutionDir()

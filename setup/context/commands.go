@@ -5,12 +5,14 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/docker/docker/pkg/homedir"
 	"github.com/quintilesims/layer0/common/aws/provider"
 	"github.com/quintilesims/layer0/common/aws/s3"
 	"github.com/quintilesims/layer0/common/config"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -27,7 +29,7 @@ type TFModule struct {
 	Resources map[string]interface{} `json:"resources"`
 }
 
-func Apply(c *Context, force bool, dockercfg string) error {
+func Apply(c *Context, force bool, dockercfgFlag string) error {
 	if err := c.Load(false); err != nil {
 		return err
 	}
@@ -63,17 +65,7 @@ func Apply(c *Context, force bool, dockercfg string) error {
 		}
 	}
 
-	if dockercfg != "" {
-		fmt.Printf("Detected dockercfg: `%s`\n", dockercfg)
-		instancePath := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
-
-		if err := CopyFile(dockercfg, instancePath); err != nil {
-			return fmt.Errorf("Failed to copy dockercfg: %v.", err)
-		}
-	}
-
-	// validate dockercfg; if file does not exist, write empty dockercfg file
-	if err := checkDockercfg(c, force); err != nil {
+	if err := createOrLoadDockercfg(c, dockercfgFlag, !force); err != nil {
 		return err
 	}
 
@@ -407,58 +399,13 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 	return nil
 }
 
-func Plan(c *Context, args []string) error {
-	if err := checkDockercfg(c, false); err != nil {
+func Plan(c *Context, dockercfgFlag string, force bool, args []string) error {
+	if err := createOrLoadDockercfg(c, dockercfgFlag, !force); err != nil {
 		return err
 	}
 
 	args = append([]string{"plan"}, args...)
 	return Terraform(c, args)
-}
-
-func checkDockercfg(c *Context, force bool) error {
-	path := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
-
-	// if file does not exist
-	if _, err := os.Stat(path); err != nil {
-
-		// write empty dockercfg file
-		if err := ioutil.WriteFile(path, []byte("{}"), 0660); err != nil {
-			return fmt.Errorf("Failed to write 'dockercfg': %v", err)
-		}
-
-		// alert user
-		if !force {
-			text := fmt.Sprintf("NOTICE: No 'dockercfg' file present at %s. \n", path)
-			text += "Created default 'dockercfg' file. \n"
-			text += "\n"
-			text += "If you require private registry authentication, please edit this file \n"
-			text += "with the required credentials before proceeding. \n"
-			text += "\n    Continue? (y/n): "
-
-			if !requireInput(text, "y") {
-				return fmt.Errorf("Operation Cancelled")
-			}
-		}
-
-	}
-
-	return validateDockercfg(path)
-}
-
-func validateDockercfg(dockercfgPath string) error {
-	contents, err := ioutil.ReadFile(dockercfgPath)
-	if err != nil {
-		return err
-	}
-
-	// Simple attempt to validate JSON
-	var result map[string]interface{}
-	if err := json.Unmarshal(contents, &result); err != nil {
-		return fmt.Errorf("Failed to validate JSON for 'dockercfg': %v", err)
-	}
-
-	return nil
 }
 
 func Terraform(c *Context, args []string) error {
@@ -480,4 +427,106 @@ func getTerraformOutputVariable(c *Context, showOutput bool, variable string) (s
 	}
 
 	return strings.Replace(val, "\n", "", 1), nil
+}
+
+/*
+	TODO:
+		- Only transform on copy from config.json
+		- Everything else, just attempt to marshal in dockercfg
+		- If marshal fails, throw error
+
+*/
+
+func createOrLoadDockercfg(c *Context, dockercfgFlag string, promptIfEmpty bool) error {
+	if dockercfgFlag != "" {
+		fmt.Printf("Copying %s to %s\n", dockercfgFlag, c.DockerConfigFile)
+		if err := CopyFile(dockercfgFlag, c.DockerConfigFile); err != nil {
+			return fmt.Errorf("Failed to copy %s: %v", dockercfgFlag, err)
+		}
+	}
+
+	dockercfgPath := filepath.Join(homedir.Get(), ".dockercfg")
+	if !FileExists(c.DockerConfigFile) && FileExists(dockercfgPath) {
+		fmt.Printf("Copying %s to %s\n", dockercfgPath, c.DockerConfigFile)
+		if err := CopyFile(dockercfgPath, c.DockerConfigFile); err != nil {
+			return fmt.Errorf("Failed to copy %s: %v", dockercfgPath, err)
+		}
+	}
+
+	configjsonPath := filepath.Join(homedir.Get(), ".docker/config.json")
+	if !FileExists(c.DockerConfigFile) && FileExists(configjsonPath) {
+		fmt.Printf("Copying %s to %s\n", configjsonPath, c.DockerConfigFile)
+		if err := CopyFile(configjsonPath, c.DockerConfigFile); err != nil {
+			return fmt.Errorf("Failed to copy %s: %v", configjsonPath, err)
+		}
+
+		b, err := ioutil.ReadFile(c.DockerConfigFile)
+		if err != nil {
+			return fmt.Errorf("Failed to read dockercfg: %v", err)
+		}
+
+		var dockerFile DockerConfigFile
+		if err := json.Unmarshal(b, &dockerFile); err != nil {
+			return fmt.Errorf("Failed to read dockercfg: %v", err)
+		}
+
+		if err := dockerFile.Write(c.DockerConfigFile); err != nil {
+			return fmt.Errorf("Failed to write dockercfg: %v", err)
+		}
+	}
+
+	if !FileExists(c.DockerConfigFile) {
+		dockerFile := DockerConfigFile{
+			Auths: map[string]Auth{},
+		}
+
+		if err := dockerFile.Write(c.DockerConfigFile); err != nil {
+			return fmt.Errorf("Failed to write dockercfg: %v", err)
+		}
+
+		if promptIfEmpty {
+			text := fmt.Sprintf("\nNOTICE: The 'dockercfg' file present at `%s` \n", c.DockerConfigFile)
+			text += "does not contain any authentication information."
+			text += "\n"
+			text += "\n"
+			text += "If you require private registry authentication, please edit this file \n"
+			text += "with the required credentials before proceeding. \n"
+			text += "\n    Continue? (y/n): "
+
+			if !requireInput(text, "y") {
+				return fmt.Errorf("Operation Cancelled")
+			}
+		}
+	}
+
+	return validateDockercfg(c)
+}
+
+// at this point we assume c.DockerConfigFile is in dockercfg format
+func validateDockercfg(c *Context) error {
+	fmt.Println("Validating %s", c.DockerConfigFile)
+
+	b, err := ioutil.ReadFile(c.DockerConfigFile)
+	if err != nil {
+		return fmt.Errorf("Failed to read dockercfg: %v", err)
+	}
+
+	var dockerFile DockerConfigFile
+	if err := json.Unmarshal(b, &dockerFile.Auths); err != nil {
+		return fmt.Errorf("Dockercfg is not in valid format: %v", err)
+		// todo: add breadcrumb
+	}
+
+	fmt.Printf("%#v\n", dockerFile)
+	fmt.Printf("%#v\n", len(dockerFile.Auths))
+	if len(dockerFile.Auths) == 0 {
+		var any map[string]interface{}
+		if err := json.Unmarshal(b, &any); err != nil {
+			return fmt.Errorf("Dockercfg is not in valid format: %v", err)
+		}
+
+		return fmt.Errorf("Num items: %v", len(any))
+	}
+
+	return nil
 }
