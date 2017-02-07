@@ -11,6 +11,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -63,17 +64,15 @@ func Apply(c *Context, force bool, dockercfg string) error {
 		}
 	}
 
-	if dockercfg != "" {
-		fmt.Printf("Detected dockercfg: `%s`\n", dockercfg)
-		instancePath := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
-
-		if err := CopyFile(dockercfg, instancePath); err != nil {
-			return fmt.Errorf("Failed to copy dockercfg: %v.", err)
-		}
+	if dockercfg == "" {
+		dockercfg = filepath.Join(c.InstanceDir, "dockercfg")
+	} else {
+		fmt.Printf("Checking for docker config file at: `%s`\n", dockercfg)
 	}
 
-	// validate dockercfg; if file does not exist, write empty dockercfg file
-	if err := checkDockercfg(c, force); err != nil {
+	// Check for docker config file (config.json or dockercfg) and copy it to
+	// instance directory in `dockercfg` format.
+	if err = checkDockercfg(c, dockercfg, force); err != nil {
 		return err
 	}
 
@@ -408,7 +407,8 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 }
 
 func Plan(c *Context, args []string) error {
-	if err := checkDockercfg(c, false); err != nil {
+	dockercfg := filepath.Join(c.InstanceDir, "dockercfg")
+	if err := checkDockercfg(c, dockercfg, false); err != nil {
 		return err
 	}
 
@@ -416,21 +416,33 @@ func Plan(c *Context, args []string) error {
 	return Terraform(c, args)
 }
 
-func checkDockercfg(c *Context, force bool) error {
-	path := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
-
-	// if file does not exist
-	if _, err := os.Stat(path); err != nil {
-
-		// write empty dockercfg file
-		if err := ioutil.WriteFile(path, []byte("{}"), 0660); err != nil {
-			return fmt.Errorf("Failed to write 'dockercfg': %v", err)
+// checkDockercfg checks provied docker config file (config.json or dockercfg)
+// and saves in `dockercfg` format in instance directory.
+func checkDockercfg(c *Context, dockercfg string, force bool) error {
+	configFile, err := LoadDockerConfig(dockercfg)
+	if err != nil {
+		fmt.Printf("Could not load docker config from `%v`.\n", dockercfg)
+		// Fallback: configFile will yield "empty" dockercfg ({})
+		configFile = &DockerConfigFile{
+			AuthConfigs: make(map[string]AuthConfig),
+			filename:    filepath.Clean(dockercfg),
+			empty:       true,
 		}
+	}
 
-		// alert user
+	if err := configFile.Save(c.InstanceDir); err != nil {
+		return fmt.Errorf("Error saving dockercfg: %v", err)
+	}
+
+	if configFile.empty == true {
+		fmt.Println("Created default 'dockercfg' file.")
+
 		if !force {
-			text := fmt.Sprintf("NOTICE: No 'dockercfg' file present at %s. \n", path)
-			text += "Created default 'dockercfg' file. \n"
+			path := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
+
+			text := fmt.Sprintf("\nNOTICE: The 'dockercfg' file present at `%s` \n", path)
+			text += "does not contain any authentication information."
+			text += "\n"
 			text += "\n"
 			text += "If you require private registry authentication, please edit this file \n"
 			text += "with the required credentials before proceeding. \n"
@@ -440,22 +452,6 @@ func checkDockercfg(c *Context, force bool) error {
 				return fmt.Errorf("Operation Cancelled")
 			}
 		}
-
-	}
-
-	return validateDockercfg(path)
-}
-
-func validateDockercfg(dockercfgPath string) error {
-	contents, err := ioutil.ReadFile(dockercfgPath)
-	if err != nil {
-		return err
-	}
-
-	// Simple attempt to validate JSON
-	var result map[string]interface{}
-	if err := json.Unmarshal(contents, &result); err != nil {
-		return fmt.Errorf("Failed to validate JSON for 'dockercfg': %v", err)
 	}
 
 	return nil
