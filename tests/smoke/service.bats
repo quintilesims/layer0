@@ -45,15 +45,15 @@
 }
 
 @test "service update service1 guestbook" {
-    l0 service update service1 guestbook
+    l0 service update service1 guestbook:latest
 }
 
 @test "service update --wait service2 guestbook" {
-    l0 service update --wait service2 guestbook
+    l0 service update --wait service2 guestbook:latest
 }
 
 @test "service update service3 guestbook" {
-    l0 service update service3 guestbook
+    l0 service update service3 guestbook:latest
 }
 
 @test "service logs service1" {
@@ -66,8 +66,8 @@
 
 # twice since we created 2 deploys named guestbook
 @test "service: delete guestbook deploy" {
-    l0 deploy delete guestbook\*
-    l0 deploy delete guestbook\*
+    l0 deploy delete guestbook:latest
+    l0 deploy delete guestbook:latest
 }
 
 @test "service delete --wait service1" {
