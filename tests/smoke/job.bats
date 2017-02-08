@@ -13,13 +13,16 @@
 }
 
 @test "job get (most recent)" {
-    l0 job get $(l0 -o json job list | jq -r 'max_by(.time_created) | .job_id')
+    result="$(l0 -o json job list | jq -r 'max_by(.time_created) | .job_id')"
+    l0 job get $result
 }
 
 @test "job: logs (most recent)" {
-    l0 job logs $(l0 -o json job list | jq -r 'max_by(.time_created) | .job_id')
+    result="$(l0 -o json job list | jq -r 'max_by(.time_created) | .job_id')"
+    l0 job logs $result
 }
 
 @test "job: logs --tail 100 (most recent)" {
-    l0 job logs --tail 100 $(l0 -o json job list | jq -r 'max_by(.time_created) | .job_id')
+    result="$(l0 -o json job list | jq -r 'max_by(.time_created) | .job_id')"
+    l0 job logs $result
 }
