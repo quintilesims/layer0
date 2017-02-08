@@ -400,6 +400,10 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 }
 
 func Plan(c *Context, dockercfgFlag string, force bool, args []string) error {
+	if err := c.Load(false); err != nil {
+		return err
+	}
+
 	if err := createOrLoadDockercfg(c, dockercfgFlag, !force); err != nil {
 		return err
 	}
@@ -428,14 +432,6 @@ func getTerraformOutputVariable(c *Context, showOutput bool, variable string) (s
 
 	return strings.Replace(val, "\n", "", 1), nil
 }
-
-/*
-	TODO:
-		- Only transform on copy from config.json
-		- Everything else, just attempt to marshal in dockercfg
-		- If marshal fails, throw error
-
-*/
 
 func createOrLoadDockercfg(c *Context, dockercfgFlag string, promptIfEmpty bool) error {
 	if dockercfgFlag != "" {
@@ -504,28 +500,43 @@ func createOrLoadDockercfg(c *Context, dockercfgFlag string, promptIfEmpty bool)
 
 // at this point we assume c.DockerConfigFile is in dockercfg format
 func validateDockercfg(c *Context) error {
-	fmt.Println("Validating %s", c.DockerConfigFile)
+	fmt.Printf("Validating %s\n", c.DockerConfigFile)
+
+	wrapError := func(format string, tokens ...interface{}) error {
+		text := fmt.Sprintf(format, tokens...)
+		text += "\n\n Dockcfg format should look similar to: \n"
+		text += `
+		{ 
+			"https://index.docker.io/v1/": {
+				"auth": "zq212MzEXAMPLE7o6T25Dk0i",
+				"email": "email@example.com"
+			}
+		}
+`
+
+		text += "Please see http://docs.aws.amazon.com/AmazonECS/latest/developerguide/private-auth.html"
+		text += " for more information \n"
+		return fmt.Errorf(text)
+	}
 
 	b, err := ioutil.ReadFile(c.DockerConfigFile)
 	if err != nil {
 		return fmt.Errorf("Failed to read dockercfg: %v", err)
 	}
 
-	var dockerFile DockerConfigFile
-	if err := json.Unmarshal(b, &dockerFile.Auths); err != nil {
-		return fmt.Errorf("Dockercfg is not in valid format: %v", err)
-		// todo: add breadcrumb
+	var auths map[string]Auth
+	if err := json.Unmarshal(b, &auths); err != nil {
+		return wrapError("Dockercfg does not contain valid JSON: %v", err)
 	}
 
-	fmt.Printf("%#v\n", dockerFile)
-	fmt.Printf("%#v\n", len(dockerFile.Auths))
-	if len(dockerFile.Auths) == 0 {
-		var any map[string]interface{}
-		if err := json.Unmarshal(b, &any); err != nil {
-			return fmt.Errorf("Dockercfg is not in valid format: %v", err)
-		}
+	for k, v := range auths {
+		if v.Auth == "" {
+			if k == "auths" {
+				return wrapError("%s is in invalid format (config.json)! Please convert to dockercfg format", c.DockerConfigFile)
+			}
 
-		return fmt.Errorf("Num items: %v", len(any))
+			return wrapError("Entry '%s' is missing required 'auth' field", k)
+		}
 	}
 
 	return nil
