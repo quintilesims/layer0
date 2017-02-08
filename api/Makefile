@@ -1,12 +1,21 @@
+SHELL:=/bin/bash
 L0_VERSION?=$(shell git describe --tags)
-API_DOCKER_IMAGE=quintilesims/l0-api:$(L0_VERSION)
+CURRENT_API_DOCKER_IMAGE=quintilesims/l0-api:$(L0_VERSION)
+LATEST_API_DOCKER_IMAGE=quintilesims/l0-api:latest
+
+deps:
+	@docker login -u $(DOCKERHUB_USERNAME) -p $(DOCKERHUB_PASSWORD)
 
 build:
-	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags "-X main.Version=$(L0_VERSION)" --tags scratch -o l0-api . 
-	docker build -t $(API_DOCKER_IMAGE) .
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a --ldflags "-X main.Version=$(L0_VERSION)" -o l0-api . 
+	docker build -t $(CURRENT_API_DOCKER_IMAGE) .
 
 release: build
-	docker push $(API_DOCKER_IMAGE)
+	docker push $(CURRENT_API_DOCKER_IMAGE)
+	docker tag  $(CURRENT_API_DOCKER_IMAGE) $(LATEST_API_DOCKER_IMAGE)
+	docker push $(LATEST_API_DOCKER_IMAGE)
 
 test:
 	go test ./...
+
+.PHONY: deps build release test

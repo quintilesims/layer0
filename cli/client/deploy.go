@@ -36,8 +36,8 @@ func (c *APIClient) GetDeploy(id string) (*models.Deploy, error) {
 	return deploy, nil
 }
 
-func (c *APIClient) ListDeploys() ([]*models.Deploy, error) {
-	var deploys []*models.Deploy
+func (c *APIClient) ListDeploys() ([]*models.DeploySummary, error) {
+	var deploys []*models.DeploySummary
 	if err := c.Execute(c.Sling("deploy/").Get(""), &deploys); err != nil {
 		return nil, err
 	}

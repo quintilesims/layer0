@@ -1,0 +1,779 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Layer0 Setup CLI - Layer0</title>
+      
+      
+      
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/reference/setup-cli/">
+      
+      
+        <meta name="author" content="xfra">
+      
+    
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/reference/setup-cli/">
+    <meta property="og:title" content="Layer0">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/reference/setup-cli//../../static/logo_icon.png">
+    <meta name="apple-mobile-web-app-title" content="Layer0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+      <link rel="apple-touch-icon" href="../../static/logo_icon.png">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../../assets/fonts/icon.eot?52m981');
+      	src: url('../../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../../assets/stylesheets/application-b64b728552.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Roboto+Mono">
+      <style>
+        body, input {
+          font-family: 'Roboto', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Roboto Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+              
+                Reference <i class="icon icon-link"></i>
+              
+            
+          </span>
+        
+        Layer0 Setup CLI
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/quintilesims/layer0/" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="../../static/logo_icon.png">
+        </div>
+      
+      <div class="name">
+        <strong>Layer0 v0.8.4</strong>
+        
+          <br>
+          quintilesims/layer0
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="../../#download" title="Download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="../..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Releases" href="../../releases/">
+      Releases
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Introduction" href="../../intro/">
+      Introduction
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Setup</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Install" href="../../setup/install/">
+      Install
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Upgrade" href="../../setup/update/">
+      Upgrade
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Destroy" href="../../setup/destroy/">
+      Destroy
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Guides</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Guestbook" href="../../guides/guestbook/">
+      Guestbook
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Guestbook with RDS" href="../../guides/guestbook_rds/">
+      Guestbook with RDS
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../../guides/consul/">
+      Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Guestbook with Consul" href="../../guides/guestbook_consul/">
+      Guestbook with Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="One-off Task" href="../../guides/one_off_task/">
+      One-off Task
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Reference</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Layer0 CLI" href="../cli/">
+      Layer0 CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="current" title="Layer0 Setup CLI" href="./">
+      Layer0 Setup CLI
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="General Usage" href="#general-usage">
+                General Usage
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Apply" href="#apply">
+                Apply
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Backup" href="#backup">
+                Backup
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Restore" href="#restore">
+                Restore
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Destroy" href="#destroy">
+                Destroy
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Endpoint" href="#endpoint">
+                Endpoint
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="VPC" href="#vpc">
+                VPC
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Terraform" href="#terraform">
+                Terraform
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Migrate" href="#migrate">
+                Migrate
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Layer0 Terraform Plugin" href="../terraform-plugin/">
+      Layer0 Terraform Plugin
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Updating a Service" href="../updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../consul/">
+      Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Task Definitions" href="../task_definition/">
+      Task Definitions
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Architecture" href="../architecture/">
+      Architecture
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="ECR" href="../ecr/">
+      ECR
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Troubleshooting</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Common Issues" href="../../troubleshooting/commonissues/">
+      Common Issues
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Secure Shell (SSH)" href="../../troubleshooting/ssh/">
+      Secure Shell (SSH)
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+          <hr>
+          <span class="section">The author</span>
+          <ul>
+            
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <h1 id="layer0-setup-l0-setup-command-line-interface-reference">Layer0 Setup (l0-setup) command-line interface reference<a class="headerlink" href="#layer0-setup-l0-setup-command-line-interface-reference" title="Permanent link">#</a></h1>
+<p>The <strong>l0-setup</strong> application is designed to be used with one of several commands; these commands are detailed in the sections below.</p>
+<h4 id="general-usage">General Usage<a class="headerlink" href="#general-usage" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0-setup</strong> [--version] <em>command</em> [<em>options</em>] [<em>parameters</em>]</div>
+  </div>
+</div></p>
+<hr />
+<h2 id="apply">Apply<a class="headerlink" href="#apply" title="Permanent link">#</a></h2>
+<p>The <strong>apply</strong> command is used to create and update Layer0 instances.</p>
+<h3 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0-setup apply</strong> [--force] [--access_key=<em>awsAccessKeyID</em>] [--secret_key=<em>awsSecretAccessKeyID</em>] [--region=<em>awsRegion</em>] [--docker_token=<em>dockerToken</em>] [--vpc=<em>vpcID</em>] <em>prefixName</em></div>
+  </div>
+</div></p>
+<h3 id="required-parameters">Required parameters<a class="headerlink" href="#required-parameters" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>prefixName</em></div>
+    <div class="divCell">The name of a Layer0Prefix in an existing AWS stack. To learn more about creating a stack, see the <a href="../../setup/install/#part-2-create-an-identity-access-management-user">installation guide</a></div>
+  </div>
+</div></p>
+<h3 id="optional-arguments">Optional arguments<a class="headerlink" href="#optional-arguments" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--force</div>
+    <div class="divCell">Avoid prompting for a missing dockercfg file.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--access_key=<em>awsAccessKeyID</em></div>
+    <div class="divCell">The Access Key ID of an IAM user associated with the AWS stack in which you are creating the Layer0 instance.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--secret_key=<em>awsSecretAccessKeyID</em></div>
+    <div class="divCell">The Secret Access Key ID of an IAM user associated with the AWS stack in which you are creating the Layer0 instance.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--region=<em>awsRegion</em></div>
+    <div class="divCell">The AWS region in which the Layer0 instance resides.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--docker_token=<em>dockerToken</em></div>
+    <div class="divCell">A valid d.ims.io Docker token.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--vpc=<em>vpcID</em></div>
+    <div class="divCell">The ID of a VPC. If blank, <strong>l0-setup</strong> will create a new VPC.</div>
+  </div>
+</div></p>
+<hr />
+<h2 id="backup">Backup<a class="headerlink" href="#backup" title="Permanent link">#</a></h2>
+<p>The <strong>backup</strong> command is used to back up your Layer0 configuration files to an S3 bucket. This command is most often used when migrating between versions of Layer0. The <strong>backup</strong> command also runs automatically every time you execute the <strong>l0-setup apply</strong> command.</p>
+<h3 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0-setup backup</strong> <em>prefixName</em></div>
+  </div>
+</div></p>
+<h3 id="required-parameters_1">Required parameters<a class="headerlink" href="#required-parameters_1" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>prefixName</em></div>
+    <div class="divCell">The name of the Layer0Prefix that you want to back up.</div>
+  </div>
+</div></p>
+<hr />
+<h2 id="restore">Restore<a class="headerlink" href="#restore" title="Permanent link">#</a></h2>
+<p>The <strong>restore</strong> command is used to restore Layer0 configuration files that were previously backed up to an S3 bucket using the <a href="#backup"><strong>backup</strong></a> command.</p>
+<h3 id="usage_2">Usage<a class="headerlink" href="#usage_2" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0-setup restore</strong> [--access_key=<em>awsAccessKeyID</em>] [--secret_key=<em>awsSecretAccessKeyID</em>] [--region=<em>awsRegion</em>] [--docker_token=<em>dockerToken</em>] <em>prefixName</em></div>
+  </div>
+</div></p>
+<h3 id="required-parameters_2">Required parameters<a class="headerlink" href="#required-parameters_2" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>prefixName</em></div>
+    <div class="divCell">The name of the Layer0Prefix that you want to restore.</div>
+  </div>
+</div></p>
+<h3 id="optional-arguments_1">Optional arguments<a class="headerlink" href="#optional-arguments_1" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--access_key=<em>awsAccessKeyID</em></div>
+    <div class="divCell">The Access Key ID of an IAM user associated with the AWS stack in which the Layer0 instance was created.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--secret_key=<em>awsSecretAccessKeyID</em></div>
+    <div class="divCell">The Secret Access Key ID of an IAM user associated with the AWS stack in which the Layer0 instance was created.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--region=<em>awsRegion</em></div>
+    <div class="divCell">The AWS region in which the Layer0 instance resides.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--docker_token=<em>dockerToken</em></div>
+    <div class="divCell">A valid d.ims.io Docker token.</div>
+  </div>
+</div></p>
+<hr />
+<h2 id="destroy">Destroy<a class="headerlink" href="#destroy" title="Permanent link">#</a></h2>
+<p>The <strong>destroy</strong> command is used to delete a Layer0 configuration.</p>
+<p>Before you can run the <strong>destroy</strong> command, you must first delete any existing <a href="../../cli/#loadbalancer-delete">loadbalancers</a>, <a href="../../cli/#service-delete">services</a> and <a href="../../cli/#environment-delete">environments</a> that exist in the Layer0 instance, using the <strong>delete</strong> subcommands for each of those components.</p>
+<div class="admonition warning">
+<p class="admonition-title">Caution</p>
+<p>Destroying a Layer0 instance cannot be undone; if you created backups of your Layer0 configuration using the <a href="#backup" style="color:#ffffff;"><strong>backup</strong></a> command, those backups will also be deleted when you run the <strong>destroy</strong> command. The only way to re-deploy a destroyed instance is to use the procedures in the <a href="/setup/install" style="color:#ffffff;">installation guide</a> to rebuild it.</p>
+</div>
+<h3 id="usage_3">Usage<a class="headerlink" href="#usage_3" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0-setup destroy</strong> <em>prefixName</em></div>
+  </div>
+</div></p>
+<h3 id="required-parameters_3">Required parameters<a class="headerlink" href="#required-parameters_3" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>prefixName</em></div>
+    <div class="divCell">The name of a Layer0Prefix in an existing AWS stack.</div>
+  </div>
+</div></p>
+<h3 id="optional-arguments_2">Optional arguments<a class="headerlink" href="#optional-arguments_2" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--force=false</div>
+    <div class="divCell">When specified, destroy confirmation prompts will not be shown.</div>
+  </div>
+</div></p>
+<hr />
+<h2 id="endpoint">Endpoint<a class="headerlink" href="#endpoint" title="Permanent link">#</a></h2>
+<p>The <strong>endpoint</strong> command is used to look up the details of a Layer0 endpoint so that you can export them to your shell.</p>
+<h3 id="usage_4">Usage<a class="headerlink" href="#usage_4" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0-setup endpoint</strong> [-iq] [-s <em>syntax</em>] <em>prefixName</em></div>
+  </div>
+</div></p>
+<h3 id="required-parameters_4">Required parameters<a class="headerlink" href="#required-parameters_4" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>prefixName</em></div>
+    <div class="divCell">The name of a Layer0Prefix for which you want to view endpoint information.</div>
+  </div>
+</div></p>
+<h3 id="optional-arguments_3">Optional arguments<a class="headerlink" href="#optional-arguments_3" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">-s, --syntax="bash"</div>
+    <div class="divCell">Show commands using the specified syntax (bash, powershell, cmd)</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">-i, --insecure=false</div>
+    <div class="divCell">Allow incomplete SSL configuration. This option is not recommended for production use.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">-q, --quiet=false</div>
+    <div class="divCell">Silence CLI and API version mismatch warning messages</div>
+  </div>
+</div></p>
+<hr />
+<h2 id="vpc">VPC<a class="headerlink" href="#vpc" title="Permanent link">#</a></h2>
+<p>The <strong>vpc</strong> command is used to look up details from a Virtual Private Cloud (VPC) instance.</p>
+<h3 id="usage_5">Usage<a class="headerlink" href="#usage_5" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0-setup vpc</strong> [--access_key=<em>awsAccessKeyID</em>] [--secret_key=<em>awsSecretAccessKeyID</em>] [--region=<em>awsRegion</em>] [--docker_token=<em>dockerToken</em>] <em>prefixName</em></div>
+  </div>
+</div></p>
+<h3 id="required-parameters_5">Required parameters<a class="headerlink" href="#required-parameters_5" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>prefixName</em></div>
+    <div class="divCell">The name of a Layer0Prefix for which you want to view VPC information.</div>
+  </div>
+</div></p>
+<h3 id="optional-arguments_4">Optional arguments<a class="headerlink" href="#optional-arguments_4" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--access_key=<em>awsAccessKeyID</em></div>
+    <div class="divCell">The Access Key ID of an IAM user associated with the AWS stack in which you are creating the Layer0 instance.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--secret_key=<em>awsSecretAccessKeyID</em></div>
+    <div class="divCell">The Secret Access Key ID of an IAM user associated with the AWS stack in which you are creating the Layer0 instance.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--region=<em>awsRegion</em></div>
+    <div class="divCell">The AWS region in which the Layer0 instance resides.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--docker_token=<em>dockerToken</em></div>
+    <div class="divCell">A valid d.ims.io Docker token.</div>
+  </div>
+</div></p>
+<hr />
+<h2 id="terraform">Terraform<a class="headerlink" href="#terraform" title="Permanent link">#</a></h2>
+<p>The <strong>terraform</strong> command is used to issue terraform commands directly to a Layer0 instance. Some terraform commands enable functionality that is not a standard part of the <strong>l0-setup</strong> application.</p>
+<p>For more information about the capabilities and syntax of terraform commands, see the <a href="https://www.terraform.io/docs/commands/index.html">Terraform Commands (CLI) Documentation</a>.</p>
+<h3 id="usage_6">Usage<a class="headerlink" href="#usage_6" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0-setup terraform</strong> <em>prefixName</em> <em>terraformArguments</em></div>
+  </div>
+</div></p>
+<h3 id="required-parameters_6">Required parameters<a class="headerlink" href="#required-parameters_6" title="Permanent link">#</a></h3>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>prefixName</em></div>
+    <div class="divCell">The name of a Layer0Prefix in which you want to execute terraform commands.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>terraformArguments</em></div>
+    <div class="divCell">The terraform arguments to pass to Layer0. Arguments passed in this way must follow the syntax specified in the <a href="https://www.terraform.io/docs/commands/index.html">Terraform Commands (CLI) Documentation</a>.</div>
+  </div>
+</div></p>
+<hr />
+<h2 id="migrate">Migrate<a class="headerlink" href="#migrate" title="Permanent link">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <strong>migrate</strong> command has been deprecated and should not be used. This command will be removed from future versions of l0-setup.</p>
+</div>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../cli/" title="Layer0 CLI">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Layer0 CLI
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../terraform-plugin/" title="Layer0 Terraform Plugin">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Layer0 Terraform Plugin
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '../..';
+      var repo_id  = 'quintilesims/layer0';
+    </script>
+    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
+    
+    
+  </body>
+</html>

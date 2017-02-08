@@ -6,20 +6,18 @@ all: api cli
 
 api: logic data backend aws
 
-cli: client entity command
+cli: client command
 
 logic:
 	mockgen github.com/quintilesims/layer0/api/logic DeployLogic > ../api/logic/mock_logic/mock_deploy_logic.go &
 	mockgen github.com/quintilesims/layer0/api/logic EnvironmentLogic > ../api/logic/mock_logic/mock_environment_logic.go &
 	mockgen github.com/quintilesims/layer0/api/logic ServiceLogic > ../api/logic/mock_logic/mock_service_logic.go &
 	mockgen github.com/quintilesims/layer0/api/logic TaskLogic > ../api/logic/mock_logic/mock_task_logic.go &
-	mockgen github.com/quintilesims/layer0/api/logic CertificateLogic > ../api/logic/mock_logic/mock_certificate_logic.go &
 	mockgen github.com/quintilesims/layer0/api/logic LoadBalancerLogic > ../api/logic/mock_logic/mock_load_balancer_logic.go &
 	mockgen github.com/quintilesims/layer0/api/logic JobLogic > ../api/logic/mock_logic/mock_job_logic.go &
 
 data:
-	mockgen github.com/quintilesims/layer0/api/data TagData > ../api/data/mock_data/mock_tag_tata.go &
-	mockgen github.com/quintilesims/layer0/api/data JobData > ../api/data/mock_data/mock_job_data.go &
+	mockgen github.com/quintilesims/layer0/common/db/job_store JobStore > ../common/db/job_store/mock_job_store/mock_job_store.go &
 
 backend:
 	mockgen github.com/quintilesims/layer0/api/backend Backend > ../api/backend/mock_backend/mock_backend.go &
@@ -37,9 +35,6 @@ aws:
 
 client:
 	mockgen github.com/quintilesims/layer0/cli/client Client > ../cli/client/mock_client/mock_client.go &
-
-entity:
-	mockgen github.com/quintilesims/layer0/cli/entity Entity > ../cli/entity/mock_entity/mock_entity.go &
 
 command:
 	mockgen github.com/quintilesims/layer0/cli/command Resolver > ../cli/command/mock_command/mock_resolver.go &

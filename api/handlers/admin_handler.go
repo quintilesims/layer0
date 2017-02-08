@@ -25,12 +25,6 @@ func (this AdminHandler) Routes() *restful.WebService {
 		Consumes(restful.MIME_JSON).
 		Produces(restful.MIME_JSON)
 
-	service.Route(service.GET("/sql").
-		Filter(basicAuthenticate).
-		To(this.GetSQL).
-		Doc("Returns Current SQL status").
-		Writes(models.SQLVersion{}))
-
 	service.Route(service.GET("/version").
 		Filter(basicAuthenticate).
 		To(this.GetVersion).
@@ -39,6 +33,12 @@ func (this AdminHandler) Routes() *restful.WebService {
 	service.Route(service.GET("/health").
 		To(this.GetHealth).
 		Doc("Returns Health of API Server"))
+
+	service.Route(service.POST("/health").
+		Filter(basicAuthenticate).
+		To(this.RunRightSizer).
+		Reads("").
+		Doc("Run right sizer"))
 
 	service.Route(service.GET("/config").
 		To(this.GetConfig).
@@ -52,16 +52,6 @@ func (this AdminHandler) Routes() *restful.WebService {
 		Doc("Configures sql settings"))
 
 	return service
-}
-
-func (this *AdminHandler) GetSQL(request *restful.Request, response *restful.Response) {
-	version, err := this.AdminLogic.GetSQLStatus()
-	if err != nil {
-		ReturnError(response, err)
-		return
-	}
-
-	response.WriteAsJson(version)
 }
 
 func (this *AdminHandler) GetVersion(request *restful.Request, response *restful.Response) {
@@ -98,6 +88,15 @@ func (this *AdminHandler) GetHealth(request *restful.Request, response *restful.
 	}
 
 	response.WriteAsJson(message)
+}
+
+func (this *AdminHandler) RunRightSizer(request *restful.Request, response *restful.Response) {
+	if err := this.AdminLogic.RunRightSizer(); err != nil {
+		ReturnError(response, err)
+		return
+	}
+
+	response.WriteAsJson("")
 }
 
 func (this *AdminHandler) UpdateSQL(request *restful.Request, response *restful.Response) {

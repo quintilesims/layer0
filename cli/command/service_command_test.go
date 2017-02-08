@@ -258,7 +258,7 @@ func TestListServices(t *testing.T) {
 
 	tc.Client.EXPECT().
 		ListServices().
-		Return([]*models.Service{}, nil)
+		Return([]*models.ServiceSummary{}, nil)
 
 	c := getCLIContext(t, nil, nil)
 	if err := command.List(c); err != nil {

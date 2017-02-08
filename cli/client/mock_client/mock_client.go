@@ -30,17 +30,6 @@ func (_m *MockClient) EXPECT() *_MockClientRecorder {
 	return _m.recorder
 }
 
-func (_m *MockClient) CreateCertificate(_param0 string, _param1 []byte, _param2 []byte, _param3 []byte) (*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "CreateCertificate", _param0, _param1, _param2, _param3)
-	ret0, _ := ret[0].(*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) CreateCertificate(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateCertificate", arg0, arg1, arg2, arg3)
-}
-
 func (_m *MockClient) CreateDeploy(_param0 string, _param1 []byte) (*models.Deploy, error) {
 	ret := _m.ctrl.Call(_m, "CreateDeploy", _param0, _param1)
 	ret0, _ := ret[0].(*models.Deploy)
@@ -63,15 +52,15 @@ func (_mr *_MockClientRecorder) CreateEnvironment(arg0, arg1, arg2, arg3 interfa
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0, arg1, arg2, arg3)
 }
 
-func (_m *MockClient) CreateLoadBalancer(_param0 string, _param1 string, _param2 []models.Port, _param3 bool) (*models.LoadBalancer, error) {
-	ret := _m.ctrl.Call(_m, "CreateLoadBalancer", _param0, _param1, _param2, _param3)
+func (_m *MockClient) CreateLoadBalancer(_param0 string, _param1 string, _param2 models.HealthCheck, _param3 []models.Port, _param4 bool) (*models.LoadBalancer, error) {
+	ret := _m.ctrl.Call(_m, "CreateLoadBalancer", _param0, _param1, _param2, _param3, _param4)
 	ret0, _ := ret[0].(*models.LoadBalancer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockClientRecorder) CreateLoadBalancer(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateLoadBalancer", arg0, arg1, arg2, arg3)
+func (_mr *_MockClientRecorder) CreateLoadBalancer(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateLoadBalancer", arg0, arg1, arg2, arg3, arg4)
 }
 
 func (_m *MockClient) CreateService(_param0 string, _param1 string, _param2 string, _param3 string) (*models.Service, error) {
@@ -96,14 +85,14 @@ func (_mr *_MockClientRecorder) CreateTask(arg0, arg1, arg2, arg3, arg4 interfac
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTask", arg0, arg1, arg2, arg3, arg4)
 }
 
-func (_m *MockClient) DeleteCertificate(_param0 string) error {
-	ret := _m.ctrl.Call(_m, "DeleteCertificate", _param0)
+func (_m *MockClient) Delete(_param0 string) error {
+	ret := _m.ctrl.Call(_m, "Delete", _param0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-func (_mr *_MockClientRecorder) DeleteCertificate(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteCertificate", arg0)
+func (_mr *_MockClientRecorder) Delete(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Delete", arg0)
 }
 
 func (_m *MockClient) DeleteDeploy(_param0 string) error {
@@ -125,16 +114,6 @@ func (_m *MockClient) DeleteEnvironment(_param0 string) (string, error) {
 
 func (_mr *_MockClientRecorder) DeleteEnvironment(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteEnvironment", arg0)
-}
-
-func (_m *MockClient) DeleteJob(_param0 string) error {
-	ret := _m.ctrl.Call(_m, "DeleteJob", _param0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-func (_mr *_MockClientRecorder) DeleteJob(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteJob", arg0)
 }
 
 func (_m *MockClient) DeleteLoadBalancer(_param0 string) (string, error) {
@@ -167,17 +146,6 @@ func (_m *MockClient) DeleteTask(_param0 string) error {
 
 func (_mr *_MockClientRecorder) DeleteTask(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteTask", arg0)
-}
-
-func (_m *MockClient) GetCertificate(_param0 string) (*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "GetCertificate", _param0)
-	ret0, _ := ret[0].(*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) GetCertificate(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetCertificate", arg0)
 }
 
 func (_m *MockClient) GetConfig() (*models.APIConfig, error) {
@@ -257,17 +225,6 @@ func (_mr *_MockClientRecorder) GetServiceLogs(arg0, arg1 interface{}) *gomock.C
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetServiceLogs", arg0, arg1)
 }
 
-func (_m *MockClient) GetTags(_param0 map[string]string) ([]*models.EntityWithTags, error) {
-	ret := _m.ctrl.Call(_m, "GetTags", _param0)
-	ret0, _ := ret[0].([]*models.EntityWithTags)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) GetTags(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTags", arg0)
-}
-
 func (_m *MockClient) GetTask(_param0 string) (*models.Task, error) {
 	ret := _m.ctrl.Call(_m, "GetTask", _param0)
 	ret0, _ := ret[0].(*models.Task)
@@ -301,20 +258,9 @@ func (_mr *_MockClientRecorder) GetVersion() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetVersion")
 }
 
-func (_m *MockClient) ListCertificates() ([]*models.Certificate, error) {
-	ret := _m.ctrl.Call(_m, "ListCertificates")
-	ret0, _ := ret[0].([]*models.Certificate)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) ListCertificates() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListCertificates")
-}
-
-func (_m *MockClient) ListDeploys() ([]*models.Deploy, error) {
+func (_m *MockClient) ListDeploys() ([]*models.DeploySummary, error) {
 	ret := _m.ctrl.Call(_m, "ListDeploys")
-	ret0, _ := ret[0].([]*models.Deploy)
+	ret0, _ := ret[0].([]*models.DeploySummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -323,9 +269,9 @@ func (_mr *_MockClientRecorder) ListDeploys() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListDeploys")
 }
 
-func (_m *MockClient) ListEnvironments() ([]*models.Environment, error) {
+func (_m *MockClient) ListEnvironments() ([]*models.EnvironmentSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListEnvironments")
-	ret0, _ := ret[0].([]*models.Environment)
+	ret0, _ := ret[0].([]*models.EnvironmentSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -345,9 +291,9 @@ func (_mr *_MockClientRecorder) ListJobs() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListJobs")
 }
 
-func (_m *MockClient) ListLoadBalancers() ([]*models.LoadBalancer, error) {
+func (_m *MockClient) ListLoadBalancers() ([]*models.LoadBalancerSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListLoadBalancers")
-	ret0, _ := ret[0].([]*models.LoadBalancer)
+	ret0, _ := ret[0].([]*models.LoadBalancerSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -356,9 +302,9 @@ func (_mr *_MockClientRecorder) ListLoadBalancers() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListLoadBalancers")
 }
 
-func (_m *MockClient) ListServices() ([]*models.Service, error) {
+func (_m *MockClient) ListServices() ([]*models.ServiceSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListServices")
-	ret0, _ := ret[0].([]*models.Service)
+	ret0, _ := ret[0].([]*models.ServiceSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -367,15 +313,25 @@ func (_mr *_MockClientRecorder) ListServices() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListServices")
 }
 
-func (_m *MockClient) ListTasks() ([]*models.Task, error) {
+func (_m *MockClient) ListTasks() ([]*models.TaskSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListTasks")
-	ret0, _ := ret[0].([]*models.Task)
+	ret0, _ := ret[0].([]*models.TaskSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 func (_mr *_MockClientRecorder) ListTasks() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListTasks")
+}
+
+func (_m *MockClient) RunRightSizer() error {
+	ret := _m.ctrl.Call(_m, "RunRightSizer")
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockClientRecorder) RunRightSizer() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunRightSizer")
 }
 
 func (_m *MockClient) ScaleService(_param0 string, _param1 int) (*models.Service, error) {
@@ -389,6 +345,17 @@ func (_mr *_MockClientRecorder) ScaleService(arg0, arg1 interface{}) *gomock.Cal
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ScaleService", arg0, arg1)
 }
 
+func (_m *MockClient) SelectByQuery(_param0 map[string]string) ([]*models.EntityWithTags, error) {
+	ret := _m.ctrl.Call(_m, "SelectByQuery", _param0)
+	ret0, _ := ret[0].([]*models.EntityWithTags)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockClientRecorder) SelectByQuery(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "SelectByQuery", arg0)
+}
+
 func (_m *MockClient) UpdateEnvironment(_param0 string, _param1 int) (*models.Environment, error) {
 	ret := _m.ctrl.Call(_m, "UpdateEnvironment", _param0, _param1)
 	ret0, _ := ret[0].(*models.Environment)
@@ -400,15 +367,26 @@ func (_mr *_MockClientRecorder) UpdateEnvironment(arg0, arg1 interface{}) *gomoc
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateEnvironment", arg0, arg1)
 }
 
-func (_m *MockClient) UpdateLoadBalancer(_param0 string, _param1 []models.Port) (*models.LoadBalancer, error) {
-	ret := _m.ctrl.Call(_m, "UpdateLoadBalancer", _param0, _param1)
+func (_m *MockClient) UpdateLoadBalancerHealthCheck(_param0 string, _param1 models.HealthCheck) (*models.LoadBalancer, error) {
+	ret := _m.ctrl.Call(_m, "UpdateLoadBalancerHealthCheck", _param0, _param1)
 	ret0, _ := ret[0].(*models.LoadBalancer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockClientRecorder) UpdateLoadBalancer(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateLoadBalancer", arg0, arg1)
+func (_mr *_MockClientRecorder) UpdateLoadBalancerHealthCheck(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateLoadBalancerHealthCheck", arg0, arg1)
+}
+
+func (_m *MockClient) UpdateLoadBalancerPorts(_param0 string, _param1 []models.Port) (*models.LoadBalancer, error) {
+	ret := _m.ctrl.Call(_m, "UpdateLoadBalancerPorts", _param0, _param1)
+	ret0, _ := ret[0].(*models.LoadBalancer)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockClientRecorder) UpdateLoadBalancerPorts(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateLoadBalancerPorts", arg0, arg1)
 }
 
 func (_m *MockClient) UpdateSQL() error {

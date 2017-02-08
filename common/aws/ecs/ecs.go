@@ -35,6 +35,7 @@ type Provider interface {
 	ListClusters() ([]*string, error)
 	ListContainerInstances(clusterName string) ([]*string, error)
 	ListServices(clusterName string) ([]*string, error)
+	Helper_ListServices(prefix string) ([]*string, error)
 	ListTasks(clusterName string, serviceName, desiredStatus, startedBy, containerInstance *string) ([]*string, error)
 
 	ListTaskDefinitions(familyName string, nextToken *string) ([]*string, *string, error)
@@ -428,7 +429,6 @@ func (this *ECS) StartTask(cluster, taskDefinition string, overrides *TaskOverri
 }
 
 func (this *ECS) StopTask(cluster, reason, task string) (err error) {
-
 	input := &ecs.StopTaskInput{
 		Cluster: aws.String(cluster),
 		Reason:  aws.String(reason),
@@ -544,6 +544,32 @@ func (this *ECS) DescribeServices(cluster string, serviceIDs []*string) ([]*Serv
 	}
 
 	return services, nil
+}
+
+func (this *ECS) Helper_ListServices(prefix string) ([]*string, error) {
+	clusterARNs, err := this.ListClusters()
+	if err != nil {
+		return nil, err
+	}
+
+	serviceARNs := []*string{}
+	for _, clusterARN := range clusterARNs {
+		clusterName := strings.Split(*clusterARN, ":")[5]
+		clusterName = strings.Replace(clusterName, "cluster/", "", -1)
+
+		if !strings.HasPrefix(clusterName, prefix) {
+			continue
+		}
+
+		arns, err := this.ListServices(*clusterARN)
+		if err != nil {
+			return nil, err
+		}
+
+		serviceARNs = append(serviceARNs, arns...)
+	}
+
+	return serviceARNs, nil
 }
 
 func (this *ECS) Helper_DescribeServices(prefix string) ([]*Service, error) {

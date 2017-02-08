@@ -32,8 +32,7 @@ func (this *DeployHandler) Routes() *restful.WebService {
 		Filter(basicAuthenticate).
 		To(this.ListDeploys).
 		Doc("List all Deploys").
-		Returns(200, "OK", []models.Deploy{}).
-		Returns(400, "OK", []models.Deploy{}))
+		Returns(200, "OK", []models.DeploySummary{}))
 
 	service.Route(service.GET("{id}").
 		Filter(basicAuthenticate).

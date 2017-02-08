@@ -8,18 +8,26 @@ import (
 )
 
 func TestCreateLoadBalancer(t *testing.T) {
+	healthCheck := models.HealthCheck{
+		Target:             "TCP:80",
+		Interval:           30,
+		Timeout:            5,
+		HealthyThreshold:   10,
+		UnhealthyThreshold: 2,
+	}
+
 	ports := []models.Port{
 		{
-			HostPort:      443,
-			ContainerPort: 80,
-			Protocol:      "https",
-			CertificateID: "certid",
+			HostPort:        443,
+			ContainerPort:   80,
+			Protocol:        "https",
+			CertificateName: "cert_name",
 		},
 		{
-			HostPort:      8000,
-			ContainerPort: 8000,
-			Protocol:      "http",
-			CertificateID: "",
+			HostPort:        8000,
+			ContainerPort:   8000,
+			Protocol:        "http",
+			CertificateName: "",
 		},
 	}
 
@@ -33,6 +41,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		testutils.AssertEqual(t, req.LoadBalancerName, "name")
 		testutils.AssertEqual(t, req.EnvironmentID, "environmentID")
 		testutils.AssertEqual(t, req.IsPublic, true)
+		testutils.AssertEqual(t, req.HealthCheck, healthCheck)
 		testutils.AssertEqual(t, req.Ports, ports)
 
 		MarshalAndWrite(t, w, models.LoadBalancer{LoadBalancerID: "id"}, 200)
@@ -41,7 +50,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	loadBalancer, err := client.CreateLoadBalancer("name", "environmentID", ports, true)
+	loadBalancer, err := client.CreateLoadBalancer("name", "environmentID", healthCheck, ports, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -97,7 +106,7 @@ func TestListLoadBalancers(t *testing.T) {
 		testutils.AssertEqual(t, r.Method, "GET")
 		testutils.AssertEqual(t, r.URL.Path, "/loadbalancer/")
 
-		loadBalancers := []models.LoadBalancer{
+		loadBalancers := []models.LoadBalancerSummary{
 			{LoadBalancerID: "id1"},
 			{LoadBalancerID: "id2"},
 		}
@@ -118,19 +127,51 @@ func TestListLoadBalancers(t *testing.T) {
 	testutils.AssertEqual(t, loadBalancers[1].LoadBalancerID, "id2")
 }
 
-func TestUpdateLoadBalancer(t *testing.T) {
+func TestUpdateLoadBalancerHealthCheck(t *testing.T) {
+	healthCheck := models.HealthCheck{
+		Target:             "TCP:80",
+		Interval:           30,
+		Timeout:            5,
+		HealthyThreshold:   10,
+		UnhealthyThreshold: 2,
+	}
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		testutils.AssertEqual(t, r.Method, "PUT")
+		testutils.AssertEqual(t, r.URL.Path, "/loadbalancer/id/healthcheck")
+
+		var req models.UpdateLoadBalancerHealthCheckRequest
+		Unmarshal(t, r, &req)
+
+		testutils.AssertEqual(t, req.HealthCheck, healthCheck)
+
+		MarshalAndWrite(t, w, models.LoadBalancer{LoadBalancerID: "id"}, 200)
+	}
+
+	client, server := newClientAndServer(handler)
+	defer server.Close()
+
+	loadBalancer, err := client.UpdateLoadBalancerHealthCheck("id", healthCheck)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutils.AssertEqual(t, loadBalancer.LoadBalancerID, "id")
+}
+
+func TestUpdateLoadBalancerPorts(t *testing.T) {
 	ports := []models.Port{
 		{
-			HostPort:      443,
-			ContainerPort: 80,
-			Protocol:      "https",
-			CertificateID: "certid",
+			HostPort:        443,
+			ContainerPort:   80,
+			Protocol:        "https",
+			CertificateName: "cert_name",
 		},
 		{
-			HostPort:      8000,
-			ContainerPort: 8000,
-			Protocol:      "http",
-			CertificateID: "",
+			HostPort:        8000,
+			ContainerPort:   8000,
+			Protocol:        "http",
+			CertificateName: "",
 		},
 	}
 
@@ -138,7 +179,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 		testutils.AssertEqual(t, r.Method, "PUT")
 		testutils.AssertEqual(t, r.URL.Path, "/loadbalancer/id/ports")
 
-		var req models.UpdateLoadBalancerRequest
+		var req models.UpdateLoadBalancerPortsRequest
 		Unmarshal(t, r, &req)
 
 		testutils.AssertEqual(t, req.Ports, ports)
@@ -149,7 +190,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	loadBalancer, err := client.UpdateLoadBalancer("id", ports)
+	loadBalancer, err := client.UpdateLoadBalancerPorts("id", ports)
 	if err != nil {
 		t.Fatal(err)
 	}

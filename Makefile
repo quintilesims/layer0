@@ -1,3 +1,4 @@
+SHELL:=/bin/bash
 L0_VERSION?=$(shell git describe --tags)
 
 release:
@@ -22,4 +23,24 @@ unittest:
 	$(MAKE) -C runner test
 	$(MAKE) -C setup test
 
-.PHONY: release unittest
+smoketest:
+	$(MAKE) -C tests/smoke deps
+	$(MAKE) -C tests/smoke test
+
+systemtest:
+	 $(MAKE) -C tests/system test
+
+install-smoketest:
+	$(MAKE) -C cli install-smoketest
+	$(MAKE) -C setup install-smoketest
+	$(MAKE) -C api deps
+	$(MAKE) -C api release
+	$(MAKE) -C runner release
+
+apply-smoketest:
+	$(MAKE) -C setup apply-smoketest
+
+destroy-smoketest:
+	$(MAKE) -C setup destroy-smoketest
+
+.PHONY: release unittest smoketest install-smoketest apply-smoketest destroy-smoketest systemtest

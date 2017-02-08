@@ -36,27 +36,31 @@ func NewECSLoadBalancerManager(ec2 ec2.Provider, elb elb.Provider, iam iam.Provi
 	}
 }
 
-func (this *ECSLoadBalancerManager) ListLoadBalancers() ([]*models.LoadBalancer, error) {
-	loadBalancers, err := this.ELB.DescribeLoadBalancers()
+func (e *ECSLoadBalancerManager) ListLoadBalancers() ([]*models.LoadBalancer, error) {
+	loadBalancerDescriptions, err := e.ELB.DescribeLoadBalancers()
 	if err != nil {
 		return nil, err
 	}
 
-	models := []*models.LoadBalancer{}
-	for _, loadBalancer := range loadBalancers {
-		if name := *loadBalancer.LoadBalancerName; strings.HasPrefix(name, id.PREFIX) {
-			model := this.populateModel(loadBalancer)
-			models = append(models, model)
+	loadBalancers := []*models.LoadBalancer{}
+	for _, description := range loadBalancerDescriptions {
+		if name := *description.LoadBalancerName; strings.HasPrefix(name, id.PREFIX) {
+			ecsLoadBalancerID := id.ECSLoadBalancerID(name)
+			loadBalancer := &models.LoadBalancer{
+				LoadBalancerID: ecsLoadBalancerID.L0LoadBalancerID(),
+			}
+
+			loadBalancers = append(loadBalancers, loadBalancer)
 		}
 	}
 
-	return models, nil
+	return loadBalancers, nil
 }
 
-func (this *ECSLoadBalancerManager) GetLoadBalancer(loadBalancerID string) (*models.LoadBalancer, error) {
+func (e *ECSLoadBalancerManager) GetLoadBalancer(loadBalancerID string) (*models.LoadBalancer, error) {
 	ecsLoadBalancerID := id.L0LoadBalancerID(loadBalancerID).ECSLoadBalancerID()
 
-	loadBalancer, err := this.ELB.DescribeLoadBalancer(ecsLoadBalancerID.String())
+	loadBalancer, err := e.ELB.DescribeLoadBalancer(ecsLoadBalancerID.String())
 	if err != nil {
 		if ContainsErrCode(err, "LoadBalancerNotFound") {
 			err := fmt.Errorf("LoadBalancer with id '%s' does not exist", loadBalancerID)
@@ -66,47 +70,47 @@ func (this *ECSLoadBalancerManager) GetLoadBalancer(loadBalancerID string) (*mod
 		return nil, err
 	}
 
-	// todo: does describe laodbalancer return nil or erro?
-	return this.populateModel(loadBalancer), nil
+	// todo: does describe loadbalancer return nil or erro?
+	return e.populateModel(loadBalancer), nil
 }
 
-func (this *ECSLoadBalancerManager) DeleteLoadBalancer(loadBalancerID string) error {
+func (e *ECSLoadBalancerManager) DeleteLoadBalancer(loadBalancerID string) error {
 	ecsLoadBalancerID := id.L0LoadBalancerID(loadBalancerID).ECSLoadBalancerID()
 	roleName := ecsLoadBalancerID.RoleName()
 
-	policyList, err := this.IAM.ListRolePolicies(roleName)
+	policyList, err := e.IAM.ListRolePolicies(roleName)
 	if err != nil && !ContainsErrCode(err, "NoSuchEntity") {
 		return err
 	}
 
 	for _, name := range policyList {
 		policy := stringOrEmpty(name)
-		if err := this.IAM.DeleteRolePolicy(roleName, policy); err != nil {
+		if err := e.IAM.DeleteRolePolicy(roleName, policy); err != nil {
 			return err
 		}
 	}
 
-	if err := this.waitUntilRolePoliciesDeleted(roleName); err != nil {
+	if err := e.waitUntilRolePoliciesDeleted(roleName); err != nil {
 		return err
 	}
 
-	if err := this.IAM.DeleteRole(roleName); err != nil {
+	if err := e.IAM.DeleteRole(roleName); err != nil {
 		if !ContainsErrCode(err, "NoSuchEntity") {
 			return err
 		}
 	}
 
-	if err := this.waitUntilRoleDeleted(roleName); err != nil {
+	if err := e.waitUntilRoleDeleted(roleName); err != nil {
 		return err
 	}
 
-	if err := this.ELB.DeleteLoadBalancer(ecsLoadBalancerID.String()); err != nil {
+	if err := e.ELB.DeleteLoadBalancer(ecsLoadBalancerID.String()); err != nil {
 		if !ContainsErrCode(err, "NoSuchEntity") {
 			return err
 		}
 	}
 
-	securityGroup, err := this.EC2.DescribeSecurityGroup(ecsLoadBalancerID.SecurityGroupName())
+	securityGroup, err := e.EC2.DescribeSecurityGroup(ecsLoadBalancerID.SecurityGroupName())
 	if err != nil {
 		return err
 	}
@@ -115,7 +119,7 @@ func (this *ECSLoadBalancerManager) DeleteLoadBalancer(loadBalancerID string) er
 	// todo: using waiters seems pretty verbose - should find a way to clean this up
 	if securityGroup != nil {
 		check := func() (bool, error) {
-			if err := this.EC2.DeleteSecurityGroup(securityGroup); err == nil {
+			if err := e.EC2.DeleteSecurityGroup(securityGroup); err == nil {
 				return true, nil
 			}
 
@@ -124,9 +128,9 @@ func (this *ECSLoadBalancerManager) DeleteLoadBalancer(loadBalancerID string) er
 
 		waiter := waitutils.Waiter{
 			Name:    fmt.Sprintf("SecurityGroup delete for '%s'", securityGroup),
-			Retries: 30,
+			Retries: 50,
 			Delay:   time.Second * 10,
-			Clock:   this.Clock,
+			Clock:   e.Clock,
 			Check:   check,
 		}
 
@@ -138,9 +142,9 @@ func (this *ECSLoadBalancerManager) DeleteLoadBalancer(loadBalancerID string) er
 	return nil
 }
 
-func (this *ECSLoadBalancerManager) waitUntilRolePoliciesDeleted(roleName string) error {
+func (e *ECSLoadBalancerManager) waitUntilRolePoliciesDeleted(roleName string) error {
 	check := func() (bool, error) {
-		policies, err := this.IAM.ListRolePolicies(roleName)
+		policies, err := e.IAM.ListRolePolicies(roleName)
 		if err != nil && !ContainsErrCode(err, "NoSuchEntity") {
 			return false, err
 		}
@@ -152,16 +156,16 @@ func (this *ECSLoadBalancerManager) waitUntilRolePoliciesDeleted(roleName string
 		Name:    fmt.Sprintf("Wait for deleted role policies %s", roleName),
 		Retries: 50,
 		Delay:   time.Second * 5,
-		Clock:   this.Clock,
+		Clock:   e.Clock,
 		Check:   check,
 	}
 
 	return waiter.Wait()
 }
 
-func (this *ECSLoadBalancerManager) waitUntilRoleDeleted(roleName string) error {
+func (e *ECSLoadBalancerManager) waitUntilRoleDeleted(roleName string) error {
 	check := func() (bool, error) {
-		policies, err := this.IAM.ListRolePolicies(roleName)
+		policies, err := e.IAM.ListRolePolicies(roleName)
 		if err != nil && !ContainsErrCode(err, "NoSuchEntity") {
 			return false, err
 		}
@@ -173,19 +177,27 @@ func (this *ECSLoadBalancerManager) waitUntilRoleDeleted(roleName string) error 
 		Name:    fmt.Sprintf("Wait for deleted role %s", roleName),
 		Retries: 50,
 		Delay:   time.Second * 5,
-		Clock:   this.Clock,
+		Clock:   e.Clock,
 		Check:   check,
 	}
 
 	return waiter.Wait()
 }
 
-func (this *ECSLoadBalancerManager) populateModel(description *elb.LoadBalancerDescription) *models.LoadBalancer {
+func (e *ECSLoadBalancerManager) populateModel(description *elb.LoadBalancerDescription) *models.LoadBalancer {
 	ecsLoadBalancerID := id.ECSLoadBalancerID(*description.LoadBalancerName)
 
 	ports := []models.Port{}
 	for _, listener := range description.ListenerDescriptions {
-		ports = append(ports, this.listenerToPort(listener.Listener))
+		ports = append(ports, e.listenerToPort(listener.Listener))
+	}
+
+	healthCheck := models.HealthCheck{
+		Target:             *description.HealthCheck.Target,
+		Interval:           int(*description.HealthCheck.Interval),
+		Timeout:            int(*description.HealthCheck.Timeout),
+		HealthyThreshold:   int(*description.HealthCheck.HealthyThreshold),
+		UnhealthyThreshold: int(*description.HealthCheck.UnhealthyThreshold),
 	}
 
 	model := &models.LoadBalancer{
@@ -193,12 +205,13 @@ func (this *ECSLoadBalancerManager) populateModel(description *elb.LoadBalancerD
 		Ports:          ports,
 		IsPublic:       stringOrEmpty(description.Scheme) == "internet-facing",
 		URL:            stringOrEmpty(description.DNSName),
+		HealthCheck:    healthCheck,
 	}
 
 	return model
 }
 
-func (this *ECSLoadBalancerManager) listenerToPort(listener *awselb.Listener) models.Port {
+func (e *ECSLoadBalancerManager) listenerToPort(listener *awselb.Listener) models.Port {
 	port := models.Port{
 		ContainerPort: *listener.InstancePort,
 		HostPort:      *listener.LoadBalancerPort,
@@ -207,15 +220,14 @@ func (this *ECSLoadBalancerManager) listenerToPort(listener *awselb.Listener) mo
 	}
 
 	if listener.SSLCertificateId != nil {
-		ecsCertificateID := id.CertificateARNToECSCertificateID(*listener.SSLCertificateId)
-		port.CertificateID = ecsCertificateID.L0CertificateID()
+		port.CertificateName = id.CertificateARNToName(*listener.SSLCertificateId)
 	}
 
 	return port
 }
 
-func (this *ECSLoadBalancerManager) getSecurityGroupIDByName(securityGroupName string) (string, error) {
-	securityGroup, err := this.EC2.DescribeSecurityGroup(securityGroupName)
+func (e *ECSLoadBalancerManager) getSecurityGroupIDByName(securityGroupName string) (string, error) {
+	securityGroup, err := e.EC2.DescribeSecurityGroup(securityGroupName)
 	if err != nil {
 		return "", err
 	}
@@ -227,18 +239,24 @@ func (this *ECSLoadBalancerManager) getSecurityGroupIDByName(securityGroupName s
 	return *securityGroup.GroupId, nil
 }
 
-func (this *ECSLoadBalancerManager) CreateLoadBalancer(
+func (e *ECSLoadBalancerManager) CreateLoadBalancer(
 	loadBalancerName,
 	environmentID string,
 	isPublic bool,
 	ports []models.Port,
+	healthCheck models.HealthCheck,
 ) (*models.LoadBalancer, error) {
 	// we generate a hashed id for load balancers since aws does not enforce unique load balancer names
 	loadBalancerID := id.GenerateHashedEntityID(loadBalancerName)
 	ecsLoadBalancerID := id.L0LoadBalancerID(loadBalancerID).ECSLoadBalancerID()
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 
-	if err := this.createLoadBalancer(ecsLoadBalancerID, ecsEnvironmentID, isPublic, ports); err != nil {
+	if err := e.createLoadBalancer(ecsLoadBalancerID, ecsEnvironmentID, isPublic, ports); err != nil {
+		return nil, err
+	}
+
+	// Once the loadbalancer has been created, we can update its healthcheck
+	if err := e.updateHealthCheck(ecsLoadBalancerID, healthCheck); err != nil {
 		return nil, err
 	}
 
@@ -248,12 +266,13 @@ func (this *ECSLoadBalancerManager) CreateLoadBalancer(
 		EnvironmentID:    ecsEnvironmentID.L0EnvironmentID(),
 		IsPublic:         isPublic,
 		Ports:            ports,
+		HealthCheck:      healthCheck,
 	}
 
 	return model, nil
 }
 
-func (this *ECSLoadBalancerManager) createLoadBalancer(
+func (e *ECSLoadBalancerManager) createLoadBalancer(
 	ecsLoadBalancerID id.ECSLoadBalancerID,
 	ecsEnvironmentID id.ECSEnvironmentID,
 	isPublic bool,
@@ -261,7 +280,7 @@ func (this *ECSLoadBalancerManager) createLoadBalancer(
 ) error {
 	listeners := []*elb.Listener{}
 	for _, port := range ports {
-		listener, err := this.portToListener(port)
+		listener, err := e.portToListener(port)
 		if err != nil {
 			return err
 		}
@@ -270,27 +289,27 @@ func (this *ECSLoadBalancerManager) createLoadBalancer(
 	}
 
 	roleName := ecsLoadBalancerID.RoleName()
-	if _, err := this.IAM.CreateRole(roleName, "ecs.amazonaws.com"); err != nil {
+	if _, err := e.IAM.CreateRole(roleName, "ecs.amazonaws.com"); err != nil {
 		if !ContainsErrCode(err, "EntityAlreadyExists") {
 			return err
 		}
 	}
 
-	policy, err := this.generateRolePolicy(ecsLoadBalancerID)
+	policy, err := e.generateRolePolicy(ecsLoadBalancerID)
 	if err != nil {
 		return err
 	}
 
-	if err := this.IAM.PutRolePolicy(roleName, policy); err != nil {
+	if err := e.IAM.PutRolePolicy(roleName, policy); err != nil {
 		return err
 	}
 
-	securityGroup, err := this.upsertSecurityGroup(ecsLoadBalancerID, ports)
+	securityGroup, err := e.upsertSecurityGroup(ecsLoadBalancerID, ports)
 	if err != nil {
 		return err
 	}
 
-	environmentSecurityGroupID, err := this.getSecurityGroupIDByName(ecsEnvironmentID.SecurityGroupName())
+	environmentSecurityGroupID, err := e.getSecurityGroupIDByName(ecsEnvironmentID.SecurityGroupName())
 	if err != nil {
 		return fmt.Errorf("Failed to find environment Security Group: %v", err)
 	}
@@ -302,26 +321,47 @@ func (this *ECSLoadBalancerManager) createLoadBalancer(
 		scheme = "internet-facing"
 	}
 
-	subnets, _, err := this.getSubnetsAndAvailZones(isPublic)
+	subnets, _, err := e.getSubnetsAndAvailZones(isPublic)
 	if err != nil {
 		return err
 	}
 
-	if _, err := this.ELB.CreateLoadBalancer(ecsLoadBalancerID.String(), scheme, securityGroups, subnets, listeners); err != nil {
+	if _, err := e.ELB.CreateLoadBalancer(ecsLoadBalancerID.String(), scheme, securityGroups, subnets, listeners); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (this *ECSLoadBalancerManager) UpdateLoadBalancer(loadBalancerID string, ports []models.Port) (*models.LoadBalancer, error) {
-	model, err := this.GetLoadBalancer(loadBalancerID)
+func (e *ECSLoadBalancerManager) UpdateLoadBalancerHealthCheck(loadBalancerID string, healthCheck models.HealthCheck) (*models.LoadBalancer, error) {
+	ecsLoadBalancerID := id.L0LoadBalancerID(loadBalancerID).ECSLoadBalancerID()
+	if err := e.updateHealthCheck(ecsLoadBalancerID, healthCheck); err != nil {
+		return nil, err
+	}
+
+	return e.GetLoadBalancer(loadBalancerID)
+}
+
+func (e *ECSLoadBalancerManager) updateHealthCheck(ecsLoadBalancerID id.ECSLoadBalancerID, healthCheck models.HealthCheck) error {
+	elbHealthCheck := elb.NewHealthCheck(
+		healthCheck.Target,
+		int64(healthCheck.Interval),
+		int64(healthCheck.Timeout),
+		int64(healthCheck.HealthyThreshold),
+		int64(healthCheck.UnhealthyThreshold),
+	)
+
+	return e.ELB.ConfigureHealthCheck(ecsLoadBalancerID.String(), elbHealthCheck)
+}
+
+func (e *ECSLoadBalancerManager) UpdateLoadBalancerPorts(loadBalancerID string, ports []models.Port) (*models.LoadBalancer, error) {
+	model, err := e.GetLoadBalancer(loadBalancerID)
 	if err != nil {
 		return nil, err
 	}
 
 	ecsLoadBalancerID := id.L0LoadBalancerID(loadBalancerID).ECSLoadBalancerID()
-	updatedPorts, err := this.updatePorts(ecsLoadBalancerID, model.Ports, ports)
+	updatedPorts, err := e.updatePorts(ecsLoadBalancerID, model.Ports, ports)
 	if err != nil {
 		return nil, err
 	}
@@ -330,15 +370,15 @@ func (this *ECSLoadBalancerManager) UpdateLoadBalancer(loadBalancerID string, po
 	return model, nil
 }
 
-func (this *ECSLoadBalancerManager) updatePorts(ecsLoadBalancerID id.ECSLoadBalancerID, currentPorts, requestedPorts []models.Port) ([]models.Port, error) {
+func (e *ECSLoadBalancerManager) updatePorts(ecsLoadBalancerID id.ECSLoadBalancerID, currentPorts, requestedPorts []models.Port) ([]models.Port, error) {
 	if reflect.DeepEqual(currentPorts, requestedPorts) {
 		return currentPorts, nil
 	}
 
-	// remove first to we don't duplicate host ports
+	// remove first so we don't duplicate host ports
 	listenersToRemove := []*elb.Listener{}
 	for _, port := range portDifference(currentPorts, requestedPorts) {
-		listener, err := this.portToListener(port)
+		listener, err := e.portToListener(port)
 		if err != nil {
 			return nil, err
 		}
@@ -347,14 +387,14 @@ func (this *ECSLoadBalancerManager) updatePorts(ecsLoadBalancerID id.ECSLoadBala
 	}
 
 	if len(listenersToRemove) > 0 {
-		if err := this.ELB.DeleteLoadBalancerListeners(ecsLoadBalancerID.String(), listenersToRemove); err != nil {
+		if err := e.ELB.DeleteLoadBalancerListeners(ecsLoadBalancerID.String(), listenersToRemove); err != nil {
 			return nil, err
 		}
 	}
 
 	listenersToAdd := []*elb.Listener{}
 	for _, port := range portDifference(requestedPorts, currentPorts) {
-		listener, err := this.portToListener(port)
+		listener, err := e.portToListener(port)
 		if err != nil {
 			return nil, err
 		}
@@ -363,19 +403,19 @@ func (this *ECSLoadBalancerManager) updatePorts(ecsLoadBalancerID id.ECSLoadBala
 	}
 
 	if len(listenersToAdd) > 0 {
-		if err := this.ELB.CreateLoadBalancerListeners(ecsLoadBalancerID.String(), listenersToAdd); err != nil {
+		if err := e.ELB.CreateLoadBalancerListeners(ecsLoadBalancerID.String(), listenersToAdd); err != nil {
 			return nil, err
 		}
 	}
 
-	if _, err := this.upsertSecurityGroup(ecsLoadBalancerID, requestedPorts); err != nil {
+	if _, err := e.upsertSecurityGroup(ecsLoadBalancerID, requestedPorts); err != nil {
 		return nil, err
 	}
 
 	return requestedPorts, nil
 }
 
-func (this *ECSLoadBalancerManager) portToListener(port models.Port) (*elb.Listener, error) {
+func (e *ECSLoadBalancerManager) portToListener(port models.Port) (*elb.Listener, error) {
 	hostProtocol := strings.ToUpper(port.Protocol)
 	if hostProtocol != "SSL" && hostProtocol != "TCP" && hostProtocol != "HTTP" && hostProtocol != "HTTPS" {
 		return nil, fmt.Errorf("Protocol '%s' is not valid", port.Protocol)
@@ -391,28 +431,38 @@ func (this *ECSLoadBalancerManager) portToListener(port models.Port) (*elb.Liste
 	}
 
 	var certificateARN string
-	if port.CertificateID != "" {
-		cert, err := this.Backend.GetCertificate(port.CertificateID)
+	if port.CertificateName != "" {
+		arn, err := e.getCertificateARN(port.CertificateName)
 		if err != nil {
 			return nil, err
 		}
 
-		// todo: this will be uncessary after cert is updated
-		if cert == nil {
-			return nil, fmt.Errorf("Certificate with id '%s' does not exist", port.CertificateID)
-		}
-
-		certificateARN = cert.CertificateARN
+		certificateARN = arn
 	}
 
 	listener := elb.NewListener(port.ContainerPort, containerProtocol, port.HostPort, hostProtocol, certificateARN)
 	return listener, nil
 }
 
-func (this *ECSLoadBalancerManager) upsertSecurityGroup(ecsLoadBalancerID id.ECSLoadBalancerID, ports []models.Port) (*ec2.SecurityGroup, error) {
+func (e *ECSLoadBalancerManager) getCertificateARN(name string) (string, error) {
+	certificates, err := e.IAM.ListCertificates()
+	if err != nil {
+		return "", err
+	}
+
+	for _, c := range certificates {
+		if *c.ServerCertificateName == name {
+			return *c.Arn, nil
+		}
+	}
+
+	return "", fmt.Errorf("Certificate with name '%s' does not exist. ", name)
+}
+
+func (e *ECSLoadBalancerManager) upsertSecurityGroup(ecsLoadBalancerID id.ECSLoadBalancerID, ports []models.Port) (*ec2.SecurityGroup, error) {
 	securityGroupName := ecsLoadBalancerID.SecurityGroupName()
 
-	securityGroup, err := this.EC2.DescribeSecurityGroup(securityGroupName)
+	securityGroup, err := e.EC2.DescribeSecurityGroup(securityGroupName)
 	if err != nil {
 		return nil, err
 	}
@@ -421,12 +471,12 @@ func (this *ECSLoadBalancerManager) upsertSecurityGroup(ecsLoadBalancerID id.ECS
 		desc := "Auto-generated Layer0 Load Balancer Security Group"
 		vpcID := config.AWSVPCID()
 
-		if _, err = this.EC2.CreateSecurityGroup(securityGroupName, desc, vpcID); err != nil {
+		if _, err = e.EC2.CreateSecurityGroup(securityGroupName, desc, vpcID); err != nil {
 			return nil, err
 		}
 
 		check := func() (bool, error) {
-			securityGroup, err = this.EC2.DescribeSecurityGroup(securityGroupName)
+			securityGroup, err = e.EC2.DescribeSecurityGroup(securityGroupName)
 			if err != nil {
 				return false, err
 			}
@@ -438,9 +488,9 @@ func (this *ECSLoadBalancerManager) upsertSecurityGroup(ecsLoadBalancerID id.ECS
 
 		waiter := waitutils.Waiter{
 			Name:    fmt.Sprintf("SecurityGroup setup for '%s'", ecsLoadBalancerID),
-			Retries: 60,
-			Delay:   time.Second * 1,
-			Clock:   this.Clock,
+			Retries: 50,
+			Delay:   time.Second * 10,
+			Clock:   e.Clock,
 			Check:   check,
 		}
 
@@ -468,7 +518,7 @@ func (this *ECSLoadBalancerManager) upsertSecurityGroup(ecsLoadBalancerID id.ECS
 
 	if len(ingressesToRemove) > 0 {
 		log.Debug("Removing Ports: ", *securityGroup.GroupId, ingressesToRemove)
-		if err := this.EC2.RevokeSecurityGroupIngress(ingressesToRemove); err != nil {
+		if err := e.EC2.RevokeSecurityGroupIngress(ingressesToRemove); err != nil {
 			return nil, err
 		}
 	}
@@ -481,7 +531,7 @@ func (this *ECSLoadBalancerManager) upsertSecurityGroup(ecsLoadBalancerID id.ECS
 
 	if len(ingressesToAdd) > 0 {
 		log.Debug("Adding ports: ", *securityGroup.GroupId, ingressesToAdd)
-		if err := this.EC2.AuthorizeSecurityGroupIngress(ingressesToAdd); err != nil {
+		if err := e.EC2.AuthorizeSecurityGroupIngress(ingressesToAdd); err != nil {
 			return nil, err
 		}
 	}
@@ -534,7 +584,7 @@ func ingressPortDifference(requested, current []int64) []int64 {
 // need to do something to calculate which subnets to use based on where the instance
 // got provisioned.
 
-func (this *ECSLoadBalancerManager) getSubnetsAndAvailZones(public bool) ([]*string, []*string, error) {
+func (e *ECSLoadBalancerManager) getSubnetsAndAvailZones(public bool) ([]*string, []*string, error) {
 
 	// todo: the majority of this function can be taken out, we essentially jsut need to split
 	// config.Subnets() and return []string. AWS Handles the overlap error check for us already
@@ -551,7 +601,7 @@ func (this *ECSLoadBalancerManager) getSubnetsAndAvailZones(public bool) ([]*str
 		subnet := strings.TrimSpace(subnetID)
 		subnetIDs = append(subnetIDs, &subnet)
 
-		description, err := this.EC2.DescribeSubnet(subnetID)
+		description, err := e.EC2.DescribeSubnet(subnetID)
 		if err != nil {
 			return nil, nil, err
 		}
@@ -574,7 +624,7 @@ func (this *ECSLoadBalancerManager) getSubnetsAndAvailZones(public bool) ([]*str
 	return subnetIDs, availZones, nil
 }
 
-func (this *ECSLoadBalancerManager) generateRolePolicy(ecsLoadBalancerID id.ECSLoadBalancerID) (string, error) {
+func (e *ECSLoadBalancerManager) generateRolePolicy(ecsLoadBalancerID id.ECSLoadBalancerID) (string, error) {
 	// the default policy includes "ec2:AuthorizeSecurityGroupIngress" which we exclude
 	// because we don't know why it's there
 	policy := `
@@ -604,7 +654,7 @@ func (this *ECSLoadBalancerManager) generateRolePolicy(ecsLoadBalancerID id.ECSL
 
     ]
 }`
-	awsAccountID, err := this.IAM.GetAccountId()
+	awsAccountID, err := e.IAM.GetAccountId()
 	if err != nil {
 		return "", err
 	}

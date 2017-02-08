@@ -11,11 +11,11 @@ import (
 )
 
 func TestListTasks(t *testing.T) {
-	tasks := []*models.Task{
-		&models.Task{
+	tasks := []*models.TaskSummary{
+		{
 			TaskID: "some_id_1",
 		},
-		&models.Task{
+		{
 			TaskID: "some_id_2",
 		},
 	}
@@ -36,7 +36,7 @@ func TestListTasks(t *testing.T) {
 				handler := target.(*TaskHandler)
 				handler.ListTasks(req, resp)
 
-				var response []*models.Task
+				var response []*models.TaskSummary
 				read(&response)
 
 				reporter.AssertEqual(response, tasks)

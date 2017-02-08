@@ -82,7 +82,7 @@ func TestListEnvironments(t *testing.T) {
 		testutils.AssertEqual(t, r.Method, "GET")
 		testutils.AssertEqual(t, r.URL.Path, "/environment/")
 
-		environments := []models.Environment{
+		environments := []models.EnvironmentSummary{
 			{EnvironmentID: "id1"},
 			{EnvironmentID: "id2"},
 		}

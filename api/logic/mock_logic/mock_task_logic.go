@@ -72,9 +72,9 @@ func (_mr *_MockTaskLogicRecorder) GetTaskLogs(arg0, arg1 interface{}) *gomock.C
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTaskLogs", arg0, arg1)
 }
 
-func (_m *MockTaskLogic) ListTasks() ([]*models.Task, error) {
+func (_m *MockTaskLogic) ListTasks() ([]*models.TaskSummary, error) {
 	ret := _m.ctrl.Call(_m, "ListTasks")
-	ret0, _ := ret[0].([]*models.Task)
+	ret0, _ := ret[0].([]*models.TaskSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

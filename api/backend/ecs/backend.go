@@ -1,7 +1,6 @@
 package ecsbackend
 
 import (
-	"github.com/quintilesims/layer0/api/data"
 	"github.com/quintilesims/layer0/common/aws/autoscaling"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
 	"github.com/quintilesims/layer0/common/aws/ec2"
@@ -9,6 +8,7 @@ import (
 	"github.com/quintilesims/layer0/common/aws/elb"
 	"github.com/quintilesims/layer0/common/aws/iam"
 	"github.com/quintilesims/layer0/common/aws/s3"
+	"github.com/quintilesims/layer0/common/db/tag_store"
 )
 
 // todo: this is an awkward design pattern - we don't need to split the ECSBackend
@@ -18,15 +18,13 @@ type ECSBackend struct {
 	*ECSEnvironmentManager
 	*ECSServiceManager
 	*ECSDeployManager
-	*ECSCertificateManager
 	*ECSLoadBalancerManager
 	*ECSTaskManager
 	*ECSRightSizer
 }
 
 func NewBackend(
-	sqlAdmin data.SQLAdmin,
-	tagData data.TagData,
+	tagData tag_store.TagStore,
 	s3 s3.Provider,
 	iam iam.Provider,
 	ec2 ec2.Provider,
@@ -43,7 +41,6 @@ func NewBackend(
 	backend.ECSEnvironmentManager = NewECSEnvironmentManager(ecs, ec2, autoscaling, backend)
 	backend.ECSServiceManager = NewECSServiceManager(ecs, ec2, cloudWatchLogs, cluster, backend)
 	backend.ECSLoadBalancerManager = NewECSLoadBalancerManager(ec2, elb, iam, backend)
-	backend.ECSCertificateManager = NewECSCertificateManager(iam)
 	backend.ECSDeployManager = NewECSDeployManager(ecs, cluster)
 	backend.ECSTaskManager = NewECSTaskManager(ecs, cloudWatchLogs, backend, cluster)
 	backend.ECSRightSizer = NewECSRightSizer(ecs, autoscaling, cluster, backend)

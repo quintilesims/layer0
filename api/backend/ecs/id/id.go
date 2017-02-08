@@ -173,6 +173,12 @@ func (id ECSServiceID) L0ServiceID() string {
 	return removePrefix(id.String())
 }
 
+func ServiceARNToECSServiceID(arn string) ECSServiceID {
+	split := strings.SplitN(arn, "/", -1)
+	serviceName := split[len(split)-1]
+	return ECSServiceID(serviceName)
+}
+
 type L0ServiceID string
 
 // we need to add a custom .String() function, or else string conversions add quotes
@@ -258,31 +264,7 @@ func (id L0TaskID) ECSTaskID() ECSTaskID {
 	return ECSTaskID(str)
 }
 
-type ECSCertificateID string
-
-// we need to add a custom .String() function, or else string conversions add quotes
-func (id ECSCertificateID) String() string {
-	return strings.TrimFunc(string(id), isQuote)
-}
-
-func (id ECSCertificateID) L0CertificateID() string {
-	return removePrefix(id.String())
-}
-
-func CertificateARNToECSCertificateID(arn string) ECSCertificateID {
+func CertificateARNToName(arn string) string {
 	split := strings.SplitN(arn, "/", -1)
-	certificateName := split[len(split)-1]
-	return ECSCertificateID(certificateName)
-}
-
-type L0CertificateID string
-
-// we need to add a custom .String() function, or else string conversions add quotes
-func (id L0CertificateID) String() string {
-	return strings.TrimFunc(string(id), isQuote)
-}
-
-func (id L0CertificateID) ECSCertificateID() ECSCertificateID {
-	str := addPrefix(id.String())
-	return ECSCertificateID(str)
+	return split[len(split)-1]
 }

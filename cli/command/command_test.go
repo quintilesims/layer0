@@ -48,15 +48,16 @@ func getCLIContext(t *testing.T, args []string, flags Flags) *cli.Context {
 
 type TestCommand struct {
 	Client   *mock_client.MockClient
-	Printer  *printer.FakePrinter
+	Printer  *printer.TestPrinter
 	Resolver *mock_command.MockResolver
 }
 
 func newTestCommand(t *testing.T) (*TestCommand, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
+
 	tc := &TestCommand{
 		Client:   mock_client.NewMockClient(ctrl),
-		Printer:  &printer.FakePrinter{},
+		Printer:  &printer.TestPrinter{},
 		Resolver: mock_command.NewMockResolver(ctrl),
 	}
 

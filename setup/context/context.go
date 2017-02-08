@@ -3,7 +3,7 @@ package context
 import (
 	"bufio"
 	"fmt"
-	"github.com/mitchellh/go-homedir"
+	"github.com/docker/docker/pkg/homedir"
 	"os"
 	"os/exec"
 	"regexp"
@@ -14,14 +14,15 @@ import (
 )
 
 type Context struct {
-	Instance      string
-	StateFile     string
-	VarsFile      string
-	InstanceDir   string
-	ExecutionDir  string
-	Flags         map[string]*string
-	TerraformVars map[string]string
-	tfvarsCache   map[string]string
+	Instance         string
+	StateFile        string
+	VarsFile         string
+	DockerConfigFile string
+	InstanceDir      string
+	ExecutionDir     string
+	Flags            map[string]*string
+	TerraformVars    map[string]string
+	tfvarsCache      map[string]string
 }
 
 func NewContext(instance, version string, flags map[string]*string) (*Context, error) {
@@ -29,12 +30,7 @@ func NewContext(instance, version string, flags map[string]*string) (*Context, e
 		flags = map[string]*string{}
 	}
 
-	// go-homedir is required for cross-compilation
-	homeDir, err := homedir.Dir()
-	if err != nil {
-		return nil, err
-	}
-
+	homeDir := homedir.Get()
 	instanceDir := fmt.Sprintf("%s/layer0/instances/%s", homeDir, instance)
 
 	executionDir, err := GetExecutionDir()
@@ -43,12 +39,13 @@ func NewContext(instance, version string, flags map[string]*string) (*Context, e
 	}
 
 	context := &Context{
-		Instance:     instance,
-		Flags:        flags,
-		InstanceDir:  instanceDir,
-		ExecutionDir: executionDir,
-		StateFile:    fmt.Sprintf("%s/terraform.tfstate", instanceDir),
-		VarsFile:     fmt.Sprintf("%s/terraform.tfvars", instanceDir),
+		Instance:         instance,
+		Flags:            flags,
+		InstanceDir:      instanceDir,
+		ExecutionDir:     executionDir,
+		StateFile:        fmt.Sprintf("%s/terraform.tfstate", instanceDir),
+		VarsFile:         fmt.Sprintf("%s/terraform.tfvars", instanceDir),
+		DockerConfigFile: fmt.Sprintf("%s/dockercfg", instanceDir),
 		TerraformVars: map[string]string{
 			"setup_version": version,
 		},
@@ -210,7 +207,7 @@ func (this *Context) Save() error {
 
 	// sort keys for consistent file diff
 	keys := make([]string, 0, len(this.TerraformVars))
-	for key, _ := range this.TerraformVars {
+	for key := range this.TerraformVars {
 		keys = append(keys, key)
 	}
 

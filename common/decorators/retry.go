@@ -3,6 +3,7 @@ package decorators
 import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/quintilesims/layer0/common/waitutils"
+	"strings"
 	"time"
 )
 
@@ -14,9 +15,14 @@ func (this *Retry) shouldRetry(err error) bool {
 	// As we discover more errors that indicate throttling, they should be added here
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
-			// a simple case from this error report
-			// https://github.com/ansible/ansible-modules-core/issues/143
-			if awsErr.Code() == "Throttling" || awsErr.Code() == "ThrottlingException" {
+			code := awsErr.Code()
+			message := strings.ToLower(awsErr.Message())
+
+			if code == "Throttling" || code == "ThrottlingException" {
+				return true
+			}
+
+			if code == "ClientException" && strings.Contains(message, "too many concurrent attempts") {
 				return true
 			}
 		}

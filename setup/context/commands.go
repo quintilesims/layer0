@@ -5,12 +5,14 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
+	"github.com/docker/docker/pkg/homedir"
 	"github.com/quintilesims/layer0/common/aws/provider"
 	"github.com/quintilesims/layer0/common/aws/s3"
 	"github.com/quintilesims/layer0/common/config"
 	"io/ioutil"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"time"
 )
@@ -27,7 +29,7 @@ type TFModule struct {
 	Resources map[string]interface{} `json:"resources"`
 }
 
-func Apply(c *Context, force bool) error {
+func Apply(c *Context, force bool, dockercfgFlag string) error {
 	if err := c.Load(false); err != nil {
 		return err
 	}
@@ -63,8 +65,7 @@ func Apply(c *Context, force bool) error {
 		}
 	}
 
-	// write empty dockercfg file if it doesn't exist
-	if err := checkDockercfg(c, force); err != nil {
+	if err := createOrLoadDockercfg(c, dockercfgFlag, !force); err != nil {
 		return err
 	}
 
@@ -286,6 +287,11 @@ func s3Action(c *Context, mustExist bool, action func(s3.Provider, string, strin
 		return err
 	}
 
+	dockerConfigKey := "bootstrap/dockercfg"
+	if err := action(conn, bucket, dockerConfigKey, c.DockerConfigFile); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -345,7 +351,7 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 
 	settings := map[string]string{
 		"endpoint":       config.API_ENDPOINT,
-		"api_auth_token": config.CLI_AUTH,
+		"api_auth_token": config.AUTH_TOKEN,
 	}
 
 	if dev {
@@ -366,7 +372,6 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 		settings["service_ami"] = config.AWS_SERVICE_AMI
 	}
 
-	fmt.Println("# Load the following environment variables into your session by running: ")
 	for tfvar, envvar := range settings {
 		val, err := getTerraformOutputVariable(c, false, tfvar)
 		if err != nil {
@@ -377,8 +382,8 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 	}
 
 	if dev {
-		fmt.Printf(format, config.MYSQL_CONNECTION, fmt.Sprintf("layer0:nohaxplz@tcp(localhost:3306)/layer0_%s", c.Instance))
-		fmt.Printf(format, config.MYSQL_ADMIN_CONNECTION, "layer0:nohaxplz@tcp(localhost:3306)/")
+		fmt.Printf(format, config.DB_CONNECTION, fmt.Sprintf("layer0:nohaxplz@tcp(localhost:3306)/"))
+		fmt.Printf(format, config.DB_NAME, fmt.Sprintf("layer0_%s", c.Instance))
 	}
 
 	if insecure {
@@ -388,43 +393,23 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 	if quiet {
 		fmt.Printf(format, config.SKIP_VERSION_VERIFY, "1")
 	}
+	fmt.Println("# Run this command to configure your shell:")
+	fmt.Println("# eval $(./l0-setup endpoint -i", c.Instance, ")")
 
 	return nil
 }
 
-func Plan(c *Context, args []string) error {
-	if err := checkDockercfg(c, false); err != nil {
+func Plan(c *Context, dockercfgFlag string, force bool, args []string) error {
+	if err := c.Load(false); err != nil {
+		return err
+	}
+
+	if err := createOrLoadDockercfg(c, dockercfgFlag, !force); err != nil {
 		return err
 	}
 
 	args = append([]string{"plan"}, args...)
 	return Terraform(c, args)
-}
-
-func checkDockercfg(c *Context, force bool) error {
-	path := fmt.Sprintf("%s/dockercfg", c.InstanceDir)
-
-	// if file doesn't exist
-	if _, err := os.Stat(path); err != nil {
-		if !force {
-			text := fmt.Sprintf("WARNING: No 'dockercfg' file present at %s. \n", path)
-			text += "If you require private registry authentication, please create this file \n"
-			text += "with the required credentials before proceeding. \n"
-			text += "This step is not required, but highly recommended if private authentication is required. \n"
-			text += "\n    Enter 'yes' to continue: "
-
-			if !requireInput(text, "yes") {
-				return fmt.Errorf("Operation Cancelled")
-			}
-		}
-
-		// write empty dockercfg file
-		if err := ioutil.WriteFile(path, []byte("{}"), 0666); err != nil {
-			return fmt.Errorf("Failed to write 'dockercfg': %v", err)
-		}
-	}
-
-	return nil
 }
 
 func Terraform(c *Context, args []string) error {
@@ -439,10 +424,6 @@ func Terraform(c *Context, args []string) error {
 	return nil
 }
 
-func Migrate(c *Context) error {
-	return fmt.Errorf("No migration available for l0-setup version %s", c.TerraformVars["setup_version"])
-}
-
 func getTerraformOutputVariable(c *Context, showOutput bool, variable string) (string, error) {
 	val, err := c.Terraformf(showOutput, "output", variable)
 	if err != nil {
@@ -450,4 +431,113 @@ func getTerraformOutputVariable(c *Context, showOutput bool, variable string) (s
 	}
 
 	return strings.Replace(val, "\n", "", 1), nil
+}
+
+func createOrLoadDockercfg(c *Context, dockercfgFlag string, promptIfEmpty bool) error {
+	if dockercfgFlag != "" {
+		fmt.Printf("Copying %s to %s\n", dockercfgFlag, c.DockerConfigFile)
+		if err := CopyFile(dockercfgFlag, c.DockerConfigFile); err != nil {
+			return fmt.Errorf("Failed to copy %s: %v", dockercfgFlag, err)
+		}
+	}
+
+	dockercfgPath := filepath.Join(homedir.Get(), ".dockercfg")
+	if !FileExists(c.DockerConfigFile) && FileExists(dockercfgPath) {
+		fmt.Printf("Copying %s to %s\n", dockercfgPath, c.DockerConfigFile)
+		if err := CopyFile(dockercfgPath, c.DockerConfigFile); err != nil {
+			return fmt.Errorf("Failed to copy %s: %v", dockercfgPath, err)
+		}
+	}
+
+	configjsonPath := filepath.Join(homedir.Get(), ".docker/config.json")
+	if !FileExists(c.DockerConfigFile) && FileExists(configjsonPath) {
+		fmt.Printf("Copying %s to %s\n", configjsonPath, c.DockerConfigFile)
+		if err := CopyFile(configjsonPath, c.DockerConfigFile); err != nil {
+			return fmt.Errorf("Failed to copy %s: %v", configjsonPath, err)
+		}
+
+		b, err := ioutil.ReadFile(c.DockerConfigFile)
+		if err != nil {
+			return fmt.Errorf("Failed to read dockercfg: %v", err)
+		}
+
+		var dockerFile DockerConfigFile
+		if err := json.Unmarshal(b, &dockerFile); err != nil {
+			return fmt.Errorf("Failed to read dockercfg: %v", err)
+		}
+
+		if err := dockerFile.Write(c.DockerConfigFile); err != nil {
+			return fmt.Errorf("Failed to write dockercfg: %v", err)
+		}
+	}
+
+	if !FileExists(c.DockerConfigFile) {
+		dockerFile := DockerConfigFile{
+			Auths: map[string]Auth{},
+		}
+
+		if err := dockerFile.Write(c.DockerConfigFile); err != nil {
+			return fmt.Errorf("Failed to write dockercfg: %v", err)
+		}
+
+		if promptIfEmpty {
+			text := fmt.Sprintf("\nNOTICE: The 'dockercfg' file present at `%s` \n", c.DockerConfigFile)
+			text += "does not contain any authentication information."
+			text += "\n"
+			text += "\n"
+			text += "If you require private registry authentication, please edit this file \n"
+			text += "with the required credentials before proceeding. \n"
+			text += "\n    Continue? (y/n): "
+
+			if !requireInput(text, "y") {
+				return fmt.Errorf("Operation Cancelled")
+			}
+		}
+	}
+
+	return validateDockercfg(c)
+}
+
+// at this point we assume c.DockerConfigFile is in dockercfg format
+func validateDockercfg(c *Context) error {
+	fmt.Printf("Validating %s\n", c.DockerConfigFile)
+
+	wrapError := func(format string, tokens ...interface{}) error {
+		text := fmt.Sprintf(format, tokens...)
+		text += "\n\n Dockcfg format should look similar to: \n"
+		text += `
+		{ 
+			"https://index.docker.io/v1/": {
+				"auth": "zq212MzEXAMPLE7o6T25Dk0i",
+				"email": "email@example.com"
+			}
+		}
+`
+
+		text += "Please see http://docs.aws.amazon.com/AmazonECS/latest/developerguide/private-auth.html"
+		text += " for more information \n"
+		return fmt.Errorf(text)
+	}
+
+	b, err := ioutil.ReadFile(c.DockerConfigFile)
+	if err != nil {
+		return fmt.Errorf("Failed to read dockercfg: %v", err)
+	}
+
+	var auths map[string]Auth
+	if err := json.Unmarshal(b, &auths); err != nil {
+		return wrapError("Dockercfg does not contain valid JSON: %v", err)
+	}
+
+	for k, v := range auths {
+		if v.Auth == "" {
+			if k == "auths" {
+				return wrapError("%s is in invalid format (config.json)! Please convert to dockercfg format", c.DockerConfigFile)
+			}
+
+			return wrapError("Entry '%s' is missing required 'auth' field", k)
+		}
+	}
+
+	return nil
 }

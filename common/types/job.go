@@ -31,14 +31,12 @@ func (jobStatus JobStatus) String() string {
 type JobType int64
 
 const (
-	CreateLoadBalancerJob JobType = 1 + iota
-	DeleteEnvironmentJob
+	DeleteEnvironmentJob JobType = 1 + iota
 	DeleteServiceJob
 	DeleteLoadBalancerJob
 )
 
 var jobTypeStrings = []string{
-	"create load balancer",
 	"delete environment",
 	"delete service",
 	"delete load balancer",

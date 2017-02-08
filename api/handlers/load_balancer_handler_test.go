@@ -12,17 +12,17 @@ import (
 )
 
 func TestListLoadBalancers(t *testing.T) {
-	loadBalancers := []*models.LoadBalancer{
-		&models.LoadBalancer{
+	loadBalancers := []*models.LoadBalancerSummary{
+		{
 			LoadBalancerID: "some_id_1",
 		},
-		&models.LoadBalancer{
+		{
 			LoadBalancerID: "some_id_2",
 		},
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name:    "Should return loadBalancers from logic layer",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -38,13 +38,13 @@ func TestListLoadBalancers(t *testing.T) {
 				handler := target.(*LoadBalancerHandler)
 				handler.ListLoadBalancers(req, resp)
 
-				var response []*models.LoadBalancer
+				var response []*models.LoadBalancerSummary
 				read(&response)
 
 				reporter.AssertEqual(response, loadBalancers)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name:    "Should propogate ListLoadBalancers error",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -77,7 +77,7 @@ func TestGetLoadBalancer(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call GetLoadBalancer with proper params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -96,7 +96,7 @@ func TestGetLoadBalancer(t *testing.T) {
 				handler.GetLoadBalancer(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should return loadBalancer from logic layer",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -120,7 +120,7 @@ func TestGetLoadBalancer(t *testing.T) {
 				reporter.AssertEqual(response, loadBalancer)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name:    "Should return MissingParameter error with no id",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -138,7 +138,7 @@ func TestGetLoadBalancer(t *testing.T) {
 				reporter.AssertEqual(response.ErrorCode, int64(errors.MissingParameter))
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate GetLoadBalancer error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -176,8 +176,8 @@ func TestCreateLoadBalancer(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
-			Name: "Should call CreateLoadBalancer with correct params",
+		{
+			Name: "Should call logic:CreateLoadBalancer with correct params",
 			Request: &TestRequest{
 				Body: request,
 			},
@@ -195,7 +195,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 				handler.CreateLoadBalancer(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate CreateLoadBalancer error",
 			Request: &TestRequest{
 				Body: request,
@@ -226,7 +226,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 func TestDeleteLoadBalancer(t *testing.T) {
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call CreateJob with correct params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -246,7 +246,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 				handler.DeleteLoadBalancer(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should set Location and X-Jobid headers",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -270,7 +270,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 				reporter.AssertInSlice("job_id", header["X-Jobid"])
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate CreateJob error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -295,7 +295,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 				reporter.AssertEqual(int64(errors.UnexpectedError), response.ErrorCode)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name:    "Should return MissingParameter error with no id",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -312,6 +312,43 @@ func TestDeleteLoadBalancer(t *testing.T) {
 				read(&response)
 
 				reporter.AssertEqual(int64(errors.MissingParameter), response.ErrorCode)
+			},
+		},
+	}
+
+	RunHandlerTestCases(t, testCases)
+}
+
+func TestUpdateLoadBalancerHealthCheck(t *testing.T) {
+	request := models.UpdateLoadBalancerHealthCheckRequest{
+		models.HealthCheck{
+			Target:             "TCP:80",
+			Interval:           30,
+			Timeout:            5,
+			HealthyThreshold:   2,
+			UnhealthyThreshold: 2,
+		},
+	}
+
+	testCases := []HandlerTestCase{
+		{
+			Name: "Should call UpdateLoadBalancerHealthCheck with correct params",
+			Request: &TestRequest{
+				Parameters: map[string]string{"id": "some_id"},
+				Body:       request,
+			},
+			Setup: func(ctrl *gomock.Controller) interface{} {
+				mockLogic := mock_logic.NewMockLoadBalancerLogic(ctrl)
+				mockJob := mock_logic.NewMockJobLogic(ctrl)
+
+				mockLogic.EXPECT().
+					UpdateLoadBalancerHealthCheck("some_id", request.HealthCheck)
+
+				return NewLoadBalancerHandler(mockLogic, mockJob)
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
+				handler := target.(*LoadBalancerHandler)
+				handler.UpdateLoadBalancerHealthCheck(req, resp)
 			},
 		},
 	}

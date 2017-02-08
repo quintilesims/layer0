@@ -29,6 +29,11 @@ func (this *MockECSDeployManager) Deploy() *ECSDeployManager {
 	return NewECSDeployManager(this.ECS, this.ClusterScaler)
 }
 
+func getTaskDefARN(name string, version int) *string {
+	str := fmt.Sprintf("arn:aws:ecs:region:account_id:task-definition/%s%s:%d", id.PREFIX, name, version)
+	return &str
+}
+
 func TestGetDeploy(t *testing.T) {
 	testCases := []testutils.TestCase{
 		testutils.TestCase{
@@ -36,17 +41,25 @@ func TestGetDeploy(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
 
-				deployID := id.L0DeployID("some_id").ECSDeployID()
+				deployID := id.L0DeployID("some_id.1").ECSDeployID()
+
+				task := &ecs.TaskDefinition{
+					&aws_ecs.TaskDefinition{
+						TaskDefinitionArn: getTaskDefARN("some_id", 1),
+						Revision:          int64p(1),
+						Family:            stringp("l0-prefix-family"),
+					},
+				}
 
 				mockDeploy.ECS.EXPECT().
 					DescribeTaskDefinition(deployID.TaskDefinition()).
-					Return(nil, nil)
+					Return(task, nil)
 
 				return mockDeploy.Deploy()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSDeployManager)
-				manager.GetDeploy("some_id")
+				manager.GetDeploy("some_id.1")
 			},
 		},
 		testutils.TestCase{
@@ -54,12 +67,11 @@ func TestGetDeploy(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
 
-				// note that GetDeploy doesn't generate the id from the returned TaskDefinition
-				// this call is simply used to check for existence
 				task := &ecs.TaskDefinition{
 					&aws_ecs.TaskDefinition{
-						Revision: int64p(1),
-						Family:   stringp("l0-prefix-family"),
+						TaskDefinitionArn: getTaskDefARN("some_id", 1),
+						Revision:          int64p(1),
+						Family:            stringp("l0-prefix-family"),
 					},
 				}
 
@@ -72,12 +84,12 @@ func TestGetDeploy(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSDeployManager)
 
-				deploy, err := manager.GetDeploy("some_id")
+				deploy, err := manager.GetDeploy("some_id.1")
 				if err != nil {
 					reporter.Fatal(err)
 				}
 
-				reporter.AssertEqual(deploy.DeployID, "some_id")
+				reporter.AssertEqual(deploy.DeployID, "some_id.1")
 			},
 		},
 		testutils.TestCase{
@@ -127,17 +139,14 @@ func TestListDeploys(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
 
-				deployAlpha := fmt.Sprintf("%salpha:4", id.PREFIX)
-				deployBeta := fmt.Sprintf("%sbeta:18", id.PREFIX)
-
-				deployARNs := []*string{
-					stringp("arn:aws:ecs:us-west-2:12345678:task-definition/" + deployAlpha),
-					stringp("arn:aws:ecs:us-west-2:12345678:task-definition/" + deployBeta),
+				arns := []*string{
+					getTaskDefARN("a", 1),
+					getTaskDefARN("b", 2),
 				}
 
 				mockDeploy.ECS.EXPECT().
 					Helper_ListTaskDefinitions(gomock.Any()).
-					Return(deployARNs, nil)
+					Return(arns, nil)
 
 				return mockDeploy.Deploy()
 			},
@@ -149,19 +158,12 @@ func TestListDeploys(t *testing.T) {
 					reporter.Fatal(err)
 				}
 
-				deployAlpha := &models.Deploy{
-					DeployID: "alpha.4",
-					Version:  "4",
+				expected := []*models.Deploy{
+					{DeployID: "a.1"},
+					{DeployID: "b.2"},
 				}
 
-				deployBeta := &models.Deploy{
-					DeployID: "beta.18",
-					Version:  "18",
-				}
-
-				reporter.AssertEqual(len(deploys), 2)
-				reporter.AssertInSlice(deployAlpha, deploys)
-				reporter.AssertInSlice(deployBeta, deploys)
+				reporter.AssertEqual(deploys, expected)
 			},
 		},
 		testutils.TestCase{

@@ -1,3 +1,4 @@
+SHELL:=/bin/bash
 L0_VERSION?=$(shell git describe --tags)
 
 build:
@@ -10,4 +11,8 @@ release: build
 test:
 	go test ./...
 
-.PHONY: build release test
+install-smoketest:
+	go install
+	mv $(GOPATH)/bin/cli $(GOPATH)/bin/l0
+
+.PHONY: build release test install-smoketest

@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-func (c *APIClient) DeleteJob(id string) error {
+func (c *APIClient) Delete(id string) error {
 	var response *string
 	if err := c.Execute(c.Sling("job/").Delete(id), &response); err != nil {
 		return err

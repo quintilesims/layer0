@@ -71,9 +71,22 @@ func (this *ECSTaskManager) ListTasks() ([]*models.Task, error) {
 		}
 	}
 
+	getModel := func(tasks []*ecs.Task) (*models.Task, error) {
+		if len(tasks) == 0 {
+			return nil, errors.Newf(errors.InvalidTaskID, "The specified task does not exist")
+		}
+
+		model := &models.Task{
+			EnvironmentID: id.ClusterARNToECSEnvironmentID(*tasks[0].ClusterArn).L0EnvironmentID(),
+			TaskID:        id.ECSTaskID(*tasks[0].StartedBy).L0TaskID(),
+		}
+
+		return model, nil
+	}
+
 	tasks := []*models.Task{}
 	for _, copies := range taskCopies {
-		model, err := modelFromTasks(copies)
+		model, err := getModel(copies)
 		if err != nil {
 			return nil, err
 		}
@@ -83,7 +96,7 @@ func (this *ECSTaskManager) ListTasks() ([]*models.Task, error) {
 
 	scheduledTasks := this.Scheduler.ListTasks()
 	for _, task := range scheduledTasks {
-		model, err := modelFromTasks([]*ecs.Task{task})
+		model, err := getModel([]*ecs.Task{task})
 		if err != nil {
 			return nil, err
 		}
