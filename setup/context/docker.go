@@ -6,8 +6,8 @@ import (
 )
 
 type Auth struct {
-        Auth  string `json:"auth,omitempty"`
-        Email string `json:"email,ommitempty"`
+	Auth  string `json:"auth,omitempty"`
+	Email string `json:"email,ommitempty"`
 }
 
 type DockerConfigFile struct {
