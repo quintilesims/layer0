@@ -247,7 +247,7 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 	}
 
 	getLoadBalancer := func(s *models.Service) string {
-		if s.LoadBalancerName == "" {
+		if s.LoadBalancerName != "" {
 			return s.LoadBalancerName
 		}
 
@@ -295,7 +295,7 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 
 		// add the extra deployment rows
 		for i := 1; i < len(s.Deployments); i++ {
-			row := fmt.Sprintf(" | | | %s", getDeployment(s, i))
+			row := fmt.Sprintf(" | | | | %s | ", getDeployment(s, i))
 			rows = append(rows, row)
 		}
 	}
