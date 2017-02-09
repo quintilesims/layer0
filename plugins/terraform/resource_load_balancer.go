@@ -112,8 +112,8 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 	ports := expandPorts(d.Get("port").(*schema.Set).List())
 	healthCheck := expandHealthCheck(d.Get("health_check"))
 
-	if !healthCheck {
-		healthCheck = models.HealthCheck{
+	if healthCheck == nil {
+		healthCheck = &models.HealthCheck{
 			Target:             "TCP:80",
 			Interval:           30,
 			Timeout:            5,
@@ -122,7 +122,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
-	loadBalancer, err := client.CreateLoadBalancer(name, environmentID, healthCheck, ports, !private)
+	loadBalancer, err := client.CreateLoadBalancer(name, environmentID, *healthCheck, ports, !private)
 	if err != nil {
 		return err
 	}
@@ -171,7 +171,7 @@ func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("health_check") {
 		healthCheck := expandHealthCheck(d.Get("health_check"))
 
-		if _, err := client.UpdateLoadBalancerHealthCheck(loadBalancerID, healthCheck); err != nil {
+		if _, err := client.UpdateLoadBalancerHealthCheck(loadBalancerID, *healthCheck); err != nil {
 			return err
 		}
 	}
@@ -218,15 +218,13 @@ func resourceLayer0PortHash(v interface{}) int {
 	return hashcode.String(buf.String())
 }
 
-func expandHealthCheck(flattened interface{}) models.HealthCheck {
+func expandHealthCheck(flattened interface{}) *models.HealthCheck {
 	hc := flattened.([]interface{})
-
-	var model models.HealthCheck
 
 	if len(hc) > 0 {
 		check := hc[0].(map[string]interface{})
 
-		model = models.HealthCheck{
+		return &models.HealthCheck{
 			Target:             check["target"].(string),
 			Interval:           check["interval"].(int),
 			Timeout:            check["timeout"].(int),
@@ -235,7 +233,7 @@ func expandHealthCheck(flattened interface{}) models.HealthCheck {
 		}
 	}
 
-	return model
+	return nil
 }
 
 func flattenHealthCheck(healthCheck models.HealthCheck) []map[string]interface{} {
