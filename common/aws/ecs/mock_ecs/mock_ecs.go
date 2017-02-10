@@ -292,15 +292,15 @@ func (_mr *_MockProviderRecorder) ListTasks(arg0, arg1, arg2, arg3, arg4 interfa
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListTasks", arg0, arg1, arg2, arg3, arg4)
 }
 
-func (_m *MockProvider) RegisterTaskDefinition(_param0 string, _param1 string, _param2 string, _param3 []*ecs.ContainerDefinition, _param4 []*ecs.Volume) (*ecs.TaskDefinition, error) {
-	ret := _m.ctrl.Call(_m, "RegisterTaskDefinition", _param0, _param1, _param2, _param3, _param4)
+func (_m *MockProvider) RegisterTaskDefinition(_param0 string, _param1 string, _param2 string, _param3 []*ecs.ContainerDefinition, _param4 []*ecs.Volume, _param5 []*ecs.PlacementConstraint) (*ecs.TaskDefinition, error) {
+	ret := _m.ctrl.Call(_m, "RegisterTaskDefinition", _param0, _param1, _param2, _param3, _param4, _param5)
 	ret0, _ := ret[0].(*ecs.TaskDefinition)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockProviderRecorder) RegisterTaskDefinition(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "RegisterTaskDefinition", arg0, arg1, arg2, arg3, arg4)
+func (_mr *_MockProviderRecorder) RegisterTaskDefinition(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RegisterTaskDefinition", arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
 func (_m *MockProvider) RunTask(_param0 string, _param1 string, _param2 int64, _param3 *string, _param4 []*ecs.ContainerOverride) ([]*ecs.Task, []*ecs.FailedTask, error) {

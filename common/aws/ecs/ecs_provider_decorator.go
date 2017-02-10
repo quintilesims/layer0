@@ -224,10 +224,10 @@ func (this *ProviderDecorator) ListTaskDefinitionFamiliesPages(p0 string) (v0 []
 	err = this.Decorator("ListTaskDefinitionFamiliesPages", call)
 	return v0, err
 }
-func (this *ProviderDecorator) RegisterTaskDefinition(p0 string, p1 string, p2 string, p3 []*ContainerDefinition, p4 []*Volume) (v0 *TaskDefinition, err error) {
+func (this *ProviderDecorator) RegisterTaskDefinition(p0 string, p1 string, p2 string, p3 []*ContainerDefinition, p4 []*Volume, p5 []*PlacementConstraint) (v0 *TaskDefinition, err error) {
 	call := func() error {
 		var err error
-		v0, err = this.Inner.RegisterTaskDefinition(p0, p1, p2, p3, p4)
+		v0, err = this.Inner.RegisterTaskDefinition(p0, p1, p2, p3, p4, p5)
 		return err
 	}
 	err = this.Decorator("RegisterTaskDefinition", call)

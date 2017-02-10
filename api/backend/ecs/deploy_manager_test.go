@@ -36,7 +36,7 @@ func getTaskDefARN(name string, version int) *string {
 
 func TestGetDeploy(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call ecs.DescribeTaskDefinition with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -62,7 +62,7 @@ func TestGetDeploy(t *testing.T) {
 				manager.GetDeploy("some_id.1")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should return layer0-formatted deploy id",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -92,7 +92,7 @@ func TestGetDeploy(t *testing.T) {
 				reporter.AssertEqual(deploy.DeployID, "some_id.1")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate ecs.DescribeTaskDefinition error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -118,7 +118,7 @@ func TestGetDeploy(t *testing.T) {
 
 func TestListDeploys(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call ecs.Helper_ListTaskDefinitions with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -134,7 +134,7 @@ func TestListDeploys(t *testing.T) {
 				manager.ListDeploys()
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should return layer0-formatted deploy ids and versions",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -166,7 +166,7 @@ func TestListDeploys(t *testing.T) {
 				reporter.AssertEqual(deploys, expected)
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate iam.ListDeploys error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -192,7 +192,7 @@ func TestListDeploys(t *testing.T) {
 
 func TestDeleteDeploy(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call ecs.DeleteTaskDefinition with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -210,7 +210,7 @@ func TestDeleteDeploy(t *testing.T) {
 				deploy.DeleteDeploy("some_id")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate ecs.DeleteTaskDefinition error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -238,7 +238,7 @@ func TestCreateDeploy(t *testing.T) {
 	dockerrun := []byte(`
 		{
 			"ContainerDefinitions": [
-				{	
+				{
 					"name": "test",
 					"image": "quintilesims/test",
 					"essential": true,
@@ -256,12 +256,43 @@ func TestCreateDeploy(t *testing.T) {
 			],
 			"Family": "",
 			"NetworkMode": "host",
-			"TaskRoleARN": "some_role"	
+			"TaskRoleARN": "some_role"
+		}
+	`)
+
+	dockerrunWithPCs := []byte(`
+		{
+			"ContainerDefinitions": [
+				{
+					"name": "test",
+					"image": "quintilesims/test",
+					"essential": true,
+					"memory": 128
+				}
+			],
+			"Volumes": [
+				{
+					"name": "test",
+					"host": {
+      						"sourcePath": "some_path"
+    					}
+
+				}
+			],
+			"Family": "",
+			"NetworkMode": "host",
+			"TaskRoleARN": "some_role",
+			"PlacementConstraints": [
+				{
+					"expression": "attribute:ecs.instance-type =~ m3.*",
+					"type": "memberOf"
+				}
+			]
 		}
 	`)
 
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call ecs.RegisterTaskDefinition with proper id param",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -276,7 +307,7 @@ func TestCreateDeploy(t *testing.T) {
 				}
 
 				mockDeploy.ECS.EXPECT().
-					RegisterTaskDefinition(deployID.String(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					RegisterTaskDefinition(deployID.String(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(task, nil)
 
 				return mockDeploy.Deploy()
@@ -286,8 +317,8 @@ func TestCreateDeploy(t *testing.T) {
 				manager.CreateDeploy("some_name", dockerrun)
 			},
 		},
-		testutils.TestCase{
-			Name: "Should marshal dockerrun correctly",
+		{
+			Name: "Should marshal dockerrun without placement constraints correctly",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
 
@@ -300,14 +331,14 @@ func TestCreateDeploy(t *testing.T) {
 				}
 
 				mockDeploy.ECS.EXPECT().
-					RegisterTaskDefinition(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Do(func(family, taskRoleARN, network string, containers []*ecs.ContainerDefinition, volumes []*ecs.Volume) {
+					RegisterTaskDefinition(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					Do(func(family, taskRoleARN, network string, containers []*ecs.ContainerDefinition, volumes []*ecs.Volume, placementConstraints []*ecs.PlacementConstraint) {
 						reporter.AssertEqual(network, "host")
 						reporter.AssertEqual(taskRoleARN, "some_role")
 						reporter.AssertEqual(len(containers), 1)
 						reporter.AssertEqual(*containers[0].Name, "test")
 						reporter.AssertEqual(*volumes[0].Name, "test")
-
+						reporter.AssertEqual(len(placementConstraints), 0)
 					}).
 					Return(task, nil)
 
@@ -317,8 +348,39 @@ func TestCreateDeploy(t *testing.T) {
 				manager := target.(*ECSDeployManager)
 				manager.CreateDeploy("some_name", dockerrun)
 			},
+		}, {
+			Name: "Should marshal dockerrun with placement constraints correctly",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				mockDeploy := NewMockECSDeployManager(ctrl)
+
+				taskDefinition := fmt.Sprintf("%ssome_name:1", id.PREFIX)
+
+				task := &ecs.TaskDefinition{
+					&aws_ecs.TaskDefinition{
+						TaskDefinitionArn: stringp("arn:aws:ecs:us-west-2:12345678:task-definition/" + taskDefinition),
+					},
+				}
+
+				mockDeploy.ECS.EXPECT().
+					RegisterTaskDefinition(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					Do(func(family, taskRoleARN, network string, containers []*ecs.ContainerDefinition, volumes []*ecs.Volume, placementConstraints []*ecs.PlacementConstraint) {
+						reporter.AssertEqual(network, "host")
+						reporter.AssertEqual(taskRoleARN, "some_role")
+						reporter.AssertEqual(len(containers), 1)
+						reporter.AssertEqual(*containers[0].Name, "test")
+						reporter.AssertEqual(*volumes[0].Name, "test")
+						reporter.AssertEqual(len(placementConstraints), 1)
+					}).
+					Return(task, nil)
+
+				return mockDeploy.Deploy()
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				manager := target.(*ECSDeployManager)
+				manager.CreateDeploy("some_name", dockerrunWithPCs)
+			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should return layer0-formatted id and version",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -333,7 +395,7 @@ func TestCreateDeploy(t *testing.T) {
 				}
 
 				mockDeploy.ECS.EXPECT().
-					RegisterTaskDefinition(deployID.String(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					RegisterTaskDefinition(deployID.String(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(task, nil)
 
 				return mockDeploy.Deploy()
@@ -350,7 +412,7 @@ func TestCreateDeploy(t *testing.T) {
 				reporter.AssertEqual(deploy.Version, "2")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should error if deployName contains '.'",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -364,13 +426,13 @@ func TestCreateDeploy(t *testing.T) {
 				}
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate ecs.RegisterTaskDefinition error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
 
 				mockDeploy.ECS.EXPECT().
-					RegisterTaskDefinition(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					RegisterTaskDefinition(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
 				return mockDeploy.Deploy()

@@ -45,7 +45,7 @@ type Provider interface {
 	ListTaskDefinitionFamilies(prefix string, nextToken *string) ([]*string, *string, error)
 	ListTaskDefinitionFamiliesPages(prefix string) ([]*string, error)
 
-	RegisterTaskDefinition(family string, roleARN string, networkMode string, containerDefinitions []*ContainerDefinition, volumes []*Volume) (*TaskDefinition, error)
+	RegisterTaskDefinition(family string, roleARN string, networkMode string, containerDefinitions []*ContainerDefinition, volumes []*Volume, placementConstraints []*PlacementConstraint) (*TaskDefinition, error)
 	RunTask(cluster, taskDefinition string, count int64, startedBy *string, overrides []*ContainerOverride) ([]*Task, []*FailedTask, error)
 	StartTask(cluster, taskDefinition string, overrides *TaskOverride, containerInstanceIDs []*string, startedBy *string) error
 	StopTask(cluster, reason, task string) error
@@ -158,6 +158,10 @@ type PortMapping struct {
 
 type ContainerDefinition struct {
 	*ecs.ContainerDefinition
+}
+
+type PlacementConstraint struct {
+	*ecs.TaskDefinitionPlacementConstraint
 }
 
 func NewLoadBalancer(containerName string, containerPort int64, loadBalancerName string) *LoadBalancer {
@@ -323,7 +327,7 @@ func Connect(credProvider provider.CredProvider, region string) (ECSInternal, er
 	return connection, nil
 }
 
-func (this *ECS) RegisterTaskDefinition(family string, roleARN string, networkMode string, containerDefinitions []*ContainerDefinition, volumes []*Volume) (*TaskDefinition, error) {
+func (this *ECS) RegisterTaskDefinition(family string, roleARN string, networkMode string, containerDefinitions []*ContainerDefinition, volumes []*Volume, placementConstraints []*PlacementConstraint) (*TaskDefinition, error) {
 	awsContainers := make([]*ecs.ContainerDefinition, 0)
 	for _, val := range containerDefinitions {
 		awsContainers = append(awsContainers, val.ContainerDefinition)
@@ -344,12 +348,18 @@ func (this *ECS) RegisterTaskDefinition(family string, roleARN string, networkMo
 		networkModep = aws.String(networkMode)
 	}
 
+	awsPlacementConstraints := make([]*ecs.TaskDefinitionPlacementConstraint, 0)
+	for _, val := range placementConstraints {
+		awsPlacementConstraints = append(awsPlacementConstraints, val.TaskDefinitionPlacementConstraint)
+	}
+
 	input := &ecs.RegisterTaskDefinitionInput{
 		ContainerDefinitions: awsContainers,
 		Family:               aws.String(family),
 		Volumes:              awsVolumes,
 		TaskRoleArn:          roleARNp,
 		NetworkMode:          networkModep,
+		PlacementConstraints: awsPlacementConstraints,
 	}
 
 	connection, err := this.Connect()

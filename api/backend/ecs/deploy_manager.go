@@ -92,7 +92,8 @@ func (this *ECSDeployManager) CreateDeploy(deployName string, body []byte) (*mod
 		deploy.TaskRoleARN,
 		deploy.NetworkMode,
 		deploy.ContainerDefinitions,
-		deploy.Volumes)
+		deploy.Volumes,
+		deploy.PlacementConstraints)
 	if err != nil {
 		return nil, err
 	}
@@ -123,6 +124,7 @@ type deploy struct {
 	Family               string                     `json:"family,omitempty"`
 	NetworkMode          string                     `json:"networkMode,omitempty"`
 	TaskRoleARN          string                     `json:"taskRoleArn,omitempty"`
+	PlacementConstraints []*ecs.PlacementConstraint `json:"placementConstraints,omitempty"`
 }
 
 func marshalDeploy(body []byte) (*deploy, error) {
@@ -150,12 +152,18 @@ func extractDockerrun(taskDef *ecs.TaskDefinition) ([]byte, error) {
 		volumes[i] = &ecs.Volume{v}
 	}
 
+	placementConstraints := make([]*ecs.PlacementConstraint, len(taskDef.PlacementConstraints))
+	for i, p := range taskDef.PlacementConstraints {
+		placementConstraints[i] = &ecs.PlacementConstraint{p}
+	}
+
 	d := deploy{
 		ContainerDefinitions: containers,
 		Volumes:              volumes,
 		Family:               pstring(taskDef.Family),
 		NetworkMode:          pstring(taskDef.NetworkMode),
 		TaskRoleARN:          pstring(taskDef.TaskRoleArn),
+		PlacementConstraints: placementConstraints,
 	}
 
 	bytes, err := json.Marshal(d)
