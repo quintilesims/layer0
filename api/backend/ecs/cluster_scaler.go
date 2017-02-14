@@ -253,7 +253,18 @@ func (this *ECSClusterScaler) calculateTaskResources(ecsDeployID id.ECSDeployID)
 	// accumulate the total resources needed for the containers in this task definition
 	for _, container := range taskDef.ContainerDefinitions {
 		taskResources.CPU += *container.Cpu
-		taskResources.Memory += *container.Memory
+
+		var memory int64
+		if container.MemoryReservation != nil {
+			memory = *container.MemoryReservation
+		}
+
+		// override if container.Memory is specified because that is a hard limit 
+		if container.Memory != nil {
+			memory = *container.Memory
+		}
+
+		taskResources.Memory += memory
 
 		for _, mapping := range container.PortMappings {
 			if mapping.HostPort != nil {
