@@ -55,7 +55,7 @@ output "public_subnets" {
 }
 
 output "private_subnets" {
-  value = "${aws_subnet.private_primary.id}, ${aws_subnet.private_secondary.id}"
+  value = "${aws_subnet.private_primary.id},${aws_subnet.private_secondary.id}"
 }
 
 output "certificate_name" {
