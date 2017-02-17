@@ -50,9 +50,8 @@ func (c *KMS) CancelKeyDeletionRequest(input *CancelKeyDeletionInput) (req *requ
 		input = &CancelKeyDeletionInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &CancelKeyDeletionOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -74,22 +73,22 @@ func (c *KMS) CancelKeyDeletionRequest(input *CancelKeyDeletionInput) (req *requ
 // API operation CancelKeyDeletion for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -142,11 +141,10 @@ func (c *KMS) CreateAliasRequest(input *CreateAliasInput) (req *request.Request,
 		input = &CreateAliasInput{}
 	}
 
+	output = &CreateAliasOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &CreateAliasOutput{}
-	req.Data = output
 	return
 }
 
@@ -173,31 +171,31 @@ func (c *KMS) CreateAliasRequest(input *CreateAliasInput) (req *request.Request,
 // API operation CreateAlias for usage and error information.
 //
 // Returned Error Codes:
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * AlreadyExistsException
+//   * ErrCodeAlreadyExistsException "AlreadyExistsException"
 //   The request was rejected because it attempted to create a resource that already
 //   exists.
 //
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InvalidAliasNameException
+//   * ErrCodeInvalidAliasNameException "InvalidAliasNameException"
 //   The request was rejected because the specified alias name is not valid.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * LimitExceededException
+//   * ErrCodeLimitExceededException "LimitExceededException"
 //   The request was rejected because a limit was exceeded. For more information,
 //   see Limits (http://docs.aws.amazon.com/kms/latest/developerguide/limits.html)
 //   in the AWS Key Management Service Developer Guide.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -250,9 +248,8 @@ func (c *KMS) CreateGrantRequest(input *CreateGrantInput) (req *request.Request,
 		input = &CreateGrantInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &CreateGrantOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -272,33 +269,33 @@ func (c *KMS) CreateGrantRequest(input *CreateGrantInput) (req *request.Request,
 // API operation CreateGrant for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * DisabledException
+//   * ErrCodeDisabledException "DisabledException"
 //   The request was rejected because the specified CMK is not enabled.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidGrantTokenException
+//   * ErrCodeInvalidGrantTokenException "InvalidGrantTokenException"
 //   The request was rejected because the specified grant token is not valid.
 //
-//   * LimitExceededException
+//   * ErrCodeLimitExceededException "LimitExceededException"
 //   The request was rejected because a limit was exceeded. For more information,
 //   see Limits (http://docs.aws.amazon.com/kms/latest/developerguide/limits.html)
 //   in the AWS Key Management Service Developer Guide.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -351,9 +348,8 @@ func (c *KMS) CreateKeyRequest(input *CreateKeyInput) (req *request.Request, out
 		input = &CreateKeyInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &CreateKeyOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -379,26 +375,26 @@ func (c *KMS) CreateKeyRequest(input *CreateKeyInput) (req *request.Request, out
 // API operation CreateKey for usage and error information.
 //
 // Returned Error Codes:
-//   * MalformedPolicyDocumentException
+//   * ErrCodeMalformedPolicyDocumentException "MalformedPolicyDocumentException"
 //   The request was rejected because the specified policy is not syntactically
 //   or semantically correct.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * UnsupportedOperationException
+//   * ErrCodeUnsupportedOperationException "UnsupportedOperationException"
 //   The request was rejected because a specified parameter is not supported or
 //   a specified resource is not valid for this operation.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * LimitExceededException
+//   * ErrCodeLimitExceededException "LimitExceededException"
 //   The request was rejected because a limit was exceeded. For more information,
 //   see Limits (http://docs.aws.amazon.com/kms/latest/developerguide/limits.html)
 //   in the AWS Key Management Service Developer Guide.
@@ -448,9 +444,8 @@ func (c *KMS) DecryptRequest(input *DecryptInput) (req *request.Request, output 
 		input = &DecryptInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &DecryptOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -482,33 +477,33 @@ func (c *KMS) DecryptRequest(input *DecryptInput) (req *request.Request, output 
 // API operation Decrypt for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * DisabledException
+//   * ErrCodeDisabledException "DisabledException"
 //   The request was rejected because the specified CMK is not enabled.
 //
-//   * InvalidCiphertextException
+//   * ErrCodeInvalidCiphertextException "InvalidCiphertextException"
 //   The request was rejected because the specified ciphertext has been corrupted
 //   or is otherwise invalid.
 //
-//   * KeyUnavailableException
+//   * ErrCodeKeyUnavailableException "KeyUnavailableException"
 //   The request was rejected because the specified CMK was not available. The
 //   request can be retried.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InvalidGrantTokenException
+//   * ErrCodeInvalidGrantTokenException "InvalidGrantTokenException"
 //   The request was rejected because the specified grant token is not valid.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -561,11 +556,10 @@ func (c *KMS) DeleteAliasRequest(input *DeleteAliasInput) (req *request.Request,
 		input = &DeleteAliasInput{}
 	}
 
+	output = &DeleteAliasOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &DeleteAliasOutput{}
-	req.Data = output
 	return
 }
 
@@ -581,19 +575,19 @@ func (c *KMS) DeleteAliasRequest(input *DeleteAliasInput) (req *request.Request,
 // API operation DeleteAlias for usage and error information.
 //
 // Returned Error Codes:
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -646,11 +640,10 @@ func (c *KMS) DeleteImportedKeyMaterialRequest(input *DeleteImportedKeyMaterialI
 		input = &DeleteImportedKeyMaterialInput{}
 	}
 
+	output = &DeleteImportedKeyMaterialOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &DeleteImportedKeyMaterialOutput{}
-	req.Data = output
 	return
 }
 
@@ -675,26 +668,26 @@ func (c *KMS) DeleteImportedKeyMaterialRequest(input *DeleteImportedKeyMaterialI
 // API operation DeleteImportedKeyMaterial for usage and error information.
 //
 // Returned Error Codes:
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * UnsupportedOperationException
+//   * ErrCodeUnsupportedOperationException "UnsupportedOperationException"
 //   The request was rejected because a specified parameter is not supported or
 //   a specified resource is not valid for this operation.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -747,9 +740,8 @@ func (c *KMS) DescribeKeyRequest(input *DescribeKeyInput) (req *request.Request,
 		input = &DescribeKeyInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &DescribeKeyOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -765,18 +757,18 @@ func (c *KMS) DescribeKeyRequest(input *DescribeKeyInput) (req *request.Request,
 // API operation DescribeKey for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
@@ -825,11 +817,10 @@ func (c *KMS) DisableKeyRequest(input *DisableKeyInput) (req *request.Request, o
 		input = &DisableKeyInput{}
 	}
 
+	output = &DisableKeyOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &DisableKeyOutput{}
-	req.Data = output
 	return
 }
 
@@ -849,22 +840,22 @@ func (c *KMS) DisableKeyRequest(input *DisableKeyInput) (req *request.Request, o
 // API operation DisableKey for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -917,11 +908,10 @@ func (c *KMS) DisableKeyRotationRequest(input *DisableKeyRotationInput) (req *re
 		input = &DisableKeyRotationInput{}
 	}
 
+	output = &DisableKeyRotationOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &DisableKeyRotationOutput{}
-	req.Data = output
 	return
 }
 
@@ -937,25 +927,25 @@ func (c *KMS) DisableKeyRotationRequest(input *DisableKeyRotationInput) (req *re
 // API operation DisableKeyRotation for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * DisabledException
+//   * ErrCodeDisabledException "DisabledException"
 //   The request was rejected because the specified CMK is not enabled.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -963,7 +953,7 @@ func (c *KMS) DisableKeyRotationRequest(input *DisableKeyRotationInput) (req *re
 //   Key State Affects Use of a Customer Master Key (http://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 //   in the AWS Key Management Service Developer Guide.
 //
-//   * UnsupportedOperationException
+//   * ErrCodeUnsupportedOperationException "UnsupportedOperationException"
 //   The request was rejected because a specified parameter is not supported or
 //   a specified resource is not valid for this operation.
 //
@@ -1012,11 +1002,10 @@ func (c *KMS) EnableKeyRequest(input *EnableKeyInput) (req *request.Request, out
 		input = &EnableKeyInput{}
 	}
 
+	output = &EnableKeyOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &EnableKeyOutput{}
-	req.Data = output
 	return
 }
 
@@ -1032,27 +1021,27 @@ func (c *KMS) EnableKeyRequest(input *EnableKeyInput) (req *request.Request, out
 // API operation EnableKey for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * LimitExceededException
+//   * ErrCodeLimitExceededException "LimitExceededException"
 //   The request was rejected because a limit was exceeded. For more information,
 //   see Limits (http://docs.aws.amazon.com/kms/latest/developerguide/limits.html)
 //   in the AWS Key Management Service Developer Guide.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -1105,11 +1094,10 @@ func (c *KMS) EnableKeyRotationRequest(input *EnableKeyRotationInput) (req *requ
 		input = &EnableKeyRotationInput{}
 	}
 
+	output = &EnableKeyRotationOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &EnableKeyRotationOutput{}
-	req.Data = output
 	return
 }
 
@@ -1125,25 +1113,25 @@ func (c *KMS) EnableKeyRotationRequest(input *EnableKeyRotationInput) (req *requ
 // API operation EnableKeyRotation for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * DisabledException
+//   * ErrCodeDisabledException "DisabledException"
 //   The request was rejected because the specified CMK is not enabled.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -1151,7 +1139,7 @@ func (c *KMS) EnableKeyRotationRequest(input *EnableKeyRotationInput) (req *requ
 //   Key State Affects Use of a Customer Master Key (http://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 //   in the AWS Key Management Service Developer Guide.
 //
-//   * UnsupportedOperationException
+//   * ErrCodeUnsupportedOperationException "UnsupportedOperationException"
 //   The request was rejected because a specified parameter is not supported or
 //   a specified resource is not valid for this operation.
 //
@@ -1200,9 +1188,8 @@ func (c *KMS) EncryptRequest(input *EncryptInput) (req *request.Request, output 
 		input = &EncryptInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &EncryptOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -1237,32 +1224,32 @@ func (c *KMS) EncryptRequest(input *EncryptInput) (req *request.Request, output 
 // API operation Encrypt for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * DisabledException
+//   * ErrCodeDisabledException "DisabledException"
 //   The request was rejected because the specified CMK is not enabled.
 //
-//   * KeyUnavailableException
+//   * ErrCodeKeyUnavailableException "KeyUnavailableException"
 //   The request was rejected because the specified CMK was not available. The
 //   request can be retried.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InvalidKeyUsageException
+//   * ErrCodeInvalidKeyUsageException "InvalidKeyUsageException"
 //   The request was rejected because the specified KeySpec value is not valid.
 //
-//   * InvalidGrantTokenException
+//   * ErrCodeInvalidGrantTokenException "InvalidGrantTokenException"
 //   The request was rejected because the specified grant token is not valid.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -1315,9 +1302,8 @@ func (c *KMS) GenerateDataKeyRequest(input *GenerateDataKeyInput) (req *request.
 		input = &GenerateDataKeyInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &GenerateDataKeyOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -1376,32 +1362,32 @@ func (c *KMS) GenerateDataKeyRequest(input *GenerateDataKeyInput) (req *request.
 // API operation GenerateDataKey for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * DisabledException
+//   * ErrCodeDisabledException "DisabledException"
 //   The request was rejected because the specified CMK is not enabled.
 //
-//   * KeyUnavailableException
+//   * ErrCodeKeyUnavailableException "KeyUnavailableException"
 //   The request was rejected because the specified CMK was not available. The
 //   request can be retried.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InvalidKeyUsageException
+//   * ErrCodeInvalidKeyUsageException "InvalidKeyUsageException"
 //   The request was rejected because the specified KeySpec value is not valid.
 //
-//   * InvalidGrantTokenException
+//   * ErrCodeInvalidGrantTokenException "InvalidGrantTokenException"
 //   The request was rejected because the specified grant token is not valid.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -1454,9 +1440,8 @@ func (c *KMS) GenerateDataKeyWithoutPlaintextRequest(input *GenerateDataKeyWitho
 		input = &GenerateDataKeyWithoutPlaintextInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &GenerateDataKeyWithoutPlaintextOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -1486,32 +1471,32 @@ func (c *KMS) GenerateDataKeyWithoutPlaintextRequest(input *GenerateDataKeyWitho
 // API operation GenerateDataKeyWithoutPlaintext for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * DisabledException
+//   * ErrCodeDisabledException "DisabledException"
 //   The request was rejected because the specified CMK is not enabled.
 //
-//   * KeyUnavailableException
+//   * ErrCodeKeyUnavailableException "KeyUnavailableException"
 //   The request was rejected because the specified CMK was not available. The
 //   request can be retried.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InvalidKeyUsageException
+//   * ErrCodeInvalidKeyUsageException "InvalidKeyUsageException"
 //   The request was rejected because the specified KeySpec value is not valid.
 //
-//   * InvalidGrantTokenException
+//   * ErrCodeInvalidGrantTokenException "InvalidGrantTokenException"
 //   The request was rejected because the specified grant token is not valid.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -1564,9 +1549,8 @@ func (c *KMS) GenerateRandomRequest(input *GenerateRandomInput) (req *request.Re
 		input = &GenerateRandomInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &GenerateRandomOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -1582,11 +1566,11 @@ func (c *KMS) GenerateRandomRequest(input *GenerateRandomInput) (req *request.Re
 // API operation GenerateRandom for usage and error information.
 //
 // Returned Error Codes:
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
@@ -1635,9 +1619,8 @@ func (c *KMS) GetKeyPolicyRequest(input *GetKeyPolicyInput) (req *request.Reques
 		input = &GetKeyPolicyInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &GetKeyPolicyOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -1653,22 +1636,22 @@ func (c *KMS) GetKeyPolicyRequest(input *GetKeyPolicyInput) (req *request.Reques
 // API operation GetKeyPolicy for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -1721,9 +1704,8 @@ func (c *KMS) GetKeyRotationStatusRequest(input *GetKeyRotationStatusInput) (req
 		input = &GetKeyRotationStatusInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &GetKeyRotationStatusOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -1740,22 +1722,22 @@ func (c *KMS) GetKeyRotationStatusRequest(input *GetKeyRotationStatusInput) (req
 // API operation GetKeyRotationStatus for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -1763,7 +1745,7 @@ func (c *KMS) GetKeyRotationStatusRequest(input *GetKeyRotationStatusInput) (req
 //   Key State Affects Use of a Customer Master Key (http://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 //   in the AWS Key Management Service Developer Guide.
 //
-//   * UnsupportedOperationException
+//   * ErrCodeUnsupportedOperationException "UnsupportedOperationException"
 //   The request was rejected because a specified parameter is not supported or
 //   a specified resource is not valid for this operation.
 //
@@ -1812,9 +1794,8 @@ func (c *KMS) GetParametersForImportRequest(input *GetParametersForImportInput) 
 		input = &GetParametersForImportInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &GetParametersForImportOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -1845,26 +1826,26 @@ func (c *KMS) GetParametersForImportRequest(input *GetParametersForImportInput) 
 // API operation GetParametersForImport for usage and error information.
 //
 // Returned Error Codes:
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * UnsupportedOperationException
+//   * ErrCodeUnsupportedOperationException "UnsupportedOperationException"
 //   The request was rejected because a specified parameter is not supported or
 //   a specified resource is not valid for this operation.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -1917,9 +1898,8 @@ func (c *KMS) ImportKeyMaterialRequest(input *ImportKeyMaterialInput) (req *requ
 		input = &ImportKeyMaterialInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &ImportKeyMaterialOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -1955,26 +1935,26 @@ func (c *KMS) ImportKeyMaterialRequest(input *ImportKeyMaterialInput) (req *requ
 // API operation ImportKeyMaterial for usage and error information.
 //
 // Returned Error Codes:
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * UnsupportedOperationException
+//   * ErrCodeUnsupportedOperationException "UnsupportedOperationException"
 //   The request was rejected because a specified parameter is not supported or
 //   a specified resource is not valid for this operation.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -1982,22 +1962,22 @@ func (c *KMS) ImportKeyMaterialRequest(input *ImportKeyMaterialInput) (req *requ
 //   Key State Affects Use of a Customer Master Key (http://docs.aws.amazon.com/kms/latest/developerguide/key-state.html)
 //   in the AWS Key Management Service Developer Guide.
 //
-//   * InvalidCiphertextException
+//   * ErrCodeInvalidCiphertextException "InvalidCiphertextException"
 //   The request was rejected because the specified ciphertext has been corrupted
 //   or is otherwise invalid.
 //
-//   * IncorrectKeyMaterialException
+//   * ErrCodeIncorrectKeyMaterialException "IncorrectKeyMaterialException"
 //   The request was rejected because the provided key material is invalid or
 //   is not the same key material that was previously imported into this customer
 //   master key (CMK).
 //
-//   * ExpiredImportTokenException
+//   * ErrCodeExpiredImportTokenException "ExpiredImportTokenException"
 //   The request was rejected because the provided import token is expired. Use
 //   GetParametersForImport to retrieve a new import token and public key, use
 //   the new public key to encrypt the key material, and then try the request
 //   again.
 //
-//   * InvalidImportTokenException
+//   * ErrCodeInvalidImportTokenException "InvalidImportTokenException"
 //   The request was rejected because the provided import token is invalid or
 //   is associated with a different customer master key (CMK).
 //
@@ -2052,9 +2032,8 @@ func (c *KMS) ListAliasesRequest(input *ListAliasesInput) (req *request.Request,
 		input = &ListAliasesInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &ListAliasesOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -2070,15 +2049,15 @@ func (c *KMS) ListAliasesRequest(input *ListAliasesInput) (req *request.Request,
 // API operation ListAliases for usage and error information.
 //
 // Returned Error Codes:
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InvalidMarkerException
+//   * ErrCodeInvalidMarkerException "InvalidMarkerException"
 //   The request was rejected because the marker that specifies where pagination
 //   should next begin is not valid.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
@@ -2158,9 +2137,8 @@ func (c *KMS) ListGrantsRequest(input *ListGrantsInput) (req *request.Request, o
 		input = &ListGrantsInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &ListGrantsResponse{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -2176,26 +2154,26 @@ func (c *KMS) ListGrantsRequest(input *ListGrantsInput) (req *request.Request, o
 // API operation ListGrants for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InvalidMarkerException
+//   * ErrCodeInvalidMarkerException "InvalidMarkerException"
 //   The request was rejected because the marker that specifies where pagination
 //   should next begin is not valid.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -2279,9 +2257,8 @@ func (c *KMS) ListKeyPoliciesRequest(input *ListKeyPoliciesInput) (req *request.
 		input = &ListKeyPoliciesInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &ListKeyPoliciesOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -2297,22 +2274,22 @@ func (c *KMS) ListKeyPoliciesRequest(input *ListKeyPoliciesInput) (req *request.
 // API operation ListKeyPolicies for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -2396,9 +2373,8 @@ func (c *KMS) ListKeysRequest(input *ListKeysInput) (req *request.Request, outpu
 		input = &ListKeysInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &ListKeysOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -2414,15 +2390,15 @@ func (c *KMS) ListKeysRequest(input *ListKeysInput) (req *request.Request, outpu
 // API operation ListKeys for usage and error information.
 //
 // Returned Error Codes:
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidMarkerException
+//   * ErrCodeInvalidMarkerException "InvalidMarkerException"
 //   The request was rejected because the marker that specifies where pagination
 //   should next begin is not valid.
 //
@@ -2496,9 +2472,8 @@ func (c *KMS) ListRetirableGrantsRequest(input *ListRetirableGrantsInput) (req *
 		input = &ListRetirableGrantsInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &ListGrantsResponse{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -2518,22 +2493,22 @@ func (c *KMS) ListRetirableGrantsRequest(input *ListRetirableGrantsInput) (req *
 // API operation ListRetirableGrants for usage and error information.
 //
 // Returned Error Codes:
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InvalidMarkerException
+//   * ErrCodeInvalidMarkerException "InvalidMarkerException"
 //   The request was rejected because the marker that specifies where pagination
 //   should next begin is not valid.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
@@ -2582,11 +2557,10 @@ func (c *KMS) PutKeyPolicyRequest(input *PutKeyPolicyInput) (req *request.Reques
 		input = &PutKeyPolicyInput{}
 	}
 
+	output = &PutKeyPolicyOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &PutKeyPolicyOutput{}
-	req.Data = output
 	return
 }
 
@@ -2605,35 +2579,35 @@ func (c *KMS) PutKeyPolicyRequest(input *PutKeyPolicyInput) (req *request.Reques
 // API operation PutKeyPolicy for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * MalformedPolicyDocumentException
+//   * ErrCodeMalformedPolicyDocumentException "MalformedPolicyDocumentException"
 //   The request was rejected because the specified policy is not syntactically
 //   or semantically correct.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * UnsupportedOperationException
+//   * ErrCodeUnsupportedOperationException "UnsupportedOperationException"
 //   The request was rejected because a specified parameter is not supported or
 //   a specified resource is not valid for this operation.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * LimitExceededException
+//   * ErrCodeLimitExceededException "LimitExceededException"
 //   The request was rejected because a limit was exceeded. For more information,
 //   see Limits (http://docs.aws.amazon.com/kms/latest/developerguide/limits.html)
 //   in the AWS Key Management Service Developer Guide.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -2686,9 +2660,8 @@ func (c *KMS) ReEncryptRequest(input *ReEncryptInput) (req *request.Request, out
 		input = &ReEncryptInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &ReEncryptOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -2715,36 +2688,36 @@ func (c *KMS) ReEncryptRequest(input *ReEncryptInput) (req *request.Request, out
 // API operation ReEncrypt for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * DisabledException
+//   * ErrCodeDisabledException "DisabledException"
 //   The request was rejected because the specified CMK is not enabled.
 //
-//   * InvalidCiphertextException
+//   * ErrCodeInvalidCiphertextException "InvalidCiphertextException"
 //   The request was rejected because the specified ciphertext has been corrupted
 //   or is otherwise invalid.
 //
-//   * KeyUnavailableException
+//   * ErrCodeKeyUnavailableException "KeyUnavailableException"
 //   The request was rejected because the specified CMK was not available. The
 //   request can be retried.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InvalidKeyUsageException
+//   * ErrCodeInvalidKeyUsageException "InvalidKeyUsageException"
 //   The request was rejected because the specified KeySpec value is not valid.
 //
-//   * InvalidGrantTokenException
+//   * ErrCodeInvalidGrantTokenException "InvalidGrantTokenException"
 //   The request was rejected because the specified grant token is not valid.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -2797,11 +2770,10 @@ func (c *KMS) RetireGrantRequest(input *RetireGrantInput) (req *request.Request,
 		input = &RetireGrantInput{}
 	}
 
+	output = &RetireGrantOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &RetireGrantOutput{}
-	req.Data = output
 	return
 }
 
@@ -2832,25 +2804,25 @@ func (c *KMS) RetireGrantRequest(input *RetireGrantInput) (req *request.Request,
 // API operation RetireGrant for usage and error information.
 //
 // Returned Error Codes:
-//   * InvalidGrantTokenException
+//   * ErrCodeInvalidGrantTokenException "InvalidGrantTokenException"
 //   The request was rejected because the specified grant token is not valid.
 //
-//   * InvalidGrantIdException
+//   * ErrCodeInvalidGrantIdException "InvalidGrantIdException"
 //   The request was rejected because the specified GrantId is not valid.
 //
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -2903,11 +2875,10 @@ func (c *KMS) RevokeGrantRequest(input *RevokeGrantInput) (req *request.Request,
 		input = &RevokeGrantInput{}
 	}
 
+	output = &RevokeGrantOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &RevokeGrantOutput{}
-	req.Data = output
 	return
 }
 
@@ -2924,25 +2895,25 @@ func (c *KMS) RevokeGrantRequest(input *RevokeGrantInput) (req *request.Request,
 // API operation RevokeGrant for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * InvalidGrantIdException
+//   * ErrCodeInvalidGrantIdException "InvalidGrantIdException"
 //   The request was rejected because the specified GrantId is not valid.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -2995,9 +2966,8 @@ func (c *KMS) ScheduleKeyDeletionRequest(input *ScheduleKeyDeletionInput) (req *
 		input = &ScheduleKeyDeletionInput{}
 	}
 
-	req = c.newRequest(op, input, output)
 	output = &ScheduleKeyDeletionOutput{}
-	req.Data = output
+	req = c.newRequest(op, input, output)
 	return
 }
 
@@ -3028,22 +2998,22 @@ func (c *KMS) ScheduleKeyDeletionRequest(input *ScheduleKeyDeletionInput) (req *
 // API operation ScheduleKeyDeletion for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -3096,11 +3066,10 @@ func (c *KMS) UpdateAliasRequest(input *UpdateAliasInput) (req *request.Request,
 		input = &UpdateAliasInput{}
 	}
 
+	output = &UpdateAliasOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &UpdateAliasOutput{}
-	req.Data = output
 	return
 }
 
@@ -3128,19 +3097,19 @@ func (c *KMS) UpdateAliasRequest(input *UpdateAliasInput) (req *request.Request,
 // API operation UpdateAlias for usage and error information.
 //
 // Returned Error Codes:
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
@@ -3193,11 +3162,10 @@ func (c *KMS) UpdateKeyDescriptionRequest(input *UpdateKeyDescriptionInput) (req
 		input = &UpdateKeyDescriptionInput{}
 	}
 
+	output = &UpdateKeyDescriptionOutput{}
 	req = c.newRequest(op, input, output)
 	req.Handlers.Unmarshal.Remove(jsonrpc.UnmarshalHandler)
 	req.Handlers.Unmarshal.PushBackNamed(protocol.UnmarshalDiscardBodyHandler)
-	output = &UpdateKeyDescriptionOutput{}
-	req.Data = output
 	return
 }
 
@@ -3213,22 +3181,22 @@ func (c *KMS) UpdateKeyDescriptionRequest(input *UpdateKeyDescriptionInput) (req
 // API operation UpdateKeyDescription for usage and error information.
 //
 // Returned Error Codes:
-//   * NotFoundException
+//   * ErrCodeNotFoundException "NotFoundException"
 //   The request was rejected because the specified entity or resource could not
 //   be found.
 //
-//   * InvalidArnException
+//   * ErrCodeInvalidArnException "InvalidArnException"
 //   The request was rejected because a specified ARN was not valid.
 //
-//   * DependencyTimeoutException
+//   * ErrCodeDependencyTimeoutException "DependencyTimeoutException"
 //   The system timed out while trying to fulfill the request. The request can
 //   be retried.
 //
-//   * InternalException
+//   * ErrCodeInternalException "InternalException"
 //   The request was rejected because an internal exception occurred. The request
 //   can be retried.
 //
-//   * InvalidStateException
+//   * ErrCodeInvalidStateException "InvalidStateException"
 //   The request was rejected because the state of the specified resource is not
 //   valid for this request.
 //
