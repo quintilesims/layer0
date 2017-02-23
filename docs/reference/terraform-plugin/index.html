@@ -216,7 +216,7 @@
       
         
   <li>
-    <a class="" title="Upgrade" href="../../setup/update/">
+    <a class="" title="Upgrade" href="../../setup/upgrade/">
       Upgrade
     </a>
     
@@ -554,7 +554,7 @@ output &quot;vpc id&quot; {
 <h2 id="deploy">Deploy<a class="headerlink" href="#deploy" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Deploy.</p>
 <p>Performing variable substitution inside of your deploy's json file (typically named <code>Dockerrun.aws.json</code>) can be done through Terraform's <a href="https://www.terraform.io/docs/providers/template/">template_file</a>.
-For a working example, please see the sample <a href="https://github.com/quintilesims/layer0-samples/blob/master/guestbook/app/layer0.tf">Guestbook</a> application</p>
+For a working example, please see the sample <a href="https://github.com/quintilesims/layer0-examples/blob/master/guestbook/layer0.tf">Guestbook</a> application</p>
 <h3 id="example-usage_2">Example Usage<a class="headerlink" href="#example-usage_2" title="Permanent link">#</a></h3>
 <pre class="code"><code># Configure the deploy template
 data &quot;template_file&quot; &quot;guestbook&quot; {
@@ -638,6 +638,14 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
     protocol       = &quot;https&quot;
     certificate    = &quot;cert&quot;
   }
+
+  health_check {
+    target              = &quot;tcp:80&quot;
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 2
+  }
 }</code></pre>
 
 
@@ -648,6 +656,7 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <li><code>environment</code> - (Required) The id of the environment to place the load balancer inside of</li>
 <li><code>private</code> - (Optional) If true, the load balancer will not be exposed to the public internet</li>
 <li><code>port</code> - (Optional, Default: 80:80/tcp) A list of port blocks. Ports documented below</li>
+<li><code>health_check</code> - (Optional, Default: {"TCP:80" 30 5 2 2}) A health_check block. Health check documented below</li>
 </ul>
 <p>Ports (<code>port</code>) support the following:</p>
 <ul>
@@ -655,6 +664,18 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <li><code>container_port</code> - (Required) The port on the docker container to route to</li>
 <li><code>protocol</code> - (Required) The protocol to listen on. Valid values are <code>HTTP, HTTPS, TCP, or SSL</code></li>
 <li><code>certificate</code> - (Optional) The name of an SSL certificate. Only required if the <code>HTTP</code> or <code>SSL</code> protocol is used.</li>
+</ul>
+<p>Healthcheck (<code>health_check</code>) supports the following:</p>
+<ul>
+<li><code>target</code> - (Required) The target of the check. Valid pattern is "${PROTOCOL}:${PORT}${PATH}", where PROTOCOL values are:<ul>
+<li><code>HTTP</code>, <code>HTTPS</code> - PORT and PATH are required</li>
+<li><code>TCP</code>, <code>SSL</code> - PORT is required, PATH is not supported</li>
+</ul>
+</li>
+<li><code>interval</code> - (Required) The interval between checks.</li>
+<li><code>timeout</code> - (Required) The length of time before the check times out.</li>
+<li><code>healthy_threshold</code> - (Required) The number of checks before the instance is declared healthy.</li>
+<li><code>unhealthy_threshold</code> - (Required) The number of checks before the instance is declared unhealthy.</li>
 </ul>
 <h3 id="attribute-reference_3">Attribute Reference<a class="headerlink" href="#attribute-reference_3" title="Permanent link">#</a></h3>
 <p>The following attributes are exported:</p>

@@ -9,19 +9,19 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>Destroy - Layer0</title>
+        <title>Upgrade - Layer0</title>
       
       
       
-        <link rel="canonical" href="https://github.com/quintilesims/layer0/setup/destroy/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/setup/upgrade/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://github.com/quintilesims/layer0/setup/destroy/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/setup/upgrade/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://github.com/quintilesims/layer0/setup/destroy//../../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/setup/upgrade//../../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -106,7 +106,7 @@
             
           </span>
         
-        Destroy
+        Upgrade
       </div>
     </div>
     
@@ -216,39 +216,23 @@
       
         
   <li>
-    <a class="" title="Upgrade" href="../upgrade/">
+    <a class="current" title="Upgrade" href="./">
       Upgrade
     </a>
+    
+      
+        
+      
+      
     
   </li>
 
       
         
   <li>
-    <a class="current" title="Destroy" href="./">
+    <a class="" title="Destroy" href="../destroy/">
       Destroy
     </a>
-    
-      
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="Part 1: Clean Up Your Layer0 Environments" href="#part-1-clean-up-your-layer0-environments">
-                Part 1: Clean Up Your Layer0 Environments
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Part 2: Destroy the Layer0 instance" href="#part-2-destroy-the-layer0-instance">
-                Part 2: Destroy the Layer0 instance
-              </a>
-            </li>
-          
-        </ul>
-      
     
   </li>
 
@@ -436,37 +420,51 @@
       <article class="article">
         <div class="wrapper">
           
-          <h1 id="destroying-a-layer0-instance">Destroying a Layer0 instance<a class="headerlink" href="#destroying-a-layer0-instance" title="Permanent link">#</a></h1>
-<p>During testing or migration, you may find that you need to delete a non-functional or outdated instance of Layer0. This section provides procedures for destroying (deleting) a Layer0 instance.</p>
-<h2 id="part-1-clean-up-your-layer0-environments">Part 1: Clean Up Your Layer0 Environments<a class="headerlink" href="#part-1-clean-up-your-layer0-environments" title="Permanent link">#</a></h2>
-<p>In order to destroy a Layer0 instance, you must first delete all environments in the instance.</p>
-<p><strong>To delete Layer0 environments:</strong>
+          <h1 id="upgrade-layer0">Upgrade Layer0<a class="headerlink" href="#upgrade-layer0" title="Permanent link">#</a></h1>
+<p>This section provides procedures for upgrading your Layer0 installation to the latest version.</p>
 <ol>
-  <li>At the command prompt, type the following command to see a list of environments in your Layer0 instance:
-    <ul>
-      <li class="command"><code>l0 environment list</code></li>
-    </ul></p>
-<p><li>For each environment listed in the previous step, with the exception of the environments that begin with "api", issue the following command (where <code>[environment_name]</code> is the name of the environment you want to delete):
-    <ul>
-      <li class="command"><code>l0 environment delete [environment_name] --wait</code></li>
-    </ul></p>
-<p>Repeat this step until all of the environments (except the "api" environments) have been deleted. When you have finished deleting the environments in your Layer0 instance, proceed to Part 2.
-  </li>
-</ol></p>
-<h2 id="part-2-destroy-the-layer0-instance">Part 2: Destroy the Layer0 instance<a class="headerlink" href="#part-2-destroy-the-layer0-instance" title="Permanent link">#</a></h2>
-<p>Once you have prepared your Layer0 instance for deletion, you can use the <code>l0-setup destroy</code> command to destroy the instance.</p>
-<p><strong>To destroy a Layer0 instance:</strong>
-<ol>
-  <li>At the command prompt, type the following command, replacing <code>[prefix]</code> with the prefix you created when you created your Layer0 instance:
-    <ul>
-      <li class="command"><code>l0-setup destroy [prefix]</code></li>
-    </ul>
-  </li>
+<li>
+<p>In the <a href="../../index.html#download">Downloads section of the home page</a>, select the appropriate installation file for your operating system. Extract the zip file to a directory on your computer, and then move the <strong>l0</strong> and <strong>l0-setup</strong> files to a folder in your system path, replacing any previous versions of these files.</p>
+</li>
+<li>
+<p>You will need your existing access keys when l0-setup prompts you for AWS credentials. Type the following commands to find them:</p>
+<ul>
+<li><code>l0-setup terraform [prefix] output access_key</code></li>
+<li><code>l0-setup terraform [prefix] output secret_key</code></li>
+</ul>
+</li>
+<li>
+<p>Type the following command to verify that you are working with the correct version of Layer0:</p>
+<ul>
+<li><code>l0-setup --version</code></li>
+</ul>
+<p>The output of this command should display the version number of the most recent version of Layer0. If it does, proceed to the next step; if not, ensure that you copied the latest versions of <strong>l0</strong> and <strong>l0-setup</strong> to the appropriate directories in your system path.</p>
+</li>
+<li>
+<p>Type the following command to restore the state files for your Layer0, replacing <code>[prefix]</code> with the name of your Layer0 prefix:</p>
+<ul>
+<li><code>l0-setup restore [prefix]</code></li>
+</ul>
+</li>
+<li>
+<p>Type the following command to update your api image tag:</p>
+<ul>
+<li><code>l0-setup plan [prefix] -var api_docker_image_tag=[version]</code></li>
+</ul>
+</li>
+<li>
+<p>Type the following command to update your runner image tag:</p>
+<ul>
+<li><code>l0-setup plan [prefix] -var runner_version_tag=[version]</code></li>
+</ul>
+</li>
+<li>
+<p>Type the following command to apply the upgrade:</p>
+<ul>
+<li><code>l0-setup apply [prefix]</code></li>
+</ul>
+</li>
 </ol>
-<div class="admonition note">
-  <p class="admonition-title">Note</p>
-  <p>The <code>l0-setup destroy</code> operation is idempotent (that is, it has no additional effects if you execute it multiple times with the same parameters). Therefore, if the <code>destroy</code> operation fails, you may be able to make it complete by running it again. If the <code>destroy</code> operation continues to fail after running it again, please contact the Xfra team at <strong>xfra@us.imshealth.com</strong>.</p>
-</div></p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -483,7 +481,7 @@
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../upgrade/" title="Upgrade">
+        <a href="../install/" title="Install">
           <span class="direction">
             Previous
           </span>
@@ -493,7 +491,7 @@
             </div>
             <div class="stretch">
               <div class="title">
-                Upgrade
+                Install
               </div>
             </div>
           </div>
@@ -502,14 +500,14 @@
     </div>
     <div class="next">
       
-        <a href="../../guides/guestbook/" title="Guestbook">
+        <a href="../destroy/" title="Destroy">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                Guestbook
+                Destroy
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">
