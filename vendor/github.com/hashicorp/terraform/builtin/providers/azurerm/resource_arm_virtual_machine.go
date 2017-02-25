@@ -197,6 +197,12 @@ func resourceArmVirtualMachine() *schema.Resource {
 							Required: true,
 						},
 
+						"caching": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Computed: true,
+						},
+
 						"disk_size_gb": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -289,9 +295,10 @@ func resourceArmVirtualMachine() *schema.Resource {
 						},
 
 						"custom_data": {
-							Type:     schema.TypeString,
-							Optional: true,
-							Computed: true,
+							Type:      schema.TypeString,
+							Optional:  true,
+							Computed:  true,
+							StateFunc: userDataStateFunc,
 						},
 					},
 				},
@@ -864,6 +871,7 @@ func flattenAzureRmVirtualMachineDataDisk(disks *[]compute.DataDisk) interface{}
 		l["name"] = *disk.Name
 		l["vhd_uri"] = *disk.Vhd.URI
 		l["create_option"] = disk.CreateOption
+		l["caching"] = string(disk.Caching)
 		if disk.DiskSizeGB != nil {
 			l["disk_size_gb"] = *disk.DiskSizeGB
 		}
@@ -1032,6 +1040,7 @@ func expandAzureRmVirtualMachineOsProfile(d *schema.ResourceData) (*compute.OSPr
 	}
 
 	if v := osProfile["custom_data"].(string); v != "" {
+		v = base64Encode(v)
 		profile.CustomData = &v
 	}
 
@@ -1106,8 +1115,10 @@ func expandAzureRmVirtualMachineOsProfileLinuxConfig(d *schema.ResourceData) (*c
 		sshPublicKeys = append(sshPublicKeys, sshPublicKey)
 	}
 
-	config.SSH = &compute.SSHConfiguration{
-		PublicKeys: &sshPublicKeys,
+	if len(sshPublicKeys) > 0 {
+		config.SSH = &compute.SSHConfiguration{
+			PublicKeys: &sshPublicKeys,
+		}
 	}
 
 	return config, nil
@@ -1195,6 +1206,10 @@ func expandAzureRmVirtualMachineDataDisk(d *schema.ResourceData) ([]compute.Data
 			},
 			Lun:          &lun,
 			CreateOption: compute.DiskCreateOptionTypes(createOption),
+		}
+
+		if v := config["caching"].(string); v != "" {
+			data_disk.Caching = compute.CachingTypes(v)
 		}
 
 		if v := config["disk_size_gb"]; v != nil {

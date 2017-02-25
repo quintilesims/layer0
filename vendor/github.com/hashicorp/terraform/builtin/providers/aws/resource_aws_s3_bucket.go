@@ -36,6 +36,11 @@ func resourceAwsS3Bucket() *schema.Resource {
 				ForceNew: true,
 			},
 
+			"bucket_domain_name": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
+
 			"arn": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -445,7 +450,7 @@ func resourceAwsS3BucketCreate(d *schema.ResourceData, meta interface{}) error {
 func resourceAwsS3BucketUpdate(d *schema.ResourceData, meta interface{}) error {
 	s3conn := meta.(*AWSClient).s3conn
 	if err := setTagsS3(s3conn, d); err != nil {
-		return err
+		return fmt.Errorf("%q: %s", d.Get("bucket").(string), err)
 	}
 
 	if d.HasChange("policy") {
@@ -533,6 +538,8 @@ func resourceAwsS3BucketRead(d *schema.ResourceData, meta interface{}) error {
 	if _, ok := d.GetOk("bucket"); !ok {
 		d.Set("bucket", d.Id())
 	}
+
+	d.Set("bucket_domain_name", bucketDomainName(d.Get("bucket").(string)))
 
 	// Read the policy
 	if _, ok := d.GetOk("policy"); ok {
@@ -905,7 +912,7 @@ func resourceAwsS3BucketRead(d *schema.ResourceData, meta interface{}) error {
 		return err
 	}
 
-	d.Set("arn", fmt.Sprint("arn:aws:s3:::", d.Id()))
+	d.Set("arn", fmt.Sprintf("arn:%s:s3:::%s", meta.(*AWSClient).partition, d.Id()))
 
 	return nil
 }
@@ -973,7 +980,7 @@ func resourceAwsS3BucketDelete(d *schema.ResourceData, meta interface{}) error {
 				return resourceAwsS3BucketDelete(d, meta)
 			}
 		}
-		return fmt.Errorf("Error deleting S3 Bucket: %s", err)
+		return fmt.Errorf("Error deleting S3 Bucket: %s %q", err, d.Get("bucket").(string))
 	}
 	return nil
 }
@@ -1205,6 +1212,10 @@ func websiteEndpoint(s3conn *s3.S3, d *schema.ResourceData) (*S3Website, error) 
 	}
 
 	return WebsiteEndpoint(bucket, region), nil
+}
+
+func bucketDomainName(bucket string) string {
+	return fmt.Sprintf("%s.s3.amazonaws.com", bucket)
 }
 
 func WebsiteEndpoint(bucket string, region string) *S3Website {

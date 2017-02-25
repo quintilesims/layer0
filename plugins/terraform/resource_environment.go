@@ -49,7 +49,7 @@ func resourceLayer0Environment() *schema.Resource {
 }
 
 func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 
 	name := d.Get("name").(string)
 	size := d.Get("size").(string)
@@ -66,7 +66,7 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 	environmentID := d.Id()
 
 	environment, err := client.GetEnvironment(environmentID)
@@ -89,7 +89,7 @@ func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceLayer0EnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 	environmentID := d.Id()
 
 	if d.HasChange("min_count") {
@@ -104,7 +104,7 @@ func resourceLayer0EnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceLayer0EnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 	environmentID := d.Id()
 
 	jobID, err := client.DeleteEnvironment(environmentID)
