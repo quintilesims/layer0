@@ -16,31 +16,31 @@ func resourceLayer0Service() *schema.Resource {
 		Delete: resourceLayer0ServiceDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"environment": &schema.Schema{
+			"environment": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"deploy": &schema.Schema{
+			"deploy": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"load_balancer": &schema.Schema{
+			"load_balancer": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"scale": &schema.Schema{
+			"scale": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  1,
 			},
-			"wait": &schema.Schema{
+			"wait": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
@@ -49,7 +49,7 @@ func resourceLayer0Service() *schema.Resource {
 }
 
 func resourceLayer0ServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 
 	environmentID := d.Get("environment").(string)
 	name := d.Get("name").(string)
@@ -82,7 +82,7 @@ func resourceLayer0ServiceCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceLayer0ServiceRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 	serviceID := d.Id()
 
 	service, err := client.GetService(serviceID)
@@ -111,7 +111,7 @@ func resourceLayer0ServiceRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceLayer0ServiceUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 	serviceID := d.Id()
 	wait := d.Get("wait").(bool)
 
@@ -149,7 +149,7 @@ func resourceLayer0ServiceUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceLayer0ServiceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 	serviceID := d.Id()
 
 	jobID, err := client.DeleteService(serviceID)
