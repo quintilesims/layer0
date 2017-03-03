@@ -143,7 +143,7 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.8.4</strong>
+        <strong>Layer0 v0.9.0</strong>
         
           <br>
           quintilesims/layer0
@@ -462,12 +462,12 @@
 <p>This guide expands upon the <a href="../../guides/guestbook">Guestbook deployment guide</a> deployment guide. You must complete the procedures in that guide before you can complete the procedures listed here. After completing the procedures in the Guestbook guide, your Layer0 should contain a service named "guestbooksvc", running a deploy named "guestbook", behind a load balancer named "guestbooklb", all within an environment named "demo".</p>
 <h2 id="part-1-prepare-the-task-definition">Part 1: Prepare the task definition<a class="headerlink" href="#part-1-prepare-the-task-definition" title="Permanent link">#</a></h2>
 <ol>
-<li>Download the <a href="https://github.com/quintilesims/layer0-samples/blob/master/1offtask/Dockerrun.aws.json">Guestbook One-off Task Definition</a> and save it to your computer as <strong>GuestbookRestore.Dockerrun.aws.json</strong>.</li>
+<li>Download the <a href="https://github.com/quintilesims/layer0-examples/blob/master/1offtask/Dockerrun.aws.json">Guestbook One-off Task Definition</a> and save it to your computer as <strong>GuestbookRestore.Dockerrun.aws.json</strong>.</li>
 <li>Edit the <code>GUESTBOOK_URL</code> environment variable for the <code>l0-guestbook-restore</code> container to the url of the loadbalancer running your guestbook application. This url can be obtained by looking at the output of the command</li>
 </ol>
 <p><span style="padding-left:2em"><strong>l0 loadbalancer get guestbooklb</strong></span></p>
 <ol>
-<li>Edit the <code>BACKUP_FILE_URL</code> environment variable for the <code>l0-guestbook-restore</code> container to the url of the backup file that you wish to restore from. A sample backup file is provided at <a href="https://github.com/quintilesims/layer0-samples/raw/master/1offtask/backup.txt">https://github.com/quintilesims/layer0-samples/raw/master/1offtask/backup.txt</a>.</li>
+<li>Edit the <code>BACKUP_FILE_URL</code> environment variable for the <code>l0-guestbook-restore</code> container to the url of the backup file that you wish to restore from. A sample backup file is provided at <a href="https://github.com/quintilesims/layer0-examples/raw/master/1offtask/backup.txt">https://github.com/quintilesims/layer0-examples/raw/master/1offtask/backup.txt</a>.</li>
 </ol>
 <h2 id="part-2-create-a-deploy">Part 2: Create a deploy<a class="headerlink" href="#part-2-create-a-deploy" title="Permanent link">#</a></h2>
 <p>Next, you will create a new deploy for the task.</p>
