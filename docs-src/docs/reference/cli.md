@@ -485,13 +485,13 @@ Use the **create** subcommand to create a new load balancer.
       --healthcheck-target _target_
     </div>
     <div class="divCell">
-      <p>The target of the check. Valid pattern is `PROTOCOL:PORT/PATH`, where PROTOCOL values are:
+      <p>The target of the check. Valid pattern is `PROTOCOL:PORT/PATH` _(default: `"TCP:80"`)_
       <br />
-      `HTTP` or `HTTPS`: both PORT and PATH are required
+      If PROTOCOL is `HTTP` or `HTTPS`, both PORT and PATH are required
       <br />
       - _example: `HTTP:80/admin/healthcheck`_
       <br />
-      `TCP` or `SSL`: PORT is required, PATH is not supported
+      If PROTOCOL is `TCP` or `SSL`, PORT is required and PATH is not supported
       <br />
       - _example: `TCP:80`_</p>
     </div>
@@ -501,7 +501,7 @@ Use the **create** subcommand to create a new load balancer.
       --healthcheck-interval _interval_
     </div>
     <div class="divCell">
-      <p>The interval between checks.</p>
+      <p>The interval between checks _(default: `30`)_.</p>
     </div>
   </div>
   <div class="divRow">
@@ -509,7 +509,7 @@ Use the **create** subcommand to create a new load balancer.
       --healthcheck-timeout _timeout_
     </div>
     <div class="divCell">
-      <p>The length of time before the check times out.</p>
+      <p>The length of time before the check times out _(default: `5`)_.</p>
     </div>
   </div>
   <div class="divRow">
@@ -517,7 +517,7 @@ Use the **create** subcommand to create a new load balancer.
       --healthcheck-healthy-threshold _healthyThreshold_
     </div>
     <div class="divCell">
-      <p>The number of checks before the instance is declared healthy.</p>
+      <p>The number of checks before the instance is declared healthy _(default: `2`)_.</p>
     </div>
   </div>
   <div class="divRow">
@@ -525,7 +525,7 @@ Use the **create** subcommand to create a new load balancer.
       --healthcheck-unhealthy-threshold _unhealthyThreshold_
     </div>
     <div class="divCell">
-      <p>The number of checks before the instance is declared unhealthy.</p>
+      <p>The number of checks before the instance is declared unhealthy _(default: `2`)_.</p>
     </div>
   </div>
 </div>

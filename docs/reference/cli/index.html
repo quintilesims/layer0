@@ -885,13 +885,13 @@ The <strong>job</strong> command is used with the following subcommands: <a href
       --healthcheck-target <em>target</em>
     </div>
     <div class="divCell">
-      <p>The target of the check. Valid pattern is <code>PROTOCOL:PORT/PATH</code>, where PROTOCOL values are:
+      <p>The target of the check. Valid pattern is <code>PROTOCOL:PORT/PATH</code> <em>(default: <code>"TCP:80"</code>)</em>
       <br />
-      <code>HTTP</code> or <code>HTTPS</code>: both PORT and PATH are required
+      If PROTOCOL is <code>HTTP</code> or <code>HTTPS</code>, both PORT and PATH are required
       <br />
       - <em>example: <code>HTTP:80/admin/healthcheck</code></em>
       <br />
-      <code>TCP</code> or <code>SSL</code>: PORT is required, PATH is not supported
+      If PROTOCOL is <code>TCP</code> or <code>SSL</code>, PORT is required and PATH is not supported
       <br />
       - <em>example: <code>TCP:80</code></em></p>
     </div>
@@ -901,7 +901,7 @@ The <strong>job</strong> command is used with the following subcommands: <a href
       --healthcheck-interval <em>interval</em>
     </div>
     <div class="divCell">
-      <p>The interval between checks.</p>
+      <p>The interval between checks <em>(default: <code>30</code>)</em>.</p>
     </div>
   </div>
   <div class="divRow">
@@ -909,7 +909,7 @@ The <strong>job</strong> command is used with the following subcommands: <a href
       --healthcheck-timeout <em>timeout</em>
     </div>
     <div class="divCell">
-      <p>The length of time before the check times out.</p>
+      <p>The length of time before the check times out <em>(default: <code>5</code>)</em>.</p>
     </div>
   </div>
   <div class="divRow">
@@ -917,7 +917,7 @@ The <strong>job</strong> command is used with the following subcommands: <a href
       --healthcheck-healthy-threshold <em>healthyThreshold</em>
     </div>
     <div class="divCell">
-      <p>The number of checks before the instance is declared healthy.</p>
+      <p>The number of checks before the instance is declared healthy <em>(default: <code>2</code>)</em>.</p>
     </div>
   </div>
   <div class="divRow">
@@ -925,7 +925,7 @@ The <strong>job</strong> command is used with the following subcommands: <a href
       --healthcheck-unhealthy-threshold <em>unhealthyThreshold</em>
     </div>
     <div class="divCell">
-      <p>The number of checks before the instance is declared unhealthy.</p>
+      <p>The number of checks before the instance is declared unhealthy <em>(default: <code>2</code>)</em>.</p>
     </div>
   </div>
 </div></p>
