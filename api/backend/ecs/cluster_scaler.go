@@ -259,7 +259,7 @@ func (this *ECSClusterScaler) calculateTaskResources(ecsDeployID id.ECSDeployID)
 			memory = *container.MemoryReservation
 		}
 
-		// override if container.Memory is specified because that is a hard limit 
+		// override if container.Memory is specified because that is a hard limit
 		if container.Memory != nil {
 			memory = *container.Memory
 		}

@@ -236,20 +236,14 @@
             </li>
           
             <li class="anchor">
-              <a title="(Optional) Part 3: Configure the dockercfg file to use a private Docker registry" href="#optional-part-3-configure-the-dockercfg-file-to-use-a-private-docker-registry">
-                (Optional) Part 3: Configure the dockercfg file to use a private Docker registry
+              <a title="Part 3: Configure your Layer0" href="#part-3-configure-your-layer0">
+                Part 3: Configure your Layer0
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Part 4: Configure your Layer0" href="#part-4-configure-your-layer0">
-                Part 4: Configure your Layer0
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Part 5: Configure the environment variables" href="#part-5-configure-the-environment-variables">
-                Part 5: Configure the environment variables
+              <a title="Part 4: Configure the environment variables" href="#part-4-configure-the-environment-variables">
+                Part 4: Configure the environment variables
               </a>
             </li>
           
@@ -267,7 +261,7 @@
       
         
   <li>
-    <a class="" title="Upgrade" href="../update/">
+    <a class="" title="Upgrade" href="../upgrade/">
       Upgrade
     </a>
     
@@ -511,33 +505,31 @@
 <p>Select the group <strong>Administrators</strong> and click <strong>Add to Groups</strong>. This will make your newly created user an administrator for your AWS account, so be sure to keep your security credentials safe!</p>
 </li>
 </ol>
-<h2 id="optional-part-3-configure-the-dockercfg-file-to-use-a-private-docker-registry">(Optional) Part 3: Configure the dockercfg file to use a private Docker registry<a class="headerlink" href="#optional-part-3-configure-the-dockercfg-file-to-use-a-private-docker-registry" title="Permanent link">#</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Note<p>The procedures in this section are optional, but are highly recommended for production use.</p>
-</p>
-</div>
-<p>Before you create your Layer0, if you require private registry authentication, you need to create a file named <code>dockercfg</code> your layer0 instance directory, located at <code>~/layer0/instances/&lt;prefix&gt;/dockercfg</code>.
-If you do not add this file prior to running <code>l0-setup apply</code>, you will be prompted to continue.</p>
-<p>To add private registry authentication, add the file <code>~/layer0/instances/&lt;prefix&gt;/dockercfg</code> with the authentication information for your private registry.
-The format should be similar to:
-<pre class="code"><code>{
-  "https://index.docker.io/v1/": {
-    "username": "my_name",
-    "password": "my_password",
-    "email": "email@example.com"
-  }
-}</code></pre></p>
-<p>After you run the <code>l0-setup apply</code> command on your Layer0, the <code>dockercfg</code> file (along with other configuration files) for your layer0 will be stored in <code>~/layer0/instances/&lt;prefix&gt;/</code>.
-You can modify this file and re-run <code>l0-setup apply</code> to make changes to your authentication. 
-Note that any EC2 instances created prior to changing your <code>dockercfg</code> file will need to be manually terminated since they only grab the <code>dockercfg</code> authentication file once during instance creation. 
-Terminated EC2 instances will be automatically re-created by autoscaling. </p>
-<h2 id="part-4-configure-your-layer0">Part 4: Configure your Layer0<a class="headerlink" href="#part-4-configure-your-layer0" title="Permanent link">#</a></h2>
+<h2 id="part-3-configure-your-layer0">Part 3: Configure your Layer0<a class="headerlink" href="#part-3-configure-your-layer0" title="Permanent link">#</a></h2>
 <p>Now that you have downloaded Layer0 and configured your AWS instance, you can create your Layer0.</p>
 <p><strong>To configure Layer0:</strong></p>
 <ol>
-<li>At the command prompt, navigate to the <strong>l0-setup</strong> subdirectory in the folder in which you extracted the Layer0 files.</li>
-<li>Type the following command, replacing <code>[prefix]</code> with a unique name for your Layer0: <code>l0-setup apply [prefix]</code></li>
-<li>When prompted, enter the following information:<ul>
+<li>
+<p>At the command prompt, navigate to the <strong>l0-setup</strong> subdirectory in the folder in which you extracted the Layer0 files.</p>
+</li>
+<li>
+<p>Type the following command, replacing <code>[prefix]</code> with a unique name for your Layer0: <code>l0-setup apply [prefix]</code> <div class="admonition note">
+<p class="admonition-title">Using a private Docker registry</p>
+<br /><br />
+<p><strong>The procedures in this section are optional, but are highly recommended for production use.</strong></p>
+<br /><br />
+<p>If you require authentication to a private Docker registry, you will need to populate a file named <code>dockercfg</code> inside your Layer0 instance directory, located at <code>~/layer0/instances/[prefix]/dockercfg</code>. When you run <code>l0-setup</code> for the first time, use the <code>--dockercfg</code> flag, like so:</p>
+<br /><br />
+<p><code>l0-setup apply --dockercfg [path/to/config/file] [prefix]</code></p>
+<br /><br />
+<p>If you don't have a config file yet, you can generate one by running <code>docker login [registry-address]</code>. A configuration file will be generated at <code>~/.docker/config.json</code> for Docker versions 1.7 or higher, or at <code>~/.dockercfg</code> for Docker versions below 1.7.</p>
+<br /><br />
+<p>You can modify an instance's <code>dockercfg</code> file (the one located at <code>~/layer0/instances/[instance]/dockercfg</code>) and re-run <code>l0-setup apply</code> to make changes to your authentication. Note that any EC2 instances created prior to changing your <code>dockercfg</code> file will need to be manually terminated since they only grab the <code>dockercfg</code> authentication file once during instance creation. Terminated EC2 instances will be automatically re-created by autoscaling.</p>
+</div></p>
+</li>
+<li>
+<p>When prompted, enter the following information:</p>
+<ul>
 <li><strong>AWS Access Key ID</strong>: The access key ID contained in the credential file that you downloaded in step 6 of the previous section.</li>
 <li><strong>AWS Secret Access Key</strong>: The secret access key contained in the credential file that you downloaded in step 6 of the previous section.</li>
 <li><strong>Key Pair</strong>: The name of the key pair that you created in the Prerequisites section.
@@ -545,7 +537,7 @@ The first time you run the <code>apply</code> command, it may take around 15 min
 </ul>
 </li>
 </ol>
-<h2 id="part-5-configure-the-environment-variables">Part 5: Configure the environment variables<a class="headerlink" href="#part-5-configure-the-environment-variables" title="Permanent link">#</a></h2>
+<h2 id="part-4-configure-the-environment-variables">Part 4: Configure the environment variables<a class="headerlink" href="#part-4-configure-the-environment-variables" title="Permanent link">#</a></h2>
 <p>Once the <code>apply</code> command has run successfully, you can configure the Layer0 environment variables using the <code>endpoint</code> command.</p>
 <p>To view the environment variables for your Layer0 and apply them to your shell, type the following command, replacing <code>[prefix]</code> with the name of the Layer0 prefix you created in Part 3:</p>
 <ul>
@@ -557,11 +549,11 @@ The first time you run the <code>apply</code> command, it may take around 15 min
 <p class="admonition-title">Note</p>
 <p>The procedures in this section are optional, but are highly recommended for production use.</p>
 </div>
-<p>Layer0 uses a self-signed certificate to run the API. 
+<p>Layer0 uses a self-signed certificate to run the API.
 In a production setting, we recommend using a certificate from a trusted CA.</p>
 <p><strong>To use a custom certificate:</strong></p>
 <ol>
-    <li>In a text editor, open the file in your Layer0 directory named elb.tf.template. 
+    <li>In a text editor, open the file in your Layer0 directory named elb.tf.template.
 The full path will be `~/layer0/instances/<prefix>/elb.tf.template`.
 Update the following line the file:
 <pre class="code"><code>
@@ -606,7 +598,7 @@ Update the following line the file:
     </div>
     <div class="next">
       
-        <a href="../update/" title="Upgrade">
+        <a href="../upgrade/" title="Upgrade">
           <span class="direction">
             Next
           </span>

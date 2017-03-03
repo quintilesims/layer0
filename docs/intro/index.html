@@ -227,7 +227,7 @@
       
         
   <li>
-    <a class="" title="Upgrade" href="../setup/update/">
+    <a class="" title="Upgrade" href="../setup/upgrade/">
       Upgrade
     </a>
     
@@ -434,15 +434,17 @@
 <h2 id="layer0-concepts">Layer0 Concepts<a class="headerlink" href="#layer0-concepts" title="Permanent link">#</a></h2>
 <p>The following concepts are core Layer0 abstractions for the technologies and features we use <a href="../reference/architecture/">behind the scenes</a>. These terms will be used throughout our guides, so having a general understanding of them is helpful.</p>
 <h3 id="certificates">Certificates<a class="headerlink" href="#certificates" title="Permanent link">#</a></h3>
-<p>An SSL certificate obtained from a valid <a href="http://wikit.rxcorp.com/index.php/Production_Dns_Request#CSR">Certificate Authority (CA)</a>. You can use these certificates to secure your HTTPS services by applying them to your Layer0 load balancers.</p>
+<p>SSL certificates obtained from a valid <a href="https://en.wikipedia.org/wiki/Certificate_authority">Certificate Authority (CA)</a>. You can use these certificates to secure your HTTPS services by applying them to your Layer0 load balancers.</p>
 <h3 id="deploys">Deploys<a class="headerlink" href="#deploys" title="Permanent link">#</a></h3>
-<p>A <a href="http://docs.aws.amazon.com/elasticbeanstalk/latest/dg/create_deploy_docker_v2config.html">multicontainer docker configuration</a>. This configuration file details how to deploy your application. We have several <a href="https://github.com/quintilesims/layer0-samples">sample applications</a> available that show what these files look like --- they're called <code>Dockerrun.aws.json</code> within each sample app.</p>
+<p><a href="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html">ECS Task Definitions</a>. These configuration files detail how to deploy your application. We have several <a href="https://github.com/quintilesims/layer0-examples">sample applications</a> available that show what these files look like --- they're called <code>Dockerrun.aws.json</code> within each sample app.</p>
+<h3 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">#</a></h3>
+<p>Manual one-off commands that don't necessarily make sense to keep running, or to restart when they finish. These run using Amazon's <code>RunTask</code> action (more info <a href="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/scheduling_tasks.html">here</a>), and are "ideally suited for processes such as batch jobs that perform work and then stop."</p>
 <h3 id="load-balancers">Load Balancers<a class="headerlink" href="#load-balancers" title="Permanent link">#</a></h3>
-<p>A powerful tool that gives you the basic building blocks for high-availability, scaling, and HTTPS. We currently use Amazon's <a href="https://aws.amazon.com/elasticloadbalancing/">Elastic Load Balancing</a>, and it pays to understand the basics of this service when working with Layer0.</p>
+<p>Powerful tools that give you the basic building blocks for high-availability, scaling, and HTTPS. We currently use Amazon's <a href="https://aws.amazon.com/elasticloadbalancing/">Elastic Load Balancing</a>, and it pays to understand the basics of this service when working with Layer0.</p>
 <h3 id="services">Services<a class="headerlink" href="#services" title="Permanent link">#</a></h3>
-<p>Your running Layer0 application. We also use the term <code>service</code> for tools such as Consul, Logstash, and Shinken because they are Layer0 applications that we've pre-built for you.</p>
+<p>Your running Layer0 applications. We also use the term <code>service</code> for tools such as Consul, for which we provide a pre-built <a href="../guides/consul">sample implementation</a> using Layer0.</p>
 <h3 id="environments">Environments<a class="headerlink" href="#environments" title="Permanent link">#</a></h3>
-<p>A logical grouping of services. Typically, you would make a single environment for each tier of your application, such as <code>dev</code>, <code>staging</code>, and <code>prod</code>.</p>
+<p>Logical groupings of services. Typically, you would make a single environment for each tier of your application, such as <code>dev</code>, <code>staging</code>, and <code>prod</code>.</p>
           <aside class="copyright" role="note">
             
             Documentation built with

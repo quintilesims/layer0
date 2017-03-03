@@ -216,7 +216,7 @@
       
         
   <li>
-    <a class="" title="Upgrade" href="../../setup/update/">
+    <a class="" title="Upgrade" href="../../setup/upgrade/">
       Upgrade
     </a>
     
@@ -316,12 +316,6 @@
             <li class="anchor">
               <a title="Admin" href="#admin">
                 Admin
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Certificate" href="#certificate">
-                Certificate
               </a>
             </li>
           
@@ -480,7 +474,7 @@
           
           <h1 id="l0-command-line-interface-reference">l0 command-line interface reference<a class="headerlink" href="#l0-command-line-interface-reference" title="Permanent link">#</a></h1>
 <h2 id="global-options">Global options<a class="headerlink" href="#global-options" title="Permanent link">#</a></h2>
-<p>The <strong>l0</strong> application is designed to be used with one of several subcommands; these subcommands are detailed in the sections below. There are, however, some global parameters that you may specify when using <strong>l0</strong>.</p>
+<p>The <strong>l0</strong> application is designed to be used with one of several subcommands: <a href="#admin">admin</a>, <a href="#deploy">deploy</a>, <a href="#environment">environment</a>, <a href="#job">job</a>, <a href="#loadbalancer">loadbalancer</a>, <a href="#service">service</a>, and <a href="#task">task</a>. These subcommands are detailed in the sections below. There are, however, some global parameters that you may specify when using <strong>l0</strong>.</p>
 <h4 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
@@ -532,99 +526,16 @@
   </div>
 </div></p>
 <hr />
-<h2 id="certificate">Certificate<a class="headerlink" href="#certificate" title="Permanent link">#</a></h2>
-<p>In order to use HTTPS ports in a Layer0 load balancer, you must create a certificate. You can use the Layer0 <strong>certificate</strong> command to upload and manage these certificates. This command is used with the following subcommands: <a href="#certificate-create">create</a>, <a href="#certificate-delete">delete</a>, <a href="#certificate-get">get</a> and <a href="#certificate-list">list</a>.</p>
-<h3 id="certificate-create">certificate create<a class="headerlink" href="#certificate-create" title="Permanent link">#</a></h3>
-<p>Use the <strong>create</strong> subcommand to upload a certificate into Layer0. Once you have uploaded the certificate, you can use it when configuring HTTPS ports on Layer0 load balancers.</p>
-<h4 id="usage_4">Usage<a class="headerlink" href="#usage_4" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 certificate create</strong> <em>certificateName publicKeyPath privateKeyPath</em> [<em>intermediateChainPath</em> ]</div>
-  </div>
-</div></p>
-<h4 id="required-parameters">Required parameters<a class="headerlink" href="#required-parameters" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>certificateName</em></div>
-    <div class="divCell">A name for the certificate.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>publicKeyPath</em></div>
-    <div class="divCell">The path to a public key associated with the certificate.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>privateKeyPath</em></div>
-    <div class="divCell">The path to the private key associated with the public key.</div>
-  </div>
-</div></p>
-<h4 id="optional-arguments_1">Optional arguments<a class="headerlink" href="#optional-arguments_1" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>intermediateChainPath</em></div>
-    <div class="divCell">The path to an intermediate certificate authority.</div>
-  </div>
-</div></p>
-<h3 id="certificate-delete">certificate delete<a class="headerlink" href="#certificate-delete" title="Permanent link">#</a></h3>
-<p>Use the <strong>delete</strong> subcommand to delete a certificate that has already been uploaded to Layer0.</p>
-<h4 id="usage_5">Usage<a class="headerlink" href="#usage_5" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 certificate delete</strong> <em>certificateName</em></div>
-  </div>
-</div></p>
-<h4 id="required-parameters_1">Required parameters<a class="headerlink" href="#required-parameters_1" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>certificateName</em></div>
-    <div class="divCell">The name of the certificate you want to delete.</div>
-  </div>
-</div></p>
-<h4 id="additional-information_1">Additional information<a class="headerlink" href="#additional-information_1" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding">You will not be able to use the <strong>delete</strong> subcommand if a load balancer that uses that certificate is currently running.</div>
-  </div>
-</div></p>
-<h3 id="certificate-get">certificate get<a class="headerlink" href="#certificate-get" title="Permanent link">#</a></h3>
-<p>Use the <strong>get</strong> subcommand to display information about an existing certificate in Layer0.</p>
-<h4 id="usage_6">Usage<a class="headerlink" href="#usage_6" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 certificate get</strong> <em>certificateName</em></div>
-  </div>
-</div></p>
-<h4 id="required-parameters_2">Required parameters<a class="headerlink" href="#required-parameters_2" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>certificateName</em></div>
-    <div class="divCell">The name of the Layer0 certificate for which you want to view additional information.</div>
-  </div>
-</div></p>
-<h4 id="additional-information_2">Additional information<a class="headerlink" href="#additional-information_2" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding">The value of <em>certificateName</em> does not need to exactly match the name of an existing certificate. If multiple results are found that match the pattern you specified in <em>certificateName</em>, then information about all matching certificates will be returned.</div>
-  </div>
-</div></p>
-<h3 id="certificate-list">certificate list<a class="headerlink" href="#certificate-list" title="Permanent link">#</a></h3>
-<p>Use the <strong>list</strong> subcommand to list all of the certificates used in an instance of Layer0.</p>
-<h4 id="usage_7">Usage<a class="headerlink" href="#usage_7" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 certificate list</strong></div>
-  </div>
-</div></p>
-<hr />
 <h2 id="deploy">Deploy<a class="headerlink" href="#deploy" title="Permanent link">#</a></h2>
 <h3 id="deploy-create">deploy create<a class="headerlink" href="#deploy-create" title="Permanent link">#</a></h3>
-<p>Use the <strong>create</strong> subcommand to upload a Docker task definition into Layer0. This command is used with the following subcommands: <a href="#deploy-create">create</a>, <a href="#deploy-apply">apply</a>,  <a href="#deploy-delete">delete</a>, <a href="#deploy-get">get</a> and <a href="#deploy-list">list</a>.</p>
-<h4 id="usage_8">Usage<a class="headerlink" href="#usage_8" title="Permanent link">#</a></h4>
+<p>Use the <strong>create</strong> subcommand to upload a Docker task definition into Layer0. This command is used with the following subcommands: <a href="#deploy-create">create</a>, <a href="#deploy-delete">delete</a>, <a href="#deploy-get">get</a> and <a href="#deploy-list">list</a>.</p>
+<h4 id="usage_4">Usage<a class="headerlink" href="#usage_4" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 deploy create</strong> <em>dockerPath</em> <em>deployName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_3">Required parameters<a class="headerlink" href="#required-parameters_3" title="Permanent link">#</a></h4>
+<h4 id="required-parameters">Required parameters<a class="headerlink" href="#required-parameters" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>dockerPath</em></div>
@@ -635,7 +546,7 @@
     <div class="divCell">A name for the deploy.</div>
   </div>
 </div></p>
-<h4 id="additional-information_3">Additional information<a class="headerlink" href="#additional-information_3" title="Permanent link">#</a></h4>
+<h4 id="additional-information_1">Additional information<a class="headerlink" href="#additional-information_1" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding">If <em>deployName</em> exactly matches the name of an existing Layer0 deploy, then the version number of that deploy will increase by 1, and the task definition you specified will replace the task definition specified in the previous version.</div>
@@ -643,11 +554,11 @@
   <div class="divRow">
     <div class="divCellNoPadding">If you use Visual Studio to modify or create your Dockerrun file, you may see an "Invalid Dockerrun.aws.json" error. This error is caused by the default encoding used by Visual Studio. See the <a href="http://localhost:8000/troubleshooting/commonissues/#invalid-dockerrunawsjson-error-when-creating-a-deploy">"Common issues" page</a> for steps to resolve this issue.</div>
   </div>  <br />
-  <div class="divRow"> 
+  <div class="divRow">
     <div class="divCellNoPadding">
 Deploys created through Layer0 are rendered with a <code>logConfiguration</code> section for each container.
-If a <code>logConfiguration</code> section already exists, no changes are made to the section. 
-The additional section enables logs from each container to be sent to the the Layer0 log group. 
+If a <code>logConfiguration</code> section already exists, no changes are made to the section.
+The additional section enables logs from each container to be sent to the the Layer0 log group.
 This is where logs are looked up during <code>l0 &lt;entity&gt; logs</code> commands.
 The added <code>logConfiguration</code> section uses the following template:</p>
 <pre class="code"><code>&quot;logConfiguration&quot;: {
@@ -666,13 +577,13 @@ The added <code>logConfiguration</code> section uses the following template:</p>
 </div></p>
 <h3 id="deploy-delete">deploy delete<a class="headerlink" href="#deploy-delete" title="Permanent link">#</a></h3>
 <p>Use the <strong>delete</strong> subcommand to delete a version of a Layer0 deploy.</p>
-<h4 id="usage_9">Usage<a class="headerlink" href="#usage_9" title="Permanent link">#</a></h4>
+<h4 id="usage_5">Usage<a class="headerlink" href="#usage_5" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 deploy delete</strong> <em>deployID</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_4">Required parameters<a class="headerlink" href="#required-parameters_4" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_1">Required parameters<a class="headerlink" href="#required-parameters_1" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>deployID</em></div>
@@ -681,28 +592,28 @@ The added <code>logConfiguration</code> section uses the following template:</p>
 </div></p>
 <h3 id="deploy-get">deploy get<a class="headerlink" href="#deploy-get" title="Permanent link">#</a></h3>
 <p>Use the <strong>get</strong> subcommand to view information about an existing Layer0 deploy.</p>
-<h4 id="usage_10">Usage<a class="headerlink" href="#usage_10" title="Permanent link">#</a></h4>
+<h4 id="usage_6">Usage<a class="headerlink" href="#usage_6" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 deploy get</strong> <em>deployName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_5">Required parameters<a class="headerlink" href="#required-parameters_5" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_2">Required parameters<a class="headerlink" href="#required-parameters_2" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>deployName</em></div>
     <div class="divCell">The name of the Layer0 deploy for which you want to view additional information.</div>
   </div>
 </div></p>
-<h4 id="additional-information_4">Additional information<a class="headerlink" href="#additional-information_4" title="Permanent link">#</a></h4>
+<h4 id="additional-information_2">Additional information<a class="headerlink" href="#additional-information_2" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">The value of <em>deployName</em> does not need to exactly match the name of an existing deploy. If multiple results are found that match the pattern you specified in <em>deployName</em>, then information about all matching deploys will be returned.</div>
+    <div class="divCellNoPadding">The <strong>get</strong> subcommand supports wildcard matching: <code>l0 deploy get dep*</code> would return all deploys beginning with <code>dep</code>.</div>
   </div>
 </div></p>
 <h3 id="deploy-list">deploy list<a class="headerlink" href="#deploy-list" title="Permanent link">#</a></h3>
 <p>Use the <strong>list</strong> subcommand to view a list of deploys in your instance of Layer0.</p>
-<h4 id="usage_11">Usage<a class="headerlink" href="#usage_11" title="Permanent link">#</a></h4>
+<h4 id="usage_7">Usage<a class="headerlink" href="#usage_7" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 deploy list</strong></div>
@@ -714,20 +625,20 @@ The added <code>logConfiguration</code> section uses the following template:</p>
 The <strong>environment</strong> command is used to manage Layer0 environments. This command is used with the following subcommands: <a href="#environment-create">create</a>, <a href="#environment-delete">delete</a>, <a href="#environment-get">get</a>, <a href="#environment-list">list</a>, and <a href="#environment-setmincount">setmincount</a>.</p>
 <h3 id="environment-create">environment create<a class="headerlink" href="#environment-create" title="Permanent link">#</a></h3>
 <p>Use the <strong>create</strong> subcommand to create an additional Layer0 environment (<em>environmentName</em>).</p>
-<h4 id="usage_12">Usage<a class="headerlink" href="#usage_12" title="Permanent link">#</a></h4>
+<h4 id="usage_8">Usage<a class="headerlink" href="#usage_8" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 environment create</strong> [--size] [--min-count] [--user-data] <em>environmentName</em> </div>
   </div>
 </div></p>
-<h4 id="required-parameters_6">Required parameters<a class="headerlink" href="#required-parameters_6" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_3">Required parameters<a class="headerlink" href="#required-parameters_3" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
     <div class="divCell">A name for the environment.</div>
   </div>
 </div></p>
-<h4 id="optional-arguments_2">Optional arguments<a class="headerlink" href="#optional-arguments_2" title="Permanent link">#</a></h4>
+<h4 id="optional-arguments_1">Optional arguments<a class="headerlink" href="#optional-arguments_1" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap">--size</div>
@@ -742,11 +653,11 @@ The <strong>environment</strong> command is used to manage Layer0 environments. 
     <div class="divCell">The user data template to use for the environment's autoscaling group.</div>
   </div>
 </div></p>
-<p>The user data template can be used to add custom configuration to your Layer0 environment. 
-Layer0 uses <a href="https://golang.org/pkg/text/template">Go Templates</a> to render user data. 
+<p>The user data template can be used to add custom configuration to your Layer0 environment.
+Layer0 uses <a href="https://golang.org/pkg/text/template">Go Templates</a> to render user data.
 Currently, two variables are passed into the template: <strong>ECSEnvironmentID</strong> and <strong>S3Bucket</strong>.
 Please review the <a href="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html">ECS Tutorial</a>
-to better understand how to write a user data template, and use at your own risk! 
+to better understand how to write a user data template, and use at your own risk!
 The default Layer0 user data template is:</p>
 <pre class="code"><code class="language-bash linenums">#!/bin/bash
 echo ECS_CLUSTER={{ .ECSEnvironmentID }} &gt;&gt; /etc/ecs/ecs.config
@@ -761,27 +672,27 @@ start ecs</code></pre>
 
 <h3 id="environment-delete">environment delete<a class="headerlink" href="#environment-delete" title="Permanent link">#</a></h3>
 <p>Use the <strong>delete</strong> subcommand to delete an existing Layer0 environment.</p>
-<h4 id="usage_13">Usage<a class="headerlink" href="#usage_13" title="Permanent link">#</a></h4>
+<h4 id="usage_9">Usage<a class="headerlink" href="#usage_9" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 environment delete</strong> [--wait] <em>environmentName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_7">Required parameters<a class="headerlink" href="#required-parameters_7" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_4">Required parameters<a class="headerlink" href="#required-parameters_4" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
     <div class="divCell">The name of the Layer0 environment that you want to delete.</div>
   </div>
 </div></p>
-<h4 id="optional-arguments_3">Optional arguments<a class="headerlink" href="#optional-arguments_3" title="Permanent link">#</a></h4>
+<h4 id="optional-arguments_2">Optional arguments<a class="headerlink" href="#optional-arguments_2" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap">--wait</div>
     <div class="divCell">Wait until the deletion is complete before exiting.</div>
   </div>
 </div></p>
-<h4 id="additional-information_5">Additional information<a class="headerlink" href="#additional-information_5" title="Permanent link">#</a></h4>
+<h4 id="additional-information_3">Additional information<a class="headerlink" href="#additional-information_3" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding">This operation performs several tasks asynchronously. When run without the <em>--wait</em> option, this operation will most likely exit before all of these tasks are complete; when run with the <em>--wait</em> option, this operation will only exit once these tasks have completed.</div>
@@ -789,28 +700,28 @@ start ecs</code></pre>
 </div></p>
 <h3 id="environment-get">environment get<a class="headerlink" href="#environment-get" title="Permanent link">#</a></h3>
 <p>Use the <strong>get</strong> subcommand to display information about an existing Layer0 environment.</p>
-<h4 id="usage_14">Usage<a class="headerlink" href="#usage_14" title="Permanent link">#</a></h4>
+<h4 id="usage_10">Usage<a class="headerlink" href="#usage_10" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 environment get</strong> <em>environmentName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_8">Required parameters<a class="headerlink" href="#required-parameters_8" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_5">Required parameters<a class="headerlink" href="#required-parameters_5" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
     <div class="divCell">The name of the Layer0 environment for which you want to view additional information.</div>
   </div>
 </div></p>
-<h4 id="additional-information_6">Additional information<a class="headerlink" href="#additional-information_6" title="Permanent link">#</a></h4>
+<h4 id="additional-information_4">Additional information<a class="headerlink" href="#additional-information_4" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">The value of <em>environmentName</em> does not need to exactly match the name of an existing environment. If multiple results are found that match the pattern you specified in <em>environmentName</em>, then information about all matching environments will be returned.</div>
+    <div class="divCellNoPadding">The <strong>get</strong> subcommand supports wildcard matching: <code>l0 environment get test*</code> would return all environments beginning with <code>test</code>.</div>
   </div>
 </div></p>
 <h3 id="environment-list">environment list<a class="headerlink" href="#environment-list" title="Permanent link">#</a></h3>
 <p>Use the <strong>list</strong> subcommand to display a list of environments in your instance of Layer0.</p>
-<h4 id="usage_15">Usage<a class="headerlink" href="#usage_15" title="Permanent link">#</a></h4>
+<h4 id="usage_11">Usage<a class="headerlink" href="#usage_11" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 environment list</strong></div>
@@ -818,13 +729,13 @@ start ecs</code></pre>
 </div></p>
 <h3 id="environment-setmincount">environment setmincount<a class="headerlink" href="#environment-setmincount" title="Permanent link">#</a></h3>
 <p>Use the <strong>setmincount</strong> subcommand to set the minimum number of EC2 instances allowed the environment's autoscaling group.</p>
-<h4 id="usage_16">Usage<a class="headerlink" href="#usage_16" title="Permanent link">#</a></h4>
+<h4 id="usage_12">Usage<a class="headerlink" href="#usage_12" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 enviroment setmincount</strong> <em>environmentName</em> <em>count</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_9">Required parameters<a class="headerlink" href="#required-parameters_9" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_6">Required parameters<a class="headerlink" href="#required-parameters_6" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
@@ -838,17 +749,17 @@ start ecs</code></pre>
 <hr />
 <h2 id="job">Job<a class="headerlink" href="#job" title="Permanent link">#</a></h2>
 <p>A Job is a long-running unit of work performed on behalf of the Layer0 API.
-Jobs are executed as Layer0 tasks that run in the <strong>api</strong> Environment. 
+Jobs are executed as Layer0 tasks that run in the <strong>api</strong> Environment.
 The <strong>job</strong> command is used with the following subcommands: <a href="#job-logs">logs</a>, <a href="#job-delete">delete</a>, <a href="#job-get">get</a>, and <a href="#job-list">list</a>.</p>
 <h3 id="job-logs">job logs<a class="headerlink" href="#job-logs" title="Permanent link">#</a></h3>
 <p>Use the <strong>logs</strong> subcommand to display the logs from a Layer0 job that is currently running.</p>
-<h4 id="usage_17">Usage<a class="headerlink" href="#usage_17" title="Permanent link">#</a></h4>
+<h4 id="usage_13">Usage<a class="headerlink" href="#usage_13" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 job logs</strong> [--tail=<em>N</em> ] <em>jobName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_10">Required parameters<a class="headerlink" href="#required-parameters_10" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_7">Required parameters<a class="headerlink" href="#required-parameters_7" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>jobName</em></div>
@@ -857,20 +768,20 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 </div></p>
 <h3 id="job-logs_1">job logs<a class="headerlink" href="#job-logs_1" title="Permanent link">#</a></h3>
 <p>Use the <strong>logs</strong> subcommand to display the logs from a Layer0 job that is currently running.</p>
-<h4 id="usage_18">Usage<a class="headerlink" href="#usage_18" title="Permanent link">#</a></h4>
+<h4 id="usage_14">Usage<a class="headerlink" href="#usage_14" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 job logs</strong> [--tail=<em>N</em> ] <em>jobName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_11">Required parameters<a class="headerlink" href="#required-parameters_11" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_8">Required parameters<a class="headerlink" href="#required-parameters_8" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>jobName</em></div>
     <div class="divCell">The name of the Layer0 job for which you want to view logs.</div>
   </div>
 </div></p>
-<h4 id="optional-arguments_4">Optional arguments<a class="headerlink" href="#optional-arguments_4" title="Permanent link">#</a></h4>
+<h4 id="optional-arguments_3">Optional arguments<a class="headerlink" href="#optional-arguments_3" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap">--tail=<em>N</em></div>
@@ -879,13 +790,13 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 </div></p>
 <h3 id="job-delete">job delete<a class="headerlink" href="#job-delete" title="Permanent link">#</a></h3>
 <p>Use the <strong>delete</strong> subcommand to delete an existing job.</p>
-<h4 id="usage_19">Usage<a class="headerlink" href="#usage_19" title="Permanent link">#</a></h4>
+<h4 id="usage_15">Usage<a class="headerlink" href="#usage_15" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 job delete</strong> <em>jobName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_12">Required parameters<a class="headerlink" href="#required-parameters_12" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_9">Required parameters<a class="headerlink" href="#required-parameters_9" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>jobName</em></div>
@@ -894,28 +805,28 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 </div></p>
 <h3 id="job-get">job get<a class="headerlink" href="#job-get" title="Permanent link">#</a></h3>
 <p>Use the <strong>get</strong> subcommand to display information about an existing Layer0 job.</p>
-<h4 id="usage_20">Usage<a class="headerlink" href="#usage_20" title="Permanent link">#</a></h4>
+<h4 id="usage_16">Usage<a class="headerlink" href="#usage_16" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 job get</strong> <em>jobName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_13">Required parameters<a class="headerlink" href="#required-parameters_13" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_10">Required parameters<a class="headerlink" href="#required-parameters_10" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>jobName</em></div>
     <div class="divCell">The name of an existing Layer0 job.</div>
   </div>
 </div></p>
-<h4 id="additional-information_7">Additional information<a class="headerlink" href="#additional-information_7" title="Permanent link">#</a></h4>
+<h4 id="additional-information_5">Additional information<a class="headerlink" href="#additional-information_5" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">The value of <em>jobName</em> does not need to exactly match the name of an existing job. If multiple results are found that match the pattern you specified in <em>jobName</em>, then information about all matching jobs will be returned.</div>
+    <div class="divCellNoPadding">The <strong>get</strong> subcommand supports wildcard matching: <code>l0 job get 2a55*</code> would return all jobs beginning with <code>2a55</code>.</div>
   </div>
 </div></p>
 <h3 id="job-list">job list<a class="headerlink" href="#job-list" title="Permanent link">#</a></h3>
 <p>Use the <strong>list</strong> subcommand to display information about all of the existing jobs in an instance of Layer0.</p>
-<h4 id="usage_21">Usage<a class="headerlink" href="#usage_21" title="Permanent link">#</a></h4>
+<h4 id="usage_17">Usage<a class="headerlink" href="#usage_17" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 job list</strong></div>
@@ -923,16 +834,16 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 </div></p>
 <hr />
 <h2 id="loadbalancer">Loadbalancer<a class="headerlink" href="#loadbalancer" title="Permanent link">#</a></h2>
-<p>A load balancer is a component of a Layer0 environment. Load balancers listen for traffic on certain ports, and then forward that traffic to Layer0 <a href="#service">services</a>. The <strong>loadbalancer</strong> command is used with the following subcommands: <a href="#loadbalancer-create">create</a>, <a href="#loadbalancer-delete">delete</a>, <a href="#loadbalancer-addport">addport</a>, <a href="#loadbalancer-dropport">dropport</a>, <a href="#loadbalancer-get">get</a>, and <a href="#loadbalancer-list">list</a>.</p>
+<p>A load balancer is a component of a Layer0 environment. Load balancers listen for traffic on certain ports, and then forward that traffic to Layer0 <a href="#service">services</a>. The <strong>loadbalancer</strong> command is used with the following subcommands: <a href="#loadbalancer-create">create</a>, <a href="#loadbalancer-delete">delete</a>, <a href="#loadbalancer-addport">addport</a>, <a href="#loadbalancer-dropport">dropport</a>, <a href="#loadbalancer-get">get</a>, <a href="#loadbalancer-list">list</a>, and <a href="#loadbalancer-healthcheck">healthcheck</a>.</p>
 <h3 id="loadbalancer-create">loadbalancer create<a class="headerlink" href="#loadbalancer-create" title="Permanent link">#</a></h3>
 <p>Use the <strong>create</strong> subcommand to create a new load balancer.</p>
-<h4 id="usage_22">Usage<a class="headerlink" href="#usage_22" title="Permanent link">#</a></h4>
+<h4 id="usage_18">Usage<a class="headerlink" href="#usage_18" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 loadbalancer create</strong> [--port <em>port</em> --port <em>port</em> ...] [--certificate <em>certificateName</em>] [--private] <em>environmentName loadBalancerName</em></div>
+    <div class="divCellNoPadding"><strong>l0 loadbalancer create</strong> [--port <em>port</em> --port <em>port</em> ...] [--certificate <em>certificateName</em>] [--private] [healthcheck-flags]<em>environmentName loadBalancerName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_14">Required parameters<a class="headerlink" href="#required-parameters_14" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_11">Required parameters<a class="headerlink" href="#required-parameters_11" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
@@ -943,44 +854,104 @@ The <strong>job</strong> command is used with the following subcommands: <a href
     <div class="divCell">A name for the load balancer.</div>
   </div>
 </div></p>
-<h4 id="optional-arguments_5">Optional arguments<a class="headerlink" href="#optional-arguments_5" title="Permanent link">#</a></h4>
+<h4 id="optional-arguments_4">Optional arguments<a class="headerlink" href="#optional-arguments_4" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">--port <em>hostPort:containerPort/protocol</em></div>
-    <div class="divCell">The port configuration for the load balancer. <em>hostPort</em> is the port on which the load balancer will listen for traffic; <em>containerPort</em> is the port that traffic will be forwarded to. You can specify multiple ports using <em>--port xxx --port yyy</em>. If this option is not specified, Layer0 will use the following configuration: 80:80/tcp</div>
+    <div class="divCellNoWrap">
+      --port <em>hostPort:containerPort/protocol</em>
+    </div>
+    <div class="divCell">
+      <p>The port configuration for the load balancer. <em>hostPort</em> is the port on which the load balancer will listen for traffic; <em>containerPort</em> is the port that traffic will be forwarded to. You can specify multiple ports using <em>--port xxx --port yyy</em>. If this option is not specified, Layer0 will use the following configuration: 80:80/tcp</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">--certificate <em>certificateName</em></div>
-    <div class="divCell">The name of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.</div>
+    <div class="divCellNoWrap">
+      --certificate <em>certificateName</em>
+    </div>
+    <div class="divCell">
+      <p>The name of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.</p>
+    </div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">--private</div>
-    <div class="divCell">When you use this option, the load balancer will only be accessible from within the Layer0 environment.</div>
+    <div class="divCellNoWrap">
+      --private
+    </div>
+    <div class="divCell">
+      <p>When you use this option, the load balancer will only be accessible from within the Layer0 environment.</p>
+    </div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">
+      --healthcheck-target <em>target</em>
+    </div>
+    <div class="divCell">
+      <p>The target of the check. Valid pattern is <code>PROTOCOL:PORT/PATH</code> <em>(default: <code>"TCP:80"</code>)</em>
+      <br />
+      If PROTOCOL is <code>HTTP</code> or <code>HTTPS</code>, both PORT and PATH are required
+      <br />
+      - <em>example: <code>HTTP:80/admin/healthcheck</code></em>
+      <br />
+      If PROTOCOL is <code>TCP</code> or <code>SSL</code>, PORT is required and PATH is not supported
+      <br />
+      - <em>example: <code>TCP:80</code></em></p>
+    </div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">
+      --healthcheck-interval <em>interval</em>
+    </div>
+    <div class="divCell">
+      <p>The interval between checks <em>(default: <code>30</code>)</em>.</p>
+    </div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">
+      --healthcheck-timeout <em>timeout</em>
+    </div>
+    <div class="divCell">
+      <p>The length of time before the check times out <em>(default: <code>5</code>)</em>.</p>
+    </div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">
+      --healthcheck-healthy-threshold <em>healthyThreshold</em>
+    </div>
+    <div class="divCell">
+      <p>The number of checks before the instance is declared healthy <em>(default: <code>2</code>)</em>.</p>
+    </div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">
+      --healthcheck-unhealthy-threshold <em>unhealthyThreshold</em>
+    </div>
+    <div class="divCell">
+      <p>The number of checks before the instance is declared unhealthy <em>(default: <code>2</code>)</em>.</p>
+    </div>
   </div>
 </div></p>
 <h3 id="loadbalancer-delete">loadbalancer delete<a class="headerlink" href="#loadbalancer-delete" title="Permanent link">#</a></h3>
 <p>Use the <strong>delete</strong> subcommand to delete an existing load balancer.</p>
-<h4 id="usage_23">Usage<a class="headerlink" href="#usage_23" title="Permanent link">#</a></h4>
+<h4 id="usage_19">Usage<a class="headerlink" href="#usage_19" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 loadbalancer delete</strong> [--wait] <em>loadBalancerName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_15">Required parameters<a class="headerlink" href="#required-parameters_15" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_12">Required parameters<a class="headerlink" href="#required-parameters_12" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>loadBalancerName</em></div>
     <div class="divCell">The name of the load balancer that you want to delete.</div>
   </div>
 </div></p>
-<h4 id="optional-arguments_6">Optional arguments<a class="headerlink" href="#optional-arguments_6" title="Permanent link">#</a></h4>
+<h4 id="optional-arguments_5">Optional arguments<a class="headerlink" href="#optional-arguments_5" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap">--wait</div>
     <div class="divCell">Wait until the deletion is complete before exiting.</div>
   </div>
 </div></p>
-<h4 id="additional-information_8">Additional information<a class="headerlink" href="#additional-information_8" title="Permanent link">#</a></h4>
+<h4 id="additional-information_6">Additional information<a class="headerlink" href="#additional-information_6" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding">In order to delete a load balancer that is already attached to a service, you must first delete the service that uses the load balancer.</div>
@@ -991,13 +962,13 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 </div></p>
 <h3 id="loadbalancer-addport">loadbalancer addport<a class="headerlink" href="#loadbalancer-addport" title="Permanent link">#</a></h3>
 <p>Use the <strong>addport</strong> subcommand to add a new port configuration to an existing Layer0 load balancer.</p>
-<h4 id="usage_24">Usage<a class="headerlink" href="#usage_24" title="Permanent link">#</a></h4>
+<h4 id="usage_20">Usage<a class="headerlink" href="#usage_20" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 loadbalancer addport</strong> <em>loadBalancerName hostPort:containerPort/protocol</em> [--certificate <em>certificateName</em>]</div>
   </div>
 </div></p>
-<h4 id="required-parameters_16">Required parameters<a class="headerlink" href="#required-parameters_16" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_13">Required parameters<a class="headerlink" href="#required-parameters_13" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>loadBalancerName</em></div>
@@ -1016,28 +987,28 @@ The <strong>job</strong> command is used with the following subcommands: <a href
     <div class="divCell">The protocol to use when forwarding traffic (acceptable values: tcp, ssl, http, and https).</div>
   </div>
 </div></p>
-<h4 id="optional-arguments_7">Optional arguments<a class="headerlink" href="#optional-arguments_7" title="Permanent link">#</a></h4>
+<h4 id="optional-arguments_6">Optional arguments<a class="headerlink" href="#optional-arguments_6" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap">--certificate <em>certificateName</em></div>
     <div class="divCell">The name of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.</div>
   </div>
 </div></p>
-<h4 id="additional-information_9">Additional information<a class="headerlink" href="#additional-information_9" title="Permanent link">#</a></h4>
+<h4 id="additional-information_7">Additional information<a class="headerlink" href="#additional-information_7" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding">The port configuration you specify must not already be in use by the load balancer you specify.</div>
   </div>
 </div></p>
 <h3 id="loadbalancer-dropport">loadbalancer dropport<a class="headerlink" href="#loadbalancer-dropport" title="Permanent link">#</a></h3>
-<p>Use the <strong>dropport</strong> subcommand to remove a port configuration from an existing Layer0 load balancer. </p>
-<h4 id="usage_25">Usage<a class="headerlink" href="#usage_25" title="Permanent link">#</a></h4>
+<p>Use the <strong>dropport</strong> subcommand to remove a port configuration from an existing Layer0 load balancer.</p>
+<h4 id="usage_21">Usage<a class="headerlink" href="#usage_21" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 loadbalancer dropport</strong> <em>loadBalancerName</em> <em>hostPort</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_17">Required parameters<a class="headerlink" href="#required-parameters_17" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_14">Required parameters<a class="headerlink" href="#required-parameters_14" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>loadBalancerName</em></div>
@@ -1049,14 +1020,14 @@ The <strong>job</strong> command is used with the following subcommands: <a href
   </div>
 </div></p>
 <h3 id="loadbalancer-get">loadbalancer get<a class="headerlink" href="#loadbalancer-get" title="Permanent link">#</a></h3>
-<p>Use the <strong>get</strong> subcommand to display information about an existing Layer0 load balancer. </p>
-<h4 id="usage_26">Usage<a class="headerlink" href="#usage_26" title="Permanent link">#</a></h4>
+<p>Use the <strong>get</strong> subcommand to display information about an existing Layer0 load balancer.</p>
+<h4 id="usage_22">Usage<a class="headerlink" href="#usage_22" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 loadbalancer get</strong> <em>environmentName:loadBalancerName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_18">Required parameters<a class="headerlink" href="#required-parameters_18" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_15">Required parameters<a class="headerlink" href="#required-parameters_15" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
@@ -1067,33 +1038,99 @@ The <strong>job</strong> command is used with the following subcommands: <a href
     <div class="divCell">The name of an existing Layer0 load balancer.</div>
   </div>
 </div></p>
-<h4 id="additional-information_10">Additional information<a class="headerlink" href="#additional-information_10" title="Permanent link">#</a></h4>
+<h4 id="additional-information_8">Additional information<a class="headerlink" href="#additional-information_8" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">The value of <em>loadBalancerName</em> does not need to exactly match the name of an existing load balancer. If multiple results are found that match the pattern you specified in <em>loadBalancerName</em>, then information about all matching load balancers will be returned.</div>
+    <div class="divCellNoPadding">The <strong>get</strong> subcommand supports wildcard matching: <code>l0 loadbalancer get entrypoint*</code> would return all jobs beginning with <code>entrypoint</code>.</div>
   </div>
 </div></p>
 <h3 id="loadbalancer-list">loadbalancer list<a class="headerlink" href="#loadbalancer-list" title="Permanent link">#</a></h3>
-<p>Use the <strong>list</strong> subcommand to display information about all of the existing load balancers in an instance of Layer0. </p>
-<h4 id="usage_27">Usage<a class="headerlink" href="#usage_27" title="Permanent link">#</a></h4>
+<p>Use the <strong>list</strong> subcommand to display information about all of the existing load balancers in an instance of Layer0.</p>
+<h4 id="usage_23">Usage<a class="headerlink" href="#usage_23" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 loadbalancer list</strong></div>
   </div>
 </div></p>
+<h3 id="loadbalancer-healthcheck">loadbalancer healthcheck<a class="headerlink" href="#loadbalancer-healthcheck" title="Permanent link">#</a></h3>
+<p>Use the <strong>healthcheck</strong> subcommand to display information about or update the configuration of a load balancer's health check.</p>
+<h4 id="usage_24">Usage<a class="headerlink" href="#usage_24" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 loadbalancer healthcheck</strong> [healthcheck-flags] <em>loadbalancerName</em></div>
+  </div>
+</div></p>
+<h4 id="optional-arguments_7">Optional arguments<a class="headerlink" href="#optional-arguments_7" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">
+      --set-target <em>target</em>
+    </div>
+    <div class="divCell">
+      <p>The target of the check. Valid pattern is <code>PROTOCOL:PORT/PATH</code>, where PROTOCOL values are:
+      <br />
+      <code>HTTP</code> or <code>HTTPS</code>: both PORT and PATH are required
+      <br />
+      - <em>example: <code>HTTP:80/admin/healthcheck</code></em>
+      <br />
+      <code>TCP</code> or <code>SSL</code>: PORT is required, PATH is not supported
+      <br />
+      - <em>example: <code>TCP:80</code></em></p>
+    </div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">
+      --set-interval <em>interval</em>
+    </div>
+    <div class="divCell">
+      <p>The interval between checks.</p>
+    </div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">
+      --set-timeout <em>timeout</em>
+    </div>
+    <div class="divCell">
+      <p>The length of time before the check times out.</p>
+    </div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">
+      --set-healthy-threshold <em>healthyThreshold</em>
+    </div>
+    <div class="divCell">
+      <p>The number of checks before the instance is declared healthy.</p>
+    </div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">
+      --set-unhealthy-threshold <em>unhealthyThreshold</em>
+    </div>
+    <div class="divCell">
+      <p>The number of checks before the instance is declared unhealthy.</p>
+    </div>
+  </div>
+</div></p>
+<h4 id="additional-information_9">Additional information<a class="headerlink" href="#additional-information_9" title="Permanent link">#</a></h4>
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">Calling the subcommand without flags will display the current configuration of the load balancer's health check. Setting any of the flags will update the corresponding field in the health check, and all omitted flags will leave the corresponding fields unchanged.</div>
+  </div>
+</div>
+
 <hr />
 <h2 id="service">Service<a class="headerlink" href="#service" title="Permanent link">#</a></h2>
 <p>A service is a component of a Layer0 environment. The purpose of a service is to execute a Docker image specified in a <a href="#deploy">deploy</a>. In order to create a service, you must first create an <a href="#environment">environment</a> and a <a href="#deploy">deploy</a>; in most cases, you should also create a <a href="#loadbalancer">load balancer</a> before creating the service.</p>
-<p>The <strong>service</strong> command is used with the following subcommands: <a href="#service-create">create</a>, <a href="#service-delete">delete</a>, <a href="#service-get">get</a>, <a href="#service-list">list</a>, <a href="#service-logs">logs</a>, and <a href="#service-scale">scale</a>.</p>
+<p>The <strong>service</strong> command is used with the following subcommands: <a href="#service-create">create</a>, <a href="#service-delete">delete</a>, <a href="#service-get">get</a>, <a href="#service-update">update</a>, <a href="#service-list">list</a>, <a href="#service-logs">logs</a>, and <a href="#service-scale">scale</a>.</p>
 <h3 id="service-create">service create<a class="headerlink" href="#service-create" title="Permanent link">#</a></h3>
-<p>Use the <strong>create</strong> subcommand to create a Layer0 service. </p>
-<h4 id="usage_28">Usage<a class="headerlink" href="#usage_28" title="Permanent link">#</a></h4>
+<p>Use the <strong>create</strong> subcommand to create a Layer0 service.</p>
+<h4 id="usage_25">Usage<a class="headerlink" href="#usage_25" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 service create</strong> [--loadbalancer <em>environmentName:loadBalancerName</em> ] [--no-logs] <em>environmentName serviceName deployName:deployVersion</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_19">Required parameters<a class="headerlink" href="#required-parameters_19" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_16">Required parameters<a class="headerlink" href="#required-parameters_16" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>serviceName</em></div>
@@ -1102,15 +1139,15 @@ The <strong>job</strong> command is used with the following subcommands: <a href
   <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
     <div class="divCell">The name of an existing Layer0 environment.</div>
-  </div><br />
+  </div>
   <div class="divRow">
     <div class="divCellNoWrap"><em>deployName</em></div>
     <div class="divCell">The name of a Layer0 deploy that exists in the environment <em>environmentName</em>.</div>
-  </div> 
+  </div>
   <div class="divRow">
     <div class="divCellNoWrap"><em>deployVersion</em></div>
     <div class="divCell">The version number of the Layer0 deploy that you want to deploy. If you do not specify a version number, the latest version of the deploy will be used.</div>
-  </div> 
+  </div>
 </div></p>
 <h4 id="optional-arguments_8">Optional arguments<a class="headerlink" href="#optional-arguments_8" title="Permanent link">#</a></h4>
 <p><div class="divTable">
@@ -1125,13 +1162,13 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 </div></p>
 <h3 id="service-update">service update<a class="headerlink" href="#service-update" title="Permanent link">#</a></h3>
 <p>Use the <strong>update</strong> subcommand to apply an existing Layer0 Deploy to an existing Layer0 service.</p>
-<h4 id="usage_29">Usage<a class="headerlink" href="#usage_29" title="Permanent link">#</a></h4>
+<h4 id="usage_26">Usage<a class="headerlink" href="#usage_26" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 service update</strong> [--no-logs] <em>environmentName:serviceName deployName:deployVersion</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_20">Required parameters<a class="headerlink" href="#required-parameters_20" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_17">Required parameters<a class="headerlink" href="#required-parameters_17" title="Permanent link">#</a></h4>
 <p><div class="divTable">
  <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
@@ -1154,7 +1191,7 @@ The <strong>job</strong> command is used with the following subcommands: <a href
     <div class="divCell">Disable cloudwatch logging for the service</div>
   </div>
 </div></p>
-<h4 id="additional-information_11">Additional information<a class="headerlink" href="#additional-information_11" title="Permanent link">#</a></h4>
+<h4 id="additional-information_10">Additional information<a class="headerlink" href="#additional-information_10" title="Permanent link">#</a></h4>
 <div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding">If your service uses a load balancer, when you update the task definition for the service, the container name and container port that were specified when the service was created must remain the same in the task definition. In other words, if your service has a load balancer, you cannot apply any deploy you want to that service. If you are varying the container name or exposed ports, you must create a new service instead.</div>
@@ -1163,13 +1200,13 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 
 <h3 id="service-delete">service delete<a class="headerlink" href="#service-delete" title="Permanent link">#</a></h3>
 <p>Use the <strong>delete</strong> subcommand to delete an existing Layer0 service.</p>
-<h4 id="usage_30">Usage<a class="headerlink" href="#usage_30" title="Permanent link">#</a></h4>
+<h4 id="usage_27">Usage<a class="headerlink" href="#usage_27" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 service delete</strong> [--wait] <em>environmentName:serviceName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_21">Required parameters<a class="headerlink" href="#required-parameters_21" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_18">Required parameters<a class="headerlink" href="#required-parameters_18" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
@@ -1178,7 +1215,7 @@ The <strong>job</strong> command is used with the following subcommands: <a href
   <div class="divRow">
     <div class="divCellNoWrap"><em>serviceName</em></div>
     <div class="divCell">The name of the Layer0 service that you want to delete.</div>
-  </div> 
+  </div>
 </div></p>
 <h4 id="optional-arguments_9">Optional arguments<a class="headerlink" href="#optional-arguments_9" title="Permanent link">#</a></h4>
 <p><div class="divTable">
@@ -1187,7 +1224,7 @@ The <strong>job</strong> command is used with the following subcommands: <a href
     <div class="divCell">Wait until the deletion is complete before exiting.</div>
   </div>
 </div></p>
-<h4 id="additional-information_12">Additional information<a class="headerlink" href="#additional-information_12" title="Permanent link">#</a></h4>
+<h4 id="additional-information_11">Additional information<a class="headerlink" href="#additional-information_11" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding">This operation performs several tasks asynchronously. When run without the <em>--wait</em> option, this operation will most likely exit before all of these tasks are complete; when run with the <em>--wait</em> option, this operation will only exit once these tasks have completed.</div>
@@ -1195,26 +1232,26 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 </div></p>
 <h3 id="service-get">service get<a class="headerlink" href="#service-get" title="Permanent link">#</a></h3>
 <p>Use the <strong>get</strong> subcommand to display information about an existing Layer0 service.</p>
-<h4 id="usage_31">Usage<a class="headerlink" href="#usage_31" title="Permanent link">#</a></h4>
+<h4 id="usage_28">Usage<a class="headerlink" href="#usage_28" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 service get</strong> <em>environmentName:serviceName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_22">Required parameters<a class="headerlink" href="#required-parameters_22" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_19">Required parameters<a class="headerlink" href="#required-parameters_19" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
     <div class="divCell">The name of an existing Layer0 environment.</div>
-  </div> 
+  </div>
   <div class="divRow">
     <div class="divCellNoWrap"><em>serviceName</em></div>
     <div class="divCell">The name of an existing Layer0 service.</div>
-  </div> 
+  </div>
 </div></p>
 <h3 id="service-list">service list<a class="headerlink" href="#service-list" title="Permanent link">#</a></h3>
 <p>Use the <strong>list</strong> subcommand to list all of the existing services in your Layer0 instance.</p>
-<h4 id="usage_32">Usage<a class="headerlink" href="#usage_32" title="Permanent link">#</a></h4>
+<h4 id="usage_29">Usage<a class="headerlink" href="#usage_29" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 service list</strong></div>
@@ -1222,13 +1259,13 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 </div></p>
 <h3 id="service-logs">service logs<a class="headerlink" href="#service-logs" title="Permanent link">#</a></h3>
 <p>Use the <strong>logs</strong> subcommand to display the logs from a Layer0 service that is currently running.</p>
-<h4 id="usage_33">Usage<a class="headerlink" href="#usage_33" title="Permanent link">#</a></h4>
+<h4 id="usage_30">Usage<a class="headerlink" href="#usage_30" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 service logs</strong> [--tail=<em>N</em> ] <em>serviceName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_23">Required parameters<a class="headerlink" href="#required-parameters_23" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_20">Required parameters<a class="headerlink" href="#required-parameters_20" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>serviceName</em></div>
@@ -1244,13 +1281,13 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 </div></p>
 <h3 id="service-scale">service scale<a class="headerlink" href="#service-scale" title="Permanent link">#</a></h3>
 <p>Use the <strong>scale</strong> subcommand to specify how many copies of an existing Layer0 service should run.</p>
-<h4 id="usage_34">Usage<a class="headerlink" href="#usage_34" title="Permanent link">#</a></h4>
+<h4 id="usage_31">Usage<a class="headerlink" href="#usage_31" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 service scale</strong> <em>environmentName:serviceName N</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_24">Required parameters<a class="headerlink" href="#required-parameters_24" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_21">Required parameters<a class="headerlink" href="#required-parameters_21" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
@@ -1271,13 +1308,13 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 <p>The <strong>task</strong> command is used with the following subcommands: <a href="#task-create">create</a>, <a href="#task-delete">delete</a>, <a href="#task-get">get</a>, <a href="#task-list">list</a>, and <a href="#task-logs">logs</a>.</p>
 <h3 id="task-create">task create<a class="headerlink" href="#task-create" title="Permanent link">#</a></h3>
 <p>Use the <strong>create</strong> subcommand to create a Layer0 task.</p>
-<h4 id="usage_35">Usage<a class="headerlink" href="#usage_35" title="Permanent link">#</a></h4>
+<h4 id="usage_32">Usage<a class="headerlink" href="#usage_32" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 task create</strong> [--no-logs] [--copies <em>copies</em>] <em>environmentName taskName deployName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_25">Required parameters<a class="headerlink" href="#required-parameters_25" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_22">Required parameters<a class="headerlink" href="#required-parameters_22" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>environmentName</em></div>
@@ -1305,13 +1342,13 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 </div></p>
 <h3 id="task-delete">task delete<a class="headerlink" href="#task-delete" title="Permanent link">#</a></h3>
 <p>Use the <strong>delete</strong> subcommand to delete an existing Layer0 task.</p>
-<h4 id="usage_36">Usage<a class="headerlink" href="#usage_36" title="Permanent link">#</a></h4>
+<h4 id="usage_33">Usage<a class="headerlink" href="#usage_33" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 task delete</strong> [<em>environmentName</em>:]<em>taskName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_26">Required parameters<a class="headerlink" href="#required-parameters_26" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_23">Required parameters<a class="headerlink" href="#required-parameters_23" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>taskName</em></div>
@@ -1325,7 +1362,7 @@ The <strong>job</strong> command is used with the following subcommands: <a href
     <div class="divCell">The name of the Layer0 environment that contains the task. This parameter is only necessary if multiple environments contain tasks with exactly the same name.</div>
   </div>
 </div></p>
-<h4 id="additional-information_13">Additional information<a class="headerlink" href="#additional-information_13" title="Permanent link">#</a></h4>
+<h4 id="additional-information_12">Additional information<a class="headerlink" href="#additional-information_12" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding">Until the record has been purged, the API may indicate that the task is still running. Task records are typically purged within an hour.</div>
@@ -1333,17 +1370,46 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 </div></p>
 <h3 id="task-get">task get<a class="headerlink" href="#task-get" title="Permanent link">#</a></h3>
 <p>Use the <strong>get</strong> subcommand to display information about an existing Layer0 task (<em>taskName</em>).</p>
-<h4 id="usage_37">Usage<a class="headerlink" href="#usage_37" title="Permanent link">#</a></h4>
+<h4 id="usage_34">Usage<a class="headerlink" href="#usage_34" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 task get</strong> [<em>environmentName</em>:]<em>taskName</em></div>
   </div>
 </div></p>
-<h4 id="required-parameters_27">Required parameters<a class="headerlink" href="#required-parameters_27" title="Permanent link">#</a></h4>
+<h4 id="required-parameters_24">Required parameters<a class="headerlink" href="#required-parameters_24" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap"><em>taskName</em></div>
     <div class="divCell">The name of a Layer0 task for which you want to see information.</div>
+  </div>
+</div></p>
+<h4 id="additional-information_13">Additional information<a class="headerlink" href="#additional-information_13" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">The value of <em>taskName</em> does not need to exactly match the name of an existing task. If multiple results are found that match the pattern you specified in <em>taskName</em>, then information about all matching tasks will be returned.</div>
+  </div>
+</div></p>
+<h3 id="task-list">task list<a class="headerlink" href="#task-list" title="Permanent link">#</a></h3>
+<p>Use the <strong>task</strong> subcommand to display a list of running tasks in your Layer0.</p>
+<h4 id="usage_35">Usage<a class="headerlink" href="#usage_35" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 task list</strong></div>
+  </div>
+</div></p>
+<h3 id="task-logs">task logs<a class="headerlink" href="#task-logs" title="Permanent link">#</a></h3>
+<p>Use the <strong>logs</strong> subcommand to display logs for a running Layer0 task.</p>
+<h4 id="usage_36">Usage<a class="headerlink" href="#usage_36" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding"><strong>l0 task logs</strong> [--tail=<em>N</em> ] <em>taskName</em></div>
+  </div>
+</div></p>
+<h4 id="required-parameters_25">Required parameters<a class="headerlink" href="#required-parameters_25" title="Permanent link">#</a></h4>
+<p><div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap"><em>taskName</em></div>
+    <div class="divCell">The name of an existing Layer0 task.</div>
   </div>
 </div></p>
 <h4 id="additional-information_14">Additional information<a class="headerlink" href="#additional-information_14" title="Permanent link">#</a></h4>
@@ -1352,38 +1418,9 @@ The <strong>job</strong> command is used with the following subcommands: <a href
     <div class="divCellNoPadding">The value of <em>taskName</em> does not need to exactly match the name of an existing task. If multiple results are found that match the pattern you specified in <em>taskName</em>, then information about all matching tasks will be returned.</div>
   </div>
 </div></p>
-<h3 id="task-list">task list<a class="headerlink" href="#task-list" title="Permanent link">#</a></h3>
-<p>Use the <strong>task</strong> subcommand to display a list of running tasks in your Layer0.</p>
-<h4 id="usage_38">Usage<a class="headerlink" href="#usage_38" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 task list</strong></div>
-  </div>
-</div></p>
-<h3 id="task-logs">task logs<a class="headerlink" href="#task-logs" title="Permanent link">#</a></h3>
-<p>Use the <strong>logs</strong> subcommand to display logs for a running Layer0 task.</p>
-<h4 id="usage_39">Usage<a class="headerlink" href="#usage_39" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 task logs</strong> [--tail=<em>N</em> ] <em>taskName</em></div>
-  </div>
-</div></p>
-<h4 id="required-parameters_28">Required parameters<a class="headerlink" href="#required-parameters_28" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>taskName</em></div>
-    <div class="divCell">The name of an existing Layer0 task.</div>
-  </div>
-</div></p>
-<h4 id="additional-information_15">Additional information<a class="headerlink" href="#additional-information_15" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding">The value of <em>taskName</em> does not need to exactly match the name of an existing task. If multiple results are found that match the pattern you specified in <em>taskName</em>, then information about all matching tasks will be returned.</div>
-  </div>
-</div></p>
 <h3 id="task-list_1">task list<a class="headerlink" href="#task-list_1" title="Permanent link">#</a></h3>
 <p>Use the <strong>task</strong> subcommand to display a list of running tasks in your Layer0.</p>
-<h4 id="usage_40">Usage<a class="headerlink" href="#usage_40" title="Permanent link">#</a></h4>
+<h4 id="usage_37">Usage<a class="headerlink" href="#usage_37" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoPadding"><strong>l0 task list</strong></div>
