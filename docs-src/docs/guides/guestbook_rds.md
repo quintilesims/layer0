@@ -13,10 +13,10 @@ In order to complete the procedures in this section, you must install and config
 [Install the Layer0 Terraform Plugin](/reference/terraform-plugin#install). The Layer0 Terraform Plugin makes Layer0 deployment information (like VPCs and subnets) available to Terraform configurations (.tf files).
 
 ## Step 1: Download the configuration files
-* [Dockerrun.aws.json](https://github.com/quintilesims/layer0-samples/blob/master/rds/Dockerrun.aws.json)
-* [terraform.tfvars](https://github.com/quintilesims/layer0-samples/blob/master/rds/terraform.tfvars)
-* [layer0.tf](https://github.com/quintilesims/layer0-samples/blob/master/rds/layer0.tf)
-* [rds.tf](https://github.com/quintilesims/layer0-samples/blob/master/rds/rds.tf)
+* [Dockerrun.aws.json](https://github.com/quintilesims/layer0-examples/blob/master/rds/Dockerrun.aws.json)
+* [terraform.tfvars](https://github.com/quintilesims/layer0-examples/blob/master/rds/terraform.tfvars)
+* [layer0.tf](https://github.com/quintilesims/layer0-examples/blob/master/rds/layer0.tf)
+* [rds.tf](https://github.com/quintilesims/layer0-examples/blob/master/rds/rds.tf)
 
 
 ## Step 2: Terraform Apply

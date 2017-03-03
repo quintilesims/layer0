@@ -11,12 +11,12 @@ This guide expands upon the [Guestbook deployment guide](/guides/guestbook) depl
 
 ## Part 1: Prepare the task definition
 
-1. Download the [Guestbook One-off Task Definition](https://github.com/quintilesims/layer0-samples/blob/master/1offtask/Dockerrun.aws.json) and save it to your computer as **GuestbookRestore.Dockerrun.aws.json**.
+1. Download the [Guestbook One-off Task Definition](https://github.com/quintilesims/layer0-examples/blob/master/1offtask/Dockerrun.aws.json) and save it to your computer as **GuestbookRestore.Dockerrun.aws.json**.
 2. Edit the `GUESTBOOK_URL` environment variable for the `l0-guestbook-restore` container to the url of the loadbalancer running your guestbook application. This url can be obtained by looking at the output of the command
 
 <span style="padding-left:2em">**l0 loadbalancer get guestbooklb**</span>
 
-3. Edit the `BACKUP_FILE_URL` environment variable for the `l0-guestbook-restore` container to the url of the backup file that you wish to restore from. A sample backup file is provided at [https://github.com/quintilesims/layer0-samples/raw/master/1offtask/backup.txt](https://github.com/quintilesims/layer0-samples/raw/master/1offtask/backup.txt).
+3. Edit the `BACKUP_FILE_URL` environment variable for the `l0-guestbook-restore` container to the url of the backup file that you wish to restore from. A sample backup file is provided at [https://github.com/quintilesims/layer0-examples/raw/master/1offtask/backup.txt](https://github.com/quintilesims/layer0-examples/raw/master/1offtask/backup.txt).
 
 ## Part 2: Create a deploy
 Next, you will create a new deploy for the task.
