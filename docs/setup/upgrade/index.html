@@ -9,19 +9,19 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>Consul - Layer0</title>
+        <title>Upgrade - Layer0</title>
       
       
       
-        <link rel="canonical" href="https://github.com/quintilesims/layer0/guides/consul/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/setup/upgrade/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://github.com/quintilesims/layer0/guides/consul/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/setup/upgrade/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://github.com/quintilesims/layer0/guides/consul//../../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/setup/upgrade//../../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -101,12 +101,12 @@
           <span class="path">
             
               
-                Guides <i class="icon icon-link"></i>
+                Setup <i class="icon icon-link"></i>
               
             
           </span>
         
-        Consul
+        Upgrade
       </div>
     </div>
     
@@ -207,7 +207,7 @@
       
         
   <li>
-    <a class="" title="Install" href="../../setup/install/">
+    <a class="" title="Install" href="../install/">
       Install
     </a>
     
@@ -216,16 +216,21 @@
       
         
   <li>
-    <a class="" title="Upgrade" href="../../setup/upgrade/">
+    <a class="current" title="Upgrade" href="./">
       Upgrade
     </a>
+    
+      
+        
+      
+      
     
   </li>
 
       
         
   <li>
-    <a class="" title="Destroy" href="../../setup/destroy/">
+    <a class="" title="Destroy" href="../destroy/">
       Destroy
     </a>
     
@@ -243,7 +248,7 @@
       
         
   <li>
-    <a class="" title="Guestbook" href="../guestbook/">
+    <a class="" title="Guestbook" href="../../guides/guestbook/">
       Guestbook
     </a>
     
@@ -252,7 +257,7 @@
       
         
   <li>
-    <a class="" title="Guestbook with RDS" href="../guestbook_rds/">
+    <a class="" title="Guestbook with RDS" href="../../guides/guestbook_rds/">
       Guestbook with RDS
     </a>
     
@@ -261,61 +266,16 @@
       
         
   <li>
-    <a class="current" title="Consul" href="./">
+    <a class="" title="Consul" href="../../guides/consul/">
       Consul
     </a>
-    
-      
-        
-      
-      
-        <ul>
-          
-            <li class="anchor">
-              <a title="Before you start" href="#before-you-start">
-                Before you start
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Part 1: Create a load balancer" href="#part-1-create-a-load-balancer">
-                Part 1: Create a load balancer
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Part 2: Configure the deploy" href="#part-2-configure-the-deploy">
-                Part 2: Configure the deploy
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Part 3: Create the service" href="#part-3-create-the-service">
-                Part 3: Create the service
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Part 4: Scale the Consul service" href="#part-4-scale-the-consul-service">
-                Part 4: Scale the Consul service
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Additional steps: Configure Layer0 services" href="#additional-steps-configure-layer0-services">
-                Additional steps: Configure Layer0 services
-              </a>
-            </li>
-          
-        </ul>
-      
     
   </li>
 
       
         
   <li>
-    <a class="" title="Guestbook with Consul" href="../guestbook_consul/">
+    <a class="" title="Guestbook with Consul" href="../../guides/guestbook_consul/">
       Guestbook with Consul
     </a>
     
@@ -324,7 +284,7 @@
       
         
   <li>
-    <a class="" title="One-off Task" href="../one_off_task/">
+    <a class="" title="One-off Task" href="../../guides/one_off_task/">
       One-off Task
     </a>
     
@@ -460,105 +420,51 @@
       <article class="article">
         <div class="wrapper">
           
-          <h1 id="deployment-guide-consul-service">Deployment guide: Consul service<a class="headerlink" href="#deployment-guide-consul-service" title="Permanent link">#</a></h1>
-<p>Consul is a tool for configuring services in your infrastructure. It includes several features, including health monitoring, service discovery and key/value storage.</p>
-<p>This guide provides step-by-step instructions for deploying Consul in a Layer0 instance. These procedures build upon the <a href="../../guides/guestbook">Guestbook</a> and <a href="../../guides/guestbook_rds">Guestbook with RDS</a> deployment guides; you must complete the procedures in those guides before you can complete the procedures in this guide.</p>
-<h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">#</a></h2>
-<p>In order to complete the procedures in this section, you must install and configure Layer0 v0.8.4 or later. If you have not already configured Layer0, see the <a href="../../setup/install">installation guide</a>. If you are running an older version of Layer0, see the <a href="../../setup/upgrade#upgrading-older-versions-of-layer0">upgrade instructions</a>.</p>
-<p>This guide expands upon the <a href="../../guides/guestbook_rds">Guestbook with RDS Database deployment guide</a>. The procedures in this guide assume that you completed the Guestbook with RDS deployment guide and all of its prerequisites.</p>
-<h2 id="part-1-create-a-load-balancer">Part 1: Create a load balancer<a class="headerlink" href="#part-1-create-a-load-balancer" title="Permanent link">#</a></h2>
-<p>Consul should run behind a private load balancer in the <strong>demo</strong> environment with ports 8500 and 8301 exposed.</p>
-<p><strong>To create the load balancer:</strong>
+          <h1 id="upgrade-layer0">Upgrade Layer0<a class="headerlink" href="#upgrade-layer0" title="Permanent link">#</a></h1>
+<p>This section provides procedures for upgrading your Layer0 installation to the latest version.</p>
 <ol>
-  <li>At the command line, type the following command to create a load balancer named <strong>consullb</strong> in the <strong>demo</strong> environment with port 8500 exposed:
-    <ul>
-      <li class="command"><strong>l0 loadbalancer create --private --port 8500:8500/tcp demo consullb</strong></li>
-    </ul><br />You will see the following output:
-<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICES  PORTS          PUBLIC  URL
-1consullb        consullb           demo                   8500:8500/tcp  false
-</code></pre>
-  </li>
-  <li>At the command line, type the following command to add port 8301 to the <strong>consullb</strong> load balancer:
-    <ul>
-      <li class="command"><strong>l0 loadbalancer addport demo:consullb 8301:8301/tcp</strong></li>
-    </ul><br />
-  You will see the following output:
-<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICES  PORTS          PUBLIC  URL
-1consullb        consullb           demo                   8500:8500/tcp  false   <em>(url)</em>
-                                                           8301:8301/tcp
-</code></pre>
-<br />
-Copy the URL listed in the <strong>URL</strong> column; you will need this URL in the next section.</li>
-</ol></p>
-<h2 id="part-2-configure-the-deploy">Part 2: Configure the deploy<a class="headerlink" href="#part-2-configure-the-deploy" title="Permanent link">#</a></h2>
-<p><ol>
-  <li>Download the <a href="https://github.com/quintilesims/consul-local/blob/master/consul.json">Consul Task Definition</a> and save it to your computer as Consul.Dockerrun.aws.json.</li>
-  <li>Open Consul.Dockerrun.aws.json in a text editor. Toward the bottom of the file, you will see the following:
-<pre class="code"><code>"environment": [
-    {
-        "name": "EXTERNAL_URL",
-        "value": "&lt;url&gt;"
-     }
-]
-</code></pre>
-<br />
-Replace <em>&lt;url&gt;</em> with the URL you copied in step 2 of the previous section, and then save the file.</li>
-  <li>At the command line, type the following command to create a new deploy called <strong>consul</strong>:
-    <ul>
-      <li class="command"><strong>l0 deploy create Consul.Dockerrun.aws.json consul</strong></li>
-    </ul><br />
-  You will see the following output:
-<pre class="code"><code>DEPLOY ID  DEPLOY NAME  VERSION
-1consul:1  consul       1
-</code></pre>
-  </li>
-</ol></p>
-<h2 id="part-3-create-the-service">Part 3: Create the service<a class="headerlink" href="#part-3-create-the-service" title="Permanent link">#</a></h2>
-<p>Now that you've created an environment, load balancer, and deploy, you can create a service to bring these elements together.</p>
-<p><strong>To create the service:</strong>
-<ol>
-  <li>At the command line, type the following command to create a new service called <strong>consul</strong>:
-    <ul>
-      <li class="command"><strong>l0 service create --loadbalancer demo:consullb demo consulsvc consul:latest</strong></li>
-    </ul><br />
-    You will see the following output:
-<pre class="code"><code>SERVICE ID  SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYS      SCALE
-1consul     consulsvc     demo         consullb      consul:1     0/1</code></pre>
-  </li>
-  <li>Wait several minutes for the service to be provisioned. You can check the status of the service creation by running the following command:
-  <ul>
-    <li class="command"><strong>l0 service get consulsvc</strong></li>
-  </ul><br />
-  When the service has finished provisioning, you will see the following output:</p>
-<pre class="code"><code>SERVICE ID  SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYS      SCALE
-1consul     consulsvc     demo         consullb      consul:1     1/1</code></pre>
-
-
-<p></li>
-</ol></p>
-<h2 id="part-4-scale-the-consul-service">Part 4: Scale the Consul service<a class="headerlink" href="#part-4-scale-the-consul-service" title="Permanent link">#</a></h2>
-<p>Consul is a scalable application. For added reliability, we recommend that you scale the Consul service to size 3.</p>
-<p><strong>To scale the service:</strong></p>
-<ol>
-  <li>At the command line, type the following to scale the consul service to size 3:
-    <ul>
-      <li class="command"><strong>l0 service scale demo:consulsvc 3</strong></li>
-    </ul>
-  </li>
-
-  <li>Wait several minutes for the service to scale. You can check the status of the service by running the following command:
-  <ul>
-    <li class="command"><strong>l0 service get consul</strong></li>
-  </ul><br />
-  When the Service has finished scaling, you will see the following output:
-<pre class="code"><code>SERVICE ID  SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYS      SCALE
-1consul     consulsvc     demo         consullb      consul:1     3/3
-</code></pre>
-  </li>
+<li>
+<p>In the <a href="../../index.html#download">Downloads section of the home page</a>, select the appropriate installation file for your operating system. Extract the zip file to a directory on your computer, and then move the <strong>l0</strong> and <strong>l0-setup</strong> files to a folder in your system path, replacing any previous versions of these files.</p>
+</li>
+<li>
+<p>You will need your existing access keys when l0-setup prompts you for AWS credentials. Type the following commands to find them:</p>
+<ul>
+<li><code>l0-setup terraform [prefix] output access_key</code></li>
+<li><code>l0-setup terraform [prefix] output secret_key</code></li>
+</ul>
+</li>
+<li>
+<p>Type the following command to verify that you are working with the correct version of Layer0:</p>
+<ul>
+<li><code>l0-setup --version</code></li>
+</ul>
+<p>The output of this command should display the version number of the most recent version of Layer0. If it does, proceed to the next step; if not, ensure that you copied the latest versions of <strong>l0</strong> and <strong>l0-setup</strong> to the appropriate directories in your system path.</p>
+</li>
+<li>
+<p>Type the following command to restore the state files for your Layer0, replacing <code>[prefix]</code> with the name of your Layer0 prefix:</p>
+<ul>
+<li><code>l0-setup restore [prefix]</code></li>
+</ul>
+</li>
+<li>
+<p>Type the following command to update your api image tag:</p>
+<ul>
+<li><code>l0-setup plan [prefix] -var api_docker_image_tag=[version]</code></li>
+</ul>
+</li>
+<li>
+<p>Type the following command to update your runner image tag:</p>
+<ul>
+<li><code>l0-setup plan [prefix] -var runner_version_tag=[version]</code></li>
+</ul>
+</li>
+<li>
+<p>Type the following command to apply the upgrade:</p>
+<ul>
+<li><code>l0-setup apply [prefix]</code></li>
+</ul>
+</li>
 </ol>
-
-<h2 id="additional-steps-configure-layer0-services">Additional steps: Configure Layer0 services<a class="headerlink" href="#additional-steps-configure-layer0-services" title="Permanent link">#</a></h2>
-<p>In order to for Layer0 services to use consul, the task definitions for those services must be configured. The next deployment guide in this series (<a href="../../guides/guestbook_consul">Guestbook with Consul</a>) contains an example of these configurations.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -575,7 +481,7 @@ Replace <em>&lt;url&gt;</em> with the URL you copied in step 2 of the previous s
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../guestbook_rds/" title="Guestbook with RDS">
+        <a href="../install/" title="Install">
           <span class="direction">
             Previous
           </span>
@@ -585,7 +491,7 @@ Replace <em>&lt;url&gt;</em> with the URL you copied in step 2 of the previous s
             </div>
             <div class="stretch">
               <div class="title">
-                Guestbook with RDS
+                Install
               </div>
             </div>
           </div>
@@ -594,14 +500,14 @@ Replace <em>&lt;url&gt;</em> with the URL you copied in step 2 of the previous s
     </div>
     <div class="next">
       
-        <a href="../guestbook_consul/" title="Guestbook with Consul">
+        <a href="../destroy/" title="Destroy">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                Guestbook with Consul
+                Destroy
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">

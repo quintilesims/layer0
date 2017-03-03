@@ -1,11 +1,13 @@
-# Layer0
+# ![logo](https://quintilesims.github.io/layer0/static/logo_rs.png)
 
 Layer0 is a framework that helps you deploy your docker container to the cloud with minimal fuss. Using a simple command line interface (CLI), you can manage the entire life cycle of your application without having to focus on infrastructure.
 
-To get started with Layer0, see [quintilesims.github.io/layer0](https://quintilesims.github.io/layer0/).
+To get started with Layer0, please see [the Layer0 User's Guide](https://quintilesims.github.io/layer0/).
 
-# Components
-The following components comprise the Layer0 Application.
+---
+
+# Developer Notes
+The following components make up the Layer0 ecosystem. You can safely ignore these sections unless you're interested in contributing to the Layer0 project.
 
 ## Layer0 Setup
 The Layer0 Setup tool (commonly called `l0-setup`) is used to provision and manage resources in AWS that a Layer0 instance needs to run correctly.

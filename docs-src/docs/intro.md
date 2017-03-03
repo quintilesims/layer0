@@ -19,6 +19,10 @@ SSL certificates obtained from a valid [Certificate Authority (CA)](https://en.w
 
 [ECS Task Definitions](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html). These configuration files detail how to deploy your application. We have several [sample applications](https://github.com/quintilesims/layer0-examples) available that show what these files look like --- they're called `Dockerrun.aws.json` within each sample app.
 
+### Tasks
+
+Manual one-off commands that don't necessarily make sense to keep running, or to restart when they finish. These run using Amazon's `RunTask` action (more info [here](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/scheduling_tasks.html)), and are "ideally suited for processes such as batch jobs that perform work and then stop."
+
 ### Load Balancers
 
 Powerful tools that give you the basic building blocks for high-availability, scaling, and HTTPS. We currently use Amazon's [Elastic Load Balancing](https://aws.amazon.com/elasticloadbalancing/), and it pays to understand the basics of this service when working with Layer0.

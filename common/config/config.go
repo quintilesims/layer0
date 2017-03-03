@@ -162,11 +162,13 @@ func AWSVPCID() string {
 }
 
 func AWSPrivateSubnets() string {
-	return get(AWS_PRIVATE_SUBNETS)
+	v := get(AWS_PRIVATE_SUBNETS)
+	return strings.Replace(v, " ", "", -1)
 }
 
 func AWSPublicSubnets() string {
-	return get(AWS_PUBLIC_SUBNETS)
+	v := get(AWS_PUBLIC_SUBNETS)
+	return strings.Replace(v, " ", "", -1)
 }
 
 func AWSECSRole() string {

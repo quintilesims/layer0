@@ -12,7 +12,7 @@ The updated Guestbook application in this guide stores its data in a Redis datab
 **To configure and deploy the task definition:**
 <ol>
   <li>Download the [Redis task
-definition](https://github.com/quintilesims/layer0-samples/blob/master/redis/Redis.Dockerrun.aws.json) and save it to your computer as Redis.dockerrun.aws.json.</li>
+definition](https://github.com/quintilesims/layer0-examples/blob/master/redis/Redis.Dockerrun.aws.json) and save it to your computer as Redis.dockerrun.aws.json.</li>
   <li>At the command prompt, type the following command:
     <ul>
       <li class="command"><strong>l0 loadbalancer get consul</strong></li>
@@ -73,7 +73,7 @@ To configure the Guestbook application to use Consul for service discovery, you 
 **To update the Guestbook service:**
 
 <ol>
-  <li>Download the <a href="https://github.com/quintilesims/layer0-samples/blob/master/redis/Guestbook.Dockerrun.aws.json">Guestbook with Consul Task definition</a> and save it to your computer as GuestbookConsul.Dockerrun.aws.json.</li>
+  <li>Download the <a href="https://github.com/quintilesims/layer0-examples/blob/master/redis/Guestbook.Dockerrun.aws.json">Guestbook with Consul Task definition</a> and save it to your computer as GuestbookConsul.Dockerrun.aws.json.</li>
   <li>At the command line, type the following command: <strong>l0 loadbalancer get consullb</strong>. Copy the value in the <strong>URL</strong> column.</li>
   <li>Open GuestbookConsul.Dockerrun.aws.json in a text editor. Toward the bottom of the file, in the <strong>environment</strong> section, replace <em>&lt;url&gt;</em> with the URL
 that you copied in the previous step. Save the file.</li>
