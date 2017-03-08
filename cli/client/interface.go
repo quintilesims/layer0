@@ -38,7 +38,7 @@ type Client interface {
 	ScaleService(id string, scale int) (*models.Service, error)
 	WaitForDeployment(serviceID string, timeout time.Duration) (*models.Service, error)
 
-	CreateTask(name, environmentID, deployID string, copies int, overrides []models.ContainerOverride) (*models.Task, error)
+	CreateTask(name, environmentID, deployID string, copies int, overrides []models.ContainerOverride) (string, error)
 	DeleteTask(id string) error
 	GetTask(id string) (*models.Task, error)
 	GetTaskLogs(id string, tail int) ([]*models.LogFile, error)

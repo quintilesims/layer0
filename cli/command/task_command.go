@@ -34,6 +34,10 @@ func (t *TaskCommand) GetCommand() cli.Command {
 						Name:  "env",
 						Usage: "environment variable override in format 'CONTAINER:VAR=VAL' (can be specified multiple times)",
 					},
+					cli.BoolFlag{
+						Name:  "wait",
+						Usage: "wait for the job to complete before returning",
+					},
 				},
 			},
 			{
@@ -97,12 +101,27 @@ func (t *TaskCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	task, err := t.Client.CreateTask(args["NAME"], environmentID, deployID, c.Int("copies"), overrides)
+	jobID, err := t.Client.CreateTask(args["NAME"], environmentID, deployID, c.Int("copies"), overrides)
 	if err != nil {
 		return err
 	}
 
-	return t.Printer.PrintTasks(task)
+	if !c.Bool("wait") {
+		t.Printer.Printf("This operation is running as a job. Run `l0 job get %s` to see progress\n", jobID)
+		return nil
+	}
+
+	timeout, err := getTimeout(c)
+	if err != nil {
+		return err
+	}
+
+	t.Printer.StartSpinner("Deleting")
+	if err := t.Client.WaitForJob(jobID, timeout); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (t *TaskCommand) Delete(c *cli.Context) error {
