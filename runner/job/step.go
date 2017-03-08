@@ -16,8 +16,8 @@ import (
 	"time"
 )
 
-type Action func(chan bool, JobContext) error
-type Rollback func(JobContext) (JobContext, []Step, error)
+type Action func(chan bool, *JobContext) error
+type Rollback func(*JobContext) (*JobContext, []Step, error)
 
 type Step struct {
 	Name     string
@@ -27,7 +27,7 @@ type Step struct {
 }
 
 func Fold(actions ...Action) Action {
-	return func(quit chan bool, context JobContext) error {
+	return func(quit chan bool, context *JobContext) error {
 		var wg sync.WaitGroup
 		var errs []error
 

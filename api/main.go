@@ -30,7 +30,7 @@ func setupRestful(lgc logic.Logic) {
 	loadBalancerHandler := handlers.NewLoadBalancerHandler(loadBalancerLogic, jobLogic)
 	serviceHandler := handlers.NewServiceHandler(serviceLogic, jobLogic)
 	tagHandler := handlers.NewTagHandler(lgc.TagStore)
-	taskHandler := handlers.NewTaskHandler(taskLogic)
+	taskHandler := handlers.NewTaskHandler(taskLogic, jobLogic)
 
 	restful.SetLogger(logutils.SilentLogger{})
 	restful.Add(deployHandler.Routes())

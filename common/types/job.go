@@ -34,12 +34,16 @@ const (
 	DeleteEnvironmentJob JobType = 1 + iota
 	DeleteServiceJob
 	DeleteLoadBalancerJob
+	DeleteTaskJob
+	CreateTaskJob
 )
 
 var jobTypeStrings = []string{
 	"delete environment",
 	"delete service",
 	"delete load balancer",
+	"delete task",
+	"create task",
 }
 
 func (jobType JobType) String() string {

@@ -1,7 +1,7 @@
 package ecsbackend
 
 import (
-	log "github.com/Sirupsen/logrus"
+	"fmt"
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
@@ -180,28 +180,27 @@ func (this *ECSTaskManager) CreateTask(
 
 	tasks, failed, err := this.ECS.RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), int64(copies), stringp(ecsTaskID.String()), ecsOverrides)
 	if err != nil {
-		if !ContainsErrMsg(err, "No Container Instances were found in your cluster") {
-			return nil, err
-		}
-
-		log.Debugf("Not enough room in cluster. Adding task '%s' to scheduler", ecsTaskID)
-		this.Scheduler.AddTask(ecsTaskID, ecsDeployID, ecsEnvironmentID, copies, overrides)
-
-		dummyTask := ecsPendingTask(ecsTaskID, ecsDeployID, ecsEnvironmentID)
-		tasks = []*ecs.Task{dummyTask}
+		return nil, err
 	}
 
 	if numFailed := len(failed); numFailed > 0 {
-		log.Debug("RunTask failed to start %d tasks: %v", numFailed, failed)
-		log.Debug("Adding task '%s' to scheduler", ecsTaskID)
+		err := &PartialCreateTaskFailure{
+			NumFailed: int64(numFailed),
+		}
 
-		this.Scheduler.AddTask(ecsTaskID, ecsDeployID, ecsEnvironmentID, numFailed, overrides)
-
-		dummyTask := ecsPendingTask(ecsTaskID, ecsDeployID, ecsEnvironmentID)
-		tasks = []*ecs.Task{dummyTask}
+		return nil, err	
 	}
 
 	return modelFromTasks(tasks)
+}
+
+
+type PartialCreateTaskFailure struct {
+	NumFailed int64
+}
+
+func (p *PartialCreateTaskFailure) Error() string {
+	return fmt.Sprintf("Failed to start %d tasks", p.NumFailed)
 }
 
 func (this *ECSTaskManager) GetTaskLogs(environmentID, taskID string, tail int) ([]*models.LogFile, error) {
