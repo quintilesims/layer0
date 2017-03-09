@@ -4,7 +4,8 @@ import (
 	"github.com/zpatrick/go-bytesize"
 )
 
-type ContainerResource struct {
-	Ports  []int
+type ResourceConsumer struct {
+	ID     string
 	Memory bytesize.Bytesize
+	Ports  []int
 }
