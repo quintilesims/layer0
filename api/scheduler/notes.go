@@ -20,12 +20,9 @@ type ContainerResource struct {
 	cluster is the same size. The math for adding up all the current memory doesn't work well, because if one ec2 instance
 	has 1GB and another has 2GB, we won't have room for a task that needs 3GB. We would need to theoretically place
 	the task first.
-
 	Another issue with memory is even if we do the 'sum all required' method, this only works assuming ecs will move around
 	services that are already running to better optimize the cluster. I don't think it actually does this.
-
 	So what can we do? Well, we can do the theoretical approach:
-
 	currentInstance := getCurrentResources() // this includes Desired ec2 instances that will have full memory, ports
 	for _, pendingResource := range pendingResources {
 		var instanceFound bool
@@ -36,7 +33,6 @@ type ContainerResource struct {
 				instanceFound = true
 				break
 			}
-
 			if !instanceFound{
 				requiredInstances++
 				currentInstances = append(currentInstances, NewInstance())
@@ -230,4 +226,3 @@ func (e EnvironmentScalar) ScaleTo(count int) error {
 			}
 		}
 	}
-}
