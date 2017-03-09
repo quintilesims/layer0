@@ -63,7 +63,6 @@ func (e *EnvironmentResourceManager) Approach2() error {
 		return err
 	}
 
-	newProvidersRequired := 0
 	pendingResourceConsumers = append(pendingServiceResources, pendingTaskResources...)
 
 	for _, consumer := range pendingResourceConsumers {
@@ -84,7 +83,6 @@ func (e *EnvironmentResourceManager) Approach2() error {
 				continue
 			}
 
-			newProvidersRequired++
 			resourcesProviders = append(resourceProviders, newProvider)
 			newProvider.SubtractResourcesFor(consumer)
 		}
@@ -94,7 +92,7 @@ func (e *EnvironmentResourceManager) Approach2() error {
 		return nil
 	}
 	
-	newScale := len(resourceProviders) + newProvidersRequired
+	newScale := len(resourceProviders)
 	return e.Scalar.ScaleTo(newScale)
 
 	// todo: what about scaling down? different function perhaps
