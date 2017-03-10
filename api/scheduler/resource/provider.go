@@ -43,3 +43,17 @@ func (r *ResourceProvider) SubtractResourcesFor(consumer ResourceConsumer) error
 
 	return nil
 }
+
+type ByMemory []*ResourceProvider
+
+func (m ByMemory) Len() int {
+	return len(m)
+}
+
+func (m ByMemory) Swap(i, j int) {
+	m[i], m[j] = m[j], m[i]
+}
+
+func (m ByMemory) Less(i, j int) bool {
+	return m[i].availableMemory < m[j].availableMemory
+}

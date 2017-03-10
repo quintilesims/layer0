@@ -1,6 +1,7 @@
 package resource
 
 import (
+	"sort"
 	"fmt"
 	"github.com/quintilesims/layer0/common/errors"
 )
@@ -33,7 +34,9 @@ func (r *ResourceManager) Run() error {
 	var errs []error
 	for _, consumer := range pendingResources {
 		hasRoom := false
-
+		
+		// sort by memory so we have optimal memory placement
+		sort.Sort(ByMemory(resourceProviders))
 		for _, provider := range resourceProviders {
 			if provider.HasResourcesFor(consumer) {
 				hasRoom = true

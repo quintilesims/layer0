@@ -1,6 +1,5 @@
 package resource
 
-/*
 import (
 	"github.com/stretchr/testify/assert"
 	"github.com/zpatrick/go-bytesize"
@@ -62,7 +61,7 @@ func TestResourceProviderHasMemoryFor(t *testing.T) {
 
 	provider := NewResourceProvider(bytesize.GB, []int{80, 8000})
 	for _, c := range cases {
-		if output := provider.HasResourceConsumersFor(c.Resource); output != c.Expected {
+		if output := provider.HasResourcesFor(c.ResourceConsumer); output != c.Expected {
 			t.Errorf("%s: output was %t, expected %t", c.Name, output, c.Expected)
 		}
 	}
@@ -72,28 +71,28 @@ func TestResourceProviderSubtractResourcesFor(t *testing.T) {
 	provider := NewResourceProvider(bytesize.GB, nil)
 
 	resource := ResourceConsumer{Ports: []int{80}}
-	if err := provider.SubtractResourceConsumersFor(resource); err != nil {
+	if err := provider.SubtractResourcesFor(resource); err != nil {
 		t.Error(err)
 	}
 
 	resource = ResourceConsumer{Memory: bytesize.MB}
-	if err := provider.SubtractResourceConsumersFor(resource); err != nil {
+	if err := provider.SubtractResourcesFor(resource); err != nil {
 		t.Error(err)
 	}
 
 	resource = ResourceConsumer{Ports: []int{8000, 9090}, Memory: bytesize.MB}
-	if err := provider.SubtractResourceConsumersFor(resource); err != nil {
+	if err := provider.SubtractResourcesFor(resource); err != nil {
 		t.Error(err)
 	}
 
-	assert.Equal(t, []int{80, 8000, 9090}, provider.UsedPorts())
-	assert.Equal(t, bytesize.GB-(bytesize.MB*2), provider.AvailableMemory())
+	assert.Equal(t, []int{80, 8000, 9090}, provider.usedPorts)
+	assert.Equal(t, bytesize.GB-(bytesize.MB*2), provider.availableMemory)
 }
 
 func TestResourceProviderSubtractResourcesForError(t *testing.T) {
 	cases := []struct {
 		Name             string
-		ResourceConsumer Resource
+		ResourceConsumer ResourceConsumer
 	}{
 		{
 			Name:             "Port 80 already used",
@@ -111,9 +110,8 @@ func TestResourceProviderSubtractResourcesForError(t *testing.T) {
 
 	for _, c := range cases {
 		provider := NewResourceProvider(bytesize.GB, []int{80, 8000})
-		if err := provider.SubtractResourceConsumersFor(c.Resource); err == nil {
+		if err := provider.SubtractResourcesFor(c.ResourceConsumer); err == nil {
 			t.Fatalf("%s: Error was nil!", c.Name)
 		}
 	}
 }
-*/
