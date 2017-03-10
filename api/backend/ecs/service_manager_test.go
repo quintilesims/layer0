@@ -5,7 +5,6 @@ import (
 	aws_ecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
-	"github.com/quintilesims/layer0/api/backend/ecs/mock_ecsbackend"
 	"github.com/quintilesims/layer0/api/backend/mock_backend"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs/mock_cloudwatchlogs"
@@ -21,7 +20,6 @@ type MockECSServiceManager struct {
 	ECS            *mock_ecs.MockProvider
 	EC2            *mock_ec2.MockProvider
 	CloudWatchLogs *mock_cloudwatchlogs.MockProvider
-	ClusterScaler  *mock_ecsbackend.MockClusterScaler
 	Backend        *mock_backend.MockBackend
 }
 
@@ -30,13 +28,12 @@ func NewMockECSServiceManager(ctrl *gomock.Controller) *MockECSServiceManager {
 		ECS:            mock_ecs.NewMockProvider(ctrl),
 		EC2:            mock_ec2.NewMockProvider(ctrl),
 		CloudWatchLogs: mock_cloudwatchlogs.NewMockProvider(ctrl),
-		ClusterScaler:  mock_ecsbackend.NewMockClusterScaler(ctrl),
 		Backend:        mock_backend.NewMockBackend(ctrl),
 	}
 }
 
 func (this *MockECSServiceManager) Service() *ECSServiceManager {
-	return NewECSServiceManager(this.ECS, this.EC2, this.CloudWatchLogs, this.ClusterScaler, this.Backend)
+	return NewECSServiceManager(this.ECS, this.EC2, this.CloudWatchLogs, this.Backend)
 }
 
 func TestGetService(t *testing.T) {
@@ -286,10 +283,6 @@ func TestCreateService(t *testing.T) {
 					Return(task, nil).
 					AnyTimes()
 
-				mockService.ClusterScaler.EXPECT().
-					TriggerScalingAlgorithm(environmentID, &deployID, 1).
-					Return(0, false, nil)
-
 				mockService.ECS.EXPECT().CreateService(
 					environmentID.String(),
 					serviceID.String(),
@@ -316,11 +309,6 @@ func TestCreateService(t *testing.T) {
 					environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 					clusterARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:cluster/%s", environmentID.String())
 					serviceID := id.L0ServiceID("svcid").ECSServiceID()
-
-					mockService.ClusterScaler.EXPECT().
-						TriggerScalingAlgorithm(gomock.Any(), gomock.Any(), gomock.Any()).
-						Return(0, false, g.Error()).
-						AnyTimes()
 
 					mockService.ECS.EXPECT().CreateService(
 						gomock.Any(),
@@ -379,10 +367,6 @@ func TestUpdateService(t *testing.T) {
 					Return(task, nil).
 					AnyTimes()
 
-				mockService.ClusterScaler.EXPECT().
-					TriggerScalingAlgorithm(environmentID, &deployID, 1).
-					Return(0, false, nil)
-
 				mockService.ECS.EXPECT().UpdateService(
 					environmentID.String(),
 					serviceID.String(),
@@ -402,11 +386,6 @@ func TestUpdateService(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				return func(g testutils.ErrorGenerator) *ECSServiceManager {
 					mockService := NewMockECSServiceManager(ctrl)
-
-					mockService.ClusterScaler.EXPECT().
-						TriggerScalingAlgorithm(gomock.Any(), gomock.Any(), gomock.Any()).
-						Return(0, false, g.Error()).
-						AnyTimes()
 
 					mockService.ECS.EXPECT().UpdateService(
 						gomock.Any(),
@@ -458,10 +437,6 @@ func TestScaleService(t *testing.T) {
 					Return(service, nil).
 					Times(2)
 
-				mockService.ClusterScaler.EXPECT().
-					TriggerScalingAlgorithm(environmentID, &deployID, 2).
-					Return(0, false, nil)
-
 				mockService.ECS.EXPECT().
 					UpdateService(environmentID.String(), serviceID.String(), nil, int64p(2)).
 					Return(nil)
@@ -489,11 +464,6 @@ func TestScaleService(t *testing.T) {
 					mockService.ECS.EXPECT().
 						DescribeService(gomock.Any(), gomock.Any()).
 						Return(service, g.Error()).
-						AnyTimes()
-
-					mockService.ClusterScaler.EXPECT().
-						TriggerScalingAlgorithm(gomock.Any(), gomock.Any(), gomock.Any()).
-						Return(0, false, g.Error()).
 						AnyTimes()
 
 					mockService.ECS.EXPECT().

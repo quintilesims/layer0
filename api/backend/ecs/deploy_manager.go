@@ -11,14 +11,12 @@ import (
 )
 
 type ECSDeployManager struct {
-	ECS           ecs.Provider
-	ClusterScaler ClusterScaler
+	ECS ecs.Provider
 }
 
-func NewECSDeployManager(ecsprovider ecs.Provider, cluster ClusterScaler) *ECSDeployManager {
+func NewECSDeployManager(ecsprovider ecs.Provider) *ECSDeployManager {
 	return &ECSDeployManager{
-		ecsprovider,
-		cluster,
+		ECS: ecsprovider,
 	}
 }
 

@@ -6,7 +6,6 @@ import (
 	aws_ecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
-	"github.com/quintilesims/layer0/api/backend/ecs/mock_ecsbackend"
 	"github.com/quintilesims/layer0/api/backend/mock_backend"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs/mock_cloudwatchlogs"
@@ -21,8 +20,6 @@ type MockECSTaskManager struct {
 	ECS            *mock_ecs.MockProvider
 	CloudWatchLogs *mock_cloudwatchlogs.MockProvider
 	Backend        *mock_backend.MockBackend
-	ClusterScaler  *mock_ecsbackend.MockClusterScaler
-	Scheduler      *mock_ecsbackend.MockTaskScheduler
 }
 
 func NewMockECSTaskManager(ctrl *gomock.Controller) *MockECSTaskManager {
@@ -30,14 +27,11 @@ func NewMockECSTaskManager(ctrl *gomock.Controller) *MockECSTaskManager {
 		ECS:            mock_ecs.NewMockProvider(ctrl),
 		CloudWatchLogs: mock_cloudwatchlogs.NewMockProvider(ctrl),
 		Backend:        mock_backend.NewMockBackend(ctrl),
-		ClusterScaler:  mock_ecsbackend.NewMockClusterScaler(ctrl),
-		Scheduler:      mock_ecsbackend.NewMockTaskScheduler(ctrl),
 	}
 }
 
 func (this *MockECSTaskManager) Task() *ECSTaskManager {
-	taskManager := NewECSTaskManager(this.ECS, this.CloudWatchLogs, this.Backend, this.ClusterScaler)
-	taskManager.Scheduler = this.Scheduler
+	taskManager := NewECSTaskManager(this.ECS, this.CloudWatchLogs, this.Backend)
 	return taskManager
 }
 
@@ -56,10 +50,6 @@ func TestGetTask(t *testing.T) {
 					Return(nil, nil).
 					Times(3)
 
-				mockTask.Scheduler.EXPECT().
-					GetTask(taskID).
-					Return(nil)
-
 				return mockTask.Task()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -72,20 +62,10 @@ func TestGetTask(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
 
-				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
-				clusterARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:cluster/%s", environmentID.String())
-				taskID := id.L0TaskID("tskid").ECSTaskID()
-				deployID := id.L0DeployID("dply.1").ECSDeployID()
-				deployARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:cluster/%s", deployID.String())
-
 				mockTask.ECS.EXPECT().
 					ListTasks(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(nil, nil).
 					Times(3)
-
-				mockTask.Scheduler.EXPECT().
-					GetTask(gomock.Any()).
-					Return([]*ecs.Task{ecs.NewTask(clusterARN, taskID.String(), deployARN)})
 
 				return mockTask.Task()
 			},
@@ -129,10 +109,6 @@ func TestListTasks(t *testing.T) {
 					ListTasks(environmentID.ECSEnvironmentID().String(), nil, gomock.Any(), nil, nil).
 					Return(nil, nil).
 					Times(3)
-
-				mockTask.Scheduler.EXPECT().
-					ListTasks().
-					Return(nil)
 
 				return mockTask.Task()
 			},
@@ -191,9 +167,6 @@ func TestDeleteTask(t *testing.T) {
 					Return(nil, nil).
 					Times(3)
 
-				mockTask.Scheduler.EXPECT().
-					DeleteTask(taskID)
-
 				return mockTask.Task()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -250,10 +223,6 @@ func TestCreateTask(t *testing.T) {
 					Return(task, nil).
 					AnyTimes()
 
-				mockTask.ClusterScaler.EXPECT().
-					TriggerScalingAlgorithm(environmentID, &deployID, 1).
-					Return(0, false, nil)
-
 				mockTask.ECS.EXPECT().RunTask(
 					environmentID.String(),
 					deployID.TaskDefinition(),
@@ -273,10 +242,6 @@ func TestCreateTask(t *testing.T) {
 			Name: "Should not create cloudwatch logs group if disableLogging is true",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
-
-				mockTask.ClusterScaler.EXPECT().
-					TriggerScalingAlgorithm(gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(0, false, nil)
 
 				mockTask.ECS.EXPECT().RunTask(
 					gomock.Any(),
@@ -298,14 +263,6 @@ func TestCreateTask(t *testing.T) {
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
 
-				deployID := id.L0DeployID("dplyid.1").ECSDeployID()
-				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
-				taskID := id.L0TaskID("tskid").ECSTaskID()
-
-				mockTask.ClusterScaler.EXPECT().
-					TriggerScalingAlgorithm(gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(0, false, nil)
-
 				err := awserr.New("", "No Container Instances were found in your cluster", nil)
 				mockTask.ECS.EXPECT().RunTask(
 					gomock.Any(),
@@ -314,9 +271,6 @@ func TestCreateTask(t *testing.T) {
 					gomock.Any(),
 					gomock.Any(),
 				).Return(nil, nil, err)
-
-				mockTask.Scheduler.EXPECT().
-					AddTask(taskID, deployID, environmentID, 1, nil)
 
 				return mockTask.Task()
 			},

@@ -6,17 +6,20 @@ import (
 )
 
 type ResourceProvider struct {
+	ID              string
 	usedPorts       []int
+	totalMemory     bytesize.Bytesize
 	availableMemory bytesize.Bytesize
 }
 
-func NewResourceProvider(availableMemory bytesize.Bytesize, usedPorts []int) *ResourceProvider {
+func NewResourceProvider(id string, totalMemory, availableMemory bytesize.Bytesize, usedPorts []int) *ResourceProvider {
 	if usedPorts == nil {
 		usedPorts = []int{}
 	}
 
 	return &ResourceProvider{
 		usedPorts:       usedPorts,
+		totalMemory:     totalMemory,
 		availableMemory: availableMemory,
 	}
 }
@@ -44,6 +47,14 @@ func (r *ResourceProvider) SubtractResourcesFor(consumer ResourceConsumer) error
 	return nil
 }
 
+func (r *ResourceProvider) IsInUse() bool {
+	if len(r.usedPorts) > 0 {
+		return true
+	}
+
+	return r.availableMemory < r.totalMemory
+}
+
 type ByMemory []*ResourceProvider
 
 func (m ByMemory) Len() int {
@@ -56,4 +67,18 @@ func (m ByMemory) Swap(i, j int) {
 
 func (m ByMemory) Less(i, j int) bool {
 	return m[i].availableMemory < m[j].availableMemory
+}
+
+type ByUsage []*ResourceProvider
+
+func (m ByUsage) Len() int {
+	return len(m)
+}
+
+func (m ByUsage) Swap(i, j int) {
+	m[i], m[j] = m[j], m[i]
+}
+
+func (m ByUsage) Less(i, j int) bool {
+	return m[i].IsInUse() && !m[j].IsInUse()
 }

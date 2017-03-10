@@ -1,7 +1,6 @@
 package resource
 
 import (
-	_ "github.com/stretchr/testify/assert"
 	"github.com/zpatrick/go-bytesize"
 	"testing"
 )
@@ -20,7 +19,7 @@ func TestResourceManagerScaleUp_noProviders(t *testing.T) {
 		},
 	}
 
-	if err := testManager.Manager(t).Run(); err != nil {
+	if err := testManager.Manager(t).Run(""); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -32,16 +31,16 @@ func TestResourceManagerScaleUp_notEnoughPorts(t *testing.T) {
 
 	testManager := &TestResourceManager{
 		ExpectedScale:     2,
-		MemoryPerProvider: bytesize.GB,
+		MemoryPerProvider: bytesize.MB,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider(bytesize.GB, []int{80}),
+			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{80}),
 		},
 		PendingResources: []ResourceConsumer{
 			{Ports: []int{80}},
 		},
 	}
 
-	if err := testManager.Manager(t).Run(); err != nil {
+	if err := testManager.Manager(t).Run(""); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -55,13 +54,13 @@ func TestResourceManagerScaleUp_notEnoughPortsComplex(t *testing.T) {
 
 	testManager := &TestResourceManager{
 		ExpectedScale:     6,
-		MemoryPerProvider: bytesize.GB,
+		MemoryPerProvider: bytesize.MB,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider(bytesize.GB, []int{8000, 8001, 8002}),
-			NewResourceProvider(bytesize.GB, []int{8000, 8001, 8002}),
-			NewResourceProvider(bytesize.GB, []int{8000, 8001, 8002}),
-			NewResourceProvider(bytesize.GB, []int{8000, 8001}),
-			NewResourceProvider(bytesize.GB, []int{8000}),
+			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001, 8002}),
+			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001, 8002}),
+			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001, 8002}),
+			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001}),
+			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000}),
 		},
 		PendingResources: []ResourceConsumer{
 			// these 3 consumers can be placed in the current cluster
@@ -81,7 +80,7 @@ func TestResourceManagerScaleUp_notEnoughPortsComplex(t *testing.T) {
 		},
 	}
 
-	if err := testManager.Manager(t).Run(); err != nil {
+	if err := testManager.Manager(t).Run(""); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -93,16 +92,16 @@ func TestResourceManagerScaleUp_notEnoughMemory(t *testing.T) {
 
 	testManager := &TestResourceManager{
 		ExpectedScale:     2,
-		MemoryPerProvider: bytesize.GB,
+		MemoryPerProvider: bytesize.MB * 4,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider(bytesize.MB, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB, nil),
 		},
 		PendingResources: []ResourceConsumer{
 			{Memory: bytesize.MB * 2},
 		},
 	}
 
-	if err := testManager.Manager(t).Run(); err != nil {
+	if err := testManager.Manager(t).Run(""); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -115,17 +114,17 @@ func TestResourceManagerScaleUp_notEnoughMemoryOnASingleProvider(t *testing.T) {
 
 	testManager := &TestResourceManager{
 		ExpectedScale:     3,
-		MemoryPerProvider: bytesize.GB,
+		MemoryPerProvider: bytesize.MB * 4,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider(bytesize.MB*1, nil),
-			NewResourceProvider(bytesize.MB*2, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*1, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, nil),
 		},
 		PendingResources: []ResourceConsumer{
 			{Memory: bytesize.MB * 3},
 		},
 	}
 
-	if err := testManager.Manager(t).Run(); err != nil {
+	if err := testManager.Manager(t).Run(""); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -139,13 +138,13 @@ func TestResourceManagerScaleUp_notEnoughMemoryComplex(t *testing.T) {
 
 	testManager := &TestResourceManager{
 		ExpectedScale:     6,
-		MemoryPerProvider: 4 * bytesize.MB,
+		MemoryPerProvider: bytesize.MB * 4,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider(bytesize.MB, nil),
-			NewResourceProvider(bytesize.MB, nil),
-			NewResourceProvider(bytesize.MB, nil),
-			NewResourceProvider(bytesize.MB*2, nil),
-			NewResourceProvider(bytesize.MB*3, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*3, nil),
 		},
 		PendingResources: []ResourceConsumer{
 			// these 4 consumers can be placed in the current cluster
@@ -163,7 +162,7 @@ func TestResourceManagerScaleUp_notEnoughMemoryComplex(t *testing.T) {
 		},
 	}
 
-	if err := testManager.Manager(t).Run(); err != nil {
+	if err := testManager.Manager(t).Run(""); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -177,10 +176,10 @@ func TestResourceManagerScaleUp_notEnoughPortsOrMemory(t *testing.T) {
 
 	testManager := &TestResourceManager{
 		ExpectedScale:     4,
-		MemoryPerProvider: 2 * bytesize.MB,
+		MemoryPerProvider: bytesize.MB * 2,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider(bytesize.MB, []int{80}),
-			NewResourceProvider(bytesize.MB, []int{80}),
+			NewResourceProvider("", bytesize.MB*2, bytesize.MB, []int{80}),
+			NewResourceProvider("", bytesize.MB*2, bytesize.MB*2, []int{80}),
 		},
 		PendingResources: []ResourceConsumer{
 			// this consumer will require a new provider for ports
@@ -194,13 +193,13 @@ func TestResourceManagerScaleUp_notEnoughPortsOrMemory(t *testing.T) {
 		},
 	}
 
-	if err := testManager.Manager(t).Run(); err != nil {
+	if err := testManager.Manager(t).Run(""); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestResourceManagerNoScale_noPendingResources(t *testing.T) {
-	// there are 2 providers in the cluster
+	// there are 2 providers in the cluster that are in use
 	// there are 0 consumers
 	// we should stay at size 2
 
@@ -208,13 +207,13 @@ func TestResourceManagerNoScale_noPendingResources(t *testing.T) {
 		ExpectedScale:     2,
 		MemoryPerProvider: bytesize.MB,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider(bytesize.MB, nil),
-			NewResourceProvider(bytesize.MB, nil),
+			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{80}),
+			NewResourceProvider("", bytesize.MB, bytesize.MB*0.5, nil),
 		},
 		PendingResources: []ResourceConsumer{},
 	}
 
-	if err := testManager.Manager(t).Run(); err != nil {
+	if err := testManager.Manager(t).Run(""); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -228,9 +227,9 @@ func TestResourceManagerNoScale_enoughPorts(t *testing.T) {
 		ExpectedScale:     3,
 		MemoryPerProvider: bytesize.MB,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider(bytesize.MB, []int{8000, 8001, 8002}),
-			NewResourceProvider(bytesize.MB, []int{8000, 8001}),
-			NewResourceProvider(bytesize.MB, []int{8000}),
+			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001, 8002}),
+			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001}),
+			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000}),
 		},
 		PendingResources: []ResourceConsumer{
 			{Ports: []int{8001}},
@@ -242,7 +241,7 @@ func TestResourceManagerNoScale_enoughPorts(t *testing.T) {
 		},
 	}
 
-	if err := testManager.Manager(t).Run(); err != nil {
+	if err := testManager.Manager(t).Run(""); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -256,9 +255,9 @@ func TestResourceManagerNoScale_enoughMemory(t *testing.T) {
 		ExpectedScale:     3,
 		MemoryPerProvider: bytesize.MB * 4,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider(bytesize.MB, nil),
-			NewResourceProvider(bytesize.MB*2, nil),
-			NewResourceProvider(bytesize.MB*3, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*3, nil),
 		},
 		PendingResources: []ResourceConsumer{
 			{Memory: bytesize.MB},
@@ -269,7 +268,7 @@ func TestResourceManagerNoScale_enoughMemory(t *testing.T) {
 		},
 	}
 
-	if err := testManager.Manager(t).Run(); err != nil {
+	if err := testManager.Manager(t).Run(""); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -283,21 +282,68 @@ func TestResourceManagerNoScale_enoughMemoryAndPorts(t *testing.T) {
 		ExpectedScale:     3,
 		MemoryPerProvider: bytesize.MB * 4,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider(bytesize.MB*1, []int{8000, 8001, 8002}),
-			NewResourceProvider(bytesize.MB*3, []int{8000, 8001}),
-			NewResourceProvider(bytesize.MB*2, []int{8000}),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*1, []int{8000, 8001, 8002}),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*3, []int{8000, 8001}),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, []int{8000}),
 		},
 		PendingResources: []ResourceConsumer{
 			// note that if we place this consumer in the 2nd provider, we would fail
 			// to place the 3MB consumer
-			{Memory: bytesize.MB*1, Ports: []int{8002}},
-			{Memory: bytesize.MB*3},
-			{Memory: bytesize.MB*1, Ports: []int{8001}},
+			{Memory: bytesize.MB * 1, Ports: []int{8002}},
+			{Memory: bytesize.MB * 3},
+			{Memory: bytesize.MB * 1, Ports: []int{8001}},
 			{Memory: bytesize.MB},
 		},
 	}
 
-	if err := testManager.Manager(t).Run(); err != nil {
+	if err := testManager.Manager(t).Run(""); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestResourceManagerScaledown_noConsumers(t *testing.T) {
+	// there is 1 provider in the cluster that isn't in use
+	// there are 0 consumers
+	// we should scale to size 0
+
+	testManager := &TestResourceManager{
+		ExpectedScale:     0,
+		MemoryPerProvider: bytesize.MB,
+		ResourceProviders: []*ResourceProvider{
+			NewResourceProvider("", bytesize.MB, bytesize.MB, nil),
+		},
+		PendingResources: []ResourceConsumer{},
+	}
+
+	if err := testManager.Manager(t).Run(""); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestResourceManagerScaledown_complex(t *testing.T) {
+	// there are 5 providers in the cluster
+	// 2 are not in use
+	// there are 2 consumers that can be placed in the 3 already-used consumers
+	// we should scale to size 3
+
+	testManager := &TestResourceManager{
+		ExpectedScale:     3,
+		MemoryPerProvider: bytesize.MB * 4,
+		ResourceProviders: []*ResourceProvider{
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*4, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*4, nil),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, []int{8000}),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, []int{8001}),
+			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, []int{8002}),
+		},
+		PendingResources: []ResourceConsumer{
+			{Memory: bytesize.MB, Ports: []int{8000}},
+			{Memory: bytesize.MB, Ports: []int{8001}},
+			{Memory: bytesize.MB, Ports: []int{8002}},
+		},
+	}
+
+	if err := testManager.Manager(t).Run(""); err != nil {
 		t.Fatal(err)
 	}
 }

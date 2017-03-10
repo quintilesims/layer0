@@ -5,7 +5,7 @@ import (
 )
 
 type ResourceProviderManager interface {
-	GetResourceProviders() ([]*ResourceProvider, error)
+	GetResourceProviders(environmentID string) ([]*ResourceProvider, error)
 	MemoryPerProvider() bytesize.Bytesize
-	ScaleTo(int) error
+	ScaleTo(environmentID string, scale int, unusedProviders ...*ResourceProvider) error
 }
