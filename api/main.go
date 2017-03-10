@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"github.com/quintilesims/layer0/api/scheduler/resource"
 	"github.com/Sirupsen/logrus"
 	"github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful/swagger"
@@ -132,14 +133,18 @@ func main() {
 
 	setupRestful(*lgc)
 
-	// Since this is ECS, we run a right sizer for the clusters to kill off
-	// unused clusters
-	logrus.Infof("Starting RightSizer")
-	backend.StartRightSizer()
-
 	deployLogic := logic.NewL0DeployLogic(*lgc)
+	serviceLogic := logic.NewL0ServiceLogic(*lgc)
 	taskLogic := logic.NewL0TaskLogic(*lgc)
 	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
+
+	clusterManager := logic.NewClusterManager(serviceLogic, taskLogic, deployLogic, jobLogic)
+	resourceManager := resource.NewResourceManager(clusterManager, clusterManager.GetPendingResources)
+
+	if err := resourceManager.Run("api"); err != nil{
+		logrus.Fatal(err)
+	}
+
 	jobJanitor := logic.NewJobJanitor(jobLogic)
 
 	logrus.Infof("Starting Job Janitor")

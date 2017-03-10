@@ -326,7 +326,7 @@ func TestCreateService(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				setup := target.(func(testutils.ErrorGenerator) *ECSServiceManager)
 
-				for i := 0; i < 2; i++ {
+				for i := 0; i < 1; i++ {
 					var g testutils.ErrorGenerator
 					g.Set(i+1, fmt.Errorf("some eror"))
 
@@ -401,7 +401,7 @@ func TestUpdateService(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				setup := target.(func(testutils.ErrorGenerator) *ECSServiceManager)
 
-				for i := 0; i < 2; i++ {
+				for i := 0; i < 1; i++ {
 					var g testutils.ErrorGenerator
 					g.Set(i+1, fmt.Errorf("some eror"))
 
@@ -477,7 +477,7 @@ func TestScaleService(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				setup := target.(func(testutils.ErrorGenerator) *ECSServiceManager)
 
-				for i := 0; i < 3; i++ {
+				for i := 0; i < 2; i++ {
 					var g testutils.ErrorGenerator
 					g.Set(i+1, fmt.Errorf("some eror"))
 

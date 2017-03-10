@@ -9,3 +9,11 @@ type ResourceConsumer struct {
 	Memory bytesize.Bytesize
 	Ports  []int
 }
+
+func NewResourceConsumer(id string, memory bytesize.Bytesize, ports []int) ResourceConsumer {
+	return ResourceConsumer{
+		ID: id,
+		Memory: memory,
+		Ports: ports,
+	}
+}

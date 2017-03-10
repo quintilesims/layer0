@@ -116,7 +116,7 @@ func (this *ECSDeployManager) populateModel(taskDef *ecs.TaskDefinition) (*model
 	return deploy, nil
 }
 
-type deploy struct {
+type Deploy struct {
 	ContainerDefinitions []*ecs.ContainerDefinition `json:"containerDefinitions,omitempty"`
 	Volumes              []*ecs.Volume              `json:"volumes,omitempty"`
 	Family               string                     `json:"family,omitempty"`
@@ -125,8 +125,8 @@ type deploy struct {
 	PlacementConstraints []*ecs.PlacementConstraint `json:"placementConstraints,omitempty"`
 }
 
-func marshalDeploy(body []byte) (*deploy, error) {
-	var d deploy
+func MarshalDeploy(body []byte) (*Deploy, error) {
+	var d Deploy
 	if err := json.Unmarshal(body, &d); err != nil {
 		err := fmt.Errorf("Failed to decode deploy: %s", err.Error())
 		return nil, errors.New(errors.InvalidJSON, err)
@@ -155,7 +155,7 @@ func extractDockerrun(taskDef *ecs.TaskDefinition) ([]byte, error) {
 		placementConstraints[i] = &ecs.PlacementConstraint{p}
 	}
 
-	d := deploy{
+	d := Deploy{
 		ContainerDefinitions: containers,
 		Volumes:              volumes,
 		Family:               pstring(taskDef.Family),

@@ -17,7 +17,7 @@ func stringp(s string) *string {
 	return &s
 }
 
-func intp(i int) *int{
+func intp(i int) *int {
 	return &i
 }
 
@@ -46,7 +46,7 @@ func pint(i *int) int {
 }
 
 func pint64(i *int64) int64 {
-	if i == nil{
+	if i == nil {
 		return 0
 	}
 
@@ -115,8 +115,8 @@ func IteratePages(fn paginatedf) error {
 	return nil
 }
 
-var CreateRenderedDeploy = func(body []byte) (*deploy, error) {
-	deploy, err := marshalDeploy(body)
+var CreateRenderedDeploy = func(body []byte) (*Deploy, error) {
+	deploy, err := MarshalDeploy(body)
 	if err != nil {
 		return nil, err
 	}

@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"fmt"
 	"github.com/quintilesims/layer0/common/config"
 )
 
@@ -19,11 +20,11 @@ func NewL0AdminLogic(lgc Logic) *L0AdminLogic {
 }
 
 func (a *L0AdminLogic) GetHealth() (string, error) {
-	return a.Backend.GetRightSizerHealth()
+	return "", fmt.Errorf("get right sizers health not ipml")
 }
 
 func (a L0AdminLogic) RunRightSizer() error {
-	return a.Backend.RunRightSizer()
+	return fmt.Errorf("run right sizer not ipml")
 }
 
 func (a *L0AdminLogic) UpdateSQL() error {
