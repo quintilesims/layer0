@@ -151,6 +151,17 @@ func (this *L0TaskLogic) getEnvironmentID(taskID string) (string, error) {
 		return tag.Value, nil
 	}
 
+	tasks, err := this.ListTasks()
+	if err != nil {
+		return "", err
+	}
+
+	for _, task := range tasks {
+		if task.TaskID == taskID {
+			return task.EnvironmentID, nil
+		}
+	}
+
 	return "", fmt.Errorf("Failed to find Environment ID for Task %s", taskID)
 }
 

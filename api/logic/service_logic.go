@@ -199,6 +199,17 @@ func (this *L0ServiceLogic) getEnvironmentID(serviceID string) (string, error) {
 		return tag.Value, nil
 	}
 
+	services, err := this.ListServices()
+        if err != nil {
+                return "", err
+        }
+
+        for _, service := range services {
+                if service.ServiceID == serviceID {
+                        return service.EnvironmentID, nil
+                }
+        }
+
 	return "", fmt.Errorf("Failed to find Environment ID for Service %s", serviceID)
 }
 
