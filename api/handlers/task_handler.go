@@ -2,24 +2,24 @@ package handlers
 
 import (
 	"fmt"
-	 "github.com/quintilesims/layer0/common/types"
 	"github.com/emicklei/go-restful"
 	"github.com/quintilesims/layer0/api/logic"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/types"
 	"net/http"
 	"strconv"
 )
 
 type TaskHandler struct {
 	TaskLogic logic.TaskLogic
-	JobLogic logic.JobLogic
+	JobLogic  logic.JobLogic
 }
 
 func NewTaskHandler(taskLogic logic.TaskLogic, jobLogic logic.JobLogic) *TaskHandler {
 	return &TaskHandler{
 		TaskLogic: taskLogic,
-		JobLogic: jobLogic,
+		JobLogic:  jobLogic,
 	}
 }
 
@@ -122,13 +122,13 @@ func (this *TaskHandler) CreateTask(request *restful.Request, response *restful.
 		return
 	}
 
-        job, err := this.JobLogic.CreateJob(types.CreateTaskJob, req)
-        if err != nil {
-                ReturnError(response, err)
-                return
-        }
+	job, err := this.JobLogic.CreateJob(types.CreateTaskJob, req)
+	if err != nil {
+		ReturnError(response, err)
+		return
+	}
 
-        WriteJobResponse(response, job.JobID)
+	WriteJobResponse(response, job.JobID)
 }
 
 func (this *TaskHandler) GetTaskLogs(request *restful.Request, response *restful.Response) {

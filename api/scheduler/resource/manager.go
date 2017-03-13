@@ -20,6 +20,7 @@ func NewResourceManager(p ResourceProviderManager, g ResourceConsumerGetter) *Re
 	}
 }
 
+// todo: this doesn't check reserved CPU units
 func (r *ResourceManager) Run(environmentID string) error {
 	pendingResources, err := r.getPendingResources(environmentID)
 	if err != nil {
@@ -54,7 +55,7 @@ func (r *ResourceManager) Run(environmentID string) error {
 
 		if !hasRoom {
 			memory := r.providerManager.MemoryPerProvider()
-			newProvider := NewResourceProvider("", memory, memory, nil)
+			newProvider := NewResourceProvider("", false, memory, nil)
 
 			if !newProvider.HasResourcesFor(consumer) {
 				err := fmt.Errorf("Resource '%s' is too large for current provider size %v!", consumer.ID, memory)

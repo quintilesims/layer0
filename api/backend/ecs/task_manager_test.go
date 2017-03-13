@@ -58,31 +58,31 @@ func TestGetTask(t *testing.T) {
 			},
 		},
 		/*
-		testutils.TestCase{
-			Name: "Should return layer0-formatted ids",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockTask := NewMockECSTaskManager(ctrl)
+			testutils.TestCase{
+				Name: "Should return layer0-formatted ids",
+				Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+					mockTask := NewMockECSTaskManager(ctrl)
 
-				mockTask.ECS.EXPECT().
-					ListTasks(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(nil, nil).
-					Times(3)
+					mockTask.ECS.EXPECT().
+						ListTasks(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+						Return(nil, nil).
+						Times(3)
 
-				return mockTask.Task()
+					return mockTask.Task()
+				},
+				Run: func(reporter *testutils.Reporter, target interface{}) {
+					manager := target.(*ECSTaskManager)
+
+					task, err := manager.GetTask("envid", "tskid")
+					if err != nil {
+						reporter.Fatal(err)
+					}
+
+					reporter.AssertEqual(task.TaskID, "tskid")
+					reporter.AssertEqual(task.EnvironmentID, "envid")
+					reporter.AssertEqual(task.DeployID, "dply.1")
+				},
 			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSTaskManager)
-
-				task, err := manager.GetTask("envid", "tskid")
-				if err != nil {
-					reporter.Fatal(err)
-				}
-
-				reporter.AssertEqual(task.TaskID, "tskid")
-				reporter.AssertEqual(task.EnvironmentID, "envid")
-				reporter.AssertEqual(task.DeployID, "dply.1")
-			},
-		},
 		*/
 	}
 

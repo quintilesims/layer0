@@ -7,19 +7,20 @@ import (
 
 type ResourceProvider struct {
 	ID              string
+	inUse           bool
 	usedPorts       []int
-	totalMemory     bytesize.Bytesize
 	availableMemory bytesize.Bytesize
 }
 
-func NewResourceProvider(id string, totalMemory, availableMemory bytesize.Bytesize, usedPorts []int) *ResourceProvider {
+func NewResourceProvider(id string, inUse bool, availableMemory bytesize.Bytesize, usedPorts []int) *ResourceProvider {
 	if usedPorts == nil {
 		usedPorts = []int{}
 	}
 
 	return &ResourceProvider{
+		ID:              id,
+		inUse:           inUse,
 		usedPorts:       usedPorts,
-		totalMemory:     totalMemory,
 		availableMemory: availableMemory,
 	}
 }
@@ -43,16 +44,13 @@ func (r *ResourceProvider) SubtractResourcesFor(consumer ResourceConsumer) error
 
 	r.usedPorts = append(r.usedPorts, consumer.Ports...)
 	r.availableMemory -= consumer.Memory
+	r.inUse = true
 
 	return nil
 }
 
 func (r *ResourceProvider) IsInUse() bool {
-	if len(r.usedPorts) > 0 {
-		return true
-	}
-
-	return r.availableMemory < r.totalMemory
+	return r.inUse
 }
 
 type ByMemory []*ResourceProvider

@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
-	"github.com/quintilesims/layer0/api/scheduler/resource"
 	"github.com/Sirupsen/logrus"
 	"github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful/swagger"
+	"github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/api/handlers"
 	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/api/scheduler/resource"
+	"github.com/quintilesims/layer0/common/aws/autoscaling"
+	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/startup"
@@ -126,6 +129,17 @@ func main() {
 		logrus.Fatal(err)
 	}
 
+	// todo: wrap these in decorators
+	ecsProvider, err := ecs.NewECS(credProvider, region)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	autoscalingProvider, err := autoscaling.NewAutoScaling(credProvider, region)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
 	lgc, err := startup.GetLogic(backend)
 	if err != nil {
 		logrus.Fatal(err)
@@ -138,10 +152,11 @@ func main() {
 	taskLogic := logic.NewL0TaskLogic(*lgc)
 	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
 
-	clusterManager := logic.NewClusterManager(serviceLogic, taskLogic, deployLogic, jobLogic)
-	resourceManager := resource.NewResourceManager(clusterManager, clusterManager.GetPendingResources)
+	ecsResourceManager := ecsbackend.NewECSResourceManager(ecsProvider, autoscalingProvider)
+	clusterResourceGetter := logic.NewClusterResourceGetter(serviceLogic, taskLogic, deployLogic, jobLogic)
+	resourceManager := resource.NewResourceManager(ecsResourceManager, clusterResourceGetter.GetPendingResources)
 
-	if err := resourceManager.Run("api"); err != nil{
+	if err := resourceManager.Run("api"); err != nil {
 		logrus.Fatal(err)
 	}
 

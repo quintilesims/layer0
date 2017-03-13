@@ -12,8 +12,8 @@ type ResourceConsumer struct {
 
 func NewResourceConsumer(id string, memory bytesize.Bytesize, ports []int) ResourceConsumer {
 	return ResourceConsumer{
-		ID: id,
+		ID:     id,
 		Memory: memory,
-		Ports: ports,
+		Ports:  ports,
 	}
 }
