@@ -59,7 +59,7 @@ func TestResourceProviderHasMemoryFor(t *testing.T) {
 		},
 	}
 
-	provider := NewResourceProvider("", bytesize.GB, bytesize.GB, []int{80, 8000})
+	provider := NewResourceProvider("", true, bytesize.GB, []int{80, 8000})
 	for _, c := range cases {
 		if output := provider.HasResourcesFor(c.ResourceConsumer); output != c.Expected {
 			t.Errorf("%s: output was %t, expected %t", c.Name, output, c.Expected)
@@ -68,7 +68,7 @@ func TestResourceProviderHasMemoryFor(t *testing.T) {
 }
 
 func TestResourceProviderSubtractResourcesFor(t *testing.T) {
-	provider := NewResourceProvider("", bytesize.GB, bytesize.GB, nil)
+	provider := NewResourceProvider("", false, bytesize.GB, nil)
 
 	resource := ResourceConsumer{Ports: []int{80}}
 	if err := provider.SubtractResourcesFor(resource); err != nil {
@@ -87,6 +87,7 @@ func TestResourceProviderSubtractResourcesFor(t *testing.T) {
 
 	assert.Equal(t, []int{80, 8000, 9090}, provider.usedPorts)
 	assert.Equal(t, bytesize.GB-(bytesize.MB*2), provider.availableMemory)
+	assert.Equal(t, true, provider.IsInUse())
 }
 
 func TestResourceProviderSubtractResourcesForError(t *testing.T) {
@@ -109,39 +110,9 @@ func TestResourceProviderSubtractResourcesForError(t *testing.T) {
 	}
 
 	for _, c := range cases {
-		provider := NewResourceProvider("", bytesize.GB, bytesize.GB, []int{80, 8000})
+		provider := NewResourceProvider("", true, bytesize.GB, []int{80, 8000})
 		if err := provider.SubtractResourcesFor(c.ResourceConsumer); err == nil {
 			t.Fatalf("%s: Error was nil!", c.Name)
-		}
-	}
-}
-
-func TestResourceProviderIsInUse(t *testing.T) {
-	cases := []struct {
-		Name     string
-		Provider *ResourceProvider
-		Expected bool
-	}{
-		{
-			Name:     "Port 80 is used",
-			Provider: NewResourceProvider("", bytesize.MB, bytesize.MB, []int{80}),
-			Expected: true,
-		},
-		{
-			Name:     "Some memory is used",
-			Provider: NewResourceProvider("", bytesize.GB, bytesize.MB, nil),
-			Expected: true,
-		},
-		{
-			Name:     "Not in use",
-			Provider: NewResourceProvider("", bytesize.MB, bytesize.MB, nil),
-			Expected: false,
-		},
-	}
-
-	for _, c := range cases {
-		if output := c.Provider.IsInUse(); output != c.Expected {
-			t.Errorf("%s: output was %t, expected %t", c.Name, output, c.Expected)
 		}
 	}
 }

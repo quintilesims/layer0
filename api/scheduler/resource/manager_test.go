@@ -33,7 +33,7 @@ func TestResourceManagerScaleUp_notEnoughPorts(t *testing.T) {
 		ExpectedScale:     2,
 		MemoryPerProvider: bytesize.MB,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{80}),
+			NewResourceProvider("", true, bytesize.MB, []int{80}),
 		},
 		PendingResources: []ResourceConsumer{
 			{Ports: []int{80}},
@@ -56,11 +56,11 @@ func TestResourceManagerScaleUp_notEnoughPortsComplex(t *testing.T) {
 		ExpectedScale:     6,
 		MemoryPerProvider: bytesize.MB,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001, 8002}),
-			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001, 8002}),
-			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001, 8002}),
-			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001}),
-			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000}),
+			NewResourceProvider("", true, bytesize.MB, []int{8000, 8001, 8002}),
+			NewResourceProvider("", true, bytesize.MB, []int{8000, 8001, 8002}),
+			NewResourceProvider("", true, bytesize.MB, []int{8000, 8001, 8002}),
+			NewResourceProvider("", true, bytesize.MB, []int{8000, 8001}),
+			NewResourceProvider("", true, bytesize.MB, []int{8000}),
 		},
 		PendingResources: []ResourceConsumer{
 			// these 3 consumers can be placed in the current cluster
@@ -94,7 +94,7 @@ func TestResourceManagerScaleUp_notEnoughMemory(t *testing.T) {
 		ExpectedScale:     2,
 		MemoryPerProvider: bytesize.MB * 4,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB, nil),
+			NewResourceProvider("", true, bytesize.MB, nil),
 		},
 		PendingResources: []ResourceConsumer{
 			{Memory: bytesize.MB * 2},
@@ -116,8 +116,8 @@ func TestResourceManagerScaleUp_notEnoughMemoryOnASingleProvider(t *testing.T) {
 		ExpectedScale:     3,
 		MemoryPerProvider: bytesize.MB * 4,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*1, nil),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, nil),
+			NewResourceProvider("", true, bytesize.MB*1, nil),
+			NewResourceProvider("", true, bytesize.MB*2, nil),
 		},
 		PendingResources: []ResourceConsumer{
 			{Memory: bytesize.MB * 3},
@@ -140,11 +140,11 @@ func TestResourceManagerScaleUp_notEnoughMemoryComplex(t *testing.T) {
 		ExpectedScale:     6,
 		MemoryPerProvider: bytesize.MB * 4,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB, nil),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB, nil),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB, nil),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, nil),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*3, nil),
+			NewResourceProvider("", true, bytesize.MB, nil),
+			NewResourceProvider("", true, bytesize.MB, nil),
+			NewResourceProvider("", true, bytesize.MB, nil),
+			NewResourceProvider("", true, bytesize.MB*2, nil),
+			NewResourceProvider("", true, bytesize.MB*3, nil),
 		},
 		PendingResources: []ResourceConsumer{
 			// these 4 consumers can be placed in the current cluster
@@ -178,8 +178,8 @@ func TestResourceManagerScaleUp_notEnoughPortsOrMemory(t *testing.T) {
 		ExpectedScale:     4,
 		MemoryPerProvider: bytesize.MB * 2,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB*2, bytesize.MB, []int{80}),
-			NewResourceProvider("", bytesize.MB*2, bytesize.MB*2, []int{80}),
+			NewResourceProvider("", true, bytesize.MB, []int{80}),
+			NewResourceProvider("", true, bytesize.MB*2, []int{80}),
 		},
 		PendingResources: []ResourceConsumer{
 			// this consumer will require a new provider for ports
@@ -207,8 +207,8 @@ func TestResourceManagerNoScale_noPendingResources(t *testing.T) {
 		ExpectedScale:     2,
 		MemoryPerProvider: bytesize.MB,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{80}),
-			NewResourceProvider("", bytesize.MB, bytesize.MB*0.5, nil),
+			NewResourceProvider("", true, bytesize.MB, []int{80}),
+			NewResourceProvider("", true, bytesize.MB*0.5, nil),
 		},
 		PendingResources: []ResourceConsumer{},
 	}
@@ -227,9 +227,9 @@ func TestResourceManagerNoScale_enoughPorts(t *testing.T) {
 		ExpectedScale:     3,
 		MemoryPerProvider: bytesize.MB,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001, 8002}),
-			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000, 8001}),
-			NewResourceProvider("", bytesize.MB, bytesize.MB, []int{8000}),
+			NewResourceProvider("", true, bytesize.MB, []int{8000, 8001, 8002}),
+			NewResourceProvider("", true, bytesize.MB, []int{8000, 8001}),
+			NewResourceProvider("", true, bytesize.MB, []int{8000}),
 		},
 		PendingResources: []ResourceConsumer{
 			{Ports: []int{8001}},
@@ -255,9 +255,9 @@ func TestResourceManagerNoScale_enoughMemory(t *testing.T) {
 		ExpectedScale:     3,
 		MemoryPerProvider: bytesize.MB * 4,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB, nil),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, nil),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*3, nil),
+			NewResourceProvider("", true, bytesize.MB, nil),
+			NewResourceProvider("", true, bytesize.MB*2, nil),
+			NewResourceProvider("", true, bytesize.MB*3, nil),
 		},
 		PendingResources: []ResourceConsumer{
 			{Memory: bytesize.MB},
@@ -282,9 +282,9 @@ func TestResourceManagerNoScale_enoughMemoryAndPorts(t *testing.T) {
 		ExpectedScale:     3,
 		MemoryPerProvider: bytesize.MB * 4,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*1, []int{8000, 8001, 8002}),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*3, []int{8000, 8001}),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, []int{8000}),
+			NewResourceProvider("", true, bytesize.MB*1, []int{8000, 8001, 8002}),
+			NewResourceProvider("", true, bytesize.MB*3, []int{8000, 8001}),
+			NewResourceProvider("", true, bytesize.MB*2, []int{8000}),
 		},
 		PendingResources: []ResourceConsumer{
 			// note that if we place this consumer in the 2nd provider, we would fail
@@ -310,7 +310,7 @@ func TestResourceManagerScaledown_noConsumers(t *testing.T) {
 		ExpectedScale:     0,
 		MemoryPerProvider: bytesize.MB,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB, bytesize.MB, nil),
+			NewResourceProvider("", false, bytesize.MB, nil),
 		},
 		PendingResources: []ResourceConsumer{},
 	}
@@ -330,11 +330,11 @@ func TestResourceManagerScaledown_complex(t *testing.T) {
 		ExpectedScale:     3,
 		MemoryPerProvider: bytesize.MB * 4,
 		ResourceProviders: []*ResourceProvider{
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*4, nil),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*4, nil),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, []int{8000}),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, []int{8001}),
-			NewResourceProvider("", bytesize.MB*4, bytesize.MB*2, []int{8002}),
+			NewResourceProvider("", false, bytesize.MB*4, nil),
+			NewResourceProvider("", false, bytesize.MB*4, nil),
+			NewResourceProvider("", true, bytesize.MB*2, []int{8000}),
+			NewResourceProvider("", true, bytesize.MB*2, []int{8001}),
+			NewResourceProvider("", true, bytesize.MB*2, []int{8002}),
 		},
 		PendingResources: []ResourceConsumer{
 			{Memory: bytesize.MB, Ports: []int{8000}},
