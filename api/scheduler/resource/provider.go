@@ -7,9 +7,9 @@ import (
 
 type ResourceProvider struct {
 	ID              string
-	inUse           bool
-	usedPorts       []int
-	availableMemory bytesize.Bytesize
+	InUse           bool
+	UsedPorts       []int
+	AvailableMemory bytesize.Bytesize
 }
 
 func NewResourceProvider(id string, inUse bool, availableMemory bytesize.Bytesize, usedPorts []int) *ResourceProvider {
@@ -19,22 +19,22 @@ func NewResourceProvider(id string, inUse bool, availableMemory bytesize.Bytesiz
 
 	return &ResourceProvider{
 		ID:              id,
-		inUse:           inUse,
-		usedPorts:       usedPorts,
-		availableMemory: availableMemory,
+		InUse:           inUse,
+		UsedPorts:       usedPorts,
+		AvailableMemory: availableMemory,
 	}
 }
 
 func (r *ResourceProvider) HasResourcesFor(consumer ResourceConsumer) bool {
 	for _, wanted := range consumer.Ports {
-		for _, used := range r.usedPorts {
+		for _, used := range r.UsedPorts {
 			if wanted == used {
 				return false
 			}
 		}
 	}
 
-	return consumer.Memory <= r.availableMemory
+	return consumer.Memory <= r.AvailableMemory
 }
 
 func (r *ResourceProvider) SubtractResourcesFor(consumer ResourceConsumer) error {
@@ -42,15 +42,15 @@ func (r *ResourceProvider) SubtractResourcesFor(consumer ResourceConsumer) error
 		return errors.New("Provider does not have adequate resources to subtract")
 	}
 
-	r.usedPorts = append(r.usedPorts, consumer.Ports...)
-	r.availableMemory -= consumer.Memory
-	r.inUse = true
+	r.UsedPorts = append(r.UsedPorts, consumer.Ports...)
+	r.AvailableMemory -= consumer.Memory
+	r.InUse = true
 
 	return nil
 }
 
 func (r *ResourceProvider) IsInUse() bool {
-	return r.inUse
+	return r.InUse
 }
 
 type ByMemory []*ResourceProvider
@@ -64,7 +64,7 @@ func (m ByMemory) Swap(i, j int) {
 }
 
 func (m ByMemory) Less(i, j int) bool {
-	return m[i].availableMemory < m[j].availableMemory
+	return m[i].AvailableMemory < m[j].AvailableMemory
 }
 
 type ByUsage []*ResourceProvider

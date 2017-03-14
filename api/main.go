@@ -18,8 +18,8 @@ import (
 	"strings"
 )
 
-func setupRestful(lgc logic.Logic) {
-	adminLogic := logic.NewL0AdminLogic(lgc)
+func setupRestful(lgc logic.Logic, resourceManager *resource.ResourceManager) {
+	adminLogic := logic.NewL0AdminLogic(lgc, resourceManager)
 	deployLogic := logic.NewL0DeployLogic(lgc)
 	environmentLogic := logic.NewL0EnvironmentLogic(lgc)
 	loadBalancerLogic := logic.NewL0LoadBalancerLogic(lgc)
@@ -145,8 +145,6 @@ func main() {
 		logrus.Fatal(err)
 	}
 
-	setupRestful(*lgc)
-
 	deployLogic := logic.NewL0DeployLogic(*lgc)
 	serviceLogic := logic.NewL0ServiceLogic(*lgc)
 	taskLogic := logic.NewL0TaskLogic(*lgc)
@@ -156,7 +154,9 @@ func main() {
 	clusterResourceGetter := logic.NewClusterResourceGetter(serviceLogic, taskLogic, deployLogic, jobLogic)
 	resourceManager := resource.NewResourceManager(ecsResourceManager, clusterResourceGetter.GetPendingResources)
 
-	if err := resourceManager.Run("api"); err != nil {
+	setupRestful(*lgc, resourceManager)
+
+	if _, err := resourceManager.Run("api"); err != nil {
 		logrus.Fatal(err)
 	}
 

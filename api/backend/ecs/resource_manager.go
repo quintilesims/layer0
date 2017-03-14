@@ -62,9 +62,17 @@ func (c *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 	// declare it as a not in-use instance?
 	// do nothing, capture this in scale function?
 
+	// this is non-intuitive, but the ports being used by tasks are kept in
+	// instance.ReminaingResources, not instance.RegisteredResources
 	var usedPorts []int
-	for _, resource := range instance.RegisteredResources {
-		if pstring(resource.Name) == "PORTS" {
+	var availableMemory bytesize.Bytesize
+	for _, resource := range instance.RemainingResources {
+		switch pstring(resource.Name) {
+		case "MEMORY":
+			v := pint64(resource.IntegerValue)
+			availableMemory = bytesize.MiB * bytesize.Bytesize(v)
+
+		case "PORTS":
 			for _, p := range resource.StringSetValue {
 				port, err := strconv.Atoi(pstring(p))
 				if err != nil {
@@ -74,17 +82,6 @@ func (c *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 
 				usedPorts = append(usedPorts, port)
 			}
-
-			break
-		}
-	}
-
-	var availableMemory bytesize.Bytesize
-	for _, resource := range instance.RemainingResources {
-		if pstring(resource.Name) == "MEMORY" {
-			v := pint64(resource.IntegerValue)
-			availableMemory = bytesize.MiB * bytesize.Bytesize(v)
-			break
 		}
 	}
 
@@ -95,50 +92,50 @@ func (c *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 	return provider, true
 }
 
+// todo: calculate per environment instance size
 func (c *ECSResourceManager) MemoryPerProvider() bytesize.Bytesize {
-	return 0
+	// todo remove when done debugging
+	return bytesize.GiB*3.5
 }
 
-func (c *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProviders ...*resource.ResourceProvider) error {
+func (c *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProviders ...*resource.ResourceProvider) (int, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	asg, err := c.Autoscaling.DescribeAutoScalingGroup(ecsEnvironmentID.String())
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	currentCapacity := int(pint64(asg.DesiredCapacity))
 
 	switch {
-	case scale == currentCapacity:
-		c.logger.Infof("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
-		return nil
 	case scale > currentCapacity:
 		c.logger.Infof("Environment %s is attempting to scale up to size %d", ecsEnvironmentID, scale)
 		return c.scaleUp(ecsEnvironmentID, scale, asg)
 	case scale < currentCapacity:
 		c.logger.Infof("Environment %s is attempting to scale down to size %d", ecsEnvironmentID, scale)
 		return c.scaleDown(ecsEnvironmentID, scale, asg, unusedProviders...)
+	default:
+		c.logger.Infof("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
+		return currentCapacity, nil
 	}
-
-	return nil
 }
 
-func (c *ECSResourceManager) scaleUp(ecsEnvironmentID id.ECSEnvironmentID, scale int, asg *autoscaling.Group) error {
+func (c *ECSResourceManager) scaleUp(ecsEnvironmentID id.ECSEnvironmentID, scale int, asg *autoscaling.Group) (int, error) {
 	maxCapacity := int(pint64(asg.MaxSize))
 	if scale > maxCapacity {
 		if err := c.Autoscaling.UpdateAutoScalingGroupMaxSize(*asg.AutoScalingGroupName, scale); err != nil {
-			return err
+			return 0, err
 		}
 	}
 
 	if err := c.Autoscaling.SetDesiredCapacity(asg.AutoScalingGroupName, scale); err != nil {
-		return err
+		return 0, err
 	}
 
-	return nil
+	return scale, nil
 }
 
-func (c *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, scale int, asg *autoscaling.Group, unusedProviders ...*resource.ResourceProvider) error {
+func (c *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, scale int, asg *autoscaling.Group, unusedProviders ...*resource.ResourceProvider) (int, error) {
 	minCapacity := int(pint64(asg.MinSize))
 	if scale < minCapacity {
 		c.logger.Warnf("Scale %d is below the minimum capacity of %d. Setting desired capacity to %d.", scale, minCapacity, minCapacity)
@@ -148,12 +145,12 @@ func (c *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, sca
 	currentCapacity := int(pint64(asg.DesiredCapacity))
 	if scale == currentCapacity {
 		c.logger.Infof("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
-		return nil
+		return scale, nil
 	}
 
 	if scale < currentCapacity {
 		if err := c.Autoscaling.SetDesiredCapacity(asg.AutoScalingGroupName, scale); err != nil {
-			return err
+			return 0, err
 		}
 	}
 
@@ -179,9 +176,9 @@ func (c *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, sca
 		c.logger.Infof("Environment %s terminating unused instance '%s'", ecsEnvironmentID, unusedProvider.ID)
 
 		if _, err := c.Autoscaling.TerminateInstanceInAutoScalingGroup(unusedProvider.ID, false); err != nil {
-			return err
+			return 0, err
 		}
 	}
 
-	return nil
+	return scale, nil
 }

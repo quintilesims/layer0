@@ -20,18 +20,29 @@ func NewResourceManager(p ResourceProviderManager, g ResourceConsumerGetter) *Re
 	}
 }
 
+type RunInfo struct {
+	EnvironmentID           string              `json:"environment_id"`
+	ScaleBeforeRun          int                 `json:"scale_before_run"`
+	DesiredScaleAfterRun    int                 `json:"desired_scale_after_run"`
+	ActualScaleAfterRun     int                 `json:"actual_scale_after_run"`
+	UnusedResourceProviders int                 `json:"unused_resource_providers"`
+	PendingResources        []ResourceConsumer  `json:"pending_resources"`
+	ResourceProviders       []*ResourceProvider `json:"resource_providers"`
+}
+
 // todo: this doesn't check reserved CPU units
-func (r *ResourceManager) Run(environmentID string) error {
+func (r *ResourceManager) Run(environmentID string) (*RunInfo, error) {
 	pendingResources, err := r.getPendingResources(environmentID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	resourceProviders, err := r.providerManager.GetResourceProviders(environmentID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
+	scaleBeforeRun := len(resourceProviders)
 	var errs []error
 
 	// check if we need to scale up
@@ -55,7 +66,7 @@ func (r *ResourceManager) Run(environmentID string) error {
 
 		if !hasRoom {
 			memory := r.providerManager.MemoryPerProvider()
-			newProvider := NewResourceProvider("", false, memory, nil)
+			newProvider := NewResourceProvider("<new resource provider>", false, memory, nil)
 
 			if !newProvider.HasResourcesFor(consumer) {
 				err := fmt.Errorf("Resource '%s' is too large for current provider size %v!", consumer.ID, memory)
@@ -76,10 +87,21 @@ func (r *ResourceManager) Run(environmentID string) error {
 		}
 	}
 
-	newScale := len(resourceProviders) - len(unusedProviders)
-	if err := r.providerManager.ScaleTo(environmentID, newScale, unusedProviders...); err != nil {
+	desiredScale := len(resourceProviders) - len(unusedProviders)
+	actualScale, err := r.providerManager.ScaleTo(environmentID, desiredScale, unusedProviders...)
+	if err != nil {
 		errs = append(errs, err)
 	}
 
-	return errors.MultiError(errs)
+	info := &RunInfo{
+		EnvironmentID:           environmentID,
+		PendingResources:        pendingResources,
+		ResourceProviders:       resourceProviders,
+		ScaleBeforeRun:          scaleBeforeRun,
+		DesiredScaleAfterRun:    desiredScale,
+		ActualScaleAfterRun:     actualScale,
+		UnusedResourceProviders: len(unusedProviders),
+	}
+
+	return info, errors.MultiError(errs)
 }
