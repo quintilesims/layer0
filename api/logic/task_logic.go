@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"fmt"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -166,7 +165,7 @@ func (this *L0TaskLogic) getEnvironmentID(taskID string) (string, error) {
 		}
 	}
 
-	return "", fmt.Errorf("Failed to find Environment ID for Task %s", taskID)
+	return "", errors.Newf(errors.InvalidTaskID, "Task %s does not exist", taskID)
 }
 
 func (this *L0TaskLogic) populateModel(model *models.Task) error {

@@ -59,7 +59,11 @@ func TestAdminScale(t *testing.T) {
 		RunScaler("id").
 		Return(&models.ScalerRunInfo{}, nil)
 
-	c := getCLIContext(t, Args{"id"}, nil)
+	tc.Resolver.EXPECT().
+		Resolve("environment", "env").
+		Return([]string{"id"}, nil)
+
+	c := getCLIContext(t, Args{"env"}, nil)
 	if err := command.Scale(c); err != nil {
 		t.Fatal(err)
 	}

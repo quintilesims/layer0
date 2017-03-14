@@ -105,7 +105,12 @@ func (a *AdminCommand) Scale(c *cli.Context) error {
 		return err
 	}
 
-	runInfo, err := a.Client.RunScaler(args["ENVIRONMENT"])
+	environmentID, err := a.resolveSingleID("environment", args["ENVIRONMENT"])
+	if err != nil {
+		return err
+	}
+
+	runInfo, err := a.Client.RunScaler(environmentID)
 	if err != nil {
 		return err
 	}
