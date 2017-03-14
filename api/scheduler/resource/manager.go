@@ -3,6 +3,7 @@ package resource
 import (
 	"fmt"
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 	"sort"
 )
 
@@ -20,18 +21,8 @@ func NewResourceManager(p ResourceProviderManager, g ResourceConsumerGetter) *Re
 	}
 }
 
-type RunInfo struct {
-	EnvironmentID           string              `json:"environment_id"`
-	ScaleBeforeRun          int                 `json:"scale_before_run"`
-	DesiredScaleAfterRun    int                 `json:"desired_scale_after_run"`
-	ActualScaleAfterRun     int                 `json:"actual_scale_after_run"`
-	UnusedResourceProviders int                 `json:"unused_resource_providers"`
-	PendingResources        []ResourceConsumer  `json:"pending_resources"`
-	ResourceProviders       []*ResourceProvider `json:"resource_providers"`
-}
-
 // todo: this doesn't check reserved CPU units
-func (r *ResourceManager) Run(environmentID string) (*RunInfo, error) {
+func (r *ResourceManager) Run(environmentID string) (*models.ScalerRunInfo, error) {
 	pendingResources, err := r.getPendingResources(environmentID)
 	if err != nil {
 		return nil, err
@@ -93,10 +84,10 @@ func (r *ResourceManager) Run(environmentID string) (*RunInfo, error) {
 		errs = append(errs, err)
 	}
 
-	info := &RunInfo{
+	info := &models.ScalerRunInfo{
 		EnvironmentID:           environmentID,
-		PendingResources:        pendingResources,
-		ResourceProviders:       resourceProviders,
+		PendingResources:        resourceConsumerModels(pendingResources),
+		ResourceProviders:       resourceProviderModels(resourceProviders),
 		ScaleBeforeRun:          scaleBeforeRun,
 		DesiredScaleAfterRun:    desiredScale,
 		ActualScaleAfterRun:     actualScale,
@@ -104,4 +95,22 @@ func (r *ResourceManager) Run(environmentID string) (*RunInfo, error) {
 	}
 
 	return info, errors.MultiError(errs)
+}
+
+func resourceConsumerModels(consumers []ResourceConsumer) []models.ResourceConsumer {
+	models := make([]models.ResourceConsumer, len(consumers))
+	for i := 0; i < len(consumers); i++ {
+		models[i] = consumers[i].ToModel()
+	}
+
+	return models
+}
+
+func resourceProviderModels(providers []*ResourceProvider) []models.ResourceProvider {
+	models := make([]models.ResourceProvider, len(providers))
+	for i := 0; i < len(providers); i++ {
+		models[i] = providers[i].ToModel()
+	}
+
+	return models
 }

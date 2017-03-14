@@ -48,5 +48,5 @@ type Client interface {
 	GetVersion() (string, error)
 	GetConfig() (*models.APIConfig, error)
 	UpdateSQL() error
-	RunRightSizer() error
+	RunScaler(environmentID string) (*models.ScalerRunInfo, error)
 }

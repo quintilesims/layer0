@@ -49,17 +49,17 @@ func TestAdminSQL(t *testing.T) {
 	}
 }
 
-func TestAdminRightSizer(t *testing.T) {
+func TestAdminScale(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewAdminCommand(tc.Command())
 
 	tc.Client.EXPECT().
-		RunRightSizer().
+		RunScaler("id").
 		Return(nil)
 
-	c := getCLIContext(t, nil, nil)
-	if err := command.RightSizer(c); err != nil {
+	c := getCLIContext(t, Args{"id"}, nil)
+	if err := command.Scale(c); err != nil {
 		t.Fatal(err)
 	}
 }

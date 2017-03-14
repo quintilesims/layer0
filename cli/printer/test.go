@@ -21,6 +21,7 @@ func (t *TestPrinter) PrintLoadBalancers(...*models.LoadBalancer) error         
 func (t *TestPrinter) PrintLoadBalancerSummaries(...*models.LoadBalancerSummary) error { return nil }
 func (t *TestPrinter) PrintLoadBalancerHealthCheck(*models.LoadBalancer) error         { return nil }
 func (t *TestPrinter) PrintLogs(...*models.LogFile) error                              { return nil }
+func (t *TestPrinter) PrintScalerRunInfo(*models.ScalerRunInfo) error                   { return nil }
 func (t *TestPrinter) PrintServices(...*models.Service) error                          { return nil }
 func (t *TestPrinter) PrintServiceSummaries(...*models.ServiceSummary) error           { return nil }
 func (t *TestPrinter) PrintTasks(...*models.Task) error                                { return nil }

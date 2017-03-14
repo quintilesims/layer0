@@ -2,14 +2,15 @@ package resource
 
 import (
 	"errors"
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/go-bytesize"
 )
 
 type ResourceProvider struct {
 	ID              string
-	InUse           bool
-	UsedPorts       []int
-	AvailableMemory bytesize.Bytesize
+	inUse           bool
+	usedPorts       []int
+	availableMemory bytesize.Bytesize
 }
 
 func NewResourceProvider(id string, inUse bool, availableMemory bytesize.Bytesize, usedPorts []int) *ResourceProvider {
@@ -19,22 +20,22 @@ func NewResourceProvider(id string, inUse bool, availableMemory bytesize.Bytesiz
 
 	return &ResourceProvider{
 		ID:              id,
-		InUse:           inUse,
-		UsedPorts:       usedPorts,
-		AvailableMemory: availableMemory,
+		inUse:           inUse,
+		usedPorts:       usedPorts,
+		availableMemory: availableMemory,
 	}
 }
 
 func (r *ResourceProvider) HasResourcesFor(consumer ResourceConsumer) bool {
 	for _, wanted := range consumer.Ports {
-		for _, used := range r.UsedPorts {
+		for _, used := range r.usedPorts {
 			if wanted == used {
 				return false
 			}
 		}
 	}
 
-	return consumer.Memory <= r.AvailableMemory
+	return consumer.Memory <= r.availableMemory
 }
 
 func (r *ResourceProvider) SubtractResourcesFor(consumer ResourceConsumer) error {
@@ -42,15 +43,24 @@ func (r *ResourceProvider) SubtractResourcesFor(consumer ResourceConsumer) error
 		return errors.New("Provider does not have adequate resources to subtract")
 	}
 
-	r.UsedPorts = append(r.UsedPorts, consumer.Ports...)
-	r.AvailableMemory -= consumer.Memory
-	r.InUse = true
+	r.usedPorts = append(r.usedPorts, consumer.Ports...)
+	r.availableMemory -= consumer.Memory
+	r.inUse = true
 
 	return nil
 }
 
 func (r *ResourceProvider) IsInUse() bool {
-	return r.InUse
+	return r.inUse
+}
+
+func (r ResourceProvider) ToModel() models.ResourceProvider {
+	return models.ResourceProvider{
+		ID:              r.ID,
+		InUse:           r.inUse,
+		UsedPorts:       r.usedPorts,
+		AvailableMemory: r.availableMemory.Format("mib"),
+	}
 }
 
 type ByMemory []*ResourceProvider
@@ -64,7 +74,7 @@ func (m ByMemory) Swap(i, j int) {
 }
 
 func (m ByMemory) Less(i, j int) bool {
-	return m[i].AvailableMemory < m[j].AvailableMemory
+	return m[i].availableMemory < m[j].availableMemory
 }
 
 type ByUsage []*ResourceProvider
@@ -78,5 +88,5 @@ func (m ByUsage) Swap(i, j int) {
 }
 
 func (m ByUsage) Less(i, j int) bool {
-	return m[i].IsInUse() && !m[j].IsInUse()
+	return m[i].inUse && !m[j].inUse
 }

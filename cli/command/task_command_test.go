@@ -68,7 +68,7 @@ func TestCreateTask(t *testing.T) {
 
 	tc.Client.EXPECT().
 		CreateTask("name", "environmentID", "deployID", 2, overrides).
-		Return(&models.Task{}, nil)
+		Return("jobid", nil)
 
 	flags := Flags{
 		"copies": 2,

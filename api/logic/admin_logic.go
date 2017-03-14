@@ -3,11 +3,12 @@ package logic
 import (
 	"github.com/quintilesims/layer0/api/scheduler/resource"
 	"github.com/quintilesims/layer0/common/config"
+	  "github.com/quintilesims/layer0/common/models"
 )
 
 type AdminLogic interface {
 	UpdateSQL() error
-	RunResourceManager(environmentID string) (*resource.RunInfo, error)
+	RunResourceManager(environmentID string) (*models.ScalerRunInfo, error)
 }
 
 type L0AdminLogic struct {
@@ -22,7 +23,7 @@ func NewL0AdminLogic(l Logic, r *resource.ResourceManager) *L0AdminLogic {
 	}
 }
 
-func (a L0AdminLogic) RunResourceManager(environmentID string) (*resource.RunInfo, error) {
+func (a L0AdminLogic) RunResourceManager(environmentID string) (*models.ScalerRunInfo, error) {
 	return a.ResourceManager.Run(environmentID)
 }
 

@@ -39,12 +39,12 @@ func (this AdminHandler) Routes() *restful.WebService {
 		To(this.GetHealth).
 		Doc("Returns Health of API Server"))
 
-	service.Route(service.POST("/scale/{id}").
+	service.Route(service.PUT("/scale/{id}").
 		Filter(basicAuthenticate).
 		To(this.RunResourceManager).
 		Reads("").
 		Param(id).
-		Doc("Run cluter scaler on an environment"))
+		Doc("Run resource manager on an environment"))
 
 	service.Route(service.GET("/config").
 		To(this.GetConfig).

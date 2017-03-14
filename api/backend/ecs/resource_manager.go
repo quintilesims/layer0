@@ -95,7 +95,7 @@ func (c *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 // todo: calculate per environment instance size
 func (c *ECSResourceManager) MemoryPerProvider() bytesize.Bytesize {
 	// todo remove when done debugging
-	return bytesize.GiB*3.5
+	return bytesize.GiB * 3.5
 }
 
 func (c *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProviders ...*resource.ResourceProvider) (int, error) {
