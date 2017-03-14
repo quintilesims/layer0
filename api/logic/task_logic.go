@@ -55,6 +55,10 @@ func (this *L0TaskLogic) GetTask(taskID string) (*models.Task, error) {
 
 	task, err := this.Backend.GetTask(environmentID, taskID)
 	if err != nil {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.InvalidTaskID {
+			return nil, errors.Newf(errors.InvalidTaskID, "Task %s does not exist", taskID)
+		}
+
 		return nil, err
 	}
 

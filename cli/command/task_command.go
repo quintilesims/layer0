@@ -116,12 +116,22 @@ func (t *TaskCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	t.Printer.StartSpinner("Deleting")
+	t.Printer.StartSpinner("Creating")
 	if err := t.Client.WaitForJob(jobID, timeout); err != nil {
 		return err
 	}
 
-	return nil
+	job, err := t.Client.GetJob(jobID)
+	if err != nil {
+		return err
+	}
+
+	task, err := t.Client.GetTask(job.Meta["task_id"])
+	if err != nil {
+		return err
+	}
+
+	return t.Printer.PrintTasks(task)
 }
 
 func (t *TaskCommand) Delete(c *cli.Context) error {

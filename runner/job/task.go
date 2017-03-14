@@ -41,7 +41,8 @@ func CreateTask(quit chan bool, context *JobContext) error {
 
 	return runAndRetry(quit, time.Second*10, func() error {
 		log.Infof("Running Action: CreateTask on '%s'", createTaskRequest.TaskName)
-		if _, err := context.TaskLogic.CreateTask(createTaskRequest); err != nil {
+		task, err := context.TaskLogic.CreateTask(createTaskRequest)
+		if err != nil {
 			if err, ok := err.(*ecsbackend.PartialCreateTaskFailure); ok {
 				createTaskRequest.Copies = err.NumFailed
 			}
@@ -49,6 +50,7 @@ func CreateTask(quit chan bool, context *JobContext) error {
 			return err
 		}
 
-		return nil
+		meta := map[string]string{"task_id": task.TaskID}
+		return context.SetJobMeta(meta)
 	})
 }

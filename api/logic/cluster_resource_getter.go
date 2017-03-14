@@ -133,28 +133,30 @@ func (c *ClusterResourceGetter) getPendingTaskResourcesInJobs(environmentID stri
 	resourceConsumers := []resource.ResourceConsumer{}
 	for _, job := range jobs {
 		if job.JobType == int64(types.CreateTaskJob) {
-			var req models.CreateTaskRequest
-			if err := json.Unmarshal([]byte(job.Request), &req); err != nil {
-				return nil, err
-			}
-
-			if req.EnvironmentID == environmentID {
-				// note that this isn't exact if the job has started some, but not all of the tasks
-				deployIDCopies := map[string]int{
-					req.DeployID: int(req.Copies),
-				}
-
-				// resource consumer ids are just used for debugging purposes
-				generateID := func(deployID, containerName string, copy int) string {
-					return fmt.Sprintf("Task: %s, Deploy: %s, Container: %s, Copy: %d", req.TaskName, deployID, containerName, copy)
-				}
-
-				taskResourceConsumers, err := c.getResourcesHelper(deployIDCopies, generateID)
-				if err != nil {
+			if job.JobStatus == int64(types.Pending) || job.JobStatus == int64(types.InProgress) {
+				var req models.CreateTaskRequest
+				if err := json.Unmarshal([]byte(job.Request), &req); err != nil {
 					return nil, err
 				}
 
-				resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
+				if req.EnvironmentID == environmentID {
+					// note that this isn't exact if the job has started some, but not all of the tasks
+					deployIDCopies := map[string]int{
+						req.DeployID: int(req.Copies),
+					}
+
+					// resource consumer ids are just used for debugging purposes
+					generateID := func(deployID, containerName string, copy int) string {
+						return fmt.Sprintf("Task: %s, Deploy: %s, Container: %s, Copy: %d", req.TaskName, deployID, containerName, copy)
+					}
+
+					taskResourceConsumers, err := c.getResourcesHelper(deployIDCopies, generateID)
+					if err != nil {
+						return nil, err
+					}
+
+					resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
+				}
 			}
 		}
 	}

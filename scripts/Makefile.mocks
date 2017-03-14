@@ -4,7 +4,7 @@ deps:
 
 all: api cli
 
-api: logic data backend aws
+api: logic db backend aws
 
 cli: client command
 
@@ -16,7 +16,7 @@ logic:
 	mockgen github.com/quintilesims/layer0/api/logic LoadBalancerLogic > ../api/logic/mock_logic/mock_load_balancer_logic.go &
 	mockgen github.com/quintilesims/layer0/api/logic JobLogic > ../api/logic/mock_logic/mock_job_logic.go &
 
-data:
+db:
 	mockgen github.com/quintilesims/layer0/common/db/job_store JobStore > ../common/db/job_store/mock_job_store/mock_job_store.go &
 
 backend:

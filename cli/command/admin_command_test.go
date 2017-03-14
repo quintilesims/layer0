@@ -1,6 +1,7 @@
 package command
 
 import (
+	"github.com/quintilesims/layer0/common/models"
 	"testing"
 )
 
@@ -56,7 +57,7 @@ func TestAdminScale(t *testing.T) {
 
 	tc.Client.EXPECT().
 		RunScaler("id").
-		Return(nil)
+		Return(&models.ScalerRunInfo{}, nil)
 
 	c := getCLIContext(t, Args{"id"}, nil)
 	if err := command.Scale(c); err != nil {

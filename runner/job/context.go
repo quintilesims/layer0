@@ -38,6 +38,10 @@ func (j *JobContext) CreateCopyWithNewRequest(request string) *JobContext {
 	}
 }
 
+func (j *JobContext) SetJobMeta(meta map[string]string) error {
+	return j.Logic.JobStore.SetJobMeta(j.jobID, meta)
+}
+
 func (j *JobContext) Request() string {
 	return j.request
 }

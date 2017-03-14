@@ -1,10 +1,9 @@
 package main
 
 import (
-	"time"
-
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/quintilesims/layer0/cli/client"
+	"time"
 )
 
 var defaultTimeout = time.Minute * 15

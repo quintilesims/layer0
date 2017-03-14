@@ -3,7 +3,7 @@ package logic
 import (
 	"github.com/quintilesims/layer0/api/scheduler/resource"
 	"github.com/quintilesims/layer0/common/config"
-	  "github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type AdminLogic interface {

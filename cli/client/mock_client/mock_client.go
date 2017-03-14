@@ -324,10 +324,11 @@ func (_mr *_MockClientRecorder) ListTasks() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListTasks")
 }
 
-func (_m *MockClient) RunScaler(_param0 string) error {
+func (_m *MockClient) RunScaler(_param0 string) (*models.ScalerRunInfo, error) {
 	ret := _m.ctrl.Call(_m, "RunScaler", _param0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(*models.ScalerRunInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 func (_mr *_MockClientRecorder) RunScaler(arg0 interface{}) *gomock.Call {
