@@ -5,7 +5,7 @@ Windows container support for Layer0 is currently experimental, and requires som
 ## Requirements
 
 - A Layer0 Instance with the `l0` binary [properly configured](https://quintilesims.github.io/layer0/setup/install/).
-- The suplemental file `win-user-data.ps1`, which is located in the root directory of the [Layer0 source repository](https://github.com/quintilesims/layer0).
+- The suplemental file `win-user-data.ps1`, which is located in the `/scripts` directory of the [Layer0 source repository](https://github.com/quintilesims/layer0).
 
 ## Instructions
 
