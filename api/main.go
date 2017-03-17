@@ -8,9 +8,8 @@ import (
 	"github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/api/handlers"
 	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/api/scheduler"
 	"github.com/quintilesims/layer0/api/scheduler/resource"
-	"github.com/quintilesims/layer0/common/aws/autoscaling"
-	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/startup"
@@ -129,13 +128,12 @@ func main() {
 		logrus.Fatal(err)
 	}
 
-	// todo: wrap these in decorators
-	ecsProvider, err := ecs.NewECS(credProvider, region)
+	ecsProvider, err := startup.GetECS(credProvider, region)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
-	autoscalingProvider, err := autoscaling.NewAutoScaling(credProvider, region)
+	autoscalingProvider, err := startup.GetAutoscaling(credProvider, region)
 	if err != nil {
 		logrus.Fatal(err)
 	}
@@ -148,6 +146,7 @@ func main() {
 	deployLogic := logic.NewL0DeployLogic(*lgc)
 	serviceLogic := logic.NewL0ServiceLogic(*lgc)
 	taskLogic := logic.NewL0TaskLogic(*lgc)
+	environmentLogic := logic.NewL0EnvironmentLogic(*lgc)
 	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
 
 	ecsResourceManager := ecsbackend.NewECSResourceManager(ecsProvider, autoscalingProvider)
@@ -156,9 +155,8 @@ func main() {
 
 	setupRestful(*lgc, resourceManager)
 
-	if _, err := resourceManager.Run("api"); err != nil {
-		logrus.Fatal(err)
-	}
+	logrus.Infof("Starting Resource Manager")
+	go scheduler.ManageResources(environmentLogic, resourceManager)
 
 	jobJanitor := logic.NewJobJanitor(jobLogic)
 

@@ -16,12 +16,12 @@ func (this *Retry) shouldRetry(err error) bool {
 	if err != nil {
 		if awsErr, ok := err.(awserr.Error); ok {
 			code := awsErr.Code()
-			message := strings.ToLower(awsErr.Message())
 
 			if code == "Throttling" || code == "ThrottlingException" {
 				return true
 			}
 
+			message := strings.ToLower(awsErr.Message())
 			if code == "ClientException" && strings.Contains(message, "too many concurrent attempts") {
 				return true
 			}
@@ -46,7 +46,7 @@ func (this *Retry) CallWithRetries(name string, call func() error) error {
 	callObject := &waitutils.Waiter{
 		Name:    name,
 		Retries: 20,
-		Delay:   10 * time.Second,
+		Delay:   5 * time.Second,
 		Check:   check,
 		Clock:   this.Clock,
 	}

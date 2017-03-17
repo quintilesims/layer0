@@ -23,7 +23,7 @@ func TestMain(m *testing.M) {
 
 func TestAPIDocs(t *testing.T) {
 	logic := logic.NewLogic(nil, nil, &ecsbackend.ECSBackend{})
-	setupRestful(*logic)
+	setupRestful(*logic, nil)
 
 	httpRequest, _ := http.NewRequest("GET", "/apidocs.json", nil)
 	httpWriter := httptest.NewRecorder()

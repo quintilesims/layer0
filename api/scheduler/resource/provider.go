@@ -4,7 +4,14 @@ import (
 	"errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/go-bytesize"
+	"sort"
 )
+
+type ProviderManager interface {
+	AddNewProvider(environmentID string) (*ResourceProvider, error)
+	GetProviders(environmentID string) ([]*ResourceProvider, error)
+	ScaleTo(environmentID string, size int, unusedProviders ...*ResourceProvider) (int, error)
+}
 
 type ResourceProvider struct {
 	ID              string
@@ -63,30 +70,41 @@ func (r ResourceProvider) ToModel() models.ResourceProvider {
 	}
 }
 
-type ByMemory []*ResourceProvider
+func SortProvidersByMemory(p []*ResourceProvider) {
+	sorter := &ResourceProviderSorter{
+		Providers: p,
+		lessThan: func(i *ResourceProvider, j *ResourceProvider) bool {
+			return i.availableMemory < j.availableMemory
+		},
+	}
 
-func (m ByMemory) Len() int {
-	return len(m)
+	sort.Sort(sorter)
 }
 
-func (m ByMemory) Swap(i, j int) {
-	m[i], m[j] = m[j], m[i]
+func SortProvidersByUsage(p []*ResourceProvider) {
+	sorter := &ResourceProviderSorter{
+		Providers: p,
+		lessThan: func(i *ResourceProvider, j *ResourceProvider) bool {
+			return i.inUse && !j.inUse
+		},
+	}
+
+	sort.Sort(sorter)
 }
 
-func (m ByMemory) Less(i, j int) bool {
-	return m[i].availableMemory < m[j].availableMemory
+type ResourceProviderSorter struct {
+	Providers []*ResourceProvider
+	lessThan  func(*ResourceProvider, *ResourceProvider) bool
 }
 
-type ByUsage []*ResourceProvider
-
-func (m ByUsage) Len() int {
-	return len(m)
+func (r *ResourceProviderSorter) Len() int {
+	return len(r.Providers)
 }
 
-func (m ByUsage) Swap(i, j int) {
-	m[i], m[j] = m[j], m[i]
+func (r *ResourceProviderSorter) Swap(i, j int) {
+	r.Providers[i], r.Providers[j] = r.Providers[j], r.Providers[i]
 }
 
-func (m ByUsage) Less(i, j int) bool {
-	return m[i].inUse && !m[j].inUse
+func (r *ResourceProviderSorter) Less(i, j int) bool {
+	return r.lessThan(r.Providers[i], r.Providers[j])
 }

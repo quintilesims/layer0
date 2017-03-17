@@ -11,6 +11,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 	"os"
 	"testing"
+	 "github.com/quintilesims/layer0/api/scheduler/resource/mock_resource"
 )
 
 func TestMain(m *testing.M) {
@@ -25,6 +26,7 @@ type TestLogic struct {
 	Backend  *mock_backend.MockBackend
 	JobStore *job_store.MysqlJobStore
 	TagStore *tag_store.MysqlTagStore
+	ResourceManager *mock_resource.MockResourceManager
 }
 
 func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
@@ -60,6 +62,7 @@ func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
 		Backend:  mock_backend.NewMockBackend(ctrl),
 		JobStore: jobStore,
 		TagStore: tagStore,
+		ResourceManager: mock_resource.NewMockResourceManager(ctrl),
 	}
 
 	return logic, ctrl
@@ -97,5 +100,5 @@ func (l *TestLogic) AssertTagExists(t *testing.T, tag models.Tag) {
 }
 
 func (l *TestLogic) Logic() Logic {
-	return *NewLogic(l.TagStore, l.JobStore, l.Backend)
+	return *NewLogic(l.TagStore, l.JobStore, l.Backend, l.ResourceManager)
 }

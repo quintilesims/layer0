@@ -21,8 +21,6 @@ db:
 
 backend:
 	mockgen github.com/quintilesims/layer0/api/backend Backend > ../api/backend/mock_backend/mock_backend.go &
-	mockgen -package mock_ecsbackend github.com/quintilesims/layer0/api/backend/ecs ClusterScaler > ../api/backend/ecs/mock_ecsbackend/mock_cluster_scaler.go &
-	mockgen -package mock_ecsbackend github.com/quintilesims/layer0/api/backend/ecs TaskScheduler > ../api/backend/ecs/mock_ecsbackend/mock_task_scheduler.go &
 
 aws:
 	mockgen github.com/quintilesims/layer0/common/aws/autoscaling Provider > ../common/aws/autoscaling/mock_autoscaling/mock_autoscaling.go &

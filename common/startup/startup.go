@@ -36,17 +36,7 @@ func GetBackend(credProvider provider.CredProvider, region string) (backend.Back
 		return nil, err
 	}
 
-	ecsProvider, err := ecs.NewECS(credProvider, region)
-	if err != nil {
-		return nil, err
-	}
-
 	elbProvider, err := elb.NewELB(credProvider, region)
-	if err != nil {
-		return nil, err
-	}
-
-	autoscalingProvider, err := autoscaling.NewAutoScaling(credProvider, region)
 	if err != nil {
 		return nil, err
 	}
@@ -63,9 +53,17 @@ func GetBackend(credProvider provider.CredProvider, region string) (backend.Back
 
 	ec2Provider = wrapEC2(ec2Provider)
 	elbProvider = wrapELB(elbProvider)
-	ecsProvider = wrapECS(ecsProvider)
-	autoscalingProvider = wrapAutoscaling(autoscalingProvider)
 	cloudWatchLogsProvider = wrapCloudWatchLogs(cloudWatchLogsProvider)
+
+	ecsProvider, err := GetECS(credProvider, region)
+	if err != nil {
+		return nil, err
+	}
+
+	autoscalingProvider, err := GetAutoscaling(credProvider, region)
+	if err != nil {
+		return nil, err
+	}
 
 	backend := ecsbackend.NewBackend(
 		tagStore,
@@ -78,6 +76,24 @@ func GetBackend(credProvider provider.CredProvider, region string) (backend.Back
 		cloudWatchLogsProvider)
 
 	return backend, nil
+}
+
+func GetECS(credProvider provider.CredProvider, region string) (ecs.Provider, error) {
+	ecsProvider, err := ecs.NewECS(credProvider, region)
+	if err != nil {
+		return nil, err
+	}
+
+	return wrapECS(ecsProvider), nil
+}
+
+func GetAutoscaling(credProvider provider.CredProvider, region string) (autoscaling.Provider, error) {
+	autoscalingProvider, err := autoscaling.NewAutoScaling(credProvider, region)
+	if err != nil {
+		return nil, err
+	}
+
+	return wrapAutoscaling(autoscalingProvider), nil
 }
 
 func GetLogic(backend backend.Backend) (*logic.Logic, error) {
@@ -121,17 +137,12 @@ func getNewJobStore() (job_store.JobStore, error) {
 }
 
 func wrapECS(e ecs.Provider) ecs.Provider {
-	wrap := &ecs.ProviderDecorator{
-		Inner:     e,
-		Decorator: decorators.CallWithLogging,
-	}
-
 	retry := &decorators.Retry{
 		Clock: waitutils.RealClock{},
 	}
 
-	wrap = &ecs.ProviderDecorator{
-		Inner:     wrap,
+	wrap := &ecs.ProviderDecorator{
+		Inner:     e,
 		Decorator: retry.CallWithRetries,
 	}
 
@@ -139,9 +150,13 @@ func wrapECS(e ecs.Provider) ecs.Provider {
 }
 
 func wrapAutoscaling(a autoscaling.Provider) autoscaling.Provider {
+	retry := &decorators.Retry{
+		Clock: waitutils.RealClock{},
+	}
+
 	wrap := &autoscaling.ProviderDecorator{
 		Inner:     a,
-		Decorator: decorators.CallWithLogging,
+		Decorator: retry.CallWithRetries,
 	}
 
 	return wrap

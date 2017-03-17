@@ -1,10 +1,12 @@
 package ecsbackend
 
 import (
+	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/api/scheduler/resource"
 	"github.com/quintilesims/layer0/common/aws/autoscaling"
+	"github.com/quintilesims/layer0/common/aws/ec2"
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/zpatrick/go-bytesize"
@@ -92,10 +94,24 @@ func (c *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 	return provider, true
 }
 
-// todo: calculate per environment instance size
-func (c *ECSResourceManager) MemoryPerProvider() bytesize.Bytesize {
-	// todo remove when done debugging
-	return bytesize.GiB * 3.5
+func (c *ECSResourceManager) MemoryPerProvider(environmentID string) (bytesize.Bytesize, error) {
+	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
+	group, err := c.Autoscaling.DescribeAutoScalingGroup(ecsEnvironmentID.String())
+	if err != nil {
+		return 0, err
+	}
+
+	config, err := c.Autoscaling.DescribeLaunchConfiguration(*group.LaunchConfigurationName)
+	if err != nil {
+		return 0, err
+	}
+
+	memory, ok := ec2.InstanceSizes[*config.InstanceType]
+	if !ok {
+		return 0, fmt.Errorf("Environment %s is using unknown instance type '%s'", *config.InstanceType)
+	}
+
+	return memory, nil
 }
 
 func (c *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProviders ...*resource.ResourceProvider) (int, error) {
@@ -109,13 +125,13 @@ func (c *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProv
 
 	switch {
 	case scale > currentCapacity:
-		c.logger.Infof("Environment %s is attempting to scale up to size %d", ecsEnvironmentID, scale)
+		c.logger.Debugf("Environment %s is attempting to scale up to size %d", ecsEnvironmentID, scale)
 		return c.scaleUp(ecsEnvironmentID, scale, asg)
 	case scale < currentCapacity:
-		c.logger.Infof("Environment %s is attempting to scale down to size %d", ecsEnvironmentID, scale)
+		c.logger.Debugf("Environment %s is attempting to scale down to size %d", ecsEnvironmentID, scale)
 		return c.scaleDown(ecsEnvironmentID, scale, asg, unusedProviders...)
 	default:
-		c.logger.Infof("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
+		c.logger.Debugf("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
 		return currentCapacity, nil
 	}
 }
@@ -144,7 +160,7 @@ func (c *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, sca
 
 	currentCapacity := int(pint64(asg.DesiredCapacity))
 	if scale == currentCapacity {
-		c.logger.Infof("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
+		c.logger.Debugf("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
 		return scale, nil
 	}
 
@@ -173,7 +189,7 @@ func (c *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, sca
 
 	for i := 0; canTerminate(i); i++ {
 		unusedProvider := unusedProviders[i]
-		c.logger.Infof("Environment %s terminating unused instance '%s'", ecsEnvironmentID, unusedProvider.ID)
+		c.logger.Debugf("Environment %s terminating unused instance '%s'", ecsEnvironmentID, unusedProvider.ID)
 
 		if _, err := c.Autoscaling.TerminateInstanceInAutoScalingGroup(unusedProvider.ID, false); err != nil {
 			return 0, err

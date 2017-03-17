@@ -5,6 +5,10 @@ import (
 	"github.com/zpatrick/go-bytesize"
 )
 
+type ConsumerGetter interface {
+	GetConsumers(environmentID string) ([]ResourceConsumer, error)
+}
+
 type ResourceConsumer struct {
 	ID     string
 	Memory bytesize.Bytesize
