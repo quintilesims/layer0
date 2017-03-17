@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	  "github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
@@ -59,7 +60,9 @@ func (this *L0JobLogic) Delete(jobID string) error {
 	}
 
 	if err := this.TaskLogic.DeleteTask(job.TaskID); err != nil {
-		return err
+		if err, ok := err.(*errors.ServerError); ok && err.Code != errors.InvalidTaskID {
+			return err
+		}
 	}
 
 	if err := this.JobStore.Delete(jobID); err != nil {

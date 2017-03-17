@@ -5,8 +5,12 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful/swagger"
+	"github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/api/handlers"
 	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/api/scheduler/resource"
+	"github.com/quintilesims/layer0/common/aws/autoscaling"
+	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/startup"
@@ -14,8 +18,8 @@ import (
 	"strings"
 )
 
-func setupRestful(lgc logic.Logic) {
-	adminLogic := logic.NewL0AdminLogic(lgc)
+func setupRestful(lgc logic.Logic, resourceManager *resource.ResourceManager) {
+	adminLogic := logic.NewL0AdminLogic(lgc, resourceManager)
 	deployLogic := logic.NewL0DeployLogic(lgc)
 	environmentLogic := logic.NewL0EnvironmentLogic(lgc)
 	loadBalancerLogic := logic.NewL0LoadBalancerLogic(lgc)
@@ -30,7 +34,7 @@ func setupRestful(lgc logic.Logic) {
 	loadBalancerHandler := handlers.NewLoadBalancerHandler(loadBalancerLogic, jobLogic)
 	serviceHandler := handlers.NewServiceHandler(serviceLogic, jobLogic)
 	tagHandler := handlers.NewTagHandler(lgc.TagStore)
-	taskHandler := handlers.NewTaskHandler(taskLogic)
+	taskHandler := handlers.NewTaskHandler(taskLogic, jobLogic)
 
 	restful.SetLogger(logutils.SilentLogger{})
 	restful.Add(deployHandler.Routes())
@@ -125,21 +129,37 @@ func main() {
 		logrus.Fatal(err)
 	}
 
+	// todo: wrap these in decorators
+	ecsProvider, err := ecs.NewECS(credProvider, region)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	autoscalingProvider, err := autoscaling.NewAutoScaling(credProvider, region)
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
 	lgc, err := startup.GetLogic(backend)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
-	setupRestful(*lgc)
-
-	// Since this is ECS, we run a right sizer for the clusters to kill off
-	// unused clusters
-	logrus.Infof("Starting RightSizer")
-	backend.StartRightSizer()
-
 	deployLogic := logic.NewL0DeployLogic(*lgc)
+	serviceLogic := logic.NewL0ServiceLogic(*lgc)
 	taskLogic := logic.NewL0TaskLogic(*lgc)
 	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
+
+	ecsResourceManager := ecsbackend.NewECSResourceManager(ecsProvider, autoscalingProvider)
+	clusterResourceGetter := logic.NewClusterResourceGetter(serviceLogic, taskLogic, deployLogic, jobLogic)
+	resourceManager := resource.NewResourceManager(ecsResourceManager, clusterResourceGetter.GetPendingResources)
+
+	setupRestful(*lgc, resourceManager)
+
+	if _, err := resourceManager.Run("api"); err != nil {
+		logrus.Fatal(err)
+	}
+
 	jobJanitor := logic.NewJobJanitor(jobLogic)
 
 	logrus.Infof("Starting Job Janitor")

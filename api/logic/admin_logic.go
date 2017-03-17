@@ -1,29 +1,30 @@
 package logic
 
 import (
+	"github.com/quintilesims/layer0/api/scheduler/resource"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type AdminLogic interface {
 	UpdateSQL() error
-	GetHealth() (string, error)
-	RunRightSizer() error
+	RunResourceManager(environmentID string) (*models.ScalerRunInfo, error)
 }
 
 type L0AdminLogic struct {
 	Logic
+	ResourceManager *resource.ResourceManager
 }
 
-func NewL0AdminLogic(lgc Logic) *L0AdminLogic {
-	return &L0AdminLogic{lgc}
+func NewL0AdminLogic(l Logic, r *resource.ResourceManager) *L0AdminLogic {
+	return &L0AdminLogic{
+		Logic:           l,
+		ResourceManager: r,
+	}
 }
 
-func (a *L0AdminLogic) GetHealth() (string, error) {
-	return a.Backend.GetRightSizerHealth()
-}
-
-func (a L0AdminLogic) RunRightSizer() error {
-	return a.Backend.RunRightSizer()
+func (a L0AdminLogic) RunResourceManager(environmentID string) (*models.ScalerRunInfo, error) {
+	return a.ResourceManager.Run(environmentID)
 }
 
 func (a *L0AdminLogic) UpdateSQL() error {

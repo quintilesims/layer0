@@ -26,18 +26,23 @@ func TestCreateTask(t *testing.T) {
 		testutils.AssertEqual(t, req.Copies, int64(2))
 		testutils.AssertEqual(t, req.ContainerOverrides, overrides)
 
-		MarshalAndWrite(t, w, models.Task{TaskID: "id"}, 200)
+		headers := map[string]string{
+			"Location": "/job/jobid",
+			"X-JobID":  "jobid",
+		}
+
+		MarshalAndWriteHeader(t, w, "", headers, 202)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	task, err := client.CreateTask("name", "environmentID", "deployID", 2, overrides)
+	jobID, err := client.CreateTask("name", "environmentID", "deployID", 2, overrides)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, task.TaskID, "id")
+	testutils.AssertEqual(t, jobID, "jobid")
 }
 
 func TestDeleteTask(t *testing.T) {

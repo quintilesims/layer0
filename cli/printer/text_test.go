@@ -232,19 +232,19 @@ func ExampleTextPrintLogs() {
 	//lineC
 }
 
-/*
-	 Deployments      []Deployment `json:"deployments"`
-        DesiredCount     int64        `json:"desired_count"`
-        EnvironmentID    string       `json:"environment_id"`
-        EnvironmentName  string       `json:"environment_name"`
-        LoadBalancerID   string       `json:"load_balancer_id"`
-        LoadBalancerName string       `json:"load_balancer_name"`
-        PendingCount     int64        `json:"pending_count"`
-        RunningCount     int64        `json:"running_count"`
-        ServiceID        string       `json:"service_id"`
-        ServiceName      string       `json:"service_name"`
+func ExampleTextPrintScalerRunInfo() {
+	printer := &TextPrinter{}
+	runInfo := &models.ScalerRunInfo{
+		EnvironmentID:       "eid1",
+		ScaleBeforeRun:      1,
+		ActualScaleAfterRun: 2,
+	}
 
-*/
+	printer.PrintScalerRunInfo(runInfo)
+	// Output:
+	//ENVIRONMENT  CURRENT SCALE  DESIRED SCALE
+	//eid1         1              2
+}
 
 func ExampleTextPrintServices() {
 	printer := &TextPrinter{}

@@ -237,6 +237,16 @@ func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
 	return nil
 }
 
+func (t *TextPrinter) PrintScalerRunInfo(runInfo *models.ScalerRunInfo) error {
+	rows := []string{
+		"ENVIRONMENT | CURRENT SCALE | DESIRED SCALE",
+		fmt.Sprintf("%s | %d | %d", runInfo.EnvironmentID, runInfo.ScaleBeforeRun, runInfo.ActualScaleAfterRun),
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
 func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 	getEnvironment := func(s *models.Service) string {
 		if s.EnvironmentName != "" {

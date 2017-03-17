@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/emicklei/go-restful"
 	"github.com/quintilesims/layer0/api/logic"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"net/http"
 	"strings"
@@ -25,6 +27,9 @@ func (this AdminHandler) Routes() *restful.WebService {
 		Consumes(restful.MIME_JSON).
 		Produces(restful.MIME_JSON)
 
+	id := service.PathParameter("id", "identifier of the environment").
+		DataType("string")
+
 	service.Route(service.GET("/version").
 		Filter(basicAuthenticate).
 		To(this.GetVersion).
@@ -34,11 +39,12 @@ func (this AdminHandler) Routes() *restful.WebService {
 		To(this.GetHealth).
 		Doc("Returns Health of API Server"))
 
-	service.Route(service.POST("/health").
+	service.Route(service.PUT("/scale/{id}").
 		Filter(basicAuthenticate).
-		To(this.RunRightSizer).
+		To(this.RunResourceManager).
 		Reads("").
-		Doc("Run right sizer"))
+		Param(id).
+		Doc("Run resource manager on an environment"))
 
 	service.Route(service.GET("/config").
 		To(this.GetConfig).
@@ -81,22 +87,25 @@ func (this *AdminHandler) GetConfig(request *restful.Request, response *restful.
 }
 
 func (this *AdminHandler) GetHealth(request *restful.Request, response *restful.Response) {
-	message, err := this.AdminLogic.GetHealth()
+	// todo: does right sizer have health anymore?
+	response.WriteAsJson("")
+}
+
+func (this *AdminHandler) RunResourceManager(request *restful.Request, response *restful.Response) {
+	id := request.PathParameter("id")
+	if id == "" {
+		err := fmt.Errorf("Parameter 'id' is required")
+		BadRequest(response, errors.MissingParameter, err)
+		return
+	}
+
+	info, err := this.AdminLogic.RunResourceManager(id)
 	if err != nil {
 		ReturnError(response, err)
 		return
 	}
 
-	response.WriteAsJson(message)
-}
-
-func (this *AdminHandler) RunRightSizer(request *restful.Request, response *restful.Response) {
-	if err := this.AdminLogic.RunRightSizer(); err != nil {
-		ReturnError(response, err)
-		return
-	}
-
-	response.WriteAsJson("")
+	response.WriteAsJson(info)
 }
 
 func (this *AdminHandler) UpdateSQL(request *restful.Request, response *restful.Response) {

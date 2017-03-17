@@ -11,7 +11,7 @@ func (c *APIClient) CreateTask(
 	deployID string,
 	copies int,
 	overrides []models.ContainerOverride,
-) (*models.Task, error) {
+) (string, error) {
 	req := models.CreateTaskRequest{
 		TaskName:           name,
 		EnvironmentID:      environmentID,
@@ -20,12 +20,12 @@ func (c *APIClient) CreateTask(
 		ContainerOverrides: overrides,
 	}
 
-	var task *models.Task
-	if err := c.Execute(c.Sling("task/").Post("").BodyJSON(req), &task); err != nil {
-		return nil, err
+	jobID, err := c.ExecuteWithJob(c.Sling("task/").Post("").BodyJSON(req))
+	if err != nil {
+		return "", err
 	}
 
-	return task, nil
+	return jobID, nil
 }
 
 func (c *APIClient) DeleteTask(id string) error {

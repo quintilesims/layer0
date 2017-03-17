@@ -25,7 +25,7 @@ func stepWithError() Step {
 	return Step{
 		Name:    "step with error",
 		Timeout: time.Second * 1,
-		Action:  func(chan bool, JobContext) error { return fmt.Errorf("some error") },
+		Action:  func(chan bool, *JobContext) error { return fmt.Errorf("some error") },
 	}
 }
 
@@ -94,7 +94,7 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 					Step{
 						Name:    "step1",
 						Timeout: time.Second * 1,
-						Action: func(chan bool, JobContext) error {
+						Action: func(chan bool, *JobContext) error {
 							recorder.Call("step1")
 							return nil
 						},
@@ -102,7 +102,7 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 					Step{
 						Name:    "step2",
 						Timeout: time.Second * 1,
-						Action: func(chan bool, JobContext) error {
+						Action: func(chan bool, *JobContext) error {
 							recorder.Call("step2")
 							return nil
 						},
@@ -143,7 +143,7 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 					Step{
 						Name:    "timeout step",
 						Timeout: time.Nanosecond * 0,
-						Action: func(quit chan bool, c JobContext) error {
+						Action: func(quit chan bool, c *JobContext) error {
 							select {
 							case <-quit:
 								return nil
@@ -179,7 +179,7 @@ func TestRunnerRun_RollbackExecution(t *testing.T) {
 				recorder.EXPECT().Call(gomock.Any())
 
 				step := stepWithError()
-				step.Rollback = func(JobContext) (JobContext, []Step, error) {
+				step.Rollback = func(*JobContext) (*JobContext, []Step, error) {
 					recorder.Call("")
 					return nil, nil, nil
 				}
@@ -209,8 +209,8 @@ func TestRunnerRun_RollbackExecution(t *testing.T) {
 					Step{
 						Name:    "step1",
 						Timeout: time.Second * 1,
-						Action:  func(chan bool, JobContext) error { return nil },
-						Rollback: func(JobContext) (JobContext, []Step, error) {
+						Action:  func(chan bool, *JobContext) error { return nil },
+						Rollback: func(*JobContext) (*JobContext, []Step, error) {
 							recorder.Call("step1")
 							return nil, nil, nil
 						},
@@ -218,8 +218,8 @@ func TestRunnerRun_RollbackExecution(t *testing.T) {
 					Step{
 						Name:    "step2",
 						Timeout: time.Second * 1,
-						Action:  func(chan bool, JobContext) error { return fmt.Errorf("some error") },
-						Rollback: func(JobContext) (JobContext, []Step, error) {
+						Action:  func(chan bool, *JobContext) error { return fmt.Errorf("some error") },
+						Rollback: func(*JobContext) (*JobContext, []Step, error) {
 							recorder.Call("step2")
 							return nil, nil, nil
 						},
