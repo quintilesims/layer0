@@ -107,7 +107,7 @@ func GetLogic(backend backend.Backend) (*logic.Logic, error) {
 		return nil, err
 	}
 
-	return logic.NewLogic(tagStore, jobStore, backend), nil
+	return logic.NewLogic(tagStore, jobStore, backend, nil), nil
 }
 
 func getNewTagStore() (tag_store.TagStore, error) {
