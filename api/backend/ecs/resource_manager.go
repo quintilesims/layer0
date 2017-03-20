@@ -27,7 +27,7 @@ func NewECSResourceManager(e ecs.Provider, a autoscaling.Provider) *ECSResourceM
 	}
 }
 
-func (p *ECSResourceManager) GetResourceProviders(environmentID string) ([]*resource.ResourceProvider, error) {
+func (p *ECSResourceManager) GetProviders(environmentID string) ([]*resource.ResourceProvider, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 
 	instanceARNs, err := p.ECS.ListContainerInstances(ecsEnvironmentID.String())
@@ -94,27 +94,28 @@ func (c *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 	return provider, true
 }
 
-func (c *ECSResourceManager) MemoryPerProvider(environmentID string) (bytesize.Bytesize, error) {
+func (c *ECSResourceManager) AddNewProvider(environmentID string) (*resource.ResourceProvider, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	group, err := c.Autoscaling.DescribeAutoScalingGroup(ecsEnvironmentID.String())
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	config, err := c.Autoscaling.DescribeLaunchConfiguration(*group.LaunchConfigurationName)
 	if err != nil {
-		return 0, err
+		return nil, err
 	}
 
 	memory, ok := ec2.InstanceSizes[*config.InstanceType]
 	if !ok {
-		return 0, fmt.Errorf("Environment %s is using unknown instance type '%s'", *config.InstanceType)
+		return nil, fmt.Errorf("Environment %s is using unknown instance type '%s'", *config.InstanceType)
 	}
 
-	return memory, nil
+	// todo: add default ports
+	return resource.NewResourceProvider("<new instance>", false, memory, nil), nil
 }
 
-func (c *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProviders ...*resource.ResourceProvider) (int, error) {
+func (c *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProviders []*resource.ResourceProvider) (int, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	asg, err := c.Autoscaling.DescribeAutoScalingGroup(ecsEnvironmentID.String())
 	if err != nil {
@@ -129,7 +130,7 @@ func (c *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProv
 		return c.scaleUp(ecsEnvironmentID, scale, asg)
 	case scale < currentCapacity:
 		c.logger.Debugf("Environment %s is attempting to scale down to size %d", ecsEnvironmentID, scale)
-		return c.scaleDown(ecsEnvironmentID, scale, asg, unusedProviders...)
+		return c.scaleDown(ecsEnvironmentID, scale, asg, unusedProviders)
 	default:
 		c.logger.Debugf("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
 		return currentCapacity, nil
@@ -151,7 +152,7 @@ func (c *ECSResourceManager) scaleUp(ecsEnvironmentID id.ECSEnvironmentID, scale
 	return scale, nil
 }
 
-func (c *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, scale int, asg *autoscaling.Group, unusedProviders ...*resource.ResourceProvider) (int, error) {
+func (c *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, scale int, asg *autoscaling.Group, unusedProviders []*resource.ResourceProvider) (int, error) {
 	minCapacity := int(pint64(asg.MinSize))
 	if scale < minCapacity {
 		c.logger.Warnf("Scale %d is below the minimum capacity of %d. Setting desired capacity to %d.", scale, minCapacity, minCapacity)

@@ -21,7 +21,7 @@ func NewL0AdminLogic(l Logic) *L0AdminLogic {
 }
 
 func (a *L0AdminLogic) RunEnvironmentScaler(environmentID string) (*models.ScalerRunInfo, error) {
-	return nil, nil
+	return a.Logic.Scaler.Scale(environmentID)
 }
 
 func (a *L0AdminLogic) UpdateSQL() error {

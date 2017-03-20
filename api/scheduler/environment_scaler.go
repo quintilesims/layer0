@@ -23,7 +23,7 @@ func NewL0EnvironmentScaler(c resource.ConsumerGetter, p resource.ProviderManage
 	}
 }
 
-func (r *L0EnvironmentScaler) Run(environmentID string) (*models.ScalerRunInfo, error) {
+func (r *L0EnvironmentScaler) Scale(environmentID string) (*models.ScalerRunInfo, error) {
 	resourceProviders, err := r.providerManager.GetProviders(environmentID)
 	if err != nil {
 		return nil, err

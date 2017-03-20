@@ -5,23 +5,27 @@ import (
 	"github.com/quintilesims/layer0/common/db/job_store"
 	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/models"
+	 "github.com/quintilesims/layer0/api/scheduler"
 )
 
 type Logic struct {
 	Backend  backend.Backend
 	TagStore tag_store.TagStore
 	JobStore job_store.JobStore
+	 Scaler scheduler.EnvironmentScaler
 }
 
 func NewLogic(
 	tagStore tag_store.TagStore,
 	jobData job_store.JobStore,
 	backend backend.Backend,
+	scaler scheduler.EnvironmentScaler,
 ) *Logic {
 	return &Logic{
 		TagStore: tagStore,
 		JobStore: jobData,
 		Backend:  backend,
+		Scaler: scaler,
 	}
 }
 

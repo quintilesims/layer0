@@ -9,7 +9,6 @@ import (
 	"github.com/quintilesims/layer0/api/handlers"
 	"github.com/quintilesims/layer0/api/logic"
 	"github.com/quintilesims/layer0/api/scheduler"
-	"github.com/quintilesims/layer0/api/scheduler/resource"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/startup"
@@ -17,8 +16,8 @@ import (
 	"strings"
 )
 
-func setupRestful(lgc logic.Logic, resourceManager *resource.ResourceManager) {
-	adminLogic := logic.NewL0AdminLogic(lgc, resourceManager)
+func setupRestful(lgc logic.Logic) {
+	adminLogic := logic.NewL0AdminLogic(lgc)
 	deployLogic := logic.NewL0DeployLogic(lgc)
 	environmentLogic := logic.NewL0EnvironmentLogic(lgc)
 	loadBalancerLogic := logic.NewL0LoadBalancerLogic(lgc)
@@ -146,18 +145,17 @@ func main() {
 	deployLogic := logic.NewL0DeployLogic(*lgc)
 	serviceLogic := logic.NewL0ServiceLogic(*lgc)
 	taskLogic := logic.NewL0TaskLogic(*lgc)
-	environmentLogic := logic.NewL0EnvironmentLogic(*lgc)
+	//environmentLogic := logic.NewL0EnvironmentLogic(*lgc)
 	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
 
 	ecsResourceManager := ecsbackend.NewECSResourceManager(ecsProvider, autoscalingProvider)
 	clusterResourceGetter := logic.NewClusterResourceGetter(serviceLogic, taskLogic, deployLogic, jobLogic)
-	resourceManager := resource.NewResourceManager(ecsResourceManager, clusterResourceGetter.GetPendingResources)
+	environmentScaler := scheduler.NewL0EnvironmentScaler(clusterResourceGetter, ecsResourceManager)
+	lgc.Scaler = environmentScaler
 
-	setupRestful(*lgc, resourceManager)
+	setupRestful(*lgc)
 
-	logrus.Infof("Starting Resource Manager")
-	go scheduler.ManageResources(environmentLogic, resourceManager)
-
+	// todo: run environment scaler in loop
 	jobJanitor := logic.NewJobJanitor(jobLogic)
 
 	logrus.Infof("Starting Job Janitor")

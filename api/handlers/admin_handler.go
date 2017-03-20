@@ -41,7 +41,7 @@ func (this AdminHandler) Routes() *restful.WebService {
 
 	service.Route(service.PUT("/scale/{id}").
 		Filter(basicAuthenticate).
-		To(this.RunResourceManager).
+		To(this.RunEnvironmentScaler).
 		Reads("").
 		Param(id).
 		Doc("Run resource manager on an environment"))
@@ -91,7 +91,7 @@ func (this *AdminHandler) GetHealth(request *restful.Request, response *restful.
 	response.WriteAsJson("")
 }
 
-func (this *AdminHandler) RunResourceManager(request *restful.Request, response *restful.Response) {
+func (this *AdminHandler) RunEnvironmentScaler(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("id")
 	if id == "" {
 		err := fmt.Errorf("Parameter 'id' is required")
@@ -99,7 +99,7 @@ func (this *AdminHandler) RunResourceManager(request *restful.Request, response 
 		return
 	}
 
-	info, err := this.AdminLogic.RunResourceManager(id)
+	info, err := this.AdminLogic.RunEnvironmentScaler(id)
 	if err != nil {
 		ReturnError(response, err)
 		return

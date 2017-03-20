@@ -10,7 +10,6 @@ import (
 	"github.com/zpatrick/go-bytesize"
 )
 
-// todo: caching
 type ClusterResourceGetter struct {
 	ServiceLogic ServiceLogic
 	TaskLogic    TaskLogic
@@ -29,7 +28,7 @@ func NewClusterResourceGetter(s ServiceLogic, t TaskLogic, d DeployLogic, j JobL
 	}
 }
 
-func (c *ClusterResourceGetter) GetPendingResources(environmentID string) ([]resource.ResourceConsumer, error) {
+func (c *ClusterResourceGetter) GetConsumers(environmentID string) ([]resource.ResourceConsumer, error) {
 	serviceResources, err := c.getPendingServiceResources(environmentID)
 	if err != nil {
 		return nil, err

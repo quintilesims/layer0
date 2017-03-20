@@ -48,7 +48,7 @@ func (e *EnvironmentScalerUnitTest) Run(t *testing.T) {
 
 	environmentScaler := NewL0EnvironmentScaler(mockGetter, mockProvider)
 
-	if _, err := environmentScaler.Run("eid"); err != nil {
+	if _, err := environmentScaler.Scale("eid"); err != nil {
 		t.Fatal(err)
 	}
 }
