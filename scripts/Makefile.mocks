@@ -23,7 +23,7 @@ backend:
 	mockgen github.com/quintilesims/layer0/api/backend Backend > ../api/backend/mock_backend/mock_backend.go &
 
 scheduler:
-	mockgen github.com/quintilesims/layer0/api/scheduler Scheduler > ../api/scheduler/mock_scheduler/mock_scheduler.go
+	mockgen github.com/quintilesims/layer0/api/scheduler EnvironmentScaler > ../api/scheduler/mock_scheduler/mock_environment_scaler.go
 	mockgen github.com/quintilesims/layer0/api/scheduler/resource ProviderManager > ../api/scheduler/resource/mock_resource/mock_provider_manager.go
 	mockgen github.com/quintilesims/layer0/api/scheduler/resource ConsumerGetter > ../api/scheduler/resource/mock_resource/mock_consumer_getter.go
 

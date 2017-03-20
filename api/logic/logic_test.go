@@ -3,8 +3,8 @@ package logic
 import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/scheduler/mock_scheduler"
 	"github.com/quintilesims/layer0/api/backend/mock_backend"
+	"github.com/quintilesims/layer0/api/scheduler/mock_scheduler"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/db/job_store"
@@ -62,7 +62,7 @@ func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
 		Backend:  mock_backend.NewMockBackend(ctrl),
 		JobStore: jobStore,
 		TagStore: tagStore,
-		Scaler: mock_scheduler.NewMockEnvironmentScaler(ctrl),
+		Scaler:   mock_scheduler.NewMockEnvironmentScaler(ctrl),
 	}
 
 	return logic, ctrl

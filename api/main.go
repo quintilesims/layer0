@@ -5,15 +5,18 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful/swagger"
-	"github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/api/handlers"
 	"github.com/quintilesims/layer0/api/logic"
-	"github.com/quintilesims/layer0/api/scheduler"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/startup"
 	"net/http"
 	"strings"
+	"time"
+)
+
+const (
+	SCALER_SLEEP_DURATION = time.Minute * 5
 )
 
 func setupRestful(lgc logic.Logic) {
@@ -127,40 +130,49 @@ func main() {
 		logrus.Fatal(err)
 	}
 
-	ecsProvider, err := startup.GetECS(credProvider, region)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-
-	autoscalingProvider, err := startup.GetAutoscaling(credProvider, region)
-	if err != nil {
-		logrus.Fatal(err)
-	}
-
 	lgc, err := startup.GetLogic(backend)
 	if err != nil {
 		logrus.Fatal(err)
 	}
 
-	deployLogic := logic.NewL0DeployLogic(*lgc)
-	serviceLogic := logic.NewL0ServiceLogic(*lgc)
-	taskLogic := logic.NewL0TaskLogic(*lgc)
-	//environmentLogic := logic.NewL0EnvironmentLogic(*lgc)
-	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
-
-	ecsResourceManager := ecsbackend.NewECSResourceManager(ecsProvider, autoscalingProvider)
-	clusterResourceGetter := logic.NewClusterResourceGetter(serviceLogic, taskLogic, deployLogic, jobLogic)
-	environmentScaler := scheduler.NewL0EnvironmentScaler(clusterResourceGetter, ecsResourceManager)
-	lgc.Scaler = environmentScaler
-
 	setupRestful(*lgc)
 
-	// todo: run environment scaler in loop
+	taskLogic := logic.NewL0TaskLogic(*lgc)
+	deployLogic := logic.NewL0DeployLogic(*lgc)
+	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
+	environmentLogic := logic.NewL0EnvironmentLogic(*lgc)
+
 	jobJanitor := logic.NewJobJanitor(jobLogic)
+	go runEnvironmentScaler(environmentLogic)
 
 	logrus.Infof("Starting Job Janitor")
 	jobJanitor.Run()
 
 	logrus.Print("Service on localhost" + port)
 	logrus.Fatal(http.ListenAndServe(port, nil))
+}
+
+func runEnvironmentScaler(environmentLogic *logic.L0EnvironmentLogic) {
+	logger := logutils.NewStandardLogger("Environment Scaler")
+
+	for {
+		time.Sleep(SCALER_SLEEP_DURATION)
+
+		environments, err := environmentLogic.ListEnvironments()
+		if err != nil {
+			logger.Errorf("Failed to list environments: %v", err)
+			continue
+		}
+
+		for _, environment := range environments {
+			logger.Infof("Scaling Environment %s", environment.EnvironmentID)
+
+			if _, err := environmentLogic.Scaler.Scale(environment.EnvironmentID); err != nil {
+				logger.Errorf("Failed to scale environment %s: %v", err)
+				continue
+			}
+
+			logger.Info("Finished scaling environment %s", environment.EnvironmentID)
+		}
+	}
 }

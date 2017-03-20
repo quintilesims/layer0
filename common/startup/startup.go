@@ -1,9 +1,9 @@
 package startup
 
 import (
-	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/api/scheduler"
 	"github.com/quintilesims/layer0/common/aws/autoscaling"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
 	"github.com/quintilesims/layer0/common/aws/ec2"
@@ -20,7 +20,7 @@ import (
 	"github.com/quintilesims/layer0/common/waitutils"
 )
 
-func GetBackend(credProvider provider.CredProvider, region string) (backend.Backend, error) {
+func GetBackend(credProvider provider.CredProvider, region string) (*ecsbackend.ECSBackend, error) {
 	s3Provider, err := s3.NewS3(credProvider, region)
 	if err != nil {
 		return nil, err
@@ -96,7 +96,7 @@ func GetAutoscaling(credProvider provider.CredProvider, region string) (autoscal
 	return wrapAutoscaling(autoscalingProvider), nil
 }
 
-func GetLogic(backend backend.Backend) (*logic.Logic, error) {
+func GetLogic(backend *ecsbackend.ECSBackend) (*logic.Logic, error) {
 	tagStore, err := getNewTagStore()
 	if err != nil {
 		return nil, err
@@ -107,7 +107,19 @@ func GetLogic(backend backend.Backend) (*logic.Logic, error) {
 		return nil, err
 	}
 
-	return logic.NewLogic(tagStore, jobStore, backend, nil), nil
+	lgc := logic.NewLogic(tagStore, jobStore, backend, nil)
+
+	deployLogic := logic.NewL0DeployLogic(*lgc)
+	serviceLogic := logic.NewL0ServiceLogic(*lgc)
+	taskLogic := logic.NewL0TaskLogic(*lgc)
+	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
+
+	ecsResourceManager := ecsbackend.NewECSResourceManager(backend.ECSEnvironmentManager.ECS, backend.ECSEnvironmentManager.AutoScaling)
+	clusterResourceGetter := logic.NewClusterResourceGetter(serviceLogic, taskLogic, deployLogic, jobLogic)
+	scaler := scheduler.NewL0EnvironmentScaler(clusterResourceGetter, ecsResourceManager)
+	lgc.Scaler = scaler
+
+	return lgc, nil
 }
 
 func getNewTagStore() (tag_store.TagStore, error) {

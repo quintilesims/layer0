@@ -127,6 +127,10 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 		return task, err
 	}
 
+	if _, err := this.Logic.Scaler.Scale(task.EnvironmentID); err != nil {
+		jobLogger.Errorf("Failed to scale environment %s for task %s: %v", task.EnvironmentID, task.TaskID, err)
+	}
+
 	return task, nil
 }
 

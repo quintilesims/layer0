@@ -1,16 +1,16 @@
 package scheduler
 
 import (
+	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/scheduler/resource"
+	"github.com/quintilesims/layer0/api/scheduler/resource/mock_resource"
 	"github.com/zpatrick/go-bytesize"
 	"testing"
-	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/scheduler/resource/mock_resource"
 )
 
 type MockProviderManager struct {
 	*mock_resource.MockProviderManager
-	 MemoryPerProvider bytesize.Bytesize
+	MemoryPerProvider bytesize.Bytesize
 }
 
 type EnvironmentScalerUnitTest struct {
@@ -33,7 +33,7 @@ func (e *EnvironmentScalerUnitTest) Run(t *testing.T) {
 		GetConsumers("eid").
 		Return(e.ResourceConsumers, nil)
 
-	mockProvider := &MockProviderManager {
+	mockProvider := &MockProviderManager{
 		mock_resource.NewMockProviderManager(ctrl),
 		e.MemoryPerProvider,
 	}
