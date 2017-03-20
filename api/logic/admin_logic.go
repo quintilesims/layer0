@@ -2,10 +2,11 @@ package logic
 
 import (
 	"github.com/quintilesims/layer0/common/config"
-	//"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type AdminLogic interface {
+	RunEnvironmentScaler(string) (*models.ScalerRunInfo, error)
 	UpdateSQL() error
 }
 
@@ -15,8 +16,12 @@ type L0AdminLogic struct {
 
 func NewL0AdminLogic(l Logic) *L0AdminLogic {
 	return &L0AdminLogic{
-		Logic:           l,
+		Logic: l,
 	}
+}
+
+func (a *L0AdminLogic) RunEnvironmentScaler(environmentID string) (*models.ScalerRunInfo, error) {
+	return nil, nil
 }
 
 func (a *L0AdminLogic) UpdateSQL() error {

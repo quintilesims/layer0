@@ -93,7 +93,7 @@ func RunBasicScaler(
 	}
 
 	desiredScale := len(providers) - len(unusedProviders)
-	actualScale, err := providerManager.ScaleTo(environmentID, desiredScale, unusedProviders...)
+	actualScale, err := providerManager.ScaleTo(environmentID, desiredScale, unusedProviders)
 	if err != nil {
 		errs = append(errs, err)
 	}

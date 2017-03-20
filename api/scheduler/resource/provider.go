@@ -10,7 +10,7 @@ import (
 type ProviderManager interface {
 	AddNewProvider(environmentID string) (*ResourceProvider, error)
 	GetProviders(environmentID string) ([]*ResourceProvider, error)
-	ScaleTo(environmentID string, size int, unusedProviders ...*ResourceProvider) (int, error)
+	ScaleTo(environmentID string, size int, unusedProviders []*ResourceProvider) (int, error)
 }
 
 type ResourceProvider struct {

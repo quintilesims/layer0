@@ -8,9 +8,9 @@ import (
 )
 
 type Logic struct {
-	Backend         backend.Backend
-	TagStore        tag_store.TagStore
-	JobStore        job_store.JobStore
+	Backend  backend.Backend
+	TagStore tag_store.TagStore
+	JobStore job_store.JobStore
 }
 
 func NewLogic(

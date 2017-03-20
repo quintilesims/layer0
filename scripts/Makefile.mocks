@@ -4,7 +4,7 @@ deps:
 
 all: api cli
 
-api: logic db backend aws
+api: logic db backend aws scheduler
 
 cli: client command
 
@@ -21,6 +21,11 @@ db:
 
 backend:
 	mockgen github.com/quintilesims/layer0/api/backend Backend > ../api/backend/mock_backend/mock_backend.go &
+
+scheduler:
+	mockgen github.com/quintilesims/layer0/api/scheduler Scheduler > ../api/scheduler/mock_scheduler/mock_scheduler.go
+	mockgen github.com/quintilesims/layer0/api/scheduler/resource ProviderManager > ../api/scheduler/resource/mock_resource/mock_provider_manager.go
+	mockgen github.com/quintilesims/layer0/api/scheduler/resource ConsumerGetter > ../api/scheduler/resource/mock_resource/mock_consumer_getter.go
 
 aws:
 	mockgen github.com/quintilesims/layer0/common/aws/autoscaling Provider > ../common/aws/autoscaling/mock_autoscaling/mock_autoscaling.go &
