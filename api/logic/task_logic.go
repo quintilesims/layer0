@@ -98,6 +98,11 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 		return nil, errors.Newf(errors.MissingParameter, "TaskName not specified")
 	}
 
+	// scale first in case Backend.CreateTask fails due to lack of space
+	if _, err := this.Logic.Scaler.Scale(req.EnvironmentID); err != nil {
+		jobLogger.Errorf("Failed to scale environment %s for task %s: %v", req.EnvironmentID, req.TaskName, err)
+	}
+
 	task, err := this.Backend.CreateTask(
 		req.EnvironmentID,
 		req.TaskName,
@@ -125,10 +130,6 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 
 	if err := this.populateModel(task); err != nil {
 		return task, err
-	}
-
-	if _, err := this.Logic.Scaler.Scale(task.EnvironmentID); err != nil {
-		jobLogger.Errorf("Failed to scale environment %s for task %s: %v", task.EnvironmentID, task.TaskID, err)
 	}
 
 	return task, nil

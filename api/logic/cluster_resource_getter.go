@@ -101,9 +101,12 @@ func (c *ClusterResourceGetter) getPendingTaskResourcesInECS(environmentID strin
 				return nil, err
 			}
 
-			deployIDCopies := map[string]int{}
-			if numPending := int(task.PendingCount); numPending > 0 {
-				deployIDCopies[task.DeployID] = numPending
+			if task.PendingCount == 0 {
+				continue
+			}
+
+			deployIDCopies := map[string]int{
+				task.DeployID: int(task.PendingCount),
 			}
 
 			// resource consumer ids are just used for debugging purposes
