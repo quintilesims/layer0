@@ -248,19 +248,126 @@ func TestGetPendingTaskResourcesInECS(t *testing.T) {
 
 	testutils.AssertEqual(t, len(resources), 4)
 
-	// job1, deploy1, container1, copy1
+	// task1, deploy1, container1, copy1
 	testutils.AssertEqual(t, resources[0].Ports, []int{80, 22})
 	testutils.AssertEqual(t, resources[0].Memory, bytesize.MiB*500)
 
-	// job1, deploy1, container1, copy2
+	// task1, deploy1, container1, copy2
 	testutils.AssertEqual(t, resources[1].Ports, []int{80, 22})
 	testutils.AssertEqual(t, resources[1].Memory, bytesize.MiB*500)
 
-	// job2, deploy2, container1, copy1
+	// task2, deploy2, container1, copy1
 	testutils.AssertEqual(t, resources[2].Ports, []int{80})
 	testutils.AssertEqual(t, resources[2].Memory, bytesize.MiB*500)
 
-	// job2, deploy2, container2, copy1
+	// task2, deploy2, container2, copy1
+	testutils.AssertEqual(t, resources[3].Ports, []int{8000})
+	testutils.AssertEqual(t, resources[3].Memory, bytesize.MiB*1000)
+}
+
+func TestGetPendingServiceResources(t *testing.T) {
+	crg, ctrl := newTestClusterResourceGetter(t)
+	defer ctrl.Finish()
+
+	serviceSummaries := []*models.ServiceSummary{
+		{
+			ServiceID:     "s1",
+			EnvironmentID: "e1",
+		},
+		{
+			ServiceID:     "s2",
+			EnvironmentID: "e1",
+		},
+		{
+			ServiceID:     "s3",
+			EnvironmentID: "e1",
+		},
+		{
+			ServiceID:     "s4",
+			EnvironmentID: "e4",
+		},
+	}
+
+	crg.ServiceLogic.EXPECT().
+		ListServices().
+		Return(serviceSummaries, nil)
+
+	services := []*models.Service{
+		{
+			ServiceID:     "s1",
+			EnvironmentID: "e1",
+			Deployments: []models.Deployment{
+				{
+					DeployID:     "d1",
+					DesiredCount: 2,
+					RunningCount: 0,
+				},
+			},
+		},
+		{
+			ServiceID:     "s2",
+			EnvironmentID: "e1",
+			Deployments: []models.Deployment{
+				{
+					DeployID:     "d2",
+					DesiredCount: 1,
+					RunningCount: 0,
+				},
+			},
+		},
+		{
+			ServiceID:     "s3",
+			EnvironmentID: "e1",
+			Deployments: []models.Deployment{
+				{
+					DeployID:     "d1",
+					DesiredCount: 1,
+					RunningCount: 1,
+				},
+			},
+		},
+	}
+
+	crg.ServiceLogic.EXPECT().
+		GetService("s1").
+		Return(services[0], nil)
+
+	crg.ServiceLogic.EXPECT().
+		GetService("s2").
+		Return(services[1], nil)
+
+	crg.ServiceLogic.EXPECT().
+		GetService("s3").
+		Return(services[2], nil)
+
+	crg.DeployLogic.EXPECT().
+		GetDeploy("d1").
+		Return(&models.Deploy{Dockerrun: deployWithOneContainer}, nil)
+
+	crg.DeployLogic.EXPECT().
+		GetDeploy("d2").
+		Return(&models.Deploy{Dockerrun: deployWithTwoContainers}, nil)
+
+	resources, err := crg.ClusterResourceGetter().getPendingServiceResources("e1")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutils.AssertEqual(t, len(resources), 4)
+
+	// service1, deploy1, container1, copy1
+	testutils.AssertEqual(t, resources[0].Ports, []int{80, 22})
+	testutils.AssertEqual(t, resources[0].Memory, bytesize.MiB*500)
+
+	// service1, deploy1, container1, copy2
+	testutils.AssertEqual(t, resources[1].Ports, []int{80, 22})
+	testutils.AssertEqual(t, resources[1].Memory, bytesize.MiB*500)
+
+	// service2, deploy2, container1, copy1
+	testutils.AssertEqual(t, resources[2].Ports, []int{80})
+	testutils.AssertEqual(t, resources[2].Memory, bytesize.MiB*500)
+
+	// service2, deploy2, container2, copy1
 	testutils.AssertEqual(t, resources[3].Ports, []int{8000})
 	testutils.AssertEqual(t, resources[3].Memory, bytesize.MiB*1000)
 }

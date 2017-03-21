@@ -70,6 +70,10 @@ func (c *ClusterResourceGetter) getPendingServiceResources(environmentID string)
 				}
 			}
 
+			if len(deployIDCopies) == 0 {
+				continue
+			}
+
 			// resource consumer ids are just used for debugging purposes
 			generateID := func(deployID, containerName string, copy int) string {
 				return fmt.Sprintf("Service: %s, Deploy: %s, Container: %s, Copy: %d", summary.ServiceID, deployID, containerName, copy)
