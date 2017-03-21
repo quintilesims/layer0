@@ -1,6 +1,8 @@
 # Deployment guide: Guestbook sample application
 In this example, you will learn how different Layer0 commands work together to deploy web applications to the cloud. The sample application in this guide is a guestbook &mdash; a web application that acts as a simple message board.
 
+---
+
 ## Before you start
 In order to complete the procedures in this section, you must install and configure Layer0 v0.8.4 or later. If you have not already configured Layer0, see the [installation guide](/setup/install). If you are running an older version of Layer0, see the [upgrade instructions](/setup/upgrade#upgrading-older-versions-of-layer0).
 
@@ -71,17 +73,17 @@ We use these files to set up a Layer0 envrionment with Terraform:
 |----|----|
 |`terraform.tfvars`|Variables specific to the environment and guestbook application|
 |`Dockerrun.aws.json`|Template for running the guestbook application in a Layer0 environment|
-|`layer0.tf`|Provision Layer0 resources|
+|`layer0.tf`|Provision Layer0 resources and populate variables in `Dockerrun.aws.json`|
 
 Terraform figures out the appropriate order for creating each resource and handles the entire provisioning process.
 
 ### Cleanup
-When you're finished with the example run `terraform destroy` in the same directory to destroy the Layer0 environment and application.
+When you're finished with the example run `terraform destroy` in the same directory to destroy the AWS resources, Layer0 environment, and application.
 
 ---
 
 ## Deploy with Layer0 CLI
-You can also use the Layer0 CLI to provision each piece of this simple application.
+You can also use the Layer0 CLI to provision each piece of this simple application. You will need to download the [Dockerrun.aws.json](https://github.com/quintilesims/layer0-examples/blob/master/guestbook/Dockerrun.aws.json) file.
 
 ### Part 1: Create the environment
 
@@ -116,8 +118,8 @@ In this example, you will create a new load balancer called **guestbook-lb** in 
       <li class="command">`l0 loadbalancer create --port 80:80/http demo-env guestbook-lb`</li>
     </ul>
   <br />You will see the following output:
-<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICES  PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env               80:80/http  true</code></pre>
+<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
+guestbodb65a     guestbook-lb       demo-env              80:80/http  true</code></pre>
 
   </li>
 </ul>
@@ -164,7 +166,7 @@ The final part of the deployment process involves using the `service create` com
     </ul>
   <br />You will see the following output:
 <pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1*  0/1</code></pre>
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1</code></pre>
   </li>
 </ul>
 
@@ -182,23 +184,29 @@ After you create a service, it may take several minutes for that service to comp
 
 **To check the status:**
 <ul>
-  <li>At the command prompt, type the following command to check the status of the **guestbook-svc** deploy:
+  <li>At the command prompt, type the following command to check the status of the **guestbook-svc** service:
     <ul>
       <li class="command">`l0 service get demo-env:guestbook-svc`</li>
     </ul></li>
 </ul>
 
-Initially, you will see an asterisk (\*) next to the name of the **guestbook-dep:1** deploy; this indicates that the service is in a transitional state. In this phase, if you execute the `service get` command again, you will see the following output:
+Initially, you will see an asterisk (\*) next to the name of the **guestbook-dep:1** deploy; this indicates that the service is in a transitional state:
 ```
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1*  0/1
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1
 ```
 
-In the next phase of the deployment, you will see **(1)** in the **Scale** column; this indicates that 1 copy of the service is transitioning to an active state. In this phase, if you execute the `service get` command again, you will see the following output:
+In the next phase of deployment, if you execute the `service get` command again, you will see **(1)** in the **Scale** column; this indicates that 1 copy of the service is transitioning to an active state:
+```
+SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1 (1)
+```
+
+In the final phase of deployment, you should see that the service has been fully scaled up to the desired count. If you execute the `service get` command again, you will see the following output:
 
 ```
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1   1/1
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1   1/1
 ```
 
 ### Get the application URL

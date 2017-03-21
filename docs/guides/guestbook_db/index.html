@@ -9,19 +9,19 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>Guestbook with RDS - Layer0</title>
+        <title>Guestbook with a DB - Layer0</title>
       
       
       
-        <link rel="canonical" href="https://github.com/quintilesims/layer0/guides/guestbook_rds/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/guides/guestbook_db/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://github.com/quintilesims/layer0/guides/guestbook_rds/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/guides/guestbook_db/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://github.com/quintilesims/layer0/guides/guestbook_rds//../../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/guides/guestbook_db//../../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -106,7 +106,7 @@
             
           </span>
         
-        Guestbook with RDS
+        Guestbook with a DB
       </div>
     </div>
     
@@ -252,8 +252,8 @@
       
         
   <li>
-    <a class="current" title="Guestbook with RDS" href="./">
-      Guestbook with RDS
+    <a class="current" title="Guestbook with a DB" href="./">
+      Guestbook with a DB
     </a>
     
       
@@ -269,20 +269,8 @@
             </li>
           
             <li class="anchor">
-              <a title="Step 1: Download the configuration files" href="#step-1-download-the-configuration-files">
-                Step 1: Download the configuration files
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Step 2: Terraform Apply" href="#step-2-terraform-apply">
-                Step 2: Terraform Apply
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="What's happening" href="#whats-happening">
-                What's happening
+              <a title="Deploy with Terraform" href="#deploy-with-terraform">
+                Deploy with Terraform
               </a>
             </li>
           
@@ -294,8 +282,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../consul/">
-      Consul
+    <a class="" title="Consul (WIP)" href="../consul/">
+      Consul (WIP)
     </a>
     
   </li>
@@ -303,8 +291,8 @@
       
         
   <li>
-    <a class="" title="Guestbook with Consul" href="../guestbook_consul/">
-      Guestbook with Consul
+    <a class="" title="Guestbook with Consul (WIP)" href="../guestbook_consul/">
+      Guestbook with Consul (WIP)
     </a>
     
   </li>
@@ -448,26 +436,32 @@
       <article class="article">
         <div class="wrapper">
           
-          <h1 id="deployment-guide-guestbook-with-rds-database">Deployment guide: Guestbook with RDS Database<a class="headerlink" href="#deployment-guide-guestbook-with-rds-database" title="Permanent link">#</a></h1>
+          <h1 id="deployment-guide-guestbook-with-a-database">Deployment guide: Guestbook with a Database<a class="headerlink" href="#deployment-guide-guestbook-with-a-database" title="Permanent link">#</a></h1>
 <p>The Guestbook application that you deployed in the <a href="../../guides/guestbook">Guestbook deployment guide</a> was a very simple application that stored its data in memory (also known as a "stateful" application). If you were to re-deploy the Guestbook service, all of the data previously entered into the application would be lost permanently.</p>
 <p>A stateless application, on the other hand, does not record data generated in one session for use in subsequent sessions. In order to prevent data loss, web applications that you deploy using Layer0 should be stateless.</p>
-<p>This guide will show you how to make a stateless Guestbook application that stores data in an Amazon Relational Database Service (RDS) database.</p>
+<p>This guide will show you how to make a stateless Guestbook application that can communicate with an external resource (such as a database).</p>
 <hr />
 <h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">#</a></h2>
 <p>In order to complete the procedures in this section, you must install and configure Layer0. If you have not already configured Layer0, see the <a href="../../setup/install">installation guide</a>.</p>
 <p><a href="../../reference/terraform-plugin#install">Install the Layer0 Terraform Plugin</a>. The Layer0 Terraform Plugin makes Layer0 deployment information (like VPCs and subnets) available to Terraform configurations (.tf files).</p>
-<h2 id="step-1-download-the-configuration-files">Step 1: Download the configuration files<a class="headerlink" href="#step-1-download-the-configuration-files" title="Permanent link">#</a></h2>
+<hr />
+<h2 id="deploy-with-terraform">Deploy with Terraform<a class="headerlink" href="#deploy-with-terraform" title="Permanent link">#</a></h2>
+<p>Use the Layer0 Terraform Plugin.</p>
+<h3 id="part-1-download-the-configuration-files">Part 1: Download the configuration files<a class="headerlink" href="#part-1-download-the-configuration-files" title="Permanent link">#</a></h3>
 <ul>
-<li><a href="https://github.com/quintilesims/layer0-examples/blob/master/rds/Dockerrun.aws.json">Dockerrun.aws.json</a></li>
-<li><a href="https://github.com/quintilesims/layer0-examples/blob/master/rds/terraform.tfvars">terraform.tfvars</a></li>
-<li><a href="https://github.com/quintilesims/layer0-examples/blob/master/rds/layer0.tf">layer0.tf</a></li>
-<li><a href="https://github.com/quintilesims/layer0-examples/blob/master/rds/rds.tf">rds.tf</a></li>
+<li><a href="https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/Dockerrun.aws.json">Dockerrun.aws.json</a></li>
+<li><a href="https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/terraform.tfvars">terraform.tfvars</a></li>
+<li><a href="https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/layer0.tf">layer0.tf</a></li>
 </ul>
-<h2 id="step-2-terraform-apply">Step 2: Terraform Apply<a class="headerlink" href="#step-2-terraform-apply" title="Permanent link">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">External Resources</p>
+<p><strong>This particular <code>layer0.tf</code> file uses a preconfigured DynamoDB resource as an example. Note that you can substitute any sort of external resource in its place, but instructions for configuring such an external resource are beyond the scope of this document. You can inspect the <a href="https://github.com/quintilesims/layer0-examples/tree/master/guestbook-db">relevant section</a> of the layer0-examples repository to get a better understanding of what's going on in this guide.</strong></p>
+</div>
+<h3 id="part-2-terraform-apply">Part 2: Terraform Apply<a class="headerlink" href="#part-2-terraform-apply" title="Permanent link">#</a></h3>
 <p>Run <code>terraform apply</code> to begin the process. Terraform will prompt you for configuration values that it does not have.</p>
 <p>To begin deploying the application, run the following command:
 <ul>
-  <li class="command"><strong>terraform apply</strong></li>
+  <li class="command"><code>terraform apply</code></li>
 </ul></p>
 <p><em>To avoid entering these values manually each time you run terraform, you can set the terraform variables by editing the <code>terraform.tfvars</code> file.</em></p>
 <pre class="code"><code>var.access_key
@@ -504,10 +498,10 @@ guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
 
 <p><strong>It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.</strong></p>
 <p>Terraform will set up the entire environment for you and then output a link to the application's load balancer.</p>
-<h2 id="whats-happening">What's happening<a class="headerlink" href="#whats-happening" title="Permanent link">#</a></h2>
-<p>Terraform provisions the AWS resources (an RDS instance, VPC and subnet configurations to connect the RDS instance to the Layer0 application), configures environment variables for the application, and deploys the application into a Layer0 environment.</p>
-<p>You can use Terraform with Layer0 and AWS to create fire and forget deployments for your applications.</p>
-<p>We use these files to set up a Layer0 envrionment with Terraform</p>
+<h3 id="whats-happening">What's happening<a class="headerlink" href="#whats-happening" title="Permanent link">#</a></h3>
+<p>Terraform provisions the AWS resources (a DynamoDB instance, VPC and subnet configurations to connect the RDS instance to the Layer0 application), configures environment variables for the application, and deploys the application into a Layer0 environment.</p>
+<p>You can use Terraform with Layer0 and AWS to create "fire and forget" deployments for your applications.</p>
+<p>We use these files to set up a Layer0 envrionment with Terraform.</p>
 <table>
 <thead>
 <tr>
@@ -527,10 +521,6 @@ guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
 <tr>
 <td><code>layer0.tf</code></td>
 <td>Provision Layer0 resources and populate variables in <code>Dockerrun.aws.json</code></td>
-</tr>
-<tr>
-<td><code>rds.tf</code></td>
-<td>Create the RDS instance and link it to the Layer0 environment's network</td>
 </tr>
 </tbody>
 </table>
@@ -572,14 +562,14 @@ guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
     </div>
     <div class="next">
       
-        <a href="../consul/" title="Consul">
+        <a href="../consul/" title="Consul (WIP)">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                Consul
+                Consul (WIP)
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">

@@ -279,8 +279,8 @@
       
         
   <li>
-    <a class="" title="Guestbook with RDS" href="../guestbook_rds/">
-      Guestbook with RDS
+    <a class="" title="Guestbook with a DB" href="../guestbook_db/">
+      Guestbook with a DB
     </a>
     
   </li>
@@ -288,8 +288,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../consul/">
-      Consul
+    <a class="" title="Consul (WIP)" href="../consul/">
+      Consul (WIP)
     </a>
     
   </li>
@@ -297,8 +297,8 @@
       
         
   <li>
-    <a class="" title="Guestbook with Consul" href="../guestbook_consul/">
-      Guestbook with Consul
+    <a class="" title="Guestbook with Consul (WIP)" href="../guestbook_consul/">
+      Guestbook with Consul (WIP)
     </a>
     
   </li>
@@ -444,6 +444,7 @@
           
           <h1 id="deployment-guide-guestbook-sample-application">Deployment guide: Guestbook sample application<a class="headerlink" href="#deployment-guide-guestbook-sample-application" title="Permanent link">#</a></h1>
 <p>In this example, you will learn how different Layer0 commands work together to deploy web applications to the cloud. The sample application in this guide is a guestbook &mdash; a web application that acts as a simple message board.</p>
+<hr />
 <h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">#</a></h2>
 <p>In order to complete the procedures in this section, you must install and configure Layer0 v0.8.4 or later. If you have not already configured Layer0, see the <a href="../../setup/install">installation guide</a>. If you are running an older version of Layer0, see the <a href="../../setup/upgrade#upgrading-older-versions-of-layer0">upgrade instructions</a>.</p>
 <p>Once Layer0 is configured on your computer, download the <a href="https://github.com/quintilesims/layer0-examples/blob/master/guestbook/Dockerrun.aws.json">Guestbook Task Definition</a>; save the resulting file as <strong>Dockerrun.aws.json</strong>. The instructions in this section assume that this file is located in your current working directory when you run the Layer0 commands; if you place the file elsewhere, you will need to provide the complete path to the file when you reference it in <a href="#part-4-create-the-service">Part 4</a>.</p>
@@ -514,16 +515,16 @@ guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
 </tr>
 <tr>
 <td><code>layer0.tf</code></td>
-<td>Provision Layer0 resources</td>
+<td>Provision Layer0 resources and populate variables in <code>Dockerrun.aws.json</code></td>
 </tr>
 </tbody>
 </table>
 <p>Terraform figures out the appropriate order for creating each resource and handles the entire provisioning process.</p>
 <h3 id="cleanup">Cleanup<a class="headerlink" href="#cleanup" title="Permanent link">#</a></h3>
-<p>When you're finished with the example run <code>terraform destroy</code> in the same directory to destroy the Layer0 environment and application.</p>
+<p>When you're finished with the example run <code>terraform destroy</code> in the same directory to destroy the AWS resources, Layer0 environment, and application.</p>
 <hr />
 <h2 id="deploy-with-layer0-cli">Deploy with Layer0 CLI<a class="headerlink" href="#deploy-with-layer0-cli" title="Permanent link">#</a></h2>
-<p>You can also use the Layer0 CLI to provision each piece of this simple application.</p>
+<p>You can also use the Layer0 CLI to provision each piece of this simple application. You will need to download the <a href="https://github.com/quintilesims/layer0-examples/blob/master/guestbook/Dockerrun.aws.json">Dockerrun.aws.json</a> file.</p>
 <h3 id="part-1-create-the-environment">Part 1: Create the environment<a class="headerlink" href="#part-1-create-the-environment" title="Permanent link">#</a></h3>
 <p>The first step in deploying an application in Layer0 is to create an environment.
 An environment is a dedicated space in which one or more services can reside. In this example, you will create an environment named <strong>demo-env</strong>.</p>
@@ -549,8 +550,8 @@ demo00e6aa9     demo-env          0              m3.medium</code></pre>
       <li class="command"><code>l0 loadbalancer create --port 80:80/http demo-env guestbook-lb</code></li>
     </ul>
   <br />You will see the following output:
-<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICES  PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env               80:80/http  true</code></pre></p>
+<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
+guestbodb65a     guestbook-lb       demo-env              80:80/http  true</code></pre></p>
 <p></li>
 </ul></p>
 <p>The following is an summary of the arguments passed in the above command:</p>
@@ -590,7 +591,7 @@ guestbook-dep.1  guestbook-dep  1</code></pre>
     </ul>
   <br />You will see the following output:
 <pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1*  0/1</code></pre>
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1</code></pre>
   </li>
 </ul></p>
 <p>The following is an summary of the arguments passed in the above command:</p>
@@ -605,19 +606,24 @@ guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1*  0/1</c
 <p>After you create a service, it may take several minutes for that service to completely finish deploying. You can check the status of a service using the <code>service get</code> command.</p>
 <p><strong>To check the status:</strong>
 <ul>
-  <li>At the command prompt, type the following command to check the status of the <strong>guestbook-svc</strong> deploy:
+  <li>At the command prompt, type the following command to check the status of the <strong>guestbook-svc</strong> service:
     <ul>
       <li class="command"><code>l0 service get demo-env:guestbook-svc</code></li>
     </ul></li>
 </ul></p>
-<p>Initially, you will see an asterisk (*) next to the name of the <strong>guestbook-dep:1</strong> deploy; this indicates that the service is in a transitional state. In this phase, if you execute the <code>service get</code> command again, you will see the following output:</p>
+<p>Initially, you will see an asterisk (*) next to the name of the <strong>guestbook-dep:1</strong> deploy; this indicates that the service is in a transitional state:</p>
 <pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1*  0/1</code></pre>
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1</code></pre>
 
 
-<p>In the next phase of the deployment, you will see <strong>(1)</strong> in the <strong>Scale</strong> column; this indicates that 1 copy of the service is transitioning to an active state. In this phase, if you execute the <code>service get</code> command again, you will see the following output:</p>
+<p>In the next phase of deployment, if you execute the <code>service get</code> command again, you will see <strong>(1)</strong> in the <strong>Scale</strong> column; this indicates that 1 copy of the service is transitioning to an active state:</p>
 <pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1   1/1</code></pre>
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1 (1)</code></pre>
+
+
+<p>In the final phase of deployment, you should see that the service has been fully scaled up to the desired count. If you execute the <code>service get</code> command again, you will see the following output:</p>
+<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1   1/1</code></pre>
 
 
 <h3 id="get-the-application-url">Get the application URL<a class="headerlink" href="#get-the-application-url" title="Permanent link">#</a></h3>
@@ -675,14 +681,14 @@ guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true
     </div>
     <div class="next">
       
-        <a href="../guestbook_rds/" title="Guestbook with RDS">
+        <a href="../guestbook_db/" title="Guestbook with a DB">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                Guestbook with RDS
+                Guestbook with a DB
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">
