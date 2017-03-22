@@ -2,13 +2,14 @@ package main
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/hashicorp/terraform/terraform"
 	"github.com/quintilesims/layer0/cli/client"
 	"time"
 )
 
 var defaultTimeout = time.Minute * 15
 
-func Provider() *schema.Provider {
+func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"endpoint": {

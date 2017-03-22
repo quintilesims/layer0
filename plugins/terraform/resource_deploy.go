@@ -14,12 +14,12 @@ func resourceLayer0Deploy() *schema.Resource {
 		Delete: resourceLayer0DeployDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"content": &schema.Schema{
+			"content": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -29,7 +29,7 @@ func resourceLayer0Deploy() *schema.Resource {
 }
 
 func resourceLayer0DeployCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 
 	name := d.Get("name").(string)
 	content := d.Get("content").(string)
@@ -44,7 +44,7 @@ func resourceLayer0DeployCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 	deployID := d.Id()
 
 	deploy, err := client.GetDeploy(deployID)
@@ -65,7 +65,7 @@ func resourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceLayer0DeployDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 	deployID := d.Id()
 
 	if err := client.DeleteDeploy(deployID); err != nil {

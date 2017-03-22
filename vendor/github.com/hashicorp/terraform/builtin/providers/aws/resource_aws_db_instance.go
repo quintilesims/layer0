@@ -25,6 +25,12 @@ func resourceAwsDbInstance() *schema.Resource {
 			State: resourceAwsDbInstanceImport,
 		},
 
+		Timeouts: &schema.ResourceTimeout{
+			Create: schema.DefaultTimeout(40 * time.Minute),
+			Update: schema.DefaultTimeout(80 * time.Minute),
+			Delete: schema.DefaultTimeout(40 * time.Minute),
+		},
+
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
@@ -63,9 +69,10 @@ func resourceAwsDbInstance() *schema.Resource {
 			},
 
 			"engine_version": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Computed: true,
+				Type:             schema.TypeString,
+				Optional:         true,
+				Computed:         true,
+				DiffSuppressFunc: suppressAwsDbEngineVersionDiffs,
 			},
 
 			"character_set_name": {
@@ -206,7 +213,7 @@ func resourceAwsDbInstance() *schema.Resource {
 			"skip_final_snapshot": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  true,
+				Default:  false,
 			},
 
 			"copy_tags_to_snapshot": {
@@ -311,6 +318,13 @@ func resourceAwsDbInstance() *schema.Resource {
 				Computed:     true,
 				ForceNew:     true,
 				ValidateFunc: validateArn,
+			},
+
+			"timezone": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Computed: true,
+				ForceNew: true,
 			},
 
 			"tags": tagsSchema(),
@@ -472,7 +486,7 @@ func resourceAwsDbInstanceCreate(d *schema.ResourceData, meta interface{}) error
 					"maintenance", "renaming", "rebooting", "upgrading"},
 				Target:     []string{"available"},
 				Refresh:    resourceAwsDbInstanceStateRefreshFunc(d, meta),
-				Timeout:    40 * time.Minute,
+				Timeout:    d.Timeout(schema.TimeoutCreate),
 				MinTimeout: 10 * time.Second,
 				Delay:      30 * time.Second, // Wait 30 secs before starting
 			}
@@ -527,6 +541,10 @@ func resourceAwsDbInstanceCreate(d *schema.ResourceData, meta interface{}) error
 
 		if attr, ok := d.GetOk("character_set_name"); ok {
 			opts.CharacterSetName = aws.String(attr.(string))
+		}
+
+		if attr, ok := d.GetOk("timezone"); ok {
+			opts.Timezone = aws.String(attr.(string))
 		}
 
 		if attr, ok := d.GetOk("maintenance_window"); ok {
@@ -626,7 +644,7 @@ func resourceAwsDbInstanceCreate(d *schema.ResourceData, meta interface{}) error
 			"maintenance", "renaming", "rebooting", "upgrading", "configuring-enhanced-monitoring"},
 		Target:     []string{"available"},
 		Refresh:    resourceAwsDbInstanceStateRefreshFunc(d, meta),
-		Timeout:    40 * time.Minute,
+		Timeout:    d.Timeout(schema.TimeoutCreate),
 		MinTimeout: 10 * time.Second,
 		Delay:      30 * time.Second, // Wait 30 secs before starting
 	}
@@ -678,6 +696,8 @@ func resourceAwsDbInstanceRead(d *schema.ResourceData, meta interface{}) error {
 	if v.CharacterSetName != nil {
 		d.Set("character_set_name", v.CharacterSetName)
 	}
+
+	d.Set("timezone", v.Timezone)
 
 	if len(v.DBParameterGroups) > 0 {
 		d.Set("parameter_group_name", v.DBParameterGroups[0].DBParameterGroupName)
@@ -797,7 +817,7 @@ func resourceAwsDbInstanceDelete(d *schema.ResourceData, meta interface{}) error
 			"modifying", "deleting", "available"},
 		Target:     []string{},
 		Refresh:    resourceAwsDbInstanceStateRefreshFunc(d, meta),
-		Timeout:    40 * time.Minute,
+		Timeout:    d.Timeout(schema.TimeoutDelete),
 		MinTimeout: 10 * time.Second,
 		Delay:      30 * time.Second, // Wait 30 secs before starting
 	}
@@ -964,7 +984,7 @@ func resourceAwsDbInstanceUpdate(d *schema.ResourceData, meta interface{}) error
 				"maintenance", "renaming", "rebooting", "upgrading", "configuring-enhanced-monitoring", "moving-to-vpc"},
 			Target:     []string{"available"},
 			Refresh:    resourceAwsDbInstanceStateRefreshFunc(d, meta),
-			Timeout:    80 * time.Minute,
+			Timeout:    d.Timeout(schema.TimeoutUpdate),
 			MinTimeout: 10 * time.Second,
 			Delay:      30 * time.Second, // Wait 30 secs before starting
 		}
