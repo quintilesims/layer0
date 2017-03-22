@@ -1,10 +1,12 @@
 package ecsbackend
 
 import (
+	awsasg "github.com/aws/aws-sdk-go/service/autoscaling"
 	awsecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/api/scheduler/resource"
+	"github.com/quintilesims/layer0/common/aws/autoscaling"
 	"github.com/quintilesims/layer0/common/aws/autoscaling/mock_autoscaling"
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
@@ -15,7 +17,7 @@ import (
 
 type MockResourceManager struct {
 	ECS         *mock_ecs.MockProvider
-	AutoScaling *mock_autoscaling.MockProvider
+	Autoscaling *mock_autoscaling.MockProvider
 }
 
 func newMockResourceManager(t *testing.T) (*MockResourceManager, *gomock.Controller) {
@@ -23,14 +25,14 @@ func newMockResourceManager(t *testing.T) (*MockResourceManager, *gomock.Control
 
 	rm := &MockResourceManager{
 		ECS:         mock_ecs.NewMockProvider(ctrl),
-		AutoScaling: mock_autoscaling.NewMockProvider(ctrl),
+		Autoscaling: mock_autoscaling.NewMockProvider(ctrl),
 	}
 
 	return rm, ctrl
 }
 
 func (m *MockResourceManager) ResourceManager() *ECSResourceManager {
-	return NewECSResourceManager(m.ECS, m.AutoScaling)
+	return NewECSResourceManager(m.ECS, m.Autoscaling)
 }
 
 func TestResourceManager_GetProviders(t *testing.T) {
@@ -111,4 +113,87 @@ func TestResourceManager_GetProviders(t *testing.T) {
 	}
 
 	testutils.AssertEqual(t, expected, providers)
+}
+
+func TestResourceManager_scaleUp(t *testing.T) {
+	rm, ctrl := newMockResourceManager(t)
+	defer ctrl.Finish()
+
+	environmentID := id.L0EnvironmentID("eid")
+	rm.Autoscaling.EXPECT().
+		UpdateAutoScalingGroupMaxSize("asg_name", 5).
+		Return(nil)
+
+	rm.Autoscaling.EXPECT().
+		SetDesiredCapacity("asg_name", 5).
+		Return(nil)
+
+	asg := &autoscaling.Group{
+		&awsasg.Group{
+			AutoScalingGroupName: stringp("asg_name"),
+			MaxSize:              int64p(3),
+			MinSize:              int64p(0),
+		},
+	}
+
+	scale, err := rm.ResourceManager().scaleUp(environmentID.ECSEnvironmentID(), 5, asg)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutils.AssertEqual(t, scale, 5)
+}
+
+func TestResourceManager_scaleDown(t *testing.T) {
+        rm, ctrl := newMockResourceManager(t)
+        defer ctrl.Finish()
+
+        environmentID := id.L0EnvironmentID("eid")
+
+        rm.Autoscaling.EXPECT().
+                SetDesiredCapacity("asg_name", 0).
+                Return(nil)
+
+        asg := &autoscaling.Group{
+                &awsasg.Group{
+                        AutoScalingGroupName: stringp("asg_name"),
+                        MaxSize:              int64p(3),
+                        MinSize:              int64p(0),
+                        DesiredCapacity:      int64p(3),
+                },
+        }
+
+        scale, err := rm.ResourceManager().scaleDown(environmentID.ECSEnvironmentID(), 0, asg, nil)
+        if err != nil {
+                t.Fatal(err)
+        }
+
+        testutils.AssertEqual(t, scale, 0)
+}
+
+func TestResourceManager_scaleDownStayAboveMin(t *testing.T) {
+	rm, ctrl := newMockResourceManager(t)
+	defer ctrl.Finish()
+
+	environmentID := id.L0EnvironmentID("eid")
+
+	rm.Autoscaling.EXPECT().
+		SetDesiredCapacity("asg_name", 1).
+		Return(nil)
+
+	asg := &autoscaling.Group{
+		&awsasg.Group{
+			AutoScalingGroupName: stringp("asg_name"),
+			MaxSize:              int64p(3),
+			MinSize:              int64p(1),
+			DesiredCapacity:      int64p(3),
+		},
+	}
+
+	scale, err := rm.ResourceManager().scaleDown(environmentID.ECSEnvironmentID(), 0, asg, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutils.AssertEqual(t, scale, 1)
 }

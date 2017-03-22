@@ -35,7 +35,7 @@ func (this *ProviderDecorator) CreateAutoScalingGroup(p0 string, p1 string, p2 s
 	err = this.Decorator("CreateAutoScalingGroup", call)
 	return err
 }
-func (this *ProviderDecorator) SetDesiredCapacity(p0 *string, p1 int) (err error) {
+func (this *ProviderDecorator) SetDesiredCapacity(p0 string, p1 int) (err error) {
 	call := func() error {
 		var err error
 		err = this.Inner.SetDesiredCapacity(p0, p1)
@@ -125,3 +125,4 @@ func (this *ProviderDecorator) TerminateInstanceInAutoScalingGroup(p0 string, p1
 	err = this.Decorator("TerminateInstanceInAutoScalingGroup", call)
 	return v0, err
 }
+

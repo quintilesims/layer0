@@ -145,7 +145,7 @@ func (c *ECSResourceManager) scaleUp(ecsEnvironmentID id.ECSEnvironmentID, scale
 		}
 	}
 
-	if err := c.Autoscaling.SetDesiredCapacity(asg.AutoScalingGroupName, scale); err != nil {
+	if err := c.Autoscaling.SetDesiredCapacity(*asg.AutoScalingGroupName, scale); err != nil {
 		return 0, err
 	}
 
@@ -166,7 +166,7 @@ func (c *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, sca
 	}
 
 	if scale < currentCapacity {
-		if err := c.Autoscaling.SetDesiredCapacity(asg.AutoScalingGroupName, scale); err != nil {
+		if err := c.Autoscaling.SetDesiredCapacity(*asg.AutoScalingGroupName, scale); err != nil {
 			return 0, err
 		}
 	}
