@@ -18,7 +18,7 @@ func getStubbedLogic(ctrl *gomock.Controller) *logic.Logic {
 		UpdateJobStatus(gomock.Any(), gomock.Any()).
 		AnyTimes()
 
-	return logic.NewLogic(nil, mockJobStore, nil)
+	return logic.NewLogic(nil, mockJobStore, nil, nil)
 }
 
 func stepWithError() Step {
@@ -44,7 +44,7 @@ func TestRunnerLoad(t *testing.T) {
 				mockJobStore.EXPECT().SelectByID("some_job_id").
 					Return(model, nil)
 
-				mockLogic := logic.NewLogic(nil, mockJobStore, nil)
+				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
 				return NewJobRunner(mockLogic, "some_job_id")
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -60,7 +60,7 @@ func TestRunnerLoad(t *testing.T) {
 				mockJobStore.EXPECT().SelectByID(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
-				mockLogic := logic.NewLogic(nil, mockJobStore, nil)
+				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
 				return NewJobRunner(mockLogic, "some_job_id")
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -250,7 +250,7 @@ func TestRunnerRun_JobStateManagement(t *testing.T) {
 					mockJobStore.EXPECT().UpdateJobStatus(gomock.Any(), gomock.Not(types.InProgress)).AnyTimes(),
 				)
 
-				mockLogic := logic.NewLogic(nil, mockJobStore, nil)
+				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
 				return NewJobRunner(mockLogic, "some_job_id")
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -268,7 +268,7 @@ func TestRunnerRun_JobStateManagement(t *testing.T) {
 					mockJobStore.EXPECT().UpdateJobStatus("some_job_id", types.Completed),
 				)
 
-				mockLogic := logic.NewLogic(nil, mockJobStore, nil)
+				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
 				return NewJobRunner(mockLogic, "some_job_id")
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -286,7 +286,7 @@ func TestRunnerRun_JobStateManagement(t *testing.T) {
 					mockJobStore.EXPECT().UpdateJobStatus("some_job_id", types.Error),
 				)
 
-				mockLogic := logic.NewLogic(nil, mockJobStore, nil)
+				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
 				runner := NewJobRunner(mockLogic, "some_job_id")
 
 				runner.Steps = []Step{stepWithError()}

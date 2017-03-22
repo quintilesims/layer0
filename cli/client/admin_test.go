@@ -66,9 +66,9 @@ func TestUpdateSQL(t *testing.T) {
 	}
 }
 
-func TestRunRightSizer(t *testing.T) {
+func TestRunScaler(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "POST")
+		testutils.AssertEqual(t, r.Method, "PUT")
 		testutils.AssertEqual(t, r.URL.Path, "/admin/scale/id")
 
 		MarshalAndWrite(t, w, models.ScalerRunInfo{EnvironmentID: "id"}, 200)
