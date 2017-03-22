@@ -13,15 +13,15 @@ type MockProviderManager struct {
 	MemoryPerProvider bytesize.Bytesize
 }
 
+func (m *MockProviderManager) CalculateNewProvider(environmentID string) (*resource.ResourceProvider, error) {
+        return resource.NewResourceProvider("", false, m.MemoryPerProvider, nil), nil
+}
+
 type EnvironmentScalerUnitTest struct {
 	ExpectedScale     int
 	MemoryPerProvider bytesize.Bytesize
 	ResourceProviders []*resource.ResourceProvider
 	ResourceConsumers []resource.ResourceConsumer
-}
-
-func (m *MockProviderManager) AddNewProvider(environmentID string) (*resource.ResourceProvider, error) {
-	return resource.NewResourceProvider("", false, m.MemoryPerProvider, nil), nil
 }
 
 func (e *EnvironmentScalerUnitTest) Run(t *testing.T) {
@@ -181,8 +181,8 @@ func TestResourceManagerScaleUp_notEnoughMemoryComplex(t *testing.T) {
 			{Memory: bytesize.MB},
 			{Memory: bytesize.MB * 2},
 			// these 2 consumers will require a new provider
-			{Memory: 2 * bytesize.MB},
-			{Memory: 2 * bytesize.MB},
+			{Memory: bytesize.MB * 2},
+			{Memory: bytesize.MB * 2},
 			// these 3 consumers can be placed in the cluster
 			{Memory: bytesize.MB},
 			{Memory: bytesize.MB},
@@ -203,17 +203,18 @@ func TestResourceManagerScaleUp_notEnoughPortsOrMemory(t *testing.T) {
 		MemoryPerProvider: bytesize.MB * 2,
 		ResourceProviders: []*resource.ResourceProvider{
 			resource.NewResourceProvider("", true, bytesize.MB, []int{80}),
-			resource.NewResourceProvider("", true, bytesize.MB*2, []int{80}),
+			resource.NewResourceProvider("", true, bytesize.MB, []int{80}),
 		},
 		ResourceConsumers: []resource.ResourceConsumer{
 			// this consumer will require a new provider for ports
 			{Memory: bytesize.MB, Ports: []int{80}},
 			// this consumer wil require a new provider for memory
 			{Memory: bytesize.MB * 2},
-			// these 3 consumers can be placed in the cluster
+			// these 4 consumers can be placed in the cluster
+			 {Ports: []int{80}},
 			{Memory: bytesize.MB, Ports: []int{8000}},
 			{Memory: bytesize.MB, Ports: []int{8000}},
-			{Ports: []int{80}},
+			{Memory: bytesize.MB, Ports: []int{8000}},
 		},
 	}
 

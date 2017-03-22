@@ -10,7 +10,7 @@ import (
 	"github.com/zpatrick/go-bytesize"
 )
 
-type ClusterResourceGetter struct {
+type EnvironmentResourceGetter struct {
 	ServiceLogic ServiceLogic
 	TaskLogic    TaskLogic
 	DeployLogic  DeployLogic
@@ -18,8 +18,8 @@ type ClusterResourceGetter struct {
 	deployCache  map[string][]resource.ResourceConsumer
 }
 
-func NewClusterResourceGetter(s ServiceLogic, t TaskLogic, d DeployLogic, j JobLogic) *ClusterResourceGetter {
-	return &ClusterResourceGetter{
+func NewEnvironmentResourceGetter(s ServiceLogic, t TaskLogic, d DeployLogic, j JobLogic) *EnvironmentResourceGetter {
+	return &EnvironmentResourceGetter{
 		ServiceLogic: s,
 		TaskLogic:    t,
 		DeployLogic:  d,
@@ -28,7 +28,7 @@ func NewClusterResourceGetter(s ServiceLogic, t TaskLogic, d DeployLogic, j JobL
 	}
 }
 
-func (c *ClusterResourceGetter) GetConsumers(environmentID string) ([]resource.ResourceConsumer, error) {
+func (c *EnvironmentResourceGetter) GetConsumers(environmentID string) ([]resource.ResourceConsumer, error) {
 	serviceResources, err := c.getPendingServiceResources(environmentID)
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (c *ClusterResourceGetter) GetConsumers(environmentID string) ([]resource.R
 	return totalResources, nil
 }
 
-func (c *ClusterResourceGetter) getPendingServiceResources(environmentID string) ([]resource.ResourceConsumer, error) {
+func (c *EnvironmentResourceGetter) getPendingServiceResources(environmentID string) ([]resource.ResourceConsumer, error) {
 	serviceSummaries, err := c.ServiceLogic.ListServices()
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (c *ClusterResourceGetter) getPendingServiceResources(environmentID string)
 	return resourceConsumers, nil
 }
 
-func (c *ClusterResourceGetter) getPendingTaskResourcesInECS(environmentID string) ([]resource.ResourceConsumer, error) {
+func (c *EnvironmentResourceGetter) getPendingTaskResourcesInECS(environmentID string) ([]resource.ResourceConsumer, error) {
 	taskSummaries, err := c.TaskLogic.ListTasks()
 	if err != nil {
 		return nil, err
@@ -130,7 +130,7 @@ func (c *ClusterResourceGetter) getPendingTaskResourcesInECS(environmentID strin
 	return resourceConsumers, nil
 }
 
-func (c *ClusterResourceGetter) getPendingTaskResourcesInJobs(environmentID string) ([]resource.ResourceConsumer, error) {
+func (c *EnvironmentResourceGetter) getPendingTaskResourcesInJobs(environmentID string) ([]resource.ResourceConsumer, error) {
 	jobs, err := c.JobLogic.ListJobs()
 	if err != nil {
 		return nil, err
@@ -170,7 +170,7 @@ func (c *ClusterResourceGetter) getPendingTaskResourcesInJobs(environmentID stri
 	return resourceConsumers, nil
 }
 
-func (c *ClusterResourceGetter) getResourcesHelper(deployIDCopies map[string]int, generateID func(string, string, int) string) ([]resource.ResourceConsumer, error) {
+func (c *EnvironmentResourceGetter) getResourcesHelper(deployIDCopies map[string]int, generateID func(string, string, int) string) ([]resource.ResourceConsumer, error) {
 	resourceConsumers := []resource.ResourceConsumer{}
 	for deployID, copies := range deployIDCopies {
 		containerResources, err := c.getContainerResourcesFromDeploy(deployID)
@@ -190,7 +190,7 @@ func (c *ClusterResourceGetter) getResourcesHelper(deployIDCopies map[string]int
 	return resourceConsumers, nil
 }
 
-func (c *ClusterResourceGetter) getContainerResourcesFromDeploy(deployID string) ([]resource.ResourceConsumer, error) {
+func (c *EnvironmentResourceGetter) getContainerResourcesFromDeploy(deployID string) ([]resource.ResourceConsumer, error) {
 	if consumers, ok := c.deployCache[deployID]; ok {
 		return consumers, nil
 	}

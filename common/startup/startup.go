@@ -115,8 +115,8 @@ func GetLogic(backend *ecsbackend.ECSBackend) (*logic.Logic, error) {
 	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
 
 	ecsResourceManager := ecsbackend.NewECSResourceManager(backend.ECSEnvironmentManager.ECS, backend.ECSEnvironmentManager.AutoScaling)
-	clusterResourceGetter := logic.NewClusterResourceGetter(serviceLogic, taskLogic, deployLogic, jobLogic)
-	scaler := scheduler.NewL0EnvironmentScaler(clusterResourceGetter, ecsResourceManager)
+	environmentResourceGetter := logic.NewEnvironmentResourceGetter(serviceLogic, taskLogic, deployLogic, jobLogic)
+	scaler := scheduler.NewL0EnvironmentScaler(environmentResourceGetter, ecsResourceManager)
 	lgc.Scaler = scaler
 
 	return lgc, nil

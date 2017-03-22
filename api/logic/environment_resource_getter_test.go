@@ -11,9 +11,9 @@ import (
 	"testing"
 )
 
-func newTestClusterResourceGetter(t *testing.T) (*TestClusterResourceGetter, *gomock.Controller) {
+func newTestEnvironmentResourceGetter(t *testing.T) (*TestEnvironmentResourceGetter, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
-	crg := &TestClusterResourceGetter{
+	crg := &TestEnvironmentResourceGetter{
 		ServiceLogic: mock_logic.NewMockServiceLogic(ctrl),
 		TaskLogic:    mock_logic.NewMockTaskLogic(ctrl),
 		DeployLogic:  mock_logic.NewMockDeployLogic(ctrl),
@@ -23,15 +23,15 @@ func newTestClusterResourceGetter(t *testing.T) (*TestClusterResourceGetter, *go
 	return crg, ctrl
 }
 
-type TestClusterResourceGetter struct {
+type TestEnvironmentResourceGetter struct {
 	ServiceLogic *mock_logic.MockServiceLogic
 	TaskLogic    *mock_logic.MockTaskLogic
 	DeployLogic  *mock_logic.MockDeployLogic
 	JobLogic     *mock_logic.MockJobLogic
 }
 
-func (c *TestClusterResourceGetter) ClusterResourceGetter() *ClusterResourceGetter {
-	return NewClusterResourceGetter(c.ServiceLogic, c.TaskLogic, c.DeployLogic, c.JobLogic)
+func (c *TestEnvironmentResourceGetter) EnvironmentResourceGetter() *EnvironmentResourceGetter {
+	return NewEnvironmentResourceGetter(c.ServiceLogic, c.TaskLogic, c.DeployLogic, c.JobLogic)
 }
 
 func requestToString(t *testing.T, r models.CreateTaskRequest) string {
@@ -96,7 +96,7 @@ var deployWithTwoContainers []byte = []byte(`
 `)
 
 func TestGetPendingTaskResourcesInJobs(t *testing.T) {
-	crg, ctrl := newTestClusterResourceGetter(t)
+	crg, ctrl := newTestEnvironmentResourceGetter(t)
 	defer ctrl.Finish()
 
 	jobs := []*models.Job{
@@ -149,7 +149,7 @@ func TestGetPendingTaskResourcesInJobs(t *testing.T) {
 		GetDeploy("d2").
 		Return(&models.Deploy{Dockerrun: deployWithTwoContainers}, nil)
 
-	resources, err := crg.ClusterResourceGetter().getPendingTaskResourcesInJobs("e1")
+	resources, err := crg.EnvironmentResourceGetter().getPendingTaskResourcesInJobs("e1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -174,7 +174,7 @@ func TestGetPendingTaskResourcesInJobs(t *testing.T) {
 }
 
 func TestGetPendingTaskResourcesInECS(t *testing.T) {
-	crg, ctrl := newTestClusterResourceGetter(t)
+	crg, ctrl := newTestEnvironmentResourceGetter(t)
 	defer ctrl.Finish()
 
 	taskSummaries := []*models.TaskSummary{
@@ -241,7 +241,7 @@ func TestGetPendingTaskResourcesInECS(t *testing.T) {
 		GetDeploy("d2").
 		Return(&models.Deploy{Dockerrun: deployWithTwoContainers}, nil)
 
-	resources, err := crg.ClusterResourceGetter().getPendingTaskResourcesInECS("e1")
+	resources, err := crg.EnvironmentResourceGetter().getPendingTaskResourcesInECS("e1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -266,7 +266,7 @@ func TestGetPendingTaskResourcesInECS(t *testing.T) {
 }
 
 func TestGetPendingServiceResources(t *testing.T) {
-	crg, ctrl := newTestClusterResourceGetter(t)
+	crg, ctrl := newTestEnvironmentResourceGetter(t)
 	defer ctrl.Finish()
 
 	serviceSummaries := []*models.ServiceSummary{
@@ -348,7 +348,7 @@ func TestGetPendingServiceResources(t *testing.T) {
 		GetDeploy("d2").
 		Return(&models.Deploy{Dockerrun: deployWithTwoContainers}, nil)
 
-	resources, err := crg.ClusterResourceGetter().getPendingServiceResources("e1")
+	resources, err := crg.EnvironmentResourceGetter().getPendingServiceResources("e1")
 	if err != nil {
 		t.Fatal(err)
 	}

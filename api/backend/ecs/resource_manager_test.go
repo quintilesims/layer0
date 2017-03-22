@@ -49,6 +49,7 @@ func TestResourceManager_GetProviders(t *testing.T) {
 		{
 			&awsecs.ContainerInstance{
 				Status:            stringp("ACTIVE"),
+				AgentConnected:    boolp(true),
 				RunningTasksCount: int64p(1),
 				PendingTasksCount: int64p(1),
 				RemainingResources: []*awsecs.Resource{
@@ -69,6 +70,7 @@ func TestResourceManager_GetProviders(t *testing.T) {
 		{
 			&awsecs.ContainerInstance{
 				Status:            stringp("ACTIVE"),
+				AgentConnected:    boolp(true),
 				RunningTasksCount: int64p(0),
 				PendingTasksCount: int64p(0),
 				RemainingResources: []*awsecs.Resource{
@@ -87,7 +89,8 @@ func TestResourceManager_GetProviders(t *testing.T) {
 		},
 		{
 			&awsecs.ContainerInstance{
-				Status: stringp("INACTIVE"),
+				Status:         stringp("INACTIVE"),
+				AgentConnected: boolp(false),
 				RemainingResources: []*awsecs.Resource{
 					{
 						Name:         stringp("MEMORY"),

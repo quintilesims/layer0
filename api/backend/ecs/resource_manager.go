@@ -60,9 +60,10 @@ func (r *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 		return nil, false
 	}
 
-	// todo: what if instance.AgentConnected == false?
-	// declare it as a not in-use instance?
-	// do nothing, capture this in scale function?
+	if !pbool(instance.AgentConnected) {
+		r.logger.Errorf("Instance %d agent is disconnected")
+		return nil, false
+	}
 
 	// this is non-intuitive, but the ports being used by tasks are kept in
 	// instance.ReminaingResources, not instance.RegisteredResources
@@ -94,7 +95,7 @@ func (r *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 	return provider, true
 }
 
-func (r *ECSResourceManager) AddNewProvider(environmentID string) (*resource.ResourceProvider, error) {
+func (r *ECSResourceManager) CalculateNewProvider(environmentID string) (*resource.ResourceProvider, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	group, err := r.Autoscaling.DescribeAutoScalingGroup(ecsEnvironmentID.String())
 	if err != nil {

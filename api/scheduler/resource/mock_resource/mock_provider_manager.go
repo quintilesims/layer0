@@ -29,15 +29,15 @@ func (_m *MockProviderManager) EXPECT() *_MockProviderManagerRecorder {
 	return _m.recorder
 }
 
-func (_m *MockProviderManager) AddNewProvider(_param0 string) (*resource.ResourceProvider, error) {
-	ret := _m.ctrl.Call(_m, "AddNewProvider", _param0)
+func (_m *MockProviderManager) CalculateNewProvider(_param0 string) (*resource.ResourceProvider, error) {
+	ret := _m.ctrl.Call(_m, "CalculateNewProvider", _param0)
 	ret0, _ := ret[0].(*resource.ResourceProvider)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockProviderManagerRecorder) AddNewProvider(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "AddNewProvider", arg0)
+func (_mr *_MockProviderManagerRecorder) CalculateNewProvider(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CalculateNewProvider", arg0)
 }
 
 func (_m *MockProviderManager) GetProviders(_param0 string) ([]*resource.ResourceProvider, error) {

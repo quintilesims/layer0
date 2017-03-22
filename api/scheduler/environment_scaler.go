@@ -34,7 +34,6 @@ func (r *L0EnvironmentScaler) Scale(environmentID string) (*models.ScalerRunInfo
 		return nil, err
 	}
 
-	// todo: get run info
 	return RunBasicScaler(environmentID, resourceProviders, resourceConsumers, r.providerManager)
 }
 
@@ -68,13 +67,16 @@ func RunBasicScaler(
 		}
 
 		if !hasRoom {
-			newProvider, err := providerManager.AddNewProvider(environmentID)
+			newProvider, err := providerManager.CalculateNewProvider(environmentID)
 			if err != nil {
 				return nil, err
 			}
 
 			if !newProvider.HasResourcesFor(consumer) {
-				err := fmt.Errorf("Resource '%s' cannot fit into an empty provider!", consumer.ID)
+				text := fmt.Sprintf("Resource '%s' cannot fit into an empty provider!", consumer.ID)
+				text += "\nThe instance size in your environment is too small to run this resource."
+				text += "\nPlease increase the instance size for your environment"
+				err := fmt.Errorf(text)
 				errs = append(errs, err)
 				continue
 			}

@@ -13,6 +13,18 @@ import (
 
 const MAX_TASK_IDS = 100
 
+func boolp(b bool) *bool {
+	return &b
+}
+
+func pbool(b *bool) bool {
+	if b == nil {
+		return false
+	}
+
+	return *b
+}
+
 func stringp(s string) *string {
 	return &s
 }
@@ -23,10 +35,6 @@ func intp(i int) *int {
 
 func int64p(i int64) *int64 {
 	return &i
-}
-
-func boolp(b bool) *bool {
-	return &b
 }
 
 func pstring(s *string) string {
