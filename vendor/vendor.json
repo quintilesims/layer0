@@ -3449,12 +3449,6 @@
 			"revisionTime": "2017-03-14T21:13:30Z"
 		},
 		{
-			"checksumSHA1": "JXUVA1jky8ZX8w09p2t5KLs97Nc=",
-			"path": "github.com/stretchr/testify/assert",
-			"revision": "4d4bfba8f1d1027c4fdbe371823030df51419987",
-			"revisionTime": "2017-01-30T11:31:45Z"
-		},
-		{
 			"checksumSHA1": "GQ9bu6PuydK3Yor1JgtVKUfEJm8=",
 			"origin": "github.com/hashicorp/terraform/vendor/github.com/tent/http-link-go",
 			"path": "github.com/tent/http-link-go",

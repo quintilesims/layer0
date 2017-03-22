@@ -1,7 +1,7 @@
 package resource
 
 import (
-	"github.com/stretchr/testify/assert"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/zpatrick/go-bytesize"
 	"testing"
 )
@@ -85,9 +85,9 @@ func TestResourceProviderSubtractResourcesFor(t *testing.T) {
 		t.Error(err)
 	}
 
-	assert.Equal(t, []int{80, 8000, 9090}, provider.usedPorts)
-	assert.Equal(t, bytesize.GB-(bytesize.MB*2), provider.availableMemory)
-	assert.Equal(t, true, provider.IsInUse())
+	testutils.AssertEqual(t, []int{80, 8000, 9090}, provider.usedPorts)
+	testutils.AssertEqual(t, bytesize.GB-(bytesize.MB*2), provider.availableMemory)
+	testutils.AssertEqual(t, true, provider.IsInUse())
 }
 
 func TestResourceProviderSubtractResourcesForError(t *testing.T) {
