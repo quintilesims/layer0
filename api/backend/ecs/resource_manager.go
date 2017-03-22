@@ -27,23 +27,23 @@ func NewECSResourceManager(e ecs.Provider, a autoscaling.Provider) *ECSResourceM
 	}
 }
 
-func (p *ECSResourceManager) GetProviders(environmentID string) ([]*resource.ResourceProvider, error) {
+func (r *ECSResourceManager) GetProviders(environmentID string) ([]*resource.ResourceProvider, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 
-	instanceARNs, err := p.ECS.ListContainerInstances(ecsEnvironmentID.String())
+	instanceARNs, err := r.ECS.ListContainerInstances(ecsEnvironmentID.String())
 	if err != nil {
 		return nil, err
 	}
 
 	resourceProviders := []*resource.ResourceProvider{}
 	if len(instanceARNs) > 0 {
-		instances, err := p.ECS.DescribeContainerInstances(ecsEnvironmentID.String(), instanceARNs)
+		instances, err := r.ECS.DescribeContainerInstances(ecsEnvironmentID.String(), instanceARNs)
 		if err != nil {
 			return nil, err
 		}
 
 		for _, instance := range instances {
-			provider, ok := p.getResourceProvider(ecsEnvironmentID, instance)
+			provider, ok := r.getResourceProvider(ecsEnvironmentID, instance)
 			if ok {
 				resourceProviders = append(resourceProviders, provider)
 			}
@@ -53,10 +53,10 @@ func (p *ECSResourceManager) GetProviders(environmentID string) ([]*resource.Res
 	return resourceProviders, nil
 }
 
-func (c *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironmentID, instance *ecs.ContainerInstance) (*resource.ResourceProvider, bool) {
+func (r *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironmentID, instance *ecs.ContainerInstance) (*resource.ResourceProvider, bool) {
 	instanceID := pstring(instance.Ec2InstanceId)
 	if pstring(instance.Status) != "ACTIVE" {
-		c.logger.Warnf("Instance %d is not in the 'ACTIVE' state", instanceID)
+		r.logger.Warnf("Instance %d is not in the 'ACTIVE' state", instanceID)
 		return nil, false
 	}
 
@@ -78,7 +78,7 @@ func (c *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 			for _, p := range resource.StringSetValue {
 				port, err := strconv.Atoi(pstring(p))
 				if err != nil {
-					c.logger.Errorf("Instance %d: Failed to convert port to int: %v\n", instanceID, err)
+					r.logger.Errorf("Instance %d: Failed to convert port to int: %v\n", instanceID, err)
 					continue
 				}
 
@@ -90,18 +90,18 @@ func (c *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 	inUse := pint64(instance.PendingTasksCount)+pint64(instance.RunningTasksCount) > 0
 	provider := resource.NewResourceProvider(instanceID, inUse, availableMemory, usedPorts)
 
-	c.logger.Debugf("Environment '%s' generated provider: %#v\n", ecsEnvironmentID, provider)
+	r.logger.Debugf("Environment '%s' generated provider: %#v\n", ecsEnvironmentID, provider)
 	return provider, true
 }
 
-func (c *ECSResourceManager) AddNewProvider(environmentID string) (*resource.ResourceProvider, error) {
+func (r *ECSResourceManager) AddNewProvider(environmentID string) (*resource.ResourceProvider, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
-	group, err := c.Autoscaling.DescribeAutoScalingGroup(ecsEnvironmentID.String())
+	group, err := r.Autoscaling.DescribeAutoScalingGroup(ecsEnvironmentID.String())
 	if err != nil {
 		return nil, err
 	}
 
-	config, err := c.Autoscaling.DescribeLaunchConfiguration(*group.LaunchConfigurationName)
+	config, err := r.Autoscaling.DescribeLaunchConfiguration(*group.LaunchConfigurationName)
 	if err != nil {
 		return nil, err
 	}
@@ -115,9 +115,9 @@ func (c *ECSResourceManager) AddNewProvider(environmentID string) (*resource.Res
 	return resource.NewResourceProvider("<new instance>", false, memory, nil), nil
 }
 
-func (c *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProviders []*resource.ResourceProvider) (int, error) {
+func (r *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProviders []*resource.ResourceProvider) (int, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
-	asg, err := c.Autoscaling.DescribeAutoScalingGroup(ecsEnvironmentID.String())
+	asg, err := r.Autoscaling.DescribeAutoScalingGroup(ecsEnvironmentID.String())
 	if err != nil {
 		return 0, err
 	}
@@ -126,47 +126,47 @@ func (c *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProv
 
 	switch {
 	case scale > currentCapacity:
-		c.logger.Debugf("Environment %s is attempting to scale up to size %d", ecsEnvironmentID, scale)
-		return c.scaleUp(ecsEnvironmentID, scale, asg)
+		r.logger.Debugf("Environment %s is attempting to scale up to size %d", ecsEnvironmentID, scale)
+		return r.scaleUp(ecsEnvironmentID, scale, asg)
 	case scale < currentCapacity:
-		c.logger.Debugf("Environment %s is attempting to scale down to size %d", ecsEnvironmentID, scale)
-		return c.scaleDown(ecsEnvironmentID, scale, asg, unusedProviders)
+		r.logger.Debugf("Environment %s is attempting to scale down to size %d", ecsEnvironmentID, scale)
+		return r.scaleDown(ecsEnvironmentID, scale, asg, unusedProviders)
 	default:
-		c.logger.Debugf("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
+		r.logger.Debugf("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
 		return currentCapacity, nil
 	}
 }
 
-func (c *ECSResourceManager) scaleUp(ecsEnvironmentID id.ECSEnvironmentID, scale int, asg *autoscaling.Group) (int, error) {
+func (r *ECSResourceManager) scaleUp(ecsEnvironmentID id.ECSEnvironmentID, scale int, asg *autoscaling.Group) (int, error) {
 	maxCapacity := int(pint64(asg.MaxSize))
 	if scale > maxCapacity {
-		if err := c.Autoscaling.UpdateAutoScalingGroupMaxSize(*asg.AutoScalingGroupName, scale); err != nil {
+		if err := r.Autoscaling.UpdateAutoScalingGroupMaxSize(*asg.AutoScalingGroupName, scale); err != nil {
 			return 0, err
 		}
 	}
 
-	if err := c.Autoscaling.SetDesiredCapacity(*asg.AutoScalingGroupName, scale); err != nil {
+	if err := r.Autoscaling.SetDesiredCapacity(*asg.AutoScalingGroupName, scale); err != nil {
 		return 0, err
 	}
 
 	return scale, nil
 }
 
-func (c *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, scale int, asg *autoscaling.Group, unusedProviders []*resource.ResourceProvider) (int, error) {
+func (r *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, scale int, asg *autoscaling.Group, unusedProviders []*resource.ResourceProvider) (int, error) {
 	minCapacity := int(pint64(asg.MinSize))
 	if scale < minCapacity {
-		c.logger.Warnf("Scale %d is below the minimum capacity of %d. Setting desired capacity to %d.", scale, minCapacity, minCapacity)
+		r.logger.Warnf("Scale %d is below the minimum capacity of %d. Setting desired capacity to %d.", scale, minCapacity, minCapacity)
 		scale = minCapacity
 	}
 
 	currentCapacity := int(pint64(asg.DesiredCapacity))
 	if scale == currentCapacity {
-		c.logger.Debugf("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
+		r.logger.Debugf("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
 		return scale, nil
 	}
 
 	if scale < currentCapacity {
-		if err := c.Autoscaling.SetDesiredCapacity(*asg.AutoScalingGroupName, scale); err != nil {
+		if err := r.Autoscaling.SetDesiredCapacity(*asg.AutoScalingGroupName, scale); err != nil {
 			return 0, err
 		}
 	}
@@ -190,9 +190,9 @@ func (c *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, sca
 
 	for i := 0; canTerminate(i); i++ {
 		unusedProvider := unusedProviders[i]
-		c.logger.Debugf("Environment %s terminating unused instance '%s'", ecsEnvironmentID, unusedProvider.ID)
+		r.logger.Debugf("Environment %s terminating unused instance '%s'", ecsEnvironmentID, unusedProvider.ID)
 
-		if _, err := c.Autoscaling.TerminateInstanceInAutoScalingGroup(unusedProvider.ID, false); err != nil {
+		if _, err := r.Autoscaling.TerminateInstanceInAutoScalingGroup(unusedProvider.ID, false); err != nil {
 			return 0, err
 		}
 	}
