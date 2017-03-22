@@ -57,33 +57,44 @@ func TestGetTask(t *testing.T) {
 				manager.GetTask("envid", "tskid")
 			},
 		},
-		/*
-			testutils.TestCase{
-				Name: "Should return layer0-formatted ids",
-				Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-					mockTask := NewMockECSTaskManager(ctrl)
+		testutils.TestCase{
+			Name: "Should return layer0-formatted ids",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				mockTask := NewMockECSTaskManager(ctrl)
 
-					mockTask.ECS.EXPECT().
-						ListTasks(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-						Return(nil, nil).
-						Times(3)
+				mockTask.ECS.EXPECT().
+					ListTasks(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					Return([]*string{stringp("task_arn")}, nil).
+					Times(3)
 
-					return mockTask.Task()
-				},
-				Run: func(reporter *testutils.Reporter, target interface{}) {
-					manager := target.(*ECSTaskManager)
+				task := &ecs.Task{
+					&aws_ecs.Task{
+						LastStatus:        stringp("RUNNING"),
+						ClusterArn:        stringp("aws:arn:ecs:cluster/envid"),
+						StartedBy:         stringp("tskid"),
+						TaskDefinitionArn: stringp("aws:arn:ecs:task_definition/dply.1"),
+					},
+				}
 
-					task, err := manager.GetTask("envid", "tskid")
-					if err != nil {
-						reporter.Fatal(err)
-					}
+				mockTask.ECS.EXPECT().
+					DescribeTasks(gomock.Any(), gomock.Any()).
+					Return([]*ecs.Task{task}, nil)
 
-					reporter.AssertEqual(task.TaskID, "tskid")
-					reporter.AssertEqual(task.EnvironmentID, "envid")
-					reporter.AssertEqual(task.DeployID, "dply.1")
-				},
+				return mockTask.Task()
 			},
-		*/
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				manager := target.(*ECSTaskManager)
+
+				task, err := manager.GetTask("envid", "tskid")
+				if err != nil {
+					reporter.Fatal(err)
+				}
+
+				reporter.AssertEqual(task.TaskID, "tskid")
+				reporter.AssertEqual(task.EnvironmentID, "envid")
+				reporter.AssertEqual(task.DeployID, "dply.1")
+			},
+		},
 	}
 
 	testutils.RunTests(t, testCases)

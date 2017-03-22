@@ -111,8 +111,16 @@ func (r *ECSResourceManager) AddNewProvider(environmentID string) (*resource.Res
 		return nil, fmt.Errorf("Environment %s is using unknown instance type '%s'", *config.InstanceType)
 	}
 
-	// todo: add default ports
-	return resource.NewResourceProvider("<new instance>", false, memory, nil), nil
+	// these ports are automatically used by the ecs agent
+	defaultPorts := []int{
+		22,
+		2376,
+		2375,
+		51678,
+		51679,
+	}
+
+	return resource.NewResourceProvider("<new instance>", false, memory, defaultPorts), nil
 }
 
 func (r *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProviders []*resource.ResourceProvider) (int, error) {

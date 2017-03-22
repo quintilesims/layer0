@@ -7,8 +7,8 @@ import (
 	"log"
 	"net/http"
 	"net/url"
-	"time"
 	"strings"
+	"time"
 
 	"github.com/denverdino/aliyungo/util"
 )
@@ -144,7 +144,7 @@ func (client *Client) InvokeByAnyMethod(method, action string, args interface{},
 	// Generate the request URL
 	var (
 		httpReq *http.Request
-		err error
+		err     error
 	)
 	if method == http.MethodGet {
 		requestURL := client.endpoint + "?" + data.Encode()
@@ -159,7 +159,7 @@ func (client *Client) InvokeByAnyMethod(method, action string, args interface{},
 	}
 
 	// TODO move to util and add build val flag
-	httpReq.Header.Set("X-SDK-Client", `AliyunGO/` + Version)
+	httpReq.Header.Set("X-SDK-Client", `AliyunGO/`+Version)
 
 	t0 := time.Now()
 	httpResp, err := client.httpClient.Do(httpReq)

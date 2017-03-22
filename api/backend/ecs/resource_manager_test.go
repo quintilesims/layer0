@@ -145,30 +145,30 @@ func TestResourceManager_scaleUp(t *testing.T) {
 }
 
 func TestResourceManager_scaleDown(t *testing.T) {
-        rm, ctrl := newMockResourceManager(t)
-        defer ctrl.Finish()
+	rm, ctrl := newMockResourceManager(t)
+	defer ctrl.Finish()
 
-        environmentID := id.L0EnvironmentID("eid")
+	environmentID := id.L0EnvironmentID("eid")
 
-        rm.Autoscaling.EXPECT().
-                SetDesiredCapacity("asg_name", 0).
-                Return(nil)
+	rm.Autoscaling.EXPECT().
+		SetDesiredCapacity("asg_name", 0).
+		Return(nil)
 
-        asg := &autoscaling.Group{
-                &awsasg.Group{
-                        AutoScalingGroupName: stringp("asg_name"),
-                        MaxSize:              int64p(3),
-                        MinSize:              int64p(0),
-                        DesiredCapacity:      int64p(3),
-                },
-        }
+	asg := &autoscaling.Group{
+		&awsasg.Group{
+			AutoScalingGroupName: stringp("asg_name"),
+			MaxSize:              int64p(3),
+			MinSize:              int64p(0),
+			DesiredCapacity:      int64p(3),
+		},
+	}
 
-        scale, err := rm.ResourceManager().scaleDown(environmentID.ECSEnvironmentID(), 0, asg, nil)
-        if err != nil {
-                t.Fatal(err)
-        }
+	scale, err := rm.ResourceManager().scaleDown(environmentID.ECSEnvironmentID(), 0, asg, nil)
+	if err != nil {
+		t.Fatal(err)
+	}
 
-        testutils.AssertEqual(t, scale, 0)
+	testutils.AssertEqual(t, scale, 0)
 }
 
 func TestResourceManager_scaleDownStayAboveMin(t *testing.T) {

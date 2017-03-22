@@ -87,7 +87,6 @@ func (this *AdminHandler) GetConfig(request *restful.Request, response *restful.
 }
 
 func (this *AdminHandler) GetHealth(request *restful.Request, response *restful.Response) {
-	// todo: does right sizer have health anymore?
 	response.WriteAsJson("")
 }
 
