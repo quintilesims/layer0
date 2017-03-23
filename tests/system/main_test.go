@@ -4,14 +4,11 @@ import (
 	"flag"
 	"fmt"
 	"github.com/Sirupsen/logrus"
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
-	"github.com/quintilesims/layer0/tests/system/framework"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
-	"time"
 )
 
 var (
@@ -30,8 +27,9 @@ func TestMain(m *testing.M) {
 func setup() {
 	flag.Parse()
 
+	log.Level = logrus.ErrorLevel
 	if *debug {
-		logrus.SetLevel(logrus.DebugLevel)
+		log.Level = logrus.DebugLevel
 	}
 
 	logutils.SetGlobalLogger(log)
@@ -45,48 +43,17 @@ func teardown() {
 
 		if name := f.Name(); strings.HasPrefix(name, "terraform.tfstate") {
 			if err := os.Remove(path); err != nil {
-				fmt.Println("Error occurred during teardown: ", err)
+				fmt.Println("Failed to delete %s: ", path, err)
 			}
 		}
 
 		return nil
 	}
 
-	if err := filepath.Walk("cases", deleteStateFiles); err != nil {
-		fmt.Println("Error occurred during teardown: ", err)
-	}
-}
-
-func startSystemTest(t *testing.T, dir string, vars map[string]string) *framework.SystemTestContext {
-	t.Parallel()
-
-	if vars == nil {
-		vars = map[string]string{}
-	}
-
-	// add default terraform variables
-	vars["endpoint"] = config.APIEndpoint()
-	vars["token"] = config.AuthToken()
-
-	c := framework.NewSystemTestContext(framework.Config{
-		T:      t,
-		Dir:    dir,
-		DryRun: *dry,
-		Vars:   vars,
-	})
-
-	c.Apply()
-	return c
-}
-
-func waitFor(t *testing.T, name string, timeout time.Duration, conditionSatisfied func() bool) {
-	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 5) {
-		log.Debugf("Waiting for '%s' (waited %s of %s)\n", name, time.Since(start), timeout)
-
-		if conditionSatisfied() {
-			return
+	if !*dry {
+		if err := filepath.Walk("cases", deleteStateFiles); err != nil {
+			fmt.Println("Error occurred during teardown: ", err)
+			os.Exit(1)
 		}
 	}
-
-	t.Fatalf("Wait for '%s' failed to complete after %v", name, timeout)
 }

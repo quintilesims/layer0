@@ -1,6 +1,7 @@
 package testutils
 
 import (
+	"time"
 	"reflect"
 	"testing"
 )
@@ -40,4 +41,14 @@ func AssertInSlice(t *testing.T, expected, slice interface{}) {
 		reflect.TypeOf(expected),
 		slice,
 		reflect.TypeOf(slice))
+}
+
+func WaitFor(t *testing.T, name string, timeout time.Duration, conditionSatisfied func() bool) {
+        for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 5) {
+                if conditionSatisfied() {
+                        return
+                }
+        }
+
+        t.Fatalf("Wait for '%s' failed to complete after %v", name, timeout)
 }

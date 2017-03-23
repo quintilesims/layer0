@@ -8,13 +8,21 @@ provider "layer0" {
   skip_ssl_verify = true
 }
 
-resource "layer0_environment" "rssu" {
-  name = "rssu"
+resource "layer0_environment" "ss" {
+  name = "ss"
 }
 
 module "sts" {
   source         = "../modules/sts"
   endpoint       = "${var.endpoint}"
   token          = "${var.token}"
-  environment_id = "${layer0_environment.rssu.id}"
+  environment_id = "${layer0_environment.ss.id}"
+}
+
+output "environment_id" {
+	value = "${layer0_environment.ss.id}"
+}
+
+output "service_id" {
+	value = "${module.sts.service_id}"
 }
