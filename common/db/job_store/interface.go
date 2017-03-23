@@ -12,4 +12,5 @@ type JobStore interface {
 	SelectAll() ([]*models.Job, error)
 	SelectByID(string) (*models.Job, error)
 	UpdateJobStatus(string, types.JobStatus) error
+	SetJobMeta(string, map[string]string) error
 }

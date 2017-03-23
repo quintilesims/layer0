@@ -167,17 +167,6 @@ func (_mr *_MockBackendRecorder) GetLoadBalancer(arg0 interface{}) *gomock.Call 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetLoadBalancer", arg0)
 }
 
-func (_m *MockBackend) GetRightSizerHealth() (string, error) {
-	ret := _m.ctrl.Call(_m, "GetRightSizerHealth")
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockBackendRecorder) GetRightSizerHealth() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetRightSizerHealth")
-}
-
 func (_m *MockBackend) GetService(_param0 string, _param1 string) (*models.Service, error) {
 	ret := _m.ctrl.Call(_m, "GetService", _param0, _param1)
 	ret0, _ := ret[0].(*models.Service)
@@ -277,16 +266,6 @@ func (_mr *_MockBackendRecorder) ListTasks() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListTasks")
 }
 
-func (_m *MockBackend) RunRightSizer() error {
-	ret := _m.ctrl.Call(_m, "RunRightSizer")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-func (_mr *_MockBackendRecorder) RunRightSizer() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunRightSizer")
-}
-
 func (_m *MockBackend) ScaleService(_param0 string, _param1 string, _param2 int) (*models.Service, error) {
 	ret := _m.ctrl.Call(_m, "ScaleService", _param0, _param1, _param2)
 	ret0, _ := ret[0].(*models.Service)
@@ -296,14 +275,6 @@ func (_m *MockBackend) ScaleService(_param0 string, _param1 string, _param2 int)
 
 func (_mr *_MockBackendRecorder) ScaleService(arg0, arg1, arg2 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ScaleService", arg0, arg1, arg2)
-}
-
-func (_m *MockBackend) StartRightSizer() {
-	_m.ctrl.Call(_m, "StartRightSizer")
-}
-
-func (_mr *_MockBackendRecorder) StartRightSizer() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "StartRightSizer")
 }
 
 func (_m *MockBackend) UpdateEnvironment(_param0 string, _param1 int) (*models.Environment, error) {

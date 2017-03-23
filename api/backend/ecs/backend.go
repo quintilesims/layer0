@@ -20,7 +20,6 @@ type ECSBackend struct {
 	*ECSDeployManager
 	*ECSLoadBalancerManager
 	*ECSTaskManager
-	*ECSRightSizer
 }
 
 func NewBackend(
@@ -36,14 +35,11 @@ func NewBackend(
 
 	backend := &ECSBackend{}
 
-	cluster := NewECSClusterScaler(ecs, autoscaling, backend)
-
 	backend.ECSEnvironmentManager = NewECSEnvironmentManager(ecs, ec2, autoscaling, backend)
-	backend.ECSServiceManager = NewECSServiceManager(ecs, ec2, cloudWatchLogs, cluster, backend)
+	backend.ECSServiceManager = NewECSServiceManager(ecs, ec2, cloudWatchLogs, backend)
 	backend.ECSLoadBalancerManager = NewECSLoadBalancerManager(ec2, elb, iam, backend)
-	backend.ECSDeployManager = NewECSDeployManager(ecs, cluster)
-	backend.ECSTaskManager = NewECSTaskManager(ecs, cloudWatchLogs, backend, cluster)
-	backend.ECSRightSizer = NewECSRightSizer(ecs, autoscaling, cluster, backend)
+	backend.ECSDeployManager = NewECSDeployManager(ecs)
+	backend.ECSTaskManager = NewECSTaskManager(ecs, cloudWatchLogs, backend)
 
 	return backend
 }

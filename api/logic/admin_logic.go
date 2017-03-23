@@ -2,28 +2,26 @@ package logic
 
 import (
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type AdminLogic interface {
+	RunEnvironmentScaler(string) (*models.ScalerRunInfo, error)
 	UpdateSQL() error
-	GetHealth() (string, error)
-	RunRightSizer() error
 }
 
 type L0AdminLogic struct {
 	Logic
 }
 
-func NewL0AdminLogic(lgc Logic) *L0AdminLogic {
-	return &L0AdminLogic{lgc}
+func NewL0AdminLogic(l Logic) *L0AdminLogic {
+	return &L0AdminLogic{
+		Logic: l,
+	}
 }
 
-func (a *L0AdminLogic) GetHealth() (string, error) {
-	return a.Backend.GetRightSizerHealth()
-}
-
-func (a L0AdminLogic) RunRightSizer() error {
-	return a.Backend.RunRightSizer()
+func (a *L0AdminLogic) RunEnvironmentScaler(environmentID string) (*models.ScalerRunInfo, error) {
+	return a.Logic.Scaler.Scale(environmentID)
 }
 
 func (a *L0AdminLogic) UpdateSQL() error {

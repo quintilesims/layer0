@@ -61,7 +61,7 @@ type HandlerTestCase struct {
 
 type Readf func(interface{})
 
-func runHandlerTestCase(t *testing.T, testCase HandlerTestCase) {
+func RunHandlerTestCase(t *testing.T, testCase HandlerTestCase) {
 	reporter := testutils.NewReporter(t, testCase.Name)
 	ctrl := gomock.NewController(reporter)
 	defer ctrl.Finish()
@@ -89,6 +89,6 @@ func runHandlerTestCase(t *testing.T, testCase HandlerTestCase) {
 
 func RunHandlerTestCases(t *testing.T, testCases []HandlerTestCase) {
 	for _, testCase := range testCases {
-		runHandlerTestCase(t, testCase)
+		RunHandlerTestCase(t, testCase)
 	}
 }

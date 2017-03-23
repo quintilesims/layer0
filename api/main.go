@@ -12,6 +12,11 @@ import (
 	"github.com/quintilesims/layer0/common/startup"
 	"net/http"
 	"strings"
+	"time"
+)
+
+const (
+	SCALER_SLEEP_DURATION = time.Minute * 5
 )
 
 func setupRestful(lgc logic.Logic) {
@@ -30,7 +35,7 @@ func setupRestful(lgc logic.Logic) {
 	loadBalancerHandler := handlers.NewLoadBalancerHandler(loadBalancerLogic, jobLogic)
 	serviceHandler := handlers.NewServiceHandler(serviceLogic, jobLogic)
 	tagHandler := handlers.NewTagHandler(lgc.TagStore)
-	taskHandler := handlers.NewTaskHandler(taskLogic)
+	taskHandler := handlers.NewTaskHandler(taskLogic, jobLogic)
 
 	restful.SetLogger(logutils.SilentLogger{})
 	restful.Add(deployHandler.Routes())
@@ -132,19 +137,42 @@ func main() {
 
 	setupRestful(*lgc)
 
-	// Since this is ECS, we run a right sizer for the clusters to kill off
-	// unused clusters
-	logrus.Infof("Starting RightSizer")
-	backend.StartRightSizer()
-
-	deployLogic := logic.NewL0DeployLogic(*lgc)
 	taskLogic := logic.NewL0TaskLogic(*lgc)
+	deployLogic := logic.NewL0DeployLogic(*lgc)
 	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
+	environmentLogic := logic.NewL0EnvironmentLogic(*lgc)
+
 	jobJanitor := logic.NewJobJanitor(jobLogic)
+	go runEnvironmentScaler(environmentLogic)
 
 	logrus.Infof("Starting Job Janitor")
 	jobJanitor.Run()
 
 	logrus.Print("Service on localhost" + port)
 	logrus.Fatal(http.ListenAndServe(port, nil))
+}
+
+func runEnvironmentScaler(environmentLogic *logic.L0EnvironmentLogic) {
+	logger := logutils.NewStandardLogger("Environment Scaler")
+
+	for {
+		time.Sleep(SCALER_SLEEP_DURATION)
+
+		environments, err := environmentLogic.ListEnvironments()
+		if err != nil {
+			logger.Errorf("Failed to list environments: %v", err)
+			continue
+		}
+
+		for _, environment := range environments {
+			logger.Infof("Scaling Environment %s", environment.EnvironmentID)
+
+			if _, err := environmentLogic.Scaler.Scale(environment.EnvironmentID); err != nil {
+				logger.Errorf("Failed to scale environment %s: %v", err)
+				continue
+			}
+
+			logger.Info("Finished scaling environment %s", environment.EnvironmentID)
+		}
+	}
 }

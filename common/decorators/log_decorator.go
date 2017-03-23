@@ -5,7 +5,7 @@ import (
 	"time"
 )
 
-var log = logutils.NewStackTraceLogger("AWS Decorator")
+var log = logutils.NewStandardLogger("AWS Decorator")
 
 func CallWithLogging(name string, call func() error) error {
 	log.Debugf("AWS `%s` start", name)
@@ -16,8 +16,6 @@ func CallWithLogging(name string, call func() error) error {
 
 	if err != nil {
 		log.Debugf("AWS `%s` Error: %v after %v", name, err, duration)
-	} else {
-		log.Debugf("AWS `%s` call complete after %v", name, duration)
 	}
 
 	return err

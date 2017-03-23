@@ -21,7 +21,6 @@ type ECSServiceManager struct {
 	EC2            ec2.Provider
 	CloudWatchLogs cloudwatchlogs.Provider
 	Backend        backend.Backend
-	ClusterScaler  ClusterScaler
 	Clock          waitutils.Clock
 }
 
@@ -29,7 +28,6 @@ func NewECSServiceManager(
 	ecsProvider ecs.Provider,
 	ec2Provider ec2.Provider,
 	cloudWatchLogsProvider cloudwatchlogs.Provider,
-	clusterScaler ClusterScaler,
 	backend backend.Backend,
 ) *ECSServiceManager {
 	return &ECSServiceManager{
@@ -37,7 +35,6 @@ func NewECSServiceManager(
 		EC2:            ec2Provider,
 		CloudWatchLogs: cloudWatchLogsProvider,
 		Backend:        backend,
-		ClusterScaler:  clusterScaler,
 		Clock:          waitutils.RealClock{},
 	}
 }
@@ -96,12 +93,6 @@ func (this *ECSServiceManager) updateService(
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	ecsServiceID := id.L0ServiceID(serviceID).ECSServiceID()
 	ecsDeployID := id.L0DeployID(deployID).ECSDeployID()
-
-	// trigger the scaling algorithm first or the service we are about to create gets
-	// included in the pending count of the cluster
-	if _, _, err := this.ClusterScaler.TriggerScalingAlgorithm(ecsEnvironmentID, &ecsDeployID, 1); err != nil {
-		return err
-	}
 
 	if err := this.ECS.UpdateService(
 		ecsEnvironmentID.String(),
@@ -181,12 +172,6 @@ func (this *ECSServiceManager) CreateService(
 	ecsServiceID := id.L0ServiceID(serviceID).ECSServiceID()
 	ecsDeployID := id.L0DeployID(deployID).ECSDeployID()
 	desiredCount := 1
-
-	// trigger the scaling algorithm first or the service we are about to create gets
-	// included in the pending count of the cluster
-	if _, _, err := this.ClusterScaler.TriggerScalingAlgorithm(ecsEnvironmentID, &ecsDeployID, desiredCount); err != nil {
-		return nil, err
-	}
 
 	var service *ecs.Service
 	var attempts int
@@ -283,25 +268,11 @@ func (this *ECSServiceManager) ScaleService(environmentID string, serviceID stri
 		return nil, err
 	}
 
-	newTasksNeeded := count - int(*service.DesiredCount)
-	if newTasksNeeded > 0 {
-		// only trigger scaling when we need new tasks
-		// count on the RightSizer to scale down the cluster next time it runs
-
-		ecsDeployID := id.TaskDefinitionToECSDeployID(*service.TaskDefinition)
-
-		if _, _, err := this.ClusterScaler.TriggerScalingAlgorithm(
-			ecsEnvironmentID,
-			&ecsDeployID,
-			newTasksNeeded,
-		); err != nil {
+	count64 := int64(count)
+	if pint64(service.DesiredCount) != count64 {
+		if err := this.ECS.UpdateService(ecsEnvironmentID.String(), ecsServiceID.String(), nil, int64p(count64)); err != nil {
 			return nil, err
 		}
-	}
-
-	desiredCount := int64(count)
-	if err := this.ECS.UpdateService(ecsEnvironmentID.String(), ecsServiceID.String(), nil, &desiredCount); err != nil {
-		return nil, err
 	}
 
 	return this.GetService(environmentID, serviceID)

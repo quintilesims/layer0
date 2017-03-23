@@ -1,6 +1,7 @@
 package command
 
 import (
+	"github.com/quintilesims/layer0/common/models"
 	"testing"
 )
 
@@ -49,17 +50,21 @@ func TestAdminSQL(t *testing.T) {
 	}
 }
 
-func TestAdminRightSizer(t *testing.T) {
+func TestAdminScale(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewAdminCommand(tc.Command())
 
 	tc.Client.EXPECT().
-		RunRightSizer().
-		Return(nil)
+		RunScaler("id").
+		Return(&models.ScalerRunInfo{}, nil)
 
-	c := getCLIContext(t, nil, nil)
-	if err := command.RightSizer(c); err != nil {
+	tc.Resolver.EXPECT().
+		Resolve("environment", "env").
+		Return([]string{"id"}, nil)
+
+	c := getCLIContext(t, Args{"env"}, nil)
+	if err := command.Scale(c); err != nil {
 		t.Fatal(err)
 	}
 }
