@@ -61,7 +61,7 @@ func (r *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 	}
 
 	if !pbool(instance.AgentConnected) {
-		r.logger.Errorf("Instance %d agent is disconnected")
+		r.logger.Errorf("Instance %s agent is disconnected", instanceID)
 		return nil, false
 	}
 
@@ -102,14 +102,14 @@ func (r *ECSResourceManager) CalculateNewProvider(environmentID string) (*resour
 		return nil, err
 	}
 
-	config, err := r.Autoscaling.DescribeLaunchConfiguration(*group.LaunchConfigurationName)
+	config, err := r.Autoscaling.DescribeLaunchConfiguration(pstring(group.LaunchConfigurationName))
 	if err != nil {
 		return nil, err
 	}
 
-	memory, ok := ec2.InstanceSizes[*config.InstanceType]
+	memory, ok := ec2.InstanceSizes[pstring(config.InstanceType)]
 	if !ok {
-		return nil, fmt.Errorf("Environment %s is using unknown instance type '%s'", *config.InstanceType)
+		return nil, fmt.Errorf("Environment %s is using unknown instance type '%s'", pstring(config.InstanceType))
 	}
 
 	// these ports are automatically used by the ecs agent
@@ -149,12 +149,12 @@ func (r *ECSResourceManager) ScaleTo(environmentID string, scale int, unusedProv
 func (r *ECSResourceManager) scaleUp(ecsEnvironmentID id.ECSEnvironmentID, scale int, asg *autoscaling.Group) (int, error) {
 	maxCapacity := int(pint64(asg.MaxSize))
 	if scale > maxCapacity {
-		if err := r.Autoscaling.UpdateAutoScalingGroupMaxSize(*asg.AutoScalingGroupName, scale); err != nil {
+		if err := r.Autoscaling.UpdateAutoScalingGroupMaxSize(pstring(asg.AutoScalingGroupName), scale); err != nil {
 			return 0, err
 		}
 	}
 
-	if err := r.Autoscaling.SetDesiredCapacity(*asg.AutoScalingGroupName, scale); err != nil {
+	if err := r.Autoscaling.SetDesiredCapacity(pstring(asg.AutoScalingGroupName), scale); err != nil {
 		return 0, err
 	}
 
@@ -175,7 +175,7 @@ func (r *ECSResourceManager) scaleDown(ecsEnvironmentID id.ECSEnvironmentID, sca
 	}
 
 	if scale < currentCapacity {
-		if err := r.Autoscaling.SetDesiredCapacity(*asg.AutoScalingGroupName, scale); err != nil {
+		if err := r.Autoscaling.SetDesiredCapacity(pstring(asg.AutoScalingGroupName), scale); err != nil {
 			return 0, err
 		}
 	}

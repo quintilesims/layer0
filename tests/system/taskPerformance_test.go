@@ -29,7 +29,7 @@ func TestTaskPerformance(t *testing.T) {
 			},
 		}}
 
-		logrus.Printf("Creating task %s (copies: %d)\n", taskName, copies)
+		logrus.Printf("Creating task %s (copies: %d)", taskName, copies)
 		s.Layer0.CreateTask(taskName, environmentID, deployID, copies, overrides)
 	}
 
@@ -52,7 +52,7 @@ func TestTaskPerformance(t *testing.T) {
 	start := time.Now()
 	testutils.WaitFor(t, time.Minute*6, func() bool {
 		logrus.Printf("Sleeping %v of 5m", time.Since(start))
-		time.Since(start) > time.Duration*5	
+		return time.Since(start) > time.Minute*5	
 	})
 	
 	testutils.WaitFor(t, time.Minute*5, func() bool {
@@ -67,7 +67,7 @@ func TestTaskPerformance(t *testing.T) {
 			}
 		}
 
-		return count >= 100
+		return count >= 10 // 100
 	})
 
 	// run list, get on all
