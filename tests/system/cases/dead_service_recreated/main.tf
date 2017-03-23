@@ -14,8 +14,6 @@ resource "layer0_environment" "dsr" {
 
 module "sts" {
   source         = "../modules/sts"
-  endpoint       = "${var.endpoint}"
-  token          = "${var.token}"
   environment_id = "${layer0_environment.dsr.id}"
 }
 

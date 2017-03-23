@@ -1,17 +1,7 @@
-variable "endpoint" {}
-
-variable "token" {}
-
 variable "environment_id" {}
 
 variable "scale" {
   default = 1
-}
-
-provider "layer0" {
-  endpoint        = "${var.endpoint}"
-  token           = "${var.token}"
-  skip_ssl_verify = true
 }
 
 resource "layer0_load_balancer" "sts" {
