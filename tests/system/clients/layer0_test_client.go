@@ -21,6 +21,15 @@ func NewLayer0TestClient(t *testing.T, endpoint, token string) *Layer0TestClient
 	}
 }
 
+func (l *Layer0TestClient) CreateTask(taskName, environmentID, deployID string, copies int, overrides []models.ContainerOverride) string {
+	jobID, err := l.Client.CreateTask(taskName, environmentID, deployID, copies, overrides)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return jobID
+}
+
 func (l *Layer0TestClient) GetService(id string) *models.Service {
 	service, err := l.Client.GetService(id)
 	if err != nil {
@@ -37,6 +46,15 @@ func (l *Layer0TestClient) GetEnvironment(id string) *models.Environment {
 	}
 
 	return environment
+}
+
+func (l *Layer0TestClient) ListTasks() []*models.TaskSummary {
+	tasks, err := l.Client.ListTasks()
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return tasks
 }
 
 func (l *Layer0TestClient) ScaleService(id string, scale int) *models.Service {
