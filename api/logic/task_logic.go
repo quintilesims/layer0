@@ -99,9 +99,11 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 	}
 
 	// scale first in case Backend.CreateTask fails due to lack of space
-	if _, err := this.Logic.Scaler.Scale(req.EnvironmentID); err != nil {
-		jobLogger.Errorf("Failed to scale environment %s for task %s: %v", req.EnvironmentID, req.TaskName, err)
-	}
+	go func() {
+		if _, err := this.Logic.Scaler.Scale(req.EnvironmentID); err != nil {
+			jobLogger.Errorf("Failed to scale environment %s for task %s: %v", req.EnvironmentID, req.TaskName, err)
+		}
+	}()
 
 	task, err := this.Backend.CreateTask(
 		req.EnvironmentID,

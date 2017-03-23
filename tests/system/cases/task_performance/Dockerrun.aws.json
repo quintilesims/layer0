@@ -3,7 +3,8 @@
     "containerDefinitions": [
         {
             "name": "alpine",
-            "image": "apline",
+            "image": "alpine",
+            "entrypoint": [ "/bin/sh", "-c" ],
             "command": ["$COMMAND"],
             "essential": true,
             "memory": 100,

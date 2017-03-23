@@ -10,7 +10,7 @@ provider "layer0" {
 
 resource "layer0_environment" "tp" {
   name = "tp"
-  size = "t2.small"
+  size = "t2.micro"
 }
 
 resource "layer0_deploy" "alpine" {

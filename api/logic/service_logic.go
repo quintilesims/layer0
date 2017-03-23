@@ -99,9 +99,11 @@ func (this *L0ServiceLogic) ScaleService(serviceID string, size int) (*models.Se
 		return nil, err
 	}
 
-	if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
-		jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
-	}
+	go func() {
+		if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
+			jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
+		}
+	}()
 
 	return service, nil
 }
@@ -121,9 +123,11 @@ func (this *L0ServiceLogic) UpdateService(serviceID string, req models.UpdateSer
 		return nil, err
 	}
 
-	if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
-		jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
-	}
+	go func() {
+		if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
+			jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
+		}
+	}()
 
 	return service, nil
 }
@@ -180,9 +184,11 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 		return service, err
 	}
 
-	if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
-		jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
-	}
+	go func() {
+		if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
+			jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
+		}
+	}()
 
 	return service, nil
 }
