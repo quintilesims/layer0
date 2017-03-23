@@ -34,11 +34,11 @@ func (c *APIClient) UpdateSQL() error {
 	return nil
 }
 
-func (c *APIClient) RunRightSizer() error {
-	var output string
-	if err := c.Execute(c.Sling("admin/").Post("health").BodyJSON(""), &output); err != nil {
-		return err
+func (c *APIClient) RunScaler(environmentID string) (*models.ScalerRunInfo, error) {
+	var output *models.ScalerRunInfo
+	if err := c.Execute(c.Sling("admin/").Put("scale/"+environmentID).BodyJSON(""), &output); err != nil {
+		return nil, err
 	}
 
-	return nil
+	return output, nil
 }

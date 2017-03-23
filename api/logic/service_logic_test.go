@@ -142,6 +142,10 @@ func TestCreateService(t *testing.T) {
 		CreateService("name", "e1", "d1", "l1").
 		Return(&models.Service{ServiceID: "s1"}, nil)
 
+	testLogic.Scaler.EXPECT().
+		Scale("e1").
+		Return(nil, nil)
+
 	request := models.CreateServiceRequest{
 		ServiceName:    "name",
 		EnvironmentID:  "e1",
@@ -220,6 +224,10 @@ func TestUpdateService(t *testing.T) {
 		UpdateService("e1", "s1", "d1").
 		Return(&models.Service{ServiceID: "s1"}, nil)
 
+	testLogic.Scaler.EXPECT().
+		Scale("e1").
+		Return(nil, nil)
+
 	testLogic.AddTags(t, []*models.Tag{
 		{EntityID: "s1", EntityType: "service", Key: "environment_id", Value: "e1"},
 	})
@@ -245,6 +253,10 @@ func TestScaleService(t *testing.T) {
 	testLogic.Backend.EXPECT().
 		ScaleService("e1", "s1", 2).
 		Return(&models.Service{ServiceID: "s1"}, nil)
+
+	testLogic.Scaler.EXPECT().
+		Scale("e1").
+		Return(nil, nil)
 
 	testLogic.AddTags(t, []*models.Tag{
 		{EntityID: "s1", EntityType: "service", Key: "environment_id", Value: "e1"},

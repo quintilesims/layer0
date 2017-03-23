@@ -5,7 +5,6 @@ import (
 	aws_ecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
-	"github.com/quintilesims/layer0/api/backend/ecs/mock_ecsbackend"
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
 	"github.com/quintilesims/layer0/common/models"
@@ -14,19 +13,17 @@ import (
 )
 
 type MockECSDeployManager struct {
-	ECS           *mock_ecs.MockProvider
-	ClusterScaler *mock_ecsbackend.MockClusterScaler
+	ECS *mock_ecs.MockProvider
 }
 
 func NewMockECSDeployManager(ctrl *gomock.Controller) *MockECSDeployManager {
 	return &MockECSDeployManager{
-		ECS:           mock_ecs.NewMockProvider(ctrl),
-		ClusterScaler: mock_ecsbackend.NewMockClusterScaler(ctrl),
+		ECS: mock_ecs.NewMockProvider(ctrl),
 	}
 }
 
 func (this *MockECSDeployManager) Deploy() *ECSDeployManager {
-	return NewECSDeployManager(this.ECS, this.ClusterScaler)
+	return NewECSDeployManager(this.ECS)
 }
 
 func getTaskDefARN(name string, version int) *string {

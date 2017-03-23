@@ -123,7 +123,7 @@ func (_mr *_MockProviderRecorder) DescribeLaunchConfigurations(arg0 interface{})
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DescribeLaunchConfigurations", arg0)
 }
 
-func (_m *MockProvider) SetDesiredCapacity(_param0 *string, _param1 int) error {
+func (_m *MockProvider) SetDesiredCapacity(_param0 string, _param1 int) error {
 	ret := _m.ctrl.Call(_m, "SetDesiredCapacity", _param0, _param1)
 	ret0, _ := ret[0].(error)
 	return ret0

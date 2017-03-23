@@ -99,6 +99,10 @@ func (this *L0ServiceLogic) ScaleService(serviceID string, size int) (*models.Se
 		return nil, err
 	}
 
+	if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
+		jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
+	}
+
 	return service, nil
 }
 
@@ -115,6 +119,10 @@ func (this *L0ServiceLogic) UpdateService(serviceID string, req models.UpdateSer
 
 	if err := this.populateModel(service); err != nil {
 		return nil, err
+	}
+
+	if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
+		jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
 	}
 
 	return service, nil
@@ -172,6 +180,10 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 		return service, err
 	}
 
+	if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
+		jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
+	}
+
 	return service, nil
 }
 
@@ -199,7 +211,18 @@ func (this *L0ServiceLogic) getEnvironmentID(serviceID string) (string, error) {
 		return tag.Value, nil
 	}
 
-	return "", fmt.Errorf("Failed to find Environment ID for Service %s", serviceID)
+	services, err := this.ListServices()
+	if err != nil {
+		return "", err
+	}
+
+	for _, service := range services {
+		if service.ServiceID == serviceID {
+			return service.EnvironmentID, nil
+		}
+	}
+
+	return "", errors.Newf(errors.InvalidServiceID, "Service %s does not exist", serviceID)
 }
 
 func (this *L0ServiceLogic) doesServiceTagExist(environmentID, name string) (bool, error) {

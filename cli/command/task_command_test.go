@@ -1,6 +1,7 @@
 package command
 
 import (
+	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/urfave/cli"
@@ -68,11 +69,51 @@ func TestCreateTask(t *testing.T) {
 
 	tc.Client.EXPECT().
 		CreateTask("name", "environmentID", "deployID", 2, overrides).
-		Return(&models.Task{}, nil)
+		Return("jobid", nil)
 
 	flags := Flags{
 		"copies": 2,
 		"env":    []string{"container:key=val"},
+	}
+
+	c := getCLIContext(t, Args{"environment", "name", "deploy"}, flags)
+	if err := command.Create(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCreateTaskWait(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewTaskCommand(tc.Command())
+
+	tc.Resolver.EXPECT().
+		Resolve("environment", "environment").
+		Return([]string{"environmentID"}, nil)
+
+	tc.Resolver.EXPECT().
+		Resolve("deploy", "deploy").
+		Return([]string{"deployID"}, nil)
+
+	tc.Client.EXPECT().
+		CreateTask("name", "environmentID", "deployID", 0, []models.ContainerOverride{}).
+		Return("jobid", nil)
+
+	tc.Client.EXPECT().
+		WaitForJob("jobid", gomock.Any()).
+		Return(nil)
+
+	jobMeta := map[string]string{"task_id": "tid"}
+	tc.Client.EXPECT().
+		GetJob("jobid").
+		Return(&models.Job{Meta: jobMeta}, nil)
+
+	tc.Client.EXPECT().
+		GetTask("tid").
+		Return(&models.Task{}, nil)
+
+	flags := Flags{
+		"wait": true,
 	}
 
 	c := getCLIContext(t, Args{"environment", "name", "deploy"}, flags)

@@ -1,7 +1,7 @@
 package ecsbackend
 
 import (
-	log "github.com/Sirupsen/logrus"
+	"fmt"
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
@@ -17,22 +17,17 @@ type ECSTaskManager struct {
 	ECS            ecs.Provider
 	CloudWatchLogs cloudwatchlogs.Provider
 	Backend        backend.Backend
-	ClusterScaler  ClusterScaler
-	Scheduler      TaskScheduler
 }
 
 func NewECSTaskManager(
 	ecsProvider ecs.Provider,
 	cloudWatchLogsProvider cloudwatchlogs.Provider,
 	backend backend.Backend,
-	clusterScaler ClusterScaler,
 ) *ECSTaskManager {
 	return &ECSTaskManager{
 		ECS:            ecsProvider,
 		CloudWatchLogs: cloudWatchLogsProvider,
 		Backend:        backend,
-		ClusterScaler:  clusterScaler,
-		Scheduler:      NewL0TaskScheduler(ecsProvider),
 	}
 }
 
@@ -94,16 +89,6 @@ func (this *ECSTaskManager) ListTasks() ([]*models.Task, error) {
 		tasks = append(tasks, model)
 	}
 
-	scheduledTasks := this.Scheduler.ListTasks()
-	for _, task := range scheduledTasks {
-		model, err := getModel([]*ecs.Task{task})
-		if err != nil {
-			return nil, err
-		}
-
-		tasks = append(tasks, model)
-	}
-
 	return tasks, nil
 }
 
@@ -123,8 +108,6 @@ func (this *ECSTaskManager) GetTask(environmentID, taskID string) (*models.Task,
 			return nil, err
 		}
 	}
-
-	taskDescs = append(taskDescs, this.Scheduler.GetTask(ecsTaskID)...)
 
 	return modelFromTasks(taskDescs)
 }
@@ -147,8 +130,6 @@ func (this *ECSTaskManager) DeleteTask(environmentID, taskID string) error {
 		}
 	}
 
-	this.Scheduler.DeleteTask(ecsTaskID)
-
 	return nil
 }
 
@@ -166,12 +147,6 @@ func (this *ECSTaskManager) CreateTask(
 	taskID := id.GenerateHashedEntityID(taskName)
 	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
 
-	// trigger the scaling algorithm first or the task we are about to create gets
-	// included in the pending count of the cluster
-	if _, _, err := this.ClusterScaler.TriggerScalingAlgorithm(ecsEnvironmentID, &ecsDeployID, copies); err != nil {
-		return nil, err
-	}
-
 	ecsOverrides := []*ecs.ContainerOverride{}
 	for _, override := range overrides {
 		o := ecs.NewContainerOverride(override.ContainerName, override.EnvironmentOverrides)
@@ -180,28 +155,26 @@ func (this *ECSTaskManager) CreateTask(
 
 	tasks, failed, err := this.ECS.RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), int64(copies), stringp(ecsTaskID.String()), ecsOverrides)
 	if err != nil {
-		if !ContainsErrMsg(err, "No Container Instances were found in your cluster") {
-			return nil, err
-		}
-
-		log.Debugf("Not enough room in cluster. Adding task '%s' to scheduler", ecsTaskID)
-		this.Scheduler.AddTask(ecsTaskID, ecsDeployID, ecsEnvironmentID, copies, overrides)
-
-		dummyTask := ecsPendingTask(ecsTaskID, ecsDeployID, ecsEnvironmentID)
-		tasks = []*ecs.Task{dummyTask}
+		return nil, err
 	}
 
 	if numFailed := len(failed); numFailed > 0 {
-		log.Debug("RunTask failed to start %d tasks: %v", numFailed, failed)
-		log.Debug("Adding task '%s' to scheduler", ecsTaskID)
+		err := &PartialCreateTaskFailure{
+			NumFailed: int64(numFailed),
+		}
 
-		this.Scheduler.AddTask(ecsTaskID, ecsDeployID, ecsEnvironmentID, numFailed, overrides)
-
-		dummyTask := ecsPendingTask(ecsTaskID, ecsDeployID, ecsEnvironmentID)
-		tasks = []*ecs.Task{dummyTask}
+		return nil, err
 	}
 
 	return modelFromTasks(tasks)
+}
+
+type PartialCreateTaskFailure struct {
+	NumFailed int64
+}
+
+func (p *PartialCreateTaskFailure) Error() string {
+	return fmt.Sprintf("Failed to start %d tasks", p.NumFailed)
 }
 
 func (this *ECSTaskManager) GetTaskLogs(environmentID, taskID string, tail int) ([]*models.LogFile, error) {

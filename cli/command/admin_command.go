@@ -38,10 +38,10 @@ func (a *AdminCommand) GetCommand() cli.Command {
 				ArgsUsage: " ",
 			},
 			{
-				Name:      "rightsizer",
-				Usage:     "Run the right sizer on the layer0 api",
-				Action:    wrapAction(a.Command, a.RightSizer),
-				ArgsUsage: " ",
+				Name:      "scale",
+				Usage:     "Run the scaler on an environment",
+				Action:    wrapAction(a.Command, a.Scale),
+				ArgsUsage: "ENVIRONMENT",
 			},
 		},
 	}
@@ -99,11 +99,21 @@ func (a *AdminCommand) Version(c *cli.Context) error {
 	return nil
 }
 
-func (a *AdminCommand) RightSizer(c *cli.Context) error {
-	if err := a.Client.RunRightSizer(); err != nil {
+func (a *AdminCommand) Scale(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "ENVIRONMENT")
+	if err != nil {
 		return err
 	}
 
-	a.Printer.Printf("Right Sizer finished successfully\n")
-	return nil
+	environmentID, err := a.resolveSingleID("environment", args["ENVIRONMENT"])
+	if err != nil {
+		return err
+	}
+
+	runInfo, err := a.Client.RunScaler(environmentID)
+	if err != nil {
+		return err
+	}
+
+	return a.Printer.PrintScalerRunInfo(runInfo)
 }

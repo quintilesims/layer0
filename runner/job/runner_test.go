@@ -18,14 +18,14 @@ func getStubbedLogic(ctrl *gomock.Controller) *logic.Logic {
 		UpdateJobStatus(gomock.Any(), gomock.Any()).
 		AnyTimes()
 
-	return logic.NewLogic(nil, mockJobStore, nil)
+	return logic.NewLogic(nil, mockJobStore, nil, nil)
 }
 
 func stepWithError() Step {
 	return Step{
 		Name:    "step with error",
 		Timeout: time.Second * 1,
-		Action:  func(chan bool, JobContext) error { return fmt.Errorf("some error") },
+		Action:  func(chan bool, *JobContext) error { return fmt.Errorf("some error") },
 	}
 }
 
@@ -44,7 +44,7 @@ func TestRunnerLoad(t *testing.T) {
 				mockJobStore.EXPECT().SelectByID("some_job_id").
 					Return(model, nil)
 
-				mockLogic := logic.NewLogic(nil, mockJobStore, nil)
+				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
 				return NewJobRunner(mockLogic, "some_job_id")
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -60,7 +60,7 @@ func TestRunnerLoad(t *testing.T) {
 				mockJobStore.EXPECT().SelectByID(gomock.Any()).
 					Return(nil, fmt.Errorf("some error"))
 
-				mockLogic := logic.NewLogic(nil, mockJobStore, nil)
+				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
 				return NewJobRunner(mockLogic, "some_job_id")
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -94,7 +94,7 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 					Step{
 						Name:    "step1",
 						Timeout: time.Second * 1,
-						Action: func(chan bool, JobContext) error {
+						Action: func(chan bool, *JobContext) error {
 							recorder.Call("step1")
 							return nil
 						},
@@ -102,7 +102,7 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 					Step{
 						Name:    "step2",
 						Timeout: time.Second * 1,
-						Action: func(chan bool, JobContext) error {
+						Action: func(chan bool, *JobContext) error {
 							recorder.Call("step2")
 							return nil
 						},
@@ -143,7 +143,7 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 					Step{
 						Name:    "timeout step",
 						Timeout: time.Nanosecond * 0,
-						Action: func(quit chan bool, c JobContext) error {
+						Action: func(quit chan bool, c *JobContext) error {
 							select {
 							case <-quit:
 								return nil
@@ -179,7 +179,7 @@ func TestRunnerRun_RollbackExecution(t *testing.T) {
 				recorder.EXPECT().Call(gomock.Any())
 
 				step := stepWithError()
-				step.Rollback = func(JobContext) (JobContext, []Step, error) {
+				step.Rollback = func(*JobContext) (*JobContext, []Step, error) {
 					recorder.Call("")
 					return nil, nil, nil
 				}
@@ -209,8 +209,8 @@ func TestRunnerRun_RollbackExecution(t *testing.T) {
 					Step{
 						Name:    "step1",
 						Timeout: time.Second * 1,
-						Action:  func(chan bool, JobContext) error { return nil },
-						Rollback: func(JobContext) (JobContext, []Step, error) {
+						Action:  func(chan bool, *JobContext) error { return nil },
+						Rollback: func(*JobContext) (*JobContext, []Step, error) {
 							recorder.Call("step1")
 							return nil, nil, nil
 						},
@@ -218,8 +218,8 @@ func TestRunnerRun_RollbackExecution(t *testing.T) {
 					Step{
 						Name:    "step2",
 						Timeout: time.Second * 1,
-						Action:  func(chan bool, JobContext) error { return fmt.Errorf("some error") },
-						Rollback: func(JobContext) (JobContext, []Step, error) {
+						Action:  func(chan bool, *JobContext) error { return fmt.Errorf("some error") },
+						Rollback: func(*JobContext) (*JobContext, []Step, error) {
 							recorder.Call("step2")
 							return nil, nil, nil
 						},
@@ -250,7 +250,7 @@ func TestRunnerRun_JobStateManagement(t *testing.T) {
 					mockJobStore.EXPECT().UpdateJobStatus(gomock.Any(), gomock.Not(types.InProgress)).AnyTimes(),
 				)
 
-				mockLogic := logic.NewLogic(nil, mockJobStore, nil)
+				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
 				return NewJobRunner(mockLogic, "some_job_id")
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -268,7 +268,7 @@ func TestRunnerRun_JobStateManagement(t *testing.T) {
 					mockJobStore.EXPECT().UpdateJobStatus("some_job_id", types.Completed),
 				)
 
-				mockLogic := logic.NewLogic(nil, mockJobStore, nil)
+				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
 				return NewJobRunner(mockLogic, "some_job_id")
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -286,7 +286,7 @@ func TestRunnerRun_JobStateManagement(t *testing.T) {
 					mockJobStore.EXPECT().UpdateJobStatus("some_job_id", types.Error),
 				)
 
-				mockLogic := logic.NewLogic(nil, mockJobStore, nil)
+				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
 				runner := NewJobRunner(mockLogic, "some_job_id")
 
 				runner.Steps = []Step{stepWithError()}

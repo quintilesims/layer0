@@ -13,11 +13,11 @@ var DeleteLoadBalancerSteps = []Step{
 	},
 }
 
-func DeleteLoadBalancer(quit chan bool, context JobContext) error {
+func DeleteLoadBalancer(quit chan bool, context *JobContext) error {
 	loadBalancerID := context.Request()
 
 	return runAndRetry(quit, time.Second*10, func() error {
 		log.Infof("Running Action: DeleteLoadBalancer on '%s'", loadBalancerID)
-		return context.LoadBalancerLogic().DeleteLoadBalancer(loadBalancerID)
+		return context.LoadBalancerLogic.DeleteLoadBalancer(loadBalancerID)
 	})
 }

@@ -10,7 +10,7 @@ import (
 
 type JobRunner struct {
 	Logic   *logic.Logic
-	Context JobContext
+	Context *JobContext
 	Steps   []Step
 	jobID   string
 }
@@ -22,47 +22,51 @@ func NewJobRunner(logic *logic.Logic, jobID string) *JobRunner {
 	}
 }
 
-func (this *JobRunner) MarkStatus(status types.JobStatus) error {
-	return this.Logic.JobStore.UpdateJobStatus(this.jobID, status)
+func (j *JobRunner) MarkStatus(status types.JobStatus) error {
+	return j.Logic.JobStore.UpdateJobStatus(j.jobID, status)
 }
 
-func (this *JobRunner) Load() error {
-	log.Infof("Loading job '%s'", this.jobID)
+func (j *JobRunner) Load() error {
+	log.Infof("Loading job '%s'", j.jobID)
 
-	model, err := this.Logic.JobStore.SelectByID(this.jobID)
+	model, err := j.Logic.JobStore.SelectByID(j.jobID)
 	if err != nil {
 		return err
 	}
 
 	switch types.JobType(model.JobType) {
 	case types.DeleteEnvironmentJob:
-		this.Steps = DeleteEnvironmentSteps
+		j.Steps = DeleteEnvironmentSteps
 	case types.DeleteLoadBalancerJob:
-		this.Steps = DeleteLoadBalancerSteps
+		j.Steps = DeleteLoadBalancerSteps
 	case types.DeleteServiceJob:
-		this.Steps = DeleteServiceSteps
+		j.Steps = DeleteServiceSteps
+	case types.DeleteTaskJob:
+		j.Steps = DeleteTaskSteps
+	case types.CreateTaskJob:
+		j.Steps = CreateTaskSteps
 	default:
 		return fmt.Errorf("Unknown job type '%v'!", model.JobType)
 	}
 
-	this.Context = NewL0JobContext(this.jobID, this.Logic, model.Request)
+	j.Context = NewJobContext(j.jobID, j.Logic, model.Request)
 	return nil
 }
 
-func (this *JobRunner) Run() error {
-	if err := this.MarkStatus(types.InProgress); err != nil {
+func (j *JobRunner) Run() error {
+	if err := j.MarkStatus(types.InProgress); err != nil {
 		return err
 	}
 
-	for i, step := range this.Steps {
+	for i, step := range j.Steps {
 		log.Infof("Running step '%s'", step.Name)
 
-		if err := this.runStep(step, this.Context); err != nil {
+		if err := j.runStep(step, j.Context); err != nil {
 			log.Errorf("Error on step '%s': %v", step.Name, err)
 
-			this.rollback(i)
+			j.rollback(i)
 
-			if err := this.MarkStatus(types.Error); err != nil {
+			if err := j.MarkStatus(types.Error); err != nil {
 				log.Errorf("Failed to mark job status to Error: %v", err)
 			}
 
@@ -70,10 +74,10 @@ func (this *JobRunner) Run() error {
 		}
 	}
 
-	return this.MarkStatus(types.Completed)
+	return j.MarkStatus(types.Completed)
 }
 
-func (this *JobRunner) runStep(step Step, context JobContext) error {
+func (j *JobRunner) runStep(step Step, context *JobContext) error {
 	var err error
 	quitc := make(chan bool)
 	stepc := make(chan error)
@@ -90,17 +94,17 @@ func (this *JobRunner) runStep(step Step, context JobContext) error {
 	return err
 }
 
-func (this *JobRunner) rollback(from int) {
+func (j *JobRunner) rollback(from int) {
 	log.Infof("Starting Rollback")
 
 	for i := from; i >= 0; i-- {
-		step := this.Steps[i]
+		step := j.Steps[i]
 
 		if step.Rollback == nil {
 			continue
 		}
 
-		context, rollbackSteps, err := step.Rollback(this.Context)
+		context, rollbackSteps, err := step.Rollback(j.Context)
 		if err != nil {
 			log.Errorf("Failed to get rollback steps for '%s': %v", step.Name, err)
 			continue
@@ -109,7 +113,7 @@ func (this *JobRunner) rollback(from int) {
 		for _, rollbackStep := range rollbackSteps {
 			log.Infof("Running rollback step '%s'", rollbackStep.Name)
 
-			if err := this.runStep(rollbackStep, context); err != nil {
+			if err := j.runStep(rollbackStep, context); err != nil {
 				log.Errorf("Error during rollback step '%s': %v", rollbackStep.Name, err)
 			}
 		}

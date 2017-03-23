@@ -35,7 +35,8 @@ func (this Waiter) Wait() error {
 	}
 
 	for i := 0; shouldContinue(i); i++ {
-		if ok, err := this.Check(); err != nil {
+		ok, err := this.Check()
+		if err != nil {
 			return err
 		} else if ok {
 			return nil
