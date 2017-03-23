@@ -43,7 +43,7 @@ func teardown() {
 
 		if name := f.Name(); strings.HasPrefix(name, "terraform.tfstate") {
 			if err := os.Remove(path); err != nil {
-				fmt.Println("Failed to delete %s: ", path, err)
+				return fmt.Errorf("Failed to delete %s: ", path, err)
 			}
 		}
 
