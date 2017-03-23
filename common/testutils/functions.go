@@ -43,12 +43,12 @@ func AssertInSlice(t *testing.T, expected, slice interface{}) {
 		reflect.TypeOf(slice))
 }
 
-func WaitFor(t *testing.T, name string, timeout time.Duration, conditionSatisfied func() bool) {
+func WaitFor(t *testing.T, timeout time.Duration, conditionSatisfied func() bool) {
         for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 5) {
                 if conditionSatisfied() {
                         return
                 }
         }
 
-        t.Fatalf("Wait for '%s' failed to complete after %v", name, timeout)
+        t.Fatalf("Timout reached after %v", timeout)
 }

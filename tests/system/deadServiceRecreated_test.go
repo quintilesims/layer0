@@ -25,13 +25,13 @@ func TestDeadServiceRecreated(t *testing.T) {
 	stsClient.WaitForHealthy(time.Minute * 3)
 	stsClient.SetHealth("die")
 
-	testutils.WaitFor(t, "Service to die", time.Minute, func() bool {
+	testutils.WaitFor(t, time.Minute, func() bool {
 		logrus.Printf("Waiting for service to die")
 		service := test.L0Client.GetService(serviceID)
 		return service.RunningCount == 0
 	})
 
-	testutils.WaitFor(t, "Service to recreate", time.Minute*2, func() bool {
+	testutils.WaitFor(t, time.Minute*2, func() bool {
 		logrus.Printf("Waiting for service to recreate")
 		service := test.L0Client.GetService(serviceID)
 		return service.RunningCount == 1
