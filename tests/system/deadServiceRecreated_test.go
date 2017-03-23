@@ -14,26 +14,26 @@ import (
 func TestDeadServiceRecreated(t *testing.T) {
 	t.Parallel()
 
-	test := NewSystemTest(t, "cases/dead_service_recreated", nil)
-	test.Terraform.Apply()
-	defer test.Terraform.Destroy()
+	s := NewSystemTest(t, "cases/dead_service_recreated", nil)
+	s.Terraform.Apply()
+	defer s.Terraform.Destroy()
 
-	serviceID := test.Terraform.Output("service_id")
-	serviceURL := test.Terraform.Output("service_url")
+	serviceID := s.Terraform.Output("service_id")
+	serviceURL := s.Terraform.Output("service_url")
 
-	stsClient := clients.NewSTSTestClient(t, serviceURL)
-	stsClient.WaitForHealthy(time.Minute * 3)
-	stsClient.SetHealth("die")
+	sts := clients.NewSTSTestClient(t, serviceURL)
+	sts.WaitForHealthy(time.Minute * 3)
+	sts.SetHealth("die")
 
 	testutils.WaitFor(t, time.Minute, func() bool {
 		logrus.Printf("Waiting for service to die")
-		service := test.L0Client.GetService(serviceID)
+		service := s.Layer0.GetService(serviceID)
 		return service.RunningCount == 0
 	})
 
 	testutils.WaitFor(t, time.Minute*2, func() bool {
 		logrus.Printf("Waiting for service to recreate")
-		service := test.L0Client.GetService(serviceID)
+		service := s.Layer0.GetService(serviceID)
 		return service.RunningCount == 1
 	})
 }

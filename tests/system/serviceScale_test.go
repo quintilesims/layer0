@@ -13,23 +13,23 @@ import (
 func TestServiceScale(t *testing.T) {
 	t.Parallel()
 
-	test := NewSystemTest(t, "cases/service_scale", nil)
-	test.Terraform.Apply()
-	defer test.Terraform.Destroy()
+	s := NewSystemTest(t, "cases/service_scale", nil)
+	s.Terraform.Apply()
+	defer s.Terraform.Destroy()
 
-	serviceID := test.Terraform.Output("service_id")
+	serviceID := s.Terraform.Output("service_id")
 
-	test.L0Client.ScaleService(serviceID, 3)
+	s.Layer0.ScaleService(serviceID, 3)
 	testutils.WaitFor(t, time.Minute*5, func() bool {
 		logrus.Printf("Waiting for service to scale up")
-		service := test.L0Client.GetService(serviceID)
+		service := s.Layer0.GetService(serviceID)
 		return service.RunningCount == 3
 	})
 
-	test.L0Client.ScaleService(serviceID, 1)
+	s.Layer0.ScaleService(serviceID, 1)
 	testutils.WaitFor(t, time.Minute*5, func() bool {
 		logrus.Printf("Waiting for service to scale down")
-		service := test.L0Client.GetService(serviceID)
+		service := s.Layer0.GetService(serviceID)
 		return service.RunningCount == 1
 	})
 }

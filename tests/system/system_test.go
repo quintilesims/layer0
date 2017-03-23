@@ -10,7 +10,7 @@ import (
 
 type SystemTest struct {
 	Terraform *tftest.TestContext
-	L0Client  *clients.Layer0TestClient
+	Layer0    *clients.Layer0TestClient
 }
 
 func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest {
@@ -30,12 +30,12 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 	// download modules using terraform get
 	tfContext.Terraformf("get")
 
-	l0Client := clients.NewLayer0TestClient(t,
+	layer0 := clients.NewLayer0TestClient(t,
 		vars["endpoint"],
 		fmt.Sprintf("Basic %s", vars["token"]))
 
 	return &SystemTest{
 		Terraform: tfContext,
-		L0Client:  l0Client,
+		Layer0:    layer0,
 	}
 }
