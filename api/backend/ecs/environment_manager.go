@@ -72,8 +72,6 @@ func (this *ECSEnvironmentManager) GetEnvironment(environmentID string) (*models
 			return nil, errors.Newf(errors.InvalidEnvironmentID, "Environment with id '%s' was not found", environmentID)
 		}
 
-		log.Fatalf("%#v\n", err)
-
 		return nil, err
 	}
 

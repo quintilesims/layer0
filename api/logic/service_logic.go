@@ -1,10 +1,10 @@
 package logic
 
 import (
-	"time"
 	"fmt"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
+	"time"
 )
 
 type ServiceLogic interface {
