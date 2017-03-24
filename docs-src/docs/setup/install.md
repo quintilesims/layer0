@@ -67,7 +67,7 @@ Once the ```apply``` command has run successfully, you can configure the Layer0 
 
 To view the environment variables for your Layer0 and apply them to your shell, type the following command, replacing ```[prefix]``` with the name of the Layer0 prefix you created in Part 3:
 
-* (Windows PowerShell): ```l0-setup endpoint --insecure --synax=powershell [prefix] | Out-String | Invoke-Expression```
+* (Windows PowerShell): ```l0-setup endpoint --insecure --syntax=powershell [prefix] | Out-String | Invoke-Expression```
 * (Linux/macOS): ```eval "$(l0-setup endpoint --insecure [prefix])"```
 
 ## (Optional) Part 6: Using a custom certificate
