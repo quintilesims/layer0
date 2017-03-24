@@ -48,12 +48,15 @@ func TestTaskPerformance(t *testing.T) {
 	createTask("TaskL", 1, "sleep 80")
 	createTask("TaskM", 1, "sleep 90")
 
+	// todo: add back in
 	// give it some time to spin up all of the tasks
+	/*
 	start := time.Now()
 	testutils.WaitFor(t, time.Minute*6, func() bool {
 		logrus.Printf("Sleeping %v of 5m", time.Since(start))
 		return time.Since(start) > time.Minute*5
 	})
+	*/
 
 	testutils.WaitFor(t, time.Minute*5, func() bool {
 		logrus.Printf("Waiting for tasks to be created")
