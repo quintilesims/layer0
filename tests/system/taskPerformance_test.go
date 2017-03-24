@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
@@ -34,44 +35,54 @@ func TestTaskPerformance(t *testing.T) {
 	}
 
 	// create 100 tasks
-	createTask("TaskA", 1, "sleep 10")  // 50
-	createTask("TaskB", 1, "sleep 20")  // 25
-	createTask("TaskC", 15, "sleep 30") // 15
-	createTask("TaskD", 1, "sleep 00")
-	createTask("TaskE", 1, "sleep 10")
-	createTask("TaskF", 1, "sleep 20")
-	createTask("TaskG", 1, "sleep 30")
-	createTask("TaskH", 1, "sleep 40")
-	createTask("TaskI", 1, "sleep 50")
-	createTask("TaskJ", 1, "sleep 60")
-	createTask("TaskK", 1, "sleep 70")
-	createTask("TaskL", 1, "sleep 80")
-	createTask("TaskM", 1, "sleep 90")
+	createTask("TaskA", 10, "sleep 10")
+	createTask("TaskB", 10, "sleep 20")
+	createTask("TaskC", 10, "sleep 30")
+	createTask("TaskD", 10, "sleep 30")
+	createTask("TaskE", 10, "sleep 50")
+	createTask("TaskF", 10, "sleep 60")
+	createTask("TaskG", 10, "sleep 70")
+	createTask("TaskH", 10, "sleep 80")
+	createTask("TaskI", 10, "sleep 90")
+	createTask("TaskJ", 5, "sleep 95")
+	createTask("TaskK", 1, "sleep 96")
+	createTask("TaskL", 1, "sleep 97")
+	createTask("TaskM", 1, "sleep 98")
+	createTask("TaskN", 1, "sleep 99")
+	createTask("Task0", 1, "sleep 00")
 
-	// todo: add back in
-	// give it some time to spin up all of the tasks
-	/*
-	start := time.Now()
-	testutils.WaitFor(t, time.Minute*6, func() bool {
-		logrus.Printf("Sleeping %v of 5m", time.Since(start))
-		return time.Since(start) > time.Minute*5
-	})
-	*/
-
-	testutils.WaitFor(t, time.Minute*5, func() bool {
-		logrus.Printf("Waiting for tasks to be created")
-
-		count := 0
-		taskSummaries := s.Layer0.ListTasks()
-		for _, taskSummary := range taskSummaries {
+	forEachTaskDetail := func(do func(*models.Task, models.TaskDetail)) {
+		for _, taskSummary := range s.Layer0.ListTasks() {
 			if taskSummary.EnvironmentID == environmentID {
 				task := s.Layer0.GetTask(taskSummary.TaskID)
-				count += len(task.Copies)
+				for _, copy := range task.Copies {
+					for _, detail := range copy.Details {
+						do(task, detail)
+					}
+				}
 			}
 		}
+	}
 
-		return count >= 10 // 100
+	testutils.WaitFor(t, time.Second*30, time.Minute*10, func() bool {
+		logrus.Printf("Waiting for tasks to finish running")
+
+		count := 0
+		forEachTaskDetail(func(task *models.Task, detail models.TaskDetail) {
+			if detail.LastStatus == "STOPPED" {
+				count++
+			}
+		})
+
+		logrus.Printf("%d/100 tasks have finished running", count)
+		return count >= 100
 	})
 
-	// run list, get on all
+	logrus.Printf("Checking task exit codes")
+	forEachTaskDetail(func(task *models.Task, detail models.TaskDetail) {
+		if detail.ExitCode != 0 {
+			id := fmt.Sprintf("Task %s Container %s", task.TaskID, detail.ContainerName)
+			t.Fatalf("%s has non-zero exit code %d! %s", id, detail.ExitCode, detail.Reason)
+		}
+	})
 }

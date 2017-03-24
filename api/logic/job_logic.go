@@ -122,6 +122,10 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 			return nil, fmt.Errorf("Unexpected request type for 'CreateTask' job type!")
 		}
 
+		if req.Copies > 10 {
+			return nil, fmt.Errorf("ECS does not allow more than 10 copies of a task")
+		}
+
 		this.Logic.Scaler.ScheduleRun(req.EnvironmentID, time.Second*10)
 	}
 

@@ -140,7 +140,6 @@ func (this *ECSTaskManager) CreateTask(
 	copies int,
 	overrides []models.ContainerOverride,
 ) (*models.Task, error) {
-
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	ecsDeployID := id.L0DeployID(deployID).ECSDeployID()
 
