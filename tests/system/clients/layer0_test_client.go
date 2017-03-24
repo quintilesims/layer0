@@ -40,14 +40,13 @@ func (l *Layer0TestClient) GetService(id string) *models.Service {
 }
 
 func (l *Layer0TestClient) GetTask(id string) *models.Task {
-        task, err := l.Client.GetTask(id)
-        if err != nil {
-                l.T.Fatal(err)
-        }
+	task, err := l.Client.GetTask(id)
+	if err != nil {
+		l.T.Fatal(err)
+	}
 
-        return task
+	return task
 }
-
 
 func (l *Layer0TestClient) GetEnvironment(id string) *models.Environment {
 	environment, err := l.Client.GetEnvironment(id)

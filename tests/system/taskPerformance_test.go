@@ -34,9 +34,9 @@ func TestTaskPerformance(t *testing.T) {
 	}
 
 	// create 100 tasks
-	createTask("TaskA", 1, "sleep 10") // 50
-	createTask("TaskB", 1, "sleep 20") // 25
-	createTask("TaskC", 1, "sleep 30") // 15
+	createTask("TaskA", 1, "sleep 10")  // 50
+	createTask("TaskB", 1, "sleep 20")  // 25
+	createTask("TaskC", 15, "sleep 30") // 15
 	createTask("TaskD", 1, "sleep 00")
 	createTask("TaskE", 1, "sleep 10")
 	createTask("TaskF", 1, "sleep 20")
@@ -52,9 +52,9 @@ func TestTaskPerformance(t *testing.T) {
 	start := time.Now()
 	testutils.WaitFor(t, time.Minute*6, func() bool {
 		logrus.Printf("Sleeping %v of 5m", time.Since(start))
-		return time.Since(start) > time.Minute*5	
+		return time.Since(start) > time.Minute*5
 	})
-	
+
 	testutils.WaitFor(t, time.Minute*5, func() bool {
 		logrus.Printf("Waiting for tasks to be created")
 

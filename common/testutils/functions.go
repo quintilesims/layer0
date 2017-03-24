@@ -1,9 +1,9 @@
 package testutils
 
 import (
-	"time"
 	"reflect"
 	"testing"
+	"time"
 )
 
 func AssertEqual(t *testing.T, result, expected interface{}) {
@@ -44,11 +44,11 @@ func AssertInSlice(t *testing.T, expected, slice interface{}) {
 }
 
 func WaitFor(t *testing.T, timeout time.Duration, conditionSatisfied func() bool) {
-        for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 5) {
-                if conditionSatisfied() {
-                        return
-                }
-        }
+	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 5) {
+		if conditionSatisfied() {
+			return
+		}
+	}
 
-        t.Fatalf("Timout reached after %v", timeout)
+	t.Fatalf("Timout reached after %v", timeout)
 }

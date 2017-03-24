@@ -116,6 +116,15 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 		return nil, err
 	}
 
+	if jobType == types.CreateTaskJob{
+		req, ok := request.(models.CreateTaskRequest)
+		if !ok{
+			return nil, fmt.Errorf("Unexpected request type for 'CreateTask' job type!")
+		}
+
+		this.Logic.Scaler.ScheduleRun(req.EnvironmentID, time.Second*10)
+	}
+
 	return job, nil
 }
 
