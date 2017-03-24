@@ -1,6 +1,7 @@
 package logic
 
 import (
+	 "github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -98,6 +99,7 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 		return nil, errors.Newf(errors.MissingParameter, "TaskName not specified")
 	}
 
+	var partialFailure *ecsbackend.PartialCreateTaskFailure
 	task, err := this.Backend.CreateTask(
 		req.EnvironmentID,
 		req.TaskName,
@@ -105,7 +107,11 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 		int(req.Copies),
 		req.ContainerOverrides)
 	if err != nil {
-		return task, err
+		if err, ok := err.(*ecsbackend.PartialCreateTaskFailure); ok {
+			partialFailure = err
+		} else {
+			return nil, err
+		}
 	}
 
 	taskID := task.TaskID
@@ -125,6 +131,11 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 
 	if err := this.populateModel(task); err != nil {
 		return task, err
+	}
+
+	// make sure to return both the task and partial failure
+	if partialFailure != nil{
+		return task, partialFailure
 	}
 
 	return task, nil

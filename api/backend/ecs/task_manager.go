@@ -158,14 +158,18 @@ func (this *ECSTaskManager) CreateTask(
 	}
 
 	if numFailed := len(failed); numFailed > 0 {
-		err := &PartialCreateTaskFailure{
+		err = &PartialCreateTaskFailure{
 			NumFailed: int64(numFailed),
 		}
+	}
 
+	model, err := modelFromTasks(tasks)
+	if err != nil{
 		return nil, err
 	}
 
-	return modelFromTasks(tasks)
+	// make sure to return both the tasks and error
+	return model, err
 }
 
 type PartialCreateTaskFailure struct {
