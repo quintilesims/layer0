@@ -136,10 +136,6 @@ func TestCreateTask(t *testing.T) {
 		CreateTask("e1", "name", "d1", 2, nil).
 		Return(&models.Task{TaskID: "t1"}, nil)
 
-	testLogic.Scaler.EXPECT().
-		Scale("e1").
-		Return(nil, nil)
-
 	request := models.CreateTaskRequest{
 		TaskName:      "name",
 		EnvironmentID: "e1",

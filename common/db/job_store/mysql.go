@@ -30,6 +30,7 @@ func (m *MysqlJobStore) Init() error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	if err := dbcommon.CreateDatabase(m.config.DBName, db); err != nil {
 		return err
