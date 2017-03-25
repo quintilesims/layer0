@@ -44,6 +44,7 @@ func CreateTask(quit chan bool, context *JobContext) error {
 		task, err := context.TaskLogic.CreateTask(createTaskRequest)
 		if err != nil {
 			if err, ok := err.(*ecsbackend.PartialCreateTaskFailure); ok {
+				log.Printf("%#v\n", err)
 				createTaskRequest.Copies = err.NumFailed
 			}
 

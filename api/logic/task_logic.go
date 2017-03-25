@@ -107,8 +107,8 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 		int(req.Copies),
 		req.ContainerOverrides)
 	if err != nil {
-		if err, ok := err.(*ecsbackend.PartialCreateTaskFailure); ok {
-			partialFailure = err
+		if pf, ok := err.(*ecsbackend.PartialCreateTaskFailure); ok {
+			partialFailure = pf
 		} else {
 			return nil, err
 		}
