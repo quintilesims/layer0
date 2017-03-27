@@ -1,7 +1,8 @@
 package logic
 
 import (
-	 "github.com/quintilesims/layer0/api/backend/ecs"
+	log "github.com/Sirupsen/logrus"
+	"github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -99,21 +100,53 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 		return nil, errors.Newf(errors.MissingParameter, "TaskName not specified")
 	}
 
-	var partialFailure *ecsbackend.PartialCreateTaskFailure
-	task, err := this.Backend.CreateTask(
-		req.EnvironmentID,
-		req.TaskName,
-		req.DeployID,
-		int(req.Copies),
-		req.ContainerOverrides)
+	createf := func() (*models.Task, error) {
+		return this.Backend.CreateTask(
+			req.EnvironmentID,
+			req.TaskName,
+			req.DeployID,
+			int(req.Copies),
+			req.ContainerOverrides)
+	}
+
+	return this.createTask(req, createf)
+}
+
+func (this *L0TaskLogic) createTask(req models.CreateTaskRequest, createf func() (*models.Task, error)) (*models.Task, error) {
+	task, err := createf()
 	if err != nil {
-		if pf, ok := err.(*ecsbackend.PartialCreateTaskFailure); ok {
-			partialFailure = pf
-		} else {
+		switch err := err.(type) {
+		case *ecsbackend.PartialCreateTaskFailure:
+			return task, this.handlePartialFailure(req, task, err)
+		default:
 			return nil, err
 		}
 	}
 
+	return this.createTaskTags(req, task)
+}
+
+func (this *L0TaskLogic) handlePartialFailure(req models.CreateTaskRequest, task *models.Task, partialFailure *ecsbackend.PartialCreateTaskFailure) *ecsbackend.PartialCreateTaskFailure {
+	// first, try to add tags for the partial successes
+	if task != nil {
+		if _, err := this.createTaskTags(req, task); err != nil {
+			log.Errorf("Failed to create task tags for %s: %v", req.TaskName, err)
+		}
+	}
+
+	// next, wrap the backend retry function to include the required
+	// tag logic
+	wrappedError := &ecsbackend.PartialCreateTaskFailure{
+		NumFailed: partialFailure.NumFailed,
+		Retry: func() (*models.Task, error) {
+			return this.createTask(req, partialFailure.Retry)
+		},
+	}
+
+	return wrappedError
+}
+
+func (this *L0TaskLogic) createTaskTags(req models.CreateTaskRequest, task *models.Task) (*models.Task, error) {
 	taskID := task.TaskID
 	if err := this.upsertTagf(taskID, "task", "name", req.TaskName); err != nil {
 		return task, err
@@ -131,11 +164,6 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 
 	if err := this.populateModel(task); err != nil {
 		return task, err
-	}
-
-	// make sure to return both the task and partial failure
-	if partialFailure != nil{
-		return task, partialFailure
 	}
 
 	return task, nil

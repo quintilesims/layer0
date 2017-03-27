@@ -39,13 +39,17 @@ func CreateTask(quit chan bool, context *JobContext) error {
 		return err
 	}
 
+	attempt := func() (*models.Task, error) {
+		return context.TaskLogic.CreateTask(createTaskRequest)
+	}
+
 	return runAndRetry(quit, time.Second*10, func() error {
 		log.Infof("Running Action: CreateTask on '%s'", createTaskRequest.TaskName)
-		task, err := context.TaskLogic.CreateTask(createTaskRequest)
+		task, err := attempt()
 		if err != nil {
+			log.Printf("Failed to create task %s: %v\n", createTaskRequest.TaskName, err)
 			if err, ok := err.(*ecsbackend.PartialCreateTaskFailure); ok {
-				log.Printf("%#v\n", err)
-				createTaskRequest.Copies = err.NumFailed
+				 attempt = err.Retry
 			}
 
 			return err
