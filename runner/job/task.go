@@ -34,6 +34,7 @@ func DeleteTask(quit chan bool, context *JobContext) error {
 }
 
 func CreateTask(quit chan bool, context *JobContext) error {
+	var taskID string
 	var createTaskRequest models.CreateTaskRequest
 	if err := json.Unmarshal([]byte(context.Request()), &createTaskRequest); err != nil {
 		return err
@@ -43,19 +44,24 @@ func CreateTask(quit chan bool, context *JobContext) error {
 		return context.TaskLogic.CreateTask(createTaskRequest)
 	}
 
-	return runAndRetry(quit, time.Second*10, func() error {
+	if err := runAndRetry(quit, time.Second*10, func() error {
 		log.Infof("Running Action: CreateTask on '%s'", createTaskRequest.TaskName)
 		task, err := attempt()
 		if err != nil {
 			log.Printf("Failed to create task %s: %v\n", createTaskRequest.TaskName, err)
 			if err, ok := err.(*ecsbackend.PartialCreateTaskFailure); ok {
-				 attempt = err.Retry
+				attempt = err.Retry
 			}
 
 			return err
 		}
 
-		meta := map[string]string{"task_id": task.TaskID}
-		return context.SetJobMeta(meta)
-	})
+		taskID = task.TaskID
+		return nil
+	}); err != nil {
+		return err
+	}
+
+	meta := map[string]string{"task_id": taskID}
+	return context.SetJobMeta(meta)
 }

@@ -33,27 +33,34 @@ func setup() {
 	}
 
 	logutils.SetGlobalLogger(log)
+
+	if !*dry {
+		if err := filepath.Walk("cases", deleteStateFiles); err != nil {
+			fmt.Println("Error occurred during setup: ", err)
+			os.Exit(1)
+		}
+	}
 }
 
 func teardown() {
-	deleteStateFiles := func(path string, f os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
-
-		if name := f.Name(); strings.HasPrefix(name, "terraform.tfstate") {
-			if err := os.Remove(path); err != nil {
-				return fmt.Errorf("Failed to delete %s: ", path, err)
-			}
-		}
-
-		return nil
-	}
-
 	if !*dry {
 		if err := filepath.Walk("cases", deleteStateFiles); err != nil {
 			fmt.Println("Error occurred during teardown: ", err)
 			os.Exit(1)
 		}
 	}
+}
+
+func deleteStateFiles(path string, f os.FileInfo, err error) error {
+	if err != nil {
+		return err
+	}
+
+	if name := f.Name(); strings.HasPrefix(name, "terraform.tfstate") {
+		if err := os.Remove(path); err != nil {
+			return fmt.Errorf("Failed to delete %s: ", path, err)
+		}
+	}
+
+	return nil
 }

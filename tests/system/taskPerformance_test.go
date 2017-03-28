@@ -1,7 +1,6 @@
 package system
 
 import (
-	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 	"time"
@@ -40,28 +39,29 @@ func TestTaskPerformance(t *testing.T) {
 	}
 
 	for taskName, copies := range taskNameCopies {
-		logrus.Printf("Creating task %s (copies: %d)", taskName, copies)
+		log.Debugf("Creating task %s (copies: %d)", taskName, copies)
 		s.Layer0.CreateTask(taskName, environmentID, deployID, copies, nil)
 	}
 
 	testutils.WaitFor(t, time.Second*30, time.Minute*10, func() bool {
+		log.Debugf("Waiting for tasks to run")
 		currentTaskNameCopies := map[string]int{}
 		for _, taskSummary := range s.Layer0.ListTasks() {
-			if taskSummary.EnvironmentID == environmentID {	
+			if taskSummary.EnvironmentID == environmentID {
 				task := s.Layer0.GetTask(taskSummary.TaskID)
 				currentTaskNameCopies[task.TaskName] = int(task.DesiredCount)
 			}
 		}
 
+		ok := true
 		for taskName, expectedCopies := range taskNameCopies {
 			currentCopies := currentTaskNameCopies[taskName]
-			logrus.Printf("Task '%s' has %d/%d copies", taskName, currentCopies, expectedCopies)
+			log.Debugf("Task '%s' has %d/%d copies", taskName, currentCopies, expectedCopies)
 			if currentCopies != expectedCopies {
-				return false
+				ok = false
 			}
 		}
 
-		logrus.Printf("All tasks have expected number of copies")
-		return true
+		return ok
 	})
 }

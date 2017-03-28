@@ -1,7 +1,6 @@
 package system
 
 import (
-	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/tests/system/clients"
 	"testing"
@@ -26,13 +25,13 @@ func TestDeadServiceRecreated(t *testing.T) {
 	sts.SetHealth("die")
 
 	testutils.WaitFor(t, time.Second*10, time.Minute, func() bool {
-		logrus.Printf("Waiting for service to die")
+		log.Debugf("Waiting for service to die")
 		service := s.Layer0.GetService(serviceID)
 		return service.RunningCount == 0
 	})
 
 	testutils.WaitFor(t, time.Second*10, time.Minute*2, func() bool {
-		logrus.Printf("Waiting for service to recreate")
+		log.Debugf("Waiting for service to recreate")
 		service := s.Layer0.GetService(serviceID)
 		return service.RunningCount == 1
 	})

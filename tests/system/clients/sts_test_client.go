@@ -28,7 +28,7 @@ func NewSTSTestClient(t *testing.T, url string) *STSTestClient {
 
 func (s *STSTestClient) WaitForHealthy(timeout time.Duration) {
 	testutils.WaitFor(s.T, time.Second*10, timeout, func() bool {
-		logrus.Printf("Waiting for sts service to be healthy")
+		logrus.Debugf("Waiting for sts service to be healthy")
 		if _, err := s.Client.GetHealth(); err != nil {
 			return false
 		}
