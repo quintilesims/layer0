@@ -8,23 +8,19 @@ provider "layer0" {
   skip_ssl_verify = true
 }
 
-resource "layer0_environment" "dsr" {
-  name = "dsr"
+resource "layer0_environment" "ss" {
+  name = "ss"
 }
 
 module "sts" {
   source         = "../modules/sts"
-  environment_id = "${layer0_environment.dsr.id}"
+  environment_id = "${layer0_environment.ss.id}"
 }
 
 output "environment_id" {
-        value = "${layer0_environment.dsr.id}"
+	value = "${layer0_environment.ss.id}"
 }
 
 output "service_id" {
-        value = "${module.sts.service_id}"
-}
-
-output "service_url" {
-        value = "http://${module.sts.load_balancer_url}"
+	value = "${module.sts.service_id}"
 }

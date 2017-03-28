@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
+	"time"
 )
 
 type ServiceLogic interface {
@@ -99,10 +100,7 @@ func (this *L0ServiceLogic) ScaleService(serviceID string, size int) (*models.Se
 		return nil, err
 	}
 
-	if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
-		jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
-	}
-
+	this.Logic.Scaler.ScheduleRun(service.EnvironmentID, time.Second*10)
 	return service, nil
 }
 
@@ -121,9 +119,7 @@ func (this *L0ServiceLogic) UpdateService(serviceID string, req models.UpdateSer
 		return nil, err
 	}
 
-	if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
-		jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
-	}
+	this.Logic.Scaler.ScheduleRun(service.EnvironmentID, time.Second*10)
 
 	return service, nil
 }
@@ -180,9 +176,7 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 		return service, err
 	}
 
-	if _, err := this.Logic.Scaler.Scale(service.EnvironmentID); err != nil {
-		jobLogger.Errorf("Failed to scale environment %s for service %s: %v", service.EnvironmentID, service.ServiceID, err)
-	}
+	this.Logic.Scaler.ScheduleRun(service.EnvironmentID, time.Second*10)
 
 	return service, nil
 }

@@ -68,7 +68,7 @@ func (this *ECSEnvironmentManager) GetEnvironment(environmentID string) (*models
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	cluster, err := this.ECS.DescribeCluster(ecsEnvironmentID.String())
 	if err != nil {
-		if ContainsErrCode(err, "ClusterNotFoundException") {
+		if ContainsErrCode(err, "ClusterNotFoundException") || ContainsErrMsg(err, "cluster not found") {
 			return nil, errors.Newf(errors.InvalidEnvironmentID, "Environment with id '%s' was not found", environmentID)
 		}
 

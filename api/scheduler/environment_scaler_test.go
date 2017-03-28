@@ -14,7 +14,7 @@ type MockProviderManager struct {
 }
 
 func (m *MockProviderManager) CalculateNewProvider(environmentID string) (*resource.ResourceProvider, error) {
-        return resource.NewResourceProvider("", false, m.MemoryPerProvider, nil), nil
+	return resource.NewResourceProvider("", false, m.MemoryPerProvider, nil), nil
 }
 
 type EnvironmentScalerUnitTest struct {
@@ -211,7 +211,7 @@ func TestResourceManagerScaleUp_notEnoughPortsOrMemory(t *testing.T) {
 			// this consumer wil require a new provider for memory
 			{Memory: bytesize.MB * 2},
 			// these 4 consumers can be placed in the cluster
-			 {Ports: []int{80}},
+			{Ports: []int{80}},
 			{Memory: bytesize.MB, Ports: []int{8000}},
 			{Memory: bytesize.MB, Ports: []int{8000}},
 			{Memory: bytesize.MB, Ports: []int{8000}},

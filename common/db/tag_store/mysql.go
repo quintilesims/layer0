@@ -17,7 +17,6 @@ type Query struct {
 }
 
 type MysqlTagStore struct {
-	db     *sql.DB
 	config dbcommon.Config
 }
 
@@ -33,9 +32,9 @@ func (m *MysqlTagStore) Init() error {
 	if err != nil {
 		return err
 	}
-	m.db = db
+	defer db.Close()
 
-	if err := dbcommon.CreateDatabase(m.config.DBName, m.db); err != nil {
+	if err := dbcommon.CreateDatabase(m.config.DBName, db); err != nil {
 		return err
 	}
 

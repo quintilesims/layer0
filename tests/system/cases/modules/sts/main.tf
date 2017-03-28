@@ -1,17 +1,7 @@
-variable "endpoint" {}
-
-variable "token" {}
-
 variable "environment_id" {}
 
 variable "scale" {
   default = 1
-}
-
-provider "layer0" {
-  endpoint        = "${var.endpoint}"
-  token           = "${var.token}"
-  skip_ssl_verify = true
 }
 
 resource "layer0_load_balancer" "sts" {
@@ -42,3 +32,20 @@ resource "layer0_deploy" "sts" {
 data "template_file" "sts" {
   template = "${file("${path.module}/Dockerrun.aws.json")}"
 }
+
+output "service_id" {
+        value = "${layer0_service.sts.id}"
+}
+
+output "load_balancer_id" {
+	value = "${layer0_load_balancer.sts.id}"
+}
+
+output "load_balancer_url" {
+        value = "${layer0_load_balancer.sts.url}"
+}
+
+output "deploy_id" {
+        value = "${layer0_deploy.sts.id}"
+}
+

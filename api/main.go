@@ -153,7 +153,7 @@ func main() {
 }
 
 func runEnvironmentScaler(environmentLogic *logic.L0EnvironmentLogic) {
-	logger := logutils.NewStandardLogger("Environment Scaler")
+	logger := logutils.NewStandardLogger("AUTO Environment Scaler")
 
 	for {
 		time.Sleep(SCALER_SLEEP_DURATION)
@@ -172,7 +172,7 @@ func runEnvironmentScaler(environmentLogic *logic.L0EnvironmentLogic) {
 				continue
 			}
 
-			logger.Info("Finished scaling environment %s", environment.EnvironmentID)
+			logger.Infof("Finished scaling environment %s", environment.EnvironmentID)
 		}
 	}
 }

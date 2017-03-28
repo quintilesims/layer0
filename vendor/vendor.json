@@ -3332,12 +3332,6 @@
 			"revisionTime": "2017-03-14T21:13:30Z"
 		},
 		{
-			"checksumSHA1": "S1QLmhJTxarXaFsFTiiUd+Qt23c=",
-			"path": "github.com/quintilesims/sts/models",
-			"revision": "c239aa6a74cb54ebd9114f97ab815b886e25e04e",
-			"revisionTime": "2017-01-30T21:37:07Z"
-		},
-		{
 			"checksumSHA1": "pvg8L4xN+zO9HLJislpVeHPPLjM=",
 			"origin": "github.com/hashicorp/terraform/vendor/github.com/rainycape/unidecode",
 			"path": "github.com/rainycape/unidecode",

@@ -2,25 +2,68 @@ package scheduler
 
 import (
 	"fmt"
+	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/api/scheduler/resource"
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/models"
+	"time"
 )
 
 type EnvironmentScaler interface {
 	Scale(environmentID string) (*models.ScalerRunInfo, error)
+	ScheduleRun(environmentID string, delay time.Duration)
 }
 
 type L0EnvironmentScaler struct {
 	consumerGetter  resource.ConsumerGetter
 	providerManager resource.ProviderManager
+	scheduledRuns   map[string]chan time.Duration
+	logger          *logrus.Logger
 }
 
 func NewL0EnvironmentScaler(c resource.ConsumerGetter, p resource.ProviderManager) *L0EnvironmentScaler {
 	return &L0EnvironmentScaler{
 		consumerGetter:  c,
 		providerManager: p,
+		scheduledRuns:   map[string]chan time.Duration{},
+		logger:          logutils.NewStandardLogger("Environment Scaler"),
 	}
+}
+
+func (r *L0EnvironmentScaler) ScheduleRun(environmentID string, delay time.Duration) {
+	if c, ok := r.scheduledRuns[environmentID]; ok {
+		c <- delay
+		return
+	}
+
+	c := r.newScheduledRun(environmentID, delay)
+	r.scheduledRuns[environmentID] = c
+}
+
+func (r *L0EnvironmentScaler) newScheduledRun(environmentID string, delay time.Duration) chan time.Duration {
+	c := make(chan time.Duration)
+
+	go func() {
+		for shouldContinue := true; shouldContinue; {
+			r.logger.Debugf("Scaling environment '%s' in %v", environmentID, delay)
+			select {
+			case delay = <-c:
+				r.logger.Debugf("New delay set for environment '%s'", environmentID)
+			case <-time.After(delay):
+				delete(r.scheduledRuns, environmentID)
+				close(c)
+				shouldContinue = false
+			}
+		}
+
+		r.logger.Debugf("Scaling environment '%s' now", environmentID)
+		if _, err := r.Scale(environmentID); err != nil {
+			r.logger.Errorf("There was an error scaling environment %s: %v", environmentID, err)
+		}
+	}()
+
+	return c
 }
 
 func (r *L0EnvironmentScaler) Scale(environmentID string) (*models.ScalerRunInfo, error) {

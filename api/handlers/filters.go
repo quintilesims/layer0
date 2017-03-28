@@ -12,7 +12,9 @@ func LogRequest(req *restful.Request, resp *restful.Response, chain *restful.Fil
 	chain.ProcessFilter(req, resp)
 	duration := time.Since(start)
 
-	logrus.Infof("request %s %s (%v) %v", req.Request.Method, req.Request.URL, resp.StatusCode(), duration)
+	if req.Request.URL.String() != "/admin/health" {
+		logrus.Infof("request %s %s (%v) %v", req.Request.Method, req.Request.URL, resp.StatusCode(), duration)
+	}
 }
 
 func AddVersionHeader(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {
