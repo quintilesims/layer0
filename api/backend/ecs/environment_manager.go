@@ -403,10 +403,8 @@ $agentZipUri = "https://s3.amazonaws.com/amazon-ecs-agent/ecs-agent-windows-$age
 $agentZipMD5Uri = "$agentZipUri.md5"
 
 # Configure docker auth
-Read-S3Object -Region {{ .Region }} -BucketName {{ .S3Bucket }} -Key bootstrap/dockercfg -File dockercfg
-
-
-$dockercfgContent = '{"d.ims.io":{"auth":"<***PRIVATE_REG_AUTH_TOKEN***>","email":""}}';
+Read-S3Object -BucketName {{ .S3Bucket }} -Key bootstrap/dockercfg -File dockercfg.json
+$dockercfgContent = [IO.File]::ReadAllText("dockercfg.json")
 [Environment]::SetEnvironmentVariable("ECS_ENGINE_AUTH_DATA", $dockercfgContent, "Machine")
 [Environment]::SetEnvironmentVariable("ECS_ENGINE_AUTH_TYPE", "dockercfg", "Machine")
 
