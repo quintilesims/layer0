@@ -1,9 +1,11 @@
 # Deployment guide: Guestbook sample application
+
 In this example, you will learn how different Layer0 commands work together to deploy web applications to the cloud. The sample application in this guide is a guestbook &mdash; a web application that acts as a simple message board.
 
 ---
 
 ## Before you start
+
 In order to complete the procedures in this section, you must install and configure Layer0 v0.8.4 or later. If you have not already configured Layer0, see the [installation guide](/setup/install). If you are running an older version of Layer0, see the [upgrade instructions](/setup/upgrade#upgrading-older-versions-of-layer0).
 
 Once Layer0 is configured on your computer, download the [Guestbook Task Definition](https://github.com/quintilesims/layer0-examples/blob/master/guestbook/Dockerrun.aws.json); save the resulting file as **Dockerrun.aws.json**. The instructions in this section assume that this file is located in your current working directory when you run the Layer0 commands; if you place the file elsewhere, you will need to provide the complete path to the file when you reference it in [Part 4](#part-4-create-the-service).
@@ -13,7 +15,9 @@ For an easier deploy, [install the Layer0 Terraform Plugin](/reference/terraform
 ---
 
 ## Deploy with Terraform (easier)
+
 Use the Layer0 Terraform Plugin.
+
 
 ### Part 1: Download the configuration files
 
@@ -21,7 +25,9 @@ Use the Layer0 Terraform Plugin.
 * [terraform.tfvars](https://github.com/quintilesims/layer0-examples/blob/master/guestbook/terraform.tfvars)
 * [layer0.tf](https://github.com/quintilesims/layer0-examples/blob/master/guestbook/layer0.tf)
 
+
 ### Part 2: Terraform Apply
+
 Run `terraform apply` to begin the process. Terraform will prompt you for configuration values that it does not have.
 
 To begin deploying the application, run the following command:
@@ -62,7 +68,9 @@ __It may take a few minutes for the guestbook service to launch and the load bal
 
 Terraform will set up the entire environment for you and then output a link to the application's load balancer.
 
+
 ### What's happening
+
 Terraform provisions the AWS resources (an RDS instance, VPC and subnet configurations to connect the RDS instance to the Layer0 application), configures environment variables for the application, and deploys the application into a Layer0 environment.
 
 You can use Terraform with Layer0 and AWS to create "fire-and-forget" deployments for your applications.
@@ -77,30 +85,35 @@ We use these files to set up a Layer0 envrionment with Terraform:
 
 Terraform figures out the appropriate order for creating each resource and handles the entire provisioning process.
 
+
 ### Cleanup
+
 When you're finished with the example run `terraform destroy` in the same directory to destroy the AWS resources, Layer0 environment, and application.
 
 ---
 
 ## Deploy with Layer0 CLI
+
 You can also use the Layer0 CLI to provision each piece of this simple application. You will need to download the [Dockerrun.aws.json](https://github.com/quintilesims/layer0-examples/blob/master/guestbook/Dockerrun.aws.json) file.
+
 
 ### Part 1: Create the environment
 
 The first step in deploying an application in Layer0 is to create an environment.
 An environment is a dedicated space in which one or more services can reside. In this example, you will create an environment named **demo-env**.
 
-**To create the environment**
-<ul>
-  <li>At the command prompt, run the following command to create a new environment named **demo-env**:
-    <ul>
-      <li class="command">`l0 environment create demo-env`</li>
-    </ul>
-  <br />You will see the following output:
-<pre class="code"><code>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE
-demo00e6aa9     demo-env          0              m3.medium</code></pre>
-  </li>
-</ul>
+#### To create the environment:
+
+At the command prompt, run the following command to create a new environment named **demo-env**:
+
+`l0 environment create demo-env`
+
+You will see the following output:
+
+```
+ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE
+demo00e6aa9     demo-env          0              m3.medium
+```
 
 
 ### Part 2: Create the load balancer
@@ -111,66 +124,72 @@ By default, Layer0 load balancers listen for web traffic on port 80 and forward 
 
 In this example, you will create a new load balancer called **guestbook-lb** in the environment named **demo-env**. The load balancer will listen on port 80, and forward traffic to port 80 in the Docker container using the HTTP protocol.
 
-**To create the load balancer:**
-<ul>
-  <li>At the command prompt, run the following command to create a load balancer named **guestbook-lb** that forwards traffic on port 80 using the HTTP protocol:
-    <ul>
-      <li class="command">`l0 loadbalancer create --port 80:80/http demo-env guestbook-lb`</li>
-    </ul>
-  <br />You will see the following output:
-<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env              80:80/http  true</code></pre>
 
-  </li>
-</ul>
+#### To create the load balancer:
 
-The following is an summary of the arguments passed in the above command:
+At the command prompt, run the following command to create a load balancer named **guestbook-lb** that forwards traffic on port 80 using the HTTP protocol:
+
+`l0 loadbalancer create --port 80:80/http demo-env guestbook-lb`
+
+You will see the following output:
+
+```
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
+guestbodb65a     guestbook-lb       demo-env              80:80/http  true
+```
+
+The following is a summary of the arguments passed in the above command:
 
 * `loadbalancer create`: creates a new load balancer
 * `--port 80:80/http`: instructs the load balancer to forward requests from port 80 on the server to port 80 in the Docker container using the HTTP protocol
 * `demo-env`: the name of the environment in which you are creating the load balancer
 * `guestbook-lb`: a name for the load balancer itself
 
+
 ### Part 3: Deploy the Docker task definition
 
 The `deploy` command is used to specify the Docker task definition that refers to a web application. In this section, you will create a new deploy called **guestbook-dep** that refers to the **Dockerrun.aws.json** file you created earlier.
 
-**To deploy the Guestbook task definition:**
-<ul>
-  <li>At the command prompt, run the following command:
-    <ul>
-      <li class="command">`l0 deploy create Dockerrun.aws.json guestbook-dep`</li>
-    </ul>
-  <br />You will see the following output:
-<pre class="code"><code>DEPLOY ID        DEPLOY NAME    VERSION
-guestbook-dep.1  guestbook-dep  1</code></pre>
-  </li>
-</ul>
+#### To deploy the Guestbook task definition:
 
-The following is an summary of the arguments passed in the above command:
+At the command prompt, run the following command:
+
+`l0 deploy create Dockerrun.aws.json guestbook-dep`
+
+You will see the following output:
+
+```
+DEPLOY ID        DEPLOY NAME    VERSION
+guestbook-dep.1  guestbook-dep  1
+```
+
+The following is a summary of the arguments passed in the above command:
 
 * `deploy create`: creates a new deployment and allows you to specify a Docker task definition
 * `Dockerrun.aws.json`: the file name of the Docker task definition (use the full path of the file if it is not in your current working directory)
 * `guestbook-dep`: a name for the deploy, which you will use later when you create the service
 
-The Deploy Name and Version are combined to create a unique identifier for a deploy. If you create additional deploys named **guestbook-dep**,  they will be assigned different version numbers.
+The Deploy Name and Version are combined to create a unique identifier for a deploy. If you create additional deploys named **guestbook-dep**, they will be assigned different version numbers.
+
 
 ### Part 4: Create the service
+
 The final part of the deployment process involves using the `service create` command to create a new service and associate it with the environment, load balancer and deployment you created in the previous sections. The service will execute the containers described in the deployment. In this example, you will create a new service called **guestbook-svc**.
 
-**To create the service:**
-<ul>
-  <li>At the command prompt, run the following command:
-    <ul>
-      <li class="command">`l0 service create --loadbalancer demo-env:guestbook-lb demo-env guestbook-svc guestbook-dep:latest`</li>
-    </ul>
-  <br />You will see the following output:
-<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1</code></pre>
-  </li>
-</ul>
+#### To create the service:
 
-The following is an summary of the arguments passed in the above command:
+At the command prompt, run the following command:
+
+`l0 service create --loadbalancer demo-env:guestbook-lb demo-env guestbook-svc guestbook-dep:latest`
+
+You will see the following output:
+
+```
+SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1
+```
+
+The following is a summary of the arguments passed in the above command:
 
 * `service create`: creates a new service
 * `--loadbalancer demo-env:guestbook-lb`: the fully-qualified name of the load balancer; in this case, the load balancer named **guestbook-lb** in the environment named **demo-env**. It is not strictly necessary to use the fully qualified name of the load balancer, unless another load balancer with exactly the same name exists in a different environment.
@@ -178,17 +197,16 @@ The following is an summary of the arguments passed in the above command:
 * `guestbook-svc`: a name for the service you are creating
 * `guestbook-dep`: the name of the deploy that you created in [Part 3](#part-3-deploy-the-docker-task-definition)
 
+
 ### Check the status of the service
 
 After you create a service, it may take several minutes for that service to completely finish deploying. You can check the status of a service using the `service get` command.
 
-**To check the status:**
-<ul>
-  <li>At the command prompt, type the following command to check the status of the **guestbook-svc** service:
-    <ul>
-      <li class="command">`l0 service get demo-env:guestbook-svc`</li>
-    </ul></li>
-</ul>
+#### To check the status:
+
+At the command prompt, type the following command to check the status of the **guestbook-svc** service:
+
+`l0 service get demo-env:guestbook-svc`
 
 Initially, you will see an asterisk (\*) next to the name of the **guestbook-dep:1** deploy; this indicates that the service is in a transitional state:
 ```
@@ -210,24 +228,27 @@ guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1   1/1
 ```
 
 ### Get the application URL
+
 Once the service has been completely deployed, you can obtain the URL for your application and launch it in a browser.
 
 **To test your web application:**
-<ol>
-  <li>At the command prompt, type the following command:
-    <ul>
-      <li class="command">`l0 loadbalancer get demo-env:guestbook-lb`</li>
-    </ul><br />
-  You will see the following output:
-  <pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    &lt;url&gt;</code></pre></li>
-  <li>Copy the value shown in the **URL** column and paste it into a web browser. The guestbook application will appear.</li>
-</ol>
+
+At the command prompt, type the following command:
+
+`l0 loadbalancer get demo-env:guestbook-lb`
+
+You will see the following output:
+
+```
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
+guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    <url>
+```
+
+Copy the value shown in the **URL** column and paste it into a web browser. The guestbook application will appear.
+
 
 ### Cleanup
+
 When you're finished with the example, instruct Layer0 to delete the environment to terminate the application and the Layer0 the application was using.
-<ul>
-    <ul>
-      <li class="command">`l0 environment delete demo-env`</li>
-    </ul></li>
-</ul>
+
+`l0 environment delete demo-env`

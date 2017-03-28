@@ -288,8 +288,8 @@
       
         
   <li>
-    <a class="" title="Consul (WIP)" href="../consul/">
-      Consul (WIP)
+    <a class="" title="Consul" href="../consul/">
+      Consul
     </a>
     
   </li>
@@ -297,8 +297,8 @@
       
         
   <li>
-    <a class="" title="Guestbook with Consul (WIP)" href="../guestbook_consul/">
-      Guestbook with Consul (WIP)
+    <a class="" title="Guestbook with Consul" href="../guestbook_consul/">
+      Guestbook with Consul
     </a>
     
   </li>
@@ -528,33 +528,27 @@ guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
 <h3 id="part-1-create-the-environment">Part 1: Create the environment<a class="headerlink" href="#part-1-create-the-environment" title="Permanent link">#</a></h3>
 <p>The first step in deploying an application in Layer0 is to create an environment.
 An environment is a dedicated space in which one or more services can reside. In this example, you will create an environment named <strong>demo-env</strong>.</p>
-<p><strong>To create the environment</strong>
-<ul>
-  <li>At the command prompt, run the following command to create a new environment named <strong>demo-env</strong>:
-    <ul>
-      <li class="command"><code>l0 environment create demo-env</code></li>
-    </ul>
-  <br />You will see the following output:
+<h4 id="to-create-the-environment">To create the environment:<a class="headerlink" href="#to-create-the-environment" title="Permanent link">#</a></h4>
+<p>At the command prompt, run the following command to create a new environment named <strong>demo-env</strong>:</p>
+<p><code>l0 environment create demo-env</code></p>
+<p>You will see the following output:</p>
 <pre class="code"><code>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE
 demo00e6aa9     demo-env          0              m3.medium</code></pre>
-  </li>
-</ul></p>
+
+
 <h3 id="part-2-create-the-load-balancer">Part 2: Create the load balancer<a class="headerlink" href="#part-2-create-the-load-balancer" title="Permanent link">#</a></h3>
 <p>In order to expose a web application to the public internet, you must create a load balancer. A load balancer listens for web traffic at a specific address, and directs that traffic to a Layer0 service.</p>
 <p>By default, Layer0 load balancers listen for web traffic on port 80 and forward it on port 80 using the TCP protocol. You can modify the way in which ports are forwarded, as well as the protocol used, using the <code>--port</code> option.</p>
 <p>In this example, you will create a new load balancer called <strong>guestbook-lb</strong> in the environment named <strong>demo-env</strong>. The load balancer will listen on port 80, and forward traffic to port 80 in the Docker container using the HTTP protocol.</p>
-<p><strong>To create the load balancer:</strong>
-<ul>
-  <li>At the command prompt, run the following command to create a load balancer named <strong>guestbook-lb</strong> that forwards traffic on port 80 using the HTTP protocol:
-    <ul>
-      <li class="command"><code>l0 loadbalancer create --port 80:80/http demo-env guestbook-lb</code></li>
-    </ul>
-  <br />You will see the following output:
+<h4 id="to-create-the-load-balancer">To create the load balancer:<a class="headerlink" href="#to-create-the-load-balancer" title="Permanent link">#</a></h4>
+<p>At the command prompt, run the following command to create a load balancer named <strong>guestbook-lb</strong> that forwards traffic on port 80 using the HTTP protocol:</p>
+<p><code>l0 loadbalancer create --port 80:80/http demo-env guestbook-lb</code></p>
+<p>You will see the following output:</p>
 <pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env              80:80/http  true</code></pre></p>
-<p></li>
-</ul></p>
-<p>The following is an summary of the arguments passed in the above command:</p>
+guestbodb65a     guestbook-lb       demo-env              80:80/http  true</code></pre>
+
+
+<p>The following is a summary of the arguments passed in the above command:</p>
 <ul>
 <li><code>loadbalancer create</code>: creates a new load balancer</li>
 <li><code>--port 80:80/http</code>: instructs the load balancer to forward requests from port 80 on the server to port 80 in the Docker container using the HTTP protocol</li>
@@ -563,38 +557,32 @@ guestbodb65a     guestbook-lb       demo-env              80:80/http  true</code
 </ul>
 <h3 id="part-3-deploy-the-docker-task-definition">Part 3: Deploy the Docker task definition<a class="headerlink" href="#part-3-deploy-the-docker-task-definition" title="Permanent link">#</a></h3>
 <p>The <code>deploy</code> command is used to specify the Docker task definition that refers to a web application. In this section, you will create a new deploy called <strong>guestbook-dep</strong> that refers to the <strong>Dockerrun.aws.json</strong> file you created earlier.</p>
-<p><strong>To deploy the Guestbook task definition:</strong>
-<ul>
-  <li>At the command prompt, run the following command:
-    <ul>
-      <li class="command"><code>l0 deploy create Dockerrun.aws.json guestbook-dep</code></li>
-    </ul>
-  <br />You will see the following output:
+<h4 id="to-deploy-the-guestbook-task-definition">To deploy the Guestbook task definition:<a class="headerlink" href="#to-deploy-the-guestbook-task-definition" title="Permanent link">#</a></h4>
+<p>At the command prompt, run the following command:</p>
+<p><code>l0 deploy create Dockerrun.aws.json guestbook-dep</code></p>
+<p>You will see the following output:</p>
 <pre class="code"><code>DEPLOY ID        DEPLOY NAME    VERSION
 guestbook-dep.1  guestbook-dep  1</code></pre>
-  </li>
-</ul></p>
-<p>The following is an summary of the arguments passed in the above command:</p>
+
+
+<p>The following is a summary of the arguments passed in the above command:</p>
 <ul>
 <li><code>deploy create</code>: creates a new deployment and allows you to specify a Docker task definition</li>
 <li><code>Dockerrun.aws.json</code>: the file name of the Docker task definition (use the full path of the file if it is not in your current working directory)</li>
 <li><code>guestbook-dep</code>: a name for the deploy, which you will use later when you create the service</li>
 </ul>
-<p>The Deploy Name and Version are combined to create a unique identifier for a deploy. If you create additional deploys named <strong>guestbook-dep</strong>,  they will be assigned different version numbers.</p>
+<p>The Deploy Name and Version are combined to create a unique identifier for a deploy. If you create additional deploys named <strong>guestbook-dep</strong>, they will be assigned different version numbers.</p>
 <h3 id="part-4-create-the-service">Part 4: Create the service<a class="headerlink" href="#part-4-create-the-service" title="Permanent link">#</a></h3>
 <p>The final part of the deployment process involves using the <code>service create</code> command to create a new service and associate it with the environment, load balancer and deployment you created in the previous sections. The service will execute the containers described in the deployment. In this example, you will create a new service called <strong>guestbook-svc</strong>.</p>
-<p><strong>To create the service:</strong>
-<ul>
-  <li>At the command prompt, run the following command:
-    <ul>
-      <li class="command"><code>l0 service create --loadbalancer demo-env:guestbook-lb demo-env guestbook-svc guestbook-dep:latest</code></li>
-    </ul>
-  <br />You will see the following output:
+<h4 id="to-create-the-service">To create the service:<a class="headerlink" href="#to-create-the-service" title="Permanent link">#</a></h4>
+<p>At the command prompt, run the following command:</p>
+<p><code>l0 service create --loadbalancer demo-env:guestbook-lb demo-env guestbook-svc guestbook-dep:latest</code></p>
+<p>You will see the following output:</p>
 <pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1</code></pre>
-  </li>
-</ul></p>
-<p>The following is an summary of the arguments passed in the above command:</p>
+
+
+<p>The following is a summary of the arguments passed in the above command:</p>
 <ul>
 <li><code>service create</code>: creates a new service</li>
 <li><code>--loadbalancer demo-env:guestbook-lb</code>: the fully-qualified name of the load balancer; in this case, the load balancer named <strong>guestbook-lb</strong> in the environment named <strong>demo-env</strong>. It is not strictly necessary to use the fully qualified name of the load balancer, unless another load balancer with exactly the same name exists in a different environment.</li>
@@ -604,13 +592,9 @@ guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1</c
 </ul>
 <h3 id="check-the-status-of-the-service">Check the status of the service<a class="headerlink" href="#check-the-status-of-the-service" title="Permanent link">#</a></h3>
 <p>After you create a service, it may take several minutes for that service to completely finish deploying. You can check the status of a service using the <code>service get</code> command.</p>
-<p><strong>To check the status:</strong>
-<ul>
-  <li>At the command prompt, type the following command to check the status of the <strong>guestbook-svc</strong> service:
-    <ul>
-      <li class="command"><code>l0 service get demo-env:guestbook-svc</code></li>
-    </ul></li>
-</ul></p>
+<h4 id="to-check-the-status">To check the status:<a class="headerlink" href="#to-check-the-status" title="Permanent link">#</a></h4>
+<p>At the command prompt, type the following command to check the status of the <strong>guestbook-svc</strong> service:</p>
+<p><code>l0 service get demo-env:guestbook-svc</code></p>
 <p>Initially, you will see an asterisk (*) next to the name of the <strong>guestbook-dep:1</strong> deploy; this indicates that the service is in a transitional state:</p>
 <pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1</code></pre>
@@ -628,24 +612,18 @@ guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1   1/1</c
 
 <h3 id="get-the-application-url">Get the application URL<a class="headerlink" href="#get-the-application-url" title="Permanent link">#</a></h3>
 <p>Once the service has been completely deployed, you can obtain the URL for your application and launch it in a browser.</p>
-<p><strong>To test your web application:</strong>
-<ol>
-  <li>At the command prompt, type the following command:
-    <ul>
-      <li class="command"><code>l0 loadbalancer get demo-env:guestbook-lb</code></li>
-    </ul><br />
-  You will see the following output:
-  <pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    &lt;url&gt;</code></pre></li>
-  <li>Copy the value shown in the <strong>URL</strong> column and paste it into a web browser. The guestbook application will appear.</li>
-</ol></p>
+<p><strong>To test your web application:</strong></p>
+<p>At the command prompt, type the following command:</p>
+<p><code>l0 loadbalancer get demo-env:guestbook-lb</code></p>
+<p>You will see the following output:</p>
+<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
+guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    &lt;url&gt;</code></pre>
+
+
+<p>Copy the value shown in the <strong>URL</strong> column and paste it into a web browser. The guestbook application will appear.</p>
 <h3 id="cleanup_1">Cleanup<a class="headerlink" href="#cleanup_1" title="Permanent link">#</a></h3>
-<p>When you're finished with the example, instruct Layer0 to delete the environment to terminate the application and the Layer0 the application was using.
-<ul>
-    <ul>
-      <li class="command"><code>l0 environment delete demo-env</code></li>
-    </ul></li>
-</ul></p>
+<p>When you're finished with the example, instruct Layer0 to delete the environment to terminate the application and the Layer0 the application was using.</p>
+<p><code>l0 environment delete demo-env</code></p>
           <aside class="copyright" role="note">
             
             Documentation built with
