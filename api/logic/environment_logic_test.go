@@ -153,13 +153,14 @@ func TestCreateEnvironment(t *testing.T) {
 	}
 
 	testLogic.Backend.EXPECT().
-		CreateEnvironment("name", "m3.medium", "linux", 2, []byte("user_data")).
+		CreateEnvironment("name", "m3.medium", "linux", "amiid", 2, []byte("user_data")).
 		Return(retEnvironment, nil)
 
 	request := models.CreateEnvironmentRequest{
 		EnvironmentName:  "name",
 		InstanceSize:     "m3.medium",
 		OperatingSystem:  "linux",
+		AMIID: "amiid",
 		MinClusterCount:  2,
 		UserDataTemplate: []byte("user_data"),
 	}

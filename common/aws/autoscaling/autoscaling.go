@@ -62,9 +62,10 @@ func NewGroup() *Group {
 	}}
 }
 
-func NewLaunchConfiguration(size string) *LaunchConfiguration {
+func NewLaunchConfiguration(size, ami string) *LaunchConfiguration {
 	return &LaunchConfiguration{&autoscaling.LaunchConfiguration{
 		InstanceType: &size,
+		ImageId: &ami,
 	}}
 }
 

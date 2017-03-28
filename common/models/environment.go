@@ -7,4 +7,5 @@ type Environment struct {
 	InstanceSize    string `json:"instance_size"`
 	SecurityGroupID string `json:"security_group_id"`
 	OperatingSystem string `json:"operating_system"`
+	AMIID           string `json:"ami_id"`
 }

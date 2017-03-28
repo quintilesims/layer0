@@ -135,7 +135,7 @@ func AWSLinuxServiceAMI() string {
 }
 
 func AWSWindowsServiceAMI() string {
-	 return get(AWS_WINDOWS_SERVICE_AMI)
+	return get(AWS_WINDOWS_SERVICE_AMI)
 }
 
 func AWSAccountID() string {

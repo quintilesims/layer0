@@ -94,6 +94,7 @@ func (e *L0EnvironmentLogic) CreateEnvironment(req models.CreateEnvironmentReque
 		req.EnvironmentName,
 		req.InstanceSize,
 		req.OperatingSystem,
+		req.AMIID,
 		req.MinClusterCount,
 		req.UserDataTemplate)
 	if err != nil {
