@@ -160,7 +160,7 @@ func TestCreateEnvironment(t *testing.T) {
 		EnvironmentName:  "name",
 		InstanceSize:     "m3.medium",
 		OperatingSystem:  "linux",
-		AMIID: "amiid",
+		AMIID:            "amiid",
 		MinClusterCount:  2,
 		UserDataTemplate: []byte("user_data"),
 	}
