@@ -65,8 +65,12 @@ func (c *EnvironmentResourceGetter) getPendingServiceResources(environmentID str
 
 			deployIDCopies := map[string]int{}
 			for _, deployment := range service.Deployments {
-				if numPending := int(deployment.DesiredCount - deployment.RunningCount); numPending > 0 {
-					deployIDCopies[deployment.DeployID] = numPending
+				// deployment.RunningCount is the number of containers already running on an instance
+				// deployment.PendingCount is the number of containers that are alraedy on an instance, but are being pulled
+				// we only care about containers that are not on instances yet
+
+				if numPending := deployment.DesiredCount - (deployment.RunningCount + deployment.PendingCount); numPending > 0 {
+					deployIDCopies[deployment.DeployID] = int(numPending)
 				}
 			}
 
