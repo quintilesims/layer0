@@ -126,7 +126,6 @@ output "windows_service_ami" {
         value = "${lookup(var.layer0_windows_service_amis, var.region)}"
 }
 
-
 output "cloudwatch_log_group" {
     value = "${aws_cloudwatch_log_group.l0.name}"
 }
