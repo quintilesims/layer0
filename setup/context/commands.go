@@ -369,7 +369,8 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 		settings["runner_docker_image_tag"] = config.RUNNER_VERSION_TAG
 		settings["vpc_id"] = config.AWS_VPC_ID
 		settings["s3_bucket"] = config.AWS_S3_BUCKET
-		settings["service_ami"] = config.AWS_SERVICE_AMI
+		settings["linux_service_ami"] = config.AWS_LINUX_SERVICE_AMI
+		settings["windows_service_ami"] = config.AWS_WINDOWS_SERVICE_AMI
 	}
 
 	for tfvar, envvar := range settings {

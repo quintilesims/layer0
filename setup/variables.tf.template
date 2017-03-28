@@ -51,12 +51,22 @@ variable "nat_amis" {
 }
 
 # Current AMI: amzn-ami-2016.03.c-amazon-ecs-optimized
-variable "layer0_service_amis" {
+variable "layer0_linux_service_amis" {
     default = {
         us-west-2 = "ami-84b44de4"
         us-west-1 = "ami-bb473cdb"
         us-east-1 = "ami-8f7687e2"
         eu-west-1 = "ami-4e6ffe3d"
+    }
+}
+
+# Current AMI: Microsoft Windows Server 2016 Base with Containers
+variable "layer0_windows_service_amis" {
+    default = {
+        us-west-2 = "ami-7a803d1a"
+        us-west-1 = "ami-4699ca26"
+        us-east-1 = "ami-e7b755f1"
+        eu-west-1 = "ami-eef4de9d"
     }
 }
 

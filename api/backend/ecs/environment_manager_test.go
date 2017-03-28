@@ -439,7 +439,7 @@ func TestCreateEnvironment(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSEnvironmentManager)
-				manager.CreateEnvironment("env_name", "m3.medium", 2, nil)
+				manager.CreateEnvironment("env_name", "m3.medium", "linux", 2, nil)
 			},
 		},
 		{
@@ -492,7 +492,7 @@ func TestCreateEnvironment(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSEnvironmentManager)
-				manager.CreateEnvironment("env_name", "m3.medium", 0, []byte("user data"))
+				manager.CreateEnvironment("env_name", "m3.medium", "linux", 0, []byte("user data"))
 			},
 		},
 		{
@@ -545,7 +545,7 @@ func TestCreateEnvironment(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSEnvironmentManager)
 
-				environment, err := manager.CreateEnvironment("env_name", "m3.medium", 0, nil)
+				environment, err := manager.CreateEnvironment("env_name", "m3.medium", "linux", 0, nil)
 				if err != nil {
 					reporter.Fatal(err)
 				}
@@ -609,7 +609,7 @@ func TestCreateEnvironment(t *testing.T) {
 					g.Set(i+1, fmt.Errorf("some error"))
 
 					manager := setup(g).(*ECSEnvironmentManager)
-					if _, err := manager.CreateEnvironment("some_name", "m3.medium", 0, nil); err == nil {
+					if _, err := manager.CreateEnvironment("some_name", "m3.medium", "linux", 0, nil); err == nil {
 						reporter.Errorf("Error on variation %d, Error was nil!", i)
 					}
 				}
