@@ -1,10 +1,11 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/common/models"
-	"github.com/urfave/cli"
 	"io/ioutil"
 	"strconv"
+
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/urfave/cli"
 )
 
 type EnvironmentCommand struct {
@@ -39,6 +40,11 @@ func (e *EnvironmentCommand) GetCommand() cli.Command {
 					cli.StringFlag{
 						Name:  "user-data",
 						Usage: "path to user data file",
+					},
+					cli.StringFlag{
+						Name:  "os",
+						Value: "linux",
+						Usage: "specifies windows or linux container environment cluster",
 					},
 				},
 			},
@@ -92,7 +98,8 @@ func (e *EnvironmentCommand) Create(c *cli.Context) error {
 		userData = content
 	}
 
-	environment, err := e.Client.CreateEnvironment(args["NAME"], c.String("size"), c.Int("min-count"), userData)
+	//todo: add it here
+	environment, err := e.Client.CreateEnvironment(args["NAME"], c.String("size"), c.Int("min-count"), userData, c.String("os"))
 	if err != nil {
 		return err
 	}
