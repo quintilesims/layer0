@@ -41,15 +41,15 @@ func (_mr *_MockClientRecorder) CreateDeploy(arg0, arg1 interface{}) *gomock.Cal
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDeploy", arg0, arg1)
 }
 
-func (_m *MockClient) CreateEnvironment(_param0 string, _param1 string, _param2 int, _param3 []byte) (*models.Environment, error) {
-	ret := _m.ctrl.Call(_m, "CreateEnvironment", _param0, _param1, _param2, _param3)
+func (_m *MockClient) CreateEnvironment(_param0 string, _param1 string, _param2 int, _param3 []byte, _param4 string) (*models.Environment, error) {
+	ret := _m.ctrl.Call(_m, "CreateEnvironment", _param0, _param1, _param2, _param3, _param4)
 	ret0, _ := ret[0].(*models.Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockClientRecorder) CreateEnvironment(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0, arg1, arg2, arg3)
+func (_mr *_MockClientRecorder) CreateEnvironment(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0, arg1, arg2, arg3, arg4)
 }
 
 func (_m *MockClient) CreateLoadBalancer(_param0 string, _param1 string, _param2 models.HealthCheck, _param3 []models.Port, _param4 bool) (*models.LoadBalancer, error) {

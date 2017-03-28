@@ -1,10 +1,11 @@
 package client
 
 import (
-	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/common/testutils"
 	"net/http"
 	"testing"
+
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 )
 
 func TestCreateEnvironment(t *testing.T) {
@@ -19,6 +20,7 @@ func TestCreateEnvironment(t *testing.T) {
 		testutils.AssertEqual(t, req.InstanceSize, "m3.medium")
 		testutils.AssertEqual(t, req.MinClusterCount, 2)
 		testutils.AssertEqual(t, req.UserDataTemplate, []byte("user_data"))
+		testutils.AssertEqual(t, req.OperatingSystem, "linux")
 
 		MarshalAndWrite(t, w, models.Environment{EnvironmentID: "id"}, 200)
 	}
@@ -26,7 +28,7 @@ func TestCreateEnvironment(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	environment, err := client.CreateEnvironment("name", "m3.medium", 2, []byte("user_data"))
+	environment, err := client.CreateEnvironment("name", "m3.medium", 2, []byte("user_data"), "linux")
 	if err != nil {
 		t.Fatal(err)
 	}
