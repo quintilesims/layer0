@@ -130,7 +130,7 @@ func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.
 		ClusterCount:    clusterCount,
 		InstanceSize:    instanceSize,
 		SecurityGroupID: securityGroupID,
-		AMIID: amiID,
+		AMIID:           amiID,
 	}
 
 	return model, nil
@@ -396,8 +396,6 @@ func renderUserData(ecsEnvironmentID id.ECSEnvironmentID, userData []byte) (stri
 
 	return base64.StdEncoding.EncodeToString(rendered.Bytes()), nil
 }
-
-// todo: this script is still WIP
 
 var defaultWindowsUserDataTemplate = []byte(
 	`<powershell>
