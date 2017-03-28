@@ -84,6 +84,7 @@ func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.
 
 	var clusterCount int
 	var instanceSize string
+	var amiID string
 
 	asg, err := this.describeAutoscalingGroup(ecsEnvironmentID)
 	if err != nil {
@@ -109,6 +110,7 @@ func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.
 
 			if launchConfig != nil {
 				instanceSize = *launchConfig.InstanceType
+				amiID = *launchConfig.ImageId
 			}
 		}
 	}
@@ -122,11 +124,13 @@ func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.
 	if securityGroup != nil {
 		securityGroupID = *securityGroup.SecurityGroup.GroupId
 	}
+
 	model := &models.Environment{
 		EnvironmentID:   ecsEnvironmentID.L0EnvironmentID(),
 		ClusterCount:    clusterCount,
 		InstanceSize:    instanceSize,
 		SecurityGroupID: securityGroupID,
+		AMIID: amiID,
 	}
 
 	return model, nil
@@ -146,6 +150,7 @@ func (this *ECSEnvironmentManager) CreateEnvironment(
 	environmentName string,
 	instanceSize string,
 	operatingSystem string,
+	amiID string,
 	minClusterCount int,
 	userDataTemplate []byte,
 ) (*models.Environment, error) {
@@ -157,7 +162,7 @@ func (this *ECSEnvironmentManager) CreateEnvironment(
 		defaultUserDataTemplate = defaultLinuxUserDataTemplate
 		serviceAMI = config.AWSLinuxServiceAMI()
 	case "windows":
-		 defaultUserDataTemplate = defaultWindowsUserDataTemplate
+		defaultUserDataTemplate = defaultWindowsUserDataTemplate
 		serviceAMI = config.AWSWindowsServiceAMI()
 	default:
 		return nil, fmt.Errorf("Operating system '%s' is not recognized", operatingSystem)
@@ -168,6 +173,10 @@ func (this *ECSEnvironmentManager) CreateEnvironment(
 
 	if len(userDataTemplate) == 0 {
 		userDataTemplate = defaultUserDataTemplate
+	}
+
+	if amiID != "" {
+		serviceAMI = amiID
 	}
 
 	userData, err := renderUserData(ecsEnvironmentID, userDataTemplate)
@@ -391,7 +400,7 @@ func renderUserData(ecsEnvironmentID id.ECSEnvironmentID, userData []byte) (stri
 // todo: this script is still WIP
 
 var defaultWindowsUserDataTemplate = []byte(
-`<powershell>
+	`<powershell>
 # Set agent env variables for the Machine context (durable)
 $clusterName = "{{ .ECSEnvironmentID }}"
 Write-Host Cluster name set as: $clusterName -foreground green
@@ -458,10 +467,8 @@ Add-JobTrigger -Name $jobname -Trigger (New-JobTrigger -AtStartup -RandomDelay 0
 <persist>true</persist>
 `)
 
-
-
 var defaultLinuxUserDataTemplate = []byte(
-`#!/bin/bash
+	`#!/bin/bash
     echo ECS_CLUSTER={{ .ECSEnvironmentID }} >> /etc/ecs/ecs.config
     echo ECS_ENGINE_AUTH_TYPE=dockercfg >> /etc/ecs/ecs.config
     yum install -y aws-cli awslogs jq

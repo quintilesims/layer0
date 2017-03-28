@@ -5,7 +5,7 @@ import (
 )
 
 type Backend interface {
-	CreateEnvironment(environmentName, instanceSize, operatingSystem string, minClusterCount int, userData []byte) (*models.Environment, error)
+	CreateEnvironment(environmentName, instanceSize, operatingSystem, amiID string, minClusterCount int, userData []byte) (*models.Environment, error)
 	UpdateEnvironment(environmentID string, minClusterCount int) (*models.Environment, error)
 	DeleteEnvironment(environmentID string) error
 	GetEnvironment(environmentID string) (*models.Environment, error)
