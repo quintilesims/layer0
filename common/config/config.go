@@ -22,7 +22,8 @@ const (
 	AWS_ECS_AGENT_SECURITY_GROUP_ID = "LAYER0_AWS_ECS_AGENT_SECURITY_GROUP_ID"
 	AWS_ECS_INSTANCE_PROFILE        = "LAYER0_AWS_ECS_INSTANCE_PROFILE"
 	JOB_ID                          = "LAYER0_JOB_ID"
-	AWS_SERVICE_AMI                 = "LAYER0_AWS_SERVICE_AMI"
+	AWS_LINUX_SERVICE_AMI           = "LAYER0_AWS_LINUX_SERVICE_AMI"
+	AWS_WINDOWS_SERVICE_AMI         = "LAYER0_AWS_WINDOWS_SERVICE_AMI"
 	AWS_REGION                      = "LAYER0_AWS_REGION"
 	AUTH_TOKEN                      = "LAYER0_AUTH_TOKEN"
 	API_ENDPOINT                    = "LAYER0_API_ENDPOINT"
@@ -69,6 +70,8 @@ var RequiredAPIVariables = []string{
 	AWS_S3_BUCKET,
 	AWS_ECS_AGENT_SECURITY_GROUP_ID,
 	AWS_ECS_INSTANCE_PROFILE,
+	AWS_LINUX_SERVICE_AMI,
+	AWS_WINDOWS_SERVICE_AMI,
 }
 
 var RequiredCLIVariables = []string{}
@@ -123,22 +126,16 @@ func SetCLIVersion(version string) {
 	cliVersion = version
 }
 
-var serviceAMIs = map[string]string{
-	"us-west-2": "ami-6cb9ac0d",
-	"us-east-1": "ami-804130ea",
-	"eu-west-1": "ami-e563bf96",
-}
-
 func AWSLogGroupID() string {
 	return fmt.Sprintf("l0-%s", Prefix())
 }
 
-func AWSServiceAMI() string {
-	if ami := get(AWS_SERVICE_AMI); ami != "" {
-		return ami
-	}
+func AWSLinuxServiceAMI() string {
+	return get(AWS_LINUX_SERVICE_AMI)
+}
 
-	return serviceAMIs[AWSRegion()]
+func AWSWindowsServiceAMI() string {
+	 return get(AWS_WINDOWS_SERVICE_AMI)
 }
 
 func AWSAccountID() string {
