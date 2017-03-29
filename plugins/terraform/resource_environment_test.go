@@ -12,7 +12,7 @@ func TestEnvironmentCreate_defaults(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient.EXPECT().
-		CreateEnvironment("test-env", "m3.medium", 0, []byte("")).
+		CreateEnvironment("test-env", "m3.medium", 0, []byte(""), "linux", "").
 		Return(&models.Environment{EnvironmentID: "eid"}, nil)
 
 	mockClient.EXPECT().
@@ -34,7 +34,7 @@ func TestEnvironmentCreate_specifyOptional(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient.EXPECT().
-		CreateEnvironment("test-env", "m3.large", 2, []byte("user data")).
+		CreateEnvironment("test-env", "m3.large", 2, []byte("user data"), "windows", "ami_id").
 		Return(&models.Environment{EnvironmentID: "eid"}, nil)
 
 	mockClient.EXPECT().
@@ -47,6 +47,8 @@ func TestEnvironmentCreate_specifyOptional(t *testing.T) {
 		"size":      "m3.large",
 		"min_count": 2,
 		"user_data": "user data",
+		"os":        "windows",
+		"ami":       "ami_id",
 	})
 
 	if err := environmentResource.Create(d, mockClient); err != nil {
@@ -77,7 +79,7 @@ func TestEnvironmentUpdate(t *testing.T) {
 
 	gomock.InOrder(
 		mockClient.EXPECT().
-			CreateEnvironment("test-env", "m3.medium", 0, []byte("")).
+			CreateEnvironment("test-env", "m3.medium", 0, []byte(""), "linux", "").
 			Return(&models.Environment{EnvironmentID: "eid"}, nil),
 
 		mockClient.EXPECT().
