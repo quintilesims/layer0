@@ -4,13 +4,14 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func (c *APIClient) CreateEnvironment(name, instanceSize string, minCount int, userData []byte, os string) (*models.Environment, error) {
+func (c *APIClient) CreateEnvironment(name, instanceSize string, minCount int, userData []byte, os, amiID string) (*models.Environment, error) {
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  name,
 		InstanceSize:     instanceSize,
 		MinClusterCount:  minCount,
 		UserDataTemplate: userData,
 		OperatingSystem:  os,
+		AMIID:            amiID,
 	}
 
 	var environment *models.Environment

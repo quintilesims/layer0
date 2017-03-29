@@ -16,7 +16,7 @@ func TestCreateEnvironment(t *testing.T) {
 	defer close()
 
 	tc.Client.EXPECT().
-		CreateEnvironment("name", "m3.large", 2, []byte("user_data"), "linux").
+		CreateEnvironment("name", "m3.large", 2, []byte("user_data"), "linux", "ami").
 		Return(&models.Environment{}, nil)
 
 	flags := Flags{
@@ -24,6 +24,7 @@ func TestCreateEnvironment(t *testing.T) {
 		"min-count": 2,
 		"user-data": file.Name(),
 		"os":        "linux",
+		"ami": "ami",
 	}
 
 	c := getCLIContext(t, Args{"name"}, flags)

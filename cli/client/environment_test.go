@@ -21,6 +21,7 @@ func TestCreateEnvironment(t *testing.T) {
 		testutils.AssertEqual(t, req.MinClusterCount, 2)
 		testutils.AssertEqual(t, req.UserDataTemplate, []byte("user_data"))
 		testutils.AssertEqual(t, req.OperatingSystem, "linux")
+		 testutils.AssertEqual(t, req.AMIID, "ami")
 
 		MarshalAndWrite(t, w, models.Environment{EnvironmentID: "id"}, 200)
 	}
@@ -28,7 +29,7 @@ func TestCreateEnvironment(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	environment, err := client.CreateEnvironment("name", "m3.medium", 2, []byte("user_data"), "linux")
+	environment, err := client.CreateEnvironment("name", "m3.medium", 2, []byte("user_data"), "linux", "ami")
 	if err != nil {
 		t.Fatal(err)
 	}
