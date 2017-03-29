@@ -24,6 +24,10 @@
     l0 environment create --min-count 2 test3
 }
 
+@test "environment create --os windows test4" {
+    l0 environment create --os windows test4
+}
+
 @test "environment list" {
     l0 environment list
 }
@@ -50,4 +54,8 @@
 
 @test "environment delete --wait test3" {
     l0 environment delete --wait test3
+}
+
+@test "environment delete --wait test4" {
+    l0 environment delete --wait test4
 }
