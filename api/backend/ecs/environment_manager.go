@@ -415,12 +415,6 @@ $dockercfgContent = [IO.File]::ReadAllText("dockercfg.json")
 [Environment]::SetEnvironmentVariable("ECS_ENGINE_AUTH_DATA", $dockercfgContent, "Machine")
 [Environment]::SetEnvironmentVariable("ECS_ENGINE_AUTH_TYPE", "dockercfg", "Machine")
 
-# Output all environment variables
-Get-ChildItem -Path Env:* | Sort-Object Name
-
-# Output all environment variables
-Get-ChildItem -Path Env:* | Sort-Object Name
-
 ### --- Nothing user configurable after this point ---
 $ecsExeDir = "$env:ProgramFiles\Amazon\ECS"
 $zipFile = "$env:TEMP\ecs-agent.zip"
