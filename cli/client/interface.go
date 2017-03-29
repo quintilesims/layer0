@@ -1,8 +1,9 @@
 package client
 
 import (
-	"github.com/quintilesims/layer0/common/models"
 	"time"
+
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type Client interface {
@@ -11,7 +12,7 @@ type Client interface {
 	GetDeploy(id string) (*models.Deploy, error)
 	ListDeploys() ([]*models.DeploySummary, error)
 
-	CreateEnvironment(name, instanceSize string, minCount int, userData []byte) (*models.Environment, error)
+	CreateEnvironment(name, instanceSize string, minCount int, userData []byte, os string) (*models.Environment, error)
 	DeleteEnvironment(id string) (string, error)
 	GetEnvironment(id string) (*models.Environment, error)
 	ListEnvironments() ([]*models.EnvironmentSummary, error)

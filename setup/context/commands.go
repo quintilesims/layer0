@@ -5,16 +5,18 @@ import (
 	"crypto/tls"
 	"encoding/json"
 	"fmt"
-	"github.com/docker/docker/pkg/homedir"
-	"github.com/quintilesims/layer0/common/aws/provider"
-	"github.com/quintilesims/layer0/common/aws/s3"
-	"github.com/quintilesims/layer0/common/config"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
+	"runtime"
 	"strings"
 	"time"
+
+	"github.com/docker/docker/pkg/homedir"
+	"github.com/quintilesims/layer0/common/aws/provider"
+	"github.com/quintilesims/layer0/common/aws/s3"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 type TFState struct {
@@ -394,8 +396,13 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 	if quiet {
 		fmt.Printf(format, config.SKIP_VERSION_VERIFY, "1")
 	}
+
 	fmt.Println("# Run this command to configure your shell:")
-	fmt.Println("# eval $(./l0-setup endpoint -i", c.Instance, ")")
+	if runtime.GOOS == "windows" {
+		fmt.Println("# l0-setup endpoint --insecure --syntax=powershell", c.Instance, "| Out-String | Invoke-Expression")
+	} else {
+		fmt.Println("# eval $(./l0-setup endpoint -i", c.Instance, ")")
+	}
 
 	return nil
 }

@@ -1,9 +1,10 @@
 package command
 
 import (
+	"testing"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
-	"testing"
 )
 
 func TestCreateEnvironment(t *testing.T) {
@@ -15,13 +16,14 @@ func TestCreateEnvironment(t *testing.T) {
 	defer close()
 
 	tc.Client.EXPECT().
-		CreateEnvironment("name", "m3.large", 2, []byte("user_data")).
+		CreateEnvironment("name", "m3.large", 2, []byte("user_data"), "linux").
 		Return(&models.Environment{}, nil)
 
 	flags := Flags{
 		"size":      "m3.large",
 		"min-count": 2,
 		"user-data": file.Name(),
+		"os":        "linux",
 	}
 
 	c := getCLIContext(t, Args{"name"}, flags)
