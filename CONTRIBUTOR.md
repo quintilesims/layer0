@@ -73,7 +73,7 @@ clarity, concision, and correctness, as well as a clean documentation build via
 Pull request descriptions should be as clear as possible and include a reference
 to all the issues that they address.
 
-### Successful Changes
+### Successful changes
 
 * Make sure that your PR is directly related to an existing issue. If an issue doesn't
 already exist, make a new one.
@@ -81,7 +81,7 @@ already exist, make a new one.
 * Keep PRs small and concise. If you must make a large changeset, we can discuss
 how to proceed in the PRs' associated issue.
 
-## Layer0 Community Guidelines
+## Layer0 community guidelines
 
 * Be respectful. We appreciate courteous and polite community members; snarkiness
 and soapboxing are highly discouraged. We are all here to make Layer0 better.
