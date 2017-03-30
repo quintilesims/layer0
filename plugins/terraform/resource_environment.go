@@ -46,6 +46,7 @@ func resourceLayer0Environment() *schema.Resource {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"cluster_count": &schema.Schema{
 				Type:     schema.TypeString,

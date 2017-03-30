@@ -39,29 +39,29 @@ func ExampleTextPrintDeploySummaries() {
 func ExampleTextPrintEnvironments() {
 	printer := &TextPrinter{}
 	environments := []*models.Environment{
-		{EnvironmentID: "id1", EnvironmentName: "name1", ClusterCount: 1, InstanceSize: "m3.medium"},
-		{EnvironmentID: "id2", EnvironmentName: "name2", ClusterCount: 2, InstanceSize: "m3.xlarge"},
+		{EnvironmentID: "id1", EnvironmentName: "name1", OperatingSystem: "linux", ClusterCount: 1, InstanceSize: "m3.medium"},
+		{EnvironmentID: "id2", EnvironmentName: "name2", OperatingSystem: "windows", ClusterCount: 2, InstanceSize: "m3.xlarge"},
 	}
 
 	printer.PrintEnvironments(environments...)
 	// Output:
-	// ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE
-	// id1             name1             1              m3.medium
-	// id2             name2             2              m3.xlarge
+	// ENVIRONMENT ID  ENVIRONMENT NAME  OS       CLUSTER COUNT  INSTANCE SIZE
+	// id1             name1             linux    1              m3.medium
+	// id2             name2             windows  2              m3.xlarge
 }
 
 func ExampleTextPrintEnvironmentSummaries() {
 	printer := &TextPrinter{}
 	environments := []*models.EnvironmentSummary{
-		{EnvironmentID: "id1", EnvironmentName: "name1"},
-		{EnvironmentID: "id2", EnvironmentName: "name2"},
+		{EnvironmentID: "id1", EnvironmentName: "name1", OperatingSystem: "linux"},
+		{EnvironmentID: "id2", EnvironmentName: "name2", OperatingSystem: "windows"},
 	}
 
 	printer.PrintEnvironmentSummaries(environments...)
 	// Output:
-	// ENVIRONMENT ID  ENVIRONMENT NAME
-	// id1             name1
-	// id2             name2
+	// ENVIRONMENT ID  ENVIRONMENT NAME  OS
+	// id1             name1             linux
+	// id2             name2             windows
 }
 
 func ExampleTextPrintJobs() {
