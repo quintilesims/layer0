@@ -21,7 +21,7 @@ func TestCreateEnvironment(t *testing.T) {
 		testutils.AssertEqual(t, req.MinClusterCount, 2)
 		testutils.AssertEqual(t, req.UserDataTemplate, []byte("user_data"))
 		testutils.AssertEqual(t, req.OperatingSystem, "linux")
-		 testutils.AssertEqual(t, req.AMIID, "ami")
+		testutils.AssertEqual(t, req.AMIID, "ami")
 
 		MarshalAndWrite(t, w, models.Environment{EnvironmentID: "id"}, 200)
 	}

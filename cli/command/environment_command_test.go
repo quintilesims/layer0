@@ -24,7 +24,7 @@ func TestCreateEnvironment(t *testing.T) {
 		"min-count": 2,
 		"user-data": file.Name(),
 		"os":        "linux",
-		"ami": "ami",
+		"ami":       "ami",
 	}
 
 	c := getCLIContext(t, Args{"name"}, flags)

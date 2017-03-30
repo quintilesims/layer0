@@ -2,9 +2,9 @@ package system
 
 import (
 	"github.com/quintilesims/layer0/common/testutils"
+	"net/http"
 	"testing"
 	"time"
-	"net/http"
 )
 
 // Test Resources:
@@ -19,12 +19,12 @@ func TestWindowsService(t *testing.T) {
 
 	serviceID := s.Terraform.Output("service_id")
 	serviceURL := s.Terraform.Output("service_url")
-	
+
 	testutils.WaitFor(t, time.Second*30, time.Minute*45, func() bool {
-                log.Debugf("Waiting for windows service to run")
-                service := s.Layer0.GetService(serviceID)
-                return service.RunningCount == 1
-        })
+		log.Debugf("Waiting for windows service to run")
+		service := s.Layer0.GetService(serviceID)
+		return service.RunningCount == 1
+	})
 
 	testutils.WaitFor(t, time.Second*30, time.Minute*10, func() bool {
 		log.Debugf("Waiting for service to be healthy")

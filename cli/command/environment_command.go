@@ -46,10 +46,10 @@ func (e *EnvironmentCommand) GetCommand() cli.Command {
 						Value: "linux",
 						Usage: "specifies windows or linux container environment cluster",
 					},
-					 cli.StringFlag{
-                                                Name:  "ami",
-                                                Usage: "specifies a custom AMI to use in the environment",
-                                        },
+					cli.StringFlag{
+						Name:  "ami",
+						Usage: "specifies a custom AMI to use in the environment",
+					},
 				},
 			},
 			{
