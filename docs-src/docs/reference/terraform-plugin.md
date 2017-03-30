@@ -145,8 +145,8 @@ Available instance sizes can be found [here](https://aws.amazon.com/ec2/instance
 See the [cli reference](/reference/cli/#environment) for the default template.
 * `os` - (Optional, Default: "linux") Specifies the type of operating system used in the environment.
 Options are "linux" or "windows".
-* `ami` - (Optional) Specifies the AMI to use in the environment. 
-If this is not specified, Layer0 will choose the default AMI for the specified operating sysytem. 
+* `ami` - (Optional) A custom AMI ID to use in the environment. 
+If not specified, Layer0 will use its default AMI ID for the specified operating system.
 
 ### Attribute Reference
 The following attributes are exported:

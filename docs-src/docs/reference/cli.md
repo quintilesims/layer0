@@ -219,7 +219,7 @@ Use the **create** subcommand to create an additional Layer0 environment (_envir
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">--ami</div>
-    <div class="divCell">The AMI to use in the environment. If not specified, Layer0 will use the default AMI for the specified operating system.</div>
+    <div class="divCell">A custom AMI ID to use in the environment. If not specified, Layer0 will use its default AMI ID for the specified operating system.</div>
   </div>
 </div>
 
