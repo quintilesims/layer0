@@ -252,8 +252,8 @@
       
         
   <li>
-    <a class="" title="Guestbook with RDS" href="../guestbook_rds/">
-      Guestbook with RDS
+    <a class="" title="Guestbook with a DB" href="../guestbook_db/">
+      Guestbook with a DB
     </a>
     
   </li>
@@ -450,9 +450,9 @@
           
           <h1 id="deployment-guide-guestbook-with-consul">Deployment guide: Guestbook with Consul<a class="headerlink" href="#deployment-guide-guestbook-with-consul" title="Permanent link">#</a></h1>
 <p>This guide provides step-by-step instructions for deploying a Guestbook application that stores data in a
-<a href="http://redis.io">Redis</a> database. The Guestbook application uses <a href="../../reference/consul">Consul</a> to dynamically discover the Redis service.</p>
+DynamoDB database. The Guestbook application uses <a href="../../reference/consul">Consul</a> to dynamically discover the DynamoDB service.</p>
 <h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">#</a></h2>
-<p>This guide assumes that you are running Layer0 version 0.7.2 or later, and that you have completed the
+<p>This guide assumes that you are running Layer0 version 0.8.4 or later, and that you have completed the
 <a href="../../guides/guestbook">Guestbook</a> and <a href="../../guides/consul">Consul</a> deployment guides.</p>
 <h2 id="part-1-configure-and-deploy-the-redis-task-definition">Part 1: Configure and deploy the Redis task definition<a class="headerlink" href="#part-1-configure-and-deploy-the-redis-task-definition" title="Permanent link">#</a></h2>
 <p>The updated Guestbook application in this guide stores its data in a Redis database. Before you can deploy the updated Guestbook application, you must first configure and deploy the Redis task definition.</p>

@@ -44,6 +44,10 @@ git merge remotes/origin/master
 git push -u origin release
 ```
 
+## Update README badges
+
+Update the `[Version]` badge in [README.MD](https://github.com/quintilesims/layer0/blob/release/README.md). There are two places in the badge's URLs that need to have the version number updated.
+
 
 ## Add Release Notes
 

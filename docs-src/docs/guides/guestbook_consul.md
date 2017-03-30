@@ -1,12 +1,17 @@
 # Deployment guide: Guestbook with Consul
+
 This guide provides step-by-step instructions for deploying a Guestbook application that stores data in a
-[Redis](http://redis.io) database. The Guestbook application uses [Consul](/reference/consul) to dynamically discover the Redis service.
+DynamoDB database. The Guestbook application uses [Consul](/reference/consul) to dynamically discover the DynamoDB service.
+
 
 ## Before you start
-This guide assumes that you are running Layer0 version 0.7.2 or later, and that you have completed the
+
+This guide assumes that you are running Layer0 version 0.8.4 or later, and that you have completed the
 [Guestbook](/guides/guestbook) and [Consul](/guides/consul) deployment guides.
 
+
 ## Part 1: Configure and deploy the Redis task definition
+
 The updated Guestbook application in this guide stores its data in a Redis database. Before you can deploy the updated Guestbook application, you must first configure and deploy the Redis task definition.
 
 **To configure and deploy the task definition:**
@@ -38,7 +43,9 @@ definition](https://github.com/quintilesims/layer0-examples/blob/master/redis/Re
   </li>
 </ol>
 
+
 ##Part 2: Create the redis service
+
 Now that you have created the **redis** deploy, you can create a service to place it in.
 
 **To create a new service:**
@@ -65,6 +72,7 @@ Now that you have created the **redis** deploy, you can create a service to plac
 Members of the Consul Cluster will be able to discover this service via DNS queries to guestbook.db.service.consul.
   </li>
 </ul>
+
 
 ##Part 3: Update the Guestbook service
 

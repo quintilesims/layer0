@@ -19,7 +19,7 @@ pages:
     - Destroy: setup/destroy.md
   - Guides:
     - Guestbook: guides/guestbook.md
-    - Guestbook with RDS: guides/guestbook_rds.md
+    - Guestbook with a DB: guides/guestbook_db.md
     - Consul: guides/consul.md
     - Guestbook with Consul: guides/guestbook_consul.md
     - One-off Task: guides/one_off_task.md
