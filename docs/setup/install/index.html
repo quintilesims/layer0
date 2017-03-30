@@ -288,35 +288,8 @@
       
         
   <li>
-    <a class="" title="Guestbook" href="../../guides/guestbook/">
-      Guestbook
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Guestbook with RDS" href="../../guides/guestbook_rds/">
-      Guestbook with RDS
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Consul" href="../../guides/consul/">
-      Consul
-    </a>
-    
-  </li>
-
-      
-        
-  <li>
-    <a class="" title="Guestbook with Consul" href="../../guides/guestbook_consul/">
-      Guestbook with Consul
+    <a class="" title="An Iterative Walkthrough" href="../../guides/walkthrough/">
+      An Iterative Walkthrough
     </a>
     
   </li>
@@ -541,7 +514,7 @@ The first time you run the <code>apply</code> command, it may take around 15 min
 <p>Once the <code>apply</code> command has run successfully, you can configure the Layer0 environment variables using the <code>endpoint</code> command.</p>
 <p>To view the environment variables for your Layer0 and apply them to your shell, type the following command, replacing <code>[prefix]</code> with the name of the Layer0 prefix you created in Part 3:</p>
 <ul>
-<li>(Windows PowerShell): <code>l0-setup endpoint --insecure --synax=powershell [prefix] | Out-String | Invoke-Expression</code></li>
+<li>(Windows PowerShell): <code>l0-setup endpoint --insecure --syntax=powershell [prefix] | Out-String | Invoke-Expression</code></li>
 <li>(Linux/macOS): <code>eval "$(l0-setup endpoint --insecure [prefix])"</code></li>
 </ul>
 <h2 id="optional-part-6-using-a-custom-certificate">(Optional) Part 6: Using a custom certificate<a class="headerlink" href="#optional-part-6-using-a-custom-certificate" title="Permanent link">#</a></h2>

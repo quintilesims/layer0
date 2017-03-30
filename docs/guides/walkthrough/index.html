@@ -1,0 +1,740 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>An Iterative Walkthrough - Layer0</title>
+      
+      
+      
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/guides/walkthrough/">
+      
+      
+        <meta name="author" content="xfra">
+      
+    
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/guides/walkthrough/">
+    <meta property="og:title" content="Layer0">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/guides/walkthrough//../../static/logo_icon.png">
+    <meta name="apple-mobile-web-app-title" content="Layer0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+      <link rel="apple-touch-icon" href="../../static/logo_icon.png">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../../assets/fonts/icon.eot?52m981');
+      	src: url('../../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../../assets/stylesheets/application-b64b728552.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Roboto+Mono">
+      <style>
+        body, input {
+          font-family: 'Roboto', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Roboto Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+              
+                Guides <i class="icon icon-link"></i>
+              
+            
+          </span>
+        
+        An Iterative Walkthrough
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/quintilesims/layer0/" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="../../static/logo_icon.png">
+        </div>
+      
+      <div class="name">
+        <strong>Layer0 v0.9.0</strong>
+        
+          <br>
+          quintilesims/layer0
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="../../#download" title="Download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="../..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Releases" href="../../releases/">
+      Releases
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Introduction" href="../../intro/">
+      Introduction
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Setup</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Install" href="../../setup/install/">
+      Install
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Upgrade" href="../../setup/upgrade/">
+      Upgrade
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Destroy" href="../../setup/destroy/">
+      Destroy
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Guides</span>
+    <ul>
+      
+        
+  <li>
+    <a class="current" title="An Iterative Walkthrough" href="./">
+      An Iterative Walkthrough
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Deployment 1: A Simple Guestbook App" href="#deployment-1-a-simple-guestbook-app">
+                Deployment 1: A Simple Guestbook App
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="1a: Deploy with Layer0 CLI" href="#1a-deploy-with-layer0-cli">
+                1a: Deploy with Layer0 CLI
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="1b: Deploy with Terraform" href="#1b-deploy-with-terraform">
+                1b: Deploy with Terraform
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Deployment 2: Guestbook + Redis" href="#deployment-2-guestbook-redis">
+                Deployment 2: Guestbook + Redis
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="2a: Deploy with Layer0 CLI" href="#2a-deploy-with-layer0-cli">
+                2a: Deploy with Layer0 CLI
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="2b: Deploy with Terraform" href="#2b-deploy-with-terraform">
+                2b: Deploy with Terraform
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Deployment 3: Guestbook + Redis + Consul" href="#deployment-3-guestbook-redis-consul">
+                Deployment 3: Guestbook + Redis + Consul
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="3a: Deploy with Layer0 CLI" href="#3a-deploy-with-layer0-cli">
+                3a: Deploy with Layer0 CLI
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="3b: Deploy with Terraform" href="#3b-deploy-with-terraform">
+                3b: Deploy with Terraform
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="One-off Task" href="../one_off_task/">
+      One-off Task
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Reference</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Layer0 CLI" href="../../reference/cli/">
+      Layer0 CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Layer0 Setup CLI" href="../../reference/setup-cli/">
+      Layer0 Setup CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Layer0 Terraform Plugin" href="../../reference/terraform-plugin/">
+      Layer0 Terraform Plugin
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Updating a Service" href="../../reference/updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../../reference/consul/">
+      Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Task Definitions" href="../../reference/task_definition/">
+      Task Definitions
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Architecture" href="../../reference/architecture/">
+      Architecture
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="ECR" href="../../reference/ecr/">
+      ECR
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Troubleshooting</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Common Issues" href="../../troubleshooting/commonissues/">
+      Common Issues
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Secure Shell (SSH)" href="../../troubleshooting/ssh/">
+      Secure Shell (SSH)
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+          <hr>
+          <span class="section">The author</span>
+          <ul>
+            
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <h1 id="an-iterative-walkthrough">An Iterative Walkthrough<a class="headerlink" href="#an-iterative-walkthrough" title="Permanent link">#</a></h1>
+<p>This guide aims to take you through three increasingly-complex deployment examples using Layer0. Successive sections build upon the previous ones, and each deployment can be completed either through using the Layer0 CLI directly, or through Terraform using our custom Layer0 Terraform Provider.</p>
+<p>We assume that you're using Layer0 v0.9.0 or later. If you have not already installed and configured Layer0, see the <a href="../../setup/install">installation guide</a>. If you are running an older version of Layer0, you may need to <a href="../../setup/upgrade#upgrading-older-versions-of-layer0">upgrade</a>.</p>
+<p>If you intend to deploy services using the Layer0 Terraform Provider, you'll want to make sure that you've <a href="../../reference/terraform-plugin/#install">installed</a> the provider correctly.</p>
+<p><strong>Table of Contents</strong>:</p>
+<ul>
+<li><a href="#deployment-1-a-simple-guestbook-app">Deployment 1</a>: A Simple Guestbook App</li>
+<li><a href="#deployment-2-guestbook-redis">Deployment 2</a>: Guestbook + Redis</li>
+<li><a href="#deployment-3-guestbook-redis-consul">Deployment 3</a>: Guestbook + Redis + Consul</li>
+</ul>
+<h2 id="deployment-1-a-simple-guestbook-app">Deployment 1: A Simple Guestbook App<a class="headerlink" href="#deployment-1-a-simple-guestbook-app" title="Permanent link">#</a></h2>
+<p>In this section you'll learn how different Layer0 commands work together to deploy web applications to the cloud. The example application in this section is a guestbook -- a web application that acts as a simple message board. You can choose to complete this section using either the <a href="#1a-deploy-with-layer0-cli">Layer0 CLI</a> or <a href="#1b-deploy-with-terraform">Terraform</a>.</p>
+<h2 id="1a-deploy-with-layer0-cli">1a: Deploy with Layer0 CLI<a class="headerlink" href="#1a-deploy-with-layer0-cli" title="Permanent link">#</a></h2>
+<p>You will need to download the <a href="https://github.com/quintilesims/layer0-examples/blob/guides-overhaul/iterative-walkthrough/guestbook/Guestbook.Dockerrun.aws.json">Guestbook Task Definition</a> file. Save that file as <strong>Guestbook.Dockerrun.aws.json</strong>. This walkthrough will assume that the file is located in your current working directory; if you choose to place the file elsewhere, you will need to provide the path to the file instead of just the filename when we reference it later in the guide.</p>
+<hr />
+<h3 id="part-1-create-the-environment">Part 1: Create the Environment<a class="headerlink" href="#part-1-create-the-environment" title="Permanent link">#</a></h3>
+<p>The first step in deploying an application with Layer0 is to create an environment. An environment is a dedicated space in which one or more services can reside. Here, we'll create a new environment named <strong>demo-env</strong>. At the command prompt, execute the following:</p>
+<p><code>l0 environment create demo-env</code></p>
+<p>This will give us the following output:</p>
+<pre class="code"><code>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE
+demo00e6aa9     demo-env          0              m3.medium</code></pre>
+
+
+<hr />
+<h3 id="part-2-create-the-load-balancer">Part 2: Create the Load Balancer<a class="headerlink" href="#part-2-create-the-load-balancer" title="Permanent link">#</a></h3>
+<p>In order to expose a web application to the public internet, we need to create a load balancer. A load balancer listens for web traffic at a specific address and directs that traffic to a Layer0 service.</p>
+<p>A load balancer also has a notion of a health check - a way to assess whether or not the service is healthy and running properly. By default, Layer0 configures the health check of a load balancer based upon a simple TCP ping to port 80 every thirty seconds. Also by default, this ping will timeout after five seconds of no response from the service, and two consecutive successes or failures are required for the service to be considered healthy or unhealthy.</p>
+<p>Here, we'll create a new load balancer named <strong>guestbook-lb</strong> inside of our environment named <strong>demo-env</strong>. The load balancer will listen on port 80, and forward that traffic along to port 80 in the Docker container using the HTTP protocol. Since the port configuration is already aligned with the default health check, we don't need to specify any health check configuration when we create this load balancer. At the command prompt, execute the following:</p>
+<p><code>l0 loadbalancer create --port 80:80/http demo-env guestbook-lb</code></p>
+<p>This will give us the following output:</p>
+<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
+guestbodb65a     guestbook-lb       demo-env              80:80/HTTP  true</code></pre>
+
+
+<p>The following is a summary of the arguments passed in the above command:</p>
+<ul>
+<li><code>loadbalancer create</code>: creates a new load balancer</li>
+<li><code>--port 80:80/HTTP</code>: instructs the load balancer to forward requests from port 80 on the server to port 80 in the Docker container using the HTTP protocol</li>
+<li><code>demo-env</code>: the name of the environment in which you are creating the load balancer</li>
+<li><code>guestbook-lb</code>: a name for the load balancer itself</li>
+</ul>
+<hr />
+<h3 id="part-3-deploy-the-docker-task-definition">Part 3: Deploy the Docker Task Definition<a class="headerlink" href="#part-3-deploy-the-docker-task-definition" title="Permanent link">#</a></h3>
+<p>The <code>deploy</code> command is used to specify the Docker task definition that refers to a web application.</p>
+<p>Here, we'll create a new deploy called <strong>guestbook-dep</strong> that refers to the <strong>Guestbook.Dockerrun.aws.json</strong> file you obtained earlier. At the command prompt, execute the following:</p>
+<p><code>l0 deploy create Guestbook.Dockerrun.aws.json guestbook-dep</code></p>
+<p>This will give us the following output:</p>
+<pre class="code"><code>DEPLOY ID        DEPLOY NAME    VERSION
+guestbook-dep.1  guestbook-dep  1</code></pre>
+
+
+<p>The following is a summary of the arguments passed in the above command:</p>
+<ul>
+<li><code>deploy create</code>: creates a new deployment and allows you to specify a Docker task definition</li>
+<li><code>Guestbook.Dockerrun.aws.json</code>: the file name of the Docker task definition (use the full path of the file if it is not in your current working directory)</li>
+<li><code>guestbook-dep</code>: a name for the deploy, which you will use later when you create the service</li>
+</ul>
+<p><em>The Deploy Name and Version are combined to create a unique identifier for a deploy. If you create additional deploys named <strong>guestbook-dep</strong>, they will be assigned different version numbers.</em></p>
+<hr />
+<h3 id="part-4-create-the-service">Part 4: Create the Service<a class="headerlink" href="#part-4-create-the-service" title="Permanent link">#</a></h3>
+<p>The final stage of the deployment process involves using the <code>service</code> command to create a new service and associate it with the environment, load balancer, and deploy that we created in the previous sections. The service will execute the Docker containers which have been described in the deploy.</p>
+<p>Here, we'll create a new service called <strong>guestbook-svc</strong>. At the command prompt, execute the following:</p>
+<p><code>l0 service create --loadbalancer demo-env:guestbook-lb demo-env guestbook-svc guestbook-dep:latest</code></p>
+<p>This will give us the following output:</p>
+<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1</code></pre>
+
+
+<p>The following is a summary of the arguments passed in the above command:</p>
+<ul>
+<li><code>service create</code>: creates a new service</li>
+<li><code>--loadbalancer demo-env:guestbook-lb</code>: the fully-qualified name of the load balancer; in this case, the load balancer named <strong>guestbook-lb</strong> in the environment named <strong>demo-env</strong>. <ul>
+<li><em>(It is not strictly necessary to use the fully qualified name of the load balancer, unless another load balancer with exactly the same name exists in a different environment.)</em></li>
+</ul>
+</li>
+<li><code>demo-env</code>: the name of the environment you created in Part 1</li>
+<li><code>guestbook-svc</code>: a name for the service you are creating</li>
+<li><code>guestbook-dep</code>: the name of the deploy that you created in Part 3</li>
+</ul>
+<hr />
+<h3 id="check-the-status-of-the-service">Check the Status of the Service<a class="headerlink" href="#check-the-status-of-the-service" title="Permanent link">#</a></h3>
+<p>After a service has been created, it may take several minutes for that service to completely finish deploying. A service's status may be checked by using the <code>service get</code> command.</p>
+<p>Let's take a peek at our <strong>guestbook-svc</strong> service. At the command prompt, execute the following:</p>
+<p><code>l0 service get demo-env:guestbook-svc</code></p>
+<p>If we're quick enough, we'll be able to see the first stage of the process (this is what was output after running the <code>service create</code> command up in Part 4). We should see an asterisk (*) next to the name of the <strong>guestbook-dep:1</strong> deploy, which indicates that the service is in a transitional state:</p>
+<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1</code></pre>
+
+
+<p>In the next phase of deployment, if we execute the <code>service get</code> command again, we will see <strong>(1)</strong> in the <strong>Scale</strong> column; this indicates that 1 copy of the service is transitioning to an active state:</p>
+<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1*  0/1 (1)</code></pre>
+
+
+<p>In the final phase of deployment, we should see that the service has been fully scaled up to the desired count. If we execute the <code>service get</code> command again, you will see the following output:</p>
+<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dep:1   1/1</code></pre>
+
+
+<hr />
+<h3 id="get-the-applications-url">Get the Application's URL<a class="headerlink" href="#get-the-applications-url" title="Permanent link">#</a></h3>
+<p>Once the service has been completely deployed, we can obtain the URL for the application and launch it in a browser.</p>
+<p>At the command prompt, execute the following:</p>
+<p><code>l0 loadbalancer get demo-env:guestbook-lb</code></p>
+<p>This will give us the following output:</p>
+<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
+guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    &lt;url&gt;</code></pre>
+
+
+<p>Copy the value shown in the <strong>URL</strong> column and paste it into a web browser. The guestbook application will appear (once the service has completely finished deploying).</p>
+<hr />
+<h3 id="cleanup">Cleanup<a class="headerlink" href="#cleanup" title="Permanent link">#</a></h3>
+<p>If you're finished with the example and don't want to continue with this walkthrough, you can instruct Layer0 to delete the environment and terminate the application and the Layer0 the application was using.</p>
+<p><code>l0 environment delete demo-env</code></p>
+<p>However, if you intend to continue through <a href="#deployment-2-guestbook-redis">Deployment 2</a>, you will want to keep the resources you made in this section.</p>
+<hr />
+<h2 id="1b-deploy-with-terraform">1b: Deploy with Terraform<a class="headerlink" href="#1b-deploy-with-terraform" title="Permanent link">#</a></h2>
+<p>Instead of using the Layer0 CLI directly, you can instead use the Layer0 Provider for Terraform, and deploy using Terraform. </p>
+<hr />
+<h3 id="part-1-download-the-configuration-files">Part 1: Download the Configuration Files<a class="headerlink" href="#part-1-download-the-configuration-files" title="Permanent link">#</a></h3>
+<ul>
+<li><a href="https://github.com/quintilesims/layer0-examples/blob/guides-overhaul/iterative-walkthrough/guestbook/Guestbook.Dockerrun.aws.json">Guestbook.Dockerrun.aws.json</a></li>
+<li><a href="https://github.com/quintilesims/layer0-examples/blob/guides-overhaul/iterative-walkthrough/terraform/terraform.tfvars">terraform.tfvars</a></li>
+<li><a href="https://github.com/quintilesims/layer0-examples/blob/guides-overhaul/iterative-walkthrough/terraform/deployment-1/layer0.tf">layer0.tf</a> for Deployment 1</li>
+</ul>
+<hr />
+<h3 id="part-2-terraform-apply">Part 2: Terraform Apply<a class="headerlink" href="#part-2-terraform-apply" title="Permanent link">#</a></h3>
+<p>Run <code>terraform apply</code> to begin the process. Terraform will prompt you for configuration values that it does not have.</p>
+<p>To begin deploying the application, run the following command:</p>
+<p><code>terraform apply</code></p>
+<p><em>To avoid entering these values manually each time you run terraform, you can set the terraform variables by editing the <code>terraform.tfvars</code> file.</em></p>
+<pre class="code"><code>var.endpoint
+  Enter a value: &lt;enter your Layer0 endpoint&gt;
+
+var.token
+  Enter a value: &lt;enter your Layer0 token&gt;
+
+layer0_environment.demo: Refreshing state...
+...
+...
+...
+layer0_service.guestbook: Creation complete
+
+Apply complete! Resources: 7 added, 0 changed, 0 destroyed.
+
+The state of your infrastructure has been saved to the path
+below. This state is required to modify and destroy your
+infrastructure, so keep it safe. To inspect the complete state
+use the `terraform show` command.
+
+State path: terraform.tfstate
+
+Outputs:
+
+guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
+
+
+<p><strong>It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.</strong></p>
+<p>Terraform will set up the entire environment for you and then output a link to the application's load balancer.</p>
+<h3 id="whats-happening">What's happening<a class="headerlink" href="#whats-happening" title="Permanent link">#</a></h3>
+<p>Terraform provisions the AWS resources (an RDS instance, VPC and subnet configurations to connect the RDS instance to the Layer0 application), configures environment variables for the application, and deploys the application into a Layer0 environment.</p>
+<p>You can use Terraform with Layer0 and AWS to create "fire-and-forget" deployments for your applications.</p>
+<p>We use these files to set up a Layer0 envrionment with Terraform:</p>
+<table>
+<thead>
+<tr>
+<th>Filename</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>terraform.tfvars</code></td>
+<td>Variables specific to the environment and guestbook application</td>
+</tr>
+<tr>
+<td><code>Guestbook.Dockerrun.aws.json</code></td>
+<td>Template for running the guestbook application in a Layer0 environment</td>
+</tr>
+<tr>
+<td><code>layer0.tf</code></td>
+<td>Provision Layer0 resources and populate variables in <code>Guestbook.Dockerrun.aws.json</code></td>
+</tr>
+</tbody>
+</table>
+<p>Terraform figures out the appropriate order for creating each resource and handles the entire provisioning process.</p>
+<h3 id="cleanup_1">Cleanup<a class="headerlink" href="#cleanup_1" title="Permanent link">#</a></h3>
+<p>If you're finished with the example and don't want to continue with this walkthrough, you can instruct Terraform to destroy the AWS resources, the Layer0 environment, and the application. Execute the following command (in the same directory):</p>
+<p><code>terraform destroy</code></p>
+<p>However, if you intend to continue through <a href="#deployment-2-guestbook-redis">Deployment 2</a>, you will want to keep the resources you made in this section.</p>
+<hr />
+<h2 id="deployment-2-guestbook-redis">Deployment 2: Guestbook + Redis<a class="headerlink" href="#deployment-2-guestbook-redis" title="Permanent link">#</a></h2>
+<p>INTRO TEXT GOES HERE. You can choose to complete this section using either the <a href="#2a-deploy-with-layer0-cli">Layer0 CLI</a> or <a href="#2b-deploy-with-terraform">Terraform</a>.</p>
+<h2 id="2a-deploy-with-layer0-cli">2a: Deploy with Layer0 CLI<a class="headerlink" href="#2a-deploy-with-layer0-cli" title="Permanent link">#</a></h2>
+<hr />
+<h3 id="part-1">Part 1:<a class="headerlink" href="#part-1" title="Permanent link">#</a></h3>
+<hr />
+<h2 id="2b-deploy-with-terraform">2b: Deploy with Terraform<a class="headerlink" href="#2b-deploy-with-terraform" title="Permanent link">#</a></h2>
+<hr />
+<h3 id="part-1_1">Part 1:<a class="headerlink" href="#part-1_1" title="Permanent link">#</a></h3>
+<hr />
+<h2 id="deployment-3-guestbook-redis-consul">Deployment 3: Guestbook + Redis + Consul<a class="headerlink" href="#deployment-3-guestbook-redis-consul" title="Permanent link">#</a></h2>
+<p>INTRO TEXT GOES HERE. You can choose to complete this section using either the <a href="#3a-deploy-with-layer0-cli">Layer0 CLI</a> or <a href="#3b-deploy-with-terraform">Terraform</a>.</p>
+<h2 id="3a-deploy-with-layer0-cli">3a: Deploy with Layer0 CLI<a class="headerlink" href="#3a-deploy-with-layer0-cli" title="Permanent link">#</a></h2>
+<hr />
+<h3 id="part-1_2">Part 1:<a class="headerlink" href="#part-1_2" title="Permanent link">#</a></h3>
+<hr />
+<h2 id="3b-deploy-with-terraform">3b: Deploy with Terraform<a class="headerlink" href="#3b-deploy-with-terraform" title="Permanent link">#</a></h2>
+<hr />
+<h3 id="part-1_3">Part 1:<a class="headerlink" href="#part-1_3" title="Permanent link">#</a></h3>
+<hr />
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../../setup/destroy/" title="Destroy">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Destroy
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../one_off_task/" title="One-off Task">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                One-off Task
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '../..';
+      var repo_id  = 'quintilesims/layer0';
+    </script>
+    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
+    
+    
+  </body>
+</html>
