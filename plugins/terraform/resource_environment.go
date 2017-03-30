@@ -36,6 +36,18 @@ func resourceLayer0Environment() *schema.Resource {
 				Optional: true,
 				ForceNew: true,
 			},
+			"os": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  "linux",
+				ForceNew: true,
+			},
+			"ami": &schema.Schema{
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
 			"cluster_count": &schema.Schema{
 				Type:     schema.TypeString,
 				Computed: true,
@@ -55,8 +67,10 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	size := d.Get("size").(string)
 	minCount := d.Get("min_count").(int)
 	userData := d.Get("user_data").(string)
+	os := d.Get("os").(string)
+	ami := d.Get("ami").(string)
 
-	environment, err := client.CreateEnvironment(name, size, minCount, []byte(userData))
+	environment, err := client.CreateEnvironment(name, size, minCount, []byte(userData), os, ami)
 	if err != nil {
 		return err
 	}
@@ -84,6 +98,8 @@ func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("size", environment.InstanceSize)
 	d.Set("cluster_count", environment.ClusterCount)
 	d.Set("security_group_id", environment.SecurityGroupID)
+	d.Set("os", environment.OperatingSystem)
+	d.Set("ami", environment.AMIID)
 
 	return nil
 }

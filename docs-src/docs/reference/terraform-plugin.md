@@ -129,6 +129,8 @@ resource "layer0_environment" "demo" {
   size      = "m3.medium"
   min_count = 0
   user_data = "echo hello, world"
+  os        = "linux"
+  ami       = "ami123"
 }
 ```
 
@@ -141,6 +143,10 @@ Available instance sizes can be found [here](https://aws.amazon.com/ec2/instance
 * `min_count` - (Optional, Default: 0) The minimum number of instances allowed in the environment
 * `user-data` - (Optional) The user data template to use for the environment's autoscaling group.
 See the [cli reference](/reference/cli/#environment) for the default template.
+* `os` - (Optional, Default: "linux") Specifies the type of operating system used in the environment.
+Options are "linux" or "windows".
+* `ami` - (Optional) A custom AMI ID to use in the environment. 
+If not specified, Layer0 will use its default AMI ID for the specified operating system.
 
 ### Attribute Reference
 The following attributes are exported:
@@ -150,6 +156,8 @@ The following attributes are exported:
 * `size` - The size of the instances in the environment
 * `cluster_count` - The current number instances in the environment
 * `security_group_id` - The ID of the environment's security group
+* `os` - The operating system used for the environment
+* `ami` - The AMI ID used for the environment
 ---
 
 ## Load Balancer

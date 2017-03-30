@@ -44,7 +44,11 @@ func (e *EnvironmentCommand) GetCommand() cli.Command {
 					cli.StringFlag{
 						Name:  "os",
 						Value: "linux",
-						Usage: "specifies windows or linux container environment cluster",
+						Usage: "specifies if the environment will run windows or linux containers",
+					},
+					cli.StringFlag{
+						Name:  "ami",
+						Usage: "specifies a custom AMI ID to use in the environment",
 					},
 				},
 			},
@@ -98,8 +102,7 @@ func (e *EnvironmentCommand) Create(c *cli.Context) error {
 		userData = content
 	}
 
-	//todo: add it here
-	environment, err := e.Client.CreateEnvironment(args["NAME"], c.String("size"), c.Int("min-count"), userData, c.String("os"))
+	environment, err := e.Client.CreateEnvironment(args["NAME"], c.String("size"), c.Int("min-count"), userData, c.String("os"), c.String("ami"))
 	if err != nil {
 		return err
 	}
