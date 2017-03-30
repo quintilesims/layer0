@@ -24,21 +24,19 @@ Please **DO NOT** file a public issue, instead send your report(s) privately to
 
 ## Reporting other issues
 
-The easiest way to contribute to Layer0 is to send us a detailed report when you
+The easiest way to contribute to Layer0 is to send us a **detailed** report when you
 encounter an issue.
 
-Check that [our issue database](https://github.com/quintilesims/layer0/issues)
+Be sure to check that [our issue database](https://github.com/quintilesims/layer0/issues)
 doesn't already include your problem or suggestion before submitting an issue.
-If you find a match, you can use the "subscribe" button to get notified on
-updates.
 
-When reporting issues, include (where applicable):
+When reporting issues, please include (where applicable):
 
-* The output of `l0 --version`.
+* Steps to reproduce the problem
 * The output of `l0 admin debug`.
 * The output of `l0-setup --version`
+* Context. What are you trying to do?
 
-Also include the steps required to reproduce the problem if possible.
 Exceptionally long log output should be posted as a gist (https://gist.github.com).
 Don't forget to remove sensitive data from your logfiles before posting (you can
 replace those parts with "REDACTED").
@@ -56,17 +54,16 @@ follows our brief guidelines, you'll be forever immortalized in our commit histo
 
 Fork the repository and make changes on your fork in a feature branch:
 
-* If it's a bug fix branch, name it XXXX-something where XXXX is the number of
-	the issue.
-* If it's a feature branch, create an enhancement issue to announce
-	your intentions, and name it XXXX-something where XXXX is the number of the
-	issue.
+* Name your branch XXXX-something where XXXX is the number of the primary issue you're
+referencing.
 
-Depending on the changes you're proposing, you may need to update the follow tests:
+Depending on the changes you're proposing, you may need to update the following tests:
 
 * [Smoketests](/tests/smoke/README.md)
 * Unit tests
-* System tests
+* [System tests](/tests/system/README.md)
+
+Please ensure that all tests are passing.
 
 [Update the documentation](https://github.com/quintilesims/layer0/tree/develop/docs-src)
 when creating or modifying features. Test your documentation changes for
@@ -84,12 +81,12 @@ already exist, make a new one.
 * Keep PRs small and concise. If you must make a large changeset, we can discuss
 how to proceed in the PRs' associated issue.
 
-## Layer0 community guidelines
+## Layer0 Community Guidelines
 
 * Be respectful. We appreciate courteous and polite community members; snarkiness
 and soapboxing are highly discouraged. We are all here to make Layer0 better.
 
-* Don't break the law by posting another company's assets, unlicensed Cat gifs, etc.
+* Don't break the law by posting another company's assets, unlicensed cat gifs, etc.
 
 * Stay on topic.
 
