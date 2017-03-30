@@ -1,5 +1,10 @@
 # ![logo](https://quintilesims.github.io/layer0/static/logo_rs.png)
 
+[![Build Status](https://travis-ci.org/quintilesims/layer0.svg?branch=master)](https://travis-ci.org/quintilesims/layer0)  [![Version](https://img.shields.io/badge/version-0.9.0-brightgreen.svg)](https://github.com/quintilesims/layer0/releases/tag/v0.9.0)  [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://quintilesims.github.io/layer0/)
+
+---
+
+
 Layer0 is a framework that helps you deploy your docker container to the cloud with minimal fuss. Using a simple command line interface (CLI), you can manage the entire life cycle of your application without having to focus on infrastructure.
 
 To get started with Layer0, please see [the Layer0 User's Guide](https://quintilesims.github.io/layer0/).
