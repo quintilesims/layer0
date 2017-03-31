@@ -1,3 +1,0 @@
-resource "aws_cloudwatch_log_group" "l0" {
-  name = "l0-${var.l0_prefix}"
-}
