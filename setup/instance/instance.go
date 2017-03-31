@@ -8,8 +8,10 @@ import (
 
 type Instance interface {
 	Name() string
-	Init(InstanceConfig) error
+	Init() error
 	Exists() (bool, error)
+	Apply() error
+	Destroy() error
 }
 
 type Layer0Instance struct {
@@ -33,15 +35,7 @@ func (l *Layer0Instance) Exists() (bool, error) {
 	return false, nil
 }
 
-type InstanceConfig struct {
-	AccessKey        string
-	SecretKey        string
-	Region           string
-	KeyPair          string
-	DockerConfigPath string
-}
-
-func (l *Layer0Instance) Init(c InstanceConfig) error {
+func (l *Layer0Instance) Init() error {
 	if err := os.MkdirAll(l.dir, 0700); err != nil {
 		return err
 	}
@@ -50,5 +44,13 @@ func (l *Layer0Instance) Init(c InstanceConfig) error {
 	// todo: create l.dir/main.tf
 	// todo: run terraform get
 
+	return nil
+}
+
+func (l *Layer0Instance) Apply() error {
+	return nil
+}
+
+func (l *Layer0Instance) Destroy() error {
 	return nil
 }

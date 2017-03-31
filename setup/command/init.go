@@ -3,7 +3,6 @@ package command
 import (
 	"fmt"
 	"github.com/docker/docker/pkg/homedir"
-	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
 
@@ -42,58 +41,16 @@ func (f *CommandFactory) Init() cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			args, err := extractArgs(c.Args(), "NAME")
+			instance, err := getInstance(f.InstanceFactory, c)
 			if err != nil {
 				return err
 			}
 
-			accessKey := c.String("access-key")
-			if accessKey == "" {
-				return fmt.Errorf("Please provide an aws access key using the associated flag or environment variable")
-			}
-
-			secretKey := c.String("secret-key")
-			if secretKey == "" {
-				return fmt.Errorf("Please provide an aws secret key using the associated flag or environment variable")
-			}
-
-			region := c.String("region")
-			if region == "" {
-				return fmt.Errorf("Please provide an aws region using the associated flag or environment variable")
-			}
-
-			keyPair := c.String("key-pair")
-			if keyPair == "" {
-				return fmt.Errorf("Please provide an aws key pair using the associated flag or environment variable")
-			}
-
-			inst, err := f.InstanceFactory.NewInstance(args["NAME"])
-			if err != nil {
+			if err := instance.Init(); err != nil {
 				return err
 			}
 
-			exists, err := inst.Exists()
-			if err != nil {
-				return err
-			}
-
-			if exists {
-				return fmt.Errorf("Instance '%s' already exists", inst.Name)
-			}
-
-			config := instance.InstanceConfig{
-				AccessKey:        accessKey,
-				SecretKey:        secretKey,
-				Region:           region,
-				KeyPair:          keyPair,
-				DockerConfigPath: c.String("docker-config"),
-			}
-
-			if err := inst.Init(config); err != nil {
-				return err
-			}
-
-			fmt.Printf("Successfully created new instance '%s'\n", inst.Name())
+			fmt.Printf("Successfully created new instance '%s'\n", instance.Name())
 			return nil
 		},
 	}

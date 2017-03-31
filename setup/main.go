@@ -16,6 +16,13 @@ func main() {
 	commandFactory := command.NewCommandFactory(instanceFactory)
 	app.Commands = []cli.Command{
 		commandFactory.Init(),
+		commandFactory.Config(),
+		commandFactory.List(),
+		commandFactory.Apply(),
+		commandFactory.Destroy(),
+		commandFactory.Endpoint(),
+		commandFactory.Push(),
+		commandFactory.Pull(),
 	}
 
 	if err := app.Run(os.Args); err != nil {
