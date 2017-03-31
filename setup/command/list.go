@@ -10,17 +10,38 @@ func (f *CommandFactory) List() cli.Command {
 		Name:  "list",
 		Usage: "list local layer0 instances",
 		Action: func(c *cli.Context) error {
-			instances, err := f.InstanceFactory.ListInstances()
+			// uses 'default' as default
+			// if this doesn't exist yet, will prompt for it
+			profile, err := f.context.LoadProfile(c.GlobalString("profile"))
 			if err != nil {
 				return err
 			}
 
-			if len(instances) == 0 {
-				fmt.Println("You don't have any local Layer0 instances")
+			local, err := f.context.ListLocalInstances(profile)
+			if err != nil {
+				return err
 			}
 
-			for _, instance := range instances {
-				fmt.Println(instance)
+			remote, err := f.context.ListRemoteInstances(profile)
+			if err != nil {
+				return err
+			}
+
+			instances := map[string]string{}
+			for _, l := range local {
+				instances[l] = "+l"
+			}
+
+			for _, r := range remote {
+				if instances[r] == "" {
+					instances[r] = "+"
+				}
+
+				instances[r] += "r"
+			}
+
+			for name, location := range instances {
+				fmt.Printf("%s\t%s\n", name, location)
 			}
 
 			return nil

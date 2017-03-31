@@ -1,7 +1,13 @@
-package instance
+package layer0
+
+import (
+	"fmt"
+	"github.com/docker/docker/pkg/homedir"
+)
 
 type Instance interface {
 	Name() string
+	Dir() string
 }
 
 type Layer0Instance struct {
@@ -18,4 +24,8 @@ func NewLayer0Instance(name string) *Layer0Instance {
 
 func (l *Layer0Instance) Name() string {
 	return l.name
+}
+
+func (l *Layer0Instance) Dir() string {
+	return fmt.Sprintf("%s/.layer0/%s", homedir.Get(), l.name)
 }

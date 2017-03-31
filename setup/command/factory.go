@@ -1,15 +1,15 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/setup/instance"
+	"github.com/quintilesims/layer0/setup/layer0"
 )
 
 type CommandFactory struct {
-	InstanceFactory instance.Factory
+	context layer0.Context
 }
 
-func NewCommandFactory(f instance.Factory) *CommandFactory {
+func NewCommandFactory(c layer0.Context) *CommandFactory {
 	return &CommandFactory{
-		InstanceFactory: f,
+		context: c,
 	}
 }

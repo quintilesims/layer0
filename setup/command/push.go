@@ -12,12 +12,6 @@ func (f *CommandFactory) Push() cli.Command {
 		ArgsUsage: "NAME",
 		Flags:     []cli.Flag{},
 		Action: func(c *cli.Context) error {
-			instance, err := getInstance(f.InstanceFactory, c)
-			if err != nil {
-				return err
-			}
-
-			print(instance)
 			return fmt.Errorf("not implemented")
 		},
 	}

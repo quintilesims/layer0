@@ -5,10 +5,10 @@ import (
 	"github.com/urfave/cli"
 )
 
-func (f *CommandFactory) Endpoint() cli.Command {
+func (f *CommandFactory) Upgrade() cli.Command {
 	return cli.Command{
-		Name:      "endpoint",
-		Usage:     "endpoint layer0 instances",
+		Name:      "upgrade",
+		Usage:     "upgrade Layer0 instances",
 		ArgsUsage: "NAME",
 		Flags:     []cli.Flag{},
 		Action: func(c *cli.Context) error {

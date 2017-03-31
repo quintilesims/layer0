@@ -12,13 +12,6 @@ func (f *CommandFactory) Config() cli.Command {
 		ArgsUsage: "NAME",
 		Flags:     []cli.Flag{},
 		Action: func(c *cli.Context) error {
-			instance, err := getInstance(f.InstanceFactory, c)
-			if err != nil {
-				return err
-			}
-
-			// todo: overwrites any variables going into the main.tf module via string flags
-			print(instance)
 			return fmt.Errorf("not implemented")
 		},
 	}
