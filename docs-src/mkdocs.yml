@@ -18,10 +18,7 @@ pages:
     - Upgrade: setup/upgrade.md
     - Destroy: setup/destroy.md
   - Guides:
-    - Guestbook: guides/guestbook.md
-    - Guestbook with RDS: guides/guestbook_rds.md
-    - Consul: guides/consul.md
-    - Guestbook with Consul: guides/guestbook_consul.md
+    - An Iterative Walkthrough: guides/walkthrough.md
     - One-off Task: guides/one_off_task.md
   - Reference:
     - Layer0 CLI: reference/cli.md
