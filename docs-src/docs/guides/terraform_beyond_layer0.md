@@ -20,11 +20,9 @@ Using Terraform, you will deploy a simple guestbook application, which is backed
 ## Part 1: Clone the Layer0 examples repository
 Run this command to clone the `quintilesims/layer0-examples` repository
 
-<ul>
-  <li class="command">git clone https://github.com/quintilesims/layer0-examples.git</li>
-</ul>
+`git clone https://github.com/quintilesims/layer0-examples.git`  
 
-Inside a terminal window, navigate to the `terraform-beyond-layer0 folder`. You should find the following files once you are in the folder. We use these files to set up a Layer0 envrionment and deploy AWS resources with Terraform:
+Inside a terminal window, navigate to the `terraform-beyond-layer0 folder`. You should find the following files once you are in the folder. We use these files to set up a Layer0 environment and deploy AWS resources with Terraform:
 
 |Filename|Purpose|
 |----|----|
