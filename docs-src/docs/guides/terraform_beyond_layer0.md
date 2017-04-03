@@ -1,21 +1,21 @@
 # Deployment guide: Guestbook sample application
-In this example, you will learn how you can use Terraform to create a Layer0 service as well as supporting infrastructure in the form of a persistent data store. This example does not cover the details of application being deployed but focuses on how you can combine Layer0 and other Terraform providers as part of a Terraform workflow.
+In this example, you will learn how you can use Terraform to create a Layer0 service as well as supporting infrastructure in the form of a persistent data store. This example does not cover the details of the application being deployed but focuses on how you can combine Layer0 and other Terraform providers as part of a Terraform workflow.
 
 ## Before you start
-In order to complete the procedures in this section, you must have following installed and configured correctly:
+In order to complete the procedures in this section, you must have the following installed and configured correctly:
 
- * Layer0
- * Terraform
+ * Layer0 v0.8.4 or later
+ * Terraform v0.9.0 or later
  * Layer0 Terraform Provider
 
-Layer0 v0.8.4 or later installed and configured. If you have not already configured Layer0, see the [Layer0 installation guide](/setup/install). If you are running an older version of Layer0, see the [Layer0 upgrade instructions](/setup/upgrade#upgrading-older-versions-of-layer0).
+If you have not already configured Layer0, see the [Layer0 installation guide](/setup/install). If you are running an older version of Layer0, see the [Layer0 upgrade instructions](/setup/upgrade#upgrading-older-versions-of-layer0).
 
 See the [Terraform installation guide](/reference/terraform-plugin#install) to install Terraform and the Layer0 Terraform Plugin.
 
 ---
 
 ## Deploy with Terraform
-Using Terraform, you will deploy a simple guestbook application, which is backed by AWS DynamoDb Table, for persistant storage. The terraform configuration file will use both the Layer0 and AWS Terraform providers, to deploy the guestbook application and provision a new DynamoDb Table.
+Using Terraform, you will deploy a simple guestbook application, which is backed by AWS DynamoDB Table, for persistant storage. The terraform configuration file will use both the Layer0 and AWS Terraform providers, to deploy the guestbook application and provision a new DynamoDB Table.
 
 ## Part 1: Clone the Layer0 examples repository
 Run this command to clone the `quintilesims/layer0-examples` repository
@@ -30,17 +30,24 @@ Inside a terminal window, navigate to the `terraform-beyond-layer0 folder`. You 
 |----|----|
 |[terraform.tfvars](https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/terraform.tfvars)|Variables specific to the environment and guestbook application|
 |[Dockerrun.aws.json](https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/Dockerrun.aws.json)|Template for running the guestbook application in a Layer0 environment|
-|[layer0.tf](https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/layer0.tf)|Provision Layer0 resources|
+|[layer0.tf](https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/layer0.tf)|Provision Layer0 resources and AWS resources|
 
 ## Part 2: Terraform Plan
-Before deploying, we can run the follwing command to see what changes Terraform will make to your infrastructure should you go ahead and apply. If you had any errors in your layer0.tf file, running `terraform plan` would output those errors so that you can address them.
+Before deploying, we can run the follwing command to see what changes Terraform will make to your infrastructure should you go ahead and apply. If you had any errors in your layer0.tf file, running `terraform plan` would output those errors so that you can address them. Also, Terraform will prompt you for configuration values that it does not have.
 
-<ul>
-  <li class="command">terraform plan</li>
-</ul>
+`terraform plan`
+
+!!! Note
+	There are a few ways to configure Terraform so that you don't have to keep entering these values every time you run a Terraform command (editing the `terraform.tfvars` file, or exporting evironment variables like `TF_VAR_endpoint` and `TF_VAR_token`, for example). See the [Terraform Docs](https://www.terraform.io/docs/configuration/variables.html) for more.
 
 ```
-+ aws_dynamodb_table.guestbook
+var.endpoint
+  Enter a value: <enter your Layer0 endpoint>
+
+var.token
+  Enter a value: <enter your Layer0 token>
+...
++ aws_DynamoDB_table.guestbook
     arn:                       "<computed>"
     attribute.#:               "1"
     attribute.4228504427.name: "id"
@@ -57,21 +64,11 @@ Before deploying, we can run the follwing command to see what changes Terraform 
 ```
 
 ## Part 3: Terraform Apply
-Run the follwing command to begin the deploy process. Terraform will prompt you for configuration values that it does not have.
+Run the following command to begin the deploy process.
 
-<ul>
-  <li class="command">terraform apply</li>
-</ul>
-
-_To avoid entering these values manually each time you run terraform, you can set the terraform variables by editing the `terraform.tfvars` file._
+`terraform apply`
 
 ```
-var.endpoint
-  Enter a value: <enter your Layer0 endpoint>
-
-var.token
-  Enter a value: <enter your Layer0 token>
-
 layer0_environment.demo: Refreshing state...
 ...
 ...
@@ -92,17 +89,18 @@ Outputs:
 guestbook_url = <http endpoint for the sample application>
 ```
 
-__It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.__
+!!! Note
+  It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.
 
 Terraform will set up the entire environment for you and then output a link to the application's load balancer.
 
 ### What's happening
-Terraform using the AWS provider, provisions a new DynamoDb Table (with the name you have configured) and configures environment variables for the layer0 application to use the newly provisioned table, and deploys the application into a Layer0 environment using the Layer0 provider.
+Terraform using the AWS provider, provisions a new DynamoDB Table (with the name you have configured) and configures environment variables for the Layer0 application to use the newly provisioned table, and deploys the application into a Layer0 environment using the Layer0 provider.
 
-Looking at excerpt of [layer0.tf](https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/layer0.tf) file, we can see the following definitions:
+Looking at an excerpt of [layer0.tf](https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/layer0.tf) file, we can see the following definitions:
 
 ```
-resource "aws_dynamodb_table" "guestbook" {
+resource "aws_DynamoDB_table" "guestbook" {
   name           = "${var.table_name}"
   read_capacity  = 20
   write_capacity = 20
@@ -126,12 +124,12 @@ data "template_file" "guestbook" {
     access_key = "${var.access_key}"
     secret_key = "${var.secret_key}"
     region     = "${var.region}"
-    table_name = "${aws_dynamodb_table.guestbook.name}"
+    table_name = "${aws_DynamoDB_table.guestbook.name}"
   }
 }
 ```
 
-Note the resources definitions for `aws_dynamodb_table` and `layer0_deploy`. To configure the guestbook application to use the provisioned dynamodb table, we reference the `name` property from the dynamodb definition `table_name = "${aws_dynamodb_table.guestbook.name}"`. 
+Note the resource definitions for `aws_dynamodb_table` and `layer0_deploy`. To configure the guestbook application to use the provisioned DynamoDB table, we reference the `name` property from the DynamoDB definition `table_name = "${aws_dynamodb_table.guestbook.name}"`. 
 
 This is then used to populate the template fields in our [Dockerrun.aws.json](https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/Dockerrun.aws.json) file. 
 
@@ -152,11 +150,9 @@ This is then used to populate the template fields in our [Dockerrun.aws.json](ht
                 ...
 ```
 
-The Layer0 configuration referencing the Aws DynamoDb configuration `table_name = "${aws_dynamodb_table.guestbook.name}"`, infers an implicit dependency. Before Terraform creates the infrastructre, it will use this information to order the resources created and also create resources in parallel where there are no dependencies. In this example, the AWS DynamoDb table will be created before the Layer0 deploy. See [Terraform Dependencies](https://www.terraform.io/intro/getting-started/dependencies.html) for more information.
+The Layer0 configuration referencing the AWS DynamoDB configuration `table_name = "${aws_DynamoDB_table.guestbook.name}"`, infers an implicit dependency. Before Terraform creates the infrastructre, it will use this information to order the resources created and also create resources in parallel where there are no dependencies. In this example, the AWS DynamoDB table will be created before the Layer0 deploy. See [Terraform Dependencies](https://www.terraform.io/intro/getting-started/dependencies.html) for more information.
 
 ## Part 4: Terraform Destroy
-When you're finished with the example run the following command in the same directory to destroy the Layer0 environment, application and the DynamoDb Table.
+When you're finished with the example run the following command in the same directory to destroy the Layer0 environment, application and the DynamoDB Table.
 
-<ul>
-  <li class="command">terraform destroy</li>
-</ul>
+`terraform destroy`
