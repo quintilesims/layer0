@@ -594,6 +594,8 @@ resource &quot;layer0_environment&quot; &quot;demo&quot; {
   size      = &quot;m3.medium&quot;
   min_count = 0
   user_data = &quot;echo hello, world&quot;
+  os        = &quot;linux&quot;
+  ami       = &quot;ami123&quot;
 }</code></pre>
 
 
@@ -606,6 +608,10 @@ Available instance sizes can be found <a href="https://aws.amazon.com/ec2/instan
 <li><code>min_count</code> - (Optional, Default: 0) The minimum number of instances allowed in the environment</li>
 <li><code>user-data</code> - (Optional) The user data template to use for the environment's autoscaling group.
 See the <a href="../../reference/cli/#environment">cli reference</a> for the default template.</li>
+<li><code>os</code> - (Optional, Default: "linux") Specifies the type of operating system used in the environment.
+Options are "linux" or "windows".</li>
+<li><code>ami</code> - (Optional) A custom AMI ID to use in the environment. 
+If not specified, Layer0 will use its default AMI ID for the specified operating system.</li>
 </ul>
 <h3 id="attribute-reference_2">Attribute Reference<a class="headerlink" href="#attribute-reference_2" title="Permanent link">#</a></h3>
 <p>The following attributes are exported:</p>
@@ -615,6 +621,8 @@ See the <a href="../../reference/cli/#environment">cli reference</a> for the def
 <li><code>size</code> - The size of the instances in the environment</li>
 <li><code>cluster_count</code> - The current number instances in the environment</li>
 <li><code>security_group_id</code> - The ID of the environment's security group</li>
+<li><code>os</code> - The operating system used for the environment</li>
+<li><code>ami</code> - The AMI ID used for the environment</li>
 </ul>
 <hr />
 <h2 id="load-balancer">Load Balancer<a class="headerlink" href="#load-balancer" title="Permanent link">#</a></h2>

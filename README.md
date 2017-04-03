@@ -1,6 +1,8 @@
 # ![logo](https://quintilesims.github.io/layer0/static/logo_rs.png)
 
-[![Build Status](https://travis-ci.org/quintilesims/layer0.svg?branch=master)](https://travis-ci.org/quintilesims/layer0)  [![Version](https://img.shields.io/badge/version-0.9.0-brightgreen.svg)](https://github.com/quintilesims/layer0/releases/tag/v0.9.0)  [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://quintilesims.github.io/layer0/)
+[![Build Status](https://travis-ci.org/quintilesims/layer0.svg?branch=master)](https://travis-ci.org/quintilesims/layer0)
+[![Version](https://img.shields.io/badge/version-0.9.0-brightgreen.svg)](https://github.com/quintilesims/layer0/releases/tag/v0.9.0)
+[![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://quintilesims.github.io/layer0/)
 
 ---
 
