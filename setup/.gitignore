@@ -1,17 +1,2 @@
 setup
-build/
-terraform.tfstate
-terraform.tfstate.backup
-terraform.tfvars
-instances/*
-!bin/*
-ec2.tf
-ecs.tf
-elb.tf
-rds.tf
-iam.tf
-outputs.tf
-s3.tf
-vpc.tf
-autoscaling.tf
 l0-setup
