@@ -23,7 +23,7 @@ func TestCreateTask(t *testing.T) {
 		testutils.AssertEqual(t, req.TaskName, "name")
 		testutils.AssertEqual(t, req.EnvironmentID, "environmentID")
 		testutils.AssertEqual(t, req.DeployID, "deployID")
-		testutils.AssertEqual(t, req.Copies, int64(2))
+		testutils.AssertEqual(t, req.Copies, 2)
 		testutils.AssertEqual(t, req.ContainerOverrides, overrides)
 
 		headers := map[string]string{
