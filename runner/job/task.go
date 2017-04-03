@@ -2,8 +2,8 @@ package job
 
 import (
 	"encoding/json"
+	"fmt"
 	log "github.com/Sirupsen/logrus"
-	"github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/common/models"
 	"time"
 )
@@ -34,34 +34,28 @@ func DeleteTask(quit chan bool, context *JobContext) error {
 }
 
 func CreateTask(quit chan bool, context *JobContext) error {
-	var taskID string
 	var createTaskRequest models.CreateTaskRequest
 	if err := json.Unmarshal([]byte(context.Request()), &createTaskRequest); err != nil {
 		return err
 	}
 
-	attempt := func() (*models.Task, error) {
-		return context.TaskLogic.CreateTask(createTaskRequest)
-	}
-
-	if err := runAndRetry(quit, time.Second*10, func() error {
-		log.Infof("Running Action: CreateTask on '%s'", createTaskRequest.TaskName)
-		task, err := attempt()
-		if err != nil {
-			log.Printf("Failed to create task %s: %v\n", createTaskRequest.TaskName, err)
-			if err, ok := err.(*ecsbackend.PartialCreateTaskFailure); ok {
-				attempt = err.Retry
+	for i := 0; i < createTaskRequest.Copies; i++ {
+		if err := runAndRetry(quit, time.Second*10, func() error {
+			log.Infof("Running Action: CreateTask '%s', copy %d", createTaskRequest.TaskName, i)
+			task, err := context.TaskLogic.CreateTask(createTaskRequest)
+			if err != nil {
+				log.Infof("Failed CreateTask '%s', copy %d", createTaskRequest.TaskName, i)
+				return err
 			}
 
+			return runAndRetry(quit, time.Second*10, func() error {
+				key := fmt.Sprintf("task_%d", i)
+				return context.AddJobMeta(key, task.TaskID)
+			})
+		}); err != nil {
 			return err
 		}
-
-		taskID = task.TaskID
-		return nil
-	}); err != nil {
-		return err
 	}
 
-	meta := map[string]string{"task_id": taskID}
-	return context.SetJobMeta(meta)
+	return nil
 }

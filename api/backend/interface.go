@@ -24,7 +24,7 @@ type Backend interface {
 	UpdateService(environmentID, serviceID, deployID string) (*models.Service, error)
 	GetServiceLogs(environmentID, serviceID string, tail int) ([]*models.LogFile, error)
 
-	CreateTask(envID, taskName, deployVersion string, copies int, overrides []models.ContainerOverride) (*models.Task, error)
+	CreateTask(envID, taskName, deployVersion string, overrides []models.ContainerOverride) (*models.Task, error)
 	ListTasks() ([]*models.Task, error)
 	GetTask(envID, taskID string) (*models.Task, error)
 	DeleteTask(envID, taskID string) error
