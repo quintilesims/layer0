@@ -231,7 +231,7 @@ func TestCreateTask(t *testing.T) {
 		TaskName:      "tsk_name",
 		DeployID:      "dply_id",
 		EnvironmentID: "env_id",
-		Copies:        int64(2),
+		Copies:        2,
 	}
 
 	testCase := HandlerTestCase{

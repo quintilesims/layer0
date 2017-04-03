@@ -8,12 +8,12 @@
     l0 deploy create ./common/Dockerrun.aws.json guestbook
 }
 
-@test "task create --wait test task1 guestbook" {
-    l0 task create --wait test task1  guestbook
+@test "task create test task1 guestbook" {
+    l0 task create test task1 guestbook
 }
 
-@test "task create --copies 2 --env guestbook:key=val test task2 guestbook" {
-    l0 task create --copies 2 --env guestbook:key=val test task2 guestbook 
+@test "task create --wait --copies 2 --env guestbook:key=val test task2 guestbook" {
+    l0 task create --wait --copies 2 --env guestbook:key=val test task2 guestbook 
 }
 
 @test "task list" {
