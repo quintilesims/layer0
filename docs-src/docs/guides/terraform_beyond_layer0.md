@@ -28,9 +28,9 @@ Inside a terminal window, navigate to the `terraform-beyond-layer0 folder`. You 
 
 |Filename|Purpose|
 |----|----|
-|[terraform.tfvars](https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/terraform.tfvars)|Variables specific to the environment and guestbook application|
-|[Dockerrun.aws.json](https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/Dockerrun.aws.json)|Template for running the guestbook application in a Layer0 environment|
-|[layer0.tf](https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/layer0.tf)|Provision Layer0 resources and AWS resources|
+|[terraform.tfvars](https://github.com/quintilesims/layer0-examples/blob/master/terraform-beyond-layer0/terraform.tfvars)|Variables specific to the environment and guestbook application|
+|[Dockerrun.aws.json](https://github.com/quintilesims/layer0-examples/blob/master/terraform-beyond-layer0/Dockerrun.aws.json)|Template for running the guestbook application in a Layer0 environment|
+|[layer0.tf](https://github.com/quintilesims/layer0-examples/blob/master/terraform-beyond-layer0/layer0.tf)|Provision Layer0 resources and AWS resources|
 
 ## Part 2: Terraform Plan
 Before deploying, we can run the follwing command to see what changes Terraform will make to your infrastructure should you go ahead and apply. If you had any errors in your layer0.tf file, running `terraform plan` would output those errors so that you can address them. Also, Terraform will prompt you for configuration values that it does not have.
