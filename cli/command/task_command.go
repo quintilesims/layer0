@@ -127,11 +127,11 @@ func (t *TaskCommand) Create(c *cli.Context) error {
 	}
 
 	taskIDs := []string{}
-	for key, val := range job.Meta {	
-		if strings.HasPrefix(key, "task_"){
+	for key, val := range job.Meta {
+		if strings.HasPrefix(key, "task_") {
 			taskIDs = append(taskIDs, val)
 		}
-	}	
+	}
 
 	tasks := make([]*models.Task, len(taskIDs))
 	for i, taskID := range taskIDs {
