@@ -3,7 +3,6 @@ package main
 import (
 	"fmt"
 	"github.com/quintilesims/layer0/setup/command"
-	"github.com/quintilesims/layer0/setup/layer0"
 	"github.com/urfave/cli"
 	"os"
 )
@@ -19,8 +18,7 @@ func main() {
 		},
 	}
 
-	context := layer0.NewLocalContext()
-	commandFactory := command.NewCommandFactory(context)
+	commandFactory := command.NewCommandFactory()
 	app.Commands = []cli.Command{
 		commandFactory.Init(),
 		commandFactory.Config(),

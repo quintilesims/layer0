@@ -1,7 +1,7 @@
 package command
 
 import (
-	"fmt"
+	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
 
@@ -12,7 +12,13 @@ func (f *CommandFactory) Apply() cli.Command {
 		ArgsUsage: "NAME",
 		Flags:     []cli.Flag{},
 		Action: func(c *cli.Context) error {
-			return fmt.Errorf("not implemented")
+			args, err := extractArgs(c.Args(), "NAME")
+			if err != nil {
+				return err
+			}
+
+			instance := instance.NewInstance(args["NAME"])
+			return instance.Apply()
 		},
 	}
 }

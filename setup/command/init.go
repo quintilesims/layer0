@@ -3,7 +3,7 @@ package command
 import (
 	"fmt"
 	"github.com/docker/docker/pkg/homedir"
-	"github.com/quintilesims/layer0/setup/layer0"
+	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
 
@@ -46,17 +46,13 @@ func (f *CommandFactory) Init() cli.Command {
 			},
 		},
 		Action: func(c *cli.Context) error {
-			config := layer0.InstanceConfig{
-				Name:      c.String("name"),
-				AccessKey: c.String("access_key"),
-				SecretKey: c.String("secret_key"),
-			}
-
-			if _, err := f.context.Init(config); err != nil {
+			args, err := extractArgs(c.Args(), "NAME")
+			if err != nil {
 				return err
 			}
 
-			return nil
+			instance := instance.NewInstance(args["NAME"])
+			return instance.Init()
 		},
 	}
 }
