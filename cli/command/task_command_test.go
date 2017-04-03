@@ -112,9 +112,9 @@ func TestCreateTaskWait(t *testing.T) {
 		GetTask("tid0").
 		Return(&models.Task{}, nil)
 
-	 tc.Client.EXPECT().
-                GetTask("tid1").
-                Return(&models.Task{}, nil)
+	tc.Client.EXPECT().
+		GetTask("tid1").
+		Return(&models.Task{}, nil)
 
 	flags := Flags{
 		"wait": true,
