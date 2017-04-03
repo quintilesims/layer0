@@ -73,15 +73,15 @@ func (_mr *_MockBackendRecorder) CreateService(arg0, arg1, arg2, arg3 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateService", arg0, arg1, arg2, arg3)
 }
 
-func (_m *MockBackend) CreateTask(_param0 string, _param1 string, _param2 string, _param3 int, _param4 []models.ContainerOverride) (*models.Task, error) {
-	ret := _m.ctrl.Call(_m, "CreateTask", _param0, _param1, _param2, _param3, _param4)
+func (_m *MockBackend) CreateTask(_param0 string, _param1 string, _param2 string, _param3 []models.ContainerOverride) (*models.Task, error) {
+	ret := _m.ctrl.Call(_m, "CreateTask", _param0, _param1, _param2, _param3)
 	ret0, _ := ret[0].(*models.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockBackendRecorder) CreateTask(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTask", arg0, arg1, arg2, arg3, arg4)
+func (_mr *_MockBackendRecorder) CreateTask(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTask", arg0, arg1, arg2, arg3)
 }
 
 func (_m *MockBackend) DeleteDeploy(_param0 string) error {

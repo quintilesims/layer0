@@ -248,7 +248,7 @@ func TestCreateTask(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSTaskManager)
-				manager.CreateTask("envid", "tsk_name", "dplyid.1", 1, nil)
+				manager.CreateTask("envid", "tsk_name", "dplyid.1", nil)
 			},
 		},
 		testutils.TestCase{
@@ -268,7 +268,7 @@ func TestCreateTask(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSTaskManager)
-				manager.CreateTask("envid", "tsk_name", "dplyid.1", 1, nil)
+				manager.CreateTask("envid", "tsk_name", "dplyid.1", nil)
 			},
 		},
 		testutils.TestCase{
@@ -289,7 +289,7 @@ func TestCreateTask(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSTaskManager)
-				manager.CreateTask("envid", "tsk_name", "dplyid.1", 1, nil)
+				manager.CreateTask("envid", "tsk_name", "dplyid.1", nil)
 			},
 		},
 	}

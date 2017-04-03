@@ -43,8 +43,8 @@ func (a *L0AdminLogic) createDefaultTags() error {
 	}
 
 	if err := a.upsertTagf(config.API_ENVIRONMENT_ID, "environment", "os", "linux"); err != nil {
-                return err
-        }
+		return err
+	}
 
 	// load_balancer
 	if err := a.upsertTagf(config.API_LOAD_BALANCER_ID, "load_balancer", "name", config.API_LOAD_BALANCER_NAME); err != nil {

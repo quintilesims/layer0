@@ -103,14 +103,18 @@ func TestCreateTaskWait(t *testing.T) {
 		WaitForJob("jobid", gomock.Any()).
 		Return(nil)
 
-	jobMeta := map[string]string{"task_id": "tid"}
+	jobMeta := map[string]string{"task_0": "tid0", "task_1": "tid1"}
 	tc.Client.EXPECT().
 		GetJob("jobid").
 		Return(&models.Job{Meta: jobMeta}, nil)
 
 	tc.Client.EXPECT().
-		GetTask("tid").
+		GetTask("tid0").
 		Return(&models.Task{}, nil)
+
+	 tc.Client.EXPECT().
+                GetTask("tid1").
+                Return(&models.Task{}, nil)
 
 	flags := Flags{
 		"wait": true,

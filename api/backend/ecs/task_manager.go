@@ -2,7 +2,6 @@ package ecsbackend
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
@@ -138,7 +137,6 @@ func (this *ECSTaskManager) CreateTask(
 	environmentID string,
 	taskName string,
 	deployID string,
-	copies int,
 	overrides []models.ContainerOverride,
 ) (*models.Task, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
@@ -153,47 +151,16 @@ func (this *ECSTaskManager) CreateTask(
 		ecsOverrides = append(ecsOverrides, o)
 	}
 
-	return this.runTask(ecsEnvironmentID, ecsDeployID, ecsTaskID, copies, ecsOverrides)
-}
-
-func (this *ECSTaskManager) runTask(environmentID id.ECSEnvironmentID, deployID id.ECSDeployID, taskID id.ECSTaskID, copies int, overrides []*ecs.ContainerOverride) (*models.Task, error) {
-	tasks, failed, err := this.ECS.RunTask(environmentID.String(), deployID.TaskDefinition(), int64(copies), stringp(taskID.String()), overrides)
-	if numFailed := len(failed); numFailed > 0 {
-		partialFailure := &PartialCreateTaskFailure{
-			NumFailed: numFailed,
-			Retry: func() (*models.Task, error) {
-				return this.runTask(environmentID, deployID, taskID, numFailed, overrides)
-			},
-		}
-
-		// return tasks that started correctly if possible
-		if len(tasks) == 0 {
-			return nil, partialFailure
-		}
-
-		// don't return error here since we need to return the partial failure
-		model, err := modelFromTasks(tasks)
-		if err != nil {
-			log.Errorf("Failed to get models from tasks in %s: %v", taskID, err)
-		}
-
-		return model, partialFailure
-	}
-
+	tasks, failed, err := this.ECS.RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), 1, stringp(ecsTaskID.String()), ecsOverrides)
 	if err != nil {
 		return nil, err
 	}
 
+	if len(failed) > 0 {
+		return nil, fmt.Errorf("ECS failed to start the task!")
+	}
+
 	return modelFromTasks(tasks)
-}
-
-type PartialCreateTaskFailure struct {
-	NumFailed int
-	Retry     func() (*models.Task, error)
-}
-
-func (p *PartialCreateTaskFailure) Error() string {
-	return fmt.Sprintf("Failed to start %d tasks", p.NumFailed)
 }
 
 func (this *ECSTaskManager) GetTaskLogs(environmentID, taskID string, tail int) ([]*models.LogFile, error) {
