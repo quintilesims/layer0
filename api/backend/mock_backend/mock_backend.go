@@ -40,15 +40,15 @@ func (_mr *_MockBackendRecorder) CreateDeploy(arg0, arg1 interface{}) *gomock.Ca
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDeploy", arg0, arg1)
 }
 
-func (_m *MockBackend) CreateEnvironment(_param0 string, _param1 string, _param2 int, _param3 []byte) (*models.Environment, error) {
-	ret := _m.ctrl.Call(_m, "CreateEnvironment", _param0, _param1, _param2, _param3)
+func (_m *MockBackend) CreateEnvironment(_param0 string, _param1 string, _param2 string, _param3 string, _param4 int, _param5 []byte) (*models.Environment, error) {
+	ret := _m.ctrl.Call(_m, "CreateEnvironment", _param0, _param1, _param2, _param3, _param4, _param5)
 	ret0, _ := ret[0].(*models.Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockBackendRecorder) CreateEnvironment(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0, arg1, arg2, arg3)
+func (_mr *_MockBackendRecorder) CreateEnvironment(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
 func (_m *MockBackend) CreateLoadBalancer(_param0 string, _param1 string, _param2 bool, _param3 []models.Port, _param4 models.HealthCheck) (*models.LoadBalancer, error) {
@@ -73,15 +73,15 @@ func (_mr *_MockBackendRecorder) CreateService(arg0, arg1, arg2, arg3 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateService", arg0, arg1, arg2, arg3)
 }
 
-func (_m *MockBackend) CreateTask(_param0 string, _param1 string, _param2 string, _param3 int, _param4 []models.ContainerOverride) (*models.Task, error) {
-	ret := _m.ctrl.Call(_m, "CreateTask", _param0, _param1, _param2, _param3, _param4)
+func (_m *MockBackend) CreateTask(_param0 string, _param1 string, _param2 string, _param3 []models.ContainerOverride) (*models.Task, error) {
+	ret := _m.ctrl.Call(_m, "CreateTask", _param0, _param1, _param2, _param3)
 	ret0, _ := ret[0].(*models.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockBackendRecorder) CreateTask(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTask", arg0, arg1, arg2, arg3, arg4)
+func (_mr *_MockBackendRecorder) CreateTask(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTask", arg0, arg1, arg2, arg3)
 }
 
 func (_m *MockBackend) DeleteDeploy(_param0 string) error {
@@ -165,17 +165,6 @@ func (_m *MockBackend) GetLoadBalancer(_param0 string) (*models.LoadBalancer, er
 
 func (_mr *_MockBackendRecorder) GetLoadBalancer(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetLoadBalancer", arg0)
-}
-
-func (_m *MockBackend) GetRightSizerHealth() (string, error) {
-	ret := _m.ctrl.Call(_m, "GetRightSizerHealth")
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockBackendRecorder) GetRightSizerHealth() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetRightSizerHealth")
 }
 
 func (_m *MockBackend) GetService(_param0 string, _param1 string) (*models.Service, error) {
@@ -277,16 +266,6 @@ func (_mr *_MockBackendRecorder) ListTasks() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListTasks")
 }
 
-func (_m *MockBackend) RunRightSizer() error {
-	ret := _m.ctrl.Call(_m, "RunRightSizer")
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-func (_mr *_MockBackendRecorder) RunRightSizer() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunRightSizer")
-}
-
 func (_m *MockBackend) ScaleService(_param0 string, _param1 string, _param2 int) (*models.Service, error) {
 	ret := _m.ctrl.Call(_m, "ScaleService", _param0, _param1, _param2)
 	ret0, _ := ret[0].(*models.Service)
@@ -296,14 +275,6 @@ func (_m *MockBackend) ScaleService(_param0 string, _param1 string, _param2 int)
 
 func (_mr *_MockBackendRecorder) ScaleService(arg0, arg1, arg2 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ScaleService", arg0, arg1, arg2)
-}
-
-func (_m *MockBackend) StartRightSizer() {
-	_m.ctrl.Call(_m, "StartRightSizer")
-}
-
-func (_mr *_MockBackendRecorder) StartRightSizer() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "StartRightSizer")
 }
 
 func (_m *MockBackend) UpdateEnvironment(_param0 string, _param1 int) (*models.Environment, error) {

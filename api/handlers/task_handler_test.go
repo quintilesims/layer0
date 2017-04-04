@@ -7,6 +7,7 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
+	"github.com/quintilesims/layer0/common/types"
 	"testing"
 )
 
@@ -30,7 +31,7 @@ func TestListTasks(t *testing.T) {
 					ListTasks().
 					Return(tasks, nil)
 
-				return NewTaskHandler(logicMock)
+				return NewTaskHandler(logicMock, nil)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*TaskHandler)
@@ -51,7 +52,7 @@ func TestListTasks(t *testing.T) {
 					ListTasks().
 					Return(nil, errors.Newf(errors.UnexpectedError, "some error"))
 
-				return NewTaskHandler(logicMock)
+				return NewTaskHandler(logicMock, nil)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*TaskHandler)
@@ -85,7 +86,7 @@ func TestGetTask(t *testing.T) {
 					GetTask("some_id").
 					Return(task, nil)
 
-				return NewTaskHandler(logicMock)
+				return NewTaskHandler(logicMock, nil)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*TaskHandler)
@@ -103,7 +104,7 @@ func TestGetTask(t *testing.T) {
 					GetTask(gomock.Any()).
 					Return(task, nil)
 
-				return NewTaskHandler(logicMock)
+				return NewTaskHandler(logicMock, nil)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*TaskHandler)
@@ -120,7 +121,7 @@ func TestGetTask(t *testing.T) {
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockTaskLogic(ctrl)
-				return NewTaskHandler(logicMock)
+				return NewTaskHandler(logicMock, nil)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*TaskHandler)
@@ -143,7 +144,7 @@ func TestGetTask(t *testing.T) {
 					GetTask(gomock.Any()).
 					Return(nil, errors.Newf(errors.UnexpectedError, "some error"))
 
-				return NewTaskHandler(logicMock)
+				return NewTaskHandler(logicMock, nil)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*TaskHandler)
@@ -173,7 +174,7 @@ func TestDeleteTask(t *testing.T) {
 					DeleteTask("some_id").
 					Return(nil)
 
-				return NewTaskHandler(logicMock)
+				return NewTaskHandler(logicMock, nil)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*TaskHandler)
@@ -185,7 +186,7 @@ func TestDeleteTask(t *testing.T) {
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockTaskLogic(ctrl)
-				return NewTaskHandler(logicMock)
+				return NewTaskHandler(logicMock, nil)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*TaskHandler)
@@ -208,7 +209,7 @@ func TestDeleteTask(t *testing.T) {
 					DeleteTask(gomock.Any()).
 					Return(errors.Newf(errors.UnexpectedError, "some error"))
 
-				return NewTaskHandler(logicMock)
+				return NewTaskHandler(logicMock, nil)
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
 				handler := target.(*TaskHandler)
@@ -230,54 +231,28 @@ func TestCreateTask(t *testing.T) {
 		TaskName:      "tsk_name",
 		DeployID:      "dply_id",
 		EnvironmentID: "env_id",
-		Copies:        int64(2),
+		Copies:        2,
 	}
 
-	testCases := []HandlerTestCase{
-		HandlerTestCase{
-			Name: "Should call CreateTask with correct params",
-			Request: &TestRequest{
-				Body: request,
-			},
-			Setup: func(ctrl *gomock.Controller) interface{} {
-				mockTask := mock_logic.NewMockTaskLogic(ctrl)
-
-				mockTask.EXPECT().
-					CreateTask(request).
-					Return(&models.Task{}, nil)
-
-				return NewTaskHandler(mockTask)
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
-				handler := target.(*TaskHandler)
-				handler.CreateTask(req, resp)
-			},
+	testCase := HandlerTestCase{
+		Name: "Should call CreateJob with correct params",
+		Request: &TestRequest{
+			Body: request,
 		},
-		HandlerTestCase{
-			Name: "Should propagate CreateTask error",
-			Request: &TestRequest{
-				Body: request,
-			},
-			Setup: func(ctrl *gomock.Controller) interface{} {
-				mockTask := mock_logic.NewMockTaskLogic(ctrl)
+		Setup: func(ctrl *gomock.Controller) interface{} {
+			jobLogicMock := mock_logic.NewMockJobLogic(ctrl)
+			jobLogicMock.EXPECT().
+				CreateJob(types.CreateTaskJob, request).
+				Return(&models.Job{}, nil)
 
-				mockTask.EXPECT().
-					CreateTask(gomock.Any()).
-					Return(nil, errors.Newf(errors.UnexpectedError, "some error"))
-
-				return NewTaskHandler(mockTask)
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
-				handler := target.(*TaskHandler)
-				handler.CreateTask(req, resp)
-
-				var response *models.ServerError
-				read(&response)
-
-				reporter.AssertEqual(int64(errors.UnexpectedError), response.ErrorCode)
-			},
+			return NewTaskHandler(nil, jobLogicMock)
+		},
+		Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
+			handler := target.(*TaskHandler)
+			handler.CreateTask(req, resp)
 		},
 	}
 
-	RunHandlerTestCases(t, testCases)
+	RunHandlerTestCase(t, testCase)
+
 }

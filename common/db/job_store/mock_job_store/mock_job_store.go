@@ -82,6 +82,16 @@ func (_mr *_MockJobStoreRecorder) SelectByID(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "SelectByID", arg0)
 }
 
+func (_m *MockJobStore) SetJobMeta(_param0 string, _param1 map[string]string) error {
+	ret := _m.ctrl.Call(_m, "SetJobMeta", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockJobStoreRecorder) SetJobMeta(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "SetJobMeta", arg0, arg1)
+}
+
 func (_m *MockJobStore) UpdateJobStatus(_param0 string, _param1 types.JobStatus) error {
 	ret := _m.ctrl.Call(_m, "UpdateJobStatus", _param0, _param1)
 	ret0, _ := ret[0].(error)

@@ -4,6 +4,7 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/mock_backend"
+	"github.com/quintilesims/layer0/api/scheduler/mock_scheduler"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/db/job_store"
@@ -25,6 +26,7 @@ type TestLogic struct {
 	Backend  *mock_backend.MockBackend
 	JobStore *job_store.MysqlJobStore
 	TagStore *tag_store.MysqlTagStore
+	Scaler   *mock_scheduler.MockEnvironmentScaler
 }
 
 func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
@@ -60,6 +62,7 @@ func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
 		Backend:  mock_backend.NewMockBackend(ctrl),
 		JobStore: jobStore,
 		TagStore: tagStore,
+		Scaler:   mock_scheduler.NewMockEnvironmentScaler(ctrl),
 	}
 
 	return logic, ctrl
@@ -97,5 +100,5 @@ func (l *TestLogic) AssertTagExists(t *testing.T, tag models.Tag) {
 }
 
 func (l *TestLogic) Logic() Logic {
-	return *NewLogic(l.TagStore, l.JobStore, l.Backend)
+	return *NewLogic(l.TagStore, l.JobStore, l.Backend, l.Scaler)
 }

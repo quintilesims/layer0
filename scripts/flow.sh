@@ -124,12 +124,6 @@ if [ -z $LAYER0_PREFIX ]; then
     exit 1
 fi
 
-if [ -z ${@:$OPTIND} ]; then
-    echo "Must specify at least one argument"
-    usage
-    exit 1
-fi
-
 for i in ${@:$OPTIND}
 do
     case $i in

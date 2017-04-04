@@ -86,6 +86,10 @@ func (j *JSONPrinter) PrintLogs(logs ...*models.LogFile) error {
 	return j.print(logs)
 }
 
+func (j *JSONPrinter) PrintScalerRunInfo(runInfo *models.ScalerRunInfo) error {
+	return j.print(runInfo)
+}
+
 func (j *JSONPrinter) PrintServices(services ...*models.Service) error {
 	return j.print(services)
 }

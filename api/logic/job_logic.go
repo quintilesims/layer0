@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
 	"strings"
@@ -59,7 +60,9 @@ func (this *L0JobLogic) Delete(jobID string) error {
 	}
 
 	if err := this.TaskLogic.DeleteTask(job.TaskID); err != nil {
-		return err
+		if err, ok := err.(*errors.ServerError); ok && err.Code != errors.InvalidTaskID {
+			return err
+		}
 	}
 
 	if err := this.JobStore.Delete(jobID); err != nil {
@@ -111,6 +114,15 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 
 	if err := this.upsertTagf(jobID, "job", "task_id", task.TaskID); err != nil {
 		return nil, err
+	}
+
+	if jobType == types.CreateTaskJob {
+		req, ok := request.(models.CreateTaskRequest)
+		if !ok {
+			return nil, fmt.Errorf("Unexpected request type for 'CreateTask' job type!")
+		}
+
+		this.Logic.Scaler.ScheduleRun(req.EnvironmentID, time.Second*10)
 	}
 
 	return job, nil

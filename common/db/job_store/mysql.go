@@ -30,12 +30,17 @@ func (m *MysqlJobStore) Init() error {
 	if err != nil {
 		return err
 	}
+	defer db.Close()
 
 	if err := dbcommon.CreateDatabase(m.config.DBName, db); err != nil {
 		return err
 	}
 
-	return m.exec(dbcommon.CREATE_JOB_TABLE_QUERY)
+	if err := m.exec(dbcommon.CREATE_JOB_TABLE_QUERY); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (m *MysqlJobStore) connect() (*sql.DB, error) {
@@ -92,6 +97,15 @@ func (m *MysqlJobStore) Delete(id string) error {
 
 func (m *MysqlJobStore) UpdateJobStatus(id string, status types.JobStatus) error {
 	return m.exec("UPDATE jobs SET job_status=? WHERE job_id=?", int64(status), id)
+}
+
+func (m *MysqlJobStore) SetJobMeta(id string, meta map[string]string) error {
+	metaStr, err := mapToString(meta)
+	if err != nil {
+		return err
+	}
+
+	return m.exec("UPDATE jobs SET meta=? WHERE job_id=?", metaStr, id)
 }
 
 func (m *MysqlJobStore) SelectAll() ([]*models.Job, error) {

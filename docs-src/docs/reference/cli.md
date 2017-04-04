@@ -187,7 +187,7 @@ Use the **create** subcommand to create an additional Layer0 environment (_envir
 #### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 environment create** [--size] [--min-count] [--user-data] _environmentName_ </div>
+    <div class="divCellNoPadding">**l0 environment create** [--size] [--min-count] [--user-data] [--os] [--ami] _environmentName_ </div>
   </div>
 </div>
 
@@ -212,6 +212,14 @@ Use the **create** subcommand to create an additional Layer0 environment (_envir
   <div class="divRow">
     <div class="divCellNoWrap">--user-data</div>
     <div class="divCell">The user data template to use for the environment's autoscaling group.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--os</div>
+    <div class="divCell">The operating system used in the environment. Options are "linux" or "windows" (default: linux).</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--ami</div>
+    <div class="divCell">A custom AMI ID to use in the environment. If not specified, Layer0 will use its default AMI ID for the specified operating system.</div>
   </div>
 </div>
 

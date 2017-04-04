@@ -4,7 +4,7 @@ deps:
 
 all: api cli
 
-api: logic data backend aws
+api: logic db backend aws scheduler
 
 cli: client command
 
@@ -16,13 +16,16 @@ logic:
 	mockgen github.com/quintilesims/layer0/api/logic LoadBalancerLogic > ../api/logic/mock_logic/mock_load_balancer_logic.go &
 	mockgen github.com/quintilesims/layer0/api/logic JobLogic > ../api/logic/mock_logic/mock_job_logic.go &
 
-data:
+db:
 	mockgen github.com/quintilesims/layer0/common/db/job_store JobStore > ../common/db/job_store/mock_job_store/mock_job_store.go &
 
 backend:
 	mockgen github.com/quintilesims/layer0/api/backend Backend > ../api/backend/mock_backend/mock_backend.go &
-	mockgen -package mock_ecsbackend github.com/quintilesims/layer0/api/backend/ecs ClusterScaler > ../api/backend/ecs/mock_ecsbackend/mock_cluster_scaler.go &
-	mockgen -package mock_ecsbackend github.com/quintilesims/layer0/api/backend/ecs TaskScheduler > ../api/backend/ecs/mock_ecsbackend/mock_task_scheduler.go &
+
+scheduler:
+	mockgen github.com/quintilesims/layer0/api/scheduler EnvironmentScaler > ../api/scheduler/mock_scheduler/mock_environment_scaler.go
+	mockgen github.com/quintilesims/layer0/api/scheduler/resource ProviderManager > ../api/scheduler/resource/mock_resource/mock_provider_manager.go
+	mockgen github.com/quintilesims/layer0/api/scheduler/resource ConsumerGetter > ../api/scheduler/resource/mock_resource/mock_consumer_getter.go
 
 aws:
 	mockgen github.com/quintilesims/layer0/common/aws/autoscaling Provider > ../common/aws/autoscaling/mock_autoscaling/mock_autoscaling.go &

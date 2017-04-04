@@ -104,7 +104,7 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 }
 
 func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 
 	name := d.Get("name").(string)
 	environmentID := d.Get("environment").(string)
@@ -132,7 +132,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 	loadBalancerID := d.Id()
 
 	loadBalancer, err := client.GetLoadBalancer(loadBalancerID)
@@ -157,7 +157,7 @@ func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 	loadBalancerID := d.Id()
 
 	if d.HasChange("port") {
@@ -180,7 +180,7 @@ func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceLayer0LoadBalancerDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 	loadBalancerID := d.Id()
 
 	jobID, err := client.DeleteLoadBalancer(loadBalancerID)

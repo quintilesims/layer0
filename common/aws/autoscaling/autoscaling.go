@@ -11,7 +11,7 @@ type Provider interface {
 	AttachLoadBalancer(autoScalingGroupName, loadBalancerName string) error
 	CreateLaunchConfiguration(name, amiID, iamInstanceProfile, instanceType, keyName, userData *string, securityGroups []*string) error
 	CreateAutoScalingGroup(name, launchConfigName, subnets string, minCount, maxCount int) error
-	SetDesiredCapacity(name *string, size int) error
+	SetDesiredCapacity(name string, size int) error
 	UpdateAutoScalingGroupMaxSize(name string, size int) error
 	UpdateAutoScalingGroupMinSize(name string, size int) error
 	DescribeAutoScalingGroups(names []*string) ([]*Group, error)
@@ -62,9 +62,10 @@ func NewGroup() *Group {
 	}}
 }
 
-func NewLaunchConfiguration(size string) *LaunchConfiguration {
+func NewLaunchConfiguration(size, ami string) *LaunchConfiguration {
 	return &LaunchConfiguration{&autoscaling.LaunchConfiguration{
 		InstanceType: &size,
+		ImageId:      &ami,
 	}}
 }
 
@@ -153,10 +154,10 @@ func (this *AutoScaling) CreateAutoScalingGroup(name, launchConfigName, subnets 
 	return err
 }
 
-func (this *AutoScaling) SetDesiredCapacity(name *string, size int) error {
+func (this *AutoScaling) SetDesiredCapacity(name string, size int) error {
 	size64 := int64(size)
 	input := &autoscaling.SetDesiredCapacityInput{
-		AutoScalingGroupName: name,
+		AutoScalingGroupName: aws.String(name),
 		DesiredCapacity:      &size64,
 	}
 

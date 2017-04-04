@@ -20,6 +20,7 @@ func TestGetEnvironment(t *testing.T) {
 
 	testLogic.AddTags(t, []*models.Tag{
 		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env"},
+		{EntityID: "e1", EntityType: "environment", Key: "os", Value: "linux"},
 		{EntityID: "extra", EntityType: "environment", Key: "name", Value: "extra"},
 	})
 
@@ -32,6 +33,7 @@ func TestGetEnvironment(t *testing.T) {
 	expected := &models.Environment{
 		EnvironmentID:   "e1",
 		EnvironmentName: "env",
+		OperatingSystem: "linux",
 	}
 
 	testutils.AssertEqual(t, received, expected)
@@ -52,7 +54,9 @@ func TestListEnvironments(t *testing.T) {
 
 	testLogic.AddTags(t, []*models.Tag{
 		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env_1"},
+		{EntityID: "e1", EntityType: "environment", Key: "os", Value: "linux"},
 		{EntityID: "e2", EntityType: "environment", Key: "name", Value: "env_2"},
+		{EntityID: "e2", EntityType: "environment", Key: "os", Value: "windows"},
 		{EntityID: "extra", EntityType: "environment", Key: "name", Value: "extra"},
 	})
 
@@ -66,10 +70,12 @@ func TestListEnvironments(t *testing.T) {
 		{
 			EnvironmentID:   "e1",
 			EnvironmentName: "env_1",
+			OperatingSystem: "linux",
 		},
 		{
 			EnvironmentID:   "e2",
 			EnvironmentName: "env_2",
+			OperatingSystem: "windows",
 		},
 	}
 
@@ -86,6 +92,7 @@ func TestDeleteEnvironment(t *testing.T) {
 
 	testLogic.AddTags(t, []*models.Tag{
 		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env"},
+		{EntityID: "e1", EntityType: "environment", Key: "os", Value: "linux"},
 		{EntityID: "extra", EntityType: "environment", Key: "name", Value: "extra"},
 	})
 
@@ -146,12 +153,14 @@ func TestCreateEnvironment(t *testing.T) {
 	}
 
 	testLogic.Backend.EXPECT().
-		CreateEnvironment("name", "m3.medium", 2, []byte("user_data")).
+		CreateEnvironment("name", "m3.medium", "linux", "amiid", 2, []byte("user_data")).
 		Return(retEnvironment, nil)
 
 	request := models.CreateEnvironmentRequest{
 		EnvironmentName:  "name",
 		InstanceSize:     "m3.medium",
+		OperatingSystem:  "linux",
+		AMIID:            "amiid",
 		MinClusterCount:  2,
 		UserDataTemplate: []byte("user_data"),
 	}
@@ -165,10 +174,12 @@ func TestCreateEnvironment(t *testing.T) {
 	expected := &models.Environment{
 		EnvironmentID:   "e1",
 		EnvironmentName: "name",
+		OperatingSystem: "linux",
 	}
 
 	testutils.AssertEqual(t, received, expected)
 	testLogic.AssertTagExists(t, models.Tag{EntityID: "e1", EntityType: "environment", Key: "name", Value: "name"})
+	testLogic.AssertTagExists(t, models.Tag{EntityID: "e1", EntityType: "environment", Key: "os", Value: "linux"})
 }
 
 func TestCreateEnvironmentError_missingRequiredParams(t *testing.T) {
@@ -178,7 +189,12 @@ func TestCreateEnvironmentError_missingRequiredParams(t *testing.T) {
 	environmentLogic := NewL0EnvironmentLogic(testLogic.Logic())
 
 	cases := map[string]models.CreateEnvironmentRequest{
-		"Missing EnvironmentName": models.CreateEnvironmentRequest{},
+		"Missing EnvironmentName": models.CreateEnvironmentRequest{
+			OperatingSystem: "linux",
+		},
+		"Missing OperatingSystem": models.CreateEnvironmentRequest{
+			EnvironmentName: "name",
+		},
 	}
 
 	for name, request := range cases {

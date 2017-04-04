@@ -118,8 +118,12 @@ output "runner_docker_image_tag" {
 	value = "${var.runner_docker_image_tag}"
 }
 
-output "service_ami" {
-	value = "${lookup(var.layer0_service_amis, var.region)}"
+output "linux_service_ami" {
+	value = "${lookup(var.layer0_linux_service_amis, var.region)}"
+}
+
+output "windows_service_ami" {
+        value = "${lookup(var.layer0_windows_service_amis, var.region)}"
 }
 
 output "cloudwatch_log_group" {

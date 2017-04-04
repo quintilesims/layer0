@@ -39,6 +39,7 @@ func (e *L0EnvironmentLogic) ListEnvironments() ([]*models.EnvironmentSummary, e
 		summaries[i] = &models.EnvironmentSummary{
 			EnvironmentID:   environment.EnvironmentID,
 			EnvironmentName: environment.EnvironmentName,
+			OperatingSystem: environment.OperatingSystem,
 		}
 	}
 
@@ -85,12 +86,26 @@ func (e *L0EnvironmentLogic) CreateEnvironment(req models.CreateEnvironmentReque
 		return nil, errors.Newf(errors.MissingParameter, "EnvironmentName is required")
 	}
 
-	environment, err := e.Backend.CreateEnvironment(req.EnvironmentName, req.InstanceSize, req.MinClusterCount, req.UserDataTemplate)
+	if req.OperatingSystem == "" {
+		return nil, errors.Newf(errors.MissingParameter, "OperatingSystem is required")
+	}
+
+	environment, err := e.Backend.CreateEnvironment(
+		req.EnvironmentName,
+		req.InstanceSize,
+		req.OperatingSystem,
+		req.AMIID,
+		req.MinClusterCount,
+		req.UserDataTemplate)
 	if err != nil {
 		return nil, err
 	}
 
 	if err := e.upsertTagf(environment.EnvironmentID, "environment", "name", req.EnvironmentName); err != nil {
+		return nil, err
+	}
+
+	if err := e.upsertTagf(environment.EnvironmentID, "environment", "os", req.OperatingSystem); err != nil {
 		return nil, err
 	}
 
@@ -122,6 +137,10 @@ func (e *L0EnvironmentLogic) populateModel(model *models.Environment) error {
 
 	if tag := tags.WithKey("name").First(); tag != nil {
 		model.EnvironmentName = tag.Value
+	}
+
+	if tag := tags.WithKey("os").First(); tag != nil {
+		model.OperatingSystem = tag.Value
 	}
 
 	return nil

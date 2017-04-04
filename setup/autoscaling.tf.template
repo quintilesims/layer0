@@ -8,7 +8,7 @@ data "template_file" "user_data" {
 
 resource "aws_launch_configuration" "ecs" {
     name_prefix = "l0-${var.l0_prefix}-api-"
-    image_id =  "${lookup(var.layer0_service_amis, var.region)}"
+    image_id =  "${lookup(var.layer0_linux_service_amis, var.region)}"
     instance_type = "m3.medium"
     iam_instance_profile = "${aws_iam_instance_profile.ecs.id}"
     security_groups = ["${aws_security_group.api_private.id}", "${aws_security_group.agent.id}"]

@@ -41,15 +41,15 @@ func (_mr *_MockClientRecorder) CreateDeploy(arg0, arg1 interface{}) *gomock.Cal
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateDeploy", arg0, arg1)
 }
 
-func (_m *MockClient) CreateEnvironment(_param0 string, _param1 string, _param2 int, _param3 []byte) (*models.Environment, error) {
-	ret := _m.ctrl.Call(_m, "CreateEnvironment", _param0, _param1, _param2, _param3)
+func (_m *MockClient) CreateEnvironment(_param0 string, _param1 string, _param2 int, _param3 []byte, _param4 string, _param5 string) (*models.Environment, error) {
+	ret := _m.ctrl.Call(_m, "CreateEnvironment", _param0, _param1, _param2, _param3, _param4, _param5)
 	ret0, _ := ret[0].(*models.Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockClientRecorder) CreateEnvironment(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0, arg1, arg2, arg3)
+func (_mr *_MockClientRecorder) CreateEnvironment(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
 func (_m *MockClient) CreateLoadBalancer(_param0 string, _param1 string, _param2 models.HealthCheck, _param3 []models.Port, _param4 bool) (*models.LoadBalancer, error) {
@@ -74,9 +74,9 @@ func (_mr *_MockClientRecorder) CreateService(arg0, arg1, arg2, arg3 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateService", arg0, arg1, arg2, arg3)
 }
 
-func (_m *MockClient) CreateTask(_param0 string, _param1 string, _param2 string, _param3 int, _param4 []models.ContainerOverride) (*models.Task, error) {
+func (_m *MockClient) CreateTask(_param0 string, _param1 string, _param2 string, _param3 int, _param4 []models.ContainerOverride) (string, error) {
 	ret := _m.ctrl.Call(_m, "CreateTask", _param0, _param1, _param2, _param3, _param4)
-	ret0, _ := ret[0].(*models.Task)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -324,14 +324,15 @@ func (_mr *_MockClientRecorder) ListTasks() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListTasks")
 }
 
-func (_m *MockClient) RunRightSizer() error {
-	ret := _m.ctrl.Call(_m, "RunRightSizer")
-	ret0, _ := ret[0].(error)
-	return ret0
+func (_m *MockClient) RunScaler(_param0 string) (*models.ScalerRunInfo, error) {
+	ret := _m.ctrl.Call(_m, "RunScaler", _param0)
+	ret0, _ := ret[0].(*models.ScalerRunInfo)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
-func (_mr *_MockClientRecorder) RunRightSizer() *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunRightSizer")
+func (_mr *_MockClientRecorder) RunScaler(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "RunScaler", arg0)
 }
 
 func (_m *MockClient) ScaleService(_param0 string, _param1 int) (*models.Service, error) {

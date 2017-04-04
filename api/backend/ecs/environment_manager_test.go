@@ -65,7 +65,7 @@ func TestGetEnvironment(t *testing.T) {
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(clusterName).
-					Return(autoscaling.NewLaunchConfiguration("m3.medium"), nil)
+					Return(autoscaling.NewLaunchConfiguration("m3.medium", "amiid"), nil)
 
 				securityGroup := ec2.NewSecurityGroup("some_sg_id")
 				mockEnvironment.EC2.EXPECT().
@@ -99,7 +99,7 @@ func TestGetEnvironment(t *testing.T) {
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(gomock.Any()).
-					Return(autoscaling.NewLaunchConfiguration("m3.medium"), nil)
+					Return(autoscaling.NewLaunchConfiguration("m3.medium", "amiid"), nil)
 
 				securityGroup := ec2.NewSecurityGroup("some_sg_id")
 				mockEnvironment.EC2.EXPECT().
@@ -384,7 +384,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(clusterName).
-					Return(autoscaling.NewLaunchConfiguration("m3.medium"), nil)
+					Return(autoscaling.NewLaunchConfiguration("m3.medium", "amiid"), nil)
 
 				mockEnvironment.EC2.EXPECT().
 					CreateSecurityGroup(securityGroupName, gomock.Any(), config.TEST_AWS_VPC_ID).
@@ -398,7 +398,7 @@ func TestCreateEnvironment(t *testing.T) {
 					agentSGID := config.TEST_AWS_ECS_AGENT_SECURITY_GROUP_ID
 
 					reporter.AssertEqualf(launchConfigurationName, *name, "LaunchConfigurationName")
-					reporter.AssertEqualf(config.TEST_AWS_SERVICE_AMI, *amiID, "AMI ID")
+					reporter.AssertEqualf("amiid", *amiID, "AMI ID")
 					reporter.AssertEqualf(config.TEST_AWS_ECS_INSTANCE_PROFILE, *iamInstanceProfile, "InstanceProfile")
 					reporter.AssertEqualf("m3.medium", *instanceType, "Instance Type")
 					reporter.AssertEqualf(config.TEST_AWS_KEY_PAIR, *keyName, "KeyPair")
@@ -439,7 +439,7 @@ func TestCreateEnvironment(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSEnvironmentManager)
-				manager.CreateEnvironment("env_name", "m3.medium", 2, nil)
+				manager.CreateEnvironment("env_name", "m3.medium", "linux", "amiid", 2, nil)
 			},
 		},
 		{
@@ -457,7 +457,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(gomock.Any()).
-					Return(autoscaling.NewLaunchConfiguration("m3.medium"), nil)
+					Return(autoscaling.NewLaunchConfiguration("m3.medium", "amiid"), nil)
 
 				mockEnvironment.EC2.EXPECT().
 					CreateSecurityGroup(gomock.Any(), gomock.Any(), gomock.Any()).
@@ -492,7 +492,7 @@ func TestCreateEnvironment(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSEnvironmentManager)
-				manager.CreateEnvironment("env_name", "m3.medium", 0, []byte("user data"))
+				manager.CreateEnvironment("env_name", "m3.medium", "linux", "amiid", 0, []byte("user data"))
 			},
 		},
 		{
@@ -510,7 +510,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(gomock.Any()).
-					Return(autoscaling.NewLaunchConfiguration("m3.medium"), nil)
+					Return(autoscaling.NewLaunchConfiguration("m3.medium", "amiid"), nil)
 
 				mockEnvironment.EC2.EXPECT().
 					CreateSecurityGroup(gomock.Any(), gomock.Any(), gomock.Any()).
@@ -545,7 +545,7 @@ func TestCreateEnvironment(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSEnvironmentManager)
 
-				environment, err := manager.CreateEnvironment("env_name", "m3.medium", 0, nil)
+				environment, err := manager.CreateEnvironment("env_name", "m3.medium", "linux", "amiid", 0, nil)
 				if err != nil {
 					reporter.Fatal(err)
 				}
@@ -609,7 +609,7 @@ func TestCreateEnvironment(t *testing.T) {
 					g.Set(i+1, fmt.Errorf("some error"))
 
 					manager := setup(g).(*ECSEnvironmentManager)
-					if _, err := manager.CreateEnvironment("some_name", "m3.medium", 0, nil); err == nil {
+					if _, err := manager.CreateEnvironment("some_name", "m3.medium", "linux", "amiid", 0, nil); err == nil {
 						reporter.Errorf("Error on variation %d, Error was nil!", i)
 					}
 				}

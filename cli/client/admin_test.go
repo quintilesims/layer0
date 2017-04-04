@@ -66,18 +66,21 @@ func TestUpdateSQL(t *testing.T) {
 	}
 }
 
-func TestRunRightSizer(t *testing.T) {
+func TestRunScaler(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "POST")
-		testutils.AssertEqual(t, r.URL.Path, "/admin/health")
+		testutils.AssertEqual(t, r.Method, "PUT")
+		testutils.AssertEqual(t, r.URL.Path, "/admin/scale/id")
 
-		MarshalAndWrite(t, w, "", 200)
+		MarshalAndWrite(t, w, models.ScalerRunInfo{EnvironmentID: "id"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	if err := client.RunRightSizer(); err != nil {
+	output, err := client.RunScaler("id")
+	if err != nil {
 		t.Fatal(err)
 	}
+
+	testutils.AssertEqual(t, output.EnvironmentID, "id")
 }

@@ -1,8 +1,9 @@
 package client
 
 import (
-	"github.com/quintilesims/layer0/common/models"
 	"time"
+
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type Client interface {
@@ -11,7 +12,7 @@ type Client interface {
 	GetDeploy(id string) (*models.Deploy, error)
 	ListDeploys() ([]*models.DeploySummary, error)
 
-	CreateEnvironment(name, instanceSize string, minCount int, userData []byte) (*models.Environment, error)
+	CreateEnvironment(name, instanceSize string, minCount int, userData []byte, os, amiID string) (*models.Environment, error)
 	DeleteEnvironment(id string) (string, error)
 	GetEnvironment(id string) (*models.Environment, error)
 	ListEnvironments() ([]*models.EnvironmentSummary, error)
@@ -38,7 +39,7 @@ type Client interface {
 	ScaleService(id string, scale int) (*models.Service, error)
 	WaitForDeployment(serviceID string, timeout time.Duration) (*models.Service, error)
 
-	CreateTask(name, environmentID, deployID string, copies int, overrides []models.ContainerOverride) (*models.Task, error)
+	CreateTask(name, environmentID, deployID string, copies int, overrides []models.ContainerOverride) (string, error)
 	DeleteTask(id string) error
 	GetTask(id string) (*models.Task, error)
 	GetTaskLogs(id string, tail int) ([]*models.LogFile, error)
@@ -48,5 +49,5 @@ type Client interface {
 	GetVersion() (string, error)
 	GetConfig() (*models.APIConfig, error)
 	UpdateSQL() error
-	RunRightSizer() error
+	RunScaler(environmentID string) (*models.ScalerRunInfo, error)
 }

@@ -11,3 +11,7 @@
 @test "admin debug" {
     l0 admin debug
 }
+
+@test "admin scale api" {
+    l0 admin scale api
+}

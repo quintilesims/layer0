@@ -133,7 +133,7 @@ func TestCreateTask(t *testing.T) {
 	defer ctrl.Finish()
 
 	testLogic.Backend.EXPECT().
-		CreateTask("e1", "name", "d1", 2, nil).
+		CreateTask("e1", "name", "d1", nil).
 		Return(&models.Task{TaskID: "t1"}, nil)
 
 	request := models.CreateTaskRequest{

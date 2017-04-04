@@ -45,6 +45,11 @@ git push -u origin release
 ```
 
 
+## Update README badges
+
+Update the `[Version]` badge in [README.MD](https://github.com/quintilesims/layer0/blob/release/README.md). There are two places in the badge's URLs that need to have the version number updated.
+
+
 ## Add Release Notes
 
 Update [RELEASE_NOTES.md](https://github.com/quintilesims/layer0/blob/release/RELEASE_NOTES.md) with information about the current release. 

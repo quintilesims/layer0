@@ -5,7 +5,7 @@ import (
 )
 
 type Backend interface {
-	CreateEnvironment(environmentName, instanceSize string, minClusterCount int, userData []byte) (*models.Environment, error)
+	CreateEnvironment(environmentName, instanceSize, operatingSystem, amiID string, minClusterCount int, userData []byte) (*models.Environment, error)
 	UpdateEnvironment(environmentID string, minClusterCount int) (*models.Environment, error)
 	DeleteEnvironment(environmentID string) error
 	GetEnvironment(environmentID string) (*models.Environment, error)
@@ -24,7 +24,7 @@ type Backend interface {
 	UpdateService(environmentID, serviceID, deployID string) (*models.Service, error)
 	GetServiceLogs(environmentID, serviceID string, tail int) ([]*models.LogFile, error)
 
-	CreateTask(envID, taskName, deployVersion string, copies int, overrides []models.ContainerOverride) (*models.Task, error)
+	CreateTask(envID, taskName, deployVersion string, overrides []models.ContainerOverride) (*models.Task, error)
 	ListTasks() ([]*models.Task, error)
 	GetTask(envID, taskID string) (*models.Task, error)
 	DeleteTask(envID, taskID string) error
@@ -36,8 +36,4 @@ type Backend interface {
 	CreateLoadBalancer(loadBalancerName, environmentID string, isPublic bool, ports []models.Port, healthCheck models.HealthCheck) (*models.LoadBalancer, error)
 	UpdateLoadBalancerPorts(loadBalancerID string, ports []models.Port) (*models.LoadBalancer, error)
 	UpdateLoadBalancerHealthCheck(loadBalancerID string, healthCheck models.HealthCheck) (*models.LoadBalancer, error)
-
-	StartRightSizer()
-	RunRightSizer() error
-	GetRightSizerHealth() (string, error)
 }

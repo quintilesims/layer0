@@ -4,7 +4,7 @@
     
     <url>
      <loc>https://github.com/quintilesims/layer0//</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -12,7 +12,7 @@
     
     <url>
      <loc>https://github.com/quintilesims/layer0//releases/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -20,7 +20,7 @@
     
     <url>
      <loc>https://github.com/quintilesims/layer0//intro/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
     
@@ -29,19 +29,19 @@
         
     <url>
      <loc>https://github.com/quintilesims/layer0//setup/install/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//setup/upgrade/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//setup/destroy/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -51,31 +51,31 @@
         
     <url>
      <loc>https://github.com/quintilesims/layer0//guides/guestbook/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//guides/guestbook_rds/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//guides/consul/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//guides/guestbook_consul/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//guides/one_off_task/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -85,49 +85,49 @@
         
     <url>
      <loc>https://github.com/quintilesims/layer0//reference/cli/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//reference/setup-cli/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//reference/terraform-plugin/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//reference/updateservice/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//reference/consul/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//reference/task_definition/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//reference/architecture/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//reference/ecr/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
@@ -137,13 +137,13 @@
         
     <url>
      <loc>https://github.com/quintilesims/layer0//troubleshooting/commonissues/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         
     <url>
      <loc>https://github.com/quintilesims/layer0//troubleshooting/ssh/</loc>
-     <lastmod>2017-03-03</lastmod>
+     <lastmod>2017-04-03</lastmod>
      <changefreq>daily</changefreq>
     </url>
         

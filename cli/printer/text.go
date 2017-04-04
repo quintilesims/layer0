@@ -68,11 +68,12 @@ func (t *TextPrinter) PrintDeploySummaries(deploys ...*models.DeploySummary) err
 }
 
 func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) error {
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | CLUSTER COUNT | INSTANCE SIZE"}
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS | CLUSTER COUNT | INSTANCE SIZE"}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s | %d | %s",
+		row := fmt.Sprintf("%s | %s | %s | %d | %s",
 			e.EnvironmentID,
 			e.EnvironmentName,
+			e.OperatingSystem,
 			e.ClusterCount,
 			e.InstanceSize)
 
@@ -84,9 +85,9 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 }
 
 func (t *TextPrinter) PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error {
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME"}
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS "}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s", e.EnvironmentID, e.EnvironmentName)
+		row := fmt.Sprintf("%s | %s | %s", e.EnvironmentID, e.EnvironmentName, e.OperatingSystem)
 		rows = append(rows, row)
 	}
 
@@ -234,6 +235,16 @@ func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
 		fmt.Println()
 	}
 
+	return nil
+}
+
+func (t *TextPrinter) PrintScalerRunInfo(runInfo *models.ScalerRunInfo) error {
+	rows := []string{
+		"ENVIRONMENT | CURRENT SCALE | DESIRED SCALE",
+		fmt.Sprintf("%s | %d | %d", runInfo.EnvironmentID, runInfo.ScaleBeforeRun, runInfo.ActualScaleAfterRun),
+	}
+
+	fmt.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 

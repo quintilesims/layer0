@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
@@ -142,6 +143,9 @@ func TestCreateService(t *testing.T) {
 		CreateService("name", "e1", "d1", "l1").
 		Return(&models.Service{ServiceID: "s1"}, nil)
 
+	testLogic.Scaler.EXPECT().
+		ScheduleRun("e1", gomock.Any())
+
 	request := models.CreateServiceRequest{
 		ServiceName:    "name",
 		EnvironmentID:  "e1",
@@ -220,6 +224,9 @@ func TestUpdateService(t *testing.T) {
 		UpdateService("e1", "s1", "d1").
 		Return(&models.Service{ServiceID: "s1"}, nil)
 
+	testLogic.Scaler.EXPECT().
+		ScheduleRun("e1", gomock.Any())
+
 	testLogic.AddTags(t, []*models.Tag{
 		{EntityID: "s1", EntityType: "service", Key: "environment_id", Value: "e1"},
 	})
@@ -245,6 +252,9 @@ func TestScaleService(t *testing.T) {
 	testLogic.Backend.EXPECT().
 		ScaleService("e1", "s1", 2).
 		Return(&models.Service{ServiceID: "s1"}, nil)
+
+	testLogic.Scaler.EXPECT().
+		ScheduleRun("e1", gomock.Any())
 
 	testLogic.AddTags(t, []*models.Tag{
 		{EntityID: "s1", EntityType: "service", Key: "environment_id", Value: "e1"},
