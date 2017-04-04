@@ -67,6 +67,15 @@ func (this *EnvironmentHandler) Routes() *restful.WebService {
 		Param(id).
 		Returns(http.StatusNoContent, "Deleted", nil))
 
+	service.Route(service.POST("{id}/link").
+		Filter(basicAuthenticate).
+		To(this.CreateEnvironmentLink).
+		Doc("Create an Environment Link").
+		Reads(models.CreateEnvironmentLinkRequest{}).
+		Param(id).
+		Returns(http.StatusCreated, "Created", models.Environment{}).
+		Writes(models.Environment{}))
+
 	return service
 }
 
@@ -163,4 +172,26 @@ func (this *EnvironmentHandler) UpdateEnvironment(request *restful.Request, resp
 	}
 
 	response.WriteAsJson(environment)
+}
+
+func (this *EnvironmentHandler) CreateEnvironmentLink(request *restful.Request, response *restful.Response) {
+	id := request.PathParameter("id")
+	if id == "" {
+		err := fmt.Errorf("Parameter 'id' is required")
+		BadRequest(response, errors.MissingParameter, err)
+		return
+	}
+
+	var req models.CreateEnvironmentLinkRequest
+	if err := request.ReadEntity(&req); err != nil {
+		BadRequest(response, errors.InvalidJSON, err)
+		return
+	}
+
+	if err := this.EnvironmentLogic.CreateEnvironmentLink(id, req.EnvironmentID); err != nil {
+		ReturnError(response, err)
+		return
+	}
+
+	response.WriteAsJson("")
 }
