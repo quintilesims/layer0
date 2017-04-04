@@ -51,6 +51,16 @@ func (_mr *_MockBackendRecorder) CreateEnvironment(arg0, arg1, arg2, arg3, arg4,
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
+func (_m *MockBackend) CreateEnvironmentLink(_param0 string, _param1 string) error {
+	ret := _m.ctrl.Call(_m, "CreateEnvironmentLink", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockBackendRecorder) CreateEnvironmentLink(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironmentLink", arg0, arg1)
+}
+
 func (_m *MockBackend) CreateLoadBalancer(_param0 string, _param1 string, _param2 bool, _param3 []models.Port, _param4 models.HealthCheck) (*models.LoadBalancer, error) {
 	ret := _m.ctrl.Call(_m, "CreateLoadBalancer", _param0, _param1, _param2, _param3, _param4)
 	ret0, _ := ret[0].(*models.LoadBalancer)

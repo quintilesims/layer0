@@ -51,6 +51,16 @@ func (_mr *_MockEnvironmentLogicRecorder) CreateEnvironment(arg0 interface{}) *g
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0)
 }
 
+func (_m *MockEnvironmentLogic) CreateEnvironmentLink(_param0 string, _param1 string) error {
+	ret := _m.ctrl.Call(_m, "CreateEnvironmentLink", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockEnvironmentLogicRecorder) CreateEnvironmentLink(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironmentLink", arg0, arg1)
+}
+
 func (_m *MockEnvironmentLogic) DeleteEnvironment(_param0 string) error {
 	ret := _m.ctrl.Call(_m, "DeleteEnvironment", _param0)
 	ret0, _ := ret[0].(error)
