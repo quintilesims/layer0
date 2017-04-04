@@ -11,6 +11,7 @@ provider "layer0" {
 resource "layer0_environment" "ws" {
   name = "ws"
   os   = "windows"
+  size = "m3.large"
 }
 
 module "windows" {
