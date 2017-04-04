@@ -122,7 +122,7 @@ func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.
 	}
 
 	if securityGroup != nil {
-		securityGroupID = *securityGroup.SecurityGroup.GroupId
+		securityGroupID = pstring(securityGroup.GroupId)
 	}
 
 	model := &models.Environment{
@@ -325,6 +325,48 @@ func (this *ECSEnvironmentManager) DeleteEnvironment(environmentID string) error
 	}
 
 	return nil
+}
+
+func (this *ECSEnvironmentManager) CreateEnvironmentLink(sourceEnvironmentID, destEnvironmentID string) error {
+	sourceECSID := id.L0EnvironmentID(sourceEnvironmentID).ECSEnvironmentID()
+	destECSID := id.L0EnvironmentID(destEnvironmentID).ECSEnvironmentID()
+
+	sourceGroup, err := this.getEnvironmentSecurityGroup(sourceECSID)
+	if err != nil {
+		return err
+	}
+
+	destGroup, err := this.getEnvironmentSecurityGroup(destECSID)
+	if err != nil {
+		return err
+	}
+
+	if err := this.EC2.AuthorizeSecurityGroupIngressFromGroup(sourceGroup.GroupId, destGroup.GroupId); err != nil {
+		if !ContainsErrCode(err, "InvalidPermission.Duplicate") {
+			return err
+		}
+	}
+
+	if err := this.EC2.AuthorizeSecurityGroupIngressFromGroup(destGroup.GroupId, sourceGroup.GroupId); err != nil {
+		if !ContainsErrCode(err, "InvalidPermission.Duplicate") {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (this *ECSEnvironmentManager) getEnvironmentSecurityGroup(environmentID id.ECSEnvironmentID) (*ec2.SecurityGroup, error) {
+	group, err := this.EC2.DescribeSecurityGroup(environmentID.SecurityGroupName())
+	if err != nil {
+		return nil, err
+	}
+
+	if group == nil {
+		return nil, fmt.Errorf("Security group for environment '%s' does not exist", environmentID.L0EnvironmentID())
+	}
+
+	return group, nil
 }
 
 func (this *ECSEnvironmentManager) waitForAutoScalingGroupInactive(ecsEnvironmentID id.ECSEnvironmentID) error {

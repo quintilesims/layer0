@@ -10,6 +10,7 @@ type Backend interface {
 	DeleteEnvironment(environmentID string) error
 	GetEnvironment(environmentID string) (*models.Environment, error)
 	ListEnvironments() ([]*models.Environment, error)
+	CreateEnvironmentLink(sourceEnvironmentID, destEnvironmentID string) ( error)
 
 	ListDeploys() ([]*models.Deploy, error)
 	GetDeploy(deployID string) (*models.Deploy, error)
