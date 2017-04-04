@@ -1,7 +1,3 @@
-variable "endpoint" {}
-
-variable "token" {}
-
 provider "layer0" {
   endpoint        = "${var.endpoint}"
   token           = "${var.token}"
@@ -20,12 +16,4 @@ resource "layer0_deploy" "alpine" {
 
 data "template_file" "alpine" {
   template = "${file("Dockerrun.aws.json")}"
-}
-
-output "environment_id" {
-  value = "${layer0_environment.tp.id}"
-}
-
-output "deploy_id" {
-  value = "${layer0_deploy.alpine.id}"
 }

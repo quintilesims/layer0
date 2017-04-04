@@ -1,9 +1,3 @@
-variable "environment_id" {}
-
-variable "scale" {
-  default = 1
-}
-
 resource "layer0_load_balancer" "windows" {
   name        = "windows"
   environment = "${var.environment_id}"
@@ -27,20 +21,4 @@ resource "layer0_service" "windows" {
 resource "layer0_deploy" "windows" {
   name    = "windows"
   content = "${file("${path.module}/Dockerrun.aws.json")}"
-}
-
-output "service_id" {
-  value = "${layer0_service.windows.id}"
-}
-
-output "load_balancer_id" {
-  value = "${layer0_load_balancer.windows.id}"
-}
-
-output "load_balancer_url" {
-  value = "${layer0_load_balancer.windows.url}"
-}
-
-output "deploy_id" {
-  value = "${layer0_deploy.windows.id}"
 }
