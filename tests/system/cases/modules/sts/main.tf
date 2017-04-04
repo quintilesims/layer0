@@ -1,12 +1,7 @@
-variable "environment_id" {}
-
-variable "scale" {
-  default = 1
-}
-
 resource "layer0_load_balancer" "sts" {
   name        = "sts"
   environment = "${var.environment_id}"
+  private     = "${var.private}"
 
   port {
     host_port      = 80
@@ -32,20 +27,3 @@ resource "layer0_deploy" "sts" {
 data "template_file" "sts" {
   template = "${file("${path.module}/Dockerrun.aws.json")}"
 }
-
-output "service_id" {
-        value = "${layer0_service.sts.id}"
-}
-
-output "load_balancer_id" {
-	value = "${layer0_load_balancer.sts.id}"
-}
-
-output "load_balancer_url" {
-        value = "${layer0_load_balancer.sts.url}"
-}
-
-output "deploy_id" {
-        value = "${layer0_deploy.sts.id}"
-}
-
