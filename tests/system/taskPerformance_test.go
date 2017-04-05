@@ -53,7 +53,7 @@ func TestTaskPerformance(t *testing.T) {
 	})
 
 	// each task sleeps for 10 seconds
-	// wait for all of them to complete 
+	// wait for all of them to complete
 	time.Sleep(time.Second * 10)
 
 	log.Debugf("Checking task exit codes")

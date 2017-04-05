@@ -21,6 +21,7 @@ func TestGetEnvironment(t *testing.T) {
 	testLogic.AddTags(t, []*models.Tag{
 		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env"},
 		{EntityID: "e1", EntityType: "environment", Key: "os", Value: "linux"},
+		{EntityID: "e1", EntityType: "environment", Key: "link", Value: "e2"},
 		{EntityID: "extra", EntityType: "environment", Key: "name", Value: "extra"},
 	})
 
@@ -34,6 +35,7 @@ func TestGetEnvironment(t *testing.T) {
 		EnvironmentID:   "e1",
 		EnvironmentName: "env",
 		OperatingSystem: "linux",
+		Links:           []string{"e2"},
 	}
 
 	testutils.AssertEqual(t, received, expected)
@@ -175,6 +177,7 @@ func TestCreateEnvironment(t *testing.T) {
 		EnvironmentID:   "e1",
 		EnvironmentName: "name",
 		OperatingSystem: "linux",
+		Links:           []string{},
 	}
 
 	testutils.AssertEqual(t, received, expected)
@@ -230,6 +233,7 @@ func TestUpdateEnvironment(t *testing.T) {
 	expected := &models.Environment{
 		EnvironmentID:   "e1",
 		EnvironmentName: "env",
+		Links:           []string{},
 	}
 
 	testutils.AssertEqual(t, received, expected)

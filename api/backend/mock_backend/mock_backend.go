@@ -114,6 +114,16 @@ func (_mr *_MockBackendRecorder) DeleteEnvironment(arg0 interface{}) *gomock.Cal
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteEnvironment", arg0)
 }
 
+func (_m *MockBackend) DeleteEnvironmentLink(_param0 string, _param1 string) error {
+	ret := _m.ctrl.Call(_m, "DeleteEnvironmentLink", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockBackendRecorder) DeleteEnvironmentLink(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteEnvironmentLink", arg0, arg1)
+}
+
 func (_m *MockBackend) DeleteLoadBalancer(_param0 string) error {
 	ret := _m.ctrl.Call(_m, "DeleteLoadBalancer", _param0)
 	ret0, _ := ret[0].(error)

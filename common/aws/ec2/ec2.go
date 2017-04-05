@@ -12,6 +12,7 @@ type Provider interface {
 	CreateSecurityGroup(name, desc, vpcId string) (*string, error)
 	AuthorizeSecurityGroupIngress(input []*SecurityGroupIngress) error
 	RevokeSecurityGroupIngress(input []*SecurityGroupIngress) error
+	RevokeSecurityGroupIngressHelper(groupID string, permission *ec2.IpPermission) error
 	AuthorizeSecurityGroupIngressFromGroup(groupId, sourceGroupId *string) error
 	DescribeSecurityGroup(name string) (*SecurityGroup, error)
 	DescribeSubnet(subnetId string) (*Subnet, error)
@@ -229,6 +230,24 @@ func (this *EC2) RevokeSecurityGroupIngress(ingresses []*SecurityGroupIngress) e
 		if _, err := connection.RevokeSecurityGroupIngress(input); err != nil {
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (this *EC2) RevokeSecurityGroupIngressHelper(groupID string, permission *ec2.IpPermission) error {
+	connection, err := this.Connect()
+	if err != nil {
+		return err
+	}
+
+	input := &ec2.RevokeSecurityGroupIngressInput{
+		GroupId:       aws.String(groupID),
+		IpPermissions: []*ec2.IpPermission{permission},
+	}
+
+	if _, err := connection.RevokeSecurityGroupIngress(input); err != nil {
+		return err
 	}
 
 	return nil

@@ -13,6 +13,7 @@ type EnvironmentLogic interface {
 	CreateEnvironment(req models.CreateEnvironmentRequest) (*models.Environment, error)
 	UpdateEnvironment(id string, minClusterCount int) (*models.Environment, error)
 	CreateEnvironmentLink(sourceEnvironmentID, destEnvironmentID string) error
+	DeleteEnvironmentLink(sourceEnvironmentID, destEnvironmentID string) error
 }
 
 type L0EnvironmentLogic struct {
@@ -61,6 +62,17 @@ func (e *L0EnvironmentLogic) GetEnvironment(environmentID string) (*models.Envir
 }
 
 func (e *L0EnvironmentLogic) DeleteEnvironment(environmentID string) error {
+	environment, err := e.GetEnvironment(environmentID)
+	if err != nil{
+		return err
+	}
+
+	for _, link := range environment.Links{
+		if err := e.DeleteEnvironmentLink(environmentID, link); err != nil{
+			return err
+		}
+	}
+
 	if err := e.Backend.DeleteEnvironment(environmentID); err != nil {
 		return err
 	}
@@ -141,6 +153,36 @@ func (e *L0EnvironmentLogic) CreateEnvironmentLink(sourceEnvironmentID, destEnvi
 
 	if err := e.upsertTagf(destEnvironmentID, "environment", "link", sourceEnvironmentID); err != nil {
 		return nil
+	}
+
+	return nil
+}
+
+func (e *L0EnvironmentLogic) DeleteEnvironmentLink(sourceEnvironmentID, destEnvironmentID string) error {
+	if err := e.Backend.DeleteEnvironmentLink(sourceEnvironmentID, destEnvironmentID); err != nil {
+		return nil
+	}
+
+	sourceTags, err := e.TagStore.SelectByQuery("environment", sourceEnvironmentID)
+	if err != nil {
+		return err
+	}
+
+	for _, tag := range sourceTags.WithKey("link").WithValue(destEnvironmentID) {
+		if err := e.TagStore.Delete(tag); err != nil {
+			return err
+		}
+	}
+
+	destTags, err := e.TagStore.SelectByQuery("environment", destEnvironmentID)
+	if err != nil {
+		return err
+	}
+
+	for _, tag := range destTags.WithKey("link").WithValue(sourceEnvironmentID) {
+		if err := e.TagStore.Delete(tag); err != nil {
+			return err
+		}
 	}
 
 	return nil
