@@ -11,6 +11,10 @@ import (
 // This test creates an environment named 'ws' that has a
 // Windows service named 'windows' running in iis
 func TestWindowsService(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping TestWindowsService in short mode")
+	}
+
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/windows_service", nil)
