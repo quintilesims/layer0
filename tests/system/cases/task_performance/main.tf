@@ -11,9 +11,5 @@ resource "layer0_environment" "tp" {
 
 resource "layer0_deploy" "alpine" {
   name    = "alpine"
-  content = "${data.template_file.alpine.rendered}"
-}
-
-data "template_file" "alpine" {
-  template = "${file("Dockerrun.aws.json")}"
+  content = "${file("Dockerrun.aws.json")}"
 }
