@@ -269,3 +269,4 @@ func (this *ProviderDecorator) UpdateService(p0 string, p1 string, p2 *string, p
 	err = this.Decorator("UpdateService", call)
 	return err
 }
+
