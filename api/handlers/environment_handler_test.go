@@ -435,3 +435,113 @@ func TestUpdateEnvironment(t *testing.T) {
 
 	RunHandlerTestCases(t, testCases)
 }
+
+func TestCreateEnvironmentLink(t *testing.T) {
+	request := models.CreateEnvironmentLinkRequest{
+		EnvironmentID: "eid2",
+	}
+
+	testCases := []HandlerTestCase{
+		HandlerTestCase{
+			Name: "Should call CreateEnvironmentLink with correct params",
+			Request: &TestRequest{
+				Body:       request,
+				Parameters: map[string]string{"id": "eid1"},
+			},
+			Setup: func(ctrl *gomock.Controller) interface{} {
+				mockEnvironment := mock_logic.NewMockEnvironmentLogic(ctrl)
+
+				mockEnvironment.EXPECT().
+					CreateEnvironmentLink("eid1", "eid2").
+					Return(nil)
+
+				mockJob := mock_logic.NewMockJobLogic(ctrl)
+				return NewEnvironmentHandler(mockEnvironment, mockJob)
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
+				handler := target.(*EnvironmentHandler)
+				handler.CreateEnvironmentLink(req, resp)
+			},
+		},
+		HandlerTestCase{
+			Name: "Should propagate CreateEnvironmentLink error",
+			Request: &TestRequest{
+				Body:       request,
+				Parameters: map[string]string{"id": "eid1"},
+			},
+			Setup: func(ctrl *gomock.Controller) interface{} {
+				mockEnvironment := mock_logic.NewMockEnvironmentLogic(ctrl)
+
+				mockEnvironment.EXPECT().
+					CreateEnvironmentLink(gomock.Any(), gomock.Any()).
+					Return(fmt.Errorf("some error"))
+
+				mockJob := mock_logic.NewMockJobLogic(ctrl)
+				return NewEnvironmentHandler(mockEnvironment, mockJob)
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
+				handler := target.(*EnvironmentHandler)
+				handler.CreateEnvironmentLink(req, resp)
+
+				var response *models.ServerError
+				read(&response)
+
+				reporter.AssertEqual(int64(errors.UnexpectedError), response.ErrorCode)
+			},
+		},
+	}
+
+	RunHandlerTestCases(t, testCases)
+}
+
+func TestDeleteEnvironmentLink(t *testing.T) {
+	testCases := []HandlerTestCase{
+		HandlerTestCase{
+			Name: "Should call DeleteEnvironmentLink with correct params",
+			Request: &TestRequest{
+				Parameters: map[string]string{"source_id": "eid1", "dest_id": "eid2"},
+			},
+			Setup: func(ctrl *gomock.Controller) interface{} {
+				mockEnvironment := mock_logic.NewMockEnvironmentLogic(ctrl)
+
+				mockEnvironment.EXPECT().
+					DeleteEnvironmentLink("eid1", "eid2").
+					Return(nil)
+
+				mockJob := mock_logic.NewMockJobLogic(ctrl)
+				return NewEnvironmentHandler(mockEnvironment, mockJob)
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
+				handler := target.(*EnvironmentHandler)
+				handler.DeleteEnvironmentLink(req, resp)
+			},
+		},
+		HandlerTestCase{
+			Name: "Should propagate DeleteEnvironmentLink error",
+			Request: &TestRequest{
+				Parameters: map[string]string{"source_id": "eid1", "dest_id": "eid2"},
+			},
+			Setup: func(ctrl *gomock.Controller) interface{} {
+				mockEnvironment := mock_logic.NewMockEnvironmentLogic(ctrl)
+
+				mockEnvironment.EXPECT().
+					DeleteEnvironmentLink(gomock.Any(), gomock.Any()).
+					Return(fmt.Errorf("some error"))
+
+				mockJob := mock_logic.NewMockJobLogic(ctrl)
+				return NewEnvironmentHandler(mockEnvironment, mockJob)
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
+				handler := target.(*EnvironmentHandler)
+				handler.DeleteEnvironmentLink(req, resp)
+
+				var response *models.ServerError
+				read(&response)
+
+				reporter.AssertEqual(int64(errors.UnexpectedError), response.ErrorCode)
+			},
+		},
+	}
+
+	RunHandlerTestCases(t, testCases)
+}
