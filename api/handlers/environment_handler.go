@@ -73,8 +73,21 @@ func (this *EnvironmentHandler) Routes() *restful.WebService {
 		Doc("Create an Environment Link").
 		Reads(models.CreateEnvironmentLinkRequest{}).
 		Param(id).
-		Returns(http.StatusCreated, "Created", models.Environment{}).
-		Writes(models.Environment{}))
+		Returns(http.StatusNoContent, "Created", nil))
+
+	sourceID := service.PathParameter("source_id", "identifier of the source environment").
+		DataType("string")
+
+	destID := service.PathParameter("dest_id", "identifier of the destination environment").
+		DataType("string")
+
+	service.Route(service.DELETE("{source_id}/link/{dest_id}").
+		Filter(basicAuthenticate).
+		To(this.DeleteEnvironmentLink).
+		Doc("Delete an Environment Link").
+		Param(sourceID).
+		Param(destID).
+		Returns(http.StatusNoContent, "Deleted", nil))
 
 	return service
 }
@@ -189,6 +202,29 @@ func (this *EnvironmentHandler) CreateEnvironmentLink(request *restful.Request, 
 	}
 
 	if err := this.EnvironmentLogic.CreateEnvironmentLink(id, req.EnvironmentID); err != nil {
+		ReturnError(response, err)
+		return
+	}
+
+	response.WriteAsJson("")
+}
+
+func (this *EnvironmentHandler) DeleteEnvironmentLink(request *restful.Request, response *restful.Response) {
+	sourceID := request.PathParameter("source_id")
+	if sourceID == "" {
+		err := fmt.Errorf("Parameter 'source_id' is required")
+		BadRequest(response, errors.MissingParameter, err)
+		return
+	}
+
+	destID := request.PathParameter("dest_id")
+	if destID == "" {
+		err := fmt.Errorf("Parameter 'dest_id' is required")
+		BadRequest(response, errors.MissingParameter, err)
+		return
+	}
+
+	if err := this.EnvironmentLogic.DeleteEnvironmentLink(sourceID, destID); err != nil {
 		ReturnError(response, err)
 		return
 	}

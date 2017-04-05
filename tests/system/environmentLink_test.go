@@ -18,9 +18,7 @@ func TestEnvironmentLink(t *testing.T) {
 	defer s.Terraform.Destroy()
 
 	publicServiceURL := s.Terraform.Output("public_service_url")
-	publicEnvironmentID := s.Terraform.Output("public_environment_id")
 	privateServiceURL := s.Terraform.Output("private_service_url")
-	privateEnvironmentID := s.Terraform.Output("private_environment_id")
 
 	publicService := clients.NewSTSTestClient(t, publicServiceURL)
 	publicService.WaitForHealthy(time.Minute * 3)
