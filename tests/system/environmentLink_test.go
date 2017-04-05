@@ -27,12 +27,12 @@ func TestEnvironmentLink(t *testing.T) {
 
 	// curl the private service in the private environment from the public service in the public environment
 	// the private service returns "Hello, World!" from its root path
-	outputWithLink, err := publicService.RunCommand("curl", "-s", privateServiceURL)
+	output, err := publicService.RunCommand("curl", "-s", privateServiceURL)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if expected := "Hello, World!"; outputWithLink != expected {
-		t.Fatalf("Output when link exists was '%s', expected '%s'", outputWithLink, expected)
+	if expected := "Hello, World!"; output != expected {
+		t.Fatalf("Output was '%s', expected '%s'", output, expected)
 	}
 }
