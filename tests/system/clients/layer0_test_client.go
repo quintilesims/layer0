@@ -30,6 +30,12 @@ func (l *Layer0TestClient) CreateTask(taskName, environmentID, deployID string, 
 	return jobID
 }
 
+func (l *Layer0TestClient) DeleteEnvironmentLink(sourceID, destID string) {
+	if err := l.Client.DeleteEnvironmentLink(sourceID, destID); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func (l *Layer0TestClient) GetService(id string) *models.Service {
 	service, err := l.Client.GetService(id)
 	if err != nil {
