@@ -65,7 +65,8 @@ When developing a system test, waiting for terraform to setup/destroy the test r
 Using this method, you can run your test multiple times without terraform destroying and rebuilding the resources.
 
 Some useful builtin flags:
-* `-run nameOfTest` - Executes tests that match the specified name (can be used to run a single test case)
-* `-parallel n` - Specifies the number of tests to run in parallel at once
+* `-run nameOfTest` - Executes tests that match the specified name (can be used to run a single test case).
+* `-parallel n` - Specifies the number of tests to run in parallel at once.
+* `-short` - Execute the tests in short mode. Long running tests will be skipped.
 * `-timeout t` - Specifies the timeout for the tests. 
 The default is `10m`, which typically isn't long enough to complete all of the system tests. 
