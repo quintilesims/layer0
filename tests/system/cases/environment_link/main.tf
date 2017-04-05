@@ -4,27 +4,27 @@ provider "layer0" {
   skip_ssl_verify = true
 }
 
-resource "layer0_environment" "el_alpha" {
-  name = "el_alpha"
+resource "layer0_environment" "el_public" {
+  name = "el_public"
 }
 
-resource "layer0_environment" "el_beta" {
-  name = "el_beta"
+resource "layer0_environment" "el_private" {
+  name = "el_private"
 }
 
 # TODO: add once layer0-terraform-provider is updated
-# resource "layer0_environment_link" "alpha_beta" {
-#   source = "${layer0_environment.el_alpha.id}"
-#   dest   = "${layer0_environment.el_beta.id}"
+# resource "layer0_environment_link" "public_private" {
+#   source = "${layer0_environment.el_public.id}"
+#   dest   = "${layer0_environment.el_private.id}"
 # }
 
-module "sts_alpha" {
+module "sts_public" {
   source         = "../modules/sts"
-  environment_id = "${layer0_environment.el_alpha.id}"
+  environment_id = "${layer0_environment.el_public.id}"
 }
 
-module "sts_beta" {
+module "sts_private" {
   source         = "../modules/sts"
-  environment_id = "${layer0_environment.el_beta.id}"
+  environment_id = "${layer0_environment.el_private.id}"
   private        = true
 }
