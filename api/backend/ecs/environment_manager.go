@@ -9,8 +9,8 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/quintilesims/layer0/api/backend"
 	awsec2 "github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/autoscaling"
 	"github.com/quintilesims/layer0/common/aws/ec2"
@@ -386,9 +386,9 @@ func (this *ECSEnvironmentManager) DeleteEnvironmentLink(sourceEnvironmentID, de
 			for _, pair := range permission.UserIdGroupPairs {
 				if *pair.GroupId == groupIDToRemove {
 					groupPermission := &awsec2.IpPermission{
-						IpProtocol: permission.IpProtocol,
+						IpProtocol:       permission.IpProtocol,
 						UserIdGroupPairs: []*awsec2.UserIdGroupPair{pair},
-                                        }
+					}
 
 					if err := this.EC2.RevokeSecurityGroupIngressHelper(*group.GroupId, groupPermission); err != nil {
 						return err

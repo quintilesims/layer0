@@ -63,12 +63,12 @@ func (e *L0EnvironmentLogic) GetEnvironment(environmentID string) (*models.Envir
 
 func (e *L0EnvironmentLogic) DeleteEnvironment(environmentID string) error {
 	environment, err := e.GetEnvironment(environmentID)
-	if err != nil{
+	if err != nil {
 		return err
 	}
 
-	for _, link := range environment.Links{
-		if err := e.DeleteEnvironmentLink(environmentID, link); err != nil{
+	for _, link := range environment.Links {
+		if err := e.DeleteEnvironmentLink(environmentID, link); err != nil {
 			return err
 		}
 	}

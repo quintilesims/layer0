@@ -62,4 +62,3 @@ func (this *ProviderDecorator) FilterLogEvents(p0 *string, p1 *string, p2 *strin
 	err = this.Decorator("FilterLogEvents", call)
 	return v0, v1, err
 }
-
