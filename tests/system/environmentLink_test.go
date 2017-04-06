@@ -1,6 +1,7 @@
 package system
 
 import (
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/tests/system/clients"
 	"testing"
 	"time"
@@ -25,12 +26,20 @@ func TestEnvironmentLink(t *testing.T) {
 
 	// curl the private service in the private environment from the public service in the public environment
 	// the private service returns "Hello, World!" from its root path
-	output, err := publicService.RunCommand("curl", "-s", privateServiceURL)
-	if err != nil {
-		t.Fatal(err)
-	}
+	testutils.WaitFor(t, time.Second*10, time.Minute*5, func() bool {
+		output, err := publicService.RunCommand("curl", "-s", privateServiceURL)
+		if err != nil {
+			log.Printf("Error running curl: %v", err)
+			return false
+		}
 
-	if expected := "Hello, World!"; output != expected {
-		t.Fatalf("Output was '%s', expected '%s'", output, expected)
-	}
+		if expected := "Hello, World!"; output != expected {
+			log.Printf("Output from curl was '%s', expected '%s'", output, expected)
+			return false
+		}
+
+		return true
+	})
+
+	// todo: remove link, curl again with -m 10, expect no output
 }
