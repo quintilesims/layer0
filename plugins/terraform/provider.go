@@ -44,7 +44,7 @@ func Provider() terraform.ResourceProvider {
 func providerConfigure(d *schema.ResourceData) (interface{}, error) {
 	client := client.NewAPIClient(client.Config{
 		Endpoint:  d.Get("endpoint").(string),
-		Token:     "Basic " + d.Get("token").(string),
+		Token:     d.Get("token").(string),
 		VerifySSL: !d.Get("skip_ssl_verify").(bool),
 	})
 

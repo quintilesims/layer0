@@ -22,7 +22,7 @@ unittest:
 	$(MAKE) -C cli test
 	$(MAKE) -C runner test
 	$(MAKE) -C setup test
-	$(MAKE) -C plugins test
+	$(MAKE) -C plugins/terraform test
 
 smoketest:
 	$(MAKE) -C tests/smoke deps
