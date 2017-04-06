@@ -7,7 +7,6 @@ release:
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build  -a -o build/windows/terraform-provider-layer0.exe .
 
 test:
-	# run with `-v` flag as required by terraform acceptance testing:
-	go test -v .
+	go test ./...
 
 .PHONY: build release test

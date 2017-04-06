@@ -101,7 +101,7 @@ func (c *APIClient) Sling(path string) *sling.Sling {
 		Client(c.httpClient).
 		Base(c.Endpoint).
 		Path(path).
-		Set("Authorization", c.Token).
+		Set("Authorization", fmt.Sprintf("Basic %s", c.Token)).
 		Doer(logSling(c.httpClient))
 }
 

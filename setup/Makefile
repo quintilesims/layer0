@@ -5,6 +5,9 @@ TERRAFORM_VERSION=0.8.5
 deps:
 	sudo pip install awscli
 
+build:
+	go build -o l0-setup
+
 build-directories:
 	rm -rf build
 	for os in linux darwin windows; do \
@@ -22,7 +25,7 @@ download-terraform: build-directories
 		cd - ; \
     done
 
-build: download-terraform
+release: download-terraform
 	CGO_ENABLED=0 GOOS=linux   GOARCH=amd64 go build -ldflags "-s -X main.Version=$(L0_VERSION)" -a -o build/linux/l0-setup .
 	CGO_ENABLED=0 GOOS=darwin  GOARCH=amd64 go build -ldflags "-s -X main.Version=$(L0_VERSION)" -a -o build/darwin/l0-setup .
 	CGO_ENABLED=0 GOOS=windows GOARCH=amd64 go build -ldflags "-s -X main.Version=$(L0_VERSION)" -a -o build/windows/l0-setup.exe .
@@ -38,8 +41,6 @@ apply-smoketest:
 
 destroy-smoketest:
 	./l0-setup destroy --force smoketest
-
-release: build
 
 test:
 	go test ./...
