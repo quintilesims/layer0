@@ -44,8 +44,8 @@ func NewECSEnvironmentManager(
 	}
 }
 
-func (this *ECSEnvironmentManager) ListEnvironments() ([]*models.Environment, error) {
-	clusters, err := this.ECS.Helper_DescribeClusters()
+func (e *ECSEnvironmentManager) ListEnvironments() ([]*models.Environment, error) {
+	clusters, err := e.ECS.Helper_DescribeClusters()
 	if err != nil {
 		return nil, err
 	}
@@ -65,9 +65,9 @@ func (this *ECSEnvironmentManager) ListEnvironments() ([]*models.Environment, er
 	return environments, nil
 }
 
-func (this *ECSEnvironmentManager) GetEnvironment(environmentID string) (*models.Environment, error) {
+func (e *ECSEnvironmentManager) GetEnvironment(environmentID string) (*models.Environment, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
-	cluster, err := this.ECS.DescribeCluster(ecsEnvironmentID.String())
+	cluster, err := e.ECS.DescribeCluster(ecsEnvironmentID.String())
 	if err != nil {
 		if ContainsErrCode(err, "ClusterNotFoundException") || ContainsErrMsg(err, "cluster not found") {
 			return nil, errors.Newf(errors.InvalidEnvironmentID, "Environment with id '%s' was not found", environmentID)
@@ -76,10 +76,10 @@ func (this *ECSEnvironmentManager) GetEnvironment(environmentID string) (*models
 		return nil, err
 	}
 
-	return this.populateModel(cluster)
+	return e.populateModel(cluster)
 }
 
-func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.Environment, error) {
+func (e *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.Environment, error) {
 	// assuming id.ECSEnvironmentID == ECSEnvironmentID.ClusterName()
 	ecsEnvironmentID := id.ECSEnvironmentID(*cluster.ClusterName)
 
@@ -87,7 +87,7 @@ func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.
 	var instanceSize string
 	var amiID string
 
-	asg, err := this.describeAutoscalingGroup(ecsEnvironmentID)
+	asg, err := e.describeAutoscalingGroup(ecsEnvironmentID)
 	if err != nil {
 		if ContainsErrMsg(err, "not found") {
 			log.Errorf("Autoscaling Group for environment '%s' not found", ecsEnvironmentID)
@@ -100,7 +100,7 @@ func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.
 		clusterCount = len(asg.Instances)
 
 		if asg.LaunchConfigurationName != nil {
-			launchConfig, err := this.AutoScaling.DescribeLaunchConfiguration(*asg.LaunchConfigurationName)
+			launchConfig, err := e.AutoScaling.DescribeLaunchConfiguration(*asg.LaunchConfigurationName)
 			if err != nil {
 				if ContainsErrMsg(err, "not found") {
 					log.Errorf("Launch Config for environment '%s' not found", ecsEnvironmentID)
@@ -117,7 +117,7 @@ func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.
 	}
 
 	var securityGroupID string
-	securityGroup, err := this.EC2.DescribeSecurityGroup(ecsEnvironmentID.SecurityGroupName())
+	securityGroup, err := e.EC2.DescribeSecurityGroup(ecsEnvironmentID.SecurityGroupName())
 	if err != nil {
 		return nil, err
 	}
@@ -137,9 +137,9 @@ func (this *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.
 	return model, nil
 }
 
-func (this *ECSEnvironmentManager) describeAutoscalingGroup(ecsEnvironmentID id.ECSEnvironmentID) (*autoscaling.Group, error) {
+func (e *ECSEnvironmentManager) describeAutoscalingGroup(ecsEnvironmentID id.ECSEnvironmentID) (*autoscaling.Group, error) {
 	autoScalingGroupName := ecsEnvironmentID.AutoScalingGroupName()
-	asg, err := this.AutoScaling.DescribeAutoScalingGroup(autoScalingGroupName)
+	asg, err := e.AutoScaling.DescribeAutoScalingGroup(autoScalingGroupName)
 	if err != nil {
 		return nil, err
 	}
@@ -147,7 +147,7 @@ func (this *ECSEnvironmentManager) describeAutoscalingGroup(ecsEnvironmentID id.
 	return asg, nil
 }
 
-func (this *ECSEnvironmentManager) CreateEnvironment(
+func (e *ECSEnvironmentManager) CreateEnvironment(
 	environmentName string,
 	instanceSize string,
 	operatingSystem string,
@@ -185,7 +185,7 @@ func (this *ECSEnvironmentManager) CreateEnvironment(
 		return nil, err
 	}
 
-	cluster, err := this.ECS.CreateCluster(ecsEnvironmentID.String())
+	cluster, err := e.ECS.CreateCluster(ecsEnvironmentID.String())
 	if err != nil {
 		return nil, err
 	}
@@ -193,14 +193,14 @@ func (this *ECSEnvironmentManager) CreateEnvironment(
 	description := "Auto-generated Layer0 Environment Security Group"
 	vpcID := config.AWSVPCID()
 
-	groupID, err := this.EC2.CreateSecurityGroup(ecsEnvironmentID.SecurityGroupName(), description, vpcID)
+	groupID, err := e.EC2.CreateSecurityGroup(ecsEnvironmentID.SecurityGroupName(), description, vpcID)
 	if err != nil {
 		return nil, err
 	}
 
 	// wait for security group to propagate
-	this.Clock.Sleep(time.Second * 2)
-	if err := this.EC2.AuthorizeSecurityGroupIngressFromGroup(groupID, groupID); err != nil {
+	e.Clock.Sleep(time.Second * 2)
+	if err := e.EC2.AuthorizeSecurityGroupIngressFromGroup(groupID, groupID); err != nil {
 		return nil, err
 	}
 
@@ -210,7 +210,7 @@ func (this *ECSEnvironmentManager) CreateEnvironment(
 	keyPair := config.AWSKeyPair()
 	launchConfigurationName := ecsEnvironmentID.LaunchConfigurationName()
 
-	if err := this.AutoScaling.CreateLaunchConfiguration(
+	if err := e.AutoScaling.CreateLaunchConfiguration(
 		&launchConfigurationName,
 		&serviceAMI,
 		&ecsRole,
@@ -227,7 +227,7 @@ func (this *ECSEnvironmentManager) CreateEnvironment(
 		maxClusterCount = minClusterCount
 	}
 
-	if err := this.AutoScaling.CreateAutoScalingGroup(
+	if err := e.AutoScaling.CreateAutoScalingGroup(
 		ecsEnvironmentID.AutoScalingGroupName(),
 		launchConfigurationName,
 		config.AWSPrivateSubnets(),
@@ -237,89 +237,89 @@ func (this *ECSEnvironmentManager) CreateEnvironment(
 		return nil, err
 	}
 
-	return this.populateModel(cluster)
+	return e.populateModel(cluster)
 }
 
-func (this *ECSEnvironmentManager) UpdateEnvironment(environmentID string, minClusterCount int) (*models.Environment, error) {
-	model, err := this.GetEnvironment(environmentID)
+func (e *ECSEnvironmentManager) UpdateEnvironment(environmentID string, minClusterCount int) (*models.Environment, error) {
+	model, err := e.GetEnvironment(environmentID)
 	if err != nil {
 		return nil, err
 	}
 
-	if err := this.updateEnvironmentMinCount(model, minClusterCount); err != nil {
+	if err := e.updateEnvironmentMinCount(model, minClusterCount); err != nil {
 		return nil, err
 	}
 
 	return model, nil
 }
 
-func (this *ECSEnvironmentManager) updateEnvironmentMinCount(model *models.Environment, minClusterCount int) error {
+func (e *ECSEnvironmentManager) updateEnvironmentMinCount(model *models.Environment, minClusterCount int) error {
 	ecsEnvironmentID := id.L0EnvironmentID(model.EnvironmentID).ECSEnvironmentID()
 	autoScalingGroupName := ecsEnvironmentID.AutoScalingGroupName()
 
-	asg, err := this.describeAutoscalingGroup(ecsEnvironmentID)
+	asg, err := e.describeAutoscalingGroup(ecsEnvironmentID)
 	if err != nil {
 		return err
 	}
 
 	if int(*asg.MaxSize) < minClusterCount {
-		if err := this.AutoScaling.UpdateAutoScalingGroupMaxSize(autoScalingGroupName, minClusterCount); err != nil {
+		if err := e.AutoScaling.UpdateAutoScalingGroupMaxSize(autoScalingGroupName, minClusterCount); err != nil {
 			return err
 		}
 	}
 
-	if err := this.AutoScaling.UpdateAutoScalingGroupMinSize(autoScalingGroupName, minClusterCount); err != nil {
+	if err := e.AutoScaling.UpdateAutoScalingGroupMinSize(autoScalingGroupName, minClusterCount); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (this *ECSEnvironmentManager) DeleteEnvironment(environmentID string) error {
+func (e *ECSEnvironmentManager) DeleteEnvironment(environmentID string) error {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 
 	autoScalingGroupName := ecsEnvironmentID.AutoScalingGroupName()
-	if err := this.AutoScaling.UpdateAutoScalingGroupMinSize(autoScalingGroupName, 0); err != nil {
+	if err := e.AutoScaling.UpdateAutoScalingGroupMinSize(autoScalingGroupName, 0); err != nil {
 		if !ContainsErrMsg(err, "name not found") && !ContainsErrMsg(err, "is pending delete") {
 			return err
 		}
 	}
 
-	if err := this.AutoScaling.UpdateAutoScalingGroupMaxSize(autoScalingGroupName, 0); err != nil {
+	if err := e.AutoScaling.UpdateAutoScalingGroupMaxSize(autoScalingGroupName, 0); err != nil {
 		if !ContainsErrMsg(err, "name not found") && !ContainsErrMsg(err, "is pending delete") {
 			return err
 		}
 	}
 
-	if err := this.AutoScaling.DeleteAutoScalingGroup(&autoScalingGroupName); err != nil {
+	if err := e.AutoScaling.DeleteAutoScalingGroup(&autoScalingGroupName); err != nil {
 		if !ContainsErrMsg(err, "name not found") {
 			return err
 		}
 	}
 
 	launchConfigurationName := ecsEnvironmentID.LaunchConfigurationName()
-	if err := this.AutoScaling.DeleteLaunchConfiguration(&launchConfigurationName); err != nil {
+	if err := e.AutoScaling.DeleteLaunchConfiguration(&launchConfigurationName); err != nil {
 		if !ContainsErrMsg(err, "name not found") {
 			return err
 		}
 	}
 
-	if err := this.waitForAutoScalingGroupInactive(ecsEnvironmentID); err != nil {
+	if err := e.waitForAutoScalingGroupInactive(ecsEnvironmentID); err != nil {
 		return err
 	}
 
-	securityGroup, err := this.EC2.DescribeSecurityGroup(ecsEnvironmentID.SecurityGroupName())
+	securityGroup, err := e.EC2.DescribeSecurityGroup(ecsEnvironmentID.SecurityGroupName())
 	if err != nil {
 		return err
 	}
 
 	if securityGroup != nil {
-		if err := this.waitForSecurityGroupDeleted(securityGroup); err != nil {
+		if err := e.waitForSecurityGroupDeleted(securityGroup); err != nil {
 			return err
 		}
 	}
 
-	if err := this.ECS.DeleteCluster(ecsEnvironmentID.String()); err != nil {
+	if err := e.ECS.DeleteCluster(ecsEnvironmentID.String()); err != nil {
 		if !ContainsErrCode(err, "ClusterNotFoundException") {
 			return err
 		}
@@ -328,27 +328,27 @@ func (this *ECSEnvironmentManager) DeleteEnvironment(environmentID string) error
 	return nil
 }
 
-func (this *ECSEnvironmentManager) CreateEnvironmentLink(sourceEnvironmentID, destEnvironmentID string) error {
+func (e *ECSEnvironmentManager) CreateEnvironmentLink(sourceEnvironmentID, destEnvironmentID string) error {
 	sourceECSID := id.L0EnvironmentID(sourceEnvironmentID).ECSEnvironmentID()
 	destECSID := id.L0EnvironmentID(destEnvironmentID).ECSEnvironmentID()
 
-	sourceGroup, err := this.getEnvironmentSecurityGroup(sourceECSID)
+	sourceGroup, err := e.getEnvironmentSecurityGroup(sourceECSID)
 	if err != nil {
 		return err
 	}
 
-	destGroup, err := this.getEnvironmentSecurityGroup(destECSID)
+	destGroup, err := e.getEnvironmentSecurityGroup(destECSID)
 	if err != nil {
 		return err
 	}
 
-	if err := this.EC2.AuthorizeSecurityGroupIngressFromGroup(sourceGroup.GroupId, destGroup.GroupId); err != nil {
+	if err := e.EC2.AuthorizeSecurityGroupIngressFromGroup(sourceGroup.GroupId, destGroup.GroupId); err != nil {
 		if !ContainsErrCode(err, "InvalidPermission.Duplicate") {
 			return err
 		}
 	}
 
-	if err := this.EC2.AuthorizeSecurityGroupIngressFromGroup(destGroup.GroupId, sourceGroup.GroupId); err != nil {
+	if err := e.EC2.AuthorizeSecurityGroupIngressFromGroup(destGroup.GroupId, sourceGroup.GroupId); err != nil {
 		if !ContainsErrCode(err, "InvalidPermission.Duplicate") {
 			return err
 		}
@@ -357,11 +357,11 @@ func (this *ECSEnvironmentManager) CreateEnvironmentLink(sourceEnvironmentID, de
 	return nil
 }
 
-func (this *ECSEnvironmentManager) DeleteEnvironmentLink(sourceEnvironmentID, destEnvironmentID string) error {
+func (e *ECSEnvironmentManager) DeleteEnvironmentLink(sourceEnvironmentID, destEnvironmentID string) error {
 	sourceECSID := id.L0EnvironmentID(sourceEnvironmentID).ECSEnvironmentID()
 	destECSID := id.L0EnvironmentID(destEnvironmentID).ECSEnvironmentID()
 
-	sourceGroup, err := this.EC2.DescribeSecurityGroup(sourceECSID.SecurityGroupName())
+	sourceGroup, err := e.EC2.DescribeSecurityGroup(sourceECSID.SecurityGroupName())
 	if err != nil {
 		return err
 	}
@@ -371,7 +371,7 @@ func (this *ECSEnvironmentManager) DeleteEnvironmentLink(sourceEnvironmentID, de
 		return nil
 	}
 
-	destGroup, err := this.EC2.DescribeSecurityGroup(destECSID.SecurityGroupName())
+	destGroup, err := e.EC2.DescribeSecurityGroup(destECSID.SecurityGroupName())
 	if err != nil {
 		return err
 	}
@@ -385,12 +385,14 @@ func (this *ECSEnvironmentManager) DeleteEnvironmentLink(sourceEnvironmentID, de
 		for _, permission := range group.IpPermissions {
 			for _, pair := range permission.UserIdGroupPairs {
 				if *pair.GroupId == groupIDToRemove {
-					groupPermission := &awsec2.IpPermission{
-						IpProtocol:       permission.IpProtocol,
-						UserIdGroupPairs: []*awsec2.UserIdGroupPair{pair},
+					groupPermission := &ec2.IpPermission{
+						&awsec2.IpPermission{
+							IpProtocol:       permission.IpProtocol,
+							UserIdGroupPairs: []*awsec2.UserIdGroupPair{pair},
+						},
 					}
 
-					if err := this.EC2.RevokeSecurityGroupIngressHelper(*group.GroupId, groupPermission); err != nil {
+					if err := e.EC2.RevokeSecurityGroupIngressHelper(*group.GroupId, groupPermission); err != nil {
 						return err
 					}
 				}
@@ -411,8 +413,8 @@ func (this *ECSEnvironmentManager) DeleteEnvironmentLink(sourceEnvironmentID, de
 	return nil
 }
 
-func (this *ECSEnvironmentManager) getEnvironmentSecurityGroup(environmentID id.ECSEnvironmentID) (*ec2.SecurityGroup, error) {
-	group, err := this.EC2.DescribeSecurityGroup(environmentID.SecurityGroupName())
+func (e *ECSEnvironmentManager) getEnvironmentSecurityGroup(environmentID id.ECSEnvironmentID) (*ec2.SecurityGroup, error) {
+	group, err := e.EC2.DescribeSecurityGroup(environmentID.SecurityGroupName())
 	if err != nil {
 		return nil, err
 	}
@@ -424,11 +426,11 @@ func (this *ECSEnvironmentManager) getEnvironmentSecurityGroup(environmentID id.
 	return group, nil
 }
 
-func (this *ECSEnvironmentManager) waitForAutoScalingGroupInactive(ecsEnvironmentID id.ECSEnvironmentID) error {
+func (e *ECSEnvironmentManager) waitForAutoScalingGroupInactive(ecsEnvironmentID id.ECSEnvironmentID) error {
 	autoScalingGroupName := ecsEnvironmentID.AutoScalingGroupName()
 
 	check := func() (bool, error) {
-		group, err := this.AutoScaling.DescribeAutoScalingGroup(autoScalingGroupName)
+		group, err := e.AutoScaling.DescribeAutoScalingGroup(autoScalingGroupName)
 		if err != nil {
 			if ContainsErrMsg(err, "not found") {
 				return true, nil
@@ -445,16 +447,16 @@ func (this *ECSEnvironmentManager) waitForAutoScalingGroupInactive(ecsEnvironmen
 		Name:    fmt.Sprintf("Stop Autoscaling %s", autoScalingGroupName),
 		Retries: 50,
 		Delay:   time.Second * 10,
-		Clock:   this.Clock,
+		Clock:   e.Clock,
 		Check:   check,
 	}
 
 	return waiter.Wait()
 }
 
-func (this *ECSEnvironmentManager) waitForSecurityGroupDeleted(securityGroup *ec2.SecurityGroup) error {
+func (e *ECSEnvironmentManager) waitForSecurityGroupDeleted(securityGroup *ec2.SecurityGroup) error {
 	check := func() (bool, error) {
-		if err := this.EC2.DeleteSecurityGroup(securityGroup); err == nil {
+		if err := e.EC2.DeleteSecurityGroup(securityGroup); err == nil {
 			return true, nil
 		}
 
@@ -465,7 +467,7 @@ func (this *ECSEnvironmentManager) waitForSecurityGroupDeleted(securityGroup *ec
 		Name:    fmt.Sprintf("SecurityGroup delete for '%v'", securityGroup),
 		Retries: 50,
 		Delay:   time.Second * 10,
-		Clock:   this.Clock,
+		Clock:   e.Clock,
 		Check:   check,
 	}
 
