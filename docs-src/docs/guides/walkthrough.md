@@ -364,15 +364,238 @@ When you're finished with the example, you can instruct Terraform to destroy the
 
 ## Deployment 2: Guestbook + Redis
 
-INTRO TEXT GOES HERE. You can choose to complete this section using either the [Layer0 CLI](#2a-deploy-with-layer0-cli) or [Terraform](#2b-deploy-with-terraform).
+In this section, we're going to add some complexity to the previous deployment. [Deployment 1](#deployment-1-a-simple-guestbook-app) saw us create a simple guestbook application which kept its data in memory. But what if that ever came down, either by intention or accident? It would be easy enough to redeploy it, but all of the entered data would be lost. For this deployment, we're going to separate the data store from the guestbook application by creating a second Layer0 service which will house a local Redis database server and linking it to the first. You can choose to complete this section using either the [Layer0 CLI](#2a-deploy-with-layer0-cli) or [Terraform](#2b-deploy-with-terraform).
 
 
 ## 2a: Deploy with Layer0 CLI
 
+For this example, we'll be working in the `iterative-walkthrough/deployment-2/` directory.
+
+
+### Part 1: Create the Redis Load Balancer
+
+Both the Guestbook service and the Redis service will live in the same Layer0 environment, so we don't need to create one like we did in the first deployment. We'll start by making a load balancer behind which the Redis service will be deployed.
+
+The `Redis.Dockerrun.aws.json` task definition file we'll use is very simple - it just spins up a Redis server with the default configuration, which means that it will be serving on port 6379. Our load balancer needs to be able to forward TCP traffic to and from this port. And since the Redis server has no reason for anything other than the Guestbook application to be accessing it, we'll make this load balancer private. At the command prompt, execute the following:
+
+`l0 loadbalancer create --port 6379:6379:tcp --private demo-env redis-lb`
+
+We should see output like the following:
+
+```
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS          PUBLIC  URL
+redislb16ae6     redis-lb           demo-env              6378:6379:TCP  false
+
+```
+
+The following is a summary of the arguments passed in the above command:
+
+- `loadbalancer create`: creates a new load balancer
+- `--port 6379:6379/TCP`: instructs the load balancer to forward requests from port 6379 on the server to port 6379 in the Docker container using the TCP protocol
+- `--private`: instructs the load balancer to ignore external traffic
+- `demo-env`: the name of the environment in which the load balancer is being created
+- `redis-lb`: a name for the load balancer itself
+
 
 ---
 
-### Part 1:
+### Part 2: Deploy the Docker Task Definition
+
+Here, we just need to create the deploy using the `Redis.Dockerrun.aws.json` task definition file. At the command prompt, execute the following:
+
+`l0 deploy create Redis.Dockerrun.aws.json redis-dpl`
+
+We should see output like the following:
+
+```
+DEPLOY ID    DEPLOY NAME  VERSION
+redis-dpl.1  redis-dpl    1
+```
+
+The following is a summary of the arguments passed in the above command:
+
+- `deploy create`: creates a new Layer0 Deploy and allows you to specify a Docker task definition
+- `Redis.Dockerrun.aws.json`: the file name of the Docker task definition (use the full path of the file if it is not in your current working directory)
+- `redis-dpl`: a name for the deploy, which we will use later when we create the service
+
+
+---
+
+### Part 3: Create the Service
+
+Here, we just need to pull the previous resources together into a service. At the command prompt, execute the following:
+
+`l0 service create --loadbalancer demo-env:redis-lb demo-env redis-svc redis-dpl:latest`
+
+We should see output like the following:
+
+```
+SERVICE ID    SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE
+redislb16ae6  redis-svc     demo-env     redis-lb      redis-dpl:1  0/1
+```
+
+The following is a summary of the arguments passed in the above commands:
+
+- `service create`: creates a new Layer0 Service
+- `--loadbalancer demo-env:redis-lb`: the fully-qualified name of the load balancer; in this case, the load balancer named **redis-lb** in the environment named **demo-env**
+    - _(Again, it's not strictly necessary to use the fully-qualified name of the load balancer as long as there isn't another load balancer with the same name)_
+- `demo-env`: the name of the environment in which the service is to reside
+- `redis-svc`: a name for the service we're creating
+- `redis-dpl:latest`: the name of the deploy the service will put into action
+    - _(We use `:` to specify which deploy we want - `:latest` will always give us the most recently-created one.)_
+
+
+---
+
+### Part 4: Check the Status of the Service
+
+As in the first deployment, we can keep an eye on our service by using the `service get` command:
+
+`l0 service get redis-svc`
+
+Once the service has finished scaling, try looking at the service's logs to see the output that the Redis server creates:
+
+`l0 service logs redis-svc`
+
+Among some warnings and information not important to this exercise and a fun bit of ASCII art, you should see following like the following:
+
+```
+... # words and ASCII art
+1:M 05 Apr 23:29:47.333 * The server is now ready to accept connections on port 6379
+```
+
+Now we just need to teach the Guestbook application how to talk with our Redis service.
+
+
+---
+
+### Part 5: Update the Guestbook Deploy
+
+You should see in `iterative-walkthrough/deployment-2/` another `Guestbook.Dockerrun.aws.json` file. This file is very similar to but not the same as the one in `deployment-1/` - if you open it up, you can see the following additions:
+
+```
+    ...
+    "environment": [
+        {
+            "name": "REDIS_ADDRESS_AND_PORT",
+            "value": ""
+        }
+    ],
+    ...
+```
+
+That `value` is what will point the Guestbook application towards the Redis server. It needs to be populated in the following format:
+
+```
+"value": "ADDRESS_TO_REDIS_SERVER:PORT_THE_SERVER_IS_SERVING_ON"
+```
+
+We already know that Redis is serving on port 6379, so let's go find the server's address. Remember, it lives behind a load balancer that we made, so run the following command:
+
+`l0 loadbalancer get redis-lb`
+
+We should see output like the following:
+
+```
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE    PORTS          PUBLIC  URL
+redislb16ae6     redis-lb           demo-env     redis-svc  6379:6379/TCP  false   internal-l0-<yadda-yadda>.elb.amazonaws.com
+```
+
+Copy that `URL` value, paste it into the `value` field of `Guestbook.Dockerrun.aws.json`, append `:6379` to it, and save the file. It should look something like the following:
+
+```
+    ...
+    "environment": [
+        {
+            "name": "REDIS_ADDRESS_AND_PORT",
+            "value": "internal-l0-<yadda-yadda>.elb.amazonaws.com:6379"
+        }
+    ],
+    ...
+```
+
+Now, we can create an updated deploy:
+
+`l0 deploy create Guestbook.Dockerrun.aws.json guestbook-dpl`
+
+We should see output like the following:
+
+```
+DEPLOY ID        DEPLOY NAME    VERSION
+guestbook-dpl.2  guestbook-dpl  2
+```
+
+
+---
+
+### Part 6: Update the Service
+
+Almost all the pieces are in place! Now we just need to apply the new deploy to the running service:
+
+`l0 service update guestbook-svc guestbook-dpl:latest`
+
+As the service moves through the phases of its update process, we should see outputs like the following (if we keep an eye on the service with `l0 service get guestbook-svc`, that is):
+
+```
+SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2*  1/1
+                                                        guestbook-dpl:1
+```
+- _`guestbook-dpl:2` is in a transitional state_
+```
+SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS      SCALE
+guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2  2/1
+                                                        guestbook-dpl:1
+```
+- _both versions of the deployment are running at scale_
+```
+SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2   1/1
+                                                        guestbook-dpl:1*
+```
+- _`guestbook-dpl:1` is in a transitional state_
+```
+SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS      SCALE
+guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2  1/1
+```
+- _`guestbook-dpl:1` has been removed, and only `guestbook-dpl:2` remains_
+
+
+---
+
+### Part 7: Prove It
+
+You should now be able to point your browser at the URL for the Guestbook loadbalancer (run `l0 loadbalancer get guestbook-svc` to find it) and see what looks like the same Guestbook application you deployed in the first section of the walkthrough. Go ahead and add a few entries, make sure it's functioning properly. We'll wait.
+
+Now, let's prove that we've actually divorced the data from the application by deleting and redeploying the Guestbook application:
+
+`l0 service delete guestbook-svc`
+`l0 loadbalancer delete guestbook-lb`
+
+_(We'll leave the `deploy` intact so we can spin up a new service easily, and we'll leave the environment untouched because it also contained the Redis server.)_
+
+Once those resources have been deleted (you can check the status of your Layer0 jobs with `l0 job list`), let's recreate them.
+
+Create another load balancer:
+
+`l0 loadbalancer create --ports 80:80/http demo-env guestbook-lb`
+
+And another service, using the **guestbook-dpl** deploy we kept around:
+
+`l0 service create --loadbalancer demo-env:guestbook-lb demo-env guestbook-svc guestbook-dpl:latest`
+
+Wait for everything to spin up, and hit that new load balancer's url (`l0 loadbalancer get guestbook-lb`) with your browser. Your data should still be there!
+
+
+---
+
+### Cleanup
+
+If you're finished with the example and don't want to continue with this walkthrough, you can instruct Layer0 to delete the environment and terminate the application.
+
+`l0 environment delete demo-env`
+
+However, if you intend to continue through [Deployment 3](#deployment-3-guestbook-redis-consul), you will want to keep the resources you made in this section.
 
 
 ---
