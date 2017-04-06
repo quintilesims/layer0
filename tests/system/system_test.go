@@ -27,7 +27,7 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 		tftest.DryRun(*dry),
 		tftest.Log(log))
 
-	 layer0 := clients.NewLayer0TestClient(t, vars["endpoint"], vars["token"])
+	layer0 := clients.NewLayer0TestClient(t, vars["endpoint"], vars["token"])
 
 	// download modules using terraform get
 	tfContext.Terraformf("get")
