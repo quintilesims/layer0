@@ -62,13 +62,13 @@ func (e *L0EnvironmentLogic) GetEnvironment(environmentID string) (*models.Envir
 }
 
 func (e *L0EnvironmentLogic) DeleteEnvironment(environmentID string) error {
-	environment, err := e.GetEnvironment(environmentID)
+	tags, err := e.TagStore.SelectByQuery("environment", environmentID)
 	if err != nil {
 		return err
 	}
 
-	for _, link := range environment.Links {
-		if err := e.DeleteEnvironmentLink(environmentID, link); err != nil {
+	for _, tag := range tags.WithKey("link") {
+		if err := e.DeleteEnvironmentLink(environmentID, tag.Value); err != nil {
 			return err
 		}
 	}
