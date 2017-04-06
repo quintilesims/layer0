@@ -228,6 +228,51 @@ func TestCreateLoadBalancer(t *testing.T) {
 			},
 		},
 		{
+			Name: "Should not create security group for private load balancers",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				mockLB := NewMockECSLoadBalancerManager(ctrl)
+
+				mockLB.IAM.EXPECT().
+					CreateRole(gomock.Any(), gomock.Any()).
+					Return(nil, nil)
+
+				mockLB.IAM.EXPECT().
+					PutRolePolicy(gomock.Any(), gomock.Any()).
+					Return(nil)
+
+				mockLB.IAM.EXPECT().
+					GetAccountId().
+					Return("100", nil)
+
+				// getSubnetsAndAvailZones
+				mockLB.EC2.EXPECT().
+					DescribeSubnet(gomock.Any()).
+					Return(makeSubnet("a"), nil)
+
+				mockLB.EC2.EXPECT().
+					DescribeSubnet(gomock.Any()).
+					Return(makeSubnet("b"), nil)
+
+				mockLB.EC2.EXPECT().
+					DescribeSecurityGroup(gomock.Any()).
+					Return(sgList, nil)
+
+				mockLB.ELB.EXPECT().
+					CreateLoadBalancer(gomock.Any(), "internal", gomock.Any(), gomock.Any(), gomock.Any()).
+					Return(nil, nil)
+
+				mockLB.ELB.EXPECT().
+					ConfigureHealthCheck(gomock.Any(), gomock.Any()).
+					Return(nil)
+
+				return mockLB.LoadBalancer()
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				manager := target.(*ECSLoadBalancerManager)
+				manager.CreateLoadBalancer("lb_name", "envid", false, nil, models.HealthCheck{})
+			},
+		},
+		{
 			Name: "Should pass through idempotent aws errors",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockLB := NewMockECSLoadBalancerManager(ctrl)

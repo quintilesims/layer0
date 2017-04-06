@@ -70,7 +70,6 @@ func (e *ECSLoadBalancerManager) GetLoadBalancer(loadBalancerID string) (*models
 		return nil, err
 	}
 
-	// todo: does describe loadbalancer return nil or erro?
 	return e.populateModel(loadBalancer), nil
 }
 
@@ -304,9 +303,15 @@ func (e *ECSLoadBalancerManager) createLoadBalancer(
 		return err
 	}
 
-	securityGroup, err := e.upsertSecurityGroup(ecsLoadBalancerID, ports)
-	if err != nil {
-		return err
+	// only public load balancers get an additional security group
+	securityGroupIDs := []*string{}
+	if isPublic {
+		securityGroup, err := e.upsertSecurityGroup(ecsLoadBalancerID, ports)
+		if err != nil {
+			return err
+		}
+
+		securityGroupIDs = append(securityGroupIDs, securityGroup.GroupId)
 	}
 
 	environmentSecurityGroupID, err := e.getSecurityGroupIDByName(ecsEnvironmentID.SecurityGroupName())
@@ -314,7 +319,7 @@ func (e *ECSLoadBalancerManager) createLoadBalancer(
 		return fmt.Errorf("Failed to find environment Security Group: %v", err)
 	}
 
-	securityGroups := []*string{securityGroup.GroupId, &environmentSecurityGroupID}
+	securityGroupIDs = append(securityGroupIDs, &environmentSecurityGroupID)
 
 	scheme := "internal"
 	if isPublic {
@@ -326,7 +331,7 @@ func (e *ECSLoadBalancerManager) createLoadBalancer(
 		return err
 	}
 
-	if _, err := e.ELB.CreateLoadBalancer(ecsLoadBalancerID.String(), scheme, securityGroups, subnets, listeners); err != nil {
+	if _, err := e.ELB.CreateLoadBalancer(ecsLoadBalancerID.String(), scheme, securityGroupIDs, subnets, listeners); err != nil {
 		return err
 	}
 
@@ -361,7 +366,7 @@ func (e *ECSLoadBalancerManager) UpdateLoadBalancerPorts(loadBalancerID string, 
 	}
 
 	ecsLoadBalancerID := id.L0LoadBalancerID(loadBalancerID).ECSLoadBalancerID()
-	updatedPorts, err := e.updatePorts(ecsLoadBalancerID, model.Ports, ports)
+	updatedPorts, err := e.updatePorts(ecsLoadBalancerID, model.IsPublic, model.Ports, ports)
 	if err != nil {
 		return nil, err
 	}
@@ -370,7 +375,7 @@ func (e *ECSLoadBalancerManager) UpdateLoadBalancerPorts(loadBalancerID string, 
 	return model, nil
 }
 
-func (e *ECSLoadBalancerManager) updatePorts(ecsLoadBalancerID id.ECSLoadBalancerID, currentPorts, requestedPorts []models.Port) ([]models.Port, error) {
+func (e *ECSLoadBalancerManager) updatePorts(ecsLoadBalancerID id.ECSLoadBalancerID, isPublic bool, currentPorts, requestedPorts []models.Port) ([]models.Port, error) {
 	if reflect.DeepEqual(currentPorts, requestedPorts) {
 		return currentPorts, nil
 	}
@@ -408,8 +413,11 @@ func (e *ECSLoadBalancerManager) updatePorts(ecsLoadBalancerID id.ECSLoadBalance
 		}
 	}
 
-	if _, err := e.upsertSecurityGroup(ecsLoadBalancerID, requestedPorts); err != nil {
-		return nil, err
+	// only public load balancers have an additional security group
+	if isPublic {
+		if _, err := e.upsertSecurityGroup(ecsLoadBalancerID, requestedPorts); err != nil {
+			return nil, err
+		}
 	}
 
 	return requestedPorts, nil
