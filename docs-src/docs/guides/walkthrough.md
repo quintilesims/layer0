@@ -478,13 +478,13 @@ You should see in `iterative-walkthrough/deployment-2/` another `Guestbook.Docke
     "environment": [
         {
             "name": "REDIS_ADDRESS_AND_PORT",
-            "value": ""
+            "value": "${redis_address}"
         }
     ],
     ...
 ```
 
-That `value` is what will point the Guestbook application towards the Redis server. It needs to be populated in the following format:
+That `value` is what will point the Guestbook application towards the Redis server. The `${redis_address}` needs to be replaced and populated in the following format:
 
 ```
 "value": "ADDRESS_TO_REDIS_SERVER:PORT_THE_SERVER_IS_SERVING_ON"
@@ -501,7 +501,7 @@ LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE    PORTS          PUBLI
 redislb16ae6     redis-lb           demo-env     redis-svc  6379:6379/TCP  false   internal-l0-<yadda-yadda>.elb.amazonaws.com
 ```
 
-Copy that `URL` value, paste it into the `value` field of `Guestbook.Dockerrun.aws.json`, append `:6379` to it, and save the file. It should look something like the following:
+Copy that `URL` value, replace `${redis_address}` with the `URL` value in `Guestbook.Dockerrun.aws.json`, append `:6379` to it, and save the file. It should look something like the following:
 
 ```
     ...
