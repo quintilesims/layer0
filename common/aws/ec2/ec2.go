@@ -12,7 +12,7 @@ type Provider interface {
 	CreateSecurityGroup(name, desc, vpcId string) (*string, error)
 	AuthorizeSecurityGroupIngress(input []*SecurityGroupIngress) error
 	RevokeSecurityGroupIngress(input []*SecurityGroupIngress) error
-	RevokeSecurityGroupIngressHelper(groupID string, permission *ec2.IpPermission) error
+	RevokeSecurityGroupIngressHelper(groupID string, permission *IpPermission) error
 	AuthorizeSecurityGroupIngressFromGroup(groupId, sourceGroupId *string) error
 	DescribeSecurityGroup(name string) (*SecurityGroup, error)
 	DescribeSubnet(subnetId string) (*Subnet, error)
@@ -125,6 +125,14 @@ func NewSecurityGroupIngress(groupID, cidrIP, protocol string, fromPort, toPort 
 	}
 }
 
+type IpPermission struct {
+	*ec2.IpPermission
+}
+
+type UserIdGroupPair struct {
+	*ec2.UserIdGroupPair
+}
+
 type Subnet struct {
 	*ec2.Subnet
 }
@@ -235,7 +243,7 @@ func (this *EC2) RevokeSecurityGroupIngress(ingresses []*SecurityGroupIngress) e
 	return nil
 }
 
-func (this *EC2) RevokeSecurityGroupIngressHelper(groupID string, permission *ec2.IpPermission) error {
+func (this *EC2) RevokeSecurityGroupIngressHelper(groupID string, permission *IpPermission) error {
 	connection, err := this.Connect()
 	if err != nil {
 		return err
@@ -243,7 +251,7 @@ func (this *EC2) RevokeSecurityGroupIngressHelper(groupID string, permission *ec
 
 	input := &ec2.RevokeSecurityGroupIngressInput{
 		GroupId:       aws.String(groupID),
-		IpPermissions: []*ec2.IpPermission{permission},
+		IpPermissions: []*ec2.IpPermission{permission.IpPermission},
 	}
 
 	if _, err := connection.RevokeSecurityGroupIngress(input); err != nil {

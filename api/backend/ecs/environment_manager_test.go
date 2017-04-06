@@ -35,8 +35,8 @@ func NewMockECSEnvironmentManager(ctrl *gomock.Controller) *MockECSEnvironmentMa
 	}
 }
 
-func (this *MockECSEnvironmentManager) Environment() *ECSEnvironmentManager {
-	manager := NewECSEnvironmentManager(this.ECS, this.EC2, this.AutoScaling, this.Backend)
+func (e *MockECSEnvironmentManager) Environment() *ECSEnvironmentManager {
+	manager := NewECSEnvironmentManager(e.ECS, e.EC2, e.AutoScaling, e.Backend)
 	manager.Clock = &testutils.StubClock{}
 	return manager
 }
