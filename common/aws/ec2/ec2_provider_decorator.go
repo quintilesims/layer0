@@ -35,7 +35,7 @@ func (this *ProviderDecorator) RevokeSecurityGroupIngress(p0 []*SecurityGroupIng
 	err = this.Decorator("RevokeSecurityGroupIngress", call)
 	return err
 }
-func (this *ProviderDecorator) RevokeSecurityGroupIngressHelper(p0 string, p1 *IpPermission) (err error) {
+func (this *ProviderDecorator) RevokeSecurityGroupIngressHelper(p0 string, p1 IpPermission) (err error) {
 	call := func() error {
 		var err error
 		err = this.Inner.RevokeSecurityGroupIngressHelper(p0, p1)
@@ -44,7 +44,7 @@ func (this *ProviderDecorator) RevokeSecurityGroupIngressHelper(p0 string, p1 *I
 	err = this.Decorator("RevokeSecurityGroupIngressHelper", call)
 	return err
 }
-func (this *ProviderDecorator) AuthorizeSecurityGroupIngressFromGroup(p0 *string, p1 *string) (err error) {
+func (this *ProviderDecorator) AuthorizeSecurityGroupIngressFromGroup(p0 string, p1 string) (err error) {
 	call := func() error {
 		var err error
 		err = this.Inner.AuthorizeSecurityGroupIngressFromGroup(p0, p1)
@@ -134,4 +134,3 @@ func (this *ProviderDecorator) DescribeVPCRoutes(p0 string) (v0 []*RouteTable, e
 	err = this.Decorator("DescribeVPCRoutes", call)
 	return v0, err
 }
-

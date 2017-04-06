@@ -200,7 +200,7 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 
 	// wait for security group to propagate
 	e.Clock.Sleep(time.Second * 2)
-	if err := e.EC2.AuthorizeSecurityGroupIngressFromGroup(groupID, groupID); err != nil {
+	if err := e.EC2.AuthorizeSecurityGroupIngressFromGroup(*groupID, *groupID); err != nil {
 		return nil, err
 	}
 
@@ -342,13 +342,13 @@ func (e *ECSEnvironmentManager) CreateEnvironmentLink(sourceEnvironmentID, destE
 		return err
 	}
 
-	if err := e.EC2.AuthorizeSecurityGroupIngressFromGroup(sourceGroup.GroupId, destGroup.GroupId); err != nil {
+	if err := e.EC2.AuthorizeSecurityGroupIngressFromGroup(*sourceGroup.GroupId, *destGroup.GroupId); err != nil {
 		if !ContainsErrCode(err, "InvalidPermission.Duplicate") {
 			return err
 		}
 	}
 
-	if err := e.EC2.AuthorizeSecurityGroupIngressFromGroup(destGroup.GroupId, sourceGroup.GroupId); err != nil {
+	if err := e.EC2.AuthorizeSecurityGroupIngressFromGroup(*destGroup.GroupId, *sourceGroup.GroupId); err != nil {
 		if !ContainsErrCode(err, "InvalidPermission.Duplicate") {
 			return err
 		}
@@ -385,7 +385,7 @@ func (e *ECSEnvironmentManager) DeleteEnvironmentLink(sourceEnvironmentID, destE
 		for _, permission := range group.IpPermissions {
 			for _, pair := range permission.UserIdGroupPairs {
 				if *pair.GroupId == groupIDToRemove {
-					groupPermission := &ec2.IpPermission{
+					groupPermission := ec2.IpPermission{
 						&awsec2.IpPermission{
 							IpProtocol:       permission.IpProtocol,
 							UserIdGroupPairs: []*awsec2.UserIdGroupPair{pair},
