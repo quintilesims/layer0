@@ -39,7 +39,7 @@ func (_mr *_MockProviderRecorder) AuthorizeSecurityGroupIngress(arg0 interface{}
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "AuthorizeSecurityGroupIngress", arg0)
 }
 
-func (_m *MockProvider) AuthorizeSecurityGroupIngressFromGroup(_param0 *string, _param1 *string) error {
+func (_m *MockProvider) AuthorizeSecurityGroupIngressFromGroup(_param0 string, _param1 string) error {
 	ret := _m.ctrl.Call(_m, "AuthorizeSecurityGroupIngressFromGroup", _param0, _param1)
 	ret0, _ := ret[0].(error)
 	return ret0
@@ -168,7 +168,7 @@ func (_mr *_MockProviderRecorder) RevokeSecurityGroupIngress(arg0 interface{}) *
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "RevokeSecurityGroupIngress", arg0)
 }
 
-func (_m *MockProvider) RevokeSecurityGroupIngressHelper(_param0 string, _param1 *ec2.IpPermission) error {
+func (_m *MockProvider) RevokeSecurityGroupIngressHelper(_param0 string, _param1 ec2.IpPermission) error {
 	ret := _m.ctrl.Call(_m, "RevokeSecurityGroupIngressHelper", _param0, _param1)
 	ret0, _ := ret[0].(error)
 	return ret0

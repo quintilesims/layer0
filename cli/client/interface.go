@@ -13,9 +13,7 @@ type Client interface {
 	ListDeploys() ([]*models.DeploySummary, error)
 
 	CreateEnvironment(name, instanceSize string, minCount int, userData []byte, os, amiID string) (*models.Environment, error)
-	CreateEnvironmentLink(sourceID, destID string) error
 	DeleteEnvironment(id string) (string, error)
-	DeleteEnvironmentLink(sourceID, destID string) error
 	GetEnvironment(id string) (*models.Environment, error)
 	ListEnvironments() ([]*models.EnvironmentSummary, error)
 	UpdateEnvironment(id string, minCount int) (*models.Environment, error)
