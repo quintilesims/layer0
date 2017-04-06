@@ -357,7 +357,7 @@ When you're finished with the example, you can instruct Terraform to destroy the
 !!! Note
 	As previously stated, Terraform writes the latest status of your deployment to `terraform.tfstate`. As you move on to [Deployment 2](#2b-deploy-with-terraform) of this walkthrough, it will be easier for you to just destroy your Terraform deployment with `terraform destroy`.
 
-	However, the `apply` command is idempotent -- if you'd like, you may bring your `terraform.tfstate` file with you when you change directories to `iterative-walkthrough/deployment-2/`. When you run `terraform apply` in the next section of this walkthrough, Terraform will create new resources as expected - but it will also update existing resources that have changes and destroy resources that are no longer necessary, and update `terraform.tfstate` accordingly.
+However, the `apply` command is idempotent -- if you'd like, you may bring your `terraform.tfstate` file with you when you change directories to `iterative-walkthrough/deployment-2/`. When you run `terraform apply` in the next section of this walkthrough, Terraform will create new resources as expected - but it will also update existing resources that have changes and destroy resources that are no longer necessary, and update `terraform.tfstate` accordingly.
 
 
 ---
