@@ -3,7 +3,9 @@ package ecsbackend
 import (
 	"encoding/base64"
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	awsec2 "github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/api/backend/mock_backend"
@@ -391,7 +393,7 @@ func TestCreateEnvironment(t *testing.T) {
 					Return(&securityGroupID, nil)
 
 				mockEnvironment.EC2.EXPECT().
-					AuthorizeSecurityGroupIngressFromGroup(&securityGroupID, &securityGroupID).
+					AuthorizeSecurityGroupIngressFromGroup(securityGroupID, securityGroupID).
 					Return(nil)
 
 				var checkLaunchConfig = func(name, amiID, iamInstanceProfile, instanceType, keyName, userData *string, securityGroups []*string) error {
@@ -710,6 +712,174 @@ func TestUpdateEnvironmentMinCount(t *testing.T) {
 						reporter.Errorf("Error on variation %d, Error was nil!", i)
 					}
 				}
+			},
+		},
+	}
+
+	testutils.RunTests(t, testCases)
+}
+
+func TestCreateEnvironmentLink(t *testing.T) {
+	testCases := []testutils.TestCase{
+		{
+			Name: "Should use proper params in aws calls",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				mockEnvironment := NewMockECSEnvironmentManager(ctrl)
+
+				sourceEnvironmentID := id.L0EnvironmentID("eid1").ECSEnvironmentID()
+				destEnvironmentID := id.L0EnvironmentID("eid2").ECSEnvironmentID()
+
+				sourceSG := ec2.NewSecurityGroup("eid1_sg")
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(sourceEnvironmentID.SecurityGroupName()).
+					Return(sourceSG, nil)
+
+				destSG := ec2.NewSecurityGroup("eid2_sg")
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(destEnvironmentID.SecurityGroupName()).
+					Return(destSG, nil)
+
+				mockEnvironment.EC2.EXPECT().
+					AuthorizeSecurityGroupIngressFromGroup("eid1_sg", "eid2_sg").
+					Return(nil)
+
+				mockEnvironment.EC2.EXPECT().
+					AuthorizeSecurityGroupIngressFromGroup("eid2_sg", "eid1_sg").
+					Return(nil)
+
+				return mockEnvironment.Environment()
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				manager := target.(*ECSEnvironmentManager)
+				manager.CreateEnvironmentLink("eid1", "eid2")
+			},
+		},
+		{
+			Name: "Should pass through idempotent aws errors",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				mockEnvironment := NewMockECSEnvironmentManager(ctrl)
+
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(gomock.Any()).
+					Return(ec2.NewSecurityGroup(""), nil).
+					AnyTimes()
+
+				mockEnvironment.EC2.EXPECT().
+					AuthorizeSecurityGroupIngressFromGroup(gomock.Any(), gomock.Any()).
+					Return(awserr.New("InvalidPermission.Duplicate", "", nil)).
+					AnyTimes()
+
+				return mockEnvironment.Environment()
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				manager := target.(*ECSEnvironmentManager)
+				if err := manager.CreateEnvironmentLink("eid1", "eid2"); err != nil {
+					reporter.Fatal(err)
+				}
+			},
+		},
+	}
+
+	testutils.RunTests(t, testCases)
+}
+
+func TestDeleteEnvironmentLink(t *testing.T) {
+	testCases := []testutils.TestCase{
+		{
+			Name: "Should use proper params in aws calls",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				mockEnvironment := NewMockECSEnvironmentManager(ctrl)
+
+				sourceEnvironmentID := id.L0EnvironmentID("eid1").ECSEnvironmentID()
+				destEnvironmentID := id.L0EnvironmentID("eid2").ECSEnvironmentID()
+
+				sourceSG := ec2.NewSecurityGroup("eid1_sg")
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(sourceEnvironmentID.SecurityGroupName()).
+					Return(sourceSG, nil)
+
+				destSG := ec2.NewSecurityGroup("eid2_sg")
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(destEnvironmentID.SecurityGroupName()).
+					Return(destSG, nil)
+
+				sourceSG.IpPermissions = []*awsec2.IpPermission{
+					{
+						IpProtocol: aws.String("-1"),
+						UserIdGroupPairs: []*awsec2.UserIdGroupPair{
+							{
+								GroupId: aws.String("eid2_sg"),
+							},
+						},
+					},
+				}
+
+				mockEnvironment.EC2.EXPECT().
+					RevokeSecurityGroupIngressHelper("eid1_sg", gomock.Any()).
+					Return(nil)
+
+				destSG.IpPermissions = []*awsec2.IpPermission{
+					{
+						IpProtocol: aws.String("-1"),
+						UserIdGroupPairs: []*awsec2.UserIdGroupPair{
+							{
+								GroupId: aws.String("eid1_sg"),
+							},
+						},
+					},
+				}
+
+				mockEnvironment.EC2.EXPECT().
+					RevokeSecurityGroupIngressHelper("eid2_sg", gomock.Any()).
+					Return(nil)
+
+				return mockEnvironment.Environment()
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				manager := target.(*ECSEnvironmentManager)
+				manager.DeleteEnvironmentLink("eid1", "eid2")
+			},
+		},
+		{
+			Name: "Should pass if source SG does not exist",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				mockEnvironment := NewMockECSEnvironmentManager(ctrl)
+
+				sourceEnvironmentID := id.L0EnvironmentID("eid1").ECSEnvironmentID()
+
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(sourceEnvironmentID.SecurityGroupName()).
+					Return(nil, nil)
+
+				return mockEnvironment.Environment()
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				manager := target.(*ECSEnvironmentManager)
+				manager.DeleteEnvironmentLink("eid1", "eid2")
+			},
+		},
+		{
+			Name: "Should pass if dest SG does not exist",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				mockEnvironment := NewMockECSEnvironmentManager(ctrl)
+
+				sourceEnvironmentID := id.L0EnvironmentID("eid1").ECSEnvironmentID()
+				destEnvironmentID := id.L0EnvironmentID("eid2").ECSEnvironmentID()
+
+				sourceSG := ec2.NewSecurityGroup("eid1_sg")
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(sourceEnvironmentID.SecurityGroupName()).
+					Return(sourceSG, nil)
+
+				mockEnvironment.EC2.EXPECT().
+					DescribeSecurityGroup(destEnvironmentID.SecurityGroupName()).
+					Return(nil, nil)
+
+				return mockEnvironment.Environment()
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				manager := target.(*ECSEnvironmentManager)
+				manager.DeleteEnvironmentLink("eid1", "eid2")
 			},
 		},
 	}
