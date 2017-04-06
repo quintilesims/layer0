@@ -125,3 +125,4 @@ func (this *ProviderDecorator) TerminateInstanceInAutoScalingGroup(p0 string, p1
 	err = this.Decorator("TerminateInstanceInAutoScalingGroup", call)
 	return v0, err
 }
+
