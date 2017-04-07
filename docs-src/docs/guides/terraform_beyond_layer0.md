@@ -1,5 +1,5 @@
 # Deployment guide: Terraform beyond Layer0
-In this example, you will learn how you can use Terraform to create a Layer0 service as well as supporting infrastructure in the form of a persistent data store. This example does not cover the details of the application being deployed but focuses on how you can combine Layer0 and other Terraform providers as part of a Terraform workflow.
+ In this example, we'll learn how you can use Terraform to create a Layer0 service as well as a persistent data store. The main goal of this example is to explore how you can combine Layer0 with other Terraform providers.
 
 ## Before you start
 In order to complete the procedures in this section, you must have the following installed and configured correctly:
@@ -150,81 +150,7 @@ This is then used to populate the template fields in our [Dockerrun.aws.json](ht
 
 The Layer0 configuration referencing the AWS DynamoDB configuration `table_name = "${aws_DynamoDB_table.guestbook.name}"`, infers an implicit dependency. Before Terraform creates the infrastructre, it will use this information to order the resources created and also create resources in parallel where there are no dependencies. In this example, the AWS DynamoDB table will be created before the Layer0 deploy. See [Terraform Dependencies](https://www.terraform.io/intro/getting-started/dependencies.html) for more information.
 
-## Part 4: Terraform Remote State
-
-Terraform stores the state of the deployed infrastructure in a local file named `terraform.tfstate` by default. This includes not only information about the resources deployed but also metadata such as resource dependencies. To find out more about why Terraform needs to store state see [Purpose of Terraform State](https://www.terraform.io/docs/state/purpose.html). 
-
-How state is loaded and used for operations such as `terraform apply` is determined by a [Backend](https://www.terraform.io/docs/backends). As mentioned, by default the state is stored locally which is enabled by a "local" backend.
-
-### Remote State
-In scenarios where you are working as part of a team to provision and manage a services deployed by Terraform, all the members of the team will need access to the state file to apply new changes. You would also want resiliency against losing the state file. You can cater for provisioning and managing Terraform in a team environment and providing redundancy for the state file by using a remote backend. Backends such as [Consul](https://www.terraform.io/docs/backends/types/consul.html) & [S3](https://www.terraform.io/docs/backends/types/s3.html) among others, are backends that you can use to store master Terraform state in a remote location.
-
-To configure a remote backend, append the `terraform` section below to your terraform file `layer0.tf`. Update the `path` property to a GUID to avoid a potential conflict as demo.consul.io is a public consul endpoint.
-
-```
-terraform {
-  backend "consul" {
-    address = "demo.consul.io"
-    path    = "a-unique-random-string"
-    lock    = false
-  }
-}
-```
-
-Once you have modified `layer0.tf`, you will need to initailize the newly configured backend by running the following command.
-
-`terraform init`
-
-Outputs:
-
-```
-Initializing the backend...
-
-Do you want to copy state from "local" to "consul"?
-  Pre-existing state was found in "local" while migrating to "consul". An existing
-  non-empty state exists in "consul". The two states have been saved to temporary
-  files that will be removed after responding to this query.
-  
-  One ("local"): /var/folders/n0/19h9crxn2v75g70bl0txdj1wm05615/T/terraform529524247/1-local.tfstate
-  Two ("consul"): /var/folders/n0/19h9crxn2v75g70bl0txdj1wm05615/T/terraform529524247/2-consul.tfstate
-  
-  Do you want to copy the state from "local" to "consul"? Enter "yes" to copy
-  and "no" to start with the existing state in "consul".
-
-  Enter a value: 
-
-```
-
-Go ahead and enter: `yes`.
-
-```
-
-Successfully configured the backend "consul"! Terraform will automatically
-use this backend unless the backend configuration changes.
-
-Terraform has been successfully initialized!
-
-You may now begin working with Terraform. Try running "terraform plan" to see
-any changes that are required for your infrastructure. All Terraform commands
-should now work.
-
-If you ever set or change modules or backend configuration for Terraform,
-rerun this command to reinitialize your environment. If you forget, other
-commands will detect it and remind you to do so if necessary.
-
-```
-
-### What's happening
-As you are configuring a backend for the first time, Terraform will give you an option to migrate your state to the new backend. From now on, any further changes to your infrastructure made by Terraform will result in the remote state file being updated. For more information about see (Terraform backends)[https://www.terraform.io/docs/backends/index.html].
-
-A new team member can use the `layer0.tf` from their own machine without obtaining a copy of the state file `terraform.tfstate` as the configuration points to a remote backend where the state file will be retrieved from.
-
-The command `terraform init` must be called:
- * on any new environment that configures a backend
- * on any change of the backend configuration (including type of backend)
- * on removing backend configuration completely
-
-## Part 5: Scaling a Layer0 service
+## Part 4: Scaling a Layer0 service
 The workflow to make changes to your infrastructure generally involves updating your Terraform configuration file followed by a `terraform plan` and `terraform apply`.
 
 ### Update the Terraform configuration
@@ -253,23 +179,7 @@ Once you have updated the following command to understand the changes that you w
 Outputs:
 
 ```
-Refreshing Terraform state in-memory prior to plan...
-The refreshed state will be used to calculate this plan, but will not be
-persisted to local or remote state storage.
-
-layer0_environment.demo: Refreshing state... (ID: demoenvbb9f6)
-data.template_file.guestbook: Refreshing state...
-layer0_deploy.guestbook: Refreshing state... (ID: guestbook.6)
-layer0_load_balancer.guestbook: Refreshing state... (ID: guestbo43ab0)
-layer0_service.guestbook: Refreshing state... (ID: guestboebca1)
-The Terraform execution plan has been generated and is shown below.
-Resources are shown in alphabetical order for quick scanning. Green resources
-will be created (or destroyed and then created if an existing resource
-exists), yellow resources are being changed in-place, and red resources
-will be destroyed. Cyan entries are data sources to be read.
-
-Note: You didn't specify an "-out" parameter to save this plan, so when
-"apply" is called, Terraform can't guarantee this is what will execute.
+...
 
 ~ layer0_service.guestbook
     scale: "1" => "3"
@@ -307,7 +217,7 @@ guestbook_url = <guestbook_service_url>
 
 To confirm your service has scaled, you can run the following layer0 command. Note desired scale for the guestbook service should be eventually be 3/3.
 
-`l0 service get \*`
+`l0 service get demo-env:guestbook`
 
 Outputs:
 
@@ -319,11 +229,128 @@ guestboebca1  guestbook     demo-env     guestbook     guestbook:6  3/3
 
 
 
-## Part 6: Terraform Destroy
+## Part 5: Terraform Destroy
 When you're finished with the example run the following command in the same directory to destroy the Layer0 environment, application and the DynamoDB Table.
 
 `terraform destroy`
 
-## Best Practices with Terraform + Layer0
+---
+
+# Best Practices with Terraform + Layer0
+
+## Part 6: Terraform Remote State
+
+Terraform stores the state of the deployed infrastructure in a local file named `terraform.tfstate` by default. This includes not only information about the resources deployed but also metadata such as resource dependencies. To find out more about why Terraform needs to store state see [Purpose of Terraform State](https://www.terraform.io/docs/state/purpose.html). 
+
+How state is loaded and used for operations such as `terraform apply` is determined by a [Backend](https://www.terraform.io/docs/backends). As mentioned, by default the state is stored locally which is enabled by a "local" backend.
+
+### Remote State
+In scenarios where you are working as part of a team to provision and manage a services deployed by Terraform, all the members of the team will need access to the state file to apply new changes. You would also want resiliency against losing the state file. You can cater for provisioning and managing Terraform in a team environment and providing redundancy for the state file by using a remote backend. A remote backend can also provide locking mehcanisms to ensure multiple users can't change resources at the same time. Backends such as [Consul](https://www.terraform.io/docs/backends/types/consul.html) & [S3](https://www.terraform.io/docs/backends/types/s3.html) among others, are backends that you can use to store master Terraform state in a remote location.
+
+To configure a remote backend, append the `terraform` section below to your terraform file `layer0.tf`. Update the `path` property to a GUID to avoid a potential conflict as demo.consul.io is a public consul endpoint.
+
+```
+terraform {
+  backend "s3" {
+    bucket     = "<my-bucket-name>"
+    key        = "demo-env/remote-backend/terraform.tfstate"
+    region     = "us-west-2"
+  }
+}
+```
+
+Once you have modified `layer0.tf`, you will need to initailize the newly configured backend by running the following command.
+
+`terraform init`
+
+Outputs:
+
+```
+Initializing the backend...
+
+Do you want to copy state from "local" to "consul"?
+  ...
+  Do you want to copy the state from "local" to "consul"? Enter "yes" to copy
+  and "no" to start with the existing state in "consul".
+
+  Enter a value: 
+
+```
+
+Go ahead and enter: `yes`.
+
+```
+
+Successfully configured the backend "consul"! Terraform will automatically
+use this backend unless the backend configuration changes.
+
+Terraform has been successfully initialized!
+...
+
+```
+
+### What's happening
+As you are configuring a backend for the first time, Terraform will give you an option to migrate your state to the new backend. From now on, any further changes to your infrastructure made by Terraform will result in the remote state file being updated. For more information about see (Terraform backends)[https://www.terraform.io/docs/backends/index.html].
+
+A new team member can use the `layer0.tf` from their own machine without obtaining a copy of the state file `terraform.tfstate` as the configuration points to a remote backend where the state file will be retrieved from.
+
+### Locking
+Not all remote backends support locking (locking ensures only one person is able to change the tfstate at a time). The `S3` backend we used earlier in the example also supports locking which is disabled by default. To enable locking, you need to specify `locking_table` property with the name of an existing DyanmoDB table. The DynamoDB table also needs primary key named `LockID` of type `String`.
 
 
+### Security
+A Terraform state file is written in plain text. This can lead to a situation where deploying resources that require sensitive data can result in the sensitive data being stored in the state file. To minimize exposure of senstive data, you can enable [server side encryption](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingServerSideEncryption.html) of the state file by adding property `encrypt` set to `true`.
+
+This will ensure that the file is encrypted in S3 and by using a remote backend, you will also have the added benefit of the state file not being persisted to disk locally as it will only ever be held in memory by Terraform.
+
+For securing the state file further, you can also enable access logging on the S3 bucket you are using for the remote backend which can help track down invalid access should it occur.
+
+## Part 8: Terraform Configuration structure
+
+There are many different approaches to setup your Terraform file structure. There is no single best precribed way to structure your files. Whatever approach you take needs to be catered for your needs. Keeping that in mind; the file structure for [Terraform beyond Layer0 example](https://github.com/quintilesims/layer0-examples/blob/master/terraform-beyond-layer0) is:
+
+* root  
+  + main.tf  
+  + variables.tf  
+  + output.tf  
+    + modules  
+      + guestbook_service  
+        + main.tf  
+        + variables.tf  
+        + output.tf
+      + service2
+      + service3
+
+Here we are making use of Terraform [Modules](https://www.terraform.io/docs/modules/index.html). Modules in Terraform are self-contained packages of Terraform configurations that are managed as a group. Modules are used to create reusable components in Terraform as well as for basic code organization. In this example, we are using modules to separate each service and making it consumable as a module.
+
+If you wanted to add a new service, you can create new folder service folder inside the ./modules. If you wanted to you could even run multiple copies of the same service. See here for more information about [Creating Modules](https://www.terraform.io/docs/modules/create.html).
+
+When creating a module, ensure that resources you are creating are prefixed with the environment and the module's name variable to ensure your resources are unique for each layer0 environment and each reference to a module.
+```
+resource "layer0_load_balancer" "guestbook" {
+  name        = "${var.name}_guestbook_lb"
+  environment = "${var.layer0_environment_id}"
+
+  port {
+    host_port      = 80
+    container_port = 80
+    protocol       = "http"
+  }
+}
+
+resource "aws_dynamodb_table" "guestbook" {
+  name           = "${var.layer0_environment_name}_${var.name}_${var.table_name}"
+  read_capacity  = 20
+  write_capacity = 20
+  hash_key       = "id"
+
+  attribute {
+    name = "id"
+    type = "S"
+  }
+}
+```
+
+Also see the below repositories for ideas on different ways you can organize your project:
+* [Terraform Community Modules](https://github.com/terraform-community-modules)
+* [Best Pratices Ops](https://github.com/hashicorp/best-practices)
