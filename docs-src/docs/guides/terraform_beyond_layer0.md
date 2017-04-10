@@ -88,7 +88,7 @@ guestbook_url = <http endpoint for the sample application>
 ```
 
 !!! Note
-  It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.
+	It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.
 
 Terraform will set up the entire environment for you and then output a link to the application's load balancer.
 
@@ -150,7 +150,7 @@ This is then used to populate the template fields in our [Dockerrun.aws.json](ht
 
 The Layer0 configuration referencing the AWS DynamoDB configuration `table_name = "${aws_DynamoDB_table.guestbook.name}"`, infers an implicit dependency. Before Terraform creates the infrastructre, it will use this information to order the resources created and also create resources in parallel where there are no dependencies. In this example, the AWS DynamoDB table will be created before the Layer0 deploy. See [Terraform Dependencies](https://www.terraform.io/intro/getting-started/dependencies.html) for more information.
 
-## Part 4: Scaling a Layer0 service
+## Part 4: Scaling a Layer0 Service
 The workflow to make changes to your infrastructure generally involves updating your Terraform configuration file followed by a `terraform plan` and `terraform apply`.
 
 ### Update the Terraform configuration
@@ -228,19 +228,12 @@ guestboebca1  guestbook     demo-env     guestbook     guestbook:6  3/3
 ```
 
 
+!!! Tip "Best Practices with Terraform + Layer0"
+	The following sections outline some of the best practices and tips to take into consideration, when using Layer0 with Terraform.
 
-## Part 5: Terraform Destroy
-When you're finished with the example run the following command in the same directory to destroy the Layer0 environment, application and the DynamoDB Table.
+## Part 5: Terraform Remote State
 
-`terraform destroy`
-
----
-
-# Best Practices with Terraform + Layer0
-
-## Part 6: Terraform Remote State
-
-Terraform stores the state of the deployed infrastructure in a local file named `terraform.tfstate` by default. This includes not only information about the resources deployed but also metadata such as resource dependencies. To find out more about why Terraform needs to store state see [Purpose of Terraform State](https://www.terraform.io/docs/state/purpose.html). 
+Terraform stores the state of the deployed infrastructure in a local file named `terraform.tfstate` by default. This includes not only information about the resources deployed but also metadata such as resource dependencies. To find out more about why Terraform needs to store state, see [Purpose of Terraform State](https://www.terraform.io/docs/state/purpose.html). 
 
 How state is loaded and used for operations such as `terraform apply` is determined by a [Backend](https://www.terraform.io/docs/backends). As mentioned, by default the state is stored locally which is enabled by a "local" backend.
 
@@ -248,6 +241,9 @@ How state is loaded and used for operations such as `terraform apply` is determi
 In scenarios where you are working as part of a team to provision and manage a services deployed by Terraform, all the members of the team will need access to the state file to apply new changes. You would also want resiliency against losing the state file. You can cater for provisioning and managing Terraform in a team environment and providing redundancy for the state file by using a remote backend. A remote backend can also provide locking mehcanisms to ensure multiple users can't change resources at the same time. Backends such as [Consul](https://www.terraform.io/docs/backends/types/consul.html) & [S3](https://www.terraform.io/docs/backends/types/s3.html) among others, are backends that you can use to store master Terraform state in a remote location.
 
 To configure a remote backend, append the `terraform` section below to your terraform file `layer0.tf`. Update the `path` property to a GUID to avoid a potential conflict as demo.consul.io is a public consul endpoint.
+
+!!! Tip
+	If you have been following along with the guide, layer0.tf should already have the below section commented out. You can simply uncomment the `terraform` section and populate the properties with the appropriate values.
 
 ```
 terraform {
@@ -290,13 +286,12 @@ Terraform has been successfully initialized!
 ```
 
 ### What's happening
-As you are configuring a backend for the first time, Terraform will give you an option to migrate your state to the new backend. From now on, any further changes to your infrastructure made by Terraform will result in the remote state file being updated. For more information about see (Terraform backends)[https://www.terraform.io/docs/backends/index.html].
+As you are configuring a backend for the first time, Terraform will give you an option to migrate your state to the new backend. From now on, any further changes to your infrastructure made by Terraform will result in the remote state file being updated. For more information see (Terraform backends)[https://www.terraform.io/docs/backends/index.html].
 
-A new team member can use the `layer0.tf` from their own machine without obtaining a copy of the state file `terraform.tfstate` as the configuration points to a remote backend where the state file will be retrieved from.
+A new team member can use the `layer0.tf` from their own machine without obtaining a copy of the state file `terraform.tfstate` as the configuration will retrieve the state file from the remote backend.
 
 ### Locking
-Not all remote backends support locking (locking ensures only one person is able to change the tfstate at a time). The `S3` backend we used earlier in the example also supports locking which is disabled by default. To enable locking, you need to specify `locking_table` property with the name of an existing DyanmoDB table. The DynamoDB table also needs primary key named `LockID` of type `String`.
-
+Not all remote backends support locking (locking ensures only one person is able to change the state at a time). The `S3` backend we used earlier in the example also supports locking which is disabled by default. To enable locking, you need to specify `locking_table` property with the name of an existing DynamoDB table. The DynamoDB table also needs primary key named `LockID` of type `String`.
 
 ### Security
 A Terraform state file is written in plain text. This can lead to a situation where deploying resources that require sensitive data can result in the sensitive data being stored in the state file. To minimize exposure of senstive data, you can enable [server side encryption](https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingServerSideEncryption.html) of the state file by adding property `encrypt` set to `true`.
@@ -305,23 +300,26 @@ This will ensure that the file is encrypted in S3 and by using a remote backend,
 
 For securing the state file further, you can also enable access logging on the S3 bucket you are using for the remote backend which can help track down invalid access should it occur.
 
-## Part 8: Terraform Configuration structure
 
-There are many different approaches to setup your Terraform file structure. There is no single best precribed way to structure your files. Whatever approach you take needs to be catered for your needs. Keeping that in mind; the file structure for [Terraform beyond Layer0 example](https://github.com/quintilesims/layer0-examples/blob/master/terraform-beyond-layer0) is:
+## Part 6: Terraform Configuration Structure
 
-* root  
-  + main.tf  
-  + variables.tf  
-  + output.tf  
-    + modules  
-      + guestbook_service  
-        + main.tf  
-        + variables.tf  
-        + output.tf
-      + service2
-      + service3
+There are many different approaches to setup your Terraform code structure. There is no single best precribed way to structure your infrastructure code. Whatever approach you take needs to be catered for the needs of your particular project. Keeping that in mind; the file structure for [Terraform beyond Layer0 example](https://github.com/quintilesims/layer0-examples/blob/master/terraform-beyond-layer0) is as below:
 
-Here we are making use of Terraform [Modules](https://www.terraform.io/docs/modules/index.html). Modules in Terraform are self-contained packages of Terraform configurations that are managed as a group. Modules are used to create reusable components in Terraform as well as for basic code organization. In this example, we are using modules to separate each service and making it consumable as a module.
+```
+root/
+  ─ main.tf  
+  ─ variables.tf  
+  ─ output.tf  
+  + modules/  
+      + guestbook_service/
+        ─ main.tf  
+        ─ variables.tf  
+        ─ output.tf
+      + service2/
+      + service3/
+```
+
+Here we are making use of Terraform [Modules](https://www.terraform.io/docs/modules/index.html). Modules in Terraform are self-contained packages of Terraform configurations, that are managed as a group. Modules are used to create reusable components in Terraform as well as for basic code organization. In this example, we are using modules to separate each service and making it consumable as a module.
 
 If you wanted to add a new service, you can create new folder service folder inside the ./modules. If you wanted to you could even run multiple copies of the same service. See here for more information about [Creating Modules](https://www.terraform.io/docs/modules/create.html).
 
@@ -351,6 +349,51 @@ resource "aws_dynamodb_table" "guestbook" {
 }
 ```
 
-Also see the below repositories for ideas on different ways you can organize your project:
+Also see the below repositories for ideas on different ways you can organize your Terraform configuration files for the needs of your specific project: 
+
 * [Terraform Community Modules](https://github.com/terraform-community-modules)
 * [Best Pratices Ops](https://github.com/hashicorp/best-practices)
+
+
+## Part 7: Multiple Provider Instances
+
+You can define multiple instances of the same provider to enable uniquely customized providers. For example, you can have an `aws` provider to support multiple regions, different roles etc or in the case of the `layer0` provider, to support multiple layer0 endpoints.
+
+For example:
+
+```
+# aws provider
+provider "aws" {
+  alias = "east"
+  region = "us-east-1"
+  # ...
+}
+
+# aws provider configured to a west region
+provider "aws" {
+  alias = "west"
+  region = "us-west-1"
+  # ...
+}
+```
+
+This will now allow you to reference aws providers configured to a different region. You can do so by referencing the provider using the naming scheme `TYPE.ALIAS`, which in the above example result in `aws.west`. See [Provider Configuration](https://www.terraform.io/docs/configuration/providers.html) for more information.
+
+```
+resource "aws.east_instance" "foo" {
+  # ...
+}
+
+resource "aws.west_instance" "bar" {
+  # ...
+}
+```
+
+## Part 8: Terraform Destroy
+
+When you're finished with the example run the following command in the same directory to destroy the Layer0 environment, application and the DynamoDB Table.
+
+`terraform destroy`
+
+!!! tip "Remote Backend Resources"
+	If you created additional resources (S3 bucket and a DynamoDB Table) separately when configuring a [Remote Backend](#part-5-terraform-remote-state), do not forget to delete those if they are no longer needed. You should be able to look at your Terraform configuration file `layer0.tf` to determine the name of the bucket and table.
