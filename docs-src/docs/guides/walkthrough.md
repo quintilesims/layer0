@@ -241,7 +241,7 @@ Instead of using the Layer0 CLI directly, you can instead use our Terraform prov
 
 Remember, we assume that you've cloned the [layer0-examples](https://github.com/quintilesims/layer0-examples) repo and are working in the `iterative-walkthrough/deployment-1/` directory.
 
-We use these files to set up a Layer0 envrionment with Terraform:
+We use these files to set up a Layer0 environment with Terraform:
 
 |Filename|Purpose|
 |---|---|
@@ -254,9 +254,9 @@ We use these files to set up a Layer0 envrionment with Terraform:
 
 Let's take a moment to look through the `layer0.tf` file. If you've followed along with the Layer0 CLI deployment above, it should be fairly easy to see how blocks in this file map to steps in the CLI process.
 
-When we began the CLI deployment, our first step was to create a load balancer:
+When we began the CLI deployment, our first step was to create an environment:
 
-`l0 load balancer create demo-env`
+`l0 environment create demo-env`
 
 This command is recreated in `layer0.tf` like so:
 
@@ -290,7 +290,7 @@ We use Terraform's interpolation syntax to discover and use the ID of our enviro
 
 `${<resource_type>.<resource_identifier>.<property>}`
 
-And that's about all you need to be able to understand the file!
+And that's about all you need to be able to understand the file! You can follow [this link](/reference/terraform-plugin/) to learn more about Layer0 resources in Terraform.
 
 ---
 
@@ -398,11 +398,6 @@ When you're finished with the example, you can instruct Terraform to destroy the
 
 `terraform destroy`
 
-!!! Note
-	As previously stated, Terraform writes the latest status of your deployment to `terraform.tfstate`. As you move on to [Deployment 2](#2b-deploy-with-terraform) of this walkthrough, it will be easier for you to just destroy your Terraform deployment with `terraform destroy`.  
-    
-    However, the `apply` command is idempotent -- if you'd like, you may bring your `terraform.tfstate` file with you when you change directories to `iterative-walkthrough/deployment-2/`. When you run `terraform apply` in the next section of this walkthrough, Terraform will create new resources as expected - but it will also update existing resources that have changes and destroy resources that are no longer necessary, and update `terraform.tfstate` accordingly.
-
 
 ---
 
@@ -420,9 +415,9 @@ For this example, we'll be working in the `iterative-walkthrough/deployment-2/` 
 
 Both the Guestbook service and the Redis service will live in the same Layer0 environment, so we don't need to create one like we did in the first deployment. We'll start by making a load balancer behind which the Redis service will be deployed.
 
-The `Redis.Dockerrun.aws.json` task definition file we'll use is very simple - it just spins up a Redis server with the default configuration, which means that it will be serving on port 6379. Our load balancer needs to be able to forward TCP traffic to and from this port. And since the Redis server has no reason for anything other than the Guestbook application to be accessing it, we'll make this load balancer private. At the command prompt, execute the following:
+The `Redis.Dockerrun.aws.json` task definition file we'll use is very simple - it just spins up a Redis server with the default configuration, which means that it will be serving on port 6379. Our load balancer needs to be able to forward TCP traffic to and from this port. And since we don't want the Redis server to be exposed to the public internet, we'll put it behind a private load balancer; private load balancers only accept traffic that originates from within their own environment. At the command prompt, execute the following:
 
-`l0 loadbalancer create --port 6379:6379:tcp --private demo-env redis-lb`
+`l0 loadbalancer create --port 6379:6379/tcp --private demo-env redis-lb`
 
 We should see output like the following:
 
@@ -434,7 +429,7 @@ redislb16ae6     redis-lb           demo-env              6378:6379:TCP  false
 The following is a summary of the arguments passed in the above command:
 
 - `loadbalancer create`: creates a new load balancer
-- `--port 6379:6379/TCP`: instructs the load balancer to forward requests from port 6379 on the server to port 6379 in the Docker container using the TCP protocol
+- `--port 6379:6379/TCP`: instructs the load balancer to forward requests from port 6379 on the load balancer to port 6379 in the EC2 instance using the TCP protocol
 - `--private`: instructs the load balancer to ignore external traffic
 - `demo-env`: the name of the environment in which the load balancer is being created
 - `redis-lb`: a name for the load balancer itself
@@ -464,7 +459,7 @@ The following is a summary of the arguments passed in the above command:
 
 ---
 
-### Part 3: Create the Service
+### Part 3: Create the Redis Service
 
 Here, we just need to pull the previous resources together into a service. At the command prompt, execute the following:
 
@@ -490,7 +485,7 @@ The following is a summary of the arguments passed in the above commands:
 
 ---
 
-### Part 4: Check the Status of the Service
+### Part 4: Check the Status of the Redis Service
 
 As in the first deployment, we can keep an eye on our service by using the `service get` command:
 
@@ -571,13 +566,13 @@ guestbook-dpl.2  guestbook-dpl  2
 
 ---
 
-### Part 6: Update the Service
+### Part 6: Update the Guestbook Service
 
-Almost all the pieces are in place! Now we just need to apply the new deploy to the running service:
+Almost all the pieces are in place! Now we just need to apply the new Guestbook deploy to the running Guestbook service:
 
 `l0 service update guestbook-svc guestbook-dpl:latest`
 
-As the service moves through the phases of its update process, we should see outputs like the following (if we keep an eye on the service with `l0 service get guestbook-svc`, that is):
+As the Guestbook service moves through the phases of its update process, we should see outputs like the following (if we keep an eye on the service with `l0 service get guestbook-svc`, that is):
 
 ```
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
@@ -616,12 +611,12 @@ You should now be able to point your browser at the URL for the Guestbook loadba
 
 Now, let's prove that we've actually separated the data from the application by deleting and redeploying the Guestbook application:
 
-`l0 service delete guestbook-svc`
-`l0 loadbalancer delete guestbook-lb`
+`l0 service delete --wait guestbook-svc`
+`l0 loadbalancer delete --wait guestbook-lb`
 
-_(We'll leave the `deploy` intact so we can spin up a new service easily, and we'll leave the environment untouched because it also contained the Redis server.)_
+_(We'll leave the `deploy` intact so we can spin up a new service easily, and we'll leave the environment untouched because it also contained the Redis server. We'll also pass the `--wait` flag so that we don't need to keep checking on the status of the job to know when it's complete.)_
 
-Once those resources have been deleted (you can check the status of your Layer0 jobs with `l0 job list`), let's recreate them.
+Once those resources have been deleted, we can recreate them!
 
 Create another load balancer:
 
@@ -660,9 +655,6 @@ We'll use these files to manage our deployment with Terraform:
 |`Redis.Dockerrun.aws.json`|Template for running the Redis application|
 |`terraform.tfstate`|Tracks status of deployment _(created and managed by Terraform)_|
 |`terraform.tfvars`|Variables specific to the environment and application(s)|
-
-!!! Note "Note: `terraform.tfstate`"
-    You can follow the steps in this section with no `terraform.tfstate` file, and Terraform will create it and manage it as it did before. However, if you've opted **not** to destroy the resources created in [Deployment 1b](#1b-deploy-with-terraform), you can copy your previous `terraform.tfstate` file to your current working directory and Terraform will update and delete existing resources as needed in addition to creating new ones.
 
 
 ---
@@ -772,7 +764,7 @@ As before, we'll be prompted for any variables Terraform needs and doesn't have 
 Plan: 7 to add, 0 to change, 0 to destroy.
 ```
 
-We should see that Terraform intends to add 7 new resources (or some combination of adding/changing/destroying if you've kept the previous `terraform.tfstate` file), some of which are for the Guestbook deployment and some of which are for the Redis deployment.
+We should see that Terraform intends to add 7 new resources, some of which are for the Guestbook deployment and some of which are for the Redis deployment.
 
 
 ---
@@ -822,9 +814,8 @@ When you're finished with the example, you can instruct Terraform to destroy the
 `terraform destroy`
 
 !!! Note
-	As previously stated, Terraform writes the latest status of your deployment to `terraform.tfstate`. As you move on to [Deployment 3](#3b-deploy-with-terraform) of this walkthrough, it will be easier for you to just destroy your Terraform deployment with `terraform destroy`.  
+	Again, Terraform writes the latest status of your deployment to `terraform.tfstate`. When you're finished with this section and ready to move on to [Deployment 3](#3b-deploy-with-terraform), destroy your Terraform deployment with `terraform destroy`.
     
-    However, the `apply` command is idempotent -- if you'd like, you may bring your `terraform.tfstate` file with you when you change directories to `iterative-walkthrough/deployment-3/`. When you run `terraform apply` in the next section of this walkthrough, Terraform will create new resources as expected - but it will also update existing resources that have changes and destroy resources that are no longer necessary, and update `terraform.tfstate` accordingly.
 
 ---
 
