@@ -678,7 +678,7 @@ When we manually edited that Guestbook task definition, we reconfigured a sectio
     ...
 ```
 
-You've probably noticed that `${redis_address}` is a Terraform interpolation. If you look for the `template_file` resource labeled `guestbook` in `layer0.tf`, you'll see that in addition to supplying the Guestbook task definition file, we're also configuring a variable to be passed to the template:
+You've probably noticed that `${redis_address}` is a Terraform [interpolation](https://www.terraform.io/docs/configuration/interpolation.html). If you look for the `template_file` resource labeled `guestbook` in `layer0.tf`, you'll see that in addition to supplying the Guestbook task definition file, we're also configuring a variable to be passed to the template:
 
 ```
 data "template_file" "guestbook" {
