@@ -19,6 +19,7 @@ pages:
     - Destroy: setup/destroy.md
   - Guides:
     - An Iterative Walkthrough: guides/walkthrough.md
+    - Terraform beyond Layer0: guides/terraform_beyond_layer0.md
     - One-off Task: guides/one_off_task.md
   - Reference:
     - Layer0 CLI: reference/cli.md

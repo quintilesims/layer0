@@ -241,14 +241,58 @@ Instead of using the Layer0 CLI directly, you can instead use our Terraform prov
 
 Remember, we assume that you've cloned the [layer0-examples](https://github.com/quintilesims/layer0-examples) repo and are working in the `iterative-walkthrough/deployment-1/` directory.
 
-We use these files to set up a Layer0 envrionment with Terraform:
+We use these files to set up a Layer0 environment with Terraform:
 
 |Filename|Purpose|
-|----|----|
-|`terraform.tfvars`|Variables specific to the environment and guestbook application|
-|`Guestbook.Dockerrun.aws.json`|Template for running the guestbook application in a Layer0 environment|
-|`layer0.tf`|Provision Layer0 resources and populate variables in `Guestbook.Dockerrun.aws.json`|
+|---|---|
+|`Guestbook.Dockerrun.aws.json`|Template for running the Guestbook application|
+|`layer0.tf`|Provisions resources; populates resources in template files|
+|`terraform.tfstate`|Tracks status of deployment _(created and managed by Terraform)_|
+|`terraform.tfvars`|Variables specific to the environment and application(s)|
 
+### `Layer0.tf`: A Brief Aside
+
+Let's take a moment to look through the `layer0.tf` file. If you've followed along with the Layer0 CLI deployment above, it should be fairly easy to see how blocks in this file map to steps in the CLI process.
+
+When we began the CLI deployment, our first step was to create an environment:
+
+`l0 environment create demo-env`
+
+This command is recreated in `layer0.tf` like so:
+
+```
+resource "layer0_environment" "demo-env" {
+	name = "demo-env"
+}
+```
+
+The value of the `name` field inside the resource block is the name that maps to `demo-env` in the Layer0 CLI command. The `"demo-env"` in the resource declaration line is the identifier that Terraform will use to reference this resource.
+
+The next step in the CLI process would be to make a load balancer:
+
+`l0 loadbalancer create --port 80:80/http demo-env guestbook-lb`
+
+In `layer0.tf`:
+
+```
+resource "layer0_load_balancer" "guestbook-lb" {
+	name = "guestbook-lb"
+	environment = "${layer0_environment.demo-env.id}"
+	port {
+		host_port = 80
+		container_port = 80
+		protocol = "http"
+	}
+}
+```
+
+We use Terraform's interpolation syntax to discover and use the ID of our environment. The format is pretty simple:
+
+`${<resource_type>.<resource_identifier>.<property>}`
+
+And that's about all you need to be able to understand the file! You can follow [this link](/reference/terraform-plugin/) to learn more about Layer0 resources in Terraform.
+
+---
 
 ### Part 1: Terraform Plan
 
@@ -343,7 +387,422 @@ guestbook_url = <http endpoint for the sample application>
 	It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.
 
 
-### What's happening
+### What's Happening
+
+Terraform provisions the AWS resources through Layer0, configures environment variables for the application, and deploys the application into a Layer0 environment. Terraform also writes the state of your deployment to the `terraform.tfstate` file (creating a new one if it's not already there).
+
+
+### Cleanup
+
+When you're finished with the example, you can instruct Terraform to destroy the Layer0 environment, and terminate the application. Execute the following command (in the same directory):
+
+`terraform destroy`
+
+
+---
+
+## Deployment 2: Guestbook + Redis
+
+In this section, we're going to add some complexity to the previous deployment. [Deployment 1](#deployment-1-a-simple-guestbook-app) saw us create a simple guestbook application which kept its data in memory. But what if that ever came down, either by intention or accident? It would be easy enough to redeploy it, but all of the entered data would be lost. For this deployment, we're going to separate the data store from the guestbook application by creating a second Layer0 service which will house a local Redis database server and linking it to the first. You can choose to complete this section using either the [Layer0 CLI](#2a-deploy-with-layer0-cli) or [Terraform](#2b-deploy-with-terraform).
+
+
+## 2a: Deploy with Layer0 CLI
+
+For this example, we'll be working in the `iterative-walkthrough/deployment-2/` directory.
+
+
+### Part 1: Create the Redis Load Balancer
+
+Both the Guestbook service and the Redis service will live in the same Layer0 environment, so we don't need to create one like we did in the first deployment. We'll start by making a load balancer behind which the Redis service will be deployed.
+
+The `Redis.Dockerrun.aws.json` task definition file we'll use is very simple - it just spins up a Redis server with the default configuration, which means that it will be serving on port 6379. Our load balancer needs to be able to forward TCP traffic to and from this port. And since we don't want the Redis server to be exposed to the public internet, we'll put it behind a private load balancer; private load balancers only accept traffic that originates from within their own environment. At the command prompt, execute the following:
+
+`l0 loadbalancer create --port 6379:6379/tcp --private demo-env redis-lb`
+
+We should see output like the following:
+
+```
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS          PUBLIC  URL
+redislb16ae6     redis-lb           demo-env              6378:6379:TCP  false
+```
+
+The following is a summary of the arguments passed in the above command:
+
+- `loadbalancer create`: creates a new load balancer
+- `--port 6379:6379/TCP`: instructs the load balancer to forward requests from port 6379 on the load balancer to port 6379 in the EC2 instance using the TCP protocol
+- `--private`: instructs the load balancer to ignore external traffic
+- `demo-env`: the name of the environment in which the load balancer is being created
+- `redis-lb`: a name for the load balancer itself
+
+
+---
+
+### Part 2: Deploy the Docker Task Definition
+
+Here, we just need to create the deploy using the `Redis.Dockerrun.aws.json` task definition file. At the command prompt, execute the following:
+
+`l0 deploy create Redis.Dockerrun.aws.json redis-dpl`
+
+We should see output like the following:
+
+```
+DEPLOY ID    DEPLOY NAME  VERSION
+redis-dpl.1  redis-dpl    1
+```
+
+The following is a summary of the arguments passed in the above command:
+
+- `deploy create`: creates a new Layer0 Deploy and allows you to specify a Docker task definition
+- `Redis.Dockerrun.aws.json`: the file name of the Docker task definition (use the full path of the file if it is not in your current working directory)
+- `redis-dpl`: a name for the deploy, which we will use later when we create the service
+
+
+---
+
+### Part 3: Create the Redis Service
+
+Here, we just need to pull the previous resources together into a service. At the command prompt, execute the following:
+
+`l0 service create --loadbalancer demo-env:redis-lb demo-env redis-svc redis-dpl:latest`
+
+We should see output like the following:
+
+```
+SERVICE ID    SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE
+redislb16ae6  redis-svc     demo-env     redis-lb      redis-dpl:1  0/1
+```
+
+The following is a summary of the arguments passed in the above commands:
+
+- `service create`: creates a new Layer0 Service
+- `--loadbalancer demo-env:redis-lb`: the fully-qualified name of the load balancer; in this case, the load balancer named **redis-lb** in the environment named **demo-env**
+    - _(Again, it's not strictly necessary to use the fully-qualified name of the load balancer as long as there isn't another load balancer with the same name)_
+- `demo-env`: the name of the environment in which the service is to reside
+- `redis-svc`: a name for the service we're creating
+- `redis-dpl:latest`: the name of the deploy the service will put into action
+    - _(We use `:` to specify which deploy we want - `:latest` will always give us the most recently-created one.)_
+
+
+---
+
+### Part 4: Check the Status of the Redis Service
+
+As in the first deployment, we can keep an eye on our service by using the `service get` command:
+
+`l0 service get redis-svc`
+
+Once the service has finished scaling, try looking at the service's logs to see the output that the Redis server creates:
+
+`l0 service logs redis-svc`
+
+Among some warnings and information not important to this exercise and a fun bit of ASCII art, you should see something like the following:
+
+```
+... # words and ASCII art
+1:M 05 Apr 23:29:47.333 * The server is now ready to accept connections on port 6379
+```
+
+Now we just need to teach the Guestbook application how to talk with our Redis service.
+
+
+---
+
+### Part 5: Update the Guestbook Deploy
+
+You should see in `iterative-walkthrough/deployment-2/` another `Guestbook.Dockerrun.aws.json` file. This file is very similar to but not the same as the one in `deployment-1/` - if you open it up, you can see the following additions:
+
+```
+    ...
+    "environment": [
+        {
+            "name": "REDIS_ADDRESS_AND_PORT",
+            "value": "${redis_address}"
+        }
+    ],
+    ...
+```
+
+That `value` is what will point the Guestbook application towards the Redis server. The `${redis_address}` needs to be replaced and populated in the following format:
+
+```
+"value": "ADDRESS_TO_REDIS_SERVER:PORT_THE_SERVER_IS_SERVING_ON"
+```
+
+We already know that Redis is serving on port 6379, so let's go find the server's address. Remember, it lives behind a load balancer that we made, so run the following command:
+
+`l0 loadbalancer get redis-lb`
+
+We should see output like the following:
+
+```
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE    PORTS          PUBLIC  URL
+redislb16ae6     redis-lb           demo-env     redis-svc  6379:6379/TCP  false   internal-l0-<yadda-yadda>.elb.amazonaws.com
+```
+
+Copy that `URL` value, replace `${redis_address}` with the `URL` value in `Guestbook.Dockerrun.aws.json`, append `:6379` to it, and save the file. It should look something like the following:
+
+```
+    ...
+    "environment": [
+        {
+            "name": "REDIS_ADDRESS_AND_PORT",
+            "value": "internal-l0-<yadda-yadda>.elb.amazonaws.com:6379"
+        }
+    ],
+    ...
+```
+
+Now, we can create an updated deploy:
+
+`l0 deploy create Guestbook.Dockerrun.aws.json guestbook-dpl`
+
+We should see output like the following:
+
+```
+DEPLOY ID        DEPLOY NAME    VERSION
+guestbook-dpl.2  guestbook-dpl  2
+```
+
+
+---
+
+### Part 6: Update the Guestbook Service
+
+Almost all the pieces are in place! Now we just need to apply the new Guestbook deploy to the running Guestbook service:
+
+`l0 service update guestbook-svc guestbook-dpl:latest`
+
+As the Guestbook service moves through the phases of its update process, we should see outputs like the following (if we keep an eye on the service with `l0 service get guestbook-svc`, that is):
+
+```
+SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2*  1/1
+                                                        guestbook-dpl:1
+```
+
+_above: `guestbook-dpl:2` is in a transitional state_
+
+```
+SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS      SCALE
+guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2  2/1
+                                                        guestbook-dpl:1
+```
+
+_above: both versions of the deployment are running at scale_
+
+```
+SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2   1/1
+                                                        guestbook-dpl:1*
+```
+_above: `guestbook-dpl:1` is in a transitional state_
+```
+SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS      SCALE
+guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2  1/1
+```
+_above: `guestbook-dpl:1` has been removed, and only `guestbook-dpl:2` remains_
+
+
+---
+
+### Part 7: Prove It
+
+You should now be able to point your browser at the URL for the Guestbook loadbalancer (run `l0 loadbalancer get guestbook-svc` to find it) and see what looks like the same Guestbook application you deployed in the first section of the walkthrough. Go ahead and add a few entries, make sure it's functioning properly. We'll wait.
+
+Now, let's prove that we've actually separated the data from the application by deleting and redeploying the Guestbook application:
+
+`l0 service delete --wait guestbook-svc`
+`l0 loadbalancer delete --wait guestbook-lb`
+
+_(We'll leave the `deploy` intact so we can spin up a new service easily, and we'll leave the environment untouched because it also contained the Redis server. We'll also pass the `--wait` flag so that we don't need to keep checking on the status of the job to know when it's complete.)_
+
+Once those resources have been deleted, we can recreate them!
+
+Create another load balancer:
+
+`l0 loadbalancer create --ports 80:80/http demo-env guestbook-lb`
+
+Create another service, using the **guestbook-dpl** deploy we kept around:
+
+`l0 service create --loadbalancer demo-env:guestbook-lb demo-env guestbook-svc guestbook-dpl:latest`
+
+Wait for everything to spin up, and hit that new load balancer's url (`l0 loadbalancer get guestbook-lb`) with your browser. Your data should still be there!
+
+
+---
+
+### Cleanup
+
+If you're finished with the example and don't want to continue with this walkthrough, you can instruct Layer0 to delete the environment and terminate the application.
+
+`l0 environment delete demo-env`
+
+However, if you intend to continue through [Deployment 3](#deployment-3-guestbook-redis-consul), you will want to keep the resources you made in this section.
+
+
+---
+
+## 2b: Deploy with Terraform
+
+As before, we can complete this deployment using Terraform and the Layer0 provider instead of the Layer0 CLI. As before, we will assume that you've cloned the [layer0-examples](https://github.com/quintilesims/layer0-examples) repo and are working in the `iterative-walkthrough/deployment-2/` directory.
+
+We'll use these files to manage our deployment with Terraform:
+
+|Filename|Purpose|
+|---|---|
+|`Guestbook.Dockerrun.aws.json`|Template for running the Guestbook application|
+|`layer0.tf`|Provisions resources; populates variables in template files|
+|`Redis.Dockerrun.aws.json`|Template for running the Redis application|
+|`terraform.tfstate`|Tracks status of deployment _(created and managed by Terraform)_|
+|`terraform.tfvars`|Variables specific to the environment and application(s)|
+
+
+---
+
+### `Layer0.tf`: A Brief Aside: Revisited
+
+This file hasn't changed much since the first deployment - although, we _have_ added some things to it. You can see that the configurations for both the Guestbook _and_ the Redis services are contained within this single file.
+
+If you've gone through the [2a Deployment](#2a-deploy-with-layer0-cli) using the Layer0 CLI above, you'll recall that we had to obtain the URL of the Redis load balancer and manually plug it into the `Guestbook.Dockerrun.aws.json` task definition file. You may be wondering how we're supposed to do that, when Terraform creates all the resources at once. Good news! We don't have to! We can configure `layer0.tf` to get that information and plug it in automatically!
+
+When we manually edited that Guestbook task definition, we reconfigured a section that looked like this:
+
+```
+    ...
+    "environment": [
+        {
+            "name": "REDIS_ADDRESS_AND_PORT",
+            "value": "${redis_address}"
+        }
+    ],
+    ...
+```
+
+You've probably noticed that `${redis_address}` is a Terraform [interpolation](https://www.terraform.io/docs/configuration/interpolation.html). If you look for the `template_file` resource labeled `guestbook` in `layer0.tf`, you'll see that in addition to supplying the Guestbook task definition file, we're also configuring a variable to be passed to the template:
+
+```
+data "template_file" "guestbook" {
+	template = "${file("Guestbook.Dockerrun.aws.json")}"
+    
+    vars {
+        redis_address = "${layer0_load_balancer.redis-lb.url}:6379"
+    }
+}
+```
+
+We find the URL of the Redis load balancer, append ":6379" to it, and use that to populate the `redis_address` variable in the task definition.
+
+
+---
+
+### Part 1: Terraform Plan
+
+It's always a good idea to find out what Terraform intends to do, so let's do that:
+
+`terraform plan`
+
+As before, we'll be prompted for any variables Terraform needs and doesn't have (see the note in [Deployment 1b](#1b-deploy-with-terraform) for configuring Terraform variables). We'll see output similar to the following:
+
+```
+<= data.template_file.guestbook
+    rendered: "<computed>"
+    template: "{\n    \"AWSEBDockerrunVersion\": 2,\n    \"containerDefinitions\": [\n        {\n            \"name\": \"guestbook\",\n            \"image\": \"quintilesims/guestbook-redis\",\n            \"essential\": true,\n           \"memory\": 128,\n            \"environment\": [\n                {\n                    \"name\": \"REDIS_ADDRESS_AND_PORT\",\n                    \"value\": \"${redis_address}\"\n                }\n            ],\n           \"portMappings\": [\n                {\n                    \"hostPort\": 80,\n                    \"containerPort\": 80\n               }\n            ]\n        }\n    ]\n}\n"
+    vars.%:   "<computed>"
+
++ layer0_deploy.guestbook-dpl
+    content: "${data.template_file.guestbook.rendered}"
+    name:    "guestbook-dpl"
+
++ layer0_deploy.redis-dpl
+    content: "{\n    \"AWSEBDockerrunVersion\": 2,\n    \"containerDefinitions\": [\n        {\n            \"name\": \"redis\",\n            \"image\": \"redis:3.2-alpine\",\n            \"essential\": true,\n            \"memory\": 128,\n            \"portMappings\": [\n                {\n                    \"hostPort\": 6379,\n           \"containerPort\": 6379\n                }\n            ]\n        }\n    ]\n}\n"
+    name:    "redis-dpl"
+
++ layer0_environment.demo-env
+    cluster_count:     "<computed>"
+    name:              "demo-env"
+    security_group_id: "<computed>"
+    size:              "m3.medium"
+
++ layer0_load_balancer.guestbook-lb
+    environment:                    "${layer0_environment.demo-env.id}"
+    health_check.#:                 "<computed>"
+    name:                           "guestbook-lb"
+    port.#:                         "1"
+    port.2027667003.certificate:    ""
+    port.2027667003.container_port: "80"
+    port.2027667003.host_port:      "80"
+    port.2027667003.protocol:       "http"
+    url:                            "<computed>"
+
++ layer0_load_balancer.redis-lb
+    environment:                    "${layer0_environment.demo-env.id}"
+    health_check.#:                 "<computed>"
+    name:                           "redis-lb"
+    port.#:                         "1"
+    port.1072619732.certificate:    ""
+    port.1072619732.container_port: "6379"
+    port.1072619732.host_port:      "6379"
+    port.1072619732.protocol:       "tcp"
+    private:                        "true"
+    url:                            "<computed>"
+
++ layer0_service.guestbook-svc
+    deploy:        "${layer0_deploy.guestbook-dpl.id}"
+    environment:   "${layer0_environment.demo-env.id}"
+    load_balancer: "${layer0_load_balancer.guestbook-lb.id}"
+    name:          "guestbook-svc"
+    scale:         "1"
+
++ layer0_service.redis-svc
+    deploy:        "${layer0_deploy.redis-dpl.id}"
+    environment:   "${layer0_environment.demo-env.id}"
+    load_balancer: "${layer0_load_balancer.redis-lb.id}"
+    name:          "redis-svc"
+    scale:         "1"
+
+
+Plan: 7 to add, 0 to change, 0 to destroy.
+```
+
+We should see that Terraform intends to add 7 new resources, some of which are for the Guestbook deployment and some of which are for the Redis deployment.
+
+
+---
+
+### Part 2: Terraform Apply
+
+Run `terraform apply`, and we should see output similar to the following:
+
+```
+data.template_file.redis: Refreshing state...
+layer0_deploy.redis-dpl: Creating...
+
+...
+...
+...
+
+layer0_service.guestbook-svc: Creation complete
+
+Apply complete! Resources: 7 added, 0 changed, 0 destroyed.
+
+The state of your infrastructure has been saved to the path
+below. This state is required to modify and destroy your
+infrastructure, so keep it safe. To inspect the complete state
+use the `terraform show` command.
+
+State path: terraform.tfstate
+
+Outputs:
+
+guestbook_url = <http endpoint for the sample application>
+
+```
+
+!!! Note
+	It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.
+
+
+### What's Happening
 
 Terraform provisions the AWS resources through Layer0, configures environment variables for the application, and deploys the application into a Layer0 environment. Terraform also writes the state of your deployment to the `terraform.tfstate` file (creating a new one if it's not already there).
 
@@ -355,35 +814,8 @@ When you're finished with the example, you can instruct Terraform to destroy the
 `terraform destroy`
 
 !!! Note
-	As previously stated, Terraform writes the latest status of your deployment to `terraform.tfstate`. As you move on to [Deployment 2](#2b-deploy-with-terraform) of this walkthrough, it will be easier for you to just destroy your Terraform deployment with `terraform destroy`.
-
-	However, the `apply` command is idempotent -- if you'd like, you may bring your `terraform.tfstate` file with you when you change directories to `iterative-walkthrough/deployment-2/`. When you run `terraform apply` in the next section of this walkthrough, Terraform will create new resources as expected - but it will also update existing resources that have changes and destroy resources that are no longer necessary, and update `terraform.tfstate` accordingly.
-
-
----
-
-## Deployment 2: Guestbook + Redis
-
-INTRO TEXT GOES HERE. You can choose to complete this section using either the [Layer0 CLI](#2a-deploy-with-layer0-cli) or [Terraform](#2b-deploy-with-terraform).
-
-
-## 2a: Deploy with Layer0 CLI
-
-
----
-
-### Part 1:
-
-
----
-
-## 2b: Deploy with Terraform
-
-
----
-
-### Part 1:
-
+	Again, Terraform writes the latest status of your deployment to `terraform.tfstate`. When you're finished with this section and ready to move on to [Deployment 3](#3b-deploy-with-terraform), destroy your Terraform deployment with `terraform destroy`.
+    
 
 ---
 
