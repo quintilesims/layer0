@@ -138,9 +138,7 @@ func waitForHealthy(c *Context, timeout time.Duration) error {
 	}
 
 	fmt.Println("[INFO] Waiting for API to be healthy")
-	time.Sleep(time.Minute * 1)
-
-	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 30) {
+	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 15) {
 		resp, err := makeCall()
 		if err != nil {
 			fmt.Printf("[WARNING] Failed to check if API is healthy: %v\n", err)
