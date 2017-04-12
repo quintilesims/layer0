@@ -64,7 +64,7 @@ func (this *Logic) deleteEntityTags(entityType, entityID string) error {
 	}
 
 	for _, tag := range tags {
-		if err := this.TagStore.Delete(tag); err != nil {
+		if err := this.TagStore.Delete(tag.TagID); err != nil {
 			return err
 		}
 	}

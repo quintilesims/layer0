@@ -1,6 +1,10 @@
 package startup
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/session"
+
 	"github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/api/logic"
 	"github.com/quintilesims/layer0/api/scheduler"
@@ -123,10 +127,14 @@ func GetLogic(backend *ecsbackend.ECSBackend) (*logic.Logic, error) {
 }
 
 func getNewTagStore() (tag_store.TagStore, error) {
-	store := tag_store.NewMysqlTagStore(db.Config{
-		Connection: config.DBConnection(),
-		DBName:     config.DBName(),
-	})
+	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
+	awsConfig := &aws.Config{
+		Credentials: creds,
+		Region:      aws.String(config.AWSRegion()),
+	}
+
+	session := session.New(awsConfig)
+	store := tag_store.NewDynamoTagStore(session, config.DynamoTableName())
 
 	if err := store.Init(); err != nil {
 		return nil, err
