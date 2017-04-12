@@ -17,7 +17,6 @@ import (
 	"github.com/quintilesims/layer0/common/aws/provider"
 	"github.com/quintilesims/layer0/common/aws/s3"
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/db/job_store"
 	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/decorators"
@@ -134,7 +133,7 @@ func getNewTagStore() (tag_store.TagStore, error) {
 	}
 
 	session := session.New(awsConfig)
-	store := tag_store.NewDynamoTagStore(session, config.DynamoTableName())
+	store := tag_store.NewDynamoTagStore(session, config.DynamoTagTableName())
 
 	if err := store.Init(); err != nil {
 		return nil, err
@@ -144,10 +143,14 @@ func getNewTagStore() (tag_store.TagStore, error) {
 }
 
 func getNewJobStore() (job_store.JobStore, error) {
-	store := job_store.NewMysqlJobStore(db.Config{
-		Connection: config.DBConnection(),
-		DBName:     config.DBName(),
-	})
+	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
+	awsConfig := &aws.Config{
+		Credentials: creds,
+		Region:      aws.String(config.AWSRegion()),
+	}
+
+	session := session.New(awsConfig)
+	store := job_store.NewDynamoJobStore(session, config.DynamoJobTableName())
 
 	if err := store.Init(); err != nil {
 		return nil, err

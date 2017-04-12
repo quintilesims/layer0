@@ -1,0 +1,23 @@
+resource "aws_dynamodb_table" "tags" {
+  name           = "l0-${var.l0_prefix}-tags"
+  read_capacity  = 5
+  write_capacity = 5
+  hash_key       = "TagID"
+
+  attribute {
+    name = "TagID"
+    type = "N"
+  }
+}
+
+resource "aws_dynamodb_table" "jobs" {
+  name           = "l0-${var.l0_prefix}-jobs"
+  read_capacity  = 5
+  write_capacity = 5
+  hash_key       = "JobID"
+
+  attribute {
+    name = "JobID"
+    type = "S"
+  }
+}

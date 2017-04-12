@@ -51,7 +51,7 @@ func (d *DynamoTagStore) Delete(tagID int64) error {
 }
 
 func (d *DynamoTagStore) SelectAll() (models.Tags, error) {
-	var tags models.Tags
+	tags := models.Tags{}
 	if err := d.table.Scan().Consistent(true).All(&tags); err != nil {
 		return nil, err
 	}
@@ -73,7 +73,7 @@ func (d *DynamoTagStore) SelectByQuery(entityType, entityID string) (models.Tags
 		return d.SelectAll()
 	}
 
-	var tags models.Tags
+	tags := models.Tags{}
 	if err := scan.Consistent(true).All(&tags); err != nil {
 		return nil, err
 	}

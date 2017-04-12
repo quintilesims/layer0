@@ -192,3 +192,19 @@ resource "aws_iam_group_policy" "cloudwatchlogs" {
     group = "${aws_iam_group.group2.id}"
     policy = "${data.template_file.cloudwatchlogs_group_policy.rendered}"
 }
+
+data "template_file" "dynamo_group_policy" {
+    template = "${file("templates/dynamo_group_policy.json")}"
+    vars {
+        region = "${var.region}"
+        account_id = "${var.account_id}"
+        l0_prefix = "${var.l0_prefix}"
+    }
+}
+
+resource "aws_iam_group_policy" "dynamo" {
+    name = "l0-${var.l0_prefix}-dynamo"
+    group = "${aws_iam_group.group.id}"
+    policy = "${data.template_file.dynamo_group_policy.rendered}"
+}
+
