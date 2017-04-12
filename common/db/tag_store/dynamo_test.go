@@ -13,7 +13,7 @@ import (
 func NewTestTagStore(t *testing.T) *DynamoTagStore {
 	table := config.TestDynamoTableName()
 	if table == "" {
-		t.Skipf("Skipping test: %s not set", config.TEST_AWS_DYNAMO_TABLE_NAME)
+		t.Skipf("Skipping test: %s not set", config.TEST_AWS_DYNAMO_TABLE)
 	}
 
 	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")

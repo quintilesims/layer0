@@ -162,10 +162,10 @@ func (t *TagHandler) DeleteTag(request *restful.Request, response *restful.Respo
 	}
 
 	tagID, err := strconv.ParseInt(id, 10, 64)
-	if err != nil{
+	if err != nil {
 		err := fmt.Errorf("Paramter 'id' must be an int64")
-                BadRequest(response, errors.MissingParameter, err)
-                return
+		BadRequest(response, errors.MissingParameter, err)
+		return
 	}
 
 	if err := t.TagStore.Delete(tagID); err != nil {

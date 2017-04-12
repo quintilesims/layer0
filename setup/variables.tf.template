@@ -12,14 +12,6 @@ variable "setup_version" {}
 
 variable "s3_bucket" {}
 
-variable "db_api_username" {}
-
-variable "db_api_password" {}
-
-variable "db_master_username" {}
-
-variable "db_master_password" {}
-
 variable "api_docker_image" {}
 
 variable "api_docker_image_tag" {}

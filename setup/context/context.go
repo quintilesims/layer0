@@ -325,7 +325,7 @@ func (this *Context) writeTerraformFiles() error {
 		"iam.tf.template",
 		"outputs.tf.template",
 		"provider.tf.template",
-		"rds.tf.template",
+		"dynamo.tf.template",
 		"s3.tf.template",
 		"variables.tf.template",
 		"vpc.tf.template",

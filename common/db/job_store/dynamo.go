@@ -50,7 +50,7 @@ func (d *DynamoJobStore) Delete(jobID string) error {
 }
 
 func (d *DynamoJobStore) SelectAll() ([]*models.Job, error) {
-	var jobs []*models.Job
+	jobs := []*models.Job{}
 	if err := d.table.Scan().Consistent(true).All(&jobs); err != nil {
 		return nil, err
 	}

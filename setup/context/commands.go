@@ -373,6 +373,8 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 		settings["s3_bucket"] = config.AWS_S3_BUCKET
 		settings["linux_service_ami"] = config.AWS_LINUX_SERVICE_AMI
 		settings["windows_service_ami"] = config.AWS_WINDOWS_SERVICE_AMI
+		settings["dynamo_tag_table"] = config.AWS_DYNAMO_TAG_TABLE
+		settings["dynamo_job_table"] = config.AWS_DYNAMO_JOB_TABLE
 	}
 
 	for tfvar, envvar := range settings {
@@ -382,11 +384,6 @@ func Endpoint(c *Context, syntax string, insecure, dev, quiet bool) error {
 		}
 
 		fmt.Printf(format, envvar, val)
-	}
-
-	if dev {
-		fmt.Printf(format, config.DB_CONNECTION, fmt.Sprintf("layer0:nohaxplz@tcp(localhost:3306)/"))
-		fmt.Printf(format, config.DB_NAME, fmt.Sprintf("layer0_%s", c.Instance))
 	}
 
 	if insecure {
