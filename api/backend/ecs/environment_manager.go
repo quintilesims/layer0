@@ -209,6 +209,13 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 	ecsRole := config.AWSECSInstanceProfile()
 	keyPair := config.AWSKeyPair()
 	launchConfigurationName := ecsEnvironmentID.LaunchConfigurationName()
+	volSizes := map[string]int{}
+	if operatingSystem == "linux" {
+		volSizes["/dev/xvda"] = 8
+	} else {
+		volSizes["/dev/sda1"] = 200
+	}
+
 
 	if err := e.AutoScaling.CreateLaunchConfiguration(
 		&launchConfigurationName,
@@ -218,6 +225,7 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 		&keyPair,
 		&userData,
 		securityGroups,
+		volSizes,
 	); err != nil {
 		return nil, err
 	}

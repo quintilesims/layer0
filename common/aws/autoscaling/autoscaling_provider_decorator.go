@@ -17,10 +17,10 @@ func (this *ProviderDecorator) AttachLoadBalancer(p0 string, p1 string) (err err
 	err = this.Decorator("AttachLoadBalancer", call)
 	return err
 }
-func (this *ProviderDecorator) CreateLaunchConfiguration(p0 *string, p1 *string, p2 *string, p3 *string, p4 *string, p5 *string, p6 []*string) (err error) {
+func (this *ProviderDecorator) CreateLaunchConfiguration(p0 *string, p1 *string, p2 *string, p3 *string, p4 *string, p5 *string, p6 []*string, p7 map[string]int) (err error) {
 	call := func() error {
 		var err error
-		err = this.Inner.CreateLaunchConfiguration(p0, p1, p2, p3, p4, p5, p6)
+		err = this.Inner.CreateLaunchConfiguration(p0, p1, p2, p3, p4, p5, p6, p7)
 		return err
 	}
 	err = this.Decorator("CreateLaunchConfiguration", call)
@@ -125,3 +125,4 @@ func (this *ProviderDecorator) TerminateInstanceInAutoScalingGroup(p0 string, p1
 	err = this.Decorator("TerminateInstanceInAutoScalingGroup", call)
 	return v0, err
 }
+
