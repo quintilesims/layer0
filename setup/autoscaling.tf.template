@@ -35,10 +35,6 @@ resource "aws_autoscaling_group" "ecs_cluster" {
     health_check_type = "EC2"
     health_check_grace_period = "300"
 
-    depends_on = [
-      "aws_db_instance.api" 
-    ]
-
     tag {
         key = "Name"
         value =  "l0-${var.l0_prefix}-api"

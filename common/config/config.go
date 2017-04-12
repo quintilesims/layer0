@@ -21,8 +21,8 @@ const (
 	AWS_S3_BUCKET                   = "LAYER0_AWS_S3_BUCKET"
 	AWS_ECS_AGENT_SECURITY_GROUP_ID = "LAYER0_AWS_ECS_AGENT_SECURITY_GROUP_ID"
 	AWS_ECS_INSTANCE_PROFILE        = "LAYER0_AWS_ECS_INSTANCE_PROFILE"
-	AWS_DYNAMO_TAG_TABLE_NAME           = "LAYER0_AWS_DYNAMO_TAG_TABLE_NAME"
-	 AWS_DYNAMO_JOB_TABLE_NAME           = "LAYER0_AWS_DYNAMO_JOB_TABLE_NAME"
+	AWS_DYNAMO_TAG_TABLE       = "LAYER0_AWS_DYNAMO_TAG_TABLE"
+	AWS_DYNAMO_JOB_TABLE       = "LAYER0_AWS_DYNAMO_JOB_TABLE"
 	JOB_ID                          = "LAYER0_JOB_ID"
 	AWS_LINUX_SERVICE_AMI           = "LAYER0_AWS_LINUX_SERVICE_AMI"
 	AWS_WINDOWS_SERVICE_AMI         = "LAYER0_AWS_WINDOWS_SERVICE_AMI"
@@ -36,20 +36,17 @@ const (
 	RUNNER_VERSION_TAG              = "LAYER0_RUNNER_VERSION_TAG"
 	SKIP_SSL_VERIFY                 = "LAYER0_SKIP_SSL_VERIFY"
 	SKIP_VERSION_VERIFY             = "LAYER0_SKIP_VERSION_VERIFY"
-	DB_CONNECTION                   = "LAYER0_DB_CONNECTION"
-	DB_NAME                         = "LAYER0_DB_NAME"
-	TEST_AWS_TAG_DYNAMO_TABLE_NAME      = "LAYER0_TEST_AWS_TAG_DYNAMO_TABLE_NAME"
-	 TEST_AWS_JOB_DYNAMO_TABLE_NAME      = "LAYER0_TEST_AWS_JOB_DYNAMO_TABLE_NAME"
+	TEST_AWS_TAG_DYNAMO_TABLE  = "LAYER0_TEST_AWS_TAG_DYNAMO_TABLE"
+	TEST_AWS_JOB_DYNAMO_TABLE  = "LAYER0_TEST_AWS_JOB_DYNAMO_TABLE"
 )
 
 // defaults
 // bGF5ZXIwOm5vaGF4cGx6 = layer0:nohaxplz, base64 encoded (basic http auth)
 const (
-	DEFAULT_DB_CONNECTION = "layer0:nohaxplz@tcp(127.0.0.1:3306)/"
-	DEFAULT_AUTH_TOKEN    = "bGF5ZXIwOm5vaGF4cGx6"
-	DEFAULT_API_ENDPOINT  = "http://localhost:9090/"
-	DEFAULT_API_PORT      = "9090"
-	DEFAULT_AWS_REGION    = "us-west-2"
+	DEFAULT_AUTH_TOKEN   = "bGF5ZXIwOm5vaGF4cGx6"
+	DEFAULT_API_ENDPOINT = "http://localhost:9090/"
+	DEFAULT_API_PORT     = "9090"
+	DEFAULT_AWS_REGION   = "us-west-2"
 )
 
 // api resource tags
@@ -108,14 +105,6 @@ func getOr(key, defaultVal string) string {
 	}
 
 	return defaultVal
-}
-
-func DBName() string {
-	return getOr(DB_NAME, fmt.Sprintf("layer0_%s", Prefix()))
-}
-
-func DBConnection() string {
-	return getOr(DB_CONNECTION, DEFAULT_DB_CONNECTION)
 }
 
 var apiVersion string
@@ -210,20 +199,20 @@ func APILogLevel() string {
 
 func DynamoTagTableName() string {
 	other := fmt.Sprintf("l0-%s-tags", Prefix())
-	return getOr(AWS_DYNAMO_TAG_TABLE_NAME, other)
+	return getOr(AWS_DYNAMO_TAG_TABLE, other)
 }
 
 func TestDynamoTagTableName() string {
-	return get(TEST_AWS_TAG_DYNAMO_TABLE_NAME)
+	return get(TEST_AWS_TAG_DYNAMO_TABLE)
 }
 
 func DynamoJobTableName() string {
-        other := fmt.Sprintf("l0-%s-jobs", Prefix())
-        return getOr(AWS_DYNAMO_JOB_TABLE_NAME, other)
+	other := fmt.Sprintf("l0-%s-jobs", Prefix())
+	return getOr(AWS_DYNAMO_JOB_TABLE, other)
 }
 
 func TestDynamoJobTableName() string {
-        return get(TEST_AWS_JOB_DYNAMO_TABLE_NAME)
+	return get(TEST_AWS_JOB_DYNAMO_TABLE)
 }
 
 func Prefix() string {

@@ -74,34 +74,6 @@ output "api_auth_token" {
 	value = "${var.api_auth_token}"
 }
 
-output "db_port" {
-    value = "${aws_db_instance.api.port}"
-}
-
-output "db_address" {
-    value = "${aws_db_instance.api.address}"
-}
-
-output "db_name" {
-    value = "${aws_db_instance.api.name}"
-}
-
-output "db_api_username" {
-    value = "${var.db_api_username}"
-}
-
-output "db_api_password" {
-    value = "${var.db_api_password}"
-}
-
-output "db_master_username" {
-    value = "${var.db_master_username}"
-}
-
-output "db_master_password" {
-    value = "${var.db_master_password}"
-}
-
 output "api_private_security_group" {
     value = "${aws_security_group.api_private.id}"
 }
@@ -128,4 +100,12 @@ output "windows_service_ami" {
 
 output "cloudwatch_log_group" {
     value = "${aws_cloudwatch_log_group.l0.name}"
+}
+
+output "dynamo_tag_table" {
+	value = "${aws_dynamodb_table.tags.id}"
+}
+
+output "dynamo_job_table" {
+	value = "${aws_dynamodb_table.jobs.id}"
 }

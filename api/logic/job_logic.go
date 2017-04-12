@@ -161,12 +161,12 @@ func (this *L0JobLogic) createJobDeploy(jobID string) (*models.Deploy, error) {
 				Val: jobID,
 			},
 			{
-				Key: config.DB_CONNECTION,
-				Val: config.DBConnection(),
+				Key: config.AWS_DYNAMO_TAG_TABLE,
+				Val: config.DynamoTagTableName(),
 			},
 			{
-				Key: config.DB_NAME,
-				Val: config.DBName(),
+				Key: config.AWS_DYNAMO_JOB_TABLE,
+				Val: config.DynamoJobTableName(),
 			},
 			{
 				Key: config.AWS_ACCESS_KEY_ID,

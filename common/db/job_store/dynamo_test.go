@@ -14,7 +14,7 @@ import (
 func NewTestJobStore(t *testing.T) *DynamoJobStore {
 	table := config.TestDynamoJobTableName()
 	if table == "" {
-		t.Skipf("Skipping test: %s not set", config.TEST_AWS_JOB_DYNAMO_TABLE_NAME)
+		t.Skipf("Skipping test: %s not set", config.TEST_AWS_JOB_DYNAMO_TABLE)
 	}
 
 	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
