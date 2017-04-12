@@ -21,7 +21,8 @@ const (
 	AWS_S3_BUCKET                   = "LAYER0_AWS_S3_BUCKET"
 	AWS_ECS_AGENT_SECURITY_GROUP_ID = "LAYER0_AWS_ECS_AGENT_SECURITY_GROUP_ID"
 	AWS_ECS_INSTANCE_PROFILE        = "LAYER0_AWS_ECS_INSTANCE_PROFILE"
-	AWS_DYNAMO_TABLE_NAME           = "LAYER0_AWS_DYNAMO_TABLE_NAME"
+	AWS_DYNAMO_TAG_TABLE_NAME           = "LAYER0_AWS_DYNAMO_TAG_TABLE_NAME"
+	 AWS_DYNAMO_JOB_TABLE_NAME           = "LAYER0_AWS_DYNAMO_JOB_TABLE_NAME"
 	JOB_ID                          = "LAYER0_JOB_ID"
 	AWS_LINUX_SERVICE_AMI           = "LAYER0_AWS_LINUX_SERVICE_AMI"
 	AWS_WINDOWS_SERVICE_AMI         = "LAYER0_AWS_WINDOWS_SERVICE_AMI"
@@ -37,7 +38,8 @@ const (
 	SKIP_VERSION_VERIFY             = "LAYER0_SKIP_VERSION_VERIFY"
 	DB_CONNECTION                   = "LAYER0_DB_CONNECTION"
 	DB_NAME                         = "LAYER0_DB_NAME"
-	TEST_AWS_DYNAMO_TABLE_NAME      = "LAYER0_TEST_AWS_DYNAMO_TABLE_NAME"
+	TEST_AWS_TAG_DYNAMO_TABLE_NAME      = "LAYER0_TEST_AWS_TAG_DYNAMO_TABLE_NAME"
+	 TEST_AWS_JOB_DYNAMO_TABLE_NAME      = "LAYER0_TEST_AWS_JOB_DYNAMO_TABLE_NAME"
 )
 
 // defaults
@@ -206,13 +208,22 @@ func APILogLevel() string {
 	return getOr(API_LOG_LEVEL, "1")
 }
 
-func DynamoTableName() string {
-	other := fmt.Sprintf("l0-%s-api", Prefix())
-	return getOr(AWS_DYNAMO_TABLE_NAME, other)
+func DynamoTagTableName() string {
+	other := fmt.Sprintf("l0-%s-tags", Prefix())
+	return getOr(AWS_DYNAMO_TAG_TABLE_NAME, other)
 }
 
-func TestDynamoTableName() string {
-	return get(TEST_AWS_DYNAMO_TABLE_NAME)
+func TestDynamoTagTableName() string {
+	return get(TEST_AWS_TAG_DYNAMO_TABLE_NAME)
+}
+
+func DynamoJobTableName() string {
+        other := fmt.Sprintf("l0-%s-jobs", Prefix())
+        return getOr(AWS_DYNAMO_JOB_TABLE_NAME, other)
+}
+
+func TestDynamoJobTableName() string {
+        return get(TEST_AWS_JOB_DYNAMO_TABLE_NAME)
 }
 
 func Prefix() string {
