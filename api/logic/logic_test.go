@@ -25,25 +25,12 @@ func TestMain(m *testing.M) {
 type TestLogic struct {
 	Backend  *mock_backend.MockBackend
 	JobStore *job_store.MysqlJobStore
-	TagStore *tag_store.MysqlTagStore
+	TagStore *tag_store.MemoryTagStore
 	Scaler   *mock_scheduler.MockEnvironmentScaler
 }
 
 func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
-
-	tagStore := tag_store.NewMysqlTagStore(db.Config{
-		Connection: config.DBConnection(),
-		DBName:     config.DBName() + "_logic",
-	})
-
-	if err := tagStore.Init(); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := tagStore.Clear(); err != nil {
-		t.Fatal(err)
-	}
 
 	jobStore := job_store.NewMysqlJobStore(db.Config{
 		Connection: config.DBConnection(),
@@ -61,7 +48,7 @@ func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
 	logic := &TestLogic{
 		Backend:  mock_backend.NewMockBackend(ctrl),
 		JobStore: jobStore,
-		TagStore: tagStore,
+		TagStore: tag_store.NewMemoryTagStore(),
 		Scaler:   mock_scheduler.NewMockEnvironmentScaler(ctrl),
 	}
 

@@ -3,8 +3,6 @@ package handlers
 import (
 	"fmt"
 	"github.com/emicklei/go-restful"
-	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
@@ -26,17 +24,9 @@ var testTags = []*models.Tag{
 	{EntityID: "t2", EntityType: "task", Key: "name", Value: "tsk_2"},
 }
 
-func getTestTagStore(t *testing.T, tags []*models.Tag) *tag_store.MysqlTagStore {
-	tagStore := tag_store.NewMysqlTagStore(db.Config{
-		Connection: config.DBConnection(),
-		DBName:     config.DBName() + "_handlers",
-	})
-
+func getTestTagStore(t *testing.T, tags []*models.Tag) tag_store.TagStore {
+	tagStore := tag_store.NewMemoryTagStore()
 	if err := tagStore.Init(); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := tagStore.Clear(); err != nil {
 		t.Fatal(err)
 	}
 

@@ -1784,6 +1784,12 @@
 			"revisionTime": "2017-01-11T18:39:26Z"
 		},
 		{
+			"checksumSHA1": "GmGsKyOgqIgOduPnvnaPGPR9cSU=",
+			"path": "github.com/guregu/dynamo",
+			"revision": "1e320cfa679d735cdca5e730806e4a8784fe44ee",
+			"revisionTime": "2017-04-12T17:12:55Z"
+		},
+		{
 			"checksumSHA1": "FUiF2WLrih0JdHsUTMMDz3DRokw=",
 			"origin": "github.com/hashicorp/terraform/vendor/github.com/hashicorp/atlas-go/archive",
 			"path": "github.com/hashicorp/atlas-go/archive",
