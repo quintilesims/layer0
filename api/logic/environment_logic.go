@@ -169,7 +169,7 @@ func (e *L0EnvironmentLogic) DeleteEnvironmentLink(sourceEnvironmentID, destEnvi
 	}
 
 	for _, tag := range sourceTags.WithKey("link").WithValue(destEnvironmentID) {
-		if err := e.TagStore.Delete(tag); err != nil {
+		if err := e.TagStore.Delete(tag.TagID); err != nil {
 			return err
 		}
 	}
@@ -180,7 +180,7 @@ func (e *L0EnvironmentLogic) DeleteEnvironmentLink(sourceEnvironmentID, destEnvi
 	}
 
 	for _, tag := range destTags.WithKey("link").WithValue(sourceEnvironmentID) {
-		if err := e.TagStore.Delete(tag); err != nil {
+		if err := e.TagStore.Delete(tag.TagID); err != nil {
 			return err
 		}
 	}
