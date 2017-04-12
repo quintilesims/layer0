@@ -216,7 +216,6 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 		volSizes["/dev/sda1"] = 200
 	}
 
-
 	if err := e.AutoScaling.CreateLaunchConfiguration(
 		&launchConfigurationName,
 		&serviceAMI,

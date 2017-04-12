@@ -122,14 +122,14 @@ func (this *AutoScaling) CreateLaunchConfiguration(
 	}
 
 	blocks := []*autoscaling.BlockDeviceMapping{}
-	for vol, size := range volSizes{
+	for vol, size := range volSizes {
 		block := &autoscaling.BlockDeviceMapping{
 			DeviceName: aws.String(vol),
 			//VirtualName?
 			Ebs: &autoscaling.Ebs{
 				DeleteOnTermination: aws.Bool(true),
-				VolumeSize: aws.Int64(int64(size)),
-				VolumeType: aws.String("gp2"),
+				VolumeSize:          aws.Int64(int64(size)),
+				VolumeType:          aws.String("gp2"),
 			},
 		}
 
@@ -144,7 +144,7 @@ func (this *AutoScaling) CreateLaunchConfiguration(
 		UserData:                userData,
 		LaunchConfigurationName: name,
 		SecurityGroups:          securityGroups,
-		BlockDeviceMappings: blocks,
+		BlockDeviceMappings:     blocks,
 	}
 
 	connection, err := this.Connect()

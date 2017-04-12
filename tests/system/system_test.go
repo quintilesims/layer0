@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/tests/system/clients"
 	"github.com/quintilesims/tftest"
