@@ -19,12 +19,12 @@ func resourceAliyunEip() *schema.Resource {
 		Delete: resourceAliyunEipDelete,
 
 		Schema: map[string]*schema.Schema{
-			"bandwidth": &schema.Schema{
+			"bandwidth": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  5,
 			},
-			"internet_charge_type": &schema.Schema{
+			"internet_charge_type": {
 				Type:         schema.TypeString,
 				Default:      "PayByBandwidth",
 				Optional:     true,
@@ -32,17 +32,17 @@ func resourceAliyunEip() *schema.Resource {
 				ValidateFunc: validateInternetChargeType,
 			},
 
-			"ip_address": &schema.Schema{
+			"ip_address": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"instance": &schema.Schema{
+			"instance": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,

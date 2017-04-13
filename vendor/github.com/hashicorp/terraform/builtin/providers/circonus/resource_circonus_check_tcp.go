@@ -44,37 +44,37 @@ var schemaCheckTCP = &schema.Schema{
 	Set:      hashCheckTCP,
 	Elem: &schema.Resource{
 		Schema: convertToHelperSchema(checkTCPDescriptions, map[schemaAttr]*schema.Schema{
-			checkTCPBannerRegexpAttr: &schema.Schema{
+			checkTCPBannerRegexpAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkTCPBannerRegexpAttr, `.+`),
 			},
-			checkTCPCAChainAttr: &schema.Schema{
+			checkTCPCAChainAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkTCPCAChainAttr, `.+`),
 			},
-			checkTCPCertFileAttr: &schema.Schema{
+			checkTCPCertFileAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkTCPCertFileAttr, `.+`),
 			},
-			checkTCPCiphersAttr: &schema.Schema{
+			checkTCPCiphersAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkTCPCiphersAttr, `.+`),
 			},
-			checkTCPHostAttr: &schema.Schema{
+			checkTCPHostAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRegexp(checkTCPHostAttr, `.+`),
 			},
-			checkTCPKeyFileAttr: &schema.Schema{
+			checkTCPKeyFileAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkTCPKeyFileAttr, `.+`),
 			},
-			checkTCPPortAttr: &schema.Schema{
+			checkTCPPortAttr: {
 				Type:     schema.TypeInt,
 				Required: true,
 				ValidateFunc: validateFuncs(
@@ -82,7 +82,7 @@ var schemaCheckTCP = &schema.Schema{
 					validateIntMax(checkTCPPortAttr, 65535),
 				),
 			},
-			checkTCPTLSAttr: &schema.Schema{
+			checkTCPTLSAttr: {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
@@ -149,8 +149,8 @@ func checkAPIToStateTCP(c *circonusCheck, d *schema.ResourceData) error {
 	saveBoolConfigToState(config.UseSSL, checkTCPTLSAttr)
 
 	whitelistedConfigKeys := map[config.Key]struct{}{
-		config.ReverseSecretKey: struct{}{},
-		config.SubmissionURL:    struct{}{},
+		config.ReverseSecretKey: {},
+		config.SubmissionURL:    {},
 	}
 
 	for k := range swamp {

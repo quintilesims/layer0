@@ -164,15 +164,15 @@ func TestCreateTaskError_missingRequiredParams(t *testing.T) {
 	taskLogic := NewL0TaskLogic(testLogic.Logic())
 
 	cases := map[string]models.CreateTaskRequest{
-		"Missing EnvironmentID": models.CreateTaskRequest{
+		"Missing EnvironmentID": {
 			TaskName: "name",
 			DeployID: "d1",
 		},
-		"Missing TaskName": models.CreateTaskRequest{
+		"Missing TaskName": {
 			EnvironmentID: "e1",
 			DeployID:      "d1",
 		},
-		"Missing DeployID": models.CreateTaskRequest{
+		"Missing DeployID": {
 			EnvironmentID: "e1",
 			TaskName:      "name",
 		},

@@ -18,13 +18,13 @@ func resourceAliyunVpc() *schema.Resource {
 		Delete: resourceAliyunVpcDelete,
 
 		Schema: map[string]*schema.Schema{
-			"cidr_block": &schema.Schema{
+			"cidr_block": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateCIDRNetworkAddress,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
@@ -40,7 +40,7 @@ func resourceAliyunVpc() *schema.Resource {
 					return
 				},
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
@@ -52,11 +52,11 @@ func resourceAliyunVpc() *schema.Resource {
 					return
 				},
 			},
-			"router_id": &schema.Schema{
+			"router_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"router_table_id": &schema.Schema{
+			"router_table_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

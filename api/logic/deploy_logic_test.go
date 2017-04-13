@@ -134,7 +134,7 @@ func TestCreateDeployError_missingRequiredParams(t *testing.T) {
 	deployLogic := NewL0DeployLogic(testLogic.Logic())
 
 	cases := map[string]models.CreateDeployRequest{
-		"Missing DeployName": models.CreateDeployRequest{},
+		"Missing DeployName": {},
 	}
 
 	for name, request := range cases {

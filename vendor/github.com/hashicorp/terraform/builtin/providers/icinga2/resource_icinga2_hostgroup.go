@@ -14,13 +14,13 @@ func resourceIcinga2Hostgroup() *schema.Resource {
 		Read:   resourceIcinga2HostgroupRead,
 		Delete: resourceIcinga2HostgroupDelete,
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "name",
 				ForceNew:    true,
 			},
-			"display_name": &schema.Schema{
+			"display_name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Display name of Host Group",

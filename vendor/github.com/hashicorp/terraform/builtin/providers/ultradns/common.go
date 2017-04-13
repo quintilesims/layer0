@@ -62,17 +62,17 @@ func unzipRdataHosts(configured []interface{}) []string {
 func schemaPingProbe() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"packets": &schema.Schema{
+			"packets": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  3,
 			},
-			"packet_size": &schema.Schema{
+			"packet_size": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  56,
 			},
-			"limit": &schema.Schema{
+			"limit": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Set:      hashLimits,
@@ -85,19 +85,19 @@ func schemaPingProbe() *schema.Resource {
 func resourceProbeLimits() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"warning": &schema.Schema{
+			"warning": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"critical": &schema.Schema{
+			"critical": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"fail": &schema.Schema{
+			"fail": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},

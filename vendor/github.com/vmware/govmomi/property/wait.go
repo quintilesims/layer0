@@ -107,7 +107,7 @@ func WaitForView(ctx context.Context, c *Collector, view types.ManagedObjectRefe
 				},
 			},
 			PropSet: []types.PropertySpec{
-				types.PropertySpec{
+				{
 					Type:    obj.Type,
 					PathSet: ps,
 				},

@@ -23,7 +23,7 @@ func TestGetLogs(t *testing.T) {
 	taskARN := "arn:aws:ecs:region:aws_account_id:task/taskARN"
 
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should add proper logs lines to models",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockCW := mock_cloudwatchlogs.NewMockProvider(ctrl)

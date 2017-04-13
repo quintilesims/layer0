@@ -18,22 +18,22 @@ func resourceUltradnsTcpool() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			// Required
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Required: true,
 				// 0-255 char
 			},
-			"rdata": &schema.Schema{
+			"rdata": {
 				Type:     schema.TypeSet,
 				Set:      hashRdatas,
 				Required: true,
@@ -41,39 +41,39 @@ func resourceUltradnsTcpool() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						// Required
-						"host": &schema.Schema{
+						"host": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 						// Optional
-						"failover_delay": &schema.Schema{
+						"failover_delay": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  0,
 							// Valid: 0-30
 							// Units: Minutes
 						},
-						"priority": &schema.Schema{
+						"priority": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  1,
 						},
-						"run_probes": &schema.Schema{
+						"run_probes": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  true,
 						},
-						"state": &schema.Schema{
+						"state": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "NORMAL",
 						},
-						"threshold": &schema.Schema{
+						"threshold": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  1,
 						},
-						"weight": &schema.Schema{
+						"weight": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  2,
@@ -83,39 +83,39 @@ func resourceUltradnsTcpool() *schema.Resource {
 				},
 			},
 			// Optional
-			"ttl": &schema.Schema{
+			"ttl": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  3600,
 			},
-			"run_probes": &schema.Schema{
+			"run_probes": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
-			"act_on_probes": &schema.Schema{
+			"act_on_probes": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
-			"max_to_lb": &schema.Schema{
+			"max_to_lb": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				// Valid: 0 <= i <= len(rdata)
 			},
-			"backup_record_rdata": &schema.Schema{
+			"backup_record_rdata": {
 				Type:     schema.TypeString,
 				Optional: true,
 				// Valid: IPv4 address or CNAME
 			},
-			"backup_record_failover_delay": &schema.Schema{
+			"backup_record_failover_delay": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				// Valid: 0-30
 				// Units: Minutes
 			},
 			// Computed
-			"hostname": &schema.Schema{
+			"hostname": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

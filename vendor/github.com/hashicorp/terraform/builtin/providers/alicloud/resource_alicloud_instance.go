@@ -19,142 +19,142 @@ func resourceAliyunInstance() *schema.Resource {
 		Delete: resourceAliyunInstanceDelete,
 
 		Schema: map[string]*schema.Schema{
-			"availability_zone": &schema.Schema{
+			"availability_zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"image_id": &schema.Schema{
+			"image_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"instance_type": &schema.Schema{
+			"instance_type": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"security_groups": &schema.Schema{
+			"security_groups": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Optional: true,
 			},
 
-			"allocate_public_ip": &schema.Schema{
+			"allocate_public_ip": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
 
-			"instance_name": &schema.Schema{
+			"instance_name": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      "ECS-Instance",
 				ValidateFunc: validateInstanceName,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateInstanceDescription,
 			},
 
-			"instance_network_type": &schema.Schema{
+			"instance_network_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"internet_charge_type": &schema.Schema{
+			"internet_charge_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateInternetChargeType,
 			},
-			"internet_max_bandwidth_in": &schema.Schema{
+			"internet_max_bandwidth_in": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"internet_max_bandwidth_out": &schema.Schema{
+			"internet_max_bandwidth_out": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateInternetMaxBandWidthOut,
 			},
-			"host_name": &schema.Schema{
+			"host_name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"password": &schema.Schema{
+			"password": {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Sensitive: true,
 			},
-			"io_optimized": &schema.Schema{
+			"io_optimized": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateIoOptimized,
 			},
 
-			"system_disk_category": &schema.Schema{
+			"system_disk_category": {
 				Type:     schema.TypeString,
 				Default:  "cloud",
 				Optional: true,
 				ForceNew: true,
 			},
-			"system_disk_size": &schema.Schema{
+			"system_disk_size": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
 
 			//subnet_id and vswitch_id both exists, cause compatible old version, and aws habit.
-			"subnet_id": &schema.Schema{
+			"subnet_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true, //add this schema cause subnet_id not used enter parameter, will different, so will be ForceNew
 			},
 
-			"vswitch_id": &schema.Schema{
+			"vswitch_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"instance_charge_type": &schema.Schema{
+			"instance_charge_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateInstanceChargeType,
 			},
-			"period": &schema.Schema{
+			"period": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"public_ip": &schema.Schema{
+			"public_ip": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"private_ip": &schema.Schema{
+			"private_ip": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"user_data": &schema.Schema{
+			"user_data": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,

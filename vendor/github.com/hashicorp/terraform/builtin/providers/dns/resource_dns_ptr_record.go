@@ -16,21 +16,21 @@ func resourceDnsPtrRecord() *schema.Resource {
 		Delete: resourceDnsPtrRecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"ptr": &schema.Schema{
+			"ptr": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"ttl": &schema.Schema{
+			"ttl": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,

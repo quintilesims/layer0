@@ -492,8 +492,6 @@ func (e *ECSLoadBalancerManager) upsertSecurityGroup(ecsLoadBalancerID id.ECSLoa
 			return securityGroup != nil, nil
 		}
 
-		fmt.Sprintf("SecurityGroup delete for '%s'", securityGroup)
-
 		waiter := waitutils.Waiter{
 			Name:    fmt.Sprintf("SecurityGroup setup for '%s'", ecsLoadBalancerID),
 			Retries: 50,
@@ -594,7 +592,7 @@ func ingressPortDifference(requested, current []int64) []int64 {
 
 func (e *ECSLoadBalancerManager) getSubnetsAndAvailZones(public bool) ([]*string, []*string, error) {
 
-	// todo: the majority of this function can be taken out, we essentially jsut need to split
+	// todo: the majority of this function can be taken out, we essentially just need to split
 	// config.Subnets() and return []string. AWS Handles the overlap error check for us already
 	var subnets string
 	if public {

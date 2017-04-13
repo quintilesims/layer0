@@ -10,20 +10,20 @@ import (
 func dataSourceResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"sourcetype": &schema.Schema{
+			"sourcetype": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"config": &schema.Schema{
+			"config": {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},

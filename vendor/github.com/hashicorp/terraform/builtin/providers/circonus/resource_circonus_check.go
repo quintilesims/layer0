@@ -131,20 +131,20 @@ func resourceCheck() *schema.Resource {
 		},
 
 		Schema: convertToHelperSchema(checkDescriptions, map[schemaAttr]*schema.Schema{
-			checkActiveAttr: &schema.Schema{
+			checkActiveAttr: {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
 			checkCAQLAttr:       schemaCheckCAQL,
 			checkCloudWatchAttr: schemaCheckCloudWatch,
-			checkCollectorAttr: &schema.Schema{
+			checkCollectorAttr: {
 				Type:     schema.TypeSet,
 				Optional: true,
 				MinItems: 1,
 				Elem: &schema.Resource{
 					Schema: convertToHelperSchema(checkCollectorDescriptions, map[schemaAttr]*schema.Schema{
-						checkCollectorIDAttr: &schema.Schema{
+						checkCollectorIDAttr: {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validateRegexp(checkCollectorIDAttr, config.BrokerCIDRegex),
@@ -156,7 +156,7 @@ func resourceCheck() *schema.Resource {
 			checkHTTPTrapAttr: schemaCheckHTTPTrap,
 			checkJSONAttr:     schemaCheckJSON,
 			checkICMPPingAttr: schemaCheckICMPPing,
-			checkMetricLimitAttr: &schema.Schema{
+			checkMetricLimitAttr: {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
@@ -165,18 +165,18 @@ func resourceCheck() *schema.Resource {
 				),
 			},
 			checkMySQLAttr: schemaCheckMySQL,
-			checkNameAttr: &schema.Schema{
+			checkNameAttr: {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			checkNotesAttr: &schema.Schema{
+			checkNotesAttr: {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Computed:  true,
 				StateFunc: suppressWhitespace,
 			},
-			checkPeriodAttr: &schema.Schema{
+			checkPeriodAttr: {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Computed:  true,
@@ -187,30 +187,30 @@ func resourceCheck() *schema.Resource {
 				),
 			},
 			checkPostgreSQLAttr: schemaCheckPostgreSQL,
-			checkMetricAttr: &schema.Schema{
+			checkMetricAttr: {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Set:      checkMetricChecksum,
 				MinItems: 1,
 				Elem: &schema.Resource{
 					Schema: convertToHelperSchema(checkMetricDescriptions, map[schemaAttr]*schema.Schema{
-						metricActiveAttr: &schema.Schema{
+						metricActiveAttr: {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  true,
 						},
-						metricNameAttr: &schema.Schema{
+						metricNameAttr: {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validateRegexp(metricNameAttr, `[\S]+`),
 						},
 						metricTagsAttr: tagMakeConfigSchema(metricTagsAttr),
-						metricTypeAttr: &schema.Schema{
+						metricTypeAttr: {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validateMetricType,
 						},
-						metricUnitAttr: &schema.Schema{
+						metricUnitAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      metricUnit,
@@ -220,14 +220,14 @@ func resourceCheck() *schema.Resource {
 				},
 			},
 			checkTagsAttr: tagMakeConfigSchema(checkTagsAttr),
-			checkTargetAttr: &schema.Schema{
+			checkTargetAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validateRegexp(checkTagsAttr, `.+`),
 			},
 			checkTCPAttr: schemaCheckTCP,
-			checkTimeoutAttr: &schema.Schema{
+			checkTimeoutAttr: {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Computed:  true,
@@ -237,7 +237,7 @@ func resourceCheck() *schema.Resource {
 					validateDurationMax(checkTimeoutAttr, defaultCirconusTimeoutMax),
 				),
 			},
-			checkTypeAttr: &schema.Schema{
+			checkTypeAttr: {
 				Type:         schema.TypeString,
 				Computed:     true,
 				Optional:     true,
@@ -246,40 +246,40 @@ func resourceCheck() *schema.Resource {
 			},
 
 			// Out parameters
-			checkOutByCollectorAttr: &schema.Schema{
+			checkOutByCollectorAttr: {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			checkOutCheckUUIDsAttr: &schema.Schema{
+			checkOutCheckUUIDsAttr: {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			checkOutChecksAttr: &schema.Schema{
+			checkOutChecksAttr: {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			checkOutCreatedAttr: &schema.Schema{
+			checkOutCreatedAttr: {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			checkOutLastModifiedAttr: &schema.Schema{
+			checkOutLastModifiedAttr: {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
-			checkOutLastModifiedByAttr: &schema.Schema{
+			checkOutLastModifiedByAttr: {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			checkOutReverseConnectURLsAttr: &schema.Schema{
+			checkOutReverseConnectURLsAttr: {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Schema{

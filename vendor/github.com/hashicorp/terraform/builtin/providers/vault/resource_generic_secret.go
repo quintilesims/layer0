@@ -18,7 +18,7 @@ func genericSecretResource() *schema.Resource {
 		Read:   genericSecretResourceRead,
 
 		Schema: map[string]*schema.Schema{
-			"path": &schema.Schema{
+			"path": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
@@ -27,7 +27,7 @@ func genericSecretResource() *schema.Resource {
 
 			// Data is passed as JSON so that an arbitrary structure is
 			// possible, rather than forcing e.g. all values to be strings.
-			"data_json": &schema.Schema{
+			"data_json": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "JSON-encoded secret data to write.",

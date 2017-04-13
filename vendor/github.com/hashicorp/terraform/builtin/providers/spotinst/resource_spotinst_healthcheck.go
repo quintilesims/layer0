@@ -17,43 +17,43 @@ func resourceSpotinstHealthCheck() *schema.Resource {
 		Delete: resourceSpotinstHealthCheckDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"resource_id": &schema.Schema{
+			"resource_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"check": &schema.Schema{
+			"check": {
 				Type:     schema.TypeSet,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"protocol": &schema.Schema{
+						"protocol": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"endpoint": &schema.Schema{
+						"endpoint": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"port": &schema.Schema{
+						"port": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
 
-						"interval": &schema.Schema{
+						"interval": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
 
-						"timeout": &schema.Schema{
+						"timeout": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
@@ -61,18 +61,18 @@ func resourceSpotinstHealthCheck() *schema.Resource {
 				},
 			},
 
-			"threshold": &schema.Schema{
+			"threshold": {
 				Type:     schema.TypeSet,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"healthy": &schema.Schema{
+						"healthy": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
 
-						"unhealthy": &schema.Schema{
+						"unhealthy": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
@@ -80,18 +80,18 @@ func resourceSpotinstHealthCheck() *schema.Resource {
 				},
 			},
 
-			"proxy": &schema.Schema{
+			"proxy": {
 				Type:     schema.TypeSet,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"addr": &schema.Schema{
+						"addr": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"port": &schema.Schema{
+						"port": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},

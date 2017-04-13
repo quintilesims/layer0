@@ -45,7 +45,7 @@ func (as AppSet) MarshalJSON() ([]byte, error) {
 	}
 
 	data := map[string][]map[string]interface{}{
-		"data": []map[string]interface{}{
+		"data": {
 			appJSON["data"],
 			containerJSON["data"],
 		},

@@ -17,7 +17,7 @@ func TestListDeploys(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name:    "Should return deploys from logic layer",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -38,8 +38,8 @@ func TestListDeploys(t *testing.T) {
 				reporter.AssertEqual(response, deploys)
 			},
 		},
-		HandlerTestCase{
-			Name:    "Should propogate ListDeploys error",
+		{
+			Name:    "Should propagate ListDeploys error",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockDeployLogic(ctrl)
@@ -70,7 +70,7 @@ func TestGetDeploy(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call GetDeploy with proper params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -88,7 +88,7 @@ func TestGetDeploy(t *testing.T) {
 				handler.GetDeploy(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should return deploy from logic layer",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -111,7 +111,7 @@ func TestGetDeploy(t *testing.T) {
 				reporter.AssertEqual(response, deploy)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name:    "Should return MissingParameter error with no id",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -128,7 +128,7 @@ func TestGetDeploy(t *testing.T) {
 				reporter.AssertEqual(response.ErrorCode, int64(errors.MissingParameter))
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate GetDeploy error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -158,7 +158,7 @@ func TestGetDeploy(t *testing.T) {
 
 func TestDeleteDeploy(t *testing.T) {
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call DeleteDeploy with proper params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -176,7 +176,7 @@ func TestDeleteDeploy(t *testing.T) {
 				handler.DeleteDeploy(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name:    "Should return MissingParameter error with no id",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -193,7 +193,7 @@ func TestDeleteDeploy(t *testing.T) {
 				reporter.AssertEqual(response.ErrorCode, int64(errors.MissingParameter))
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate DeleteDeploy error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -228,7 +228,7 @@ func TestCreateDeploy(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call CreateDeploy with correct params",
 			Request: &TestRequest{
 				Body: request,
@@ -247,7 +247,7 @@ func TestCreateDeploy(t *testing.T) {
 				handler.CreateDeploy(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate CreateDeploy error",
 			Request: &TestRequest{
 				Body: request,

@@ -37,7 +37,7 @@ func (this *MockECSTaskManager) Task() *ECSTaskManager {
 
 func TestGetTask(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call ecs.ListTasks with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
@@ -57,7 +57,7 @@ func TestGetTask(t *testing.T) {
 				manager.GetTask("envid", "tskid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should return layer0-formatted ids",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
@@ -102,14 +102,14 @@ func TestGetTask(t *testing.T) {
 
 func TestListTasks(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should use proper params in dependent calls",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
 
 				environmentID := id.L0EnvironmentID("envid")
 				environments := []*models.Environment{
-					&models.Environment{
+					{
 						EnvironmentID: environmentID.String(),
 					},
 				}
@@ -130,14 +130,14 @@ func TestListTasks(t *testing.T) {
 				manager.ListTasks()
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate ecs.ListTasks error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
 
 				environmentID := id.L0EnvironmentID("envid")
 				environments := []*models.Environment{
-					&models.Environment{
+					{
 						EnvironmentID: environmentID.String(),
 					},
 				}
@@ -167,7 +167,7 @@ func TestListTasks(t *testing.T) {
 
 func TestDeleteTask(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should use proper params in dependent calls",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
@@ -187,7 +187,7 @@ func TestDeleteTask(t *testing.T) {
 				manager.DeleteTask("envid", "tskid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate ecs.ListTasks error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
@@ -215,7 +215,7 @@ func TestCreateTask(t *testing.T) {
 	defer id.StubIDGeneration("tskid")()
 
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should use proper params in aws calls",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
@@ -251,7 +251,7 @@ func TestCreateTask(t *testing.T) {
 				manager.CreateTask("envid", "tsk_name", "dplyid.1", nil)
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should not create cloudwatch logs group if disableLogging is true",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
@@ -271,7 +271,7 @@ func TestCreateTask(t *testing.T) {
 				manager.CreateTask("envid", "tsk_name", "dplyid.1", nil)
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should add task to scheduler when cluster capacity is low",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
@@ -302,7 +302,7 @@ func TestGetTaskLogs(t *testing.T) {
 	defer func() { GetLogs = tmp }()
 
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call GetLogs with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)
@@ -331,7 +331,7 @@ func TestGetTaskLogs(t *testing.T) {
 				manager.GetTaskLogs("envid", "tskid", 100)
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate GetLogs error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockTask := NewMockECSTaskManager(ctrl)

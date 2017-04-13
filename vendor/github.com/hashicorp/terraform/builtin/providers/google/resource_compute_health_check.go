@@ -20,51 +20,51 @@ func resourceComputeHealthCheck() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"check_interval_sec": &schema.Schema{
+			"check_interval_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  5,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"healthy_threshold": &schema.Schema{
+			"healthy_threshold": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  2,
 			},
 
-			"tcp_health_check": &schema.Schema{
+			"tcp_health_check": {
 				Type:          schema.TypeList,
 				Optional:      true,
 				MaxItems:      1,
 				ConflictsWith: []string{"ssl_health_check", "http_health_check", "https_health_check"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"port": &schema.Schema{
+						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  80,
 						},
-						"proxy_header": &schema.Schema{
+						"proxy_header": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "NONE",
 						},
-						"request": &schema.Schema{
+						"request": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"response": &schema.Schema{
+						"response": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -72,28 +72,28 @@ func resourceComputeHealthCheck() *schema.Resource {
 				},
 			},
 
-			"ssl_health_check": &schema.Schema{
+			"ssl_health_check": {
 				Type:          schema.TypeList,
 				Optional:      true,
 				MaxItems:      1,
 				ConflictsWith: []string{"tcp_health_check", "http_health_check", "https_health_check"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"port": &schema.Schema{
+						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Default:  443,
 						},
-						"proxy_header": &schema.Schema{
+						"proxy_header": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "NONE",
 						},
-						"request": &schema.Schema{
+						"request": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"response": &schema.Schema{
+						"response": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -101,28 +101,28 @@ func resourceComputeHealthCheck() *schema.Resource {
 				},
 			},
 
-			"http_health_check": &schema.Schema{
+			"http_health_check": {
 				Type:          schema.TypeList,
 				Optional:      true,
 				MaxItems:      1,
 				ConflictsWith: []string{"tcp_health_check", "ssl_health_check", "https_health_check"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"host": &schema.Schema{
+						"host": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  80,
 						},
-						"port": &schema.Schema{
+						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"proxy_header": &schema.Schema{
+						"proxy_header": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "NONE",
 						},
-						"request_path": &schema.Schema{
+						"request_path": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "/",
@@ -131,28 +131,28 @@ func resourceComputeHealthCheck() *schema.Resource {
 				},
 			},
 
-			"https_health_check": &schema.Schema{
+			"https_health_check": {
 				Type:          schema.TypeList,
 				Optional:      true,
 				MaxItems:      1,
 				ConflictsWith: []string{"tcp_health_check", "ssl_health_check", "http_health_check"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"host": &schema.Schema{
+						"host": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  443,
 						},
-						"port": &schema.Schema{
+						"port": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"proxy_header": &schema.Schema{
+						"proxy_header": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "NONE",
 						},
-						"request_path": &schema.Schema{
+						"request_path": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Default:  "/",
@@ -161,25 +161,25 @@ func resourceComputeHealthCheck() *schema.Resource {
 				},
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"timeout_sec": &schema.Schema{
+			"timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  5,
 			},
 
-			"unhealthy_threshold": &schema.Schema{
+			"unhealthy_threshold": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  2,
