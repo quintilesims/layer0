@@ -45,7 +45,7 @@ func TestListLoadBalancers(t *testing.T) {
 			},
 		},
 		{
-			Name:    "Should propogate ListLoadBalancers error",
+			Name:    "Should propagate ListLoadBalancers error",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockLoadBalancerLogic(ctrl)

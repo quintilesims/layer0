@@ -72,9 +72,9 @@ func validateArmStorageContainerName(v interface{}, k string) (ws []string, erro
 func validateArmStorageContainerAccessType(v interface{}, k string) (ws []string, errors []error) {
 	value := strings.ToLower(v.(string))
 	validTypes := map[string]struct{}{
-		"private":   struct{}{},
-		"blob":      struct{}{},
-		"container": struct{}{},
+		"private":   {},
+		"blob":      {},
+		"container": {},
 	}
 
 	if _, ok := validTypes[value]; !ok {

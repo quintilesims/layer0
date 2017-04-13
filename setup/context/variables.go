@@ -22,60 +22,60 @@ type VariableSchema struct {
 }
 
 var TerraformVariables = []VariableSchema{
-	VariableSchema{
+	{
 		Name:        "access_key",
 		Description: "The aws_access_key_id for your Layer0",
 		DisplayName: "AWS Access Key ID",
 	},
-	VariableSchema{
+	{
 		Name:        "secret_key",
 		Description: "The aws_secret_access_key for your Layer0",
 		DisplayName: "AWS Secret Access Key",
 	},
-	VariableSchema{
+	{
 		Name:        "region",
 		Default:     "us-west-2",
 		DisplayName: "AWS Region",
 		Description: "The aws_region for your Layer0",
 		Validate:    validateRegion,
 	},
-	VariableSchema{
+	{
 		Name:         "l0_prefix",
 		IsCalculated: true,
 		Calculate:    func(c *Context) (string, error) { return c.Instance, nil },
 	},
-	VariableSchema{
+	{
 		Name:         "account_id",
 		IsCalculated: true,
 		Calculate:    getAccountID,
 	},
-	VariableSchema{
+	{
 		Name:        "key_pair",
 		Description: "The name of an EC2 key pair",
 		DisplayName: "Key Pair Name",
 	},
-	VariableSchema{
+	{
 		Name:         "s3_bucket",
 		IsCalculated: true,
 		Calculate:    getS3Bucket,
 	},
-	VariableSchema{
+	{
 		Name:         "api_auth_token",
 		IsCalculated: true,
 		Calculate:    getAuthToken,
 	},
-	VariableSchema{
+	{
 		Name:        "api_docker_image",
 		Description: "Layer0 API image name (like quintilesims/l0-api)",
 		Default:     "quintilesims/l0-api",
 	},
-	VariableSchema{
+	{
 		Name:         "api_docker_image_tag",
 		Description:  "Layer0 API image tag (like v0.6.0)",
 		IsCalculated: true,
 		Calculate:    getImageTag,
 	},
-	VariableSchema{
+	{
 		Name:         "runner_docker_image_tag",
 		Description:  "Layer0 Runner image tag (like v0.6.0)",
 		IsCalculated: true,

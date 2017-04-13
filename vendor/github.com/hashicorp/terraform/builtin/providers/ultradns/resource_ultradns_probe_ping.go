@@ -17,44 +17,44 @@ func resourceUltradnsProbePing() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			// Key
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"pool_record": &schema.Schema{
+			"pool_record": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 			// Required
-			"agents": &schema.Schema{
+			"agents": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"threshold": &schema.Schema{
+			"threshold": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
 			// Optional
-			"interval": &schema.Schema{
+			"interval": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "FIVE_MINUTES",
 			},
-			"ping_probe": &schema.Schema{
+			"ping_probe": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     schemaPingProbe(),
 			},
 			// Computed
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

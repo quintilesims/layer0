@@ -14,7 +14,7 @@ func marshalMapToXML(c *map[string]string, e *xml.Encoder, start xml.StartElemen
 
 	// Sort the keys so we'll have a deterministic result.
 	keys := []string{}
-	for k, _ := range *c {
+	for k := range *c {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)
@@ -24,11 +24,11 @@ func marshalMapToXML(c *map[string]string, e *xml.Encoder, start xml.StartElemen
 		e.EncodeToken(xml.StartElement{
 			Name: xml.Name{Local: entryName},
 			Attr: []xml.Attr{
-				xml.Attr{
+				{
 					Name:  xml.Name{Local: keyName},
 					Value: k,
 				},
-				xml.Attr{
+				{
 					Name:  xml.Name{Local: valueName},
 					Value: v,
 				},

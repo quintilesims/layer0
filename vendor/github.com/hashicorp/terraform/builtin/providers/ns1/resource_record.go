@@ -38,49 +38,49 @@ func recordResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			// Required
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"domain": &schema.Schema{
+			"domain": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"type": &schema.Schema{
+			"type": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: recordTypeStringEnum.ValidateFunc,
 			},
 			// Optional
-			"ttl": &schema.Schema{
+			"ttl": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
 			// "meta": metaSchema,
-			"link": &schema.Schema{
+			"link": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"use_client_subnet": &schema.Schema{
+			"use_client_subnet": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
-			"answers": &schema.Schema{
+			"answers": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"answer": &schema.Schema{
+						"answer": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"region": &schema.Schema{
+						"region": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -89,12 +89,12 @@ func recordResource() *schema.Resource {
 				},
 				Set: genericHasher,
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -103,20 +103,20 @@ func recordResource() *schema.Resource {
 				},
 				Set: genericHasher,
 			},
-			"filters": &schema.Schema{
+			"filters": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"filter": &schema.Schema{
+						"filter": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"disabled": &schema.Schema{
+						"disabled": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
-						"config": &schema.Schema{
+						"config": {
 							Type:     schema.TypeMap,
 							Optional: true,
 						},
@@ -124,7 +124,7 @@ func recordResource() *schema.Resource {
 				},
 			},
 			// Computed
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -193,7 +193,7 @@ func recordToResourceData(d *schema.ResourceData, r *dns.Record) error {
 	}
 	if len(r.Regions) > 0 {
 		regions := make([]map[string]interface{}, 0, len(r.Regions))
-		for regionName, _ := range r.Regions {
+		for regionName := range r.Regions {
 			newRegion := make(map[string]interface{})
 			newRegion["name"] = regionName
 			// newRegion["meta"] = metaStructToDynamic(&region.Meta)

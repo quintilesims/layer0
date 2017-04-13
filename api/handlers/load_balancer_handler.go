@@ -108,7 +108,7 @@ func (l *LoadBalancerHandler) GetLoadBalancer(request *restful.Request, response
 func (l *LoadBalancerHandler) DeleteLoadBalancer(request *restful.Request, response *restful.Response) {
 	id := request.PathParameter("id")
 	if id == "" {
-		err := fmt.Errorf("Paramter 'id' is required")
+		err := fmt.Errorf("Parameter 'id' is required")
 		BadRequest(response, errors.MissingParameter, err)
 		return
 	}

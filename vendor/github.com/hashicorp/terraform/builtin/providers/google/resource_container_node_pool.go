@@ -18,13 +18,13 @@ func resourceContainerNodePool() *schema.Resource {
 		Exists: resourceContainerNodePoolExists,
 
 		Schema: map[string]*schema.Schema{
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"name": &schema.Schema{
+			"name": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				Computed:      true,
@@ -32,25 +32,25 @@ func resourceContainerNodePool() *schema.Resource {
 				ForceNew:      true,
 			},
 
-			"name_prefix": &schema.Schema{
+			"name_prefix": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"cluster": &schema.Schema{
+			"cluster": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"initial_node_count": &schema.Schema{
+			"initial_node_count": {
 				Type:     schema.TypeInt,
 				Required: true,
 				ForceNew: true,

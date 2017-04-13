@@ -957,7 +957,7 @@ func interpolationFuncKeys(vs map[string]ast.Variable) ast.Function {
 			mapVar := args[0].(map[string]ast.Variable)
 			keys := make([]string, 0)
 
-			for k, _ := range mapVar {
+			for k := range mapVar {
 				keys = append(keys, k)
 			}
 
@@ -979,7 +979,7 @@ func interpolationFuncValues(vs map[string]ast.Variable) ast.Function {
 			mapVar := args[0].(map[string]ast.Variable)
 			keys := make([]string, 0)
 
-			for k, _ := range mapVar {
+			for k := range mapVar {
 				keys = append(keys, k)
 			}
 

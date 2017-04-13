@@ -9,30 +9,30 @@ import (
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"token": &schema.Schema{
+			"token": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc(JSONTokenParamName, nil),
 				Description: "your Arukas APIKey(token)",
 			},
-			"secret": &schema.Schema{
+			"secret": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc(JSONSecretParamName, nil),
 				Description: "your Arukas APIKey(secret)",
 			},
-			"api_url": &schema.Schema{
+			"api_url": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc(JSONUrlParamName, "https://app.arukas.io/api/"),
 				Description: "default Arukas API url",
 			},
-			"trace": &schema.Schema{
+			"trace": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc(JSONDebugParamName, ""),
 			},
-			"timeout": &schema.Schema{
+			"timeout": {
 				Type:        schema.TypeInt,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc(JSONTimeoutParamName, "600"),

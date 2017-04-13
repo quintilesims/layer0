@@ -265,9 +265,9 @@ func (this *EC2) AuthorizeSecurityGroupIngressFromGroup(groupId, sourceGroupId s
 	input := &ec2.AuthorizeSecurityGroupIngressInput{
 		GroupId: aws.String(groupId),
 		IpPermissions: []*ec2.IpPermission{
-			&ec2.IpPermission{
+			{
 				UserIdGroupPairs: []*ec2.UserIdGroupPair{
-					&ec2.UserIdGroupPair{GroupId: aws.String(sourceGroupId)},
+					{GroupId: aws.String(sourceGroupId)},
 				},
 				IpProtocol: aws.String("-1"),
 			},
@@ -284,7 +284,7 @@ func (this *EC2) AuthorizeSecurityGroupIngressFromGroup(groupId, sourceGroupId s
 func (this *EC2) DescribeSecurityGroup(name string) (*SecurityGroup, error) {
 	input := &ec2.DescribeSecurityGroupsInput{
 		Filters: []*ec2.Filter{
-			&ec2.Filter{
+			{
 				Name:   aws.String("group-name"),
 				Values: []*string{aws.String(name)},
 			},
@@ -311,7 +311,7 @@ func (this *EC2) DescribeSecurityGroup(name string) (*SecurityGroup, error) {
 func (this *EC2) DescribeSubnet(subnetId string) (*Subnet, error) {
 	input := &ec2.DescribeSubnetsInput{
 		Filters: []*ec2.Filter{
-			&ec2.Filter{
+			{
 				Name:   aws.String("subnet-id"),
 				Values: []*string{aws.String(subnetId)},
 			},
@@ -387,7 +387,7 @@ func (this *EC2) DescribeVPC(vpcId string) (*VPC, error) {
 func (this *EC2) DescribeVPCByName(vpcName string) (*VPC, error) {
 	input := &ec2.DescribeVpcsInput{
 		Filters: []*ec2.Filter{
-			&ec2.Filter{
+			{
 				Name:   aws.String("tag:Name"),
 				Values: []*string{&vpcName},
 			},
@@ -411,7 +411,7 @@ func (this *EC2) DescribeVPCByName(vpcName string) (*VPC, error) {
 func (this *EC2) DescribeVPCSubnets(vpcId string) ([]*Subnet, error) {
 	input := &ec2.DescribeSubnetsInput{
 		Filters: []*ec2.Filter{
-			&ec2.Filter{
+			{
 				Name:   aws.String("vpc-id"),
 				Values: []*string{aws.String(vpcId)},
 			},
@@ -439,7 +439,7 @@ func (this *EC2) DescribeVPCSubnets(vpcId string) ([]*Subnet, error) {
 func (this *EC2) DescribeVPCGateways(vpcId string) ([]*InternetGateway, error) {
 	input := &ec2.DescribeInternetGatewaysInput{
 		Filters: []*ec2.Filter{
-			&ec2.Filter{
+			{
 				Name:   aws.String("attachment.vpc-id"),
 				Values: []*string{aws.String(vpcId)},
 			},
@@ -467,7 +467,7 @@ func (this *EC2) DescribeVPCGateways(vpcId string) ([]*InternetGateway, error) {
 func (this *EC2) DescribeVPCRoutes(vpcId string) ([]*RouteTable, error) {
 	input := &ec2.DescribeRouteTablesInput{
 		Filters: []*ec2.Filter{
-			&ec2.Filter{
+			{
 				Name:   aws.String("vpc-id"),
 				Values: []*string{aws.String(vpcId)},
 			},

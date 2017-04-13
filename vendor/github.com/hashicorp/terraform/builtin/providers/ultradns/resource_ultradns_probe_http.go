@@ -17,45 +17,45 @@ func resourceUltradnsProbeHTTP() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			// Key
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"pool_record": &schema.Schema{
+			"pool_record": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 			// Required
-			"agents": &schema.Schema{
+			"agents": {
 				Type:     schema.TypeSet,
 				Set:      schema.HashString,
 				Required: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"threshold": &schema.Schema{
+			"threshold": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
 			// Optional
-			"interval": &schema.Schema{
+			"interval": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "FIVE_MINUTES",
 			},
-			"http_probe": &schema.Schema{
+			"http_probe": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     schemaHTTPProbe(),
 			},
 			// Computed
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
@@ -66,29 +66,29 @@ func resourceUltradnsProbeHTTP() *schema.Resource {
 func schemaHTTPProbe() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
-			"transaction": &schema.Schema{
+			"transaction": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"method": &schema.Schema{
+						"method": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"url": &schema.Schema{
+						"url": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"transmitted_data": &schema.Schema{
+						"transmitted_data": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"follow_redirects": &schema.Schema{
+						"follow_redirects": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
-						"limit": &schema.Schema{
+						"limit": {
 							Type:     schema.TypeSet,
 							Optional: true,
 							Set:      hashLimits,
@@ -97,20 +97,20 @@ func schemaHTTPProbe() *schema.Resource {
 					},
 				},
 			},
-			"total_limits": &schema.Schema{
+			"total_limits": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"warning": &schema.Schema{
+						"warning": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"critical": &schema.Schema{
+						"critical": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
-						"fail": &schema.Schema{
+						"fail": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},

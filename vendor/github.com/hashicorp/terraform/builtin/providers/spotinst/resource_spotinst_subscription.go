@@ -18,12 +18,12 @@ func resourceSpotinstSubscription() *schema.Resource {
 		Delete: resourceSpotinstSubscriptionDelete,
 
 		Schema: map[string]*schema.Schema{
-			"resource_id": &schema.Schema{
+			"resource_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"event_type": &schema.Schema{
+			"event_type": {
 				Type:     schema.TypeString,
 				Required: true,
 				StateFunc: func(v interface{}) string {
@@ -32,17 +32,17 @@ func resourceSpotinstSubscription() *schema.Resource {
 				},
 			},
 
-			"protocol": &schema.Schema{
+			"protocol": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"endpoint": &schema.Schema{
+			"endpoint": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"format": &schema.Schema{
+			"format": {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},

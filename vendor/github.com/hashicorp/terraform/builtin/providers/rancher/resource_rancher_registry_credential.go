@@ -21,32 +21,32 @@ func resourceRancherRegistryCredential() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"registry_id": &schema.Schema{
+			"registry_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"email": &schema.Schema{
+			"email": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"public_value": &schema.Schema{
+			"public_value": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"secret_value": &schema.Schema{
+			"secret_value": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,

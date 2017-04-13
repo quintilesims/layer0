@@ -6,7 +6,7 @@ import (
 )
 
 var DeleteServiceSteps = []Step{
-	Step{
+	{
 		Name:    "Delete Service",
 		Timeout: time.Minute * 10,
 		Action:  DeleteService,

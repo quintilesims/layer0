@@ -42,27 +42,27 @@ var schemaCheckCloudWatch = &schema.Schema{
 	Set:      hashCheckCloudWatch,
 	Elem: &schema.Resource{
 		Schema: convertToHelperSchema(checkCloudWatchDescriptions, map[schemaAttr]*schema.Schema{
-			checkCloudWatchAPIKeyAttr: &schema.Schema{
+			checkCloudWatchAPIKeyAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				Sensitive:    true,
 				ValidateFunc: validateRegexp(checkCloudWatchAPIKeyAttr, `[\S]+`),
 				DefaultFunc:  schema.EnvDefaultFunc("AWS_ACCESS_KEY_ID", ""),
 			},
-			checkCloudWatchAPISecretAttr: &schema.Schema{
+			checkCloudWatchAPISecretAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				Sensitive:    true,
 				ValidateFunc: validateRegexp(checkCloudWatchAPISecretAttr, `[\S]+`),
 				DefaultFunc:  schema.EnvDefaultFunc("AWS_SECRET_ACCESS_KEY", ""),
 			},
-			checkCloudWatchDimmensionsAttr: &schema.Schema{
+			checkCloudWatchDimmensionsAttr: {
 				Type:         schema.TypeMap,
 				Required:     true,
 				Elem:         schema.TypeString,
 				ValidateFunc: validateCheckCloudWatchDimmensions,
 			},
-			checkCloudWatchMetricAttr: &schema.Schema{
+			checkCloudWatchMetricAttr: {
 				Type:     schema.TypeSet,
 				Required: true,
 				MinItems: 1,
@@ -72,17 +72,17 @@ var schemaCheckCloudWatch = &schema.Schema{
 					ValidateFunc: validateRegexp(checkCloudWatchMetricAttr, `^([\S]+)$`),
 				},
 			},
-			checkCloudWatchNamespaceAttr: &schema.Schema{
+			checkCloudWatchNamespaceAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRegexp(checkCloudWatchNamespaceAttr, `.+`),
 			},
-			checkCloudWatchURLAttr: &schema.Schema{
+			checkCloudWatchURLAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateHTTPURL(checkCloudWatchURLAttr, urlIsAbs),
 			},
-			checkCloudWatchVersionAttr: &schema.Schema{
+			checkCloudWatchVersionAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultCheckCloudWatchVersion,
@@ -141,8 +141,8 @@ func checkAPIToStateCloudWatch(c *circonusCheck, d *schema.ResourceData) error {
 	saveStringConfigToState(config.Version, checkCloudWatchVersionAttr)
 
 	whitelistedConfigKeys := map[config.Key]struct{}{
-		config.ReverseSecretKey: struct{}{},
-		config.SubmissionURL:    struct{}{},
+		config.ReverseSecretKey: {},
+		config.SubmissionURL:    {},
 	}
 
 	for k := range swamp {

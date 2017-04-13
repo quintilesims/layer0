@@ -31,12 +31,12 @@ var schemaCheckHTTPTrap = &schema.Schema{
 	Set:      hashCheckHTTPTrap,
 	Elem: &schema.Resource{
 		Schema: convertToHelperSchema(checkHTTPTrapDescriptions, map[schemaAttr]*schema.Schema{
-			checkHTTPTrapAsyncMetricsAttr: &schema.Schema{
+			checkHTTPTrapAsyncMetricsAttr: {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  defaultCheckHTTPTrapAsync,
 			},
-			checkHTTPTrapSecretAttr: &schema.Schema{
+			checkHTTPTrapSecretAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Sensitive:    true,
@@ -84,8 +84,8 @@ func checkAPIToStateHTTPTrap(c *circonusCheck, d *schema.ResourceData) error {
 	saveStringConfigToState(config.Secret, checkHTTPTrapSecretAttr)
 
 	whitelistedConfigKeys := map[config.Key]struct{}{
-		config.ReverseSecretKey: struct{}{},
-		config.SubmissionURL:    struct{}{},
+		config.ReverseSecretKey: {},
+		config.SubmissionURL:    {},
 	}
 
 	for k := range swamp {

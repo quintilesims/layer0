@@ -16,43 +16,43 @@ func resourceLayer0Environment() *schema.Resource {
 		Delete: resourceLayer0EnvironmentDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"size": &schema.Schema{
+			"size": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "m3.medium",
 				ForceNew: true,
 			},
-			"min_count": &schema.Schema{
+			"min_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"user_data": &schema.Schema{
+			"user_data": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"os": &schema.Schema{
+			"os": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "linux",
 				ForceNew: true,
 			},
-			"ami": &schema.Schema{
+			"ami": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
-			"cluster_count": &schema.Schema{
+			"cluster_count": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"security_group_id": &schema.Schema{
+			"security_group_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

@@ -36,19 +36,19 @@ type VCS struct {
 
 // VCSList is the list of VCS we recognize.
 var VCSList = []*VCS{
-	&VCS{
+	{
 		Name:      "git",
 		Detect:    []string{".git/"},
 		Preflight: gitPreflight,
 		Files:     vcsFilesCmd("git", "ls-files"),
 		Metadata:  gitMetadata,
 	},
-	&VCS{
+	{
 		Name:   "hg",
 		Detect: []string{".hg/"},
 		Files:  vcsTrimCmd(vcsFilesCmd("hg", "locate", "-f", "--include", ".")),
 	},
-	&VCS{
+	{
 		Name:   "svn",
 		Detect: []string{".svn/"},
 		Files:  vcsFilesCmd("svn", "ls"),

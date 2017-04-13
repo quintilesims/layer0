@@ -14,19 +14,19 @@ import (
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"apikey": &schema.Schema{
+			"apikey": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NS1_APIKEY", nil),
 				Description: descriptions["api_key"],
 			},
-			"endpoint": &schema.Schema{
+			"endpoint": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NS1_ENDPOINT", nil),
 				Description: descriptions["endpoint"],
 			},
-			"ignore_ssl": &schema.Schema{
+			"ignore_ssl": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("NS1_IGNORE_SSL", nil),

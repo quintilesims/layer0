@@ -22,7 +22,7 @@ import (
 func Provisioner() terraform.ResourceProvisioner {
 	return &schema.Provisioner{
 		Schema: map[string]*schema.Schema{
-			"inline": &schema.Schema{
+			"inline": {
 				Type:          schema.TypeList,
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				PromoteSingle: true,
@@ -30,13 +30,13 @@ func Provisioner() terraform.ResourceProvisioner {
 				ConflictsWith: []string{"script", "scripts"},
 			},
 
-			"script": &schema.Schema{
+			"script": {
 				Type:          schema.TypeString,
 				Optional:      true,
 				ConflictsWith: []string{"inline", "scripts"},
 			},
 
-			"scripts": &schema.Schema{
+			"scripts": {
 				Type:          schema.TypeList,
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				Optional:      true,

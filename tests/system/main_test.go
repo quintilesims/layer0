@@ -58,7 +58,7 @@ func deleteStateFiles(path string, f os.FileInfo, err error) error {
 
 	if name := f.Name(); strings.HasPrefix(name, "terraform.tfstate") {
 		if err := os.Remove(path); err != nil {
-			return fmt.Errorf("Failed to delete %s: ", path, err)
+			return fmt.Errorf("Failed to delete %s: %v", path, err)
 		}
 	}
 

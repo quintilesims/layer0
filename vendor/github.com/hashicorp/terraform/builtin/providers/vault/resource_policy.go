@@ -16,14 +16,14 @@ func policyResource() *schema.Resource {
 		Read:   policyRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				Description: "Name of the policy",
 			},
 
-			"policy": &schema.Schema{
+			"policy": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "The policy document",

@@ -6,12 +6,12 @@ import (
 )
 
 var DeleteEnvironmentSteps = []Step{
-	Step{
+	{
 		Name:    "Delete Dependencies",
 		Timeout: time.Minute * 15,
 		Action:  Fold(DeleteEnvironmentLoadBalancers, DeleteEnvironmentServices, DeleteEnvironmentTasks),
 	},
-	Step{
+	{
 		Name:    "Delete Environment",
 		Timeout: time.Minute * 10,
 		Action:  DeleteEnvironment,
