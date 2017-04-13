@@ -71,7 +71,7 @@ certificate_name="l0-$LAYER0_PREFIX-api"
 }
 
 @test "deploy create guestbook" {
-    l0 deploy create ./common/Dockerrun.aws.json guestbook
+    l0 deploy create ./common/Service.Dockerrun.aws.json guestbook
 }
 
 @test "service create --loadbalancer loadbalancer4 test service1 guestbook" {

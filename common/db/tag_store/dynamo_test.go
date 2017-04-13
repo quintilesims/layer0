@@ -11,9 +11,9 @@ import (
 )
 
 func NewTestTagStore(t *testing.T) *DynamoTagStore {
-	table := config.TestDynamoTableName()
+	table := config.TestDynamoTagTableName()
 	if table == "" {
-		t.Skipf("Skipping test: %s not set", config.TEST_AWS_DYNAMO_TABLE)
+		t.Skipf("Skipping test: %s not set", config.TEST_AWS_TAG_DYNAMO_TABLE)
 	}
 
 	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
@@ -77,7 +77,6 @@ func TestDynamoTagStoreSelectAll(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Logf("Result: %#v", result[0])
 	testutils.AssertEqual(t, len(result), len(tags))
 }
 

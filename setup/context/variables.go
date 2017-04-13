@@ -55,11 +55,6 @@ var TerraformVariables = []VariableSchema{
 		DisplayName: "Key Pair Name",
 	},
 	VariableSchema{
-		Name:         "db_master_username",
-		IsCalculated: true,
-		Calculate:    func(c *Context) (string, error) { return "layer0_master", nil },
-	},
-	VariableSchema{
 		Name:         "s3_bucket",
 		IsCalculated: true,
 		Calculate:    getS3Bucket,

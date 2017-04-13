@@ -9,7 +9,7 @@
 }
 
 @test "deploy create guestbook" {
-    l0 deploy create ./common/Dockerrun.aws.json guestbook
+    l0 deploy create ./common/Service.Dockerrun.aws.json guestbook
 }
 
 @test "service create --loadbalancer loadbalancer1 test service1 guestbook" {
@@ -41,7 +41,7 @@
 }
 
 @test "deploy create guestbook" {
-    l0 deploy create ./common/Dockerrun.aws.json guestbook
+    l0 deploy create ./common/Service.Dockerrun.aws.json guestbook
 }
 
 @test "service update service1 guestbook" {
