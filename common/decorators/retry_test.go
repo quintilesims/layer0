@@ -36,7 +36,7 @@ func TestRetry_successes(t *testing.T) {
 		}
 
 		if cluster != obj {
-			t.Error("Cluster not equal to object on iteration %d", count)
+			t.Errorf("Cluster not equal to object on iteration %d", count)
 		}
 	}
 }

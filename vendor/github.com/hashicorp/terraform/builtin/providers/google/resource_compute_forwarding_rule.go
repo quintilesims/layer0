@@ -20,59 +20,59 @@ func resourceComputeForwardingRule() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"target": &schema.Schema{
+			"target": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: false,
 			},
 
-			"backend_service": &schema.Schema{
+			"backend_service": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"ip_address": &schema.Schema{
-				Type:     schema.TypeString,
-				Optional: true,
-				ForceNew: true,
-				Computed: true,
-			},
-
-			"ip_protocol": &schema.Schema{
+			"ip_address": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
 
-			"load_balancing_scheme": &schema.Schema{
+			"ip_protocol": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Computed: true,
+			},
+
+			"load_balancing_scheme": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Default:  "EXTERNAL",
 			},
 
-			"network": &schema.Schema{
+			"network": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
 
-			"port_range": &schema.Schema{
+			"port_range": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -84,33 +84,33 @@ func resourceComputeForwardingRule() *schema.Resource {
 				},
 			},
 
-			"ports": &schema.Schema{
+			"ports": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Optional: true,
 				Set:      schema.HashString,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
 
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Computed: true,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"subnetwork": &schema.Schema{
+			"subnetwork": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,

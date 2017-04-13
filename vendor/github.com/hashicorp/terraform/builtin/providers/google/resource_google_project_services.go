@@ -16,7 +16,7 @@ func resourceGoogleProjectServices() *schema.Resource {
 		Delete: resourceGoogleProjectServicesDelete,
 
 		Schema: map[string]*schema.Schema{
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -118,7 +118,7 @@ func reconcileServices(cfgServices, apiServices []string, config *Config, pid st
 	cfgMap := m(cfgServices)
 	apiMap := m(apiServices)
 
-	for k, _ := range apiMap {
+	for k := range apiMap {
 		if _, ok := cfgMap[k]; !ok {
 			// The service in the API is not in the config; disable it.
 			err := disableService(k, pid, config)
@@ -132,7 +132,7 @@ func reconcileServices(cfgServices, apiServices []string, config *Config, pid st
 		}
 	}
 
-	for k, _ := range cfgMap {
+	for k := range cfgMap {
 		err := enableService(k, pid, config)
 		if err != nil {
 			return err

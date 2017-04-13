@@ -23,22 +23,22 @@ func resourceUltradnsDirpool() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 			// Required
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"type": &schema.Schema{
+			"type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: func(v interface{}, k string) (ws []string, errors []error) {
@@ -50,7 +50,7 @@ func resourceUltradnsDirpool() *schema.Resource {
 					return
 				},
 			},
-			"rdata": &schema.Schema{
+			"rdata": {
 				// UltraDNS API does not respect rdata ordering
 				Type:     schema.TypeSet,
 				Set:      hashRdatas,
@@ -59,30 +59,30 @@ func resourceUltradnsDirpool() *schema.Resource {
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						// Required
-						"host": &schema.Schema{
+						"host": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"all_non_configured": &schema.Schema{
+						"all_non_configured": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
-						"geo_info": &schema.Schema{
+						"geo_info": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"name": &schema.Schema{
+									"name": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"is_account_level": &schema.Schema{
+									"is_account_level": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
-									"codes": &schema.Schema{
+									"codes": {
 										Type:     schema.TypeSet,
 										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
@@ -91,42 +91,42 @@ func resourceUltradnsDirpool() *schema.Resource {
 								},
 							},
 						},
-						"ip_info": &schema.Schema{
+						"ip_info": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"name": &schema.Schema{
+									"name": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"is_account_level": &schema.Schema{
+									"is_account_level": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
-									"ips": &schema.Schema{
+									"ips": {
 										Type:     schema.TypeSet,
 										Optional: true,
 										Set:      hashIPInfoIPs,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"start": &schema.Schema{
+												"start": {
 													Type:     schema.TypeString,
 													Optional: true,
 													// ConflictsWith: []string{"cidr", "address"},
 												},
-												"end": &schema.Schema{
+												"end": {
 													Type:     schema.TypeString,
 													Optional: true,
 													// ConflictsWith: []string{"cidr", "address"},
 												},
-												"cidr": &schema.Schema{
+												"cidr": {
 													Type:     schema.TypeString,
 													Optional: true,
 													// ConflictsWith: []string{"start", "end", "address"},
 												},
-												"address": &schema.Schema{
+												"address": {
 													Type:     schema.TypeString,
 													Optional: true,
 													// ConflictsWith: []string{"start", "end", "cidr"},
@@ -141,12 +141,12 @@ func resourceUltradnsDirpool() *schema.Resource {
 				},
 			},
 			// Optional
-			"ttl": &schema.Schema{
+			"ttl": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  3600,
 			},
-			"conflict_resolve": &schema.Schema{
+			"conflict_resolve": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "GEO",
@@ -159,31 +159,31 @@ func resourceUltradnsDirpool() *schema.Resource {
 					return
 				},
 			},
-			"no_response": &schema.Schema{
+			"no_response": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"all_non_configured": &schema.Schema{
+						"all_non_configured": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
-						"geo_info": &schema.Schema{
+						"geo_info": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"name": &schema.Schema{
+									"name": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"is_account_level": &schema.Schema{
+									"is_account_level": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
-									"codes": &schema.Schema{
+									"codes": {
 										Type:     schema.TypeSet,
 										Optional: true,
 										Elem:     &schema.Schema{Type: schema.TypeString},
@@ -192,42 +192,42 @@ func resourceUltradnsDirpool() *schema.Resource {
 								},
 							},
 						},
-						"ip_info": &schema.Schema{
+						"ip_info": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: map[string]*schema.Schema{
-									"name": &schema.Schema{
+									"name": {
 										Type:     schema.TypeString,
 										Optional: true,
 									},
-									"is_account_level": &schema.Schema{
+									"is_account_level": {
 										Type:     schema.TypeBool,
 										Optional: true,
 										Default:  false,
 									},
-									"ips": &schema.Schema{
+									"ips": {
 										Type:     schema.TypeSet,
 										Optional: true,
 										Set:      hashIPInfoIPs,
 										Elem: &schema.Resource{
 											Schema: map[string]*schema.Schema{
-												"start": &schema.Schema{
+												"start": {
 													Type:     schema.TypeString,
 													Optional: true,
 													// ConflictsWith: []string{"cidr", "address"},
 												},
-												"end": &schema.Schema{
+												"end": {
 													Type:     schema.TypeString,
 													Optional: true,
 													// ConflictsWith: []string{"cidr", "address"},
 												},
-												"cidr": &schema.Schema{
+												"cidr": {
 													Type:     schema.TypeString,
 													Optional: true,
 													// ConflictsWith: []string{"start", "end", "address"},
 												},
-												"address": &schema.Schema{
+												"address": {
 													Type:     schema.TypeString,
 													Optional: true,
 													// ConflictsWith: []string{"start", "end", "cidr"},
@@ -242,7 +242,7 @@ func resourceUltradnsDirpool() *schema.Resource {
 				},
 			},
 			// Computed
-			"hostname": &schema.Schema{
+			"hostname": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

@@ -9,19 +9,19 @@ import (
 
 func apikeyResource() *schema.Resource {
 	s := map[string]*schema.Schema{
-		"id": &schema.Schema{
+		"id": {
 			Type:     schema.TypeString,
 			Computed: true,
 		},
-		"name": &schema.Schema{
+		"name": {
 			Type:     schema.TypeString,
 			Required: true,
 		},
-		"key": &schema.Schema{
+		"key": {
 			Type:     schema.TypeString,
 			Computed: true,
 		},
-		"teams": &schema.Schema{
+		"teams": {
 			Type:     schema.TypeList,
 			Optional: true,
 			Elem:     &schema.Schema{Type: schema.TypeString},

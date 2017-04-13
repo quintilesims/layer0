@@ -15,11 +15,11 @@ func TestJobJanitorPulse(t *testing.T) {
 	jobLogicMock := mock_logic.NewMockJobLogic(ctrl)
 
 	jobs := []*models.Job{
-		&models.Job{
+		{
 			JobID:       "old_job",
 			TimeCreated: time.Now().Add(-(JOB_LIFETIME * 2)),
 		},
-		&models.Job{
+		{
 			JobID:       "young_job",
 			TimeCreated: time.Now(),
 		},

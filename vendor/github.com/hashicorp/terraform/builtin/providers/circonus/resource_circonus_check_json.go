@@ -58,60 +58,60 @@ var schemaCheckJSON = &schema.Schema{
 	Set:      checkJSONConfigChecksum,
 	Elem: &schema.Resource{
 		Schema: convertToHelperSchema(checkJSONDescriptions, map[schemaAttr]*schema.Schema{
-			checkJSONAuthMethodAttr: &schema.Schema{
+			checkJSONAuthMethodAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkJSONAuthMethodAttr, `^(?:Basic|Digest|Auto)$`),
 			},
-			checkJSONAuthPasswordAttr: &schema.Schema{
+			checkJSONAuthPasswordAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Sensitive:    true,
 				ValidateFunc: validateRegexp(checkJSONAuthPasswordAttr, `^.*`),
 			},
-			checkJSONAuthUserAttr: &schema.Schema{
+			checkJSONAuthUserAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkJSONAuthUserAttr, `[^:]+`),
 			},
-			checkJSONCAChainAttr: &schema.Schema{
+			checkJSONCAChainAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkJSONCAChainAttr, `.+`),
 			},
-			checkJSONCertFileAttr: &schema.Schema{
+			checkJSONCertFileAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkJSONCertFileAttr, `.+`),
 			},
-			checkJSONCiphersAttr: &schema.Schema{
+			checkJSONCiphersAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkJSONCiphersAttr, `.+`),
 			},
-			checkJSONHeadersAttr: &schema.Schema{
+			checkJSONHeadersAttr: {
 				Type:         schema.TypeMap,
 				Elem:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateHTTPHeaders,
 			},
-			checkJSONKeyFileAttr: &schema.Schema{
+			checkJSONKeyFileAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkJSONKeyFileAttr, `.+`),
 			},
-			checkJSONMethodAttr: &schema.Schema{
+			checkJSONMethodAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultCheckJSONMethod,
 				ValidateFunc: validateRegexp(checkJSONMethodAttr, `\S+`),
 			},
-			checkJSONPayloadAttr: &schema.Schema{
+			checkJSONPayloadAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkJSONPayloadAttr, `\S+`),
 			},
-			checkJSONPortAttr: &schema.Schema{
+			checkJSONPortAttr: {
 				Type:     schema.TypeInt,
 				Default:  defaultCheckJSONPort,
 				Optional: true,
@@ -120,21 +120,21 @@ var schemaCheckJSON = &schema.Schema{
 					validateIntMax(checkJSONPortAttr, 65535),
 				),
 			},
-			checkJSONReadLimitAttr: &schema.Schema{
+			checkJSONReadLimitAttr: {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ValidateFunc: validateFuncs(
 					validateIntMin(checkJSONReadLimitAttr, 0),
 				),
 			},
-			checkJSONURLAttr: &schema.Schema{
+			checkJSONURLAttr: {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validateFuncs(
 					validateHTTPURL(checkJSONURLAttr, urlIsAbs),
 				),
 			},
-			checkJSONVersionAttr: &schema.Schema{
+			checkJSONVersionAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultCheckJSONVersion,
@@ -207,8 +207,8 @@ func checkAPIToStateJSON(c *circonusCheck, d *schema.ResourceData) error {
 	saveStringConfigToState(config.HTTPVersion, checkJSONVersionAttr)
 
 	whitelistedConfigKeys := map[config.Key]struct{}{
-		config.ReverseSecretKey: struct{}{},
-		config.SubmissionURL:    struct{}{},
+		config.ReverseSecretKey: {},
+		config.SubmissionURL:    {},
 	}
 
 	for k := range swamp {

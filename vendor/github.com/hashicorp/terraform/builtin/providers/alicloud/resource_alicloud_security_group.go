@@ -19,19 +19,19 @@ func resourceAliyunSecurityGroup() *schema.Resource {
 		Delete: resourceAliyunSecurityGroupDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateSecurityGroupName,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateSecurityGroupDescription,
 			},
 
-			"vpc_id": &schema.Schema{
+			"vpc_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,

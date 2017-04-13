@@ -9,8 +9,6 @@ package napping
 This module implements the Napping API.
 */
 
-import ()
-
 // Send composes and sends and HTTP request.
 func Send(r *Request) (*Response, error) {
 	s := Session{}

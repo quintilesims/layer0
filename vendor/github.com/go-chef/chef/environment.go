@@ -26,7 +26,7 @@ type EnvironmentCookbookResult map[string]CookbookVersions
 
 func strMapToStr(e map[string]string) (out string) {
 	keys := make([]string, len(e))
-	for k, _ := range e {
+	for k := range e {
 		keys = append(keys, k)
 	}
 	sort.Strings(keys)

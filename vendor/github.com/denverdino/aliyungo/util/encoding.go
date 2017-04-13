@@ -26,7 +26,7 @@ func setQueryValues(i interface{}, values *url.Values, prefix string) {
 	// add to support url.Values
 	mapValues, ok := i.(url.Values)
 	if ok {
-		for k, _ := range mapValues {
+		for k := range mapValues {
 			values.Set(k, mapValues.Get(k))
 		}
 		return

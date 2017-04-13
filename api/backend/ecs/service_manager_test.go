@@ -38,7 +38,7 @@ func (this *MockECSServiceManager) Service() *ECSServiceManager {
 
 func TestGetService(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call ecs.DescribeService with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
@@ -58,7 +58,7 @@ func TestGetService(t *testing.T) {
 				manager.GetService("envid", "svcid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should return layer0-formatted ids",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
@@ -85,7 +85,7 @@ func TestGetService(t *testing.T) {
 				reporter.AssertEqual(service.ServiceID, "svcid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate ecs.DescribeService error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
@@ -111,7 +111,7 @@ func TestGetService(t *testing.T) {
 
 func TestListServices(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call ecs.Helper_ListServices with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
@@ -130,7 +130,7 @@ func TestListServices(t *testing.T) {
 				manager.ListServices()
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should return layer0-formatted ids",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
@@ -156,7 +156,7 @@ func TestListServices(t *testing.T) {
 				reporter.AssertEqual(services[0].ServiceID, "svcid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate ecs.Helper_ListServices error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
@@ -182,7 +182,7 @@ func TestListServices(t *testing.T) {
 
 func TestDeleteService(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call ecs.UpdateService, DescribeService, and DeleteService with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
@@ -210,7 +210,7 @@ func TestDeleteService(t *testing.T) {
 				manager.DeleteService("envid", "svcid")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate unexpected aws errors",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				return func(g testutils.ErrorGenerator) *ECSServiceManager {
@@ -261,7 +261,7 @@ func TestCreateService(t *testing.T) {
 	defer id.StubIDGeneration("svcid")()
 
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should use proper params in aws calls",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
@@ -299,7 +299,7 @@ func TestCreateService(t *testing.T) {
 				manager.CreateService("svc_name", "envid", "dplyid.1", "")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate unexpected errors",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				return func(g testutils.ErrorGenerator) *ECSServiceManager {
@@ -346,7 +346,7 @@ func TestUpdateService(t *testing.T) {
 	defer id.StubIDGeneration("svcid")()
 
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should use proper params in aws calls",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
@@ -381,7 +381,7 @@ func TestUpdateService(t *testing.T) {
 				manager.updateService("envid", "svcid", "dplyid.1")
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate unexpected errors",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				return func(g testutils.ErrorGenerator) *ECSServiceManager {
@@ -419,7 +419,7 @@ func TestUpdateService(t *testing.T) {
 
 func TestScaleService(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call aws with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
@@ -448,7 +448,7 @@ func TestScaleService(t *testing.T) {
 				manager.ScaleService("envid", "svcid", 2)
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate unexpected errors",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				return func(g testutils.ErrorGenerator) *ECSServiceManager {
@@ -498,7 +498,7 @@ func TestGetServiceLogs(t *testing.T) {
 	defer func() { GetLogs = tmp }()
 
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call GetLogs with proper params",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)
@@ -528,7 +528,7 @@ func TestGetServiceLogs(t *testing.T) {
 				manager.GetServiceLogs("envid", "svcid", 100)
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate GetLogs error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockService := NewMockECSServiceManager(ctrl)

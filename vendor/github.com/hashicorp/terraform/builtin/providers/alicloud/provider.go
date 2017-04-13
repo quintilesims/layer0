@@ -11,19 +11,19 @@ import (
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"access_key": &schema.Schema{
+			"access_key": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_ACCESS_KEY", nil),
 				Description: descriptions["access_key"],
 			},
-			"secret_key": &schema.Schema{
+			"secret_key": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_SECRET_KEY", nil),
 				Description: descriptions["secret_key"],
 			},
-			"region": &schema.Schema{
+			"region": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("ALICLOUD_REGION", "cn-beijing"),

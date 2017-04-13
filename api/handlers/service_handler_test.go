@@ -22,7 +22,7 @@ func TestListServices(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name:    "Should return services from logic layer",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -45,8 +45,8 @@ func TestListServices(t *testing.T) {
 				reporter.AssertEqual(response, services)
 			},
 		},
-		HandlerTestCase{
-			Name:    "Should propogate ListServices error",
+		{
+			Name:    "Should propagate ListServices error",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				svcLogicMock := mock_logic.NewMockServiceLogic(ctrl)
@@ -79,7 +79,7 @@ func TestGetService(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call GetService with proper params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -99,7 +99,7 @@ func TestGetService(t *testing.T) {
 				handler.GetService(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should return service from logic layer",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -124,7 +124,7 @@ func TestGetService(t *testing.T) {
 				reporter.AssertEqual(response, service)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name:    "Should return MissingParameter error with no id",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -143,7 +143,7 @@ func TestGetService(t *testing.T) {
 				reporter.AssertEqual(response.ErrorCode, int64(errors.MissingParameter))
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate GetService error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -175,7 +175,7 @@ func TestGetService(t *testing.T) {
 
 func TestDeleteService(t *testing.T) {
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call CreateJob with correct params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -195,7 +195,7 @@ func TestDeleteService(t *testing.T) {
 				handler.DeleteService(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should set Location and X-Jobid headers",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -219,7 +219,7 @@ func TestDeleteService(t *testing.T) {
 				reporter.AssertInSlice("job_id", header["X-Jobid"])
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate CreateJob error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -244,7 +244,7 @@ func TestDeleteService(t *testing.T) {
 				reporter.AssertEqual(int64(errors.UnexpectedError), response.ErrorCode)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name:    "Should return MissingParameter error with no id",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -276,7 +276,7 @@ func TestCreateService(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call CreateService with correct params",
 			Request: &TestRequest{
 				Body: request,
@@ -296,7 +296,7 @@ func TestCreateService(t *testing.T) {
 				handler.CreateService(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate CreateService error",
 			Request: &TestRequest{
 				Body: request,
@@ -332,7 +332,7 @@ func TestScaleService(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call ScaleService with correct params",
 			Request: &TestRequest{
 				Body:       request,
@@ -353,7 +353,7 @@ func TestScaleService(t *testing.T) {
 				handler.ScaleService(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate ScaleService error",
 			Request: &TestRequest{
 				Body:       request,

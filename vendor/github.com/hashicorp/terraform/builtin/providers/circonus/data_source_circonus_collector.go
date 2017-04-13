@@ -39,38 +39,38 @@ func dataSourceCirconusCollector() *schema.Resource {
 		Read: dataSourceCirconusCollectorRead,
 
 		Schema: map[string]*schema.Schema{
-			collectorDetailsAttr: &schema.Schema{
+			collectorDetailsAttr: {
 				Type:        schema.TypeList,
 				Computed:    true,
 				Description: collectorDescription[collectorDetailsAttr],
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						collectorCNAttr: &schema.Schema{
+						collectorCNAttr: {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: collectorDescription[collectorCNAttr],
 						},
-						collectorExternalHostAttr: &schema.Schema{
+						collectorExternalHostAttr: {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: collectorDescription[collectorExternalHostAttr],
 						},
-						collectorExternalPortAttr: &schema.Schema{
+						collectorExternalPortAttr: {
 							Type:        schema.TypeInt,
 							Computed:    true,
 							Description: collectorDescription[collectorExternalPortAttr],
 						},
-						collectorIPAttr: &schema.Schema{
+						collectorIPAttr: {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: collectorDescription[collectorIPAttr],
 						},
-						collectorMinVersionAttr: &schema.Schema{
+						collectorMinVersionAttr: {
 							Type:        schema.TypeInt,
 							Computed:    true,
 							Description: collectorDescription[collectorMinVersionAttr],
 						},
-						collectorModulesAttr: &schema.Schema{
+						collectorModulesAttr: {
 							Type:     schema.TypeList,
 							Computed: true,
 							Elem: &schema.Schema{
@@ -78,22 +78,22 @@ func dataSourceCirconusCollector() *schema.Resource {
 							},
 							Description: collectorDescription[collectorModulesAttr],
 						},
-						collectorPortAttr: &schema.Schema{
+						collectorPortAttr: {
 							Type:        schema.TypeInt,
 							Computed:    true,
 							Description: collectorDescription[collectorPortAttr],
 						},
-						collectorSkewAttr: &schema.Schema{
+						collectorSkewAttr: {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: collectorDescription[collectorSkewAttr],
 						},
-						collectorStatusAttr: &schema.Schema{
+						collectorStatusAttr: {
 							Type:        schema.TypeString,
 							Computed:    true,
 							Description: collectorDescription[collectorStatusAttr],
 						},
-						collectorVersionAttr: &schema.Schema{
+						collectorVersionAttr: {
 							Type:        schema.TypeInt,
 							Computed:    true,
 							Description: collectorDescription[collectorVersionAttr],
@@ -101,30 +101,30 @@ func dataSourceCirconusCollector() *schema.Resource {
 					},
 				},
 			},
-			collectorIDAttr: &schema.Schema{
+			collectorIDAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validateRegexp(collectorIDAttr, config.BrokerCIDRegex),
 				Description:  collectorDescription[collectorIDAttr],
 			},
-			collectorLatitudeAttr: &schema.Schema{
+			collectorLatitudeAttr: {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: collectorDescription[collectorLatitudeAttr],
 			},
-			collectorLongitudeAttr: &schema.Schema{
+			collectorLongitudeAttr: {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: collectorDescription[collectorLongitudeAttr],
 			},
-			collectorNameAttr: &schema.Schema{
+			collectorNameAttr: {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: collectorDescription[collectorNameAttr],
 			},
 			collectorTagsAttr: tagMakeConfigSchema(collectorTagsAttr),
-			collectorTypeAttr: &schema.Schema{
+			collectorTypeAttr: {
 				Type:        schema.TypeString,
 				Computed:    true,
 				Description: collectorDescription[collectorTypeAttr],

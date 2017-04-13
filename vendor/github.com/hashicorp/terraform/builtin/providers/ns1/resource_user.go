@@ -9,35 +9,35 @@ import (
 
 func userResource() *schema.Resource {
 	s := map[string]*schema.Schema{
-		"id": &schema.Schema{
+		"id": {
 			Type:     schema.TypeString,
 			Computed: true,
 		},
-		"name": &schema.Schema{
+		"name": {
 			Type:     schema.TypeString,
 			Required: true,
 		},
-		"username": &schema.Schema{
+		"username": {
 			Type:     schema.TypeString,
 			Required: true,
 		},
-		"email": &schema.Schema{
+		"email": {
 			Type:     schema.TypeString,
 			Required: true,
 		},
-		"notify": &schema.Schema{
+		"notify": {
 			Type:     schema.TypeMap,
 			Optional: true,
 			Elem: &schema.Resource{
 				Schema: map[string]*schema.Schema{
-					"billing": &schema.Schema{
+					"billing": {
 						Type:     schema.TypeBool,
 						Required: true,
 					},
 				},
 			},
 		},
-		"teams": &schema.Schema{
+		"teams": {
 			Type:     schema.TypeList,
 			Optional: true,
 			Elem:     &schema.Schema{Type: schema.TypeString},

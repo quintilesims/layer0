@@ -31,7 +31,7 @@ func stepWithError() Step {
 
 func TestRunnerLoad(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should load correct job",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockJobStore := mock_job_store.NewMockJobStore(ctrl)
@@ -52,7 +52,7 @@ func TestRunnerLoad(t *testing.T) {
 				runner.Load()
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should propagate JobStore.SelectByID error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockJobStore := mock_job_store.NewMockJobStore(ctrl)
@@ -78,7 +78,7 @@ func TestRunnerLoad(t *testing.T) {
 
 func TestRunnerRun_StepExecution(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should run steps in correct order",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				logic := getStubbedLogic(ctrl)
@@ -91,7 +91,7 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 				)
 
 				runner.Steps = []Step{
-					Step{
+					{
 						Name:    "step1",
 						Timeout: time.Second * 1,
 						Action: func(chan bool, *JobContext) error {
@@ -99,7 +99,7 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 							return nil
 						},
 					},
-					Step{
+					{
 						Name:    "step2",
 						Timeout: time.Second * 1,
 						Action: func(chan bool, *JobContext) error {
@@ -116,7 +116,7 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 				runner.Run()
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should return step error",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				logic := getStubbedLogic(ctrl)
@@ -133,14 +133,14 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 				}
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should close quit channel after timeout",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				logic := getStubbedLogic(ctrl)
 				runner := NewJobRunner(logic, "")
 
 				runner.Steps = []Step{
-					Step{
+					{
 						Name:    "timeout step",
 						Timeout: time.Nanosecond * 0,
 						Action: func(quit chan bool, c *JobContext) error {
@@ -169,7 +169,7 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 
 func TestRunnerRun_RollbackExecution(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should call step.Rollback when error occurs",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				logic := getStubbedLogic(ctrl)
@@ -192,7 +192,7 @@ func TestRunnerRun_RollbackExecution(t *testing.T) {
 				runner.Run()
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should call step.Rollback in correct order",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				logic := getStubbedLogic(ctrl)
@@ -206,7 +206,7 @@ func TestRunnerRun_RollbackExecution(t *testing.T) {
 				)
 
 				runner.Steps = []Step{
-					Step{
+					{
 						Name:    "step1",
 						Timeout: time.Second * 1,
 						Action:  func(chan bool, *JobContext) error { return nil },
@@ -215,7 +215,7 @@ func TestRunnerRun_RollbackExecution(t *testing.T) {
 							return nil, nil, nil
 						},
 					},
-					Step{
+					{
 						Name:    "step2",
 						Timeout: time.Second * 1,
 						Action:  func(chan bool, *JobContext) error { return fmt.Errorf("some error") },
@@ -240,7 +240,7 @@ func TestRunnerRun_RollbackExecution(t *testing.T) {
 
 func TestRunnerRun_JobStateManagement(t *testing.T) {
 	testCases := []testutils.TestCase{
-		testutils.TestCase{
+		{
 			Name: "Should mark status to InProgress at start of Run",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockJobStore := mock_job_store.NewMockJobStore(ctrl)
@@ -258,7 +258,7 @@ func TestRunnerRun_JobStateManagement(t *testing.T) {
 				runner.Run()
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should mark status to Completed at end of Run without errors",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockJobStore := mock_job_store.NewMockJobStore(ctrl)
@@ -276,7 +276,7 @@ func TestRunnerRun_JobStateManagement(t *testing.T) {
 				runner.Run()
 			},
 		},
-		testutils.TestCase{
+		{
 			Name: "Should mark status to Error at the end of Run with errors",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockJobStore := mock_job_store.NewMockJobStore(ctrl)

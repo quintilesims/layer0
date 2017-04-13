@@ -15,7 +15,7 @@ func resourceAliyunSecurityGroupRule() *schema.Resource {
 		Delete: resourceAliyunSecurityGroupRuleDelete,
 
 		Schema: map[string]*schema.Schema{
-			"type": &schema.Schema{
+			"type": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
@@ -23,60 +23,60 @@ func resourceAliyunSecurityGroupRule() *schema.Resource {
 				Description:  "Type of rule, ingress (inbound) or egress (outbound).",
 			},
 
-			"ip_protocol": &schema.Schema{
+			"ip_protocol": {
 				Type:         schema.TypeString,
 				Required:     true,
 				ForceNew:     true,
 				ValidateFunc: validateSecurityRuleIpProtocol,
 			},
 
-			"nic_type": &schema.Schema{
+			"nic_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateSecurityRuleNicType,
 			},
 
-			"policy": &schema.Schema{
+			"policy": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateSecurityRulePolicy,
 			},
 
-			"port_range": &schema.Schema{
+			"port_range": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"priority": &schema.Schema{
+			"priority": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateSecurityPriority,
 			},
 
-			"security_group_id": &schema.Schema{
+			"security_group_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"cidr_ip": &schema.Schema{
+			"cidr_ip": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 				Default:  "0.0.0.0/0",
 			},
 
-			"source_security_group_id": &schema.Schema{
+			"source_security_group_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"source_group_owner_account": &schema.Schema{
+			"source_group_owner_account": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,

@@ -22,25 +22,25 @@ type CLIConfig struct {
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"api_url": &schema.Schema{
+			"api_url": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RANCHER_URL", ""),
 				Description: descriptions["api_url"],
 			},
-			"access_key": &schema.Schema{
+			"access_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RANCHER_ACCESS_KEY", ""),
 				Description: descriptions["access_key"],
 			},
-			"secret_key": &schema.Schema{
+			"secret_key": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RANCHER_SECRET_KEY", ""),
 				Description: descriptions["secret_key"],
 			},
-			"config": &schema.Schema{
+			"config": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("RANCHER_CLIENT_CONFIG", ""),

@@ -127,24 +127,24 @@ func resourceRuleSet() *schema.Resource {
 		},
 
 		Schema: convertToHelperSchema(ruleSetDescriptions, map[schemaAttr]*schema.Schema{
-			ruleSetCheckAttr: &schema.Schema{
+			ruleSetCheckAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRegexp(ruleSetCheckAttr, config.CheckCIDRegex),
 			},
-			ruleSetIfAttr: &schema.Schema{
+			ruleSetIfAttr: {
 				Type:     schema.TypeList,
 				Required: true,
 				MinItems: 1,
 				Elem: &schema.Resource{
 					Schema: convertToHelperSchema(ruleSetIfDescriptions, map[schemaAttr]*schema.Schema{
-						ruleSetThenAttr: &schema.Schema{
+						ruleSetThenAttr: {
 							Type:     schema.TypeSet,
 							MaxItems: 1,
 							Optional: true,
 							Elem: &schema.Resource{
 								Schema: convertToHelperSchema(ruleSetIfThenDescriptions, map[schemaAttr]*schema.Schema{
-									ruleSetAfterAttr: &schema.Schema{
+									ruleSetAfterAttr: {
 										Type:             schema.TypeString,
 										Optional:         true,
 										DiffSuppressFunc: suppressEquivalentTimeDurations,
@@ -153,7 +153,7 @@ func resourceRuleSet() *schema.Resource {
 											validateDurationMin(ruleSetAfterAttr, "0s"),
 										),
 									},
-									ruleSetNotifyAttr: &schema.Schema{
+									ruleSetNotifyAttr: {
 										Type:     schema.TypeList,
 										Optional: true,
 										MinItems: 1,
@@ -162,7 +162,7 @@ func resourceRuleSet() *schema.Resource {
 											ValidateFunc: validateContactGroupCID(ruleSetNotifyAttr),
 										},
 									},
-									ruleSetSeverityAttr: &schema.Schema{
+									ruleSetSeverityAttr: {
 										Type:     schema.TypeInt,
 										Optional: true,
 										Default:  defaultAlertSeverity,
@@ -174,13 +174,13 @@ func resourceRuleSet() *schema.Resource {
 								}),
 							},
 						},
-						ruleSetValueAttr: &schema.Schema{
+						ruleSetValueAttr: {
 							Type:     schema.TypeSet,
 							Optional: true,
 							MaxItems: 1,
 							Elem: &schema.Resource{
 								Schema: convertToHelperSchema(ruleSetIfValueDescriptions, map[schemaAttr]*schema.Schema{
-									ruleSetAbsentAttr: &schema.Schema{
+									ruleSetAbsentAttr: {
 										Type:             schema.TypeString, // Applies to text or numeric metrics
 										Optional:         true,
 										DiffSuppressFunc: suppressEquivalentTimeDurations,
@@ -190,48 +190,48 @@ func resourceRuleSet() *schema.Resource {
 										),
 										ConflictsWith: makeConflictsWith(ruleSetChangedAttr, ruleSetContainsAttr, ruleSetMatchAttr, ruleSetNotMatchAttr, ruleSetMinValueAttr, ruleSetNotContainAttr, ruleSetMaxValueAttr, ruleSetOverAttr),
 									},
-									ruleSetChangedAttr: &schema.Schema{
+									ruleSetChangedAttr: {
 										Type:          schema.TypeBool, // Applies to text or numeric metrics
 										Optional:      true,
 										ConflictsWith: makeConflictsWith(ruleSetAbsentAttr, ruleSetContainsAttr, ruleSetMatchAttr, ruleSetNotMatchAttr, ruleSetMinValueAttr, ruleSetNotContainAttr, ruleSetMaxValueAttr, ruleSetOverAttr),
 									},
-									ruleSetContainsAttr: &schema.Schema{
+									ruleSetContainsAttr: {
 										Type:          schema.TypeString, // Applies to text metrics only
 										Optional:      true,
 										ValidateFunc:  validateRegexp(ruleSetContainsAttr, `.+`),
 										ConflictsWith: makeConflictsWith(ruleSetAbsentAttr, ruleSetChangedAttr, ruleSetMatchAttr, ruleSetNotMatchAttr, ruleSetMinValueAttr, ruleSetNotContainAttr, ruleSetMaxValueAttr, ruleSetOverAttr),
 									},
-									ruleSetMatchAttr: &schema.Schema{
+									ruleSetMatchAttr: {
 										Type:          schema.TypeString, // Applies to text metrics only
 										Optional:      true,
 										ValidateFunc:  validateRegexp(ruleSetMatchAttr, `.+`),
 										ConflictsWith: makeConflictsWith(ruleSetAbsentAttr, ruleSetChangedAttr, ruleSetContainsAttr, ruleSetNotMatchAttr, ruleSetMinValueAttr, ruleSetNotContainAttr, ruleSetMaxValueAttr, ruleSetOverAttr),
 									},
-									ruleSetNotMatchAttr: &schema.Schema{
+									ruleSetNotMatchAttr: {
 										Type:          schema.TypeString, // Applies to text metrics only
 										Optional:      true,
 										ValidateFunc:  validateRegexp(ruleSetNotMatchAttr, `.+`),
 										ConflictsWith: makeConflictsWith(ruleSetAbsentAttr, ruleSetChangedAttr, ruleSetContainsAttr, ruleSetMatchAttr, ruleSetMinValueAttr, ruleSetNotContainAttr, ruleSetMaxValueAttr, ruleSetOverAttr),
 									},
-									ruleSetMinValueAttr: &schema.Schema{
+									ruleSetMinValueAttr: {
 										Type:          schema.TypeString, // Applies to numeric metrics only
 										Optional:      true,
 										ValidateFunc:  validateRegexp(ruleSetMinValueAttr, `.+`), // TODO(sean): improve this regexp to match int and float
 										ConflictsWith: makeConflictsWith(ruleSetAbsentAttr, ruleSetChangedAttr, ruleSetContainsAttr, ruleSetMatchAttr, ruleSetNotMatchAttr, ruleSetNotContainAttr, ruleSetMaxValueAttr),
 									},
-									ruleSetNotContainAttr: &schema.Schema{
+									ruleSetNotContainAttr: {
 										Type:          schema.TypeString, // Applies to text metrics only
 										Optional:      true,
 										ValidateFunc:  validateRegexp(ruleSetNotContainAttr, `.+`),
 										ConflictsWith: makeConflictsWith(ruleSetAbsentAttr, ruleSetChangedAttr, ruleSetContainsAttr, ruleSetMatchAttr, ruleSetNotMatchAttr, ruleSetMinValueAttr, ruleSetMaxValueAttr, ruleSetOverAttr),
 									},
-									ruleSetMaxValueAttr: &schema.Schema{
+									ruleSetMaxValueAttr: {
 										Type:          schema.TypeString, // Applies to numeric metrics only
 										Optional:      true,
 										ValidateFunc:  validateRegexp(ruleSetMaxValueAttr, `.+`), // TODO(sean): improve this regexp to match int and float
 										ConflictsWith: makeConflictsWith(ruleSetAbsentAttr, ruleSetChangedAttr, ruleSetContainsAttr, ruleSetMatchAttr, ruleSetNotMatchAttr, ruleSetMinValueAttr, ruleSetNotContainAttr),
 									},
-									ruleSetOverAttr: &schema.Schema{
+									ruleSetOverAttr: {
 										Type:     schema.TypeSet,
 										Optional: true,
 										MaxItems: 1,
@@ -241,7 +241,7 @@ func resourceRuleSet() *schema.Resource {
 										ConflictsWith: makeConflictsWith(ruleSetAbsentAttr, ruleSetChangedAttr, ruleSetContainsAttr, ruleSetMatchAttr, ruleSetNotMatchAttr, ruleSetNotContainAttr),
 										Elem: &schema.Resource{
 											Schema: convertToHelperSchema(ruleSetIfValueOverDescriptions, map[schemaAttr]*schema.Schema{
-												ruleSetLastAttr: &schema.Schema{
+												ruleSetLastAttr: {
 													Type:             schema.TypeString,
 													Optional:         true,
 													Default:          defaultRuleSetLast,
@@ -251,7 +251,7 @@ func resourceRuleSet() *schema.Resource {
 														validateDurationMin(ruleSetLastAttr, "0s"),
 													),
 												},
-												ruleSetUsingAttr: &schema.Schema{
+												ruleSetUsingAttr: {
 													Type:         schema.TypeString,
 													Optional:     true,
 													Default:      defaultRuleSetWindowFunc,
@@ -266,32 +266,32 @@ func resourceRuleSet() *schema.Resource {
 					}),
 				},
 			},
-			ruleSetLinkAttr: &schema.Schema{
+			ruleSetLinkAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				ValidateFunc: validateHTTPURL(ruleSetLinkAttr, urlIsAbs|urlOptional),
 			},
-			ruleSetMetricTypeAttr: &schema.Schema{
+			ruleSetMetricTypeAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultRuleSetMetricType,
 				ValidateFunc: validateStringIn(ruleSetMetricTypeAttr, validRuleSetMetricTypes),
 			},
-			ruleSetNotesAttr: &schema.Schema{
+			ruleSetNotesAttr: {
 				Type:      schema.TypeString,
 				Optional:  true,
 				Computed:  true,
 				StateFunc: suppressWhitespace,
 			},
-			ruleSetParentAttr: &schema.Schema{
+			ruleSetParentAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Computed:     true,
 				StateFunc:    suppressWhitespace,
 				ValidateFunc: validateRegexp(ruleSetParentAttr, `^[\d]+_[\d\w]+$`),
 			},
-			ruleSetMetricNameAttr: &schema.Schema{
+			ruleSetMetricNameAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRegexp(ruleSetMetricNameAttr, `^[\S]+$`),

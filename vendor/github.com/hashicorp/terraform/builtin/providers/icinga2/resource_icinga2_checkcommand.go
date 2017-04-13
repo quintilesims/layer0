@@ -14,24 +14,24 @@ func resourceIcinga2Checkcommand() *schema.Resource {
 		Read:   resourceIcinga2CheckcommandRead,
 		Delete: resourceIcinga2CheckcommandDelete,
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Name",
 				ForceNew:    true,
 			},
-			"command": &schema.Schema{
+			"command": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"templates": &schema.Schema{
+			"templates": {
 				Type:     schema.TypeList,
 				Required: true,
 				ForceNew: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"arguments": &schema.Schema{
+			"arguments": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,

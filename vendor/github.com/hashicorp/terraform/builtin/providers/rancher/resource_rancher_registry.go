@@ -21,24 +21,24 @@ func resourceRancherRegistry() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"server_address": &schema.Schema{
+			"server_address": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"environment_id": &schema.Schema{
+			"environment_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,

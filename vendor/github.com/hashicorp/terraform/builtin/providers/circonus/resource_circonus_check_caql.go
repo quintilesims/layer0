@@ -28,7 +28,7 @@ var schemaCheckCAQL = &schema.Schema{
 	Set:      hashCheckCAQL,
 	Elem: &schema.Resource{
 		Schema: convertToHelperSchema(checkCAQLDescriptions, map[schemaAttr]*schema.Schema{
-			checkCAQLQueryAttr: &schema.Schema{
+			checkCAQLQueryAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRegexp(checkCAQLQueryAttr, `.+`),

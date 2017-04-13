@@ -24,40 +24,40 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 		Delete: resourceSpotinstAwsGroupDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"capacity": &schema.Schema{
+			"capacity": {
 				Type:     schema.TypeSet,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"target": &schema.Schema{
+						"target": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
 
-						"minimum": &schema.Schema{
+						"minimum": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
 						},
 
-						"maximum": &schema.Schema{
+						"maximum": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
 						},
 
-						"unit": &schema.Schema{
+						"unit": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
@@ -67,41 +67,41 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				Set: hashAwsGroupCapacity,
 			},
 
-			"strategy": &schema.Schema{
+			"strategy": {
 				Type:     schema.TypeSet,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"risk": &schema.Schema{
+						"risk": {
 							Type:     schema.TypeFloat,
 							Optional: true,
 						},
 
-						"ondemand_count": &schema.Schema{
+						"ondemand_count": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
 
-						"availability_vs_cost": &schema.Schema{
+						"availability_vs_cost": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
 						},
 
-						"draining_timeout": &schema.Schema{
+						"draining_timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
 							Computed: true,
 						},
 
-						"utilize_reserved_instances": &schema.Schema{
+						"utilize_reserved_instances": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
 						},
 
-						"fallback_to_ondemand": &schema.Schema{
+						"fallback_to_ondemand": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
@@ -111,37 +111,37 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				Set: hashAwsGroupStrategy,
 			},
 
-			"scheduled_task": &schema.Schema{
+			"scheduled_task": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"task_type": &schema.Schema{
+						"task_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 
-						"frequency": &schema.Schema{
+						"frequency": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 
-						"cron_expression": &schema.Schema{
+						"cron_expression": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 
-						"scale_target_capacity": &schema.Schema{
+						"scale_target_capacity": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
 
-						"scale_min_capacity": &schema.Schema{
+						"scale_min_capacity": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
 
-						"scale_max_capacity": &schema.Schema{
+						"scale_max_capacity": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
@@ -149,24 +149,24 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				},
 			},
 
-			"product": &schema.Schema{
+			"product": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"instance_types": &schema.Schema{
+			"instance_types": {
 				Type:     schema.TypeSet,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"ondemand": &schema.Schema{
+						"ondemand": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"spot": &schema.Schema{
+						"spot": {
 							Type:     schema.TypeList,
 							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
@@ -175,12 +175,12 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				},
 			},
 
-			"signal": &schema.Schema{
+			"signal": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -188,18 +188,18 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				},
 			},
 
-			"availability_zone": &schema.Schema{
+			"availability_zone": {
 				Type:          schema.TypeSet,
 				Optional:      true,
 				ConflictsWith: []string{"availability_zones"},
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"subnet_id": &schema.Schema{
+						"subnet_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -207,24 +207,24 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				},
 			},
 
-			"availability_zones": &schema.Schema{
+			"availability_zones": {
 				Type:          schema.TypeList,
 				Optional:      true,
 				Elem:          &schema.Schema{Type: schema.TypeString},
 				ConflictsWith: []string{"availability_zone"},
 			},
 
-			"hot_ebs_volume": &schema.Schema{
+			"hot_ebs_volume": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"device_name": &schema.Schema{
+						"device_name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"volume_ids": &schema.Schema{
+						"volume_ids": {
 							Type:     schema.TypeList,
 							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
@@ -233,22 +233,22 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				},
 			},
 
-			"load_balancer": &schema.Schema{
+			"load_balancer": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"name": &schema.Schema{
+						"name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"arn": &schema.Schema{
+						"arn": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 
-						"type": &schema.Schema{
+						"type": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -257,58 +257,58 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				Set: hashAwsGroupLoadBalancer,
 			},
 
-			"launch_specification": &schema.Schema{
+			"launch_specification": {
 				Type:     schema.TypeSet,
 				Required: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"load_balancer_names": &schema.Schema{
+						"load_balancer_names": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 
-						"monitoring": &schema.Schema{
+						"monitoring": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  false,
 						},
 
-						"ebs_optimized": &schema.Schema{
+						"ebs_optimized": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
 						},
 
-						"image_id": &schema.Schema{
+						"image_id": {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ConflictsWith: []string{"image_id"},
 						},
 
-						"key_pair": &schema.Schema{
+						"key_pair": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 
-						"health_check_type": &schema.Schema{
+						"health_check_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 
-						"health_check_grace_period": &schema.Schema{
+						"health_check_grace_period": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
 
-						"security_group_ids": &schema.Schema{
+						"security_group_ids": {
 							Type:     schema.TypeList,
 							Required: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 
-						"user_data": &schema.Schema{
+						"user_data": {
 							Type:     schema.TypeString,
 							Optional: true,
 							StateFunc: func(v interface{}) string {
@@ -322,13 +322,13 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 							},
 						},
 
-						"iam_role": &schema.Schema{
+						"iam_role": {
 							Type:       schema.TypeString,
 							Optional:   true,
 							Deprecated: "Attribute iam_role is deprecated. Use iam_instance_profile instead",
 						},
 
-						"iam_instance_profile": &schema.Schema{
+						"iam_instance_profile": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -336,60 +336,60 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				},
 			},
 
-			"image_id": &schema.Schema{
+			"image_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"elastic_ips": &schema.Schema{
+			"elastic_ips": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
 
-			"tags": &schema.Schema{
+			"tags": {
 				Type:     schema.TypeMap,
 				Optional: true,
 			},
 
-			"ebs_block_device": &schema.Schema{
+			"ebs_block_device": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"delete_on_termination": &schema.Schema{
+						"delete_on_termination": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
 						},
 
-						"device_name": &schema.Schema{
+						"device_name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"encrypted": &schema.Schema{
+						"encrypted": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
 						},
 
-						"iops": &schema.Schema{
+						"iops": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
 
-						"snapshot_id": &schema.Schema{
+						"snapshot_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 
-						"volume_size": &schema.Schema{
+						"volume_size": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
 
-						"volume_type": &schema.Schema{
+						"volume_type": {
 							Type:     schema.TypeString,
 							Optional: true,
 							Computed: true,
@@ -399,17 +399,17 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				Set: hashAwsGroupEBSBlockDevice,
 			},
 
-			"ephemeral_block_device": &schema.Schema{
+			"ephemeral_block_device": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"device_name": &schema.Schema{
+						"device_name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"virtual_name": &schema.Schema{
+						"virtual_name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -417,54 +417,54 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				},
 			},
 
-			"network_interface": &schema.Schema{
+			"network_interface": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"description": &schema.Schema{
+						"description": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"device_index": &schema.Schema{
+						"device_index": {
 							Type:     schema.TypeInt,
 							Required: true,
 						},
 
-						"secondary_private_ip_address_count": &schema.Schema{
+						"secondary_private_ip_address_count": {
 							Type:     schema.TypeInt,
 							Optional: true,
 						},
 
-						"associate_public_ip_address": &schema.Schema{
+						"associate_public_ip_address": {
 							Type:     schema.TypeBool,
 							Optional: true,
 						},
 
-						"delete_on_termination": &schema.Schema{
+						"delete_on_termination": {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Computed: true,
 						},
 
-						"security_group_ids": &schema.Schema{
+						"security_group_ids": {
 							Type:     schema.TypeList,
 							Optional: true,
 							Elem:     &schema.Schema{Type: schema.TypeString},
 						},
 
-						"network_interface_id": &schema.Schema{
+						"network_interface_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 
-						"private_ip_address": &schema.Schema{
+						"private_ip_address": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
 
-						"subnet_id": &schema.Schema{
+						"subnet_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -476,23 +476,23 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 
 			"scaling_down_policy": scalingPolicySchema(),
 
-			"rancher_integration": &schema.Schema{
+			"rancher_integration": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"master_host": &schema.Schema{
+						"master_host": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"access_key": &schema.Schema{
+						"access_key": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"secret_key": &schema.Schema{
+						"secret_key": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -500,13 +500,13 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				},
 			},
 
-			"elastic_beanstalk_integration": &schema.Schema{
+			"elastic_beanstalk_integration": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"environment_id": &schema.Schema{
+						"environment_id": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -514,13 +514,13 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				},
 			},
 
-			"ec2_container_service_integration": &schema.Schema{
+			"ec2_container_service_integration": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"cluster_name": &schema.Schema{
+						"cluster_name": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -528,18 +528,18 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				},
 			},
 
-			"kubernetes_integration": &schema.Schema{
+			"kubernetes_integration": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"api_server": &schema.Schema{
+						"api_server": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 
-						"token": &schema.Schema{
+						"token": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -547,13 +547,13 @@ func resourceSpotinstAwsGroup() *schema.Resource {
 				},
 			},
 
-			"mesosphere_integration": &schema.Schema{
+			"mesosphere_integration": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				MaxItems: 1,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"api_server": &schema.Schema{
+						"api_server": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -570,73 +570,73 @@ func scalingPolicySchema() *schema.Schema {
 		Optional: true,
 		Elem: &schema.Resource{
 			Schema: map[string]*schema.Schema{
-				"policy_name": &schema.Schema{
+				"policy_name": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
 
-				"metric_name": &schema.Schema{
+				"metric_name": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
 
-				"statistic": &schema.Schema{
+				"statistic": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
 
-				"unit": &schema.Schema{
+				"unit": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
 
-				"threshold": &schema.Schema{
+				"threshold": {
 					Type:     schema.TypeFloat,
 					Required: true,
 				},
 
-				"adjustment": &schema.Schema{
+				"adjustment": {
 					Type:     schema.TypeInt,
 					Optional: true,
 				},
 
-				"min_target_capacity": &schema.Schema{
+				"min_target_capacity": {
 					Type:     schema.TypeInt,
 					Optional: true,
 				},
 
-				"max_target_capacity": &schema.Schema{
+				"max_target_capacity": {
 					Type:     schema.TypeInt,
 					Optional: true,
 				},
 
-				"namespace": &schema.Schema{
+				"namespace": {
 					Type:     schema.TypeString,
 					Required: true,
 				},
 
-				"operator": &schema.Schema{
+				"operator": {
 					Type:     schema.TypeString,
 					Optional: true,
 					Computed: true,
 				},
 
-				"evaluation_periods": &schema.Schema{
+				"evaluation_periods": {
 					Type:     schema.TypeInt,
 					Required: true,
 				},
 
-				"period": &schema.Schema{
+				"period": {
 					Type:     schema.TypeInt,
 					Required: true,
 				},
 
-				"cooldown": &schema.Schema{
+				"cooldown": {
 					Type:     schema.TypeInt,
 					Required: true,
 				},
 
-				"dimensions": &schema.Schema{
+				"dimensions": {
 					Type:     schema.TypeMap,
 					Optional: true,
 				},

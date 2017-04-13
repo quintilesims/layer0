@@ -79,7 +79,7 @@ func (r *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 			for _, p := range resource.StringSetValue {
 				port, err := strconv.Atoi(pstring(p))
 				if err != nil {
-					r.logger.Errorf("Instance %d: Failed to convert port to int: %v\n", instanceID, err)
+					r.logger.Errorf("Instance %s: Failed to convert port to int: %v\n", instanceID, err)
 					continue
 				}
 
@@ -109,7 +109,7 @@ func (r *ECSResourceManager) CalculateNewProvider(environmentID string) (*resour
 
 	memory, ok := ec2.InstanceSizes[pstring(config.InstanceType)]
 	if !ok {
-		return nil, fmt.Errorf("Environment %s is using unknown instance type '%s'", pstring(config.InstanceType))
+		return nil, fmt.Errorf("Environment %s is using unknown instance type '%s'", environmentID, pstring(config.InstanceType))
 	}
 
 	// these ports are automatically used by the ecs agent

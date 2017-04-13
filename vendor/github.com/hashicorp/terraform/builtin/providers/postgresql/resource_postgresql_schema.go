@@ -57,7 +57,7 @@ func resourcePostgreSQLSchema() *schema.Resource {
 				Default:     true,
 				Description: "When true, use the existing schema if it exsts",
 			},
-			schemaPolicyAttr: &schema.Schema{
+			schemaPolicyAttr: {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Computed: true,
@@ -452,7 +452,7 @@ func setSchemaPolicy(txn *sql.Tx, d *schema.ResourceData) error {
 func schemaChangedPolicies(old, new []interface{}) (dropped, added, update, unchanged map[string]interface{}) {
 	type RoleKey string
 	oldLookupMap := make(map[RoleKey]interface{}, len(old))
-	for idx, _ := range old {
+	for idx := range old {
 		v := old[idx]
 		schemaPolicy := v.(map[string]interface{})
 		if roleRaw, ok := schemaPolicy[schemaPolicyRoleAttr]; ok {
@@ -463,7 +463,7 @@ func schemaChangedPolicies(old, new []interface{}) (dropped, added, update, unch
 	}
 
 	newLookupMap := make(map[RoleKey]interface{}, len(new))
-	for idx, _ := range new {
+	for idx := range new {
 		v := new[idx]
 		schemaPolicy := v.(map[string]interface{})
 		if roleRaw, ok := schemaPolicy[schemaPolicyRoleAttr]; ok {

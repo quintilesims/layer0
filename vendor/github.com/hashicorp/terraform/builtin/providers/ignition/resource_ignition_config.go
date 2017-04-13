@@ -11,12 +11,12 @@ import (
 
 var configReferenceResource = &schema.Resource{
 	Schema: map[string]*schema.Schema{
-		"source": &schema.Schema{
+		"source": {
 			Type:     schema.TypeString,
 			ForceNew: true,
 			Required: true,
 		},
-		"verification": &schema.Schema{
+		"verification": {
 			Type:     schema.TypeString,
 			ForceNew: true,
 			Optional: true,
@@ -29,60 +29,60 @@ func resourceConfig() *schema.Resource {
 		Exists: resourceIgnitionFileExists,
 		Read:   resourceIgnitionFileRead,
 		Schema: map[string]*schema.Schema{
-			"disks": &schema.Schema{
+			"disks": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"arrays": &schema.Schema{
+			"arrays": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"filesystems": &schema.Schema{
+			"filesystems": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"files": &schema.Schema{
+			"files": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"systemd": &schema.Schema{
+			"systemd": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"networkd": &schema.Schema{
+			"networkd": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"users": &schema.Schema{
+			"users": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"groups": &schema.Schema{
+			"groups": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 			},
-			"replace": &schema.Schema{
+			"replace": {
 				Type:     schema.TypeList,
 				ForceNew: true,
 				Optional: true,
 				MaxItems: 1,
 				Elem:     configReferenceResource,
 			},
-			"append": &schema.Schema{
+			"append": {
 				Type:     schema.TypeList,
 				ForceNew: true,
 				Optional: true,
 				Elem:     configReferenceResource,
 			},
-			"rendered": &schema.Schema{
+			"rendered": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

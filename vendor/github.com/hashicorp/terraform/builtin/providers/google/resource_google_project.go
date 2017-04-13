@@ -38,13 +38,13 @@ func resourceGoogleProject() *schema.Resource {
 		MigrateState: resourceGoogleProjectMigrateState,
 
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:       schema.TypeString,
 				Optional:   true,
 				Computed:   true,
 				Deprecated: "The id field has unexpected behaviour and probably doesn't do what you expect. See https://www.terraform.io/docs/providers/google/r/google_project.html#id-field for more information. Please use project_id instead; future versions of Terraform will remove the id field.",
 			},
-			"project_id": &schema.Schema{
+			"project_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -56,39 +56,39 @@ func resourceGoogleProject() *schema.Resource {
 					return false
 				},
 			},
-			"skip_delete": &schema.Schema{
+			"skip_delete": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"org_id": &schema.Schema{
+			"org_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 				ForceNew: true,
 			},
-			"policy_data": &schema.Schema{
+			"policy_data": {
 				Type:             schema.TypeString,
 				Optional:         true,
 				Computed:         true,
 				Deprecated:       "Use the 'google_project_iam_policy' resource to define policies for a Google Project",
 				DiffSuppressFunc: jsonPolicyDiffSuppress,
 			},
-			"policy_etag": &schema.Schema{
+			"policy_etag": {
 				Type:       schema.TypeString,
 				Computed:   true,
 				Deprecated: "Use the the 'google_project_iam_policy' resource to define policies for a Google Project",
 			},
-			"number": &schema.Schema{
+			"number": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"billing_account": &schema.Schema{
+			"billing_account": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
@@ -341,7 +341,7 @@ func updateProjectIamPolicy(d *schema.ResourceData, config *Config, pid string) 
 			// The role exists in the new state
 			if _, ok := newMap[role]; ok {
 				// Check each memeber
-				for member, _ := range members {
+				for member := range members {
 					// Member does not exist in new state, so it was deleted
 					if _, ok = newMap[role][member]; !ok {
 						deleted[role][member] = true
@@ -350,7 +350,7 @@ func updateProjectIamPolicy(d *schema.ResourceData, config *Config, pid string) 
 			} else {
 				// This indicates an entire role was deleted. Mark all members
 				// for delete.
-				for member, _ := range members {
+				for member := range members {
 					deleted[role][member] = true
 				}
 			}
@@ -374,7 +374,7 @@ func updateProjectIamPolicy(d *schema.ResourceData, config *Config, pid string) 
 		// Remove any roles and members that were explicitly deleted
 		mergedBindingsMap := rolesToMembersMap(mergedBindings)
 		for role, members := range deleted {
-			for member, _ := range members {
+			for member := range members {
 				delete(mergedBindingsMap[role], member)
 			}
 		}

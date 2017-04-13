@@ -23,26 +23,26 @@ func resourceComputeVolumeAttachV2() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"region": &schema.Schema{
+			"region": {
 				Type:        schema.TypeString,
 				Required:    true,
 				ForceNew:    true,
 				DefaultFunc: schema.EnvDefaultFunc("OS_REGION_NAME", ""),
 			},
 
-			"instance_id": &schema.Schema{
+			"instance_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"volume_id": &schema.Schema{
+			"volume_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"device": &schema.Schema{
+			"device": {
 				Type:     schema.TypeString,
 				Computed: true,
 				Optional: true,

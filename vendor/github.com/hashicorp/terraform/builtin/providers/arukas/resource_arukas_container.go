@@ -18,45 +18,45 @@ func resourceArukasContainer() *schema.Resource {
 			State: schema.ImportStatePassthrough,
 		},
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"image": &schema.Schema{
+			"image": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"instances": &schema.Schema{
+			"instances": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      1,
 				ValidateFunc: validateIntegerInRange(1, 10),
 			},
-			"memory": &schema.Schema{
+			"memory": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				Default:      256,
 				ValidateFunc: validateIntInWord([]string{"256", "512"}),
 			},
-			"endpoint": &schema.Schema{
+			"endpoint": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
-			"ports": &schema.Schema{
+			"ports": {
 				Type:     schema.TypeList,
 				Required: true,
 				MaxItems: 20,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"protocol": &schema.Schema{
+						"protocol": {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "tcp",
 							ValidateFunc: validateStringInWord([]string{"tcp", "udp"}),
 						},
-						"number": &schema.Schema{
+						"number": {
 							Type:         schema.TypeInt,
 							Optional:     true,
 							Default:      "80",
@@ -65,60 +65,60 @@ func resourceArukasContainer() *schema.Resource {
 					},
 				},
 			},
-			"environments": &schema.Schema{
+			"environments": {
 				Type:     schema.TypeList,
 				Optional: true,
 				MaxItems: 20,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"key": &schema.Schema{
+						"key": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"value": &schema.Schema{
+						"value": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
 					},
 				},
 			},
-			"cmd": &schema.Schema{
+			"cmd": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"port_mappings": &schema.Schema{
+			"port_mappings": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"host": &schema.Schema{
+						"host": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"ipaddress": &schema.Schema{
+						"ipaddress": {
 							Type:     schema.TypeString,
 							Computed: true,
 						},
-						"container_port": &schema.Schema{
+						"container_port": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
-						"service_port": &schema.Schema{
+						"service_port": {
 							Type:     schema.TypeInt,
 							Computed: true,
 						},
 					},
 				},
 			},
-			"endpoint_full_hostname": &schema.Schema{
+			"endpoint_full_hostname": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"endpoint_full_url": &schema.Schema{
+			"endpoint_full_url": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"app_id": &schema.Schema{
+			"app_id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

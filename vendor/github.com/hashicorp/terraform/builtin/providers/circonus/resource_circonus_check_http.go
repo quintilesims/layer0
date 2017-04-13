@@ -62,90 +62,90 @@ var schemaCheckHTTP = &schema.Schema{
 	Set:      hashCheckHTTP,
 	Elem: &schema.Resource{
 		Schema: convertToHelperSchema(checkHTTPDescriptions, map[schemaAttr]*schema.Schema{
-			checkHTTPAuthMethodAttr: &schema.Schema{
+			checkHTTPAuthMethodAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkHTTPAuthMethodAttr, `^(?:Basic|Digest|Auto)$`),
 			},
-			checkHTTPAuthPasswordAttr: &schema.Schema{
+			checkHTTPAuthPasswordAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Sensitive:    true,
 				ValidateFunc: validateRegexp(checkHTTPAuthPasswordAttr, `^.*`),
 			},
-			checkHTTPAuthUserAttr: &schema.Schema{
+			checkHTTPAuthUserAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkHTTPAuthUserAttr, `[^:]+`),
 			},
-			checkHTTPBodyRegexpAttr: &schema.Schema{
+			checkHTTPBodyRegexpAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkHTTPBodyRegexpAttr, `.+`),
 			},
-			checkHTTPCAChainAttr: &schema.Schema{
+			checkHTTPCAChainAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkHTTPCAChainAttr, `.+`),
 			},
-			checkHTTPCertFileAttr: &schema.Schema{
+			checkHTTPCertFileAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkHTTPCertFileAttr, `.+`),
 			},
-			checkHTTPCiphersAttr: &schema.Schema{
+			checkHTTPCiphersAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkHTTPCiphersAttr, `.+`),
 			},
-			checkHTTPCodeRegexpAttr: &schema.Schema{
+			checkHTTPCodeRegexpAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultCheckHTTPCodeRegexp,
 				ValidateFunc: validateRegexp(checkHTTPCodeRegexpAttr, `.+`),
 			},
-			checkHTTPExtractAttr: &schema.Schema{
+			checkHTTPExtractAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkHTTPExtractAttr, `.+`),
 			},
-			checkHTTPHeadersAttr: &schema.Schema{
+			checkHTTPHeadersAttr: {
 				Type:         schema.TypeMap,
 				Elem:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateHTTPHeaders,
 			},
-			checkHTTPKeyFileAttr: &schema.Schema{
+			checkHTTPKeyFileAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkHTTPKeyFileAttr, `.+`),
 			},
-			checkHTTPMethodAttr: &schema.Schema{
+			checkHTTPMethodAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultCheckHTTPMethod,
 				ValidateFunc: validateRegexp(checkHTTPMethodAttr, `\S+`),
 			},
-			checkHTTPPayloadAttr: &schema.Schema{
+			checkHTTPPayloadAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateRegexp(checkHTTPPayloadAttr, `\S+`),
 			},
-			checkHTTPReadLimitAttr: &schema.Schema{
+			checkHTTPReadLimitAttr: {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ValidateFunc: validateFuncs(
 					validateIntMin(checkHTTPReadLimitAttr, 0),
 				),
 			},
-			checkHTTPURLAttr: &schema.Schema{
+			checkHTTPURLAttr: {
 				Type:     schema.TypeString,
 				Required: true,
 				ValidateFunc: validateFuncs(
 					validateHTTPURL(checkHTTPURLAttr, urlIsAbs),
 				),
 			},
-			checkHTTPVersionAttr: &schema.Schema{
+			checkHTTPVersionAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultCheckHTTPVersion,
@@ -221,8 +221,8 @@ func checkAPIToStateHTTP(c *circonusCheck, d *schema.ResourceData) error {
 	saveStringConfigToState(config.HTTPVersion, checkHTTPVersionAttr)
 
 	whitelistedConfigKeys := map[config.Key]struct{}{
-		config.ReverseSecretKey: struct{}{},
-		config.SubmissionURL:    struct{}{},
+		config.ReverseSecretKey: {},
+		config.SubmissionURL:    {},
 	}
 
 	for k := range swamp {

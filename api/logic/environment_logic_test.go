@@ -198,10 +198,10 @@ func TestCreateEnvironmentError_missingRequiredParams(t *testing.T) {
 	environmentLogic := NewL0EnvironmentLogic(testLogic.Logic())
 
 	cases := map[string]models.CreateEnvironmentRequest{
-		"Missing EnvironmentName": models.CreateEnvironmentRequest{
+		"Missing EnvironmentName": {
 			OperatingSystem: "linux",
 		},
-		"Missing OperatingSystem": models.CreateEnvironmentRequest{
+		"Missing OperatingSystem": {
 			EnvironmentName: "name",
 		},
 	}

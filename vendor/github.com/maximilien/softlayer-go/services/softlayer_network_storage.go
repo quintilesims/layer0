@@ -54,13 +54,13 @@ func (slns *softLayer_Network_Storage_Service) CreateIscsiVolume(size int, locat
 			KeyName: "LINUX",
 		},
 		Prices: []datatypes.SoftLayer_Product_Item_Price{
-			datatypes.SoftLayer_Product_Item_Price{
+			{
 				Id: sizeItemPriceId,
 			},
-			datatypes.SoftLayer_Product_Item_Price{
+			{
 				Id: iopsItemPriceId,
 			},
-			datatypes.SoftLayer_Product_Item_Price{
+			{
 				Id: BLOCK_ITEM_PRICE_ID,
 			},
 		},

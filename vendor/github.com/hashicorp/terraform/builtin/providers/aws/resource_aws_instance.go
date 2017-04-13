@@ -614,7 +614,7 @@ func resourceAwsInstanceUpdate(d *schema.ResourceData, meta interface{}) error {
 	if d.HasChange("iam_instance_profile") {
 		request := &ec2.DescribeIamInstanceProfileAssociationsInput{
 			Filters: []*ec2.Filter{
-				&ec2.Filter{
+				{
 					Name:   aws.String("instance-id"),
 					Values: []*string{aws.String(d.Id())},
 				},

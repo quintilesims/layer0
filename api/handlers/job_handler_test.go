@@ -13,13 +13,13 @@ import (
 
 func TestListJobs(t *testing.T) {
 	jobs := []*models.Job{
-		&models.Job{
+		{
 			JobID:       "some_id_1",
 			Meta:        map[string]string{},
 			TimeCreated: time.Now(),
 			LastUpdated: time.Now(),
 		},
-		&models.Job{
+		{
 			JobID:       "some_id_2",
 			Meta:        map[string]string{},
 			TimeCreated: time.Now(),
@@ -28,7 +28,7 @@ func TestListJobs(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name:    "Should return jobs from logic layer",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -52,8 +52,8 @@ func TestListJobs(t *testing.T) {
 				reporter.AssertEqual(response[1].JobID, jobs[1].JobID)
 			},
 		},
-		HandlerTestCase{
-			Name:    "Should propogate ListJobs error",
+		{
+			Name:    "Should propagate ListJobs error",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockJobLogic(ctrl)
@@ -84,7 +84,7 @@ func TestGetJob(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call GetJob with proper params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -102,7 +102,7 @@ func TestGetJob(t *testing.T) {
 				handler.GetJob(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should return job from logic layer",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -126,7 +126,7 @@ func TestGetJob(t *testing.T) {
 				reporter.AssertEqual(response.JobID, job.JobID)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name:    "Should return MissingParameter error with no id",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -143,7 +143,7 @@ func TestGetJob(t *testing.T) {
 				reporter.AssertEqual(response.ErrorCode, int64(errors.MissingParameter))
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate GetJob error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -173,7 +173,7 @@ func TestGetJob(t *testing.T) {
 
 func TestDelete(t *testing.T) {
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call Delete with proper params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -191,7 +191,7 @@ func TestDelete(t *testing.T) {
 				handler.Delete(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name:    "Should return MissingParameter error with no id",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -208,7 +208,7 @@ func TestDelete(t *testing.T) {
 				reporter.AssertEqual(response.ErrorCode, int64(errors.MissingParameter))
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate Delete error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},

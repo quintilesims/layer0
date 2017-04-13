@@ -10,33 +10,33 @@ import (
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"host": &schema.Schema{
+			"host": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("DOCKER_HOST", "unix:///var/run/docker.sock"),
 				Description: "The Docker daemon address",
 			},
 
-			"ca_material": &schema.Schema{
+			"ca_material": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("DOCKER_CA_MATERIAL", ""),
 				Description: "PEM-encoded content of Docker host CA certificate",
 			},
-			"cert_material": &schema.Schema{
+			"cert_material": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("DOCKER_CERT_MATERIAL", ""),
 				Description: "PEM-encoded content of Docker client certificate",
 			},
-			"key_material": &schema.Schema{
+			"key_material": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("DOCKER_KEY_MATERIAL", ""),
 				Description: "PEM-encoded content of Docker client private key",
 			},
 
-			"cert_path": &schema.Schema{
+			"cert_path": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("DOCKER_CERT_PATH", ""),

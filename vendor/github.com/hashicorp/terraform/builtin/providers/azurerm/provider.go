@@ -239,19 +239,19 @@ func registerAzureResourceProvidersWithSubscription(providerList []resources.Pro
 	var err error
 	providerRegistrationOnce.Do(func() {
 		providers := map[string]struct{}{
-			"Microsoft.Compute":           struct{}{},
-			"Microsoft.Cache":             struct{}{},
-			"Microsoft.ContainerRegistry": struct{}{},
-			"Microsoft.ContainerService":  struct{}{},
-			"Microsoft.Network":           struct{}{},
-			"Microsoft.Cdn":               struct{}{},
-			"Microsoft.Storage":           struct{}{},
-			"Microsoft.Sql":               struct{}{},
-			"Microsoft.Search":            struct{}{},
-			"Microsoft.Resources":         struct{}{},
-			"Microsoft.ServiceBus":        struct{}{},
-			"Microsoft.KeyVault":          struct{}{},
-			"Microsoft.EventHub":          struct{}{},
+			"Microsoft.Compute":           {},
+			"Microsoft.Cache":             {},
+			"Microsoft.ContainerRegistry": {},
+			"Microsoft.ContainerService":  {},
+			"Microsoft.Network":           {},
+			"Microsoft.Cdn":               {},
+			"Microsoft.Storage":           {},
+			"Microsoft.Sql":               {},
+			"Microsoft.Search":            {},
+			"Microsoft.Resources":         {},
+			"Microsoft.ServiceBus":        {},
+			"Microsoft.KeyVault":          {},
+			"Microsoft.EventHub":          {},
 		}
 
 		// filter out any providers already registered

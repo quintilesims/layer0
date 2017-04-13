@@ -14,23 +14,23 @@ func resourceIcinga2Host() *schema.Resource {
 		Read:   resourceIcinga2HostRead,
 		Delete: resourceIcinga2HostDelete,
 		Schema: map[string]*schema.Schema{
-			"hostname": &schema.Schema{
+			"hostname": {
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Hostname",
 				ForceNew:    true,
 			},
-			"address": &schema.Schema{
+			"address": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"check_command": &schema.Schema{
+			"check_command": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"vars": &schema.Schema{
+			"vars": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				ForceNew: true,

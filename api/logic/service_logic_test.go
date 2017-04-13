@@ -174,15 +174,15 @@ func TestCreateServiceError_missingRequiredParams(t *testing.T) {
 	serviceLogic := NewL0ServiceLogic(testLogic.Logic())
 
 	cases := map[string]models.CreateServiceRequest{
-		"Missing EnvironmentID": models.CreateServiceRequest{
+		"Missing EnvironmentID": {
 			ServiceName: "name",
 			DeployID:    "d1",
 		},
-		"Missing ServiceName": models.CreateServiceRequest{
+		"Missing ServiceName": {
 			EnvironmentID: "e1",
 			DeployID:      "d1",
 		},
-		"Missing DeployID": models.CreateServiceRequest{
+		"Missing DeployID": {
 			EnvironmentID: "e1",
 			ServiceName:   "name",
 		},

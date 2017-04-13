@@ -13,20 +13,20 @@ func dataSourceAlicloudRegions() *schema.Resource {
 		Read: dataSourceAlicloudRegionsRead,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"current": &schema.Schema{
+			"current": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Computed: true,
 			},
 
 			//Computed value
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Computed: true,
 				Elem: &schema.Resource{
