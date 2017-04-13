@@ -48,6 +48,10 @@ func (j *JobContext) AddJobMeta(key, val string) error {
 		return err
 	}
 
+	if job.Meta == nil{
+		job.Meta = map[string]string{}
+	}
+
 	job.Meta[key] = val
 	return j.SetJobMeta(job.Meta)
 }
