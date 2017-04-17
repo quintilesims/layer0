@@ -19,6 +19,10 @@ func (t *Terraform) Get(dir string) error {
 	return t.run(dir, "get")
 }
 
+func (t *Terraform) FMT(dir string) error {
+        return t.run(dir, "fmt")
+}
+
 func (t *Terraform) run(dir string, args ...string) error {
 	cmd := exec.Command("terraform", args...)
 	cmd.Dir = dir

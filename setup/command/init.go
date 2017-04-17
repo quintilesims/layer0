@@ -1,12 +1,12 @@
 package command
 
 import (
-	"fmt"
-	"github.com/docker/docker/pkg/homedir"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
 
+// todo: allow docker config path flag
 func (f *CommandFactory) Init() cli.Command {
 	return cli.Command{
 		Name:  "init",
@@ -18,31 +18,24 @@ func (f *CommandFactory) Init() cli.Command {
 				EnvVar: "LAYER0_INSTANCE_NAME",
 			},
 			cli.StringFlag{
-				Name:   "access-key",
-				Usage:  "aws access key id",
-				EnvVar: "AWS_ACCESS_KEY_ID",
+				Name:   "aws-access-key",
+				Usage:  "AWS access key id",
+				EnvVar: config.AWS_ACCESS_KEY_ID,
 			},
 			cli.StringFlag{
-				Name:   "secret-key",
-				Usage:  "aws secret access key",
-				EnvVar: "AWS_SECRET_ACCESS_KEY",
+				Name:   "aws-secret-key",
+				Usage:  "AWS secret access key",
+				EnvVar: config.AWS_SECRET_ACCESS_KEY,
 			},
 			cli.StringFlag{
-				Name:   "region",
-				Usage:  "aws region",
-				Value:  "us-west-2",
-				EnvVar: "AWS_REGION",
+				Name:   "aws-region",
+				Usage:  "AWS region",
+				EnvVar: config.AWS_REGION,
 			},
 			cli.StringFlag{
-				Name:   "key-pair",
-				Usage:  "aws key pair",
-				EnvVar: "AWS_KEY_PAIR",
-			},
-			cli.StringFlag{
-				Name:   "docker-config",
-				Usage:  "path to your docker config file",
-				Value:  fmt.Sprintf("%s/.docker/config.json", homedir.Get()),
-				EnvVar: "DOCKER_CONFIG_PATH",
+				Name:   "aws-key-pair",
+				Usage:  "AWS key pair",
+				EnvVar: config.AWS_KEY_PAIR,
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -52,7 +45,7 @@ func (f *CommandFactory) Init() cli.Command {
 			}
 
 			instance := instance.NewInstance(args["NAME"])
-			return instance.Init()
+			return instance.Init(c)
 		},
 	}
 }
