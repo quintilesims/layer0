@@ -23,17 +23,19 @@ one-off-task-dpl.1  one-off-task-dpl   1
 ```
 
 ## Part 3: Create the task
-At this point, you can use the **task create** command to begin an instance of the task deployed above.
+At this point, you can use the **task create** command to run a copy of the task.
 
 To run the task, use the following command:
 
-`l0 task create demo-env one-off-task-tsk one-off-task-dpl:latest`
+`l0 task create demo-env echo-tsk one-off-task-dpl:latest --wait`
 
 You will see the following output:
 ```
 TASK ID       TASK NAME         ENVIRONMENT  DEPLOY              SCALE
-one-off851c9  one-off-task-tsk  demo-env     one-off-task-dpl:1  0/1 (1)
+one-off851c9  echo-tsk          demo-env     one-off-task-dpl:1  0/1 (1)
 ```
+
+The `SCALE` column shows the running, desired and pending counts. A value of `0/1 (1)` indicates that running = 0, desired = 1 and (1) for 1 pending task that is about to transition to running state. After your task has finished running, note that the desired count will remain 1 and pending value will no longer be shown, so the value will be `0/1` for a finished task.
 
 ## Part 4: Check the status of the task
 
@@ -46,4 +48,60 @@ You will see the following output:
 alpine
 ------
 Task finished!
+```
+
+You can also use the following command for more information in the task.
+
+`l0 -o json task get echo-tsk`
+
+Outputs:
+
+```
+[
+    {
+        "copies": [
+            {
+                "details": [],
+                "reason": "Waiting for cluster capacity to run",
+                "task_copy_id": ""
+            }
+        ],
+        "deploy_id": "one-off-task-dpl.2",
+        "deploy_name": "one-off-task-dpl",
+        "deploy_version": "2",
+        "desired_count": 1,
+        "environment_id": "demoenv669e4",
+        "environment_name": "demo-env",
+        "pending_count": 1,
+        "running_count": 0,
+        "task_id": "echotsk1facd",
+        "task_name": "echo-tsk"
+    }
+]
+```
+
+After the task has finished, running `l0 -o json task get echo-tsk` will show a pending_count of 0.
+
+Outputs:
+
+```
+...
+"copies": [
+    {
+        "details": [
+            {
+                "container_name": "alpine",
+                "exit_code": 0,
+                "last_status": "STOPPED",
+                "reason": ""
+            }
+        ],
+        "reason": "Essential container in task exited",
+        "task_copy_id": "arn:aws:ecs:us-west-2:856306994068:task/0e723c3e-9cd1-4914-8393-b59abd40eb89"
+    }
+],
+...
+"pending_count": 0,
+"running_count": 0,
+...
 ```
