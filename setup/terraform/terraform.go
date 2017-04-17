@@ -20,7 +20,7 @@ func (t *Terraform) Get(dir string) error {
 }
 
 func (t *Terraform) FMT(dir string) error {
-        return t.run(dir, "fmt")
+	return t.run(dir, "fmt")
 }
 
 func (t *Terraform) run(dir string, args ...string) error {

@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
@@ -13,9 +14,9 @@ func (f *CommandFactory) Init() cli.Command {
 		Usage: "initialize a new layer0 instance",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:   "name",
-				Usage:  "name for your new layer0 instance",
-				EnvVar: "LAYER0_INSTANCE_NAME",
+				Name:   "module-source",
+				Usage:  "path to Layer0 module",
+				EnvVar: "LAYER0_MODULE_SOURCE",
 			},
 			cli.StringFlag{
 				Name:   "aws-access-key",
@@ -45,7 +46,12 @@ func (f *CommandFactory) Init() cli.Command {
 			}
 
 			instance := instance.NewInstance(args["NAME"])
-			return instance.Init(c)
+			if err := instance.Init(c); err != nil {
+				return err
+			}
+
+			fmt.Println("Initialization complete!")
+			return nil
 		},
 	}
 }

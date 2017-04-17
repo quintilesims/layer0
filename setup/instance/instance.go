@@ -5,14 +5,12 @@ import (
 	"github.com/docker/docker/pkg/homedir"
 	"github.com/quintilesims/layer0/setup/terraform"
 	"github.com/urfave/cli"
-	"io/ioutil"
 	"os"
 )
 
 type Instance struct {
 	Name      string
 	Dir       string
-	TFVarPath string
 	Terraform *terraform.Terraform
 }
 
@@ -20,9 +18,8 @@ func NewInstance(name string) *Instance {
 	dir := fmt.Sprintf("%s/.layer0/%s", homedir.Get(), name)
 
 	return &Instance{
-		Name:      name,
-		Dir:       dir,
-		TFVarPath: fmt.Sprintf("%s/terraform.tfvars.json", dir),
+		Name: name,
+		Dir:  dir,
 	}
 }
 
@@ -35,30 +32,45 @@ func (i *Instance) Init(c *cli.Context) error {
 		return err
 	}
 
-	// load variables from the cli, user, and/or tfvars
-	tfvars := map[string]interface{}{}
-	for _, schema := range InstanceVariableSchemas {
-		v, err := schema.Load(c, i.TFVarPath)
+	config := terraform.NewConfig()
+
+	path := fmt.Sprintf("%s/main.tf.json", i.Dir)
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		c, err := terraform.LoadConfig(path)
 		if err != nil {
 			return err
 		}
 
-		tfvars[schema.Name] = v
+		config = c
 	}
 
-	// write the updated tfvars
-	if err := terraform.WriteTFVars(i.TFVarPath, tfvars); err != nil {
+	if _, ok := config.Modules["main"]; !ok {
+		config.Modules["main"] = terraform.Module{}
+	}
+
+	module := config.Modules["main"]
+	module["name"] = i.Name
+	for _, input := range MainModuleInputs {
+		v, err := input.Load(c, module[input.Name])
+		if err != nil {
+			return err
+		}
+
+		module[input.Name] = v
+	}
+
+	if err := terraform.WriteConfig(path, config); err != nil {
 		return err
 	}
 
-	// write variables.tf, main.tf, and outputs.tf if they don't already exist
-	for fileName, data := range TFFiles {
-		path := fmt.Sprintf("%s/%s", i.Dir, fileName)
-		if _, err := os.Stat(path); os.IsNotExist(err) {
-			if err := ioutil.WriteFile(path, data, 0644); err != nil {
-				return err
-			}
-		}
+	// todo: write outputs.tf
+	output := &terraform.Config{
+		Outputs: MainModuleOutputs,
+	}
+
+	outPath := fmt.Sprintf("%s/outputs.tf.json", i.Dir)
+	if err := terraform.WriteConfig(outPath, output); err != nil {
+		return err
 	}
 
 	// run 'terraform get' and `terraform fmt`
@@ -67,8 +79,8 @@ func (i *Instance) Init(c *cli.Context) error {
 	}
 
 	if err := i.Terraform.FMT(i.Dir); err != nil {
-                return err
-        }
+		return err
+	}
 
 	return nil
 }
