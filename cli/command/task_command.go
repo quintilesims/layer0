@@ -126,12 +126,24 @@ func (t *TaskCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	task, err := t.Client.GetTask(job.Meta["task_id"])
-	if err != nil {
-		return err
+	taskIDs := []string{}
+	for key, val := range job.Meta {
+		if strings.HasPrefix(key, "task_") {
+			taskIDs = append(taskIDs, val)
+		}
 	}
 
-	return t.Printer.PrintTasks(task)
+	tasks := make([]*models.Task, len(taskIDs))
+	for i, taskID := range taskIDs {
+		task, err := t.Client.GetTask(taskID)
+		if err != nil {
+			return err
+		}
+
+		tasks[i] = task
+	}
+
+	return t.Printer.PrintTasks(tasks...)
 }
 
 func (t *TaskCommand) Delete(c *cli.Context) error {

@@ -14,7 +14,7 @@ func dataSource() *schema.Resource {
 		Read: dataSourceRead,
 
 		Schema: map[string]*schema.Schema{
-			"program": &schema.Schema{
+			"program": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Schema{
@@ -22,7 +22,7 @@ func dataSource() *schema.Resource {
 				},
 			},
 
-			"query": &schema.Schema{
+			"query": {
 				Type:     schema.TypeMap,
 				Optional: true,
 				Elem: &schema.Schema{
@@ -30,7 +30,7 @@ func dataSource() *schema.Resource {
 				},
 			},
 
-			"result": &schema.Schema{
+			"result": {
 				Type:     schema.TypeMap,
 				Computed: true,
 				Elem: &schema.Schema{

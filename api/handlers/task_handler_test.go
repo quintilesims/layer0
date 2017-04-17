@@ -22,7 +22,7 @@ func TestListTasks(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name:    "Should return tasks from logic layer",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -43,8 +43,8 @@ func TestListTasks(t *testing.T) {
 				reporter.AssertEqual(response, tasks)
 			},
 		},
-		HandlerTestCase{
-			Name:    "Should propogate ListTasks error",
+		{
+			Name:    "Should propagate ListTasks error",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
 				logicMock := mock_logic.NewMockTaskLogic(ctrl)
@@ -75,7 +75,7 @@ func TestGetTask(t *testing.T) {
 	}
 
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call GetTask with proper params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -93,7 +93,7 @@ func TestGetTask(t *testing.T) {
 				handler.GetTask(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should return task from logic layer",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -116,7 +116,7 @@ func TestGetTask(t *testing.T) {
 				reporter.AssertEqual(response, task)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name:    "Should return MissingParameter error with no id",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -133,7 +133,7 @@ func TestGetTask(t *testing.T) {
 				reporter.AssertEqual(response.ErrorCode, int64(errors.MissingParameter))
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate GetTask error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -163,7 +163,7 @@ func TestGetTask(t *testing.T) {
 
 func TestDeleteTask(t *testing.T) {
 	testCases := []HandlerTestCase{
-		HandlerTestCase{
+		{
 			Name: "Should call DeleteTask with proper params",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -181,7 +181,7 @@ func TestDeleteTask(t *testing.T) {
 				handler.DeleteTask(req, resp)
 			},
 		},
-		HandlerTestCase{
+		{
 			Name:    "Should return MissingParameter error with no id",
 			Request: &TestRequest{},
 			Setup: func(ctrl *gomock.Controller) interface{} {
@@ -198,7 +198,7 @@ func TestDeleteTask(t *testing.T) {
 				reporter.AssertEqual(response.ErrorCode, int64(errors.MissingParameter))
 			},
 		},
-		HandlerTestCase{
+		{
 			Name: "Should propagate DeleteTask error",
 			Request: &TestRequest{
 				Parameters: map[string]string{"id": "some_id"},
@@ -231,7 +231,7 @@ func TestCreateTask(t *testing.T) {
 		TaskName:      "tsk_name",
 		DeployID:      "dply_id",
 		EnvironmentID: "env_id",
-		Copies:        int64(2),
+		Copies:        2,
 	}
 
 	testCase := HandlerTestCase{

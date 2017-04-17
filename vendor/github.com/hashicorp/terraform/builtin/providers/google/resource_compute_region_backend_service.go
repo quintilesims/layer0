@@ -20,7 +20,7 @@ func resourceComputeRegionBackendService() *schema.Resource {
 		Delete: resourceComputeRegionBackendServiceDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -35,22 +35,22 @@ func resourceComputeRegionBackendService() *schema.Resource {
 				},
 			},
 
-			"health_checks": &schema.Schema{
+			"health_checks": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Required: true,
 				Set:      schema.HashString,
 			},
 
-			"backend": &schema.Schema{
+			"backend": {
 				Type: schema.TypeSet,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"group": &schema.Schema{
+						"group": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
-						"description": &schema.Schema{
+						"description": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -60,46 +60,46 @@ func resourceComputeRegionBackendService() *schema.Resource {
 				Set:      resourceGoogleComputeRegionBackendServiceBackendHash,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"fingerprint": &schema.Schema{
+			"fingerprint": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"protocol": &schema.Schema{
+			"protocol": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"session_affinity": &schema.Schema{
+			"session_affinity": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,
 			},
 
-			"region": &schema.Schema{
+			"region": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"self_link": &schema.Schema{
+			"self_link": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
 
-			"timeout_sec": &schema.Schema{
+			"timeout_sec": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,

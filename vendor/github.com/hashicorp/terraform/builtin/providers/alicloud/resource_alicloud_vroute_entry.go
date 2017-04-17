@@ -14,28 +14,28 @@ func resourceAliyunRouteEntry() *schema.Resource {
 		Delete: resourceAliyunRouteEntryDelete,
 
 		Schema: map[string]*schema.Schema{
-			"router_id": &schema.Schema{
+			"router_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"route_table_id": &schema.Schema{
+			"route_table_id": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"destination_cidrblock": &schema.Schema{
+			"destination_cidrblock": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
-			"nexthop_type": &schema.Schema{
+			"nexthop_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
 				ValidateFunc: validateRouteEntryNextHopType,
 			},
-			"nexthop_id": &schema.Schema{
+			"nexthop_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,

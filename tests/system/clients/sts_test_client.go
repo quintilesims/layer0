@@ -30,6 +30,7 @@ func (s *STSTestClient) WaitForHealthy(timeout time.Duration) {
 	testutils.WaitFor(s.T, time.Second*10, timeout, func() bool {
 		logrus.Debugf("Waiting for sts service to be healthy")
 		if _, err := s.Client.GetHealth(); err != nil {
+			logrus.Debug(err)
 			return false
 		}
 
@@ -53,4 +54,13 @@ func (s *STSTestClient) SetHealth(mode string) *models.Health {
 	}
 
 	return health
+}
+
+func (s *STSTestClient) RunCommand(args ...string) (string, error) {
+	command, err := s.Client.CreateCommand(args[0], args...)
+	if err != nil {
+		return "", err
+	}
+
+	return command.Output, nil
 }

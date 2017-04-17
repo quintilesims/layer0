@@ -122,10 +122,6 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 			return nil, fmt.Errorf("Unexpected request type for 'CreateTask' job type!")
 		}
 
-		if req.Copies > 10 {
-			return nil, fmt.Errorf("ECS does not allow more than 10 copies of a task")
-		}
-
 		this.Logic.Scaler.ScheduleRun(req.EnvironmentID, time.Second*10)
 	}
 
@@ -165,12 +161,12 @@ func (this *L0JobLogic) createJobDeploy(jobID string) (*models.Deploy, error) {
 				Val: jobID,
 			},
 			{
-				Key: config.DB_CONNECTION,
-				Val: config.DBConnection(),
+				Key: config.AWS_DYNAMO_TAG_TABLE,
+				Val: config.DynamoTagTableName(),
 			},
 			{
-				Key: config.DB_NAME,
-				Val: config.DBName(),
+				Key: config.AWS_DYNAMO_JOB_TABLE,
+				Val: config.DynamoJobTableName(),
 			},
 			{
 				Key: config.AWS_ACCESS_KEY_ID,

@@ -628,7 +628,7 @@ The <strong>environment</strong> command is used to manage Layer0 environments. 
 <h4 id="usage_8">Usage<a class="headerlink" href="#usage_8" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 environment create</strong> [--size] [--min-count] [--user-data] <em>environmentName</em> </div>
+    <div class="divCellNoPadding"><strong>l0 environment create</strong> [--size] [--min-count] [--user-data] [--os] [--ami] <em>environmentName</em> </div>
   </div>
 </div></p>
 <h4 id="required-parameters_3">Required parameters<a class="headerlink" href="#required-parameters_3" title="Permanent link">#</a></h4>
@@ -651,6 +651,14 @@ The <strong>environment</strong> command is used to manage Layer0 environments. 
   <div class="divRow">
     <div class="divCellNoWrap">--user-data</div>
     <div class="divCell">The user data template to use for the environment's autoscaling group.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--os</div>
+    <div class="divCell">The operating system used in the environment. Options are "linux" or "windows" (default: linux).</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--ami</div>
+    <div class="divCell">A custom AMI ID to use in the environment. If not specified, Layer0 will use its default AMI ID for the specified operating system.</div>
   </div>
 </div></p>
 <p>The user data template can be used to add custom configuration to your Layer0 environment.

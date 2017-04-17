@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/emicklei/go-restful"
 	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/errors"
@@ -47,11 +48,14 @@ func (t *TagHandler) Routes() *restful.WebService {
 		Returns(400, "Invalid request", models.ServerError{}).
 		Writes(models.Tag{}))
 
-	service.Route(service.DELETE("/").
+	id := service.PathParameter("id", "identifier of the tag").
+		DataType("integer")
+
+	service.Route(service.DELETE("/{id}").
 		Filter(basicAuthenticate).
 		To(t.DeleteTag).
 		Doc("Delete a tag").
-		Reads(models.Tag{}).
+		Param(id).
 		Returns(http.StatusNoContent, "Deleted", nil))
 
 	return service
@@ -150,13 +154,21 @@ func (t *TagHandler) FindTags(request *restful.Request, response *restful.Respon
 }
 
 func (t *TagHandler) DeleteTag(request *restful.Request, response *restful.Response) {
-	req := new(models.Tag)
-	if err := request.ReadEntity(&req); err != nil {
-		BadRequest(response, errors.InvalidJSON, err)
+	id := request.PathParameter("id")
+	if id == "" {
+		err := fmt.Errorf("Paramter 'id' is required")
+		BadRequest(response, errors.MissingParameter, err)
 		return
 	}
 
-	if err := t.TagStore.Delete(req); err != nil {
+	tagID, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		err := fmt.Errorf("Paramter 'id' must be an int64")
+		BadRequest(response, errors.MissingParameter, err)
+		return
+	}
+
+	if err := t.TagStore.Delete(tagID); err != nil {
 		ReturnError(response, err)
 		return
 	}

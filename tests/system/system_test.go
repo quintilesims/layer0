@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/tests/system/clients"
 	"github.com/quintilesims/tftest"
@@ -27,12 +26,10 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 		tftest.DryRun(*dry),
 		tftest.Log(log))
 
+	layer0 := clients.NewLayer0TestClient(t, vars["endpoint"], vars["token"])
+
 	// download modules using terraform get
 	tfContext.Terraformf("get")
-
-	layer0 := clients.NewLayer0TestClient(t,
-		vars["endpoint"],
-		fmt.Sprintf("Basic %s", vars["token"]))
 
 	return &SystemTest{
 		Terraform: tfContext,

@@ -48,7 +48,7 @@ func (c *APIClient) WaitForJob(jobID string, timeout time.Duration) error {
 			}
 
 			if types.JobStatus(job.JobStatus) == types.Error {
-				text := "An error occured during the job's execution. \n"
+				text := "An error occurred during the job's execution. \n"
 				text += fmt.Sprintf("Use 'l0 job logs %s' for more information", job.JobID)
 				return false, fmt.Errorf(text)
 			}

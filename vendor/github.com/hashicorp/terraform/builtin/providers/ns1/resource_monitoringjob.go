@@ -15,42 +15,42 @@ func monitoringJobResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			// Required
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"job_type": &schema.Schema{
+			"job_type": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"regions": &schema.Schema{
+			"regions": {
 				Type:     schema.TypeList,
 				Required: true,
 				Elem: &schema.Schema{
 					Type: schema.TypeString,
 				},
 			},
-			"frequency": &schema.Schema{
+			"frequency": {
 				Type:     schema.TypeInt,
 				Required: true,
 			},
-			"config": &schema.Schema{
+			"config": {
 				Type:     schema.TypeMap,
 				Required: true,
 			},
 			// Optional
-			"active": &schema.Schema{
+			"active": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
-			"rapid_recheck": &schema.Schema{
+			"rapid_recheck": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  false,
 			},
-			"policy": &schema.Schema{
+			"policy": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "quorum",
@@ -63,44 +63,44 @@ func monitoringJobResource() *schema.Resource {
 					return
 				},
 			},
-			"notes": &schema.Schema{
+			"notes": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"notify_delay": &schema.Schema{
+			"notify_delay": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"notify_repeat": &schema.Schema{
+			"notify_repeat": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
-			"notify_failback": &schema.Schema{
+			"notify_failback": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"notify_regional": &schema.Schema{
+			"notify_regional": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"notify_list": &schema.Schema{
+			"notify_list": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			"rules": &schema.Schema{
+			"rules": {
 				Type:     schema.TypeList,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"value": &schema.Schema{
+						"value": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"comparison": &schema.Schema{
+						"comparison": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"key": &schema.Schema{
+						"key": {
 							Type:     schema.TypeString,
 							Required: true,
 						},
@@ -108,7 +108,7 @@ func monitoringJobResource() *schema.Resource {
 				},
 			},
 			// Computed
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

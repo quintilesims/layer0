@@ -4,16 +4,16 @@
     l0 environment create test
 }
 
-@test "deploy create guestbook" {
-    l0 deploy create ./common/Dockerrun.aws.json guestbook
+@test "deploy create alpine" {
+    l0 deploy create ./common/Task.Dockerrun.aws.json alpine
 }
 
-@test "task create --wait test task1 guestbook" {
-    l0 task create --wait test task1  guestbook
+@test "task create --wait test task1 alpine" {
+    l0 task create --wait test task1 alpine
 }
 
-@test "task create --copies 2 --env guestbook:key=val test task2 guestbook" {
-    l0 task create --copies 2 --env guestbook:key=val test task2 guestbook 
+@test "task create --copies 2 --env alpine:key=val test task2 alpine" {
+    l0 task create --copies 2 --env alpine:key=val test task2 alpine 
 }
 
 @test "task list" {
@@ -44,11 +44,11 @@
     l0 task delete task1
 }
 
-@test "deploy delete guestbook" {
-    l0 deploy delete guestbook
+@test "deploy delete alpine" {
+    l0 deploy delete alpine
 }
 
-# this deletes the remaining service(s) and loadbalancer(s)
+# this deletes the remaining service(s), loadbalancer(s), and task(s)
 @test "environment delete --wait test" {
     l0 environment delete --wait test
 }

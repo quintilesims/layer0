@@ -30,12 +30,12 @@ var schemaCheckMySQL = &schema.Schema{
 	Set:      hashCheckMySQL,
 	Elem: &schema.Resource{
 		Schema: convertToHelperSchema(checkMySQLDescriptions, map[schemaAttr]*schema.Schema{
-			checkMySQLDSNAttr: &schema.Schema{
+			checkMySQLDSNAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRegexp(checkMySQLDSNAttr, `^.+$`),
 			},
-			checkMySQLQueryAttr: &schema.Schema{
+			checkMySQLQueryAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				StateFunc:    func(v interface{}) string { return strings.TrimSpace(v.(string)) },

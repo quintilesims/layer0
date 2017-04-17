@@ -129,50 +129,50 @@ func resourceGraph() *schema.Resource {
 		},
 
 		Schema: convertToHelperSchema(graphDescriptions, map[schemaAttr]*schema.Schema{
-			graphDescriptionAttr: &schema.Schema{
+			graphDescriptionAttr: {
 				Type:      schema.TypeString,
 				Optional:  true,
 				StateFunc: suppressWhitespace,
 			},
-			graphLeftAttr: &schema.Schema{
+			graphLeftAttr: {
 				Type:         schema.TypeMap,
 				Elem:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateGraphAxisOptions,
 			},
-			graphLineStyleAttr: &schema.Schema{
+			graphLineStyleAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultGraphLineStyle,
 				ValidateFunc: validateStringIn(graphLineStyleAttr, validGraphLineStyles),
 			},
-			graphNameAttr: &schema.Schema{
+			graphNameAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRegexp(graphNameAttr, `.+`),
 			},
-			graphNotesAttr: &schema.Schema{
+			graphNotesAttr: {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
-			graphRightAttr: &schema.Schema{
+			graphRightAttr: {
 				Type:         schema.TypeMap,
 				Elem:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateGraphAxisOptions,
 			},
-			graphMetricAttr: &schema.Schema{
+			graphMetricAttr: {
 				Type:     schema.TypeList,
 				Optional: true,
 				MinItems: 1,
 				Elem: &schema.Resource{
 					Schema: convertToHelperSchema(graphMetricDescriptions, map[schemaAttr]*schema.Schema{
-						graphMetricActiveAttr: &schema.Schema{
+						graphMetricActiveAttr: {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  true,
 						},
-						graphMetricAlphaAttr: &schema.Schema{
+						graphMetricAlphaAttr: {
 							Type:     schema.TypeFloat,
 							Optional: true,
 							ValidateFunc: validateFuncs(
@@ -180,61 +180,61 @@ func resourceGraph() *schema.Resource {
 								validateFloatMax(graphMetricAlphaAttr, 1.0),
 							),
 						},
-						graphMetricAxisAttr: &schema.Schema{
+						graphMetricAxisAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "left",
 							ValidateFunc: validateStringIn(graphMetricAxisAttr, validAxisAttrs),
 						},
-						graphMetricCAQLAttr: &schema.Schema{
+						graphMetricCAQLAttr: {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ValidateFunc:  validateRegexp(graphMetricCAQLAttr, `.+`),
 							ConflictsWith: makeConflictsWith(graphMetricCheckAttr, graphMetricNameAttr),
 						},
-						graphMetricCheckAttr: &schema.Schema{
+						graphMetricCheckAttr: {
 							Type:          schema.TypeString,
 							Optional:      true,
 							ValidateFunc:  validateRegexp(graphMetricCheckAttr, config.CheckCIDRegex),
 							ConflictsWith: makeConflictsWith(graphMetricCAQLAttr),
 						},
-						graphMetricColorAttr: &schema.Schema{
+						graphMetricColorAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validateRegexp(graphMetricColorAttr, `^#[0-9a-fA-F]{6}$`),
 						},
-						graphMetricFormulaAttr: &schema.Schema{
+						graphMetricFormulaAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validateRegexp(graphMetricFormulaAttr, `^.+$`),
 						},
-						graphMetricFormulaLegendAttr: &schema.Schema{
+						graphMetricFormulaLegendAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validateRegexp(graphMetricFormulaLegendAttr, `^.+$`),
 						},
-						graphMetricFunctionAttr: &schema.Schema{
+						graphMetricFunctionAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      defaultGraphFunction,
 							ValidateFunc: validateStringIn(graphMetricFunctionAttr, validGraphFunctionValues),
 						},
-						graphMetricMetricTypeAttr: &schema.Schema{
+						graphMetricMetricTypeAttr: {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validateStringIn(graphMetricMetricTypeAttr, validMetricTypes),
 						},
-						graphMetricHumanNameAttr: &schema.Schema{
+						graphMetricHumanNameAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validateRegexp(graphMetricHumanNameAttr, `.+`),
 						},
-						graphMetricNameAttr: &schema.Schema{
+						graphMetricNameAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validateRegexp(graphMetricNameAttr, `^[\S]+$`),
 						},
-						graphMetricStackAttr: &schema.Schema{
+						graphMetricStackAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validateRegexp(graphMetricStackAttr, `^[\d]*$`),
@@ -242,40 +242,40 @@ func resourceGraph() *schema.Resource {
 					}),
 				},
 			},
-			graphMetricClusterAttr: &schema.Schema{
+			graphMetricClusterAttr: {
 				Type:     schema.TypeList,
 				Optional: true,
 				MinItems: 1,
 				Elem: &schema.Resource{
 					Schema: convertToHelperSchema(graphMetricClusterDescriptions, map[schemaAttr]*schema.Schema{
-						graphMetricClusterActiveAttr: &schema.Schema{
+						graphMetricClusterActiveAttr: {
 							Type:     schema.TypeBool,
 							Optional: true,
 							Default:  true,
 						},
-						graphMetricClusterAggregateAttr: &schema.Schema{
+						graphMetricClusterAggregateAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "none",
 							ValidateFunc: validateStringIn(graphMetricClusterAggregateAttr, validAggregateFuncs),
 						},
-						graphMetricClusterAxisAttr: &schema.Schema{
+						graphMetricClusterAxisAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							Default:      "left",
 							ValidateFunc: validateStringIn(graphMetricClusterAttr, validAxisAttrs),
 						},
-						graphMetricClusterColorAttr: &schema.Schema{
+						graphMetricClusterColorAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validateRegexp(graphMetricClusterColorAttr, `^#[0-9a-fA-F]{6}$`),
 						},
-						graphMetricClusterQueryAttr: &schema.Schema{
+						graphMetricClusterQueryAttr: {
 							Type:         schema.TypeString,
 							Optional:     true,
 							ValidateFunc: validateRegexp(graphMetricClusterQueryAttr, config.MetricClusterCIDRegex),
 						},
-						graphMetricClusterHumanNameAttr: &schema.Schema{
+						graphMetricClusterHumanNameAttr: {
 							Type:         schema.TypeString,
 							Required:     true,
 							ValidateFunc: validateRegexp(graphMetricHumanNameAttr, `.+`),
@@ -283,7 +283,7 @@ func resourceGraph() *schema.Resource {
 					}),
 				},
 			},
-			graphStyleAttr: &schema.Schema{
+			graphStyleAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      defaultGraphStyle,

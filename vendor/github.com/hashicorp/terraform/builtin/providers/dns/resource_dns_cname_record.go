@@ -16,21 +16,21 @@ func resourceDnsCnameRecord() *schema.Resource {
 		Delete: resourceDnsCnameRecordDelete,
 
 		Schema: map[string]*schema.Schema{
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"cname": &schema.Schema{
+			"cname": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"ttl": &schema.Schema{
+			"ttl": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				ForceNew: true,

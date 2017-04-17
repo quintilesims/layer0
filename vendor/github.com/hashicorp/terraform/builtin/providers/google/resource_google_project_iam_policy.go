@@ -18,29 +18,29 @@ func resourceGoogleProjectIamPolicy() *schema.Resource {
 		Delete: resourceGoogleProjectIamPolicyDelete,
 
 		Schema: map[string]*schema.Schema{
-			"project": &schema.Schema{
+			"project": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"policy_data": &schema.Schema{
+			"policy_data": {
 				Type:             schema.TypeString,
 				Required:         true,
 				DiffSuppressFunc: jsonPolicyDiffSuppress,
 			},
-			"authoritative": &schema.Schema{
+			"authoritative": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
-			"etag": &schema.Schema{
+			"etag": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"restore_policy": &schema.Schema{
+			"restore_policy": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"disable_project": &schema.Schema{
+			"disable_project": {
 				Type:     schema.TypeBool,
 				Optional: true,
 			},
@@ -318,7 +318,7 @@ func rolesToMembersBinding(m map[string]map[string]bool) []*cloudresourcemanager
 			Role:    role,
 			Members: make([]string, 0),
 		}
-		for m, _ := range members {
+		for m := range members {
 			b.Members = append(b.Members, m)
 		}
 		bindings = append(bindings, &b)
@@ -354,7 +354,7 @@ func mergeBindings(bindings []*cloudresourcemanager.Binding) []*cloudresourceman
 		var b cloudresourcemanager.Binding
 		b.Role = role
 		b.Members = make([]string, 0)
-		for m, _ := range members {
+		for m := range members {
 			b.Members = append(b.Members, m)
 		}
 		rb = append(rb, &b)

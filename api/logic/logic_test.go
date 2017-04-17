@@ -6,7 +6,6 @@ import (
 	"github.com/quintilesims/layer0/api/backend/mock_backend"
 	"github.com/quintilesims/layer0/api/scheduler/mock_scheduler"
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/db"
 	"github.com/quintilesims/layer0/common/db/job_store"
 	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/models"
@@ -24,44 +23,18 @@ func TestMain(m *testing.M) {
 
 type TestLogic struct {
 	Backend  *mock_backend.MockBackend
-	JobStore *job_store.MysqlJobStore
-	TagStore *tag_store.MysqlTagStore
+	JobStore *job_store.MemoryJobStore
+	TagStore *tag_store.MemoryTagStore
 	Scaler   *mock_scheduler.MockEnvironmentScaler
 }
 
 func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 
-	tagStore := tag_store.NewMysqlTagStore(db.Config{
-		Connection: config.DBConnection(),
-		DBName:     config.DBName() + "_logic",
-	})
-
-	if err := tagStore.Init(); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := tagStore.Clear(); err != nil {
-		t.Fatal(err)
-	}
-
-	jobStore := job_store.NewMysqlJobStore(db.Config{
-		Connection: config.DBConnection(),
-		DBName:     config.DBName() + "_logic",
-	})
-
-	if err := jobStore.Init(); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := jobStore.Clear(); err != nil {
-		t.Fatal(err)
-	}
-
 	logic := &TestLogic{
 		Backend:  mock_backend.NewMockBackend(ctrl),
-		JobStore: jobStore,
-		TagStore: tagStore,
+		JobStore: job_store.NewMemoryJobStore(),
+		TagStore: tag_store.NewMemoryTagStore(),
 		Scaler:   mock_scheduler.NewMockEnvironmentScaler(ctrl),
 	}
 

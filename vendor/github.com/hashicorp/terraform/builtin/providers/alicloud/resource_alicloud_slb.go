@@ -21,26 +21,26 @@ func resourceAliyunSlb() *schema.Resource {
 		Delete: resourceAliyunSlbDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateSlbName,
 				Computed:     true,
 			},
 
-			"internet": &schema.Schema{
+			"internet": {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"vswitch_id": &schema.Schema{
+			"vswitch_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 
-			"internet_charge_type": &schema.Schema{
+			"internet_charge_type": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
@@ -48,72 +48,72 @@ func resourceAliyunSlb() *schema.Resource {
 				ValidateFunc: validateSlbInternetChargeType,
 			},
 
-			"bandwidth": &schema.Schema{
+			"bandwidth": {
 				Type:         schema.TypeInt,
 				Optional:     true,
 				ValidateFunc: validateSlbBandwidth,
 				Computed:     true,
 			},
 
-			"listener": &schema.Schema{
+			"listener": {
 				Type:     schema.TypeSet,
 				Optional: true,
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"instance_port": &schema.Schema{
+						"instance_port": {
 							Type:         schema.TypeInt,
 							ValidateFunc: validateInstancePort,
 							Required:     true,
 						},
 
-						"lb_port": &schema.Schema{
+						"lb_port": {
 							Type:         schema.TypeInt,
 							ValidateFunc: validateInstancePort,
 							Required:     true,
 						},
 
-						"lb_protocol": &schema.Schema{
+						"lb_protocol": {
 							Type:         schema.TypeString,
 							ValidateFunc: validateInstanceProtocol,
 							Required:     true,
 						},
 
-						"bandwidth": &schema.Schema{
+						"bandwidth": {
 							Type:         schema.TypeInt,
 							ValidateFunc: validateSlbListenerBandwidth,
 							Required:     true,
 						},
 						//http
-						"scheduler": &schema.Schema{
+						"scheduler": {
 							Type:         schema.TypeString,
 							ValidateFunc: validateSlbListenerScheduler,
 							Optional:     true,
 							Default:      "wrr",
 						},
 
-						"sticky_session": &schema.Schema{
+						"sticky_session": {
 							Type:         schema.TypeString,
 							ValidateFunc: validateSlbListenerStickySession,
 							Optional:     true,
 						},
-						"sticky_session_type": &schema.Schema{
+						"sticky_session_type": {
 							Type:         schema.TypeString,
 							ValidateFunc: validateSlbListenerStickySessionType,
 							Optional:     true,
 						},
-						"cookie": &schema.Schema{
+						"cookie": {
 							Type:         schema.TypeString,
 							ValidateFunc: validateSlbListenerCookie,
 							Optional:     true,
 						},
-						"PersistenceTimeout": &schema.Schema{
+						"PersistenceTimeout": {
 							Type:         schema.TypeInt,
 							ValidateFunc: validateSlbListenerPersistenceTimeout,
 							Optional:     true,
 							Default:      0,
 						},
 						//https
-						"ssl_certificate_id": &schema.Schema{
+						"ssl_certificate_id": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -123,14 +123,14 @@ func resourceAliyunSlb() *schema.Resource {
 			},
 
 			//deprecated
-			"instances": &schema.Schema{
+			"instances": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Optional: true,
 				Set:      schema.HashString,
 			},
 
-			"address": &schema.Schema{
+			"address": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

@@ -23,8 +23,6 @@ import (
 	"time"
 )
 
-import ()
-
 type Session struct {
 	Client *http.Client
 	Log    bool // Log request and response
@@ -81,7 +79,7 @@ func (s *Session) Send(r *Request) (response *Response, err error) {
 	//
 	header := http.Header{}
 	if s.Header != nil {
-		for k, _ := range *s.Header {
+		for k := range *s.Header {
 			v := s.Header.Get(k)
 			header.Set(k, v)
 		}

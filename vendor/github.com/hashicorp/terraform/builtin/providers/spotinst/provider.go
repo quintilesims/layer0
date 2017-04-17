@@ -9,35 +9,35 @@ import (
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"email": &schema.Schema{
+			"email": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SPOTINST_EMAIL", ""),
 				Description: "Spotinst Email",
 			},
 
-			"password": &schema.Schema{
+			"password": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SPOTINST_PASSWORD", ""),
 				Description: "Spotinst Password",
 			},
 
-			"client_id": &schema.Schema{
+			"client_id": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SPOTINST_CLIENT_ID", ""),
 				Description: "Spotinst OAuth Client ID",
 			},
 
-			"client_secret": &schema.Schema{
+			"client_secret": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SPOTINST_CLIENT_SECRET", ""),
 				Description: "Spotinst OAuth Client Secret",
 			},
 
-			"token": &schema.Schema{
+			"token": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("SPOTINST_TOKEN", ""),

@@ -51,6 +51,16 @@ func (_mr *_MockBackendRecorder) CreateEnvironment(arg0, arg1, arg2, arg3, arg4,
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
+func (_m *MockBackend) CreateEnvironmentLink(_param0 string, _param1 string) error {
+	ret := _m.ctrl.Call(_m, "CreateEnvironmentLink", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockBackendRecorder) CreateEnvironmentLink(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironmentLink", arg0, arg1)
+}
+
 func (_m *MockBackend) CreateLoadBalancer(_param0 string, _param1 string, _param2 bool, _param3 []models.Port, _param4 models.HealthCheck) (*models.LoadBalancer, error) {
 	ret := _m.ctrl.Call(_m, "CreateLoadBalancer", _param0, _param1, _param2, _param3, _param4)
 	ret0, _ := ret[0].(*models.LoadBalancer)
@@ -73,15 +83,15 @@ func (_mr *_MockBackendRecorder) CreateService(arg0, arg1, arg2, arg3 interface{
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateService", arg0, arg1, arg2, arg3)
 }
 
-func (_m *MockBackend) CreateTask(_param0 string, _param1 string, _param2 string, _param3 int, _param4 []models.ContainerOverride) (*models.Task, error) {
-	ret := _m.ctrl.Call(_m, "CreateTask", _param0, _param1, _param2, _param3, _param4)
+func (_m *MockBackend) CreateTask(_param0 string, _param1 string, _param2 string, _param3 []models.ContainerOverride) (*models.Task, error) {
+	ret := _m.ctrl.Call(_m, "CreateTask", _param0, _param1, _param2, _param3)
 	ret0, _ := ret[0].(*models.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockBackendRecorder) CreateTask(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTask", arg0, arg1, arg2, arg3, arg4)
+func (_mr *_MockBackendRecorder) CreateTask(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateTask", arg0, arg1, arg2, arg3)
 }
 
 func (_m *MockBackend) DeleteDeploy(_param0 string) error {
@@ -102,6 +112,16 @@ func (_m *MockBackend) DeleteEnvironment(_param0 string) error {
 
 func (_mr *_MockBackendRecorder) DeleteEnvironment(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteEnvironment", arg0)
+}
+
+func (_m *MockBackend) DeleteEnvironmentLink(_param0 string, _param1 string) error {
+	ret := _m.ctrl.Call(_m, "DeleteEnvironmentLink", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockBackendRecorder) DeleteEnvironmentLink(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteEnvironmentLink", arg0, arg1)
 }
 
 func (_m *MockBackend) DeleteLoadBalancer(_param0 string) error {

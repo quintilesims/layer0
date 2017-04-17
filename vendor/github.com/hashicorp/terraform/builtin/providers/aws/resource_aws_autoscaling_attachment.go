@@ -18,13 +18,13 @@ func resourceAwsAutoscalingAttachment() *schema.Resource {
 		Delete: resourceAwsAutoscalingAttachmentDelete,
 
 		Schema: map[string]*schema.Schema{
-			"autoscaling_group_name": &schema.Schema{
+			"autoscaling_group_name": {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Required: true,
 			},
 
-			"elb": &schema.Schema{
+			"elb": {
 				Type:     schema.TypeString,
 				ForceNew: true,
 				Required: true,

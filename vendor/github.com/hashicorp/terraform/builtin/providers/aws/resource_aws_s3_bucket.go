@@ -1725,8 +1725,8 @@ func normalizeRegion(region string) string {
 
 func validateS3BucketAccelerationStatus(v interface{}, k string) (ws []string, errors []error) {
 	validTypes := map[string]struct{}{
-		"Enabled":   struct{}{},
-		"Suspended": struct{}{},
+		"Enabled":   {},
+		"Suspended": {},
 	}
 
 	if _, ok := validTypes[v.(string)]; !ok {

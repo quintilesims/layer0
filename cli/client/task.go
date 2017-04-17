@@ -16,7 +16,7 @@ func (c *APIClient) CreateTask(
 		TaskName:           name,
 		EnvironmentID:      environmentID,
 		DeployID:           deployID,
-		Copies:             int64(copies),
+		Copies:             copies,
 		ContainerOverrides: overrides,
 	}
 

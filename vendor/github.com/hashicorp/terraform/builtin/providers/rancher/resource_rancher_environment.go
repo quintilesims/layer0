@@ -23,21 +23,21 @@ func resourceRancherEnvironment() *schema.Resource {
 		},
 
 		Schema: map[string]*schema.Schema{
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
-			"orchestration": &schema.Schema{
+			"orchestration": {
 				Type:         schema.TypeString,
 				Default:      "cattle",
 				Optional:     true,
 				ValidateFunc: validation.StringInSlice([]string{"cattle", "kubernetes", "mesos", "swarm"}, true),
 			},
-			"description": &schema.Schema{
+			"description": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},

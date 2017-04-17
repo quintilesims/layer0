@@ -21,6 +21,7 @@ func TestGetEnvironment(t *testing.T) {
 	testLogic.AddTags(t, []*models.Tag{
 		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env"},
 		{EntityID: "e1", EntityType: "environment", Key: "os", Value: "linux"},
+		{EntityID: "e1", EntityType: "environment", Key: "link", Value: "e2"},
 		{EntityID: "extra", EntityType: "environment", Key: "name", Value: "extra"},
 	})
 
@@ -34,6 +35,7 @@ func TestGetEnvironment(t *testing.T) {
 		EnvironmentID:   "e1",
 		EnvironmentName: "env",
 		OperatingSystem: "linux",
+		Links:           []string{"e2"},
 	}
 
 	testutils.AssertEqual(t, received, expected)
@@ -87,17 +89,23 @@ func TestDeleteEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	testLogic.Backend.EXPECT().
-		DeleteEnvironment("e1").
+		DeleteEnvironment("eid1").
+		Return(nil)
+
+	testLogic.Backend.EXPECT().
+		DeleteEnvironmentLink("eid1", "eid2").
 		Return(nil)
 
 	testLogic.AddTags(t, []*models.Tag{
-		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env"},
-		{EntityID: "e1", EntityType: "environment", Key: "os", Value: "linux"},
+		{EntityID: "eid1", EntityType: "environment", Key: "name", Value: "env"},
+		{EntityID: "eid1", EntityType: "environment", Key: "os", Value: "linux"},
+		{EntityID: "eid1", EntityType: "environment", Key: "link", Value: "eid2"},
+		{EntityID: "eid2", EntityType: "environment", Key: "link", Value: "eid1"},
 		{EntityID: "extra", EntityType: "environment", Key: "name", Value: "extra"},
 	})
 
 	environmentLogic := NewL0EnvironmentLogic(testLogic.Logic())
-	if err := environmentLogic.DeleteEnvironment("e1"); err != nil {
+	if err := environmentLogic.DeleteEnvironment("eid1"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -175,6 +183,7 @@ func TestCreateEnvironment(t *testing.T) {
 		EnvironmentID:   "e1",
 		EnvironmentName: "name",
 		OperatingSystem: "linux",
+		Links:           []string{},
 	}
 
 	testutils.AssertEqual(t, received, expected)
@@ -189,10 +198,10 @@ func TestCreateEnvironmentError_missingRequiredParams(t *testing.T) {
 	environmentLogic := NewL0EnvironmentLogic(testLogic.Logic())
 
 	cases := map[string]models.CreateEnvironmentRequest{
-		"Missing EnvironmentName": models.CreateEnvironmentRequest{
+		"Missing EnvironmentName": {
 			OperatingSystem: "linux",
 		},
-		"Missing OperatingSystem": models.CreateEnvironmentRequest{
+		"Missing OperatingSystem": {
 			EnvironmentName: "name",
 		},
 	}
@@ -230,7 +239,52 @@ func TestUpdateEnvironment(t *testing.T) {
 	expected := &models.Environment{
 		EnvironmentID:   "e1",
 		EnvironmentName: "env",
+		Links:           []string{},
 	}
 
 	testutils.AssertEqual(t, received, expected)
+}
+
+func TestCreateEnvironmentLink(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	testLogic.Backend.EXPECT().
+		CreateEnvironmentLink("eid1", "eid2").
+		Return(nil)
+
+	environmentLogic := NewL0EnvironmentLogic(testLogic.Logic())
+	if err := environmentLogic.CreateEnvironmentLink("eid1", "eid2"); err != nil {
+		t.Fatal(err)
+	}
+
+	testLogic.AssertTagExists(t, models.Tag{EntityID: "eid1", EntityType: "environment", Key: "link", Value: "eid2"})
+	testLogic.AssertTagExists(t, models.Tag{EntityID: "eid2", EntityType: "environment", Key: "link", Value: "eid1"})
+}
+
+func TestDeleteEnvironmentLink(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	testLogic.Backend.EXPECT().
+		DeleteEnvironmentLink("eid1", "eid2").
+		Return(nil)
+
+	testLogic.AddTags(t, []*models.Tag{
+		{EntityID: "eid1", EntityType: "environment", Key: "link", Value: "eid2"},
+		{EntityID: "extra", EntityType: "environment", Key: "name", Value: "extra"},
+	})
+
+	environmentLogic := NewL0EnvironmentLogic(testLogic.Logic())
+	if err := environmentLogic.DeleteEnvironmentLink("eid1", "eid2"); err != nil {
+		t.Fatal(err)
+	}
+
+	tags, err := testLogic.TagStore.SelectAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	// make sure the 'extra' tag is the only one left
+	testutils.AssertEqual(t, len(tags), 1)
 }

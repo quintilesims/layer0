@@ -168,7 +168,7 @@ func runEnvironmentScaler(environmentLogic *logic.L0EnvironmentLogic) {
 			logger.Infof("Scaling Environment %s", environment.EnvironmentID)
 
 			if _, err := environmentLogic.Scaler.Scale(environment.EnvironmentID); err != nil {
-				logger.Errorf("Failed to scale environment %s: %v", err)
+				logger.Errorf("Failed to scale environment %s: %v", environment.EnvironmentID, err)
 				continue
 			}
 

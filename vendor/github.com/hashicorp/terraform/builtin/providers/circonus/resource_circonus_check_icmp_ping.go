@@ -33,7 +33,7 @@ var schemaCheckICMPPing = &schema.Schema{
 	Set:      hashCheckICMPPing,
 	Elem: &schema.Resource{
 		Schema: convertToHelperSchema(checkICMPPingDescriptions, map[schemaAttr]*schema.Schema{
-			checkICMPPingAvailabilityAttr: &schema.Schema{
+			checkICMPPingAvailabilityAttr: {
 				Type:     schema.TypeFloat,
 				Optional: true,
 				Default:  defaultCheckICMPPingAvailability,
@@ -42,7 +42,7 @@ var schemaCheckICMPPing = &schema.Schema{
 					validateFloatMax(checkICMPPingAvailabilityAttr, 100.0),
 				),
 			},
-			checkICMPPingCountAttr: &schema.Schema{
+			checkICMPPingCountAttr: {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Default:  defaultCheckICMPPingCount,
@@ -51,7 +51,7 @@ var schemaCheckICMPPing = &schema.Schema{
 					validateIntMax(checkICMPPingCountAttr, 20),
 				),
 			},
-			checkICMPPingIntervalAttr: &schema.Schema{
+			checkICMPPingIntervalAttr: {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  defaultCheckICMPPingInterval,

@@ -643,15 +643,15 @@ func (slvgs *softLayer_Virtual_Guest_Service) AttachEphemeralDisk(instanceId int
 
 	order := datatypes.SoftLayer_Container_Product_Order_Virtual_Guest_Upgrade{
 		VirtualGuests: []datatypes.VirtualGuest{
-			datatypes.VirtualGuest{
+			{
 				Id: instanceId,
 			},
 		},
 		Prices: []datatypes.SoftLayer_Product_Item_Price{
-			datatypes.SoftLayer_Product_Item_Price{
+			{
 				Id: diskItemPrice.Id,
 				Categories: []datatypes.Category{
-					datatypes.Category{
+					{
 						CategoryCode: EPHEMERAL_DISK_CATEGORY_CODE,
 					},
 				},
@@ -659,11 +659,11 @@ func (slvgs *softLayer_Virtual_Guest_Service) AttachEphemeralDisk(instanceId int
 		},
 		ComplexType: UPGRADE_VIRTUAL_SERVER_ORDER_TYPE,
 		Properties: []datatypes.Property{
-			datatypes.Property{
+			{
 				Name:  MAINTENANCE_WINDOW_PROPERTY,
 				Value: time.Now().UTC().Format(time.RFC3339),
 			},
-			datatypes.Property{
+			{
 				Name:  "NOTE_GENERAL",
 				Value: "addingdisks",
 			},
@@ -695,14 +695,14 @@ func (slvgs *softLayer_Virtual_Guest_Service) UpgradeObject(instanceId int, opti
 
 	order := datatypes.SoftLayer_Container_Product_Order_Virtual_Guest_Upgrade{
 		VirtualGuests: []datatypes.VirtualGuest{
-			datatypes.VirtualGuest{
+			{
 				Id: instanceId,
 			},
 		},
 		Prices:      prices,
 		ComplexType: UPGRADE_VIRTUAL_SERVER_ORDER_TYPE,
 		Properties: []datatypes.Property{
-			datatypes.Property{
+			{
 				Name:  MAINTENANCE_WINDOW_PROPERTY,
 				Value: time.Now().UTC().Format(time.RFC3339),
 			},

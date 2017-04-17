@@ -392,6 +392,12 @@ func (this *ECS) RunTask(cluster, taskDefinition string, count int64, startedBy 
 		Count:          aws.Int64(count),
 		StartedBy:      startedBy,
 		Overrides:      taskOverride,
+		PlacementStrategy: []*ecs.PlacementStrategy{
+			{
+				Type:  aws.String(ecs.PlacementStrategyTypeBinpack),
+				Field: aws.String("memory"),
+			},
+		},
 	}
 
 	connection, err := this.Connect()
@@ -468,7 +474,14 @@ func (this *ECS) CreateService(cluster, serviceName, taskDefinition string, desi
 		DesiredCount:   aws.Int64(desiredCount),
 		LoadBalancers:  awsLoadBalancers,
 		Role:           loadBalancerRole,
+		PlacementStrategy: []*ecs.PlacementStrategy{
+			{
+				Type:  aws.String(ecs.PlacementStrategyTypeBinpack),
+				Field: aws.String("memory"),
+			},
+		},
 	}
+
 	connection, err := this.Connect()
 	if err != nil {
 		return nil, err

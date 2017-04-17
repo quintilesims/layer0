@@ -46,23 +46,23 @@ func resourceMetric() *schema.Resource {
 		},
 
 		Schema: convertToHelperSchema(metricDescriptions, map[schemaAttr]*schema.Schema{
-			metricActiveAttr: &schema.Schema{
+			metricActiveAttr: {
 				Type:     schema.TypeBool,
 				Optional: true,
 				Default:  true,
 			},
-			metricNameAttr: &schema.Schema{
+			metricNameAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRegexp(metricNameAttr, `[\S]+`),
 			},
-			metricTypeAttr: &schema.Schema{
+			metricTypeAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateStringIn(metricTypeAttr, validMetricTypes),
 			},
 			metricTagsAttr: tagMakeConfigSchema(metricTagsAttr),
-			metricUnitAttr: &schema.Schema{
+			metricUnitAttr: {
 				Type:         schema.TypeString,
 				Optional:     true,
 				Default:      metricUnit,

@@ -19,24 +19,24 @@ func resourceAliyunDisk() *schema.Resource {
 		Delete: resourceAliyunDiskDelete,
 
 		Schema: map[string]*schema.Schema{
-			"availability_zone": &schema.Schema{
+			"availability_zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
-			"name": &schema.Schema{
+			"name": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateDiskName,
 			},
 
-			"description": &schema.Schema{
+			"description": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ValidateFunc: validateDiskDescription,
 			},
 
-			"category": &schema.Schema{
+			"category": {
 				Type:         schema.TypeString,
 				Optional:     true,
 				ForceNew:     true,
@@ -44,17 +44,17 @@ func resourceAliyunDisk() *schema.Resource {
 				Default:      "cloud",
 			},
 
-			"size": &schema.Schema{
+			"size": {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
 
-			"snapshot_id": &schema.Schema{
+			"snapshot_id": {
 				Type:     schema.TypeString,
 				Optional: true,
 			},
 
-			"status": &schema.Schema{
+			"status": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

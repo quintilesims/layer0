@@ -18,7 +18,7 @@ func resourceArmSearchService() *schema.Resource {
 		Delete: resourceArmSearchServiceDelete,
 
 		Schema: map[string]*schema.Schema{
-			"name": &schema.Schema{
+			"name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
@@ -26,24 +26,24 @@ func resourceArmSearchService() *schema.Resource {
 
 			"location": locationSchema(),
 
-			"resource_group_name": &schema.Schema{
+			"resource_group_name": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 
-			"sku": &schema.Schema{
+			"sku": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"replica_count": &schema.Schema{
+			"replica_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
 
-			"partition_count": &schema.Schema{
+			"partition_count": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,

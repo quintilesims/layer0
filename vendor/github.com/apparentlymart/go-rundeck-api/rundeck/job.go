@@ -360,7 +360,7 @@ func (c *JobValueChoices) UnmarshalXMLAttr(attr xml.Attr) error {
 
 func (a JobCommandJobRefArguments) MarshalXML(e *xml.Encoder, start xml.StartElement) error {
 	start.Attr = []xml.Attr{
-		xml.Attr{xml.Name{Local: "line"}, string(a)},
+		{xml.Name{Local: "line"}, string(a)},
 	}
 	e.EncodeToken(start)
 	e.EncodeToken(xml.EndElement{start.Name})

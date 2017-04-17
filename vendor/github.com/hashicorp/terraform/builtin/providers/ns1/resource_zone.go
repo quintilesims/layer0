@@ -13,61 +13,61 @@ func zoneResource() *schema.Resource {
 	return &schema.Resource{
 		Schema: map[string]*schema.Schema{
 			// Required
-			"zone": &schema.Schema{
+			"zone": {
 				Type:     schema.TypeString,
 				Required: true,
 				ForceNew: true,
 			},
 			// Optional
-			"ttl": &schema.Schema{
+			"ttl": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
 			// SOA attributes per https://tools.ietf.org/html/rfc1035).
-			"refresh": &schema.Schema{
+			"refresh": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
-			"retry": &schema.Schema{
+			"retry": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
-			"expiry": &schema.Schema{
+			"expiry": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
 			// SOA MINUMUM overloaded as NX TTL per https://tools.ietf.org/html/rfc2308
-			"nx_ttl": &schema.Schema{
+			"nx_ttl": {
 				Type:     schema.TypeInt,
 				Optional: true,
 				Computed: true,
 			},
 			// TODO: test
-			"link": &schema.Schema{
+			"link": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 			// TODO: test
-			"primary": &schema.Schema{
+			"primary": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
 			},
 			// Computed
-			"id": &schema.Schema{
+			"id": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"dns_servers": &schema.Schema{
+			"dns_servers": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"hostmaster": &schema.Schema{
+			"hostmaster": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},

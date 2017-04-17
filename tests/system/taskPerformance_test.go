@@ -10,7 +10,10 @@ import (
 // This test creates an environment named 'tp'
 // and a deploy named 'alpine'
 func TestTaskPerformance(t *testing.T) {
-	t.Skip("Task Performance updates are WIP")
+	if testing.Short() {
+		t.Skip("Skipping TestTaskPerformance in short mode")
+	}
+
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/task_performance", nil)
@@ -22,21 +25,16 @@ func TestTaskPerformance(t *testing.T) {
 
 	// create 100 tasks
 	taskNameCopies := map[string]int{
-		"TaskA": 10,
-		"TaskB": 10,
+		"TaskA": 50,
+		"TaskB": 25,
 		"TaskC": 10,
-		"TaskD": 10,
-		"TaskE": 10,
-		"TaskF": 10,
-		"TaskG": 10,
-		"TaskH": 10,
-		"TaskI": 10,
-		"TaskJ": 5,
-		"TaskK": 1,
-		"TaskL": 1,
-		"TaskM": 1,
-		"TaskN": 1,
-		"TaskO": 1,
+		"TaskD": 5,
+		"TaskE": 5,
+		"TaskF": 1,
+		"TaskG": 1,
+		"TaskH": 1,
+		"TaskI": 1,
+		"TaskJ": 1,
 	}
 
 	for taskName, copies := range taskNameCopies {
@@ -45,24 +43,32 @@ func TestTaskPerformance(t *testing.T) {
 	}
 
 	testutils.WaitFor(t, time.Second*30, time.Minute*10, func() bool {
-		log.Debugf("Waiting for tasks to run")
-		currentTaskNameCopies := map[string]int{}
+		log.Debugf("Waiting for all tasks to run")
+
+		var numTasks int
 		for _, taskSummary := range s.Layer0.ListTasks() {
 			if taskSummary.EnvironmentID == environmentID {
-				task := s.Layer0.GetTask(taskSummary.TaskID)
-				currentTaskNameCopies[task.TaskName] = int(task.DesiredCount)
+				numTasks++
 			}
 		}
 
-		ok := true
-		for taskName, expectedCopies := range taskNameCopies {
-			currentCopies := currentTaskNameCopies[taskName]
-			log.Debugf("Task '%s' has %d/%d copies", taskName, currentCopies, expectedCopies)
-			if currentCopies != expectedCopies {
-				ok = false
-			}
-		}
-
-		return ok
+		log.Debugf("%d/100 tasks have ran", numTasks)
+		return numTasks >= 100
 	})
+
+	// each task sleeps for 10 seconds
+	// wait for all of them to complete
+	time.Sleep(time.Second * 10)
+
+	log.Debugf("Checking task exit codes")
+	for _, taskSummary := range s.Layer0.ListTasks() {
+		if taskSummary.EnvironmentID == environmentID {
+			task := s.Layer0.GetTask(taskSummary.TaskID)
+			detail := task.Copies[0].Details[0]
+
+			if detail.ExitCode != 0 {
+				t.Fatalf("Task %s has unexpected exit code: %#v", task.TaskID, detail)
+			}
+		}
+	}
 }

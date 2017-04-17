@@ -15,19 +15,19 @@ func resourceAliyunSlbAttachment() *schema.Resource {
 
 		Schema: map[string]*schema.Schema{
 
-			"slb_id": &schema.Schema{
+			"slb_id": {
 				Type:     schema.TypeString,
 				Required: true,
 			},
 
-			"instances": &schema.Schema{
+			"instances": {
 				Type:     schema.TypeSet,
 				Elem:     &schema.Schema{Type: schema.TypeString},
 				Required: true,
 				Set:      schema.HashString,
 			},
 
-			"backend_servers": &schema.Schema{
+			"backend_servers": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Computed: true,

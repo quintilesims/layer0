@@ -15,43 +15,43 @@ import (
 func Provider() terraform.ResourceProvider {
 	return &schema.Provider{
 		Schema: map[string]*schema.Schema{
-			"address": &schema.Schema{
+			"address": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("VAULT_ADDR", nil),
 				Description: "URL of the root of the target Vault server.",
 			},
-			"token": &schema.Schema{
+			"token": {
 				Type:        schema.TypeString,
 				Required:    true,
 				DefaultFunc: schema.EnvDefaultFunc("VAULT_TOKEN", ""),
 				Description: "Token to use to authenticate to Vault.",
 			},
-			"ca_cert_file": &schema.Schema{
+			"ca_cert_file": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("VAULT_CACERT", ""),
 				Description: "Path to a CA certificate file to validate the server's certificate.",
 			},
-			"ca_cert_dir": &schema.Schema{
+			"ca_cert_dir": {
 				Type:        schema.TypeString,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("VAULT_CAPATH", ""),
 				Description: "Path to directory containing CA certificate files to validate the server's certificate.",
 			},
-			"client_auth": &schema.Schema{
+			"client_auth": {
 				Type:        schema.TypeList,
 				Optional:    true,
 				Description: "Client authentication credentials.",
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
-						"cert_file": &schema.Schema{
+						"cert_file": {
 							Type:        schema.TypeString,
 							Required:    true,
 							DefaultFunc: schema.EnvDefaultFunc("VAULT_CLIENT_CERT", ""),
 							Description: "Path to a file containing the client certificate.",
 						},
-						"key_file": &schema.Schema{
+						"key_file": {
 							Type:        schema.TypeString,
 							Required:    true,
 							DefaultFunc: schema.EnvDefaultFunc("VAULT_CLIENT_KEY", ""),
@@ -60,13 +60,13 @@ func Provider() terraform.ResourceProvider {
 					},
 				},
 			},
-			"skip_tls_verify": &schema.Schema{
+			"skip_tls_verify": {
 				Type:        schema.TypeBool,
 				Optional:    true,
 				DefaultFunc: schema.EnvDefaultFunc("VAULT_SKIP_VERIFY", ""),
 				Description: "Set this to true only if the target Vault server is an insecure development instance.",
 			},
-			"max_lease_ttl_seconds": &schema.Schema{
+			"max_lease_ttl_seconds": {
 				Type:     schema.TypeInt,
 				Optional: true,
 

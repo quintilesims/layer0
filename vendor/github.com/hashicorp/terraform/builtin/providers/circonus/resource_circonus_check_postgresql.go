@@ -42,7 +42,7 @@ var schemaCheckPostgreSQL = &schema.Schema{
 	Set:      hashCheckPostgreSQL,
 	Elem: &schema.Resource{
 		Schema: convertToHelperSchema(checkPostgreSQLDescriptions, map[schemaAttr]*schema.Schema{
-			checkPostgreSQLDSNAttr: &schema.Schema{
+			checkPostgreSQLDSNAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				ValidateFunc: validateRegexp(checkPostgreSQLDSNAttr, `^.+$`),
@@ -75,7 +75,7 @@ var schemaCheckPostgreSQL = &schema.Schema{
 			// 		validateIntMax(checkPostgreSQLPortAttr, 65535),
 			// 	),
 			// },
-			checkPostgreSQLQueryAttr: &schema.Schema{
+			checkPostgreSQLQueryAttr: {
 				Type:         schema.TypeString,
 				Required:     true,
 				StateFunc:    suppressWhitespace,

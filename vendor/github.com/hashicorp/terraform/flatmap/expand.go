@@ -37,7 +37,7 @@ func Expand(m map[string]string, key string) interface{} {
 
 	// Check if this is a prefix in the map
 	prefix := key + "."
-	for k, _ := range m {
+	for k := range m {
 		if strings.HasPrefix(k, prefix) {
 			return expandMap(m, prefix)
 		}
@@ -107,7 +107,7 @@ func expandArray(m map[string]string, prefix string) []interface{} {
 
 func expandMap(m map[string]string, prefix string) map[string]interface{} {
 	result := make(map[string]interface{})
-	for k, _ := range m {
+	for k := range m {
 		if !strings.HasPrefix(k, prefix) {
 			continue
 		}
