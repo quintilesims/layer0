@@ -10,6 +10,10 @@ import (
 // This test creates an environment named 'tp'
 // and a deploy named 'alpine'
 func TestTaskPerformance(t *testing.T) {
+	if testing.Short() {
+		t.Skip("Skipping TestTaskPerformance in short mode")
+	}
+
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/task_performance", nil)

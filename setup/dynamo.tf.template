@@ -1,7 +1,7 @@
 resource "aws_dynamodb_table" "tags" {
   name           = "l0-${var.l0_prefix}-tags"
-  read_capacity  = 5
-  write_capacity = 5
+  read_capacity  = 100
+  write_capacity = 50
   hash_key       = "TagID"
 
   attribute {
@@ -12,8 +12,8 @@ resource "aws_dynamodb_table" "tags" {
 
 resource "aws_dynamodb_table" "jobs" {
   name           = "l0-${var.l0_prefix}-jobs"
-  read_capacity  = 5
-  write_capacity = 5
+  read_capacity  = 25
+  write_capacity = 10
   hash_key       = "JobID"
 
   attribute {
