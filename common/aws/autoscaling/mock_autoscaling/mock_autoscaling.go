@@ -49,14 +49,14 @@ func (_mr *_MockProviderRecorder) CreateAutoScalingGroup(arg0, arg1, arg2, arg3,
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateAutoScalingGroup", arg0, arg1, arg2, arg3, arg4)
 }
 
-func (_m *MockProvider) CreateLaunchConfiguration(_param0 *string, _param1 *string, _param2 *string, _param3 *string, _param4 *string, _param5 *string, _param6 []*string) error {
-	ret := _m.ctrl.Call(_m, "CreateLaunchConfiguration", _param0, _param1, _param2, _param3, _param4, _param5, _param6)
+func (_m *MockProvider) CreateLaunchConfiguration(_param0 *string, _param1 *string, _param2 *string, _param3 *string, _param4 *string, _param5 *string, _param6 []*string, _param7 map[string]int) error {
+	ret := _m.ctrl.Call(_m, "CreateLaunchConfiguration", _param0, _param1, _param2, _param3, _param4, _param5, _param6, _param7)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-func (_mr *_MockProviderRecorder) CreateLaunchConfiguration(arg0, arg1, arg2, arg3, arg4, arg5, arg6 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateLaunchConfiguration", arg0, arg1, arg2, arg3, arg4, arg5, arg6)
+func (_mr *_MockProviderRecorder) CreateLaunchConfiguration(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateLaunchConfiguration", arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 }
 
 func (_m *MockProvider) DeleteAutoScalingGroup(_param0 *string) error {

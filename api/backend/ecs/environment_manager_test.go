@@ -396,7 +396,7 @@ func TestCreateEnvironment(t *testing.T) {
 					AuthorizeSecurityGroupIngressFromGroup(securityGroupID, securityGroupID).
 					Return(nil)
 
-				var checkLaunchConfig = func(name, amiID, iamInstanceProfile, instanceType, keyName, userData *string, securityGroups []*string) error {
+				var checkLaunchConfig = func(name, amiID, iamInstanceProfile, instanceType, keyName, userData *string, securityGroups []*string, volSizes map[string]int) error {
 					agentSGID := config.TEST_AWS_ECS_AGENT_SECURITY_GROUP_ID
 
 					reporter.AssertEqualf(launchConfigurationName, *name, "LaunchConfigurationName")
@@ -406,12 +406,13 @@ func TestCreateEnvironment(t *testing.T) {
 					reporter.AssertEqualf(config.TEST_AWS_KEY_PAIR, *keyName, "KeyPair")
 					reporter.AssertEqualf(securityGroupID, *securityGroups[0], "SecurityGroupID 0")
 					reporter.AssertEqualf(agentSGID, *securityGroups[1], "SecurityGroupID 1")
+					reporter.AssertEqualf(volSizes, map[string]int{"/dev/xvda": 8}, "Volume Sizes")
 
 					return nil
 				}
 
 				mockEnvironment.AutoScaling.EXPECT().
-					CreateLaunchConfiguration(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					CreateLaunchConfiguration(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Do(checkLaunchConfig)
 
 				minCount := 2
@@ -471,7 +472,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 				userData := base64.StdEncoding.EncodeToString([]byte("user data"))
 				mockEnvironment.AutoScaling.EXPECT().
-					CreateLaunchConfiguration(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), &userData, gomock.Any()).
+					CreateLaunchConfiguration(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), &userData, gomock.Any(), gomock.Any()).
 					Return(nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
@@ -523,7 +524,7 @@ func TestCreateEnvironment(t *testing.T) {
 					Return(nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
-					CreateLaunchConfiguration(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					CreateLaunchConfiguration(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return(nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
@@ -580,7 +581,7 @@ func TestCreateEnvironment(t *testing.T) {
 						AnyTimes()
 
 					mockEnvironment.AutoScaling.EXPECT().
-						CreateLaunchConfiguration(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+						CreateLaunchConfiguration(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 						Return(g.Error()).
 						AnyTimes()
 
