@@ -151,7 +151,7 @@ func TestCreateLink(t *testing.T) {
 	}
 }
 
-func TestCreateUnink(t *testing.T) {
+func TestCreateUnlink(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		testutils.AssertEqual(t, r.Method, "DELETE")
 		testutils.AssertEqual(t, r.URL.Path, "/environment/id1/link/id2")

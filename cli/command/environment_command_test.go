@@ -3,9 +3,9 @@ package command
 import (
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
-	"github.com/golang/mock/gomock"
 )
 
 func TestCreateEnvironment(t *testing.T) {
@@ -225,7 +225,7 @@ func TestEnvironmentLink_userInputErrors(t *testing.T) {
 
 	contexts := map[string]*cli.Context{
 		"Missing SOURCE arg":      getCLIContext(t, Args{}, nil),
-		"Missing DESTINATION arg":     getCLIContext(t, Args{"name"}, nil),
+		"Missing DESTINATION arg": getCLIContext(t, Args{"name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -241,7 +241,7 @@ func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
 	command := NewEnvironmentCommand(tc.Command())
 
 	tc.Resolver.EXPECT().
-		Resolve("environment", gomock.Any()).
+		Resolve(gomock.Any(), gomock.Any()).
 		Return([]string{"id1"}, nil).
 		Times(2)
 
@@ -281,7 +281,7 @@ func TestEnvironmentUnlink_userInputErrors(t *testing.T) {
 
 	contexts := map[string]*cli.Context{
 		"Missing SOURCE arg":      getCLIContext(t, Args{}, nil),
-		"Missing DESTINATION arg":     getCLIContext(t, Args{"name"}, nil),
+		"Missing DESTINATION arg": getCLIContext(t, Args{"name"}, nil),
 	}
 
 	for name, c := range contexts {
