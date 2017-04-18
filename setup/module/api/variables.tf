@@ -14,6 +14,22 @@ variable "ecs_role_arn" {
   description = "ARN of your Layer0 ECS role"
 }
 
+variable "s3_bucket" {
+  description = "S3 bucket of your Layer0 instance"
+}
+
+variable "key_pair" {
+  description = "Key pair for your Layer0 instance"
+}
+
+variable "instance_profile" {
+  description = ""
+}
+
+variable "ami" {
+  description = ""
+}
+
 variable "public_subnets" {
   type        = "list"
   description = "A list of public subnets inside the VPC"
