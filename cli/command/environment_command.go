@@ -202,7 +202,7 @@ func (e *EnvironmentCommand) Link(c *cli.Context) error {
 		return err
 	}
 
-	e.Printer.Printf("Environment successfully linked")
+	e.Printer.Printf("Environment successfully linked\n")
 	return nil
 }
 
@@ -230,7 +230,7 @@ func (e *EnvironmentCommand) Unlink(c *cli.Context) error {
 		return err
 	}
 
-	e.Printer.Printf("Environment successfully unlinked")
+	e.Printer.Printf("Environment successfully unlinked\n")
 	return nil
 }
 

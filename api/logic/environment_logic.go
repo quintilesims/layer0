@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"fmt"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
