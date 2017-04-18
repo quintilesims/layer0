@@ -108,17 +108,17 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 	}
 
 	taskID := task.TaskID
-	if err := this.upsertTagf(taskID, "task", "name", req.TaskName); err != nil {
+	if err := this.upsertTag(models.Tag{EntityID: taskID, EntityType: "task", Key: "name", Value: req.TaskName}); err != nil {
 		return task, err
 	}
 
 	environmentID := req.EnvironmentID
-	if err := this.upsertTagf(taskID, "task", "environment_id", environmentID); err != nil {
+	if err := this.upsertTag(models.Tag{EntityID: taskID, EntityType: "task", Key: "environment_id", Value: environmentID}); err != nil {
 		return task, err
 	}
 
 	deployID := req.DeployID
-	if err := this.upsertTagf(taskID, "task", "deploy_id", deployID); err != nil {
+	if err := this.upsertTag(models.Tag{EntityID: taskID, EntityType: "task", Key: "deploy_id", Value: deployID}); err != nil {
 		return task, err
 	}
 

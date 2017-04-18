@@ -38,33 +38,33 @@ func (a *L0AdminLogic) UpdateSQL() error {
 
 func (a *L0AdminLogic) createDefaultTags() error {
 	// environment
-	if err := a.upsertTagf(config.API_ENVIRONMENT_ID, "environment", "name", config.API_ENVIRONMENT_NAME); err != nil {
+	if err := a.upsertTag(models.Tag{EntityID: config.API_ENVIRONMENT_ID, EntityType: "environment", Key: "name", Value: config.API_ENVIRONMENT_NAME}); err != nil {
 		return err
 	}
 
-	if err := a.upsertTagf(config.API_ENVIRONMENT_ID, "environment", "os", "linux"); err != nil {
+	if err := a.upsertTag(models.Tag{EntityID: config.API_ENVIRONMENT_ID, EntityType: "environment", Key: "os", Value: "linux"}); err != nil {
 		return err
 	}
 
 	// load_balancer
-	if err := a.upsertTagf(config.API_LOAD_BALANCER_ID, "load_balancer", "name", config.API_LOAD_BALANCER_NAME); err != nil {
+	if err := a.upsertTag(models.Tag{EntityID: config.API_LOAD_BALANCER_ID, EntityType: "load_balancer", Key: "name", Value: config.API_LOAD_BALANCER_NAME}); err != nil {
 		return err
 	}
 
-	if err := a.upsertTagf(config.API_LOAD_BALANCER_ID, "load_balancer", "environment_id", config.API_ENVIRONMENT_ID); err != nil {
+	if err := a.upsertTag(models.Tag{EntityID: config.API_LOAD_BALANCER_ID, EntityType: "load_balancer", Key: "environment_id", Value: config.API_ENVIRONMENT_ID}); err != nil {
 		return err
 	}
 
 	// service
-	if err := a.upsertTagf(config.API_SERVICE_ID, "service", "name", config.API_SERVICE_NAME); err != nil {
+	if err := a.upsertTag(models.Tag{EntityID: config.API_SERVICE_ID, EntityType: "service", Key: "name", Value: config.API_SERVICE_NAME}); err != nil {
 		return err
 	}
 
-	if err := a.upsertTagf(config.API_SERVICE_ID, "service", "environment_id", config.API_ENVIRONMENT_ID); err != nil {
+	if err := a.upsertTag(models.Tag{EntityID: config.API_SERVICE_ID, EntityType: "service", Key: "environment_id", Value: config.API_ENVIRONMENT_ID}); err != nil {
 		return err
 	}
 
-	if err := a.upsertTagf(config.API_SERVICE_ID, "service", "load_balancer_id", config.API_LOAD_BALANCER_ID); err != nil {
+	if err := a.upsertTag(models.Tag{EntityID: config.API_SERVICE_ID, EntityType: "service", Key: "load_balancer_id", Value: config.API_LOAD_BALANCER_ID}); err != nil {
 		return err
 	}
 
