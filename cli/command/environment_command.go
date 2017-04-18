@@ -233,4 +233,3 @@ func (e *EnvironmentCommand) Unlink(c *cli.Context) error {
 	e.Printer.Printf("Environment successfully unlinked\n")
 	return nil
 }
-

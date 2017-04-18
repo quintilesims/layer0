@@ -17,8 +17,8 @@ type Client interface {
 	GetEnvironment(id string) (*models.Environment, error)
 	ListEnvironments() ([]*models.EnvironmentSummary, error)
 	UpdateEnvironment(id string, minCount int) (*models.Environment, error)
-	CreateLink(sourceId string, destinationId string) (error)
-	DeleteLink(sourceId string, destinationId string) (error)
+	CreateLink(sourceID string, destinationID string) error
+	DeleteLink(sourceID string, destinationID string) error
 
 	Delete(id string) error
 	GetJob(id string) (*models.Job, error)

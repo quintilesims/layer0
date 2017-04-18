@@ -88,7 +88,7 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 
 		rows = append(rows, row)
 
-		// add the extra port rows
+		// add the extra link rows
 		for i := 1; i < len(e.Links); i++ {
 			row := fmt.Sprintf(" | | | | | %s", getLink(e, i))
 			rows = append(rows, row)
