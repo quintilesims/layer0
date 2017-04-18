@@ -251,7 +251,7 @@ func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
 	}
 }
 
-func TestEnvironmentUnink(t *testing.T) {
+func TestEnvironmentUnlink(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewEnvironmentCommand(tc.Command())
