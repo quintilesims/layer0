@@ -9,7 +9,7 @@ import (
 
 type Provider interface {
 	AttachLoadBalancer(autoScalingGroupName, loadBalancerName string) error
-	CreateLaunchConfiguration(name, amiID, iamInstanceProfile, instanceType, keyName, userData *string, securityGroups []*string) error
+	CreateLaunchConfiguration(name, amiID, iamInstanceProfile, instanceType, keyName, userData *string, securityGroups []*string, volSize map[string]int) error
 	CreateAutoScalingGroup(name, launchConfigName, subnets string, minCount, maxCount int) error
 	SetDesiredCapacity(name string, size int) error
 	UpdateAutoScalingGroupMaxSize(name string, size int) error
@@ -107,10 +107,35 @@ func (this *AutoScaling) AttachLoadBalancer(autoScalingGroupName, loadBalancerNa
 	return err
 }
 
-func (this *AutoScaling) CreateLaunchConfiguration(name, amiID, iamInstanceProfile, instanceType, keyName, userData *string, securityGroups []*string) error {
+func (this *AutoScaling) CreateLaunchConfiguration(
+	name *string,
+	amiID *string,
+	iamInstanceProfile *string,
+	instanceType *string,
+	keyName *string,
+	userData *string,
+	securityGroups []*string,
+	volSizes map[string]int,
+) error {
 	if *keyName == "" {
 		keyName = nil
 	}
+
+	blocks := []*autoscaling.BlockDeviceMapping{}
+	for vol, size := range volSizes {
+		block := &autoscaling.BlockDeviceMapping{
+			DeviceName: aws.String(vol),
+			//VirtualName?
+			Ebs: &autoscaling.Ebs{
+				DeleteOnTermination: aws.Bool(true),
+				VolumeSize:          aws.Int64(int64(size)),
+				VolumeType:          aws.String("gp2"),
+			},
+		}
+
+		blocks = append(blocks, block)
+	}
+
 	input := &autoscaling.CreateLaunchConfigurationInput{
 		ImageId:                 amiID,
 		IamInstanceProfile:      iamInstanceProfile,
@@ -119,6 +144,7 @@ func (this *AutoScaling) CreateLaunchConfiguration(name, amiID, iamInstanceProfi
 		UserData:                userData,
 		LaunchConfigurationName: name,
 		SecurityGroups:          securityGroups,
+		BlockDeviceMappings:     blocks,
 	}
 
 	connection, err := this.Connect()
