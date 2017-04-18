@@ -353,16 +353,12 @@ func (e *ECSEnvironmentManager) CreateEnvironmentLink(sourceEnvironmentID, destE
 		if !ContainsErrCode(err, "InvalidPermission.Duplicate") {
 			return err
 		}
-
-		return err
 	}
 
 	if err := e.EC2.AuthorizeSecurityGroupIngressFromGroup(*destGroup.GroupId, *sourceGroup.GroupId); err != nil {
 		if !ContainsErrCode(err, "InvalidPermission.Duplicate") {
 			return err
 		}
-
-		return err
 	}
 
 	return nil

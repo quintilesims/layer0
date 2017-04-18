@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"fmt"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -145,15 +144,15 @@ func (e *L0EnvironmentLogic) UpdateEnvironment(environmentID string, minClusterC
 
 func (e *L0EnvironmentLogic) CreateEnvironmentLink(sourceEnvironmentID, destEnvironmentID string) error {
 	if err := e.Backend.CreateEnvironmentLink(sourceEnvironmentID, destEnvironmentID); err != nil {
-		return nil
+		return err
 	}
 
 	if err := e.upsertTag(models.Tag{EntityID: sourceEnvironmentID, EntityType: "environment", Key: "link", Value: destEnvironmentID}); err != nil {
-		return nil
+		return err
 	}
 
 	if err := e.upsertTag(models.Tag{EntityID: destEnvironmentID, EntityType: "environment", Key: "link", Value: sourceEnvironmentID}); err != nil {
-		return nil
+		return err
 	}
 
 	return nil
@@ -161,7 +160,7 @@ func (e *L0EnvironmentLogic) CreateEnvironmentLink(sourceEnvironmentID, destEnvi
 
 func (e *L0EnvironmentLogic) DeleteEnvironmentLink(sourceEnvironmentID, destEnvironmentID string) error {
 	if err := e.Backend.DeleteEnvironmentLink(sourceEnvironmentID, destEnvironmentID); err != nil {
-		return nil
+		return err
 	}
 
 	sourceTags, err := e.TagStore.SelectByQuery("environment", sourceEnvironmentID)
