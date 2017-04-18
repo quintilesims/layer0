@@ -1,8 +1,5 @@
 package job_store
 
-// !!! TODO: current vendored package is actually the forked zpatrick/dynamo
-// should re-vendor package if/when the PR is merged: https://github.com/guregu/dynamo/pull/30
-// !!!
 import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
