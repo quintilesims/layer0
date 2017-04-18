@@ -28,6 +28,14 @@
     l0 environment create --os windows test4
 }
 
+@test "environment link test3 test4" {
+    l0 environment link test3 test4
+}
+
+@test "environment unlink test3 test4" {
+    l0 environment unlink test3 test4
+}
+
 @test "environment list" {
     l0 environment list
 }
