@@ -27,6 +27,15 @@ func (i *Instance) Apply() error {
 	return i.Terraform.Apply(i.Dir)
 }
 
+func (i *Instance) Destroy(force bool) error {
+        if err := i.Terraform.Destroy(i.Dir, force); err != nil {
+		return err
+	}
+
+	return os.RemoveAll(i.Dir)
+}
+
+
 func (i *Instance) Init(c *cli.Context) error {
 	if err := os.MkdirAll(i.Dir, 0700); err != nil {
 		return err

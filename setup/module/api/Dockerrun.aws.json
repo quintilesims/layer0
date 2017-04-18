@@ -1,0 +1,26 @@
+[
+    {
+        "name": "api",
+        "image": "${api_image_tag}",
+        "essential": true,
+        "memory": 500,
+        "portMappings": [
+            {
+                "hostPort": 80,
+                "containerPort": 9090
+            }
+        ],
+        "logConfiguration": {
+                "logDriver": "awslogs",
+                "options": {
+                    "awslogs-group": "${log_group_name}",
+                    "awslogs-region": "${region}",
+                    "awslogs-stream-prefix": "l0"
+                }
+         },
+        "environment": [
+            { "name": "LAYER0_API_LOG_LEVEL", "value": "debug" },
+            { "name": "LAYER0_RUNNER_LOG_LEVEL", "value": "debug" }
+        ]
+    }
+]

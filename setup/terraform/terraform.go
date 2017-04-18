@@ -15,6 +15,14 @@ func (t *Terraform) Apply(dir string) error {
 	return t.run(dir, "apply")
 }
 
+func (t *Terraform) Destroy(dir string, force bool) error {
+	if force {
+		 return t.run(dir, "destroy", "-force")
+	}
+
+        return t.run(dir, "destroy")
+}
+
 func (t *Terraform) Get(dir string) error {
 	return t.run(dir, "get")
 }

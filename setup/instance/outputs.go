@@ -5,5 +5,5 @@ import (
 )
 
 var MainModuleOutputs = map[string]terraform.Output{
-	"name": { Value: "${module.main.name}" },
+	"name": {Value: "${module.main.name}"},
 }
