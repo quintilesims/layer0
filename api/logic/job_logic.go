@@ -112,7 +112,7 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 		return nil, err
 	}
 
-	if err := this.upsertTagf(jobID, "job", "task_id", task.TaskID); err != nil {
+	if err := this.upsertTag(models.Tag{EntityID: jobID, EntityType: "job", Key: "task_id", Value: task.TaskID}); err != nil {
 		return nil, err
 	}
 

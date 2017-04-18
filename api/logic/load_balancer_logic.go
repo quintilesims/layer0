@@ -105,12 +105,12 @@ func (l *L0LoadBalancerLogic) CreateLoadBalancer(req models.CreateLoadBalancerRe
 	}
 
 	loadBalancerID := loadBalancer.LoadBalancerID
-	if err := l.upsertTagf(loadBalancerID, "load_balancer", "name", req.LoadBalancerName); err != nil {
+	if err := l.upsertTag(models.Tag{EntityID: loadBalancerID, EntityType: "load_balancer", Key: "name", Value: req.LoadBalancerName}); err != nil {
 		return loadBalancer, err
 	}
 
 	environmentID := loadBalancer.EnvironmentID
-	if err := l.upsertTagf(loadBalancerID, "load_balancer", "environment_id", environmentID); err != nil {
+	if err := l.upsertTag(models.Tag{EntityID: loadBalancerID, EntityType: "load_balancer", Key: "environment_id", Value: environmentID}); err != nil {
 		return loadBalancer, err
 	}
 
