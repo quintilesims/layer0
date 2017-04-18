@@ -204,10 +204,6 @@ func (e *L0EnvironmentLogic) populateModel(model *models.Environment) error {
 	}
 
 	model.Links = []string{}
-	for _, tag := range tags {
-	fmt.Printf("%#v\n", tag)
-	}
-
 	for _, tag := range tags.WithKey("link") {
 		model.Links = append(model.Links, tag.Value)
 	}
