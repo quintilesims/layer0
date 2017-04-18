@@ -100,7 +100,7 @@ make deps
 make build
 
 # serve docs locally
-mdocs serve
+mkdocs serve
 ```
 
 ## Testing
