@@ -77,11 +77,11 @@ func (d *L0DeployLogic) CreateDeploy(req models.CreateDeployRequest) (*models.De
 		return deploy, err
 	}
 
-	if err := d.upsertTagf(deploy.DeployID, "deploy", "name", req.DeployName); err != nil {
+	if err := d.upsertTag(models.Tag{EntityID: deploy.DeployID, EntityType: "deploy", Key: "name", Value: req.DeployName}); err != nil {
 		return deploy, err
 	}
 
-	if err := d.upsertTagf(deploy.DeployID, "deploy", "version", deploy.Version); err != nil {
+	if err := d.upsertTag(models.Tag{EntityID: deploy.DeployID, EntityType: "deploy", Key: "version", Value: deploy.Version}); err != nil {
 		return deploy, err
 	}
 

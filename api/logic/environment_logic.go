@@ -1,6 +1,7 @@
 package logic
 
 import (
+	"fmt"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -114,11 +115,11 @@ func (e *L0EnvironmentLogic) CreateEnvironment(req models.CreateEnvironmentReque
 		return nil, err
 	}
 
-	if err := e.upsertTagf(environment.EnvironmentID, "environment", "name", req.EnvironmentName); err != nil {
+	if err := e.upsertTag(models.Tag{EntityID: environment.EnvironmentID, EntityType: "environment", Key: "name", Value: req.EnvironmentName}); err != nil {
 		return nil, err
 	}
 
-	if err := e.upsertTagf(environment.EnvironmentID, "environment", "os", req.OperatingSystem); err != nil {
+	if err := e.upsertTag(models.Tag{EntityID: environment.EnvironmentID, EntityType: "environment", Key: "os", Value: req.OperatingSystem}); err != nil {
 		return nil, err
 	}
 
@@ -147,11 +148,11 @@ func (e *L0EnvironmentLogic) CreateEnvironmentLink(sourceEnvironmentID, destEnvi
 		return nil
 	}
 
-	if err := e.upsertTagf(sourceEnvironmentID, "environment", "link", destEnvironmentID); err != nil {
+	if err := e.upsertTag(models.Tag{EntityID: sourceEnvironmentID, EntityType: "environment", Key: "link", Value: destEnvironmentID}); err != nil {
 		return nil
 	}
 
-	if err := e.upsertTagf(destEnvironmentID, "environment", "link", sourceEnvironmentID); err != nil {
+	if err := e.upsertTag(models.Tag{EntityID: destEnvironmentID, EntityType: "environment", Key: "link", Value: sourceEnvironmentID}); err != nil {
 		return nil
 	}
 
@@ -203,6 +204,10 @@ func (e *L0EnvironmentLogic) populateModel(model *models.Environment) error {
 	}
 
 	model.Links = []string{}
+	for _, tag := range tags {
+	fmt.Printf("%#v\n", tag)
+	}
+
 	for _, tag := range tags.WithKey("link") {
 		model.Links = append(model.Links, tag.Value)
 	}

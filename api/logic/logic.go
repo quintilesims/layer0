@@ -29,17 +29,6 @@ func NewLogic(
 	}
 }
 
-func (this *Logic) upsertTagf(entityID, entityType, key, value string) error {
-	tag := models.Tag{
-		EntityID:   entityID,
-		EntityType: entityType,
-		Key:        key,
-		Value:      value,
-	}
-
-	return this.upsertTag(tag)
-}
-
 func (this *Logic) upsertTag(tag models.Tag) error {
 	tags, err := this.TagStore.SelectByQuery(tag.EntityType, tag.EntityID)
 	if err != nil {

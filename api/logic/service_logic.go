@@ -157,17 +157,17 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 	}
 
 	serviceID := service.ServiceID
-	if err := this.upsertTagf(serviceID, "service", "name", req.ServiceName); err != nil {
+	if err := this.upsertTag(models.Tag{EntityID: serviceID, EntityType: "service", Key: "name", Value: req.ServiceName}); err != nil {
 		return service, err
 	}
 
 	environmentID := req.EnvironmentID
-	if err := this.upsertTagf(serviceID, "service", "environment_id", environmentID); err != nil {
+	if err := this.upsertTag(models.Tag{EntityID: serviceID, EntityType: "service", Key: "environment_id", Value: environmentID}); err != nil {
 		return service, err
 	}
 
 	if loadBalancerID := req.LoadBalancerID; loadBalancerID != "" {
-		if err := this.upsertTagf(serviceID, "service", "load_balancer_id", loadBalancerID); err != nil {
+		if err := this.upsertTag(models.Tag{EntityID: serviceID, EntityType: "service", Key: "load_balancer_id", Value: loadBalancerID}); err != nil {
 			return service, err
 		}
 	}

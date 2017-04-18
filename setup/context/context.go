@@ -35,7 +35,7 @@ func NewContext(instance, version string, flags map[string]*string) (*Context, e
 
 	executionDir, err := GetExecutionDir()
 	if err != nil {
-		return fmt.Errorf("Couldn't find CWD: %v", err)
+		return nil, fmt.Errorf("Couldn't find CWD: %v", err)
 	}
 
 	context := &Context{
