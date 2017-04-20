@@ -29,10 +29,11 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"layer0_deploy":        resourceLayer0Deploy(),
-			"layer0_environment":   resourceLayer0Environment(),
-			"layer0_load_balancer": resourceLayer0LoadBalancer(),
-			"layer0_service":       resourceLayer0Service(),
+			"layer0_deploy":           resourceLayer0Deploy(),
+			"layer0_environment":      resourceLayer0Environment(),
+			"layer0_environment_link": resourceLayer0EnvironmentLink(),
+			"layer0_load_balancer":    resourceLayer0LoadBalancer(),
+			"layer0_service":          resourceLayer0Service(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
 			"layer0_api": dataSourceLayer0API(),
