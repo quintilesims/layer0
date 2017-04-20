@@ -310,8 +310,8 @@ Add-JobTrigger -Name $jobname -Trigger (New-JobTrigger -AtStartup -RandomDelay 0
 !!! note "Windows Environments"
         Windows containers are still in beta. 
 You can view the documented caveats with ECS [here](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_Windows.html#windows_caveats).
-When creating Windows environment in Layer0, the root volume sizes for instances are 200GiB to accommodate the large size of windows containers.  
-Due to their large size, it can take as long as 45 minutes for a Windows container to come online. 
+When creating Windows environments in Layer0, the root volume sizes for instances are 200GiB to accommodate the large size of the containers.  
+It can take as long as 45 minutes for a new windows container to come online. 
 
 ### environment delete
 Use the **delete** subcommand to delete an existing Layer0 environment.
@@ -405,7 +405,7 @@ Use the **setmincount** subcommand to set the minimum number of EC2 instances al
 
 ### environment link
 Use the **link** subcommand to link two environments together. 
-When environments are linked, services inside the environments are allowed to communicate with each other as they would if they were in the same environment. 
+When environments are linked, services inside the environments are allowed to communicate with each other as if they were in the same environment. 
 This link is bidirectional. 
 This command is idempotent; it will succeed even if the two specified environments are already linked.
 
