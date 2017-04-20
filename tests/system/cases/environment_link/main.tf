@@ -12,11 +12,10 @@ resource "layer0_environment" "el_private" {
   name = "el_private"
 }
 
-# TODO: add once layer0-terraform-provider is updated
-# resource "layer0_environment_link" "public_private" {
-#   source = "${layer0_environment.el_public.id}"
-#   dest   = "${layer0_environment.el_private.id}"
-# }
+resource "layer0_environment_link" "public_private" {
+  source = "${layer0_environment.el_public.id}"
+  dest   = "${layer0_environment.el_private.id}"
+}
 
 module "sts_public" {
   source         = "../modules/sts"
