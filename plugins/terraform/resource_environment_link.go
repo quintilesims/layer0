@@ -31,8 +31,10 @@ func resourceLayer0EnvironmentLink() *schema.Resource {
 
 func resourceLayer0EnvironmentLinkCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(client.Client)
+	sourceID := d.Get("source").(string)
+	destID := d.Get("dest").(string)
 
-	if err := client.CreateLink(d.Get("source").(string), d.Get("dest").(string)); err != nil {
+	if err := client.CreateLink(sourceID, destID); err != nil {
 		return err
 	}
 
@@ -55,18 +57,14 @@ func resourceLayer0EnvironmentLinkRead(d *schema.ResourceData, meta interface{})
 		return err
 	}
 
-	foundLink := false
 	for _, v := range sourceEnvironment.Links {
 		if v == destID {
-			foundLink = true
+			return nil
 		}
 	}
 
-	if foundLink == false {
-		d.SetId("")
-		log.Printf("[WARN] Error Reading Environment Link (%s), link does not exist", sourceID)
-	}
-
+	d.SetId("")
+	log.Printf("[WARN] Error Reading Environment Link (%s), link does not exist", sourceID)
 	return nil
 }
 
