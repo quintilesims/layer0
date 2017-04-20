@@ -241,7 +241,7 @@ func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
 	command := NewEnvironmentCommand(tc.Command())
 
 	tc.Resolver.EXPECT().
-		Resolve("environment", gomock.Any()).
+		Resolve(gomock.Any(), gomock.Any()).
 		Return([]string{"id1"}, nil).
 		Times(2)
 
@@ -251,7 +251,7 @@ func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
 	}
 }
 
-func TestEnvironmentUnink(t *testing.T) {
+func TestEnvironmentUnlink(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewEnvironmentCommand(tc.Command())

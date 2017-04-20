@@ -90,7 +90,7 @@ func (e *EnvironmentCommand) GetCommand() cli.Command {
 			},
 			{
 				Name:      "unlink",
-				Usage:     "uninks two previously linked environments",
+				Usage:     "unlinks two previously linked environments",
 				Action:    wrapAction(e.Command, e.Link),
 				ArgsUsage: "SOURCE DESTINATION",
 			},
@@ -202,7 +202,7 @@ func (e *EnvironmentCommand) Link(c *cli.Context) error {
 		return err
 	}
 
-	e.Printer.Printf("Environment successfully linked")
+	e.Printer.Printf("Environment successfully linked\n")
 	return nil
 }
 
@@ -230,6 +230,6 @@ func (e *EnvironmentCommand) Unlink(c *cli.Context) error {
 		return err
 	}
 
-	e.Printer.Printf("Environment successfully unlinked")
+	e.Printer.Printf("Environment successfully unlinked\n")
 	return nil
 }
