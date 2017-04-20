@@ -1,4 +1,4 @@
-# l0 command-line interface reference
+# Layer0 CLI Reference
 
 ##Global options
 
@@ -215,7 +215,8 @@ Use the **create** subcommand to create an additional Layer0 environment (_envir
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">--os</div>
-    <div class="divCell">The operating system used in the environment. Options are "linux" or "windows" (default: linux).</div>
+    <div class="divCell">The operating system used in the environment. Options are "linux" or "windows" (default: linux).
+        More information on windows environments is documented below</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">--ami</div>
@@ -228,7 +229,9 @@ Layer0 uses [Go Templates](https://golang.org/pkg/text/template) to render user 
 Currently, two variables are passed into the template: **ECSEnvironmentID** and **S3Bucket**.
 Please review the [ECS Tutorial](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html)
 to better understand how to write a user data template, and use at your own risk!
-The default Layer0 user data template is:
+
+
+**Linux Environments**: The default Layer0 user data template is:
 
 ```
 #!/bin/bash
@@ -241,6 +244,74 @@ echo ECS_ENGINE_AUTH_DATA=$cfg >> /etc/ecs/ecs.config
 docker pull amazon/amazon-ecs-agent:latest
 start ecs
 ```
+
+**Windows Environments**: The default Layer0 user data template is:
+```
+<powershell>
+# Set agent env variables for the Machine context (durable)
+$clusterName = "{{ .ECSEnvironmentID }}"
+Write-Host Cluster name set as: $clusterName -foreground green
+
+[Environment]::SetEnvironmentVariable("ECS_CLUSTER", $clusterName, "Machine")
+[Environment]::SetEnvironmentVariable("ECS_ENABLE_TASK_IAM_ROLE", "false", "Machine")
+$agentVersion = 'v1.14.0-1.windows.1'
+$agentZipUri = "https://s3.amazonaws.com/amazon-ecs-agent/ecs-agent-windows-$agentVersion.zip"
+$agentZipMD5Uri = "$agentZipUri.md5"
+
+# Configure docker auth
+Read-S3Object -BucketName {{ .S3Bucket }} -Key bootstrap/dockercfg -File dockercfg.json
+$dockercfgContent = [IO.File]::ReadAllText("dockercfg.json")
+[Environment]::SetEnvironmentVariable("ECS_ENGINE_AUTH_DATA", $dockercfgContent, "Machine")
+[Environment]::SetEnvironmentVariable("ECS_ENGINE_AUTH_TYPE", "dockercfg", "Machine")
+
+### --- Nothing user configurable after this point ---
+$ecsExeDir = "$env:ProgramFiles\Amazon\ECS"
+$zipFile = "$env:TEMP\ecs-agent.zip"
+$md5File = "$env:TEMP\ecs-agent.zip.md5"
+
+### Get the files from S3
+Invoke-RestMethod -OutFile $zipFile -Uri $agentZipUri
+Invoke-RestMethod -OutFile $md5File -Uri $agentZipMD5Uri
+
+## MD5 Checksum
+$expectedMD5 = (Get-Content $md5File)
+$md5 = New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
+$actualMD5 = [System.BitConverter]::ToString($md5.ComputeHash([System.IO.File]::ReadAllBytes($zipFile))).replace('-', '')
+if($expectedMD5 -ne $actualMD5) {
+    echo "Download doesn't match hash."
+    echo "Expected: $expectedMD5 - Got: $actualMD5"
+    exit 1
+}
+
+## Put the executables in the executable directory.
+Expand-Archive -Path $zipFile -DestinationPath $ecsExeDir -Force
+
+## Start the agent script in the background.
+$jobname = "ECS-Agent-Init"
+$script =  "cd '$ecsExeDir'; .\amazon-ecs-agent.ps1"
+$repeat = (New-TimeSpan -Minutes 1)
+$jobpath = $env:LOCALAPPDATA + "\Microsoft\Windows\PowerShell\ScheduledJobs\$jobname\ScheduledJobDefinition.xml"
+
+if($(Test-Path -Path $jobpath)) {
+  echo "Job definition already present"
+  exit 0
+}
+
+$scriptblock = [scriptblock]::Create("$script")
+$trigger = New-JobTrigger -At (Get-Date).Date -RepeatIndefinitely -RepetitionInterval $repeat -Once
+$options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery
+Register-ScheduledJob -Name $jobname -ScriptBlock $scriptblock -Trigger $trigger -ScheduledJobOption $options -RunNow
+Add-JobTrigger -Name $jobname -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:1:00)
+</powershell>
+<persist>true</persist>
+```
+
+
+!!! note "Windows Environments"
+        Windows containers are still in beta. 
+You can view the documented caveats with ECS [here](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_Windows.html#windows_caveats).
+When creating Windows environment in Layer0, the root volume sizes for instances are 200GiB to accommodate the large size of windows containers.  
+Due to their large size, it can take as long as 45 minutes for a Windows container to come online. 
 
 ### environment delete
 Use the **delete** subcommand to delete an existing Layer0 environment.
@@ -329,6 +400,55 @@ Use the **setmincount** subcommand to set the minimum number of EC2 instances al
   <div class="divRow">
     <div class="divCellNoWrap">_count_</div>
     <div class="divCell">The minimum number of instances allowed in the environment's autoscaling group.</div>
+  </div>
+</div>
+
+### environment link
+Use the **link** subcommand to link two environments together. 
+When environments are linked, services inside the environments are allowed to communicate with each other as they would if they were in the same environment. 
+This link is bidirectional. 
+This command is idempotent; it will succeed even if the two specified environments are already linked.
+
+####Usage
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">**l0 enviroment link** _sourceEnvironmentName_ _destEnvironmentName_</div>
+  </div>
+</div>
+
+####Required parameters
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">_sourceEnvironmentName_</div>
+    <div class="divCell">The name of the first environment to link.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">_destEnvironmentName_</div>
+    <div class="divCell">The name of the second environment to link. </div>
+  </div>
+</div>
+
+
+### environment unlink
+Use the **unlink** subcommand to remove the link between two environments.
+This command is idempotent; it will succeed even if the link does not exist.
+
+####Usage
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">**l0 enviroment unlink** _sourceEnvironmentName_ _destEnvironmentName_</div>
+  </div>
+</div>
+
+####Required parameters
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">_sourceEnvironmentName_</div>
+    <div class="divCell">The name of the first environment to unlink.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">_destEnvironmentName_</div>
+    <div class="divCell">The name of the second environment to unlink. </div>
   </div>
 </div>
 
