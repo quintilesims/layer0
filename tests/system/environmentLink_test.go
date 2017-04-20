@@ -18,6 +18,8 @@ func TestEnvironmentLink(t *testing.T) {
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 
+	publicEnvironmentID := s.Terraform.Output("public_environment_id")
+	privateEnvironmentID := s.Terraform.Output("private_environment_id")
 	publicServiceURL := s.Terraform.Output("public_service_url")
 	privateServiceURL := s.Terraform.Output("private_service_url")
 
@@ -27,7 +29,7 @@ func TestEnvironmentLink(t *testing.T) {
 	// curl the private service in the private environment from the public service in the public environment
 	// the private service returns "Hello, World!" from its root path
 	testutils.WaitFor(t, time.Second*10, time.Minute*5, func() bool {
-		output, err := publicService.RunCommand("curl", "-s", privateServiceURL)
+		output, err := publicService.RunCommand("curl", "-m", "10", "-s", privateServiceURL)
 		if err != nil {
 			log.Printf("Error running curl: %v", err)
 			return false
@@ -41,5 +43,22 @@ func TestEnvironmentLink(t *testing.T) {
 		return true
 	})
 
-	// todo: remove link, curl again with -m 10, expect no output
+	log.Printf("Removing environment link")
+	s.Layer0.DeleteLink(publicEnvironmentID, privateEnvironmentID)
+
+	testutils.WaitFor(t, time.Second*10, time.Minute*2, func() bool {
+		output, err := publicService.RunCommand("curl", "-m", "10", "-s", privateServiceURL)
+		if err != nil {
+			log.Printf("Error running curl: %v", err)
+			return false
+		}
+
+		// the failed curl should have empty output
+		if expected := ""; output != expected {
+			log.Printf("Output from curl was '%s', expected '%s'", output, expected)
+			return false
+		}
+
+		return true
+	})
 }
