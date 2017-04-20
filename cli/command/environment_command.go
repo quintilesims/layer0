@@ -91,7 +91,7 @@ func (e *EnvironmentCommand) GetCommand() cli.Command {
 			{
 				Name:      "unlink",
 				Usage:     "unlinks two previously linked environments",
-				Action:    wrapAction(e.Command, e.Link),
+				Action:    wrapAction(e.Command, e.Unlink),
 				ArgsUsage: "SOURCE DESTINATION",
 			},
 		},
