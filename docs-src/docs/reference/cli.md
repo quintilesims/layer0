@@ -412,7 +412,7 @@ This command is idempotent; it will succeed even if the two specified environmen
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 enviroment link** _sourceEnvironmentName_ _destEnvironmentName_</div>
+    <div class="divCellNoPadding">**l0 environment link** _sourceEnvironmentName_ _destEnvironmentName_</div>
   </div>
 </div>
 
@@ -436,7 +436,7 @@ This command is idempotent; it will succeed even if the link does not exist.
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 enviroment unlink** _sourceEnvironmentName_ _destEnvironmentName_</div>
+    <div class="divCellNoPadding">**l0 environment unlink** _sourceEnvironmentName_ _destEnvironmentName_</div>
   </div>
 </div>
 
