@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -33,7 +32,7 @@ func resourceLayer0EnvironmentLink() *schema.Resource {
 func resourceLayer0EnvironmentLinkCreate(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(client.Client)
 
-	if err := client.CreateEnvironmentLink(d.Get("source"), d.Get("dest")); err != nil {
+	if err := client.CreateLink(d.Get("source").(string), d.Get("dest").(string)); err != nil {
 		return err
 	}
 
@@ -64,7 +63,8 @@ func resourceLayer0EnvironmentLinkRead(d *schema.ResourceData, meta interface{})
 	}
 
 	if foundLink == false {
-		return fmt.Errorf("Link to %s not found in environment %s", destID, sourceID)
+		d.SetId("")
+		log.Printf("[WARN] Error Reading Environment Link (%s), link does not exist", sourceID)
 	}
 
 	return nil
@@ -72,15 +72,10 @@ func resourceLayer0EnvironmentLinkRead(d *schema.ResourceData, meta interface{})
 
 func resourceLayer0EnvironmentLinkDelete(d *schema.ResourceData, meta interface{}) error {
 	client := meta.(client.Client)
-	sourceID := d.Get("source")
-	destID := d.Get("dest")
+	sourceID := d.Get("source").(string)
+	destID := d.Get("dest").(string)
 
-	jobID, err := client.DeleteLayer0EnvironmentLink(sourceID, destID)
-	if err != nil {
-		return err
-	}
-
-	if err := client.WaitForJob(jobID, defaultTimeout); err != nil {
+	if err := client.DeleteLink(sourceID, destID); err != nil {
 		return err
 	}
 
