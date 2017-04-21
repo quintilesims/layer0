@@ -25,7 +25,6 @@ unittest:
 	$(MAKE) -C plugins/terraform test
 
 smoketest:
-	$(MAKE) -C tests/smoke deps
 	$(MAKE) -C tests/smoke test
 
 systemtest:
