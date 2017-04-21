@@ -74,3 +74,15 @@ func (l *Layer0TestClient) ScaleService(id string, scale int) *models.Service {
 
 	return service
 }
+
+func (l *Layer0TestClient) CreateLink(id1, id2 string) {
+	if err := l.Client.CreateLink(id1, id2); err != nil {
+		l.T.Fatal(err)
+	}
+}
+
+func (l *Layer0TestClient) DeleteLink(id1, id2 string) {
+	if err := l.Client.DeleteLink(id1, id2); err != nil {
+		l.T.Fatal(err)
+	}
+}
