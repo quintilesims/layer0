@@ -4,7 +4,7 @@ These tests use the [Bats](https://github.com/sstephenson/bats) framework to run
 Follow the installation instructions in the provided link. 
 
 #### Local Config
-Environment Variables must be populated with the contents of `l0-setup endpoint -i <prefix>`
+Environment Variables must be populated with the contents of `l0-setup endpoint -d <prefix>`
 
 #### Running
 
