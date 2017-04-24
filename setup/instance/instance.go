@@ -101,6 +101,10 @@ func (i *Instance) Init(c *cli.Context, inputOverrides map[string]interface{}) e
 	return nil
 }
 
+func (i *Instance) Output(key string) (string, error) {
+	return i.Terraform.Output(i.Dir, key)
+}
+
 func (i *Instance) Plan() error {
 	return i.Terraform.Plan(i.Dir)
 }

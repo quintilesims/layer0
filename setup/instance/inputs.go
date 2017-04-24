@@ -10,6 +10,7 @@ const (
 	INPUT_AWS_SECRET_KEY = "aws_secret_key"
 	INPUT_AWS_REGION     = "aws_region"
 	INPUT_AWS_KEY_PAIR   = "aws_key_pair"
+	INPUT_VERSION        = "version"
 )
 
 type ModuleInput struct {
@@ -21,6 +22,10 @@ var MainModuleInputs = []ModuleInput{
 	{
 		Name:    INPUT_SOURCE,
 		Default: "github.com/quintilesims/layer0/setup/module",
+	},
+	{
+		Name:    INPUT_VERSION,
+		Default: "latest",
 	},
 	{
 		Name: "aws_access_key",

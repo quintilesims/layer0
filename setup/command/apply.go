@@ -9,7 +9,7 @@ import (
 func (f *CommandFactory) Apply() cli.Command {
 	return cli.Command{
 		Name:      "apply",
-		Usage:     "apply a layer0 instance",
+		Usage:     "create and/or update resources for your layer0 instance",
 		ArgsUsage: "NAME",
 		Flags:     []cli.Flag{},
 		Action: func(c *cli.Context) error {

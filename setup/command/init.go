@@ -11,12 +11,17 @@ import (
 func (f *CommandFactory) Init() cli.Command {
 	return cli.Command{
 		Name:  "init",
-		Usage: "initialize a new layer0 instance",
+		Usage: "initialize or reconfigure a layer0 instance",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "module-source",
 				Usage:  "path to Layer0 module",
 				EnvVar: "LAYER0_MODULE_SOURCE",
+			},
+			cli.StringFlag{
+				Name:   "version",
+				Usage:  "version of Layer0 to use",
+				EnvVar: "LAYER0_VERSION",
 			},
 			cli.StringFlag{
 				Name:   "aws-access-key",

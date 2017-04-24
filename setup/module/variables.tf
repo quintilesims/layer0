@@ -2,6 +2,10 @@ variable "name" {
   description = "Name of your Layer0 instance"
 }
 
+variable "version" {
+  description = "Version of the Layer0 API and Runner"
+}
+
 variable "aws_access_key" {
   description = "AWS access key"
 }

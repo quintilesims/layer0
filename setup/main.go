@@ -21,7 +21,6 @@ func main() {
 	commandFactory := command.NewCommandFactory()
 	app.Commands = []cli.Command{
 		commandFactory.Init(),
-		commandFactory.Config(),
 		commandFactory.List(),
 		commandFactory.Plan(),
 		commandFactory.Apply(),

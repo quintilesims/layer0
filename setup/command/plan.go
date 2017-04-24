@@ -8,7 +8,7 @@ import (
 func (f *CommandFactory) Plan() cli.Command {
 	return cli.Command{
 		Name:      "plan",
-		Usage:     "plan Layer0 instances",
+		Usage:     "show the planned operation(s) to run during the next 'apply'",
 		ArgsUsage: "NAME",
 		Flags:     []cli.Flag{},
 		Action: func(c *cli.Context) error {

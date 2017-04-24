@@ -1,8 +1,10 @@
 package terraform
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
+	"strings"
 )
 
 type Terraform struct{}
@@ -29,6 +31,23 @@ func (t *Terraform) FMT(dir string) error {
 
 func (t *Terraform) Get(dir string) error {
 	return t.run(dir, "get")
+}
+
+func (t *Terraform) Output(dir, key string) (string, error) {
+	cmd := exec.Command("terraform", "output", key)
+	cmd.Dir = dir
+
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		text := fmt.Sprintf("Error running %v from %s: %v\n", cmd.Args, cmd.Dir, err)
+		for _, line := range strings.Split(string(output), "\n") {
+			text += line + "\n"
+		}
+
+		return "", fmt.Errorf(text)
+	}
+
+	return strings.Replace(string(output), "\n", "", 1), nil
 }
 
 func (t *Terraform) Plan(dir string) error {
