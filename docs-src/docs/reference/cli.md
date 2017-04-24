@@ -659,8 +659,10 @@ Use the **create** subcommand to create a new load balancer.
 </div>
 
 !!! Note "Ports and Health Checks"
-    When both the `--port` and the `--healthcheck-target` options are omitted, Layer0 configures the load balancer with some default values: `80:80/tcp` for ports and `TCP:80` for healthcheck target.
+    When both the `--port` and the `--healthcheck-target` options are omitted, Layer0 configures the load balancer with some default values: `80:80/tcp` for ports and `tcp:80` for healthcheck target.
     These default values together create a load balancer configured with a simple but functioning health check, opening up a set of ports that allows traffic to the target of the healthcheck.
+    (`--healthcheck-target tcp:80` tells the load balancer to ping its instance(s) at port 80 to determine the health of the service, and `--port 80:80/tcp` configures a security group to allow traffic to pass between port 80 of the load balancer and port 80 of its instance(s))
+
     When creating a load balancer with non-default configurations for either `--port` or `--healthcheck-target`, make sure that a valid `--port` and `--healthcheck-target` pairing is also created.
 
 ###loadbalancer delete
