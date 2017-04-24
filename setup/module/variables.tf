@@ -13,3 +13,7 @@ variable "aws_secret_key" {
 variable "aws_region" {
   description = "AWS region"
 }
+
+variable "aws_key_pair" {
+   description = "AWS key pair"
+}

@@ -28,21 +28,21 @@ func (i *Instance) Apply() error {
 }
 
 func (i *Instance) Destroy(force bool) error {
-        if err := i.Terraform.Destroy(i.Dir, force); err != nil {
+	if err := i.Terraform.Destroy(i.Dir, force); err != nil {
 		return err
 	}
 
 	return os.RemoveAll(i.Dir)
 }
 
-
-func (i *Instance) Init(c *cli.Context) error {
+func (i *Instance) Init(c *cli.Context, inputOverrides map[string]interface{}) error {
 	if err := os.MkdirAll(i.Dir, 0700); err != nil {
 		return err
 	}
 
 	config := terraform.NewConfig()
 
+	// load main.tf.json if it exists
 	path := fmt.Sprintf("%s/main.tf.json", i.Dir)
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		c, err := terraform.LoadConfig(path)
@@ -59,8 +59,15 @@ func (i *Instance) Init(c *cli.Context) error {
 
 	module := config.Modules["main"]
 	module["name"] = i.Name
+
+	// configure inputs for the main module
 	for _, input := range MainModuleInputs {
-		v, err := input.Load(c, module[input.Name])
+		if v, ok := inputOverrides[input.Name]; ok {
+			module[input.Name] = v
+			continue
+		}
+
+		v, err := input.Prompt(module[input.Name])
 		if err != nil {
 			return err
 		}
@@ -68,11 +75,11 @@ func (i *Instance) Init(c *cli.Context) error {
 		module[input.Name] = v
 	}
 
+	// write main.tf.json and outputs.tf.json
 	if err := terraform.WriteConfig(path, config); err != nil {
 		return err
 	}
 
-	// todo: write outputs.tf
 	output := &terraform.Config{
 		Outputs: MainModuleOutputs,
 	}
@@ -82,7 +89,7 @@ func (i *Instance) Init(c *cli.Context) error {
 		return err
 	}
 
-	// run 'terraform get' and `terraform fmt`
+	// run `terraform get` and `terraform fmt`
 	if err := i.Terraform.Get(i.Dir); err != nil {
 		return err
 	}
@@ -92,4 +99,8 @@ func (i *Instance) Init(c *cli.Context) error {
 	}
 
 	return nil
+}
+
+func (i *Instance) Plan() error {
+	return i.Terraform.Plan(i.Dir)
 }

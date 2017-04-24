@@ -45,8 +45,29 @@ func (f *CommandFactory) Init() cli.Command {
 				return err
 			}
 
+			overrides := map[string]interface{}{}
+			if v := c.String("module-source"); v != "" {
+				overrides[instance.INPUT_SOURCE] = v
+			}
+
+			if v := c.String("aws-access-key"); v != "" {
+				overrides[instance.INPUT_AWS_ACCESS_KEY] = v
+			}
+
+			if v := c.String("aws-secret-key"); v != "" {
+				overrides[instance.INPUT_AWS_SECRET_KEY] = v
+			}
+
+			if v := c.String("aws-region"); v != "" {
+				overrides[instance.INPUT_AWS_REGION] = v
+			}
+
+			if v := c.String("aws-key-pair"); v != "" {
+				overrides[instance.INPUT_AWS_KEY_PAIR] = v
+			}
+
 			instance := instance.NewInstance(args["NAME"])
-			if err := instance.Init(c); err != nil {
+			if err := instance.Init(c, overrides); err != nil {
 				return err
 			}
 

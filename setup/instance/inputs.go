@@ -2,46 +2,51 @@ package instance
 
 import (
 	"fmt"
-	"github.com/urfave/cli"
+)
+
+const (
+	INPUT_SOURCE         = "source"
+	INPUT_AWS_ACCESS_KEY = "aws_access_key"
+	INPUT_AWS_SECRET_KEY = "aws_secret_key"
+	INPUT_AWS_REGION     = "aws_region"
+	INPUT_AWS_KEY_PAIR   = "aws_key_pair"
 )
 
 type ModuleInput struct {
-	Name            string
-	Default         interface{}
-	LoadFromContext func(c *cli.Context) interface{}
+	Name    string
+	Default interface{}
 }
 
 var MainModuleInputs = []ModuleInput{
 	{
-		Name:            "source",
-		Default:         "github.com/quintilesims/layer0/setup/module",
-		LoadFromContext: stringOrNil("module-source"),
+		Name:    INPUT_SOURCE,
+		Default: "github.com/quintilesims/layer0/setup/module",
 	},
 	{
-		Name:            "aws_access_key",
-		LoadFromContext: stringOrNil("aws-access-key"),
+		Name: "aws_access_key",
 	},
 	{
-		Name:            "aws_secret_key",
-		LoadFromContext: stringOrNil("aws-secret-key"),
+		Name: "aws_secret_key",
 	},
 	{
-		Name:            "aws_region",
-		Default:         "us-west-2",
-		LoadFromContext: stringOrNil("aws-region"),
+		Name:    "aws_region",
+		Default: "us-west-2",
+	},
+	{
+		Name: "aws_key_pair",
 	},
 }
 
-func (m ModuleInput) Load(c *cli.Context, current interface{}) (interface{}, error) {
-	if v := m.LoadFromContext(c); v != nil {
-		return v, nil
-	}
-
+func (m ModuleInput) Prompt(current interface{}) (interface{}, error) {
 	if current != nil {
 		return m.prompt(current)
 	}
 
-	return m.prompt(m.Default)
+	if m.Default != "" {
+		return m.prompt(m.Default)
+	}
+
+	return m.prompt(nil)
 }
 
 func (m ModuleInput) prompt(current interface{}) (interface{}, error) {
@@ -66,14 +71,4 @@ func (m ModuleInput) prompt(current interface{}) (interface{}, error) {
 	}
 
 	return nil, fmt.Errorf("Failed to get input for '%s'", m.Name)
-}
-
-func stringOrNil(key string) func(c *cli.Context) interface{} {
-	return func(c *cli.Context) interface{} {
-		if v := c.String(key); v != "" {
-			return v
-		}
-
-		return nil
-	}
 }
