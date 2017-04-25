@@ -37,7 +37,6 @@ func (i *Instance) Apply() error {
 		return err
 	}
 
-	// todo: add this output
 	endpoint, err := i.Output(OUTPUT_ENDPOINT)
 	if err != nil {
 		return err
@@ -188,6 +187,8 @@ func (i *Instance) Push(s *s3.S3) error {
 		}
 
 		key := strings.Replace(path, i.Dir, "terraform", 1)
+		log.Printf("Pushing %s to s3://%s/%s\n", path, bucket, key)
+
 		input := &s3.PutObjectInput{
 			Bucket:      aws.String(bucket),
 			Key:         aws.String(key),
@@ -195,7 +196,6 @@ func (i *Instance) Push(s *s3.S3) error {
 			ContentType: aws.String("text/json"),
 		}
 
-		log.Printf("Pushing %s to s3://%s/%s\n", path, bucket, key)
 		if _, err := s.PutObject(input); err != nil {
 			return err
 		}
@@ -207,6 +207,10 @@ func (i *Instance) Push(s *s3.S3) error {
 }
 
 func (i *Instance) Pull(s *s3.S3) error {
+	if err := os.MkdirAll(i.Dir, 0700); err != nil {
+		return err
+	}
+
 	bucket, err := i.getBucket(s)
 	if err != nil {
 		return err
@@ -222,11 +226,10 @@ func (i *Instance) Pull(s *s3.S3) error {
 		return err
 	}
 
-	if err := os.MkdirAll(i.Dir, 0700); err != nil {
-		return err
-	}
-
 	for _, content := range output.Contents {
+		path := strings.Replace(aws.StringValue(input.Key), "terraform", i.Dir, 1)
+		log.Printf("Pulling s3://%s/%s to %s\n", bucket, aws.StringValue(content.Key), path)
+
 		input := &s3.GetObjectInput{
 			Bucket: aws.String(bucket),
 			Key:    content.Key,
@@ -237,11 +240,10 @@ func (i *Instance) Pull(s *s3.S3) error {
 			return err
 		}
 
-		path := strings.Replace(aws.StringValue(input.Key), "terraform", i.Dir, 1)
 		if aws.StringValue(output.ContentType) == "application/x-directory" {
 			if err := os.MkdirAll(path, 0700); err != nil {
-                		return err
-        		}
+				return err
+			}
 
 			continue
 		}
@@ -252,7 +254,6 @@ func (i *Instance) Pull(s *s3.S3) error {
 		}
 		defer output.Body.Close()
 
-		log.Printf("Pulling s3://%s/%s to %s\n", bucket, aws.StringValue(input.Key), path)
 		if err := ioutil.WriteFile(path, data, 0644); err != nil {
 			return err
 		}
@@ -268,7 +269,9 @@ func (i *Instance) getBucket(s *s3.S3) (string, error) {
 	}
 
 	for _, bucket := range buckets {
-		if strings.Contains(bucket, i.Name) {
+		// layer0 bucket name format: 'layer0-<instance>-<account_id>'
+		split := strings.Split(bucket, "-")
+		if len(split) == 3 && split[1] == i.Name {
 			return bucket, nil
 		}
 	}
