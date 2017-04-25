@@ -28,7 +28,6 @@ func main() {
 		commandFactory.Endpoint(),
 		commandFactory.Push(),
 		commandFactory.Pull(),
-		commandFactory.Upgrade(),
 	}
 
 	if err := app.Run(os.Args); err != nil {

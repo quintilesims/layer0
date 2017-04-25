@@ -16,8 +16,10 @@ const (
 type ModuleInput struct {
 	Name    string
 	Default interface{}
+	// todo: add/display description
 }
 
+// todo: set source version
 var MainModuleInputs = []ModuleInput{
 	{
 		Name:    INPUT_SOURCE,
@@ -28,17 +30,17 @@ var MainModuleInputs = []ModuleInput{
 		Default: "latest",
 	},
 	{
-		Name: "aws_access_key",
+		Name: INPUT_AWS_ACCESS_KEY,
 	},
 	{
-		Name: "aws_secret_key",
+		Name: INPUT_AWS_SECRET_KEY,
 	},
 	{
-		Name:    "aws_region",
+		Name:    INPUT_AWS_REGION,
 		Default: "us-west-2",
 	},
 	{
-		Name: "aws_key_pair",
+		Name: INPUT_AWS_KEY_PAIR,
 	},
 }
 

@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
@@ -10,31 +9,14 @@ import (
 func (f *CommandFactory) List() cli.Command {
 	return cli.Command{
 		Name:  "list",
-		Usage: "list local layer0 instances",
-		Flags: []cli.Flag{
-			cli.StringFlag{
-				Name:   "aws-access-key",
-				Usage:  "AWS access key id",
-				EnvVar: config.AWS_ACCESS_KEY_ID,
-			},
-			cli.StringFlag{
-				Name:   "aws-secret-key",
-				Usage:  "AWS secret access key",
-				EnvVar: config.AWS_SECRET_ACCESS_KEY,
-			},
-		},
+		Usage: "list local and remote layer0 instances",
+		Flags: s3Flags,
 		Action: func(c *cli.Context) error {
-			accessKey := c.String("aws-access-key")
-			if accessKey == "" {
-				return fmt.Errorf("AWS Access Key not set! (EnvVar: %s)", config.AWS_ACCESS_KEY_ID)
+			s3, err := newS3(c)
+			if err != nil {
+				return err
 			}
 
-			secretKey := c.String("aws-secret-key")
-			if secretKey == "" {
-				return fmt.Errorf("AWS Secret Key not set! (EnvVar: %s)", config.AWS_SECRET_ACCESS_KEY)
-			}
-
-			s3 := newS3(accessKey, secretKey)
 			remote, err := instance.ListRemoteInstances(s3)
 			if err != nil {
 				return err

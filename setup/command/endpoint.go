@@ -10,7 +10,7 @@ import (
 func (f *CommandFactory) Endpoint() cli.Command {
 	return cli.Command{
 		Name:      "endpoint",
-		Usage:     "endpoint layer0 instances",
+		Usage:     "todo",
 		ArgsUsage: "NAME",
 		Flags: []cli.Flag{
 			cli.BoolFlag{

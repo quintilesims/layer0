@@ -19,6 +19,8 @@ func (f *CommandFactory) Apply() cli.Command {
 			}
 
 			instance := instance.NewInstance(args["NAME"])
+			// todo: instance.Validate()
+
 			if err := instance.Apply(); err != nil {
 				return err
 			}

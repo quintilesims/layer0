@@ -9,6 +9,9 @@ import (
 
 // todo: allow docker config path flag
 func (f *CommandFactory) Init() cli.Command {
+	// !! do not use defaults for the these flags, otherwise the inputs
+	// will *always* be overwritten by the default value
+
 	return cli.Command{
 		Name:  "init",
 		Usage: "initialize or reconfigure a layer0 instance",

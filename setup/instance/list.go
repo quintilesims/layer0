@@ -27,21 +27,35 @@ func ListLocalInstances() ([]string, error) {
 }
 
 func ListRemoteInstances(s *s3.S3) ([]string, error) {
-	output, err := s.ListBuckets(&s3.ListBucketsInput{})
+	buckets, err := listLayer0Buckets(s)
 	if err != nil {
 		return nil, err
 	}
 
 	instances := []string{}
-	for _, bucket := range output.Buckets {
-		name := aws.StringValue(bucket.Name)
-
-		// layer0 bucket name format: 'layer0-<instance>-<account id>'
-		split := strings.Split(name, "-")
-		if len(split) == 3 && split[0] == "layer0" {
+	for _, bucket := range buckets {
+		// layer0 bucket name format: 'layer0-<instance>-<account_id>'
+		if split := strings.Split(bucket, "-"); len(split) == 3 {
 			instances = append(instances, split[1])
 		}
 	}
 
 	return instances, nil
+}
+
+func listLayer0Buckets(s *s3.S3) ([]string, error) {
+	output, err := s.ListBuckets(&s3.ListBucketsInput{})
+	if err != nil {
+		return nil, err
+	}
+
+	buckets := []string{}
+	for _, bucket := range output.Buckets {
+		name := aws.StringValue(bucket.Name)
+		if strings.HasPrefix(name, "layer0-") {
+			buckets = append(buckets, name)
+		}
+	}
+
+	return buckets, nil
 }
