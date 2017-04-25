@@ -3,6 +3,7 @@ package command
 import (
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -191,5 +192,117 @@ func TestEnvironmentSetMinCount_userInputErrors(t *testing.T) {
 		if err := command.SetMinCount(c); err == nil {
 			t.Fatalf("%s: error was nil!", name)
 		}
+	}
+}
+
+func TestEnvironmentLink(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewEnvironmentCommand(tc.Command())
+
+	tc.Resolver.EXPECT().
+		Resolve("environment", "name1").
+		Return([]string{"id1"}, nil)
+
+	tc.Resolver.EXPECT().
+		Resolve("environment", "name2").
+		Return([]string{"id2"}, nil)
+
+	tc.Client.EXPECT().
+		CreateLink("id1", "id2").
+		Return(nil)
+
+	c := getCLIContext(t, Args{"name1", "name2"}, nil)
+	if err := command.Link(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestEnvironmentLink_userInputErrors(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewEnvironmentCommand(tc.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing SOURCE arg":      getCLIContext(t, Args{}, nil),
+		"Missing DESTINATION arg": getCLIContext(t, Args{"name"}, nil),
+	}
+
+	for name, c := range contexts {
+		if err := command.Link(c); err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
+	}
+}
+
+func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewEnvironmentCommand(tc.Command())
+
+	tc.Resolver.EXPECT().
+		Resolve(gomock.Any(), gomock.Any()).
+		Return([]string{"id1"}, nil).
+		Times(2)
+
+	c := getCLIContext(t, Args{"name1", "name2"}, nil)
+	if err := command.Link(c); err == nil {
+		t.Fatal("error was nil!")
+	}
+}
+
+func TestEnvironmentUnlink(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewEnvironmentCommand(tc.Command())
+
+	tc.Resolver.EXPECT().
+		Resolve("environment", "name1").
+		Return([]string{"id1"}, nil)
+
+	tc.Resolver.EXPECT().
+		Resolve("environment", "name2").
+		Return([]string{"id2"}, nil)
+
+	tc.Client.EXPECT().
+		DeleteLink("id1", "id2").
+		Return(nil)
+
+	c := getCLIContext(t, Args{"name1", "name2"}, nil)
+	if err := command.Unlink(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestEnvironmentUnlink_userInputErrors(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewEnvironmentCommand(tc.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing SOURCE arg":      getCLIContext(t, Args{}, nil),
+		"Missing DESTINATION arg": getCLIContext(t, Args{"name"}, nil),
+	}
+
+	for name, c := range contexts {
+		if err := command.Unlink(c); err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
+	}
+}
+
+func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewEnvironmentCommand(tc.Command())
+
+	tc.Resolver.EXPECT().
+		Resolve("environment", gomock.Any()).
+		Return([]string{"id1"}, nil).
+		Times(2)
+
+	c := getCLIContext(t, Args{"name1", "name2"}, nil)
+	if err := command.Unlink(c); err == nil {
+		t.Fatal("error was nil!")
 	}
 }

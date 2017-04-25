@@ -61,3 +61,25 @@ func (c *APIClient) UpdateEnvironment(id string, minCount int) (*models.Environm
 
 	return environment, nil
 }
+
+func (c *APIClient) CreateLink(sourceID string, destinationID string) error {
+	req := models.CreateEnvironmentLinkRequest{
+		EnvironmentID: destinationID,
+	}
+
+	var resp string
+	if err := c.Execute(c.Sling("environment/").Post(sourceID+"/link").BodyJSON(req), &resp); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *APIClient) DeleteLink(sourceID string, destinationID string) error {
+	var resp string
+	if err := c.Execute(c.Sling("environment/").Delete(sourceID+"/link/"+destinationID), &resp); err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -129,3 +129,40 @@ func TestUpdateEnvironment(t *testing.T) {
 
 	testutils.AssertEqual(t, environment.EnvironmentID, "id")
 }
+
+func TestCreateLink(t *testing.T) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		testutils.AssertEqual(t, r.Method, "POST")
+		testutils.AssertEqual(t, r.URL.Path, "/environment/id1/link")
+
+		var req models.CreateEnvironmentLinkRequest
+		Unmarshal(t, r, &req)
+
+		testutils.AssertEqual(t, req.EnvironmentID, "id2")
+
+		MarshalAndWrite(t, w, "", 200)
+	}
+
+	client, server := newClientAndServer(handler)
+	defer server.Close()
+
+	if err := client.CreateLink("id1", "id2"); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCreateUnlink(t *testing.T) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		testutils.AssertEqual(t, r.Method, "DELETE")
+		testutils.AssertEqual(t, r.URL.Path, "/environment/id1/link/id2")
+
+		MarshalAndWrite(t, w, "", 200)
+	}
+
+	client, server := newClientAndServer(handler)
+	defer server.Close()
+
+	if err := client.DeleteLink("id1", "id2"); err != nil {
+		t.Fatal(err)
+	}
+}

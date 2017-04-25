@@ -68,16 +68,31 @@ func (t *TextPrinter) PrintDeploySummaries(deploys ...*models.DeploySummary) err
 }
 
 func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) error {
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS | CLUSTER COUNT | INSTANCE SIZE"}
+	getLink := func(e *models.Environment, i int) string {
+		if i > len(e.Links)-1 {
+			return ""
+		}
+
+		return e.Links[i]
+	}
+
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS | CLUSTER COUNT | INSTANCE SIZE | LINKS"}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s | %s | %d | %s",
+		row := fmt.Sprintf("%s | %s | %s | %d | %s | %s",
 			e.EnvironmentID,
 			e.EnvironmentName,
 			e.OperatingSystem,
 			e.ClusterCount,
-			e.InstanceSize)
+			e.InstanceSize,
+			getLink(e, 0))
 
 		rows = append(rows, row)
+
+		// add the extra link rows
+		for i := 1; i < len(e.Links); i++ {
+			row := fmt.Sprintf(" | | | | | %s", getLink(e, i))
+			rows = append(rows, row)
+		}
 	}
 
 	fmt.Println(columnize.SimpleFormat(rows))

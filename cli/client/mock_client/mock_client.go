@@ -52,6 +52,16 @@ func (_mr *_MockClientRecorder) CreateEnvironment(arg0, arg1, arg2, arg3, arg4, 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
+func (_m *MockClient) CreateLink(_param0 string, _param1 string) error {
+	ret := _m.ctrl.Call(_m, "CreateLink", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockClientRecorder) CreateLink(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateLink", arg0, arg1)
+}
+
 func (_m *MockClient) CreateLoadBalancer(_param0 string, _param1 string, _param2 models.HealthCheck, _param3 []models.Port, _param4 bool) (*models.LoadBalancer, error) {
 	ret := _m.ctrl.Call(_m, "CreateLoadBalancer", _param0, _param1, _param2, _param3, _param4)
 	ret0, _ := ret[0].(*models.LoadBalancer)
@@ -114,6 +124,16 @@ func (_m *MockClient) DeleteEnvironment(_param0 string) (string, error) {
 
 func (_mr *_MockClientRecorder) DeleteEnvironment(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteEnvironment", arg0)
+}
+
+func (_m *MockClient) DeleteLink(_param0 string, _param1 string) error {
+	ret := _m.ctrl.Call(_m, "DeleteLink", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockClientRecorder) DeleteLink(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteLink", arg0, arg1)
 }
 
 func (_m *MockClient) DeleteLoadBalancer(_param0 string) (string, error) {
