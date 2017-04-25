@@ -37,28 +37,19 @@ func (f *CommandFactory) Endpoint() cli.Command {
 
 			if c.Bool("dev") {
 				outputEnvvars[instance.OUTPUT_NAME] = config.PREFIX
-				/*
-					todo: include all required outputs:
-					settings["account_id"] = config.AWS_ACCOUNT_ID
-					settings["key_pair"] = config.AWS_KEY_PAIR
-					settings["agent_security_group_id"] = config.AWS_ECS_AGENT_SECURITY_GROUP_ID
-					settings["ecs_instance_profile"] = config.AWS_ECS_INSTANCE_PROFILE
-					settings["ecs_role"] = config.AWS_ECS_ROLE
-					settings["public_subnets"] = config.AWS_PUBLIC_SUBNETS
-					settings["private_subnets"] = config.AWS_PRIVATE_SUBNETS
-					settings["access_key"] = config.AWS_ACCESS_KEY_ID
-					settings["secret_key"] = config.AWS_SECRET_ACCESS_KEY
-					settings["region"] = config.AWS_REGION
-					settings["l0_prefix"] = config.PREFIX
-					settings["runner_docker_image_tag"] = config.RUNNER_VERSION_TAG
-					settings["vpc_id"] = config.AWS_VPC_ID
-					settings["s3_bucket"] = config.AWS_S3_BUCKET
-					settings["linux_service_ami"] = config.AWS_LINUX_SERVICE_AMI
-					settings["windows_service_ami"] = config.AWS_WINDOWS_SERVICE_AMI
-					settings["dynamo_tag_table"] = config.AWS_DYNAMO_TAG_TABLE
-					settings["dynamo_job_table"] = config.AWS_DYNAMO_JOB_TABLE
-				*/
-
+				outputEnvvars[instance.OUTPUT_ACCOUNT_ID] = config.AWS_ACCOUNT_ID
+				outputEnvvars[instance.OUTPUT_ACCESS_KEY] = config.AWS_ACCESS_KEY_ID
+				outputEnvvars[instance.OUTPUT_SECRET_KEY] = config.AWS_SECRET_ACCESS_KEY
+				outputEnvvars[instance.OUTPUT_VPC_ID] = config.AWS_VPC_ID
+				outputEnvvars[instance.OUTPUT_PRIVATE_SUBNETS] = config.AWS_PRIVATE_SUBNETS
+				outputEnvvars[instance.OUTPUT_PUBLIC_SUBNETS] = config.AWS_PUBLIC_SUBNETS
+				outputEnvvars[instance.OUTPUT_ECS_ROLE] = config.AWS_ECS_ROLE
+				outputEnvvars[instance.OUTPUT_KEY_PAIR] = config.AWS_KEY_PAIR
+				outputEnvvars[instance.OUTPUT_S3_BUCKET] = config.AWS_S3_BUCKET
+				outputEnvvars[instance.OUTPUT_ECS_AGENT_SECURITY_GROUP_ID] = config.AWS_ECS_AGENT_SECURITY_GROUP_ID
+				outputEnvvars[instance.OUTPUT_ECS_INSTANCE_PROFILE] = config.AWS_ECS_INSTANCE_PROFILE
+				outputEnvvars[instance.OUTPUT_AWS_LINUX_SERVICE_AMI] = config.AWS_LINUX_SERVICE_AMI
+				outputEnvvars[instance.OUTPUT_WINDOWS_SERVICE_AMI] = config.AWS_WINDOWS_SERVICE_AMI
 			}
 
 			instance := f.NewInstance(args["NAME"])
