@@ -2,20 +2,23 @@ package command
 
 import (
 	"fmt"
+	"github.com/docker/docker/pkg/homedir"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
+	"strings"
 )
 
-// todo: allow docker config path flag
 func (f *CommandFactory) Init() cli.Command {
-	// !! do not use defaults for the these flags, otherwise the inputs
-	// will *always* be overwritten by the default value
-
 	return cli.Command{
 		Name:  "init",
 		Usage: "initialize or reconfigure a layer0 instance",
 		Flags: []cli.Flag{
+			cli.StringFlag{
+				Name:   "dockercfg-path",
+				Usage:  "path to docker config file",
+				EnvVar: "LAYER0_DOCKERCFG_PATH",
+			},
 			cli.StringFlag{
 				Name:   "module-source",
 				Usage:  "path to Layer0 module",
@@ -53,6 +56,8 @@ func (f *CommandFactory) Init() cli.Command {
 				return err
 			}
 
+			// do not use defaults for the override flags, otherwise the inputs
+			// will *always* be overwritten by the default value
 			overrides := map[string]interface{}{}
 			if v := c.String("module-source"); v != "" {
 				overrides[instance.INPUT_SOURCE] = v
@@ -74,8 +79,10 @@ func (f *CommandFactory) Init() cli.Command {
 				overrides[instance.INPUT_AWS_KEY_PAIR] = v
 			}
 
+			dockercfgPath := strings.Replace(c.String("dockercfg-path"), "~", homedir.Get(), -1)
+
 			instance := f.NewInstance(args["NAME"])
-			if err := instance.Init(overrides); err != nil {
+			if err := instance.Init(dockercfgPath, overrides); err != nil {
 				return err
 			}
 

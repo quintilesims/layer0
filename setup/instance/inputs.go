@@ -2,6 +2,7 @@ package instance
 
 import (
 	"fmt"
+	"github.com/Sirupsen/logrus"
 )
 
 const (
@@ -11,11 +12,13 @@ const (
 	INPUT_AWS_REGION     = "aws_region"
 	INPUT_AWS_KEY_PAIR   = "aws_key_pair"
 	INPUT_VERSION        = "version"
+	INPUT_DOCKERCFG      = "dockercfg"
 )
 
 type ModuleInput struct {
-	Name    string
-	Default interface{}
+	Name        string
+	Default     interface{}
+	StaticValue interface{}
 	// todo: add/display description
 }
 
@@ -42,9 +45,18 @@ var MainModuleInputs = []ModuleInput{
 	{
 		Name: INPUT_AWS_KEY_PAIR,
 	},
+	{
+		Name:        INPUT_DOCKERCFG,
+		StaticValue: "${file(dockercfg)}",
+	},
 }
 
 func (m ModuleInput) Prompt(current interface{}) (interface{}, error) {
+	if m.StaticValue != nil {
+		logrus.Errorf("%s: attempted to prompt an input with a static value\n", m.Name)
+		return m.StaticValue, nil
+	}
+
 	if current != nil {
 		return m.prompt(current)
 	}

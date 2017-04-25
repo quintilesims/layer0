@@ -7,7 +7,7 @@ import (
 type Instance interface {
 	Apply() error
 	Destroy(force bool) error
-	Init(inputOverrides map[string]interface{}) error
+	Init(dockercfgPath string, inputOverrides map[string]interface{}) error
 	Output(key string) (string, error)
 	Plan() error
 	Pull(s s3iface.S3API) error

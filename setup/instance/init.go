@@ -2,11 +2,12 @@ package instance
 
 import (
 	"fmt"
+	"github.com/quintilesims/layer0/setup/docker"
 	"github.com/quintilesims/layer0/setup/terraform"
 	"os"
 )
 
-func (l *LocalInstance) Init(inputOverrides map[string]interface{}) error {
+func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]interface{}) error {
 	if err := os.MkdirAll(l.Dir, 0700); err != nil {
 		return err
 	}
@@ -48,6 +49,11 @@ func (l *LocalInstance) Init(inputOverrides map[string]interface{}) error {
 		return err
 	}
 
+	// create/write ~/.layer/<instance>/dockercfg
+	if err := l.createOrWriteDockerCFG(dockerInputPath); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -74,16 +80,40 @@ func (l *LocalInstance) setMainModuleInputs(config *terraform.Config, inputOverr
 			continue
 		}
 
-		// prompt the user for a new/updated input
-		v, err := input.Prompt(module[input.Name])
-		if err != nil {
-			return err
-		}
+		// prompt the user for a new/updated input if it's not a static input
+		if input.StaticValue == nil {
+			v, err := input.Prompt(module[input.Name])
+			if err != nil {
+				return err
+			}
 
-		module[input.Name] = v
+			module[input.Name] = v
+		}
 	}
 
 	// the 'name' input is always the name of the layer0 instance
 	module["name"] = l.Name
 	return nil
+}
+
+func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
+	dockerOutputPath := fmt.Sprintf("%s/dockercfg", l.Dir)
+
+	// if user didn't specify a dockercfg, create an empty one if it doesn't exist
+	if dockerInputPath == "" {
+		if _, err := os.Stat(dockerOutputPath); os.IsNotExist(err) {
+			if err := docker.WriteConfig(dockerOutputPath, docker.NewConfig()); err != nil {
+				return err
+			}
+		}
+
+		return nil
+	}
+
+	config, err := docker.LoadConfig(dockerInputPath)
+	if err != nil {
+		return err
+	}
+
+	return docker.WriteConfig(dockerOutputPath, config)
 }

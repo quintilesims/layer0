@@ -1,4 +1,4 @@
-package terraform
+package docker
 
 import (
 	"encoding/json"
@@ -16,8 +16,8 @@ func LoadConfig(path string) (*Config, error) {
 		return nil, err
 	}
 
-	if config.Modules == nil {
-		config.Modules = map[string]Module{}
+	if config.Auths == nil {
+		config.Auths = map[string]Auth{}
 	}
 
 	return config, nil
