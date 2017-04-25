@@ -47,7 +47,7 @@ var MainModuleInputs = []ModuleInput{
 	},
 	{
 		Name:        INPUT_DOCKERCFG,
-		StaticValue: "${file(dockercfg)}",
+		StaticValue: "${file(\"dockercfg.json\")}",
 	},
 }
 

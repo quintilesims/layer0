@@ -49,7 +49,7 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 		return err
 	}
 
-	// create/write ~/.layer/<instance>/dockercfg
+	// create/write ~/.layer/<instance>/dockercfg.json
 	if err := l.createOrWriteDockerCFG(dockerInputPath); err != nil {
 		return err
 	}
@@ -74,21 +74,25 @@ func (l *LocalInstance) setMainModuleInputs(config *terraform.Config, inputOverr
 
 	module := config.Modules["main"]
 	for _, input := range MainModuleInputs {
-		// if the user specified a cli flag or env var, use that for the input
+		// if the input has a static value, it should always be set as the static value
+		if input.StaticValue != nil {
+			module[input.Name] = input.StaticValue
+			continue
+		}
+
+		// if the user specified the input with a cli flag, use it
 		if v, ok := inputOverrides[input.Name]; ok {
 			module[input.Name] = v
 			continue
 		}
 
-		// prompt the user for a new/updated input if it's not a static input
-		if input.StaticValue == nil {
-			v, err := input.Prompt(module[input.Name])
-			if err != nil {
-				return err
-			}
-
-			module[input.Name] = v
+		// prompt the user for a new/updated input
+		v, err := input.Prompt(module[input.Name])
+		if err != nil {
+			return err
 		}
+
+		module[input.Name] = v
 	}
 
 	// the 'name' input is always the name of the layer0 instance
@@ -97,14 +101,12 @@ func (l *LocalInstance) setMainModuleInputs(config *terraform.Config, inputOverr
 }
 
 func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
-	dockerOutputPath := fmt.Sprintf("%s/dockercfg", l.Dir)
+	dockerOutputPath := fmt.Sprintf("%s/dockercfg.json", l.Dir)
 
-	// if user didn't specify a dockercfg, create an empty one if it doesn't exist
+	// if user didn't specify a dockercfg, create an empty one if it doesn't already exist
 	if dockerInputPath == "" {
 		if _, err := os.Stat(dockerOutputPath); os.IsNotExist(err) {
-			if err := docker.WriteConfig(dockerOutputPath, docker.NewConfig()); err != nil {
-				return err
-			}
+			return docker.WriteConfig(dockerOutputPath, docker.NewConfig())
 		}
 
 		return nil
