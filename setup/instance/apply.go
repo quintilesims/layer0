@@ -2,7 +2,7 @@ package instance
 
 import (
 	"fmt"
-	"log"
+	"github.com/Sirupsen/logrus"
 	"net/http"
 	"time"
 )
@@ -34,16 +34,17 @@ func (l *LocalInstance) validateInputs() error {
 
 func (l *LocalInstance) waitForHealthyAPI(endpoint string, timeout time.Duration) error {
 	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 15) {
-		log.Printf("Waiting for API Service to be healthy... (%v)\n", time.Since(start))
+		logrus.Infof("Waiting for API Service to be healthy... (%v)\n", time.Since(start))
+
 		resp, err := http.Get(endpoint)
 		if err != nil {
-			log.Println("Error getting api: ", err)
+			logrus.Debugf("Error occurred during GET %s: %v\n", endpoint, err)
 			continue
 		}
 
 		defer resp.Body.Close()
 		if code := resp.StatusCode; code < 200 || code > 299 {
-			log.Println("API returned non-200 status code: %d", code)
+			logrus.Debugf("API returned non-200 status code: %d\n", code)
 			continue
 		}
 

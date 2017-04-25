@@ -2,11 +2,11 @@ package instance
 
 import (
 	"bytes"
+	"github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"io/ioutil"
-	"log"
 	"os"
 	"path/filepath"
 	"strings"
@@ -37,7 +37,7 @@ func (l *LocalInstance) Push(s s3iface.S3API) error {
 		}
 
 		key := strings.Replace(path, l.Dir, "terraform", 1)
-		log.Printf("Pushing %s to s3://%s/%s\n", path, bucket, key)
+		logrus.Infof("Pushing %s to s3://%s/%s\n", path, bucket, key)
 
 		input := &s3.PutObjectInput{
 			Bucket:      aws.String(bucket),

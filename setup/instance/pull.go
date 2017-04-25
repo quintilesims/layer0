@@ -2,11 +2,11 @@ package instance
 
 import (
 	"fmt"
+	"github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"io/ioutil"
-	"log"
 	"os"
 	"strings"
 )
@@ -40,7 +40,7 @@ func (l *LocalInstance) Pull(s s3iface.S3API) error {
 
 	for _, content := range output.Contents {
 		path := strings.Replace(aws.StringValue(content.Key), "terraform", l.Dir, 1)
-		log.Printf("Pulling s3://%s/%s to %s\n", bucket, aws.StringValue(content.Key), path)
+		logrus.Infof("Pulling s3://%s/%s to %s\n", bucket, aws.StringValue(content.Key), path)
 
 		input := &s3.GetObjectInput{
 			Bucket: aws.String(bucket),

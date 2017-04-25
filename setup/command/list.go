@@ -1,10 +1,10 @@
 package command
 
 import (
-	"sort"
 	"fmt"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
+	"sort"
 )
 
 func (f *CommandFactory) List() cli.Command {
