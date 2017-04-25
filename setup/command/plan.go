@@ -1,7 +1,6 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
 
@@ -17,7 +16,7 @@ func (f *CommandFactory) Plan() cli.Command {
 				return err
 			}
 
-			instance := instance.NewInstance(args["NAME"])
+			instance := f.NewInstance(args["NAME"])
 			if err := instance.Plan(); err != nil {
 				return err
 			}

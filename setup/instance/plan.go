@@ -1,9 +1,9 @@
 package instance
 
-func (i *Instance) Plan() error {
-	if err := i.assertExists(); err != nil {
+func (l *LocalInstance) Plan() error {
+	if err := l.assertExists(); err != nil {
 		return err
 	}
 
-	return i.Terraform.Plan(i.Dir)
+	return l.Terraform.Plan(l.Dir)
 }

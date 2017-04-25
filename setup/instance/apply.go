@@ -7,32 +7,32 @@ import (
 	"time"
 )
 
-func (i *Instance) Apply() error {
-	if err := i.assertExists(); err != nil {
+func (l *LocalInstance) Apply() error {
+	if err := l.assertExists(); err != nil {
 		return err
 	}
 
-	if err := i.validateInputs(); err != nil {
+	if err := l.validateInputs(); err != nil {
 		return err
 	}
 
-	if err := i.Terraform.Apply(i.Dir); err != nil {
+	if err := l.Terraform.Apply(l.Dir); err != nil {
 		return err
 	}
 
-	endpoint, err := i.Output(OUTPUT_ENDPOINT)
+	endpoint, err := l.Output(OUTPUT_ENDPOINT)
 	if err != nil {
 		return err
 	}
 
-	return i.waitForHealthyAPI(endpoint, time.Minute*10)
+	return l.waitForHealthyAPI(endpoint, time.Minute*10)
 }
 
-func (i *Instance) validateInputs() error {
+func (l *LocalInstance) validateInputs() error {
 	return nil
 }
 
-func (i *Instance) waitForHealthyAPI(endpoint string, timeout time.Duration) error {
+func (l *LocalInstance) waitForHealthyAPI(endpoint string, timeout time.Duration) error {
 	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 15) {
 		log.Printf("Waiting for API Service to be healthy... (%v)\n", time.Since(start))
 		resp, err := http.Get(endpoint)

@@ -1,6 +1,7 @@
 package command
 
 import (
+	"sort"
 	"fmt"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
@@ -10,14 +11,14 @@ func (f *CommandFactory) List() cli.Command {
 	return cli.Command{
 		Name:  "list",
 		Usage: "list local and remote layer0 instances",
-		Flags: s3Flags,
+		Flags: awsFlags,
 		Action: func(c *cli.Context) error {
-			s3, err := newS3(c)
+			provider, err := f.newAWSProviderHelper(c)
 			if err != nil {
 				return err
 			}
 
-			remote, err := instance.ListRemoteInstances(s3)
+			remote, err := instance.ListRemoteInstances(provider.S3)
 			if err != nil {
 				return err
 			}
@@ -27,20 +28,37 @@ func (f *CommandFactory) List() cli.Command {
 				return err
 			}
 
+			// print 'l' if local, 'r' if remote, 'lr' if both
 			catalog := map[string]string{}
 			for _, instance := range local {
-				catalog[instance] += "l"
+				catalog[instance] = "l "
 			}
 
 			for _, instance := range remote {
-				catalog[instance] += "r"
+				if _, ok := catalog[instance]; ok {
+					catalog[instance] = "lr"
+				} else {
+					catalog[instance] = " r"
+				}
 			}
 
-			for instance, token := range catalog {
-				fmt.Printf("%2s    %s\n", token, instance)
-			}
+			sortAndIterate(catalog, func(instance, token string) {
+				fmt.Printf("%s\t%s\n", token, instance)
+			})
 
 			return nil
 		},
+	}
+}
+
+func sortAndIterate(m map[string]string, fn func(string, string)) {
+	keys := []string{}
+	for key := range m {
+		keys = append(keys, key)
+	}
+
+	sort.Strings(keys)
+	for _, key := range keys {
+		fn(key, m[key])
 	}
 }

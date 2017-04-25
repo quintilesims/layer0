@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"io/ioutil"
 	"log"
 	"os"
@@ -11,12 +12,12 @@ import (
 	"strings"
 )
 
-func (i *Instance) Push(s *s3.S3) error {
-	if err := i.assertExists(); err != nil {
+func (l *LocalInstance) Push(s s3iface.S3API) error {
+	if err := l.assertExists(); err != nil {
 		return err
 	}
 
-	bucket, err := i.Output(OUTPUT_S3_BUCKET)
+	bucket, err := l.Output(OUTPUT_S3_BUCKET)
 	if err != nil {
 		return err
 	}
@@ -35,7 +36,7 @@ func (i *Instance) Push(s *s3.S3) error {
 			return err
 		}
 
-		key := strings.Replace(path, i.Dir, "terraform", 1)
+		key := strings.Replace(path, l.Dir, "terraform", 1)
 		log.Printf("Pushing %s to s3://%s/%s\n", path, bucket, key)
 
 		input := &s3.PutObjectInput{
@@ -52,5 +53,5 @@ func (i *Instance) Push(s *s3.S3) error {
 		return nil
 	}
 
-	return filepath.Walk(i.Dir, pushFiles)
+	return filepath.Walk(l.Dir, pushFiles)
 }

@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
 
@@ -18,9 +17,7 @@ func (f *CommandFactory) Apply() cli.Command {
 				return err
 			}
 
-			instance := instance.NewInstance(args["NAME"])
-			// todo: instance.Validate()
-
+			instance := f.NewInstance(args["NAME"])
 			if err := instance.Apply(); err != nil {
 				return err
 			}

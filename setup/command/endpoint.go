@@ -61,7 +61,7 @@ func (f *CommandFactory) Endpoint() cli.Command {
 
 			}
 
-			instance := instance.NewInstance(args["NAME"])
+			instance := f.NewInstance(args["NAME"])
 			for output, envvar := range outputEnvvars {
 				v, err := instance.Output(output)
 				if err != nil {

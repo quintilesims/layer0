@@ -4,16 +4,16 @@ import (
 	"os"
 )
 
-func (i *Instance) Destroy(force bool) error {
-	if err := i.assertExists(); err != nil {
+func (l *LocalInstance) Destroy(force bool) error {
+	if err := l.assertExists(); err != nil {
 		return err
 	}
 
 	// todo: use layer0 client to destroy all resources
 
-	if err := i.Terraform.Destroy(i.Dir, force); err != nil {
+	if err := l.Terraform.Destroy(l.Dir, force); err != nil {
 		return err
 	}
 
-	return os.RemoveAll(i.Dir)
+	return os.RemoveAll(l.Dir)
 }

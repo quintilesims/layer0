@@ -2,9 +2,12 @@ package instance
 
 import (
 	"fmt"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"github.com/docker/docker/pkg/homedir"
 	"io/ioutil"
+	"strings"
 )
 
 func ListLocalInstances() ([]string, error) {
@@ -24,8 +27,8 @@ func ListLocalInstances() ([]string, error) {
 	return instances, nil
 }
 
-func ListRemoteInstances(s *s3.S3) ([]string, error) {
-	instanceBuckets, err := listInstanceBuckets(s)
+func ListRemoteInstances(s s3iface.S3API) ([]string, error) {
+	instanceBuckets, err := listLocalInstanceBuckets(s)
 	if err != nil {
 		return nil, err
 	}
@@ -36,4 +39,23 @@ func ListRemoteInstances(s *s3.S3) ([]string, error) {
 	}
 
 	return instances, nil
+}
+
+func listLocalInstanceBuckets(s s3iface.S3API) (map[string]string, error) {
+	output, err := s.ListBuckets(&s3.ListBucketsInput{})
+	if err != nil {
+		return nil, err
+	}
+
+	instanceBuckets := map[string]string{}
+	for _, bucket := range output.Buckets {
+		name := aws.StringValue(bucket.Name)
+
+		// layer0 bucket name format: 'layer0-<instance>-<account_id>'
+		if split := strings.Split(name, "-"); len(split) == 3 && split[0] == "layer0" {
+			instanceBuckets[split[1]] = name
+		}
+	}
+
+	return instanceBuckets, nil
 }

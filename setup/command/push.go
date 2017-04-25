@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
 
@@ -11,20 +10,20 @@ func (f *CommandFactory) Push() cli.Command {
 		Name:      "push",
 		Usage:     "todo",
 		ArgsUsage: "NAME",
-		Flags:     s3Flags,
+		Flags:     awsFlags,
 		Action: func(c *cli.Context) error {
 			args, err := extractArgs(c.Args(), "NAME")
 			if err != nil {
 				return err
 			}
 
-			s3, err := newS3(c)
+			provider, err := f.newAWSProviderHelper(c)
 			if err != nil {
 				return err
 			}
 
-			instance := instance.NewInstance(args["NAME"])
-			if err := instance.Push(s3); err != nil {
+			instance := f.NewInstance(args["NAME"])
+			if err := instance.Push(provider.S3); err != nil {
 				return err
 			}
 

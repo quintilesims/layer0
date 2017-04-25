@@ -3,28 +3,27 @@ package instance
 import (
 	"fmt"
 	"github.com/quintilesims/layer0/setup/terraform"
-	"github.com/urfave/cli"
 	"os"
 )
 
-func (i *Instance) Init(c *cli.Context, inputOverrides map[string]interface{}) error {
-	if err := os.MkdirAll(i.Dir, 0700); err != nil {
+func (l *LocalInstance) Init(inputOverrides map[string]interface{}) error {
+	if err := os.MkdirAll(l.Dir, 0700); err != nil {
 		return err
 	}
 
 	// load terraform config from ~/.layer0/<instance>/main.tf.json, or create a new one
-	config, err := i.loadMainConfig()
+	config, err := l.loadMainConfig()
 	if err != nil {
 		return err
 	}
 
 	// add/update the inputs of the terraform config
-	if err := i.setMainModuleInputs(config, inputOverrides); err != nil {
+	if err := l.setMainModuleInputs(config, inputOverrides); err != nil {
 		return err
 	}
 
 	// save the terraform config as ~/.layer0/<instance>/main.tf.json
-	path := fmt.Sprintf("%s/main.tf.json", i.Dir)
+	path := fmt.Sprintf("%s/main.tf.json", l.Dir)
 	if err := terraform.WriteConfig(path, config); err != nil {
 		return err
 	}
@@ -34,26 +33,26 @@ func (i *Instance) Init(c *cli.Context, inputOverrides map[string]interface{}) e
 		Outputs: MainModuleOutputs,
 	}
 
-	outPath := fmt.Sprintf("%s/outputs.tf.json", i.Dir)
+	outPath := fmt.Sprintf("%s/outputs.tf.json", l.Dir)
 	if err := terraform.WriteConfig(outPath, output); err != nil {
 		return err
 	}
 
 	// run `terraform get` to download terraform modules
-	if err := i.Terraform.Get(i.Dir); err != nil {
+	if err := l.Terraform.Get(l.Dir); err != nil {
 		return err
 	}
 
 	// run `terraform fmt` to validate the terraform syntax
-	if err := i.Terraform.FMT(i.Dir); err != nil {
+	if err := l.Terraform.FMT(l.Dir); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (i *Instance) loadMainConfig() (*terraform.Config, error) {
-	path := fmt.Sprintf("%s/main.tf.json", i.Dir)
+func (l *LocalInstance) loadMainConfig() (*terraform.Config, error) {
+	path := fmt.Sprintf("%s/main.tf.json", l.Dir)
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		return terraform.LoadConfig(path)
 	}
@@ -61,7 +60,7 @@ func (i *Instance) loadMainConfig() (*terraform.Config, error) {
 	return terraform.NewConfig(), nil
 }
 
-func (i *Instance) setMainModuleInputs(config *terraform.Config, inputOverrides map[string]interface{}) error {
+func (l *LocalInstance) setMainModuleInputs(config *terraform.Config, inputOverrides map[string]interface{}) error {
 	// create the 'main' module if it doesn't already exist
 	if _, ok := config.Modules["main"]; !ok {
 		config.Modules["main"] = terraform.Module{}
@@ -85,6 +84,6 @@ func (i *Instance) setMainModuleInputs(config *terraform.Config, inputOverrides 
 	}
 
 	// the 'name' input is always the name of the layer0 instance
-	module["name"] = i.Name
+	module["name"] = l.Name
 	return nil
 }

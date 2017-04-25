@@ -74,8 +74,8 @@ func (f *CommandFactory) Init() cli.Command {
 				overrides[instance.INPUT_AWS_KEY_PAIR] = v
 			}
 
-			instance := instance.NewInstance(args["NAME"])
-			if err := instance.Init(c, overrides); err != nil {
+			instance := f.NewInstance(args["NAME"])
+			if err := instance.Init(overrides); err != nil {
 				return err
 			}
 
