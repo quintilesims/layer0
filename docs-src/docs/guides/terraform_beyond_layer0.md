@@ -222,7 +222,7 @@ Outputs:
 services = <guestbook_service_url>
 ```
 
-To confirm your service has been updated to the desired scale, you can run the following layer0 command. Note desired scale for the guestbook service should be eventually be 3/3.
+To confirm your service has been updated to the desired scale, you can run the following layer0 command. Note that the desired scale for the guestbook service should be eventually be 3/3.
 
 `l0 service get guestbook1_guestbook_svc`
 
@@ -234,7 +234,7 @@ SERVICE ID    SERVICE NAME              ENVIRONMENT  LOADBALANCER             DE
 guestbo4fd3b  guestbook1_guestbook_svc  demo         guestbook1_guestbook_lb  guestbook1_guestbook_dpl:3*  1/3 (2)
 ```
 
-As scale is parameter we are likely to change in the future, rather than hardcoding it to 3 as we have done just now, it would be better to use a variable to store  `service_scale`. The following Best Practices sections will show how you can achieve this.
+As scale is a parameter we are likely to change in the future, rather than hardcoding it to 3 as we have done just now, it would be better to use a variable to store  `service_scale`. The following Best Practices sections will show how you can achieve this.
 
 !!! Note "Best Practices with Terraform + Layer0"
 	The following sections outline some of the best practices and tips to take into consideration, when using Layer0 with Terraform.
@@ -332,7 +332,7 @@ example1/
 
 Here we are making use of Terraform [Modules](https://www.terraform.io/docs/modules/index.html). Modules in Terraform are self-contained packages of Terraform configurations, that are managed as a group. Modules are used to create reusable components in Terraform as well as for basic code organization. In this example, we are using modules to separate each service and making it consumable as a module.
 
-If you wanted to add a new service, you can create new folder service folder inside the ./modules. If you wanted to you could even run multiple copies of the same service. See here for more information about [Creating Modules](https://www.terraform.io/docs/modules/create.html).
+If you wanted to add a new service, you can create a new service folder inside the ./modules. If you wanted to you could even run multiple copies of the same service. See here for more information about [Creating Modules](https://www.terraform.io/docs/modules/create.html).
 
 When creating a module, ensure that resources you are creating are prefixed with the environment and the module's name variable to ensure your resources are unique for each layer0 environment and each reference to a module.
 
@@ -414,7 +414,7 @@ Outputs:
 ...
 ```
 
-Note that you will a copy of each resource for each environment specified in your environments file in `./example-2/variables.tf`. Go ahead and run apply.
+Note that you will see a copy of each resource for each environment specified in your environments file in `./example-2/variables.tf`. Go ahead and run apply.
 
 `terraform apply`
 
@@ -431,7 +431,7 @@ guestbook_urls =
 
 You have now created two separate environments using a single terraform configuration: dev & staging. You can navigate to both the urls output and you should note that they are separate instances of the guestbook application backed with their own separate data store.
 
-A common use case for maintaining different environments is configure each environment slightly differently. For example, might want to scale your Layer0 service to 3 for staging and leave it as 1 for the dev environment. This can be done easily by using conditional logic to set our `scale` parameter in the layer0 service configuration in `./example-2/main.tf`. Go ahead and open `main.tf` in a text editor. Navigate to the `layer0_service guestbook` section. Uncomment the scale parameter so that your configuration looks like below.
+A common use case for maintaining different environments is to configure each environment slightly differently. For example, you might want to scale your Layer0 service to 3 for staging and leave it as 1 for the dev environment. This can be done easily by using conditional logic to set our `scale` parameter in the layer0 service configuration in `./example-2/main.tf`. Go ahead and open `main.tf` in a text editor. Navigate to the `layer0_service guestbook` section. Uncomment the scale parameter so that your configuration looks like below.
 
 ```
 resource "layer0_service" "guestbook" {
@@ -484,7 +484,7 @@ terraform plan
 terraform apply
 ```
 
-You should now have two instance of the guestbook application running. Note that our guestbook service in our staging environment has been scaled to 3. We have done this by specifying a map variable `service_scale` in `./example-3/dev-staging/variables.tf` which can have different scale values for each environment.
+You should now have two instances of the guestbook application running. Note that our guestbook service in our staging environment has been scaled to 3. We have done this by specifying a map variable `service_scale` in `./example-3/dev-staging/variables.tf` which can have different scale values for each environment.
 
 ## Part 8: Multiple Provider Instances
 
@@ -508,7 +508,7 @@ provider "aws" {
 }
 ```
 
-This will now allow you to reference aws providers configured to a different region. You can do so by referencing the provider using the naming scheme `TYPE.ALIAS`, which in the above example result in `aws.west`. See [Provider Configuration](https://www.terraform.io/docs/configuration/providers.html) for more information.
+This will now allow you to reference aws providers configured to a different region. You can do so by referencing the provider using the naming scheme `TYPE.ALIAS`, which in the above example results in `aws.west`. See [Provider Configuration](https://www.terraform.io/docs/configuration/providers.html) for more information.
 
 ```
 resource "aws.east_instance" "foo" {
