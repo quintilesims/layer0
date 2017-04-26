@@ -5,7 +5,7 @@ import (
 )
 
 type Instance interface {
-	Apply() error
+	Apply(wait bool) error
 	Destroy(force bool) error
 	Init(dockercfgPath string, inputOverrides map[string]interface{}) error
 	Output(key string) (string, error)

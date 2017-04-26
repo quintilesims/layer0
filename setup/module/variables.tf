@@ -21,3 +21,12 @@ variable "aws_region" {
 variable "aws_key_pair" {
    description = "AWS key pair"
 }
+
+variable "dockercfg" {
+   description = "todo"
+}
+
+variable "vpc_id" {
+   description = "todo"
+}
+

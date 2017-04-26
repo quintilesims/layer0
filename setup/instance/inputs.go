@@ -2,7 +2,6 @@ package instance
 
 import (
 	"fmt"
-	"github.com/Sirupsen/logrus"
 )
 
 const (
@@ -13,81 +12,158 @@ const (
 	INPUT_AWS_KEY_PAIR   = "aws_key_pair"
 	INPUT_VERSION        = "version"
 	INPUT_DOCKERCFG      = "dockercfg"
+	INPUT_VPC_ID         = "vpc_id"
 )
+
+const INPUT_SOURCE_DESCRIPTION = `
+Source: The source input variable is the path to the Terraform module for Layer0.
+By default, this points to the Layer0 github repository with the same version tag
+as this l0-setup binary. Using values other than the default may result in 
+undesired consequences. 
+`
+
+const INPUT_VERSION_DESCRIPTION = `
+Version: The version input variable blah blah blah
+blah blah blah
+`
+
+const INPUT_AWS_ACCESS_KEY_DESCRIPTION = `
+Version: The access_key input variable blah blah blah
+blah blah blah
+`
+
+const INPUT_AWS_SECRET_KEY_DESCRIPTION = `
+Version: The secret_key input variable blah blah blah
+blah blah blah
+`
+
+const INPUT_AWS_REGION_DESCRIPTION = `
+Version: The aws_region input variable blah blah blah
+blah blah blah
+`
+
+const INPUT_AWS_KEY_PAIR_DESCRIPTION = `
+Version: The key_pair input variable blah blah blah
+blah blah blah
+`
+
+const INPUT_VPC_ID_DESCRIPTION = `
+Version: The vpc_id input variable blah blah blah
+blah blah blah
+`
 
 type ModuleInput struct {
 	Name        string
+	Description string
 	Default     interface{}
 	StaticValue interface{}
-	// todo: add/display description
+	prompter    func(ModuleInput, interface{}) (interface{}, error)
 }
 
 // todo: set source version
 var MainModuleInputs = []ModuleInput{
 	{
-		Name:    INPUT_SOURCE,
-		Default: "github.com/quintilesims/layer0/setup/module",
+		Name:        INPUT_SOURCE,
+		Description: INPUT_SOURCE_DESCRIPTION,
+		Default:     "github.com/quintilesims/layer0/setup/module",
+		prompter:    DefaultStringPrompter,
 	},
 	{
-		Name:    INPUT_VERSION,
-		Default: "latest",
+		Name:        INPUT_VERSION,
+		Description: INPUT_VERSION_DESCRIPTION,
+		Default:     "latest",
+		prompter:    DefaultStringPrompter,
 	},
 	{
-		Name: INPUT_AWS_ACCESS_KEY,
+		Name:        INPUT_AWS_ACCESS_KEY,
+		Description: INPUT_AWS_ACCESS_KEY_DESCRIPTION,
+		prompter:    DefaultStringPrompter,
 	},
 	{
-		Name: INPUT_AWS_SECRET_KEY,
+		Name:        INPUT_AWS_SECRET_KEY,
+		Description: INPUT_AWS_SECRET_KEY_DESCRIPTION,
+		prompter:    DefaultStringPrompter,
 	},
 	{
-		Name:    INPUT_AWS_REGION,
-		Default: "us-west-2",
+		Name:        INPUT_AWS_REGION,
+		Description: INPUT_AWS_REGION_DESCRIPTION,
+		Default:     "us-west-2",
+		prompter:    DefaultStringPrompter,
 	},
 	{
-		Name: INPUT_AWS_KEY_PAIR,
+		Name:        INPUT_AWS_KEY_PAIR,
+		Description: INPUT_AWS_KEY_PAIR_DESCRIPTION,
+		prompter:    DefaultStringPrompter,
 	},
 	{
 		Name:        INPUT_DOCKERCFG,
 		StaticValue: "${file(\"dockercfg.json\")}",
 	},
+	{
+		Name:        INPUT_VPC_ID,
+		Description: INPUT_VPC_ID_DESCRIPTION,
+		prompter:    VPCPrompter,
+	},
 }
 
 func (m ModuleInput) Prompt(current interface{}) (interface{}, error) {
-	if m.StaticValue != nil {
-		logrus.Errorf("%s: attempted to prompt an input with a static value\n", m.Name)
-		return m.StaticValue, nil
-	}
-
-	if current != nil {
-		return m.prompt(current)
-	}
-
-	if m.Default != "" {
-		return m.prompt(m.Default)
-	}
-
-	return m.prompt(nil)
+	return m.prompter(m, current)
 }
 
-func (m ModuleInput) prompt(current interface{}) (interface{}, error) {
-	prompt := fmt.Sprintf("%s: ", m.Name)
-	if current != nil {
-		prompt = fmt.Sprintf("%s [%v]: ", m.Name, current)
-	}
+func DefaultStringPrompter(m ModuleInput, current interface{}) (interface{}, error) {
+	return prompt(m, current, func(currentOrDefault interface{}) (interface{}, error) {
+		for i := 0; i < 3; i++ {
+			fmt.Printf("\tInput: ")
 
-	for i := 0; i < 3; i++ {
-		fmt.Printf(prompt)
+			var input string
+			fmt.Scanln(&input)
+
+			// user pressed 'enter' with a value already in place
+			if input == "" && currentOrDefault != nil {
+				return currentOrDefault, nil
+			}
+
+			if input != "" {
+				return input, nil
+			}
+		}
+
+		return nil, fmt.Errorf("Failed to get input for '%s'", m.Name)
+	})
+}
+
+func VPCPrompter(m ModuleInput, current interface{}) (interface{}, error) {
+	return prompt(m, current, func(currentOrDefault interface{}) (interface{}, error) {
+		fmt.Printf("\tInput: ")
+
 		var input string
 		fmt.Scanln(&input)
 
-		if input == "" && current != nil {
-			return current, nil
+		// user pressed 'enter' with a value already in place
+		if input == "" && currentOrDefault != nil {
+			return currentOrDefault, nil
 		}
 
-		// todo: input may need to be converted to a different type
-		if input != "" {
-			return input, nil
-		}
+		// empty input is ok for vpc
+		return input, nil
+	})
+}
+
+func prompt(m ModuleInput, current interface{}, fn func(interface{}) (interface{}, error)) (interface{}, error) {
+	fmt.Println(m.Description)
+
+	var display string
+	var currentOrDefault interface{}
+	if current != nil {
+		display = fmt.Sprintf("[current: %v]\n", current)
+		display += "Please enter a new value, or press 'enter' to keep the current value."
+		currentOrDefault = current
+	} else if m.Default != nil {
+		display = fmt.Sprintf("[default: %v]\n", m.Default)
+		display += "Please enter a new value, or press 'enter' to use the default value."
+		currentOrDefault = m.Default
 	}
 
-	return nil, fmt.Errorf("Failed to get input for '%s'", m.Name)
+	fmt.Println(display)
+	return fn(currentOrDefault)
 }

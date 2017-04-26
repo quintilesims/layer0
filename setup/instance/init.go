@@ -2,6 +2,7 @@ package instance
 
 import (
 	"fmt"
+	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/setup/docker"
 	"github.com/quintilesims/layer0/setup/terraform"
 	"os"
@@ -106,6 +107,11 @@ func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
 	// if user didn't specify a dockercfg, create an empty one if it doesn't already exist
 	if dockerInputPath == "" {
 		if _, err := os.Stat(dockerOutputPath); os.IsNotExist(err) {
+			text := "No docker config specified. Please run "
+			text += fmt.Sprintf("`l0-setup init --docker-path=<path/to/config.json> %s` ", l.Name)
+			text += "if you would like to add private registry authentication."
+			logrus.Warningf(text)
+
 			return docker.WriteConfig(dockerOutputPath, docker.NewConfig())
 		}
 

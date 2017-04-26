@@ -15,8 +15,8 @@ func (f *CommandFactory) Init() cli.Command {
 		Usage: "initialize or reconfigure a layer0 instance",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:   "dockercfg-path",
-				Usage:  "path to docker config file",
+				Name:   "docker-path",
+				Usage:  "path to docker config.json file",
 				EnvVar: "LAYER0_DOCKERCFG_PATH",
 			},
 			cli.StringFlag{
@@ -79,10 +79,9 @@ func (f *CommandFactory) Init() cli.Command {
 				overrides[instance.INPUT_AWS_KEY_PAIR] = v
 			}
 
-			dockercfgPath := strings.Replace(c.String("dockercfg-path"), "~", homedir.Get(), -1)
-
+			dockerPath := strings.Replace(c.String("docker-path"), "~", homedir.Get(), -1)
 			instance := f.NewInstance(args["NAME"])
-			if err := instance.Init(dockercfgPath, overrides); err != nil {
+			if err := instance.Init(dockerPath, overrides); err != nil {
 				return err
 			}
 

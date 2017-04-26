@@ -40,6 +40,15 @@ func (this *StandardFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	return []byte(content), nil
 }
 
+type CLIFormatter struct {}
+
+func (c *CLIFormatter) Format(entry *logrus.Entry) ([]byte, error) {
+        level := strings.ToUpper(entry.Level.String())
+        content := fmt.Sprintf("[%-5s] %s\n", level, entry.Message)
+        return []byte(content), nil
+}
+
+
 type StackTraceFormatter struct {
 	*StandardFormatter
 }

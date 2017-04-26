@@ -10,7 +10,11 @@ func (f *CommandFactory) Apply() cli.Command {
 		Name:      "apply",
 		Usage:     "create and/or update resources for your layer0 instance",
 		ArgsUsage: "NAME",
-		Flags:     []cli.Flag{},
+		Flags: []cli.Flag{
+			cli.BoolTFlag{
+				Name: "wait",
+			},
+		},
 		Action: func(c *cli.Context) error {
 			args, err := extractArgs(c.Args(), "NAME")
 			if err != nil {
@@ -18,7 +22,7 @@ func (f *CommandFactory) Apply() cli.Command {
 			}
 
 			instance := f.NewInstance(args["NAME"])
-			if err := instance.Apply(); err != nil {
+			if err := instance.Apply(c.Bool("wait")); err != nil {
 				return err
 			}
 

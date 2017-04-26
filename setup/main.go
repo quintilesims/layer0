@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/setup/command"
 	"github.com/urfave/cli"
 	"os"
@@ -48,6 +49,10 @@ func main() {
 		default:
 			return fmt.Errorf("Unrecognized log level '%s'", level)
 		}
+
+		logger := logutils.NewStandardLogger("")
+		logger.Formatter = &logutils.CLIFormatter{}
+		logutils.SetGlobalLogger(logger)
 
 		return nil
 	}

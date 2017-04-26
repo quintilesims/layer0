@@ -7,12 +7,8 @@ import (
 	"time"
 )
 
-func (l *LocalInstance) Apply() error {
+func (l *LocalInstance) Apply(wait bool) error {
 	if err := l.assertExists(); err != nil {
-		return err
-	}
-
-	if err := l.validateInputs(); err != nil {
 		return err
 	}
 
@@ -25,10 +21,10 @@ func (l *LocalInstance) Apply() error {
 		return err
 	}
 
-	return l.waitForHealthyAPI(endpoint, time.Minute*10)
-}
+	if wait {
+		return l.waitForHealthyAPI(endpoint, time.Minute*10)
+	}
 
-func (l *LocalInstance) validateInputs() error {
 	return nil
 }
 
