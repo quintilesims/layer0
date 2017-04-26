@@ -432,21 +432,24 @@ It is <strong>not</strong> recommended for production environments.</p>
 <ol>
 <li>In a console window, add port 2222:22/tcp to your Service's load balancer:</li>
 </ol>
-<pre class="code"><code>l0 loadbalancer addport &lt;name&gt; 2222:22/tcp</code></pre>
+<div class="code"><pre><span></span>l0 loadbalancer addport &lt;name&gt; 2222:22/tcp
+</pre></div>
 
 
 <ol start="2">
   <li>SSH into your Service by supplying the load balancer url and key pair file name.</li>
 </ol>
 
-<pre class="code"><code>ssh -i &lt;key pair path and file name&gt; ec2-user@&lt;load balancer url&gt; -p 2222</code></pre>
+<div class="code"><pre><span></span>ssh -i &lt;key pair path and file name&gt; ec2-user@&lt;load balancer url&gt; -p 2222
+</pre></div>
 
 
 <ol start="3">
   <li>If required, Use Docker to access a specific container with Bash.</li>
 </ol>
 
-<pre class="code"><code>docker exec -it &lt;container id&gt; /bin/bash</code></pre>
+<div class="code"><pre><span></span>docker exec -it &lt;container id&gt; /bin/bash
+</pre></div>
 
 
 <h2 id="remarks">Remarks<a class="headerlink" href="#remarks" title="Permanent link">#</a></h2>

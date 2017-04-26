@@ -470,7 +470,7 @@
   <li class="command"><strong>terraform apply</strong></li>
 </ul></p>
 <p><em>To avoid entering these values manually each time you run terraform, you can set the terraform variables by editing the <code>terraform.tfvars</code> file.</em></p>
-<pre class="code"><code>var.access_key
+<div class="code"><pre><span></span>var.access_key
   Enter a value: [your AWS access key]
 
 var.endpoint
@@ -499,7 +499,8 @@ State path: terraform.tfstate
 
 Outputs:
 
-guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
+guestbook_url = &lt;http endpoint for the sample application&gt;
+</pre></div>
 
 
 <p><strong>It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.</strong></p>
