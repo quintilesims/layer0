@@ -464,7 +464,7 @@
   <li class="command"><code>terraform apply</code></li>
 </ul></p>
 <p><em>To avoid entering these values manually each time you run terraform, you can set the terraform variables by editing the <code>terraform.tfvars</code> file.</em></p>
-<pre class="code"><code>var.endpoint
+<div class="code"><pre><span></span>var.endpoint
   Enter a value: &lt;enter your Layer0 endpoint&gt;
 
 var.token
@@ -487,7 +487,8 @@ State path: terraform.tfstate
 
 Outputs:
 
-guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
+guestbook_url = &lt;http endpoint for the sample application&gt;
+</pre></div>
 
 
 <p><strong>It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.</strong></p>
@@ -611,13 +612,15 @@ guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1*  0/1</c
     </ul></li>
 </ul></p>
 <p>Initially, you will see an asterisk (*) next to the name of the <strong>guestbook-dep:1</strong> deploy; this indicates that the service is in a transitional state. In this phase, if you execute the <code>service get</code> command again, you will see the following output:</p>
-<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1*  0/1</code></pre>
+<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1*  0/1
+</pre></div>
 
 
 <p>In the next phase of the deployment, you will see <strong>(1)</strong> in the <strong>Scale</strong> column; this indicates that 1 copy of the service is transitioning to an active state. In this phase, if you execute the <code>service get</code> command again, you will see the following output:</p>
-<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1   1/1</code></pre>
+<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbodb65a  guestbook-dep:1   1/1
+</pre></div>
 
 
 <h3 id="get-the-application-url">Get the application URL<a class="headerlink" href="#get-the-application-url" title="Permanent link">#</a></h3>

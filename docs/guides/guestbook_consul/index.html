@@ -493,7 +493,7 @@ definition</a> and save it to your computer as Redis.dockerrun.aws.json.</li>
       <li class="command"> <strong>l0 service create demo redis redis:latest</strong></li>
     </ul><br />
     When you execute this command, the <a href="../../reference/consul/#registrator">Registrator</a> service will read the environment variables for the l0-demo-redis container. These variables include the following:</p>
-<pre class="code"><code>&quot;environment&quot;: [
+<div class="code"><pre><span></span>&quot;environment&quot;: [
     {
         &quot;name&quot;: &quot;SERVICE_NAME&quot;,
         &quot;value&quot;: &quot;db&quot;
@@ -502,7 +502,8 @@ definition</a> and save it to your computer as Redis.dockerrun.aws.json.</li>
         &quot;name&quot;: &quot;SERVICE_TAGS&quot;,
         &quot;value&quot;: &quot;guestbook&quot;
     },
-    ...</code></pre>
+    ...
+</pre></div>
 
 
 <p><br />After reading these variables, Registrator will register a service named <strong>db</strong> into your environment's Consul service.

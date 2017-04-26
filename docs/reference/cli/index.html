@@ -561,7 +561,7 @@ If a <code>logConfiguration</code> section already exists, no changes are made t
 The additional section enables logs from each container to be sent to the the Layer0 log group.
 This is where logs are looked up during <code>l0 &lt;entity&gt; logs</code> commands.
 The added <code>logConfiguration</code> section uses the following template:</p>
-<pre class="code"><code>&quot;logConfiguration&quot;: {
+<div class="code"><pre><span></span>&quot;logConfiguration&quot;: {
     &quot;logDriver&quot;: &quot;awslogs&quot;,
         &quot;options&quot;: {
             &quot;awslogs-group&quot;: &quot;l0-&lt;prefix&gt;&quot;,
@@ -569,7 +569,8 @@ The added <code>logConfiguration</code> section uses the following template:</p>
             &quot;awslogs-stream-prefix&quot;: &quot;l0&quot;
         }
     }
-}</code></pre>
+}
+</pre></div>
 
 
 <p></div>
@@ -668,75 +669,85 @@ Currently, two variables are passed into the template: <strong>ECSEnvironmentID<
 Please review the <a href="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html">ECS Tutorial</a>
 to better understand how to write a user data template, and use at your own risk!</p>
 <p><strong>Linux Environments</strong>: The default Layer0 user data template is:</p>
-<pre class="code"><code class="language-bash linenums">#!/bin/bash
-echo ECS_CLUSTER={{ .ECSEnvironmentID }} &gt;&gt; /etc/ecs/ecs.config
-echo ECS_ENGINE_AUTH_TYPE=dockercfg &gt;&gt; /etc/ecs/ecs.config
+<table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="code"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="nb">echo</span> <span class="nv">ECS_CLUSTER</span><span class="o">={{</span> .ECSEnvironmentID <span class="o">}}</span> &gt;&gt; /etc/ecs/ecs.config
+<span class="nb">echo</span> <span class="nv">ECS_ENGINE_AUTH_TYPE</span><span class="o">=</span>dockercfg &gt;&gt; /etc/ecs/ecs.config
 yum install -y aws-cli awslogs jq
-aws s3 cp s3://{{ .S3Bucket }}/bootstrap/dockercfg dockercfg
-cfg=$(cat dockercfg)
-echo ECS_ENGINE_AUTH_DATA=$cfg &gt;&gt; /etc/ecs/ecs.config
+aws s3 cp s3://<span class="o">{{</span> .S3Bucket <span class="o">}}</span>/bootstrap/dockercfg dockercfg
+<span class="nv">cfg</span><span class="o">=</span><span class="k">$(</span>cat dockercfg<span class="k">)</span>
+<span class="nb">echo</span> <span class="nv">ECS_ENGINE_AUTH_DATA</span><span class="o">=</span><span class="nv">$cfg</span> &gt;&gt; /etc/ecs/ecs.config
 docker pull amazon/amazon-ecs-agent:latest
-start ecs</code></pre>
-
+start ecs
+</pre></div>
+</td></tr></table>
 
 <p><strong>Windows Environments</strong>: The default Layer0 user data template is:</p>
-<pre class="code"><code>&lt;powershell&gt;
-# Set agent env variables for the Machine context (durable)
-$clusterName = &quot;{{ .ECSEnvironmentID }}&quot;
-Write-Host Cluster name set as: $clusterName -foreground green
+<div class="code"><pre><span></span><span class="x">&lt;powershell&gt;</span>
+<span class="x"># Set agent env variables for the Machine context (durable)</span>
+<span class="x">$clusterName = &quot;</span><span class="cp">{{</span> <span class="nv">.ECSEnvironmentID</span> <span class="cp">}}</span><span class="x">&quot;</span>
+<span class="x">Write-Host Cluster name set as: $clusterName -foreground green</span>
 
-[Environment]::SetEnvironmentVariable(&quot;ECS_CLUSTER&quot;, $clusterName, &quot;Machine&quot;)
-[Environment]::SetEnvironmentVariable(&quot;ECS_ENABLE_TASK_IAM_ROLE&quot;, &quot;false&quot;, &quot;Machine&quot;)
-$agentVersion = 'v1.14.0-1.windows.1'
-$agentZipUri = &quot;https://s3.amazonaws.com/amazon-ecs-agent/ecs-agent-windows-$agentVersion.zip&quot;
-$agentZipMD5Uri = &quot;$agentZipUri.md5&quot;
+<span class="x">[Environment]::SetEnvironmentVariable(&quot;ECS_CLUSTER&quot;, $clusterName, &quot;Machine&quot;)</span>
+<span class="x">[Environment]::SetEnvironmentVariable(&quot;ECS_ENABLE_TASK_IAM_ROLE&quot;, &quot;false&quot;, &quot;Machine&quot;)</span>
+<span class="x">$agentVersion = &#39;v1.14.0-1.windows.1&#39;</span>
+<span class="x">$agentZipUri = &quot;https://s3.amazonaws.com/amazon-ecs-agent/ecs-agent-windows-$agentVersion.zip&quot;</span>
+<span class="x">$agentZipMD5Uri = &quot;$agentZipUri.md5&quot;</span>
 
-# Configure docker auth
-Read-S3Object -BucketName {{ .S3Bucket }} -Key bootstrap/dockercfg -File dockercfg.json
-$dockercfgContent = [IO.File]::ReadAllText(&quot;dockercfg.json&quot;)
-[Environment]::SetEnvironmentVariable(&quot;ECS_ENGINE_AUTH_DATA&quot;, $dockercfgContent, &quot;Machine&quot;)
-[Environment]::SetEnvironmentVariable(&quot;ECS_ENGINE_AUTH_TYPE&quot;, &quot;dockercfg&quot;, &quot;Machine&quot;)
+<span class="x"># Configure docker auth</span>
+<span class="x">Read-S3Object -BucketName </span><span class="cp">{{</span> <span class="nv">.S3Bucket</span> <span class="cp">}}</span><span class="x"> -Key bootstrap/dockercfg -File dockercfg.json</span>
+<span class="x">$dockercfgContent = [IO.File]::ReadAllText(&quot;dockercfg.json&quot;)</span>
+<span class="x">[Environment]::SetEnvironmentVariable(&quot;ECS_ENGINE_AUTH_DATA&quot;, $dockercfgContent, &quot;Machine&quot;)</span>
+<span class="x">[Environment]::SetEnvironmentVariable(&quot;ECS_ENGINE_AUTH_TYPE&quot;, &quot;dockercfg&quot;, &quot;Machine&quot;)</span>
 
-### --- Nothing user configurable after this point ---
-$ecsExeDir = &quot;$env:ProgramFiles\Amazon\ECS&quot;
-$zipFile = &quot;$env:TEMP\ecs-agent.zip&quot;
-$md5File = &quot;$env:TEMP\ecs-agent.zip.md5&quot;
+<span class="x">### --- Nothing user configurable after this point ---</span>
+<span class="x">$ecsExeDir = &quot;$env:ProgramFiles\Amazon\ECS&quot;</span>
+<span class="x">$zipFile = &quot;$env:TEMP\ecs-agent.zip&quot;</span>
+<span class="x">$md5File = &quot;$env:TEMP\ecs-agent.zip.md5&quot;</span>
 
-### Get the files from S3
-Invoke-RestMethod -OutFile $zipFile -Uri $agentZipUri
-Invoke-RestMethod -OutFile $md5File -Uri $agentZipMD5Uri
+<span class="x">### Get the files from S3</span>
+<span class="x">Invoke-RestMethod -OutFile $zipFile -Uri $agentZipUri</span>
+<span class="x">Invoke-RestMethod -OutFile $md5File -Uri $agentZipMD5Uri</span>
 
-## MD5 Checksum
-$expectedMD5 = (Get-Content $md5File)
-$md5 = New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
-$actualMD5 = [System.BitConverter]::ToString($md5.ComputeHash([System.IO.File]::ReadAllBytes($zipFile))).replace('-', '')
-if($expectedMD5 -ne $actualMD5) {
-    echo &quot;Download doesn't match hash.&quot;
-    echo &quot;Expected: $expectedMD5 - Got: $actualMD5&quot;
-    exit 1
-}
+<span class="x">## MD5 Checksum</span>
+<span class="x">$expectedMD5 = (Get-Content $md5File)</span>
+<span class="x">$md5 = New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider</span>
+<span class="x">$actualMD5 = [System.BitConverter]::ToString($md5.ComputeHash([System.IO.File]::ReadAllBytes($zipFile))).replace(&#39;-&#39;, &#39;&#39;)</span>
+<span class="x">if($expectedMD5 -ne $actualMD5) {</span>
+<span class="x">    echo &quot;Download doesn&#39;t match hash.&quot;</span>
+<span class="x">    echo &quot;Expected: $expectedMD5 - Got: $actualMD5&quot;</span>
+<span class="x">    exit 1</span>
+<span class="x">}</span>
 
-## Put the executables in the executable directory.
-Expand-Archive -Path $zipFile -DestinationPath $ecsExeDir -Force
+<span class="x">## Put the executables in the executable directory.</span>
+<span class="x">Expand-Archive -Path $zipFile -DestinationPath $ecsExeDir -Force</span>
 
-## Start the agent script in the background.
-$jobname = &quot;ECS-Agent-Init&quot;
-$script =  &quot;cd '$ecsExeDir'; .\amazon-ecs-agent.ps1&quot;
-$repeat = (New-TimeSpan -Minutes 1)
-$jobpath = $env:LOCALAPPDATA + &quot;\Microsoft\Windows\PowerShell\ScheduledJobs\$jobname\ScheduledJobDefinition.xml&quot;
+<span class="x">## Start the agent script in the background.</span>
+<span class="x">$jobname = &quot;ECS-Agent-Init&quot;</span>
+<span class="x">$script =  &quot;cd &#39;$ecsExeDir&#39;; .\amazon-ecs-agent.ps1&quot;</span>
+<span class="x">$repeat = (New-TimeSpan -Minutes 1)</span>
+<span class="x">$jobpath = $env:LOCALAPPDATA + &quot;\Microsoft\Windows\PowerShell\ScheduledJobs\$jobname\ScheduledJobDefinition.xml&quot;</span>
 
-if($(Test-Path -Path $jobpath)) {
-  echo &quot;Job definition already present&quot;
-  exit 0
-}
+<span class="x">if($(Test-Path -Path $jobpath)) {</span>
+<span class="x">  echo &quot;Job definition already present&quot;</span>
+<span class="x">  exit 0</span>
+<span class="x">}</span>
 
-$scriptblock = [scriptblock]::Create(&quot;$script&quot;)
-$trigger = New-JobTrigger -At (Get-Date).Date -RepeatIndefinitely -RepetitionInterval $repeat -Once
-$options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery
-Register-ScheduledJob -Name $jobname -ScriptBlock $scriptblock -Trigger $trigger -ScheduledJobOption $options -RunNow
-Add-JobTrigger -Name $jobname -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:1:00)
-&lt;/powershell&gt;
-&lt;persist&gt;true&lt;/persist&gt;</code></pre>
+<span class="x">$scriptblock = [scriptblock]::Create(&quot;$script&quot;)</span>
+<span class="x">$trigger = New-JobTrigger -At (Get-Date).Date -RepeatIndefinitely -RepetitionInterval $repeat -Once</span>
+<span class="x">$options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery</span>
+<span class="x">Register-ScheduledJob -Name $jobname -ScriptBlock $scriptblock -Trigger $trigger -ScheduledJobOption $options -RunNow</span>
+<span class="x">Add-JobTrigger -Name $jobname -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:1:00)</span>
+<span class="x">&lt;/powershell&gt;</span>
+<span class="x">&lt;persist&gt;true&lt;/persist&gt;</span>
+</pre></div>
 
 
 <div class="admonition note">
