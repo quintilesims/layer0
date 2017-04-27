@@ -44,7 +44,7 @@ func (f *CommandFactory) Endpoint() cli.Command {
 				outputEnvvars[instance.OUTPUT_PRIVATE_SUBNETS] = config.AWS_PRIVATE_SUBNETS
 				outputEnvvars[instance.OUTPUT_PUBLIC_SUBNETS] = config.AWS_PUBLIC_SUBNETS
 				outputEnvvars[instance.OUTPUT_ECS_ROLE] = config.AWS_ECS_ROLE
-				outputEnvvars[instance.OUTPUT_KEY_PAIR] = config.AWS_KEY_PAIR
+				outputEnvvars[instance.OUTPUT_SSH_KEY_PAIR] = config.AWS_SSH_KEY_PAIR
 				outputEnvvars[instance.OUTPUT_S3_BUCKET] = config.AWS_S3_BUCKET
 				outputEnvvars[instance.OUTPUT_ECS_AGENT_SECURITY_GROUP_ID] = config.AWS_ECS_AGENT_SECURITY_GROUP_ID
 				outputEnvvars[instance.OUTPUT_ECS_INSTANCE_PROFILE] = config.AWS_ECS_INSTANCE_PROFILE

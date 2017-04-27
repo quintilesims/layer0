@@ -45,9 +45,9 @@ func (f *CommandFactory) Init() cli.Command {
 				EnvVar: config.AWS_REGION,
 			},
 			cli.StringFlag{
-				Name:   "aws-key-pair",
-				Usage:  "AWS key pair",
-				EnvVar: config.AWS_KEY_PAIR,
+				Name:   "aws-ssh-key-pair",
+				Usage:  "AWS ssh key pair",
+				EnvVar: config.AWS_SSH_KEY_PAIR,
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -75,8 +75,8 @@ func (f *CommandFactory) Init() cli.Command {
 				overrides[instance.INPUT_AWS_REGION] = v
 			}
 
-			if v := c.String("aws-key-pair"); v != "" {
-				overrides[instance.INPUT_AWS_KEY_PAIR] = v
+			if v := c.String("aws-ssh-key-pair"); v != "" {
+				overrides[instance.INPUT_AWS_SSH_KEY_PAIR] = v
 			}
 
 			dockerPath := strings.Replace(c.String("docker-path"), "~", homedir.Get(), -1)

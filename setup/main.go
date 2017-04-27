@@ -57,7 +57,7 @@ func main() {
 		logger.Formatter = &logutils.CLIFormatter{}
 		logutils.SetGlobalLogger(logger)
 
-		instance.InitializeMainModuleInputs(Version)
+		instance.InitializeLayer0ModuleInputs(Version)
 
 		return nil
 	}

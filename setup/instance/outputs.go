@@ -16,7 +16,7 @@ const (
 	OUTPUT_PRIVATE_SUBNETS             = "private_subnets"
 	OUTPUT_PUBLIC_SUBNETS              = "public_subnets"
 	OUTPUT_ECS_ROLE                    = "ecs_role"
-	OUTPUT_KEY_PAIR                    = "key_pair"
+	OUTPUT_SSH_KEY_PAIR                = "ssh_key_pair"
 	OUTPUT_ECS_AGENT_SECURITY_GROUP_ID = "ecs_agent_security_group_id"
 	OUTPUT_ECS_INSTANCE_PROFILE        = "ecs_agent_instance_profile"
 	OUTPUT_AWS_LINUX_SERVICE_AMI       = "linux_service_ami"
@@ -24,7 +24,7 @@ const (
 )
 
 // todo: fill these out
-var MainModuleOutputs = map[string]terraform.Output{
+var Layer0ModuleOutputs = map[string]terraform.Output{
 	OUTPUT_NAME:                        {Value: "${module.main.name}"},
 	OUTPUT_ENDPOINT:                    {Value: "TODO!"},
 	OUTPUT_TOKEN:                       {Value: "TODO!"},
@@ -36,7 +36,7 @@ var MainModuleOutputs = map[string]terraform.Output{
 	OUTPUT_PRIVATE_SUBNETS:             {Value: "TODO!"},
 	OUTPUT_PUBLIC_SUBNETS:              {Value: "TODO!"},
 	OUTPUT_ECS_ROLE:                    {Value: "TODO!"},
-	OUTPUT_KEY_PAIR:                    {Value: "TODO!"},
+	OUTPUT_SSH_KEY_PAIR:                {Value: "TODO!"},
 	OUTPUT_ECS_AGENT_SECURITY_GROUP_ID: {Value: "TODO!"},
 	OUTPUT_ECS_INSTANCE_PROFILE:        {Value: "TODO!"},
 	OUTPUT_AWS_LINUX_SERVICE_AMI:       {Value: "TODO!"},

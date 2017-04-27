@@ -14,13 +14,13 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 	}
 
 	// load terraform config from ~/.layer0/<instance>/main.tf.json, or create a new one
-	config, err := l.loadMainConfig()
+	config, err := l.loadLayer0Config()
 	if err != nil {
 		return err
 	}
 
 	// add/update the inputs of the terraform config
-	if err := l.setMainModuleInputs(config, inputOverrides); err != nil {
+	if err := l.setLayer0ModuleInputs(config, inputOverrides); err != nil {
 		return err
 	}
 
@@ -32,7 +32,7 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 
 	// create/write ~/.layer0/<instance>/outputs.tf.json
 	output := &terraform.Config{
-		Outputs: MainModuleOutputs,
+		Outputs: Layer0ModuleOutputs,
 	}
 
 	outPath := fmt.Sprintf("%s/outputs.tf.json", l.Dir)
@@ -58,7 +58,7 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 	return nil
 }
 
-func (l *LocalInstance) loadMainConfig() (*terraform.Config, error) {
+func (l *LocalInstance) loadLayer0Config() (*terraform.Config, error) {
 	path := fmt.Sprintf("%s/main.tf.json", l.Dir)
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		return terraform.LoadConfig(path)
@@ -67,14 +67,14 @@ func (l *LocalInstance) loadMainConfig() (*terraform.Config, error) {
 	return terraform.NewConfig(), nil
 }
 
-func (l *LocalInstance) setMainModuleInputs(config *terraform.Config, inputOverrides map[string]interface{}) error {
-	// create the 'main' module if it doesn't already exist
-	if _, ok := config.Modules["main"]; !ok {
-		config.Modules["main"] = terraform.Module{}
+func (l *LocalInstance) setLayer0ModuleInputs(config *terraform.Config, inputOverrides map[string]interface{}) error {
+	// create the 'layer0' module if it doesn't already exist
+	if _, ok := config.Modules["layer0"]; !ok {
+		config.Modules["layer0"] = terraform.Module{}
 	}
 
-	module := config.Modules["main"]
-	for _, input := range MainModuleInputs {
+	module := config.Modules["layer0"]
+	for _, input := range Layer0ModuleInputs {
 		// if the input has a static value, it should always be set as the static value
 		if input.StaticValue != nil {
 			module[input.Name] = input.StaticValue

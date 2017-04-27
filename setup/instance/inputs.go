@@ -6,14 +6,14 @@ import (
 )
 
 const (
-	INPUT_SOURCE         = "source"
-	INPUT_AWS_ACCESS_KEY = "aws_access_key"
-	INPUT_AWS_SECRET_KEY = "aws_secret_key"
-	INPUT_AWS_REGION     = "aws_region"
-	INPUT_AWS_KEY_PAIR   = "aws_key_pair"
-	INPUT_VERSION        = "version"
-	INPUT_DOCKERCFG      = "dockercfg"
-	INPUT_VPC_ID         = "vpc_id"
+	INPUT_SOURCE           = "source"
+	INPUT_AWS_ACCESS_KEY   = "aws_access_key"
+	INPUT_AWS_SECRET_KEY   = "aws_secret_key"
+	INPUT_AWS_REGION       = "aws_region"
+	INPUT_AWS_SSH_KEY_PAIR = "aws_ssh_key_pair"
+	INPUT_VERSION          = "version"
+	INPUT_DOCKERCFG        = "dockercfg"
+	INPUT_VPC_ID           = "vpc_id"
 )
 
 const INPUT_SOURCE_DESCRIPTION = `
@@ -24,8 +24,11 @@ undesired consequences.
 `
 
 const INPUT_VERSION_DESCRIPTION = `
-Version: The version input variable blah blah blah
-blah blah blah
+Version: The version input variable specifies the tag to use for the Layer0 
+Docker images 'quintilesims/l0-api' and 'quintilesims/l0-runner'. This value
+should match the version specified in the 'source' input variable. For example,
+if the source is 'github.com/quintilesims/layer0/setup?ref=v1.2.3', the 
+version should be 'v1.2.3'.
 `
 
 const INPUT_AWS_ACCESS_KEY_DESCRIPTION = `
@@ -51,14 +54,23 @@ AWS resources required for Layer0. Note that changing this value will destroy an
 recreate any existing resources.
 `
 
-const INPUT_AWS_KEY_PAIR_DESCRIPTION = `
-Version: The key_pair input variable blah blah blah
-blah blah blah
+const INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION = `
+AWS SSH Key Pair: The aws_ssh_key_pair input variable specifies the name of the 
+ssh key pair to include in EC2 instances provisioned by Layer0. This key pair must 
+already exist in the AWS account. The names of existing key pairs can be found
+in the EC2 dashboard. Note that changing this value will not effect instances 
+that have already been provisioned. 
 `
 
 const INPUT_VPC_ID_DESCRIPTION = `
-Version: The vpc_id input variable blah blah blah
-blah blah blah
+VPC ID (optional): The vpc_id input variable specifies an existing AWS VPC to provision
+the AWS resources required for Layer0. If no input is specified, a new VPC will be
+created for you. Existing VPCs must satisfy the following constraints:
+
+    - CIDR something something
+    - Subets something something
+
+Note that changing this value will destroy and recreate any existing resources.
 `
 
 type ModuleInput struct {
@@ -69,16 +81,16 @@ type ModuleInput struct {
 	prompter    func(ModuleInput, interface{}) (interface{}, error)
 }
 
-func InitializeMainModuleInputs(version string) {
+func InitializeLayer0ModuleInputs(version string) {
 	if version == "" {
 		logrus.Warningf("Version not set. Using default values for 'source' and 'version' inputs")
 		return
 	}
 
-	for _, input := range MainModuleInputs {
+	for _, input := range Layer0ModuleInputs {
 		switch input.Name {
 		case INPUT_SOURCE:
-			input.Default = fmt.Sprintf("github.com/quintilesims/layer0/setup/module?ref=%s", version)
+			input.Default = fmt.Sprintf("github.com/quintilesims/layer0/setup//layer0?ref=%s", version)
 		case INPUT_VERSION:
 			input.Default = version
 		}
@@ -86,11 +98,11 @@ func InitializeMainModuleInputs(version string) {
 }
 
 // todo: set source version
-var MainModuleInputs = []*ModuleInput{
+var Layer0ModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_SOURCE,
 		Description: INPUT_SOURCE_DESCRIPTION,
-		Default:     "github.com/quintilesims/layer0/setup/module?ref=master",
+		Default:     "github.com/quintilesims/layer0/setup//layer0?ref=master",
 		prompter:    DefaultStringPrompter,
 	},
 	{
@@ -116,8 +128,8 @@ var MainModuleInputs = []*ModuleInput{
 		prompter:    DefaultStringPrompter,
 	},
 	{
-		Name:        INPUT_AWS_KEY_PAIR,
-		Description: INPUT_AWS_KEY_PAIR_DESCRIPTION,
+		Name:        INPUT_AWS_SSH_KEY_PAIR,
+		Description: INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION,
 		prompter:    DefaultStringPrompter,
 	},
 	{
@@ -187,6 +199,9 @@ func prompt(m ModuleInput, current interface{}, fn func(interface{}) (interface{
 		display = fmt.Sprintf("[default: %v]\n", m.Default)
 		display += "Please enter a new value, or press 'enter' to use the default value."
 		currentOrDefault = m.Default
+	} else {
+		display = fmt.Sprintf("[current: <none>]\n")
+		display += "Please enter a new value, or press 'enter' to keep the current value."
 	}
 
 	fmt.Println(display)
