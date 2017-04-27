@@ -7,10 +7,10 @@ import (
 
 const (
 	INPUT_SOURCE           = "source"
-	INPUT_AWS_ACCESS_KEY   = "aws_access_key"
-	INPUT_AWS_SECRET_KEY   = "aws_secret_key"
-	INPUT_AWS_REGION       = "aws_region"
-	INPUT_AWS_SSH_KEY_PAIR = "aws_ssh_key_pair"
+	INPUT_AWS_ACCESS_KEY   = "access_key"
+	INPUT_AWS_SECRET_KEY   = "secret_key"
+	INPUT_AWS_REGION       = "region"
+	INPUT_AWS_SSH_KEY_PAIR = "ssh_key_pair"
 	INPUT_VERSION          = "version"
 	INPUT_DOCKERCFG        = "dockercfg"
 	INPUT_VPC_ID           = "vpc_id"
@@ -32,7 +32,7 @@ version should be 'v1.2.3'.
 `
 
 const INPUT_AWS_ACCESS_KEY_DESCRIPTION = `
-AWS Access Key: The aws_access_key input variable is used to provision the AWS resources
+AWS Access Key: The access_key input variable is used to provision the AWS resources
 required for Layer0. This corresponds to the Access Key ID portion of an AWS Access Key.
 It is recommended this key has the 'AdministratorAccess' policy. Note that Layer0 will
 only use this key for 'l0-setup' commands associated with this Layer0 instance; the
@@ -41,7 +41,7 @@ Layer0 API will use its own key with limited permissions to provision AWS resour
 
 const INPUT_AWS_SECRET_KEY_DESCRIPTION = `
 
-AWS Secret Key: The aws_secret_key input variable is used to provision the AWS resources
+AWS Secret Key: The secret_key input variable is used to provision the AWS resources
 required for Layer0. This corresponds to the Secret Access Key portion of an AWS Access Key.
 It is recommended this key has the 'AdministratorAccess' policy. Note that Layer0 will
 only use this key for 'l0-setup' commands associated with this Layer0 instance; the
@@ -49,13 +49,13 @@ Layer0 API will use its own key with limited permissions to provision AWS resour
 `
 
 const INPUT_AWS_REGION_DESCRIPTION = `
-AWS Region: The aws_region input variable specifies which region to provision the
+AWS Region: The region input variable specifies which region to provision the
 AWS resources required for Layer0. Note that changing this value will destroy and 
 recreate any existing resources.
 `
 
 const INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION = `
-AWS SSH Key Pair: The aws_ssh_key_pair input variable specifies the name of the 
+AWS SSH Key Pair: The ssh_key_pair input variable specifies the name of the 
 ssh key pair to include in EC2 instances provisioned by Layer0. This key pair must 
 already exist in the AWS account. The names of existing key pairs can be found
 in the EC2 dashboard. Note that changing this value will not effect instances 

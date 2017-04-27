@@ -25,7 +25,7 @@ const (
 
 // todo: fill these out
 var Layer0ModuleOutputs = map[string]terraform.Output{
-	OUTPUT_NAME:                        {Value: "${module.main.name}"},
+	OUTPUT_NAME:                        {Value: "${module.layer0.name}"},
 	OUTPUT_ENDPOINT:                    {Value: "TODO!"},
 	OUTPUT_TOKEN:                       {Value: "TODO!"},
 	OUTPUT_S3_BUCKET:                   {Value: "TODO!"},

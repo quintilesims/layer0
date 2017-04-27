@@ -1,32 +1,19 @@
-variable "name" {
-  description = "Name of your Layer0 instance"
-}
+# todo: descriptions
 
-variable "version" {
-  description = "Version of the Layer0 API and Runner"
-}
+variable "name" {}
 
-variable "aws_access_key" {
-  description = "AWS access key"
-}
+variable "version" {}
 
-variable "aws_secret_key" {
-  description = "AWS secret access key"
-}
+variable "access_key" {}
 
-variable "aws_region" {
-  description = "AWS region"
-}
+variable "secret_key" {}
 
-variable "aws_key_pair" {
-   description = "AWS key pair"
-}
+variable "region" {}
 
-variable "dockercfg" {
-   description = "todo"
-}
+variable "ssh_key_pair" {}
+
+variable "dockercfg" {}
 
 variable "vpc_id" {
-   description = "todo"
+  description = "optional - use an empty string to provision a new vpc"
 }
-
