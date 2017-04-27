@@ -6,10 +6,13 @@ import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/setup/command"
+	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 	"os"
 	"strings"
 )
+
+var Version string
 
 func main() {
 	app := cli.NewApp()
@@ -53,6 +56,8 @@ func main() {
 		logger := logutils.NewStandardLogger("")
 		logger.Formatter = &logutils.CLIFormatter{}
 		logutils.SetGlobalLogger(logger)
+
+		instance.InitializeMainModuleInputs(Version)
 
 		return nil
 	}

@@ -83,6 +83,7 @@ func (l *LocalInstance) setMainModuleInputs(config *terraform.Config, inputOverr
 
 		// if the user specified the input with a cli flag, use it
 		if v, ok := inputOverrides[input.Name]; ok {
+			logrus.Infof("Using cli flag/environment variable for %s", input.Name)
 			module[input.Name] = v
 			continue
 		}

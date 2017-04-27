@@ -2,6 +2,7 @@ package instance
 
 import (
 	"fmt"
+	"github.com/Sirupsen/logrus"
 )
 
 const (
@@ -28,18 +29,26 @@ blah blah blah
 `
 
 const INPUT_AWS_ACCESS_KEY_DESCRIPTION = `
-Version: The access_key input variable blah blah blah
-blah blah blah
+AWS Access Key: The aws_access_key input variable is used to provision the AWS resources
+required for Layer0. This corresponds to the Access Key ID portion of an AWS Access Key.
+It is recommended this key has the 'AdministratorAccess' policy. Note that Layer0 will
+only use this key for 'l0-setup' commands associated with this Layer0 instance; the
+Layer0 API will use its own key with limited permissions to provision AWS resources. 
 `
 
 const INPUT_AWS_SECRET_KEY_DESCRIPTION = `
-Version: The secret_key input variable blah blah blah
-blah blah blah
+
+AWS Secret Key: The aws_secret_key input variable is used to provision the AWS resources
+required for Layer0. This corresponds to the Secret Access Key portion of an AWS Access Key.
+It is recommended this key has the 'AdministratorAccess' policy. Note that Layer0 will
+only use this key for 'l0-setup' commands associated with this Layer0 instance; the
+Layer0 API will use its own key with limited permissions to provision AWS resources. 
 `
 
 const INPUT_AWS_REGION_DESCRIPTION = `
-Version: The aws_region input variable blah blah blah
-blah blah blah
+AWS Region: The aws_region input variable specifies which region to provision the
+AWS resources required for Layer0. Note that changing this value will destroy and 
+recreate any existing resources.
 `
 
 const INPUT_AWS_KEY_PAIR_DESCRIPTION = `
@@ -60,12 +69,28 @@ type ModuleInput struct {
 	prompter    func(ModuleInput, interface{}) (interface{}, error)
 }
 
+func InitializeMainModuleInputs(version string) {
+	if version == "" {
+		logrus.Warningf("Version not set. Using default values for 'source' and 'version' inputs")
+		return
+	}
+
+	for _, input := range MainModuleInputs {
+		switch input.Name {
+		case INPUT_SOURCE:
+			input.Default = fmt.Sprintf("github.com/quintilesims/layer0/setup/module?ref=%s", version)
+		case INPUT_VERSION:
+			input.Default = version
+		}
+	}
+}
+
 // todo: set source version
-var MainModuleInputs = []ModuleInput{
+var MainModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_SOURCE,
 		Description: INPUT_SOURCE_DESCRIPTION,
-		Default:     "github.com/quintilesims/layer0/setup/module",
+		Default:     "github.com/quintilesims/layer0/setup/module?ref=master",
 		prompter:    DefaultStringPrompter,
 	},
 	{
