@@ -9,7 +9,7 @@ module "vpc" {
 
   source             = "./vpc"
   name               = "l0-${var.name}"
-  cidr               = "10.100.0.0/16"
+  cidr               = "10.0.0.0/16"
   private_subnets    = ["10.0.1.0/24", "10.0.2.0/24", "10.0.3.0/24"]
   public_subnets     = ["10.0.101.0/24", "10.0.102.0/24", "10.0.103.0/24"]
   azs                = ["${var.region}a", "${var.region}b", "${var.region}c"]
@@ -21,18 +21,21 @@ module "vpc" {
 }
 
 module "core" {
-  source = "./core"
-  name = "${var.name}"
-  region = "${var.region}"
+  source    = "./core"
+  name      = "${var.name}"
+  region    = "${var.region}"
   dockercfg = "${var.dockercfg}"
 }
 
 module "api" {
-  source  = "./api"
-  name    = "${var.name}"
-  version = "${var.version}"
-  vpc_id  = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id }"
-  bucket_name = "${module.core.bucket_name}"
+  source           = "./api"
+  name             = "${var.name}"
+  region           = "${var.region}"
+  version          = "${var.version}"
+  vpc_id           = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id }"
+  bucket_name      = "${module.core.bucket_name}"
+  ssh_key_pair     = "${var.ssh_key_pair}"
+  instance_profile = "${module.core.instance_profile}"
 
   tags {
     "layer0" = "${var.name}"

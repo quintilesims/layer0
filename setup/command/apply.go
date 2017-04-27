@@ -11,8 +11,8 @@ func (f *CommandFactory) Apply() cli.Command {
 		Usage:     "create and/or update resources for your layer0 instance",
 		ArgsUsage: "NAME",
 		Flags: []cli.Flag{
-			cli.BoolTFlag{
-				Name: "wait",
+			cli.BoolFlag{
+				Name: "quick",
 			},
 		},
 		Action: func(c *cli.Context) error {
@@ -22,7 +22,7 @@ func (f *CommandFactory) Apply() cli.Command {
 			}
 
 			instance := f.NewInstance(args["NAME"])
-			if err := instance.Apply(c.Bool("wait")); err != nil {
+			if err := instance.Apply(!c.Bool("quick")); err != nil {
 				return err
 			}
 

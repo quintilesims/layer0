@@ -69,6 +69,7 @@ created for you. Existing VPCs must satisfy the following constraints:
 
     - CIDR something something
     - Subets something something
+    - Subnets tagged with "Tier" = "Private" or "Public"
 
 Note that changing this value will destroy and recreate any existing resources.
 `

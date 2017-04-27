@@ -11,3 +11,19 @@ resource "aws_s3_bucket_object" "dockercfg" {
   key     = "bootstrap/dockercfg"
   content = "${var.dockercfg}"
 }
+
+resource "aws_iam_instance_profile" "core" {
+  name = "l0-${var.name}"
+  path = "/l0/l0-${var.name}/"
+  role = "${aws_iam_role.core.name}"
+}
+
+data "template_file" "assume_role_policy" {
+  template = "${file("${path.module}/policies/assume_role_policy.json")}"
+}
+
+resource "aws_iam_role" "core" {
+  name               = "l0-${var.name}"
+  path               = "/l0/l0-${var.name}/"
+  assume_role_policy = "${data.template_file.assume_role_policy.rendered}"
+}
