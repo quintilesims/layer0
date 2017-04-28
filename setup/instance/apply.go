@@ -30,17 +30,17 @@ func (l *LocalInstance) Apply(wait bool) error {
 
 func (l *LocalInstance) waitForHealthyAPI(endpoint string, timeout time.Duration) error {
 	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 15) {
-		logrus.Infof("Waiting for API Service to be healthy... (%v)\n", time.Since(start))
+		logrus.Infof("Waiting for API Service to be healthy... (%3s)", time.Since(start))
 
 		resp, err := http.Get(endpoint)
 		if err != nil {
-			logrus.Debugf("Error occurred during GET %s: %v\n", endpoint, err)
+			logrus.Debugf("Error occurred during GET %s: %v", endpoint, err)
 			continue
 		}
 
 		defer resp.Body.Close()
 		if code := resp.StatusCode; code < 200 || code > 299 {
-			logrus.Debugf("API returned non-200 status code: %d\n", code)
+			logrus.Debugf("API returned non-200 status code: %d", code)
 			continue
 		}
 

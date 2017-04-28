@@ -28,7 +28,7 @@ func ListLocalInstances() ([]string, error) {
 }
 
 func ListRemoteInstances(s s3iface.S3API) ([]string, error) {
-	instanceBuckets, err := listLocalInstanceBuckets(s)
+	instanceBuckets, err := listRemoteInstanceBuckets(s)
 	if err != nil {
 		return nil, err
 	}
@@ -41,7 +41,7 @@ func ListRemoteInstances(s s3iface.S3API) ([]string, error) {
 	return instances, nil
 }
 
-func listLocalInstanceBuckets(s s3iface.S3API) (map[string]string, error) {
+func listRemoteInstanceBuckets(s s3iface.S3API) (map[string]string, error) {
 	output, err := s.ListBuckets(&s3.ListBucketsInput{})
 	if err != nil {
 		return nil, err

@@ -61,7 +61,6 @@ resource "aws_autoscaling_group" "api" {
   min_size             = "2"
   desired_capacity     = "2"
   max_size             = "2"
-  desired_capacity     = "2"
 
   tag {
     key                 = "Name"

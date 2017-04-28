@@ -4,7 +4,9 @@ import (
 	"fmt"
 	"os"
 	"os/exec"
+	"os/signal"
 	"strings"
+	"syscall"
 )
 
 type Terraform struct{}
@@ -61,5 +63,14 @@ func (t *Terraform) run(dir string, args ...string) error {
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
 
+	go t.handleSIGTERM(cmd)
 	return cmd.Run()
+}
+
+func (t *Terraform) handleSIGTERM(cmd *exec.Cmd) {
+	c := make(chan os.Signal)
+	signal.Notify(c, os.Interrupt, syscall.SIGTERM)
+	<-c
+	cmd.Process.Kill()
+	os.Exit(1)
 }

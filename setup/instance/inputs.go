@@ -104,34 +104,34 @@ var Layer0ModuleInputs = []*ModuleInput{
 		Name:        INPUT_SOURCE,
 		Description: INPUT_SOURCE_DESCRIPTION,
 		Default:     "github.com/quintilesims/layer0/setup//layer0?ref=master",
-		prompter:    DefaultStringPrompter,
+		prompter:    RequiredStringPrompter,
 	},
 	{
 		Name:        INPUT_VERSION,
 		Description: INPUT_VERSION_DESCRIPTION,
 		Default:     "latest",
-		prompter:    DefaultStringPrompter,
+		prompter:    RequiredStringPrompter,
 	},
 	{
 		Name:        INPUT_AWS_ACCESS_KEY,
 		Description: INPUT_AWS_ACCESS_KEY_DESCRIPTION,
-		prompter:    DefaultStringPrompter,
+		prompter:    RequiredStringPrompter,
 	},
 	{
 		Name:        INPUT_AWS_SECRET_KEY,
 		Description: INPUT_AWS_SECRET_KEY_DESCRIPTION,
-		prompter:    DefaultStringPrompter,
+		prompter:    RequiredStringPrompter,
 	},
 	{
 		Name:        INPUT_AWS_REGION,
 		Description: INPUT_AWS_REGION_DESCRIPTION,
 		Default:     "us-west-2",
-		prompter:    DefaultStringPrompter,
+		prompter:    RequiredStringPrompter,
 	},
 	{
 		Name:        INPUT_AWS_SSH_KEY_PAIR,
 		Description: INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION,
-		prompter:    DefaultStringPrompter,
+		prompter:    RequiredStringPrompter,
 	},
 	{
 		Name:        INPUT_DOCKERCFG,
@@ -140,7 +140,7 @@ var Layer0ModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_VPC_ID,
 		Description: INPUT_VPC_ID_DESCRIPTION,
-		prompter:    VPCPrompter,
+		prompter:    OptionalStringPrompter,
 	},
 }
 
@@ -148,7 +148,7 @@ func (m ModuleInput) Prompt(current interface{}) (interface{}, error) {
 	return m.prompter(m, current)
 }
 
-func DefaultStringPrompter(m ModuleInput, current interface{}) (interface{}, error) {
+func RequiredStringPrompter(m ModuleInput, current interface{}) (interface{}, error) {
 	return prompt(m, current, func(currentOrDefault interface{}) (interface{}, error) {
 		for i := 0; i < 3; i++ {
 			fmt.Printf("\tInput: ")
@@ -161,16 +161,19 @@ func DefaultStringPrompter(m ModuleInput, current interface{}) (interface{}, err
 				return currentOrDefault, nil
 			}
 
-			if input != "" {
-				return input, nil
+			// retry on empty input
+			if input == "" {
+				continue
 			}
+
+			return input, nil
 		}
 
 		return nil, fmt.Errorf("Failed to get input for '%s'", m.Name)
 	})
 }
 
-func VPCPrompter(m ModuleInput, current interface{}) (interface{}, error) {
+func OptionalStringPrompter(m ModuleInput, current interface{}) (interface{}, error) {
 	return prompt(m, current, func(currentOrDefault interface{}) (interface{}, error) {
 		fmt.Printf("\tInput: ")
 
@@ -182,7 +185,6 @@ func VPCPrompter(m ModuleInput, current interface{}) (interface{}, error) {
 			return currentOrDefault, nil
 		}
 
-		// empty input is ok for vpc
 		return input, nil
 	})
 }
@@ -202,7 +204,7 @@ func prompt(m ModuleInput, current interface{}, fn func(interface{}) (interface{
 		currentOrDefault = m.Default
 	} else {
 		display = fmt.Sprintf("[current: <none>]\n")
-		display += "Please enter a new value, or press 'enter' to keep the current value."
+		display += "Please enter a value and press 'enter'."
 	}
 
 	fmt.Println(display)

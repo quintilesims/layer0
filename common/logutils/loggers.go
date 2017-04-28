@@ -44,7 +44,7 @@ type CLIFormatter struct {}
 
 func (c *CLIFormatter) Format(entry *logrus.Entry) ([]byte, error) {
         level := strings.ToUpper(entry.Level.String())
-        content := fmt.Sprintf("[%-5s] %s\n", level, entry.Message)
+        content := fmt.Sprintf("[%s] %s\n", level, entry.Message)
         return []byte(content), nil
 }
 

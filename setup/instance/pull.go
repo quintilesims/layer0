@@ -12,7 +12,7 @@ import (
 )
 
 func (l *LocalInstance) Pull(s s3iface.S3API) error {
-	buckets, err := listLocalInstanceBuckets(s)
+	buckets, err := listRemoteInstanceBuckets(s)
 	if err != nil {
 		return err
 	}
