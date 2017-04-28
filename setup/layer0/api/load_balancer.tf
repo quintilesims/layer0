@@ -73,7 +73,7 @@ resource "aws_elb" "api" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
     timeout             = 5
-    target              = "HTTP:80/admin/health"
+    target              = "TCP:80"
     interval            = 6
   }
 }

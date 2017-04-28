@@ -1,7 +1,7 @@
 resource "aws_vpc" "mod" {
   cidr_block           = "${var.cidr}"
-  enable_dns_hostnames = "${var.enable_dns_hostnames}"
-  enable_dns_support   = "${var.enable_dns_support}"
+  enable_dns_hostnames = "true"
+  enable_dns_support   = "true"
   tags                 = "${merge(var.tags, map("Name", format("l0-%s", var.name)))}"
 }
 
@@ -11,9 +11,8 @@ resource "aws_internet_gateway" "mod" {
 }
 
 resource "aws_route_table" "public" {
-  vpc_id           = "${aws_vpc.mod.id}"
-  propagating_vgws = ["${var.public_propagating_vgws}"]
-  tags             = "${merge(var.tags, map("Name", format("l0-%s-rt-public", var.name)))}"
+  vpc_id = "${aws_vpc.mod.id}"
+  tags   = "${merge(var.tags, map("Name", format("l0-%s-rt-public", var.name)))}"
 }
 
 resource "aws_route" "public_internet_gateway" {
@@ -23,17 +22,14 @@ resource "aws_route" "public_internet_gateway" {
 }
 
 resource "aws_route" "private_nat_gateway" {
-  route_table_id         = "${element(aws_route_table.private.*.id, count.index)}"
+  route_table_id         = "${aws_route_table.private.id}"
   destination_cidr_block = "0.0.0.0/0"
-  nat_gateway_id         = "${element(aws_nat_gateway.natgw.*.id, count.index)}"
-  count                  = "${length(var.private_subnets) * lookup(map(var.enable_nat_gateway, 1), "true", 0)}"
+  nat_gateway_id         = "${aws_nat_gateway.natgw.id}"
 }
 
 resource "aws_route_table" "private" {
-  vpc_id           = "${aws_vpc.mod.id}"
-  propagating_vgws = ["${var.private_propagating_vgws}"]
-  count            = "${length(var.private_subnets)}"
-  tags             = "${merge(var.tags, map("Name", format("l0-%s-rt-private-%s", var.name, element(var.azs, count.index))))}"
+  vpc_id = "${aws_vpc.mod.id}"
+  tags   = "${merge(var.tags, map("Name", format("l0-%s-rt-private", var.name)))}"
 }
 
 resource "aws_subnet" "private" {
@@ -55,14 +51,12 @@ resource "aws_subnet" "public" {
 }
 
 resource "aws_eip" "nateip" {
-  vpc   = true
-  count = "${length(var.private_subnets) * lookup(map(var.enable_nat_gateway, 1), "true", 0)}"
+  vpc = true
 }
 
 resource "aws_nat_gateway" "natgw" {
-  allocation_id = "${element(aws_eip.nateip.*.id, count.index)}"
-  subnet_id     = "${element(aws_subnet.public.*.id, count.index)}"
-  count         = "${length(var.private_subnets) * lookup(map(var.enable_nat_gateway, 1), "true", 0)}"
+  allocation_id = "${aws_eip.nateip.id}"
+  subnet_id     = "${element(aws_subnet.public.*.id, 0)}"
 
   depends_on = ["aws_internet_gateway.mod"]
 }
@@ -70,7 +64,7 @@ resource "aws_nat_gateway" "natgw" {
 resource "aws_route_table_association" "private" {
   count          = "${length(var.private_subnets)}"
   subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
-  route_table_id = "${element(aws_route_table.private.*.id, count.index)}"
+  route_table_id = "${aws_route_table.private.id}"
 }
 
 resource "aws_route_table_association" "public" {
