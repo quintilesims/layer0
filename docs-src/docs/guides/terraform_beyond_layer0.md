@@ -135,7 +135,7 @@ data "template_file" "guestbook" {
 
 Note the resource definitions for `aws_dynamodb_table` and `layer0_deploy`. To configure the guestbook application to use the provisioned DynamoDB table, we reference the `name` property from the DynamoDB definition `table_name = "${aws_dynamodb_table.guestbook.name}"`. 
 
-This is then used to populate the template fields in our [Dockerrun.aws.json](https://github.com/quintilesims/layer0-examples/blob/master/guestbook-db/Dockerrun.aws.json) file. 
+This is then used to populate the template fields in our [Dockerrun.aws.json](https://github.com/quintilesims/layer0-examples/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/Dockerrun.aws.json) file. 
 
 ```
 {
@@ -333,37 +333,6 @@ example1/
 Here we are making use of Terraform [Modules](https://www.terraform.io/docs/modules/index.html). Modules in Terraform are self-contained packages of Terraform configurations, that are managed as a group. Modules are used to create reusable components in Terraform as well as for basic code organization. In this example, we are using modules to separate each service and making it consumable as a module.
 
 If you wanted to add a new service, you can create a new service folder inside the ./modules. If you wanted to you could even run multiple copies of the same service. See here for more information about [Creating Modules](https://www.terraform.io/docs/modules/create.html).
-
-When creating a module, ensure that resources you are creating are prefixed with the environment and the module's name variable to ensure your resources are unique for each layer0 environment and each reference to a module.
-
-For example
-
-```
-resource "layer0_load_balancer" "guestbook" {
-  name        = "${var.name}_guestbook_lb"
-  environment = "${var.layer0_environment_id}"
-
-  port {
-    host_port      = 80
-    container_port = 80
-    protocol       = "http"
-  }
-}
-
-# note we are prefixing with the environment name also to ensure there won't be conflicts
-# if multiple instance of this application were deployed
-resource "aws_dynamodb_table" "guestbook" {
-  name           = "${var.layer0_environment_name}_${var.name}_${var.table_name}"
-  read_capacity  = 20
-  write_capacity = 20
-  hash_key       = "id"
-
-  attribute {
-    name = "id"
-    type = "S"
-  }
-}
-```
 
 Also see the below repositories for ideas on different ways you can organize your Terraform configuration files for the needs of your specific project: 
 
