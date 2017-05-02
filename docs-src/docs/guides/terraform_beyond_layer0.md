@@ -104,7 +104,7 @@ Terraform using the [AWS provider](https://www.terraform.io/docs/providers/aws/i
 Looking at an excerpt of the file [./terraform-beyond-layer0/example-1/modules/guestbook_service/main.tf](https://github.com/quintilesims/layer0-examples/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/main.tf), we can see the following definitions:
 
 ```
-resource "aws_DynamoDB_table" "guestbook" {
+resource "aws_dynamodb_table" "guestbook" {
   name           = "${var.table_name}"
   read_capacity  = 20
   write_capacity = 20
@@ -351,19 +351,19 @@ For example
 
 ```
 variable "environments" {
-  type = "map"
+  type = "list"
 
-  default = {
-    "0" = "dev"
-    "1" = "staging"
-    "2" = "production"
-  }
-} 
+  default = [
+    "dev",
+    "staging"
+    "production"
+  ]
+}
 
 resource "layer0_environment" "demo" {
   count = "${length(var.environments)}"
 
-  name = "${lookup(var.environments, count.index)}_demo"
+  name = "${var.environments[count.index]}_demo"
 }
 ```
 
@@ -410,7 +410,7 @@ resource "layer0_service" "guestbook" {
   environment   = "${element(layer0_environment.demo.*.id, count.index)}"
   deploy        = "${element(layer0_deploy.guestbook.*.id, count.index)}"
   load_balancer = "${element(layer0_load_balancer.guestbook.*.id, count.index)}"
-  scale         = "${lookup(var.service_scale, lookup(var.environments, count.index), "1")}"
+  scale         = scale         = "${lookup(var.service_scale, var.environments[count.index]), "1")}"
 }
 ```
 
