@@ -35,6 +35,7 @@ func main() {
 		commandFactory.Endpoint(),
 		commandFactory.Push(),
 		commandFactory.Pull(),
+		commandFactory.Upgrade(),
 	}
 
 	app.Before = func(c *cli.Context) error {
@@ -60,6 +61,11 @@ func main() {
 		instance.InitializeLayer0ModuleInputs(Version)
 
 		return nil
+	}
+
+	app.Version = Version
+	if Version == "" {
+		app.Version = "unset/developer"
 	}
 
 	if err := app.Run(os.Args); err != nil {

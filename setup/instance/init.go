@@ -30,16 +30,6 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 		return err
 	}
 
-	// create/write ~/.layer0/<instance>/outputs.tf.json
-	output := &terraform.Config{
-		Outputs: Layer0ModuleOutputs,
-	}
-
-	outPath := fmt.Sprintf("%s/outputs.tf.json", l.Dir)
-	if err := terraform.WriteConfig(outPath, output); err != nil {
-		return err
-	}
-
 	// run `terraform get` to download terraform modules
 	if err := l.Terraform.Get(l.Dir); err != nil {
 		return err

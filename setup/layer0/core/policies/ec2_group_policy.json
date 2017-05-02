@@ -1,0 +1,28 @@
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:Describe*",
+                "ec2:CreateSecurityGroup",
+                "ec2:CreateTags"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:AuthorizeSecurityGroup*",
+                "ec2:RevokeSecurityGroup*",
+                "ec2:DeleteSecurityGroup"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "ec2:Vpc": "arn:aws:ec2:${region}:${account_id}:vpc/${vpc_id}"
+                }
+            }
+        }
+    ]
+}

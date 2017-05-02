@@ -14,6 +14,8 @@ variable "ssh_key_pair" {}
 
 variable "instance_profile" {}
 
+variable "iam_role" {}
+
 variable "tags" {
   description = "A map of tags to add to all resources"
   default     = {}

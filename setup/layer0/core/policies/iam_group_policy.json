@@ -1,0 +1,31 @@
+{
+	"Version": "2012-10-17",
+	"Statement": [
+		{
+			"Effect": "Allow",
+			"Action": [
+				"iam:PassRole",
+				"iam:CreateRole",
+				"iam:ListRolePolicies",
+				"iam:DeleteRole",
+				"iam:DeleteRolePolicy",
+				"iam:GetUser",
+				"iam:ListInstanceProfiles"
+			],
+			"Resource": [
+				"arn:aws:iam::${account_id}:role/l0/l0-${name}/*",
+				"arn:aws:iam::${account_id}:role/l0-${name}-*",
+				"arn:aws:iam::${account_id}:role/l0-${name}-*",
+				"arn:aws:iam::${account_id}:user/l0/l0-${name}/*",
+				"arn:aws:iam::${account_id}:instance-profile/*"
+			]
+		},
+		{
+			"Effect": "Allow",
+			"Action": [
+				"iam:ListServerCertificates"
+			],
+			"Resource": "*"
+		}
+	]
+}

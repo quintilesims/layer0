@@ -2,10 +2,11 @@ output "name" {
   value = "${var.name}"
 }
 
-output "s3_bucket" {
-  value = "todo"
+output "endpoint" {
+  value = "https://${module.api.load_balancer_url}"
 }
 
-output "vpc_id" {
-  value = "${var.vpc_id != "" ? var.vpc_id : "the vpc we created!"}"
+output "s3_bucket" {
+  value = "${module.core.bucket_name}"
 }
+

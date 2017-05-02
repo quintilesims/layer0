@@ -12,4 +12,5 @@ type Instance interface {
 	Plan() error
 	Pull(s s3iface.S3API) error
 	Push(s s3iface.S3API) error
+	Upgrade(version string, force bool) error
 }

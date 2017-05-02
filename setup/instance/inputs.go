@@ -5,13 +5,15 @@ import (
 	"github.com/Sirupsen/logrus"
 )
 
+const LAYER0_MODULE_SOURCE = "github.com/quintilesims/layer0/setup//layer0"
+
 const (
 	INPUT_SOURCE           = "source"
+	INPUT_VERSION          = "version"
 	INPUT_AWS_ACCESS_KEY   = "access_key"
 	INPUT_AWS_SECRET_KEY   = "secret_key"
 	INPUT_AWS_REGION       = "region"
 	INPUT_AWS_SSH_KEY_PAIR = "ssh_key_pair"
-	INPUT_VERSION          = "version"
 	INPUT_DOCKERCFG        = "dockercfg"
 	INPUT_VPC_ID           = "vpc_id"
 )
@@ -91,7 +93,7 @@ func InitializeLayer0ModuleInputs(version string) {
 	for _, input := range Layer0ModuleInputs {
 		switch input.Name {
 		case INPUT_SOURCE:
-			input.Default = fmt.Sprintf("github.com/quintilesims/layer0/setup//layer0?ref=%s", version)
+			input.Default = fmt.Sprintf("%s?ref=%s", LAYER0_MODULE_SOURCE, version)
 		case INPUT_VERSION:
 			input.Default = version
 		}
@@ -103,7 +105,7 @@ var Layer0ModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_SOURCE,
 		Description: INPUT_SOURCE_DESCRIPTION,
-		Default:     "github.com/quintilesims/layer0/setup//layer0?ref=master",
+		Default:     fmt.Sprintf("%s?ref=master", LAYER0_MODULE_SOURCE),
 		prompter:    RequiredStringPrompter,
 	},
 	{

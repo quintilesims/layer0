@@ -32,11 +32,11 @@ func (t *Terraform) FMT(dir string) error {
 }
 
 func (t *Terraform) Get(dir string) error {
-	return t.run(dir, "get")
+	return t.run(dir, "get", "-update")
 }
 
 func (t *Terraform) Output(dir, key string) (string, error) {
-	cmd := exec.Command("terraform", "output", key)
+	cmd := exec.Command("terraform", "output", "-module", "layer0", key)
 	cmd.Dir = dir
 
 	output, err := cmd.CombinedOutput()
