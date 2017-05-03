@@ -8,6 +8,10 @@ variable "version" {}
 
 variable "vpc_id" {}
 
+variable "username" {}
+
+variable "password" {}
+
 variable "bucket_name" {}
 
 variable "ssh_key_pair" {}
@@ -15,6 +19,8 @@ variable "ssh_key_pair" {}
 variable "instance_profile" {}
 
 variable "iam_role" {}
+
+variable "log_group" {}
 
 variable "tags" {
   description = "A map of tags to add to all resources"

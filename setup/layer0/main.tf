@@ -24,7 +24,7 @@ module "core" {
   name      = "${var.name}"
   region    = "${var.region}"
   dockercfg = "${var.dockercfg}"
-  vpc_id = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id}"
+  vpc_id    = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id}"
 }
 
 module "api" {
@@ -32,11 +32,14 @@ module "api" {
   name             = "${var.name}"
   region           = "${var.region}"
   version          = "${var.version}"
+  username         = "${var.username}"
+  password         = "${var.password}"
   vpc_id           = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id}"
   bucket_name      = "${module.core.bucket_name}"
   ssh_key_pair     = "${var.ssh_key_pair}"
   instance_profile = "${module.core.instance_profile}"
   iam_role         = "${module.core.iam_role}"
+  log_group = "${module.core.log_group}"
 
   tags {
     "layer0" = "${var.name}"

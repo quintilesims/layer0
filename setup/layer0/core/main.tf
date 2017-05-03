@@ -44,8 +44,8 @@ resource "aws_iam_role_policy" "mod" {
 }
 
 resource "aws_iam_instance_profile" "mod" {
-  name  = "l0-${var.name}-instance-profile"
-  path  = "/l0/l0-${var.name}/"
+  name = "l0-${var.name}-instance-profile"
+  path = "/l0/l0-${var.name}/"
   role = "${aws_iam_role.mod.name}"
 }
 

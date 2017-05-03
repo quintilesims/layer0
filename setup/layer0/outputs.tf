@@ -9,4 +9,3 @@ output "endpoint" {
 output "s3_bucket" {
   value = "${module.core.bucket_name}"
 }
-

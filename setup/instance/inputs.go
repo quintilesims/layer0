@@ -14,6 +14,8 @@ const (
 	INPUT_AWS_SECRET_KEY   = "secret_key"
 	INPUT_AWS_REGION       = "region"
 	INPUT_AWS_SSH_KEY_PAIR = "ssh_key_pair"
+	INPUT_USERNAME         = "username"
+	INPUT_PASSWORD         = "password"
 	INPUT_DOCKERCFG        = "dockercfg"
 	INPUT_VPC_ID           = "vpc_id"
 )
@@ -54,6 +56,16 @@ const INPUT_AWS_REGION_DESCRIPTION = `
 AWS Region: The region input variable specifies which region to provision the
 AWS resources required for Layer0. Note that changing this value will destroy and 
 recreate any existing resources.
+`
+
+const INPUT_USERNAME_DESCRIPTION = `
+Username: The username input variable specifies the name of the
+...
+`
+
+const INPUT_PASSWORD_DESCRIPTION = `
+Password: The password input variable specifies the name of the
+...
 `
 
 const INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION = `
@@ -133,6 +145,18 @@ var Layer0ModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_AWS_SSH_KEY_PAIR,
 		Description: INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION,
+		prompter:    RequiredStringPrompter,
+	},
+	{
+		Name:        INPUT_USERNAME,
+		Default:     "layer0",
+		Description: INPUT_USERNAME_DESCRIPTION,
+		prompter:    RequiredStringPrompter,
+	},
+	{
+		Name:        INPUT_PASSWORD,
+		Description: INPUT_PASSWORD_DESCRIPTION,
+		Default:     "nohaxplz",
 		prompter:    RequiredStringPrompter,
 	},
 	{

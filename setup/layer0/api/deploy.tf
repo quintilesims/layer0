@@ -7,11 +7,11 @@ data "template_file" "container_definitions" {
   template = "${file("${path.module}/Dockerrun.aws.json")}"
 
   vars {
-    api_auth_token          = "todo"
-    api_docker_image        = "todo"
+    api_auth_token          = "${base64encode("${var.username}:${var.password}")}"
+    version                 = "${var.version}"
     access_key              = "todo"
     secret_key              = "todo"
-    region                  = "todo"
+    region                  = "${var.region}"
     public_subnets          = "todo"
     private_subnets         = "todo"
     ecs_role                = "todo"
@@ -24,9 +24,9 @@ data "template_file" "container_definitions" {
     agent_securitygroupid   = "todo??"
     runner_docker_image_tag = "todo"
     account_id              = "todo"
-    key_pair                = "todo"
-    log_group_name          = "todo"
-    dynamo_tag_table        = "todo"
-    dynamo_job_table        = "todo"
+    ssh_key_pair            = "todo"
+    log_group_name          = "${var.log_group}"
+    dynamo_tag_table        = "${aws_dynamodb_table.tags.id}"
+    dynamo_job_table        = "${aws_dynamodb_table.jobs.id}"
   }
 }

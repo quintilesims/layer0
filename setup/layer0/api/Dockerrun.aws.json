@@ -1,7 +1,7 @@
 [
     {
         "name": "api",
-        "image": "${api_docker_image}",
+        "image": "quintilesims/l0-api:${version}",
         "essential": true,
         "memory": 500,
         "portMappings": [
@@ -34,9 +34,9 @@
             { "name": "LAYER0_AWS_DYNAMO_JOB_TABLE", "value": "${dynamo_job_table}" },
             { "name": "LAYER0_AUTH_TOKEN", "value": "${api_auth_token}" },
             { "name": "LAYER0_AWS_ECS_AGENT_SECURITY_GROUP_ID", "value": "${agent_securitygroupid}" },
-            { "name": "LAYER0_RUNNER_VERSION_TAG", "value": "${runner_docker_image_tag}" },
+            { "name": "LAYER0_RUNNER_VERSION_TAG", "value": "${version}" },
             { "name": "LAYER0_AWS_ECS_ROLE", "value": "${ecs_role}" },
-            { "name": "LAYER0_AWS_KEY_PAIR", "value": "${key_pair}" },
+            { "name": "LAYER0_AWS_SSH_KEY_PAIR", "value": "${ssh_key_pair}" },
             { "name": "LAYER0_AWS_ACCOUNT_ID", "value": "${account_id}" },
             { "name": "LAYER0_API_LOG_LEVEL", "value": "debug" },
             { "name": "LAYER0_RUNNER_LOG_LEVEL", "value": "debug" }
