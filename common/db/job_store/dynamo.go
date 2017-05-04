@@ -83,7 +83,7 @@ func (d *DynamoJobStore) SelectAll() ([]*models.Job, error) {
 	defer d.setConsistentRead(false)
 
 	jobs := []*models.Job{}
-	if err := d.table.Scan().Consistent(true).All(&jobs); err != nil {
+	if err := d.table.Scan().Consistent(d.consistentRead).All(&jobs); err != nil {
 		return nil, err
 	}
 
@@ -94,7 +94,7 @@ func (d *DynamoJobStore) SelectByID(jobID string) (*models.Job, error) {
 	defer d.setConsistentRead(false)
 
 	var job *models.Job
-	if err := d.table.Get("JobID", jobID).Consistent(true).One(&job); err != nil {
+	if err := d.table.Get("JobID", jobID).Consistent(d.consistentRead).One(&job); err != nil {
 		return nil, err
 	}
 
