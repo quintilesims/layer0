@@ -4,7 +4,7 @@ import (
 	"fmt"
 )
 
-type Tags []*Tag
+type Tags []Tag
 
 type filter func(Tag) bool
 
@@ -13,7 +13,7 @@ func (t Tags) RemoveIf(f filter) Tags {
 	copy(cp, t)
 
 	for i := 0; i < len(cp); i++ {
-		if f(*cp[i]) {
+		if f(cp[i]) {
 			cp = append(cp[:i], cp[i+1:]...)
 			i--
 		}
@@ -34,17 +34,17 @@ func (t Tags) WithValue(value string) Tags {
 	})
 }
 
-func (t Tags) First() *Tag {
+func (t Tags) First() (Tag, bool) {
 	if len(t) > 0 {
-		return t[0]
+		return t[0], true
 	}
 
-	return nil
+	return Tag{}, false
 }
 
 func (t Tags) Any(f filter) bool {
 	for _, tag := range t {
-		if f(*tag) {
+		if f(tag) {
 			return true
 		}
 	}
@@ -76,14 +76,4 @@ func (t Tags) GroupByEntity() EntitiesWithTags {
 	}
 
 	return ewts
-}
-
-// for testing
-func (t Tags) String() string {
-	pt := make([]Tag, len(t))
-	for i := 0; i < len(t); i++ {
-		pt[i] = *t[i]
-	}
-
-	return fmt.Sprintf("%s", pt)
 }
