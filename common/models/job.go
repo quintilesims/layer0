@@ -11,6 +11,5 @@ type Job struct {
 	JobType     int64             `json:"job_type"`
 	Request     string            `json:"request"`
 	TimeCreated time.Time         `json:"time_created"`
-	LastUpdated time.Time         `json:"last_updated"`
 	Meta        map[string]string `json:"meta"`
 }

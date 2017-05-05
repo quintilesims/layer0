@@ -23,15 +23,15 @@ func (t Tags) RemoveIf(f filter) Tags {
 }
 
 func (t Tags) WithType(entityType string) Tags {
-        return t.RemoveIf(func(t Tag) bool {
-                return t.EntityType != entityType
-        })
+	return t.RemoveIf(func(t Tag) bool {
+		return t.EntityType != entityType
+	})
 }
 
 func (t Tags) WithID(entityID string) Tags {
-        return t.RemoveIf(func(t Tag) bool {
-                return t.EntityID != entityID
-        })
+	return t.RemoveIf(func(t Tag) bool {
+		return t.EntityID != entityID
+	})
 }
 
 func (t Tags) WithKey(key string) Tags {
