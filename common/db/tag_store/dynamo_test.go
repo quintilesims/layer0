@@ -1,14 +1,75 @@
 package tag_store
 
 import (
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
+	"time"
+	"math/rand"
 )
+
+func TestBatchInsert(t *testing.T) {
+	t.Skip("Table already populated")
+
+	store := NewTestTagStore(t)
+	entityGroups := []struct {
+		EntityType string
+		Count      int
+		ID         func(i int) string
+		Name       func(i int) string
+	}{
+		{
+			EntityType: "environment",
+			Count:      50,
+			ID:         func(i int) string { return fmt.Sprintf("e%d", i) },
+			Name:       func(i int) string { return fmt.Sprintf("env_%d", i) },
+		},
+		{
+			EntityType: "load_balancer",
+			Count:      250,
+			ID:         func(i int) string { return fmt.Sprintf("l%d", i) },
+			Name:       func(i int) string { return fmt.Sprintf("lbr_%d", i) },
+		},
+		{
+			EntityType: "service",
+			Count:      250,
+			ID:         func(i int) string { return fmt.Sprintf("s%d", i) },
+			Name:       func(i int) string { return fmt.Sprintf("svc_%d", i) },
+		},
+		{
+			EntityType: "task",
+			Count:      5000,
+			ID:         func(i int) string { return fmt.Sprintf("t%d", i) },
+			Name:       func(i int) string { return fmt.Sprintf("tsk_%d", i) },
+		},
+		{
+			EntityType: "deploy",
+			Count:      50000,
+			ID:         func(i int) string { return fmt.Sprintf("d%d", i) },
+			Name:       func(i int) string { return fmt.Sprintf("dpl_%d", i) },
+		},
+	}
+
+	for _, eg := range entityGroups {
+		for i := 0; i < eg.Count; i++ {
+			tag := models.Tag{
+				EntityType: eg.EntityType,
+				EntityID:   eg.ID(i),
+				Key:        "name",
+				Value:      eg.Name(i),
+			}
+
+			fmt.Printf("Adding tag %v %v\n", eg.EntityType, i)
+			if err := store.Insert(tag); err != nil {
+				t.Fatal(err)
+			}
+		}
+	}
+}
 
 func NewTestTagStore(t *testing.T) *DynamoTagStore {
 	table := config.TestDynamoTagTableName()
@@ -33,37 +94,13 @@ func NewTestTagStore(t *testing.T) *DynamoTagStore {
 }
 
 func TestDynamoTagStoreInsert(t *testing.T) {
+	t.Skip("skipping for vbatch stuff")
+
 	store := NewTestTagStore(t)
 
-	tag := &models.Tag{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env1"}
-	if err := store.Insert(tag); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestDynamoTagStoreDelete(t *testing.T) {
-	store := NewTestTagStore(t)
-
-	tag := &models.Tag{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env1"}
-	if err := store.Insert(tag); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := store.Delete(tag.TagID); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestDynamoTagStoreSelectAll(t *testing.T) {
-	store := NewTestTagStore(t)
-
-	tags := []*models.Tag{
+	tags := []models.Tag{
 		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env1"},
-		{EntityID: "e2", EntityType: "environment", Key: "name", Value: "env2"},
-		{EntityID: "s1", EntityType: "service", Key: "name", Value: "svc1"},
-		{EntityID: "s1", EntityType: "service", Key: "environment_id", Value: "env1"},
-		{EntityID: "s2", EntityType: "service", Key: "name", Value: "svc2"},
-		{EntityID: "s2", EntityType: "service", Key: "environment_id", Value: "env2"},
+		{EntityID: "e1", EntityType: "environment", Key: "k1", Value: "v1"},
 	}
 
 	for _, tag := range tags {
@@ -71,159 +108,63 @@ func TestDynamoTagStoreSelectAll(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-
-	result, err := store.SelectAll()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	testutils.AssertEqual(t, len(result), len(tags))
 }
 
-func TestDynamoTagStoreSelectByQuery(t *testing.T) {
+func TestDynamoTagStoreSelectByType(t *testing.T) {
 	store := NewTestTagStore(t)
 
-	tags := models.Tags{
-		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env1"},
-		{EntityID: "e2", EntityType: "environment", Key: "name", Value: "env2"},
-		{EntityID: "s1", EntityType: "service", Key: "name", Value: "svc1"},
-		{EntityID: "s1", EntityType: "service", Key: "environment_id", Value: "env1"},
-		{EntityID: "s2", EntityType: "service", Key: "name", Value: "svc2"},
-		{EntityID: "s2", EntityType: "service", Key: "environment_id", Value: "env2"},
-		{EntityID: "l1", EntityType: "load_balancer", Key: "name", Value: "lb1"},
-		{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "env1"},
-		{EntityID: "l2", EntityType: "load_balancer", Key: "name", Value: "lb2"},
-		{EntityID: "l2", EntityType: "load_balancer", Key: "environment_id", Value: "env2"},
-		{EntityID: "d1", EntityType: "deploy", Key: "name", Value: "dpl"},
-		{EntityID: "d1", EntityType: "deploy", Key: "version", Value: "1"},
-		{EntityID: "d2", EntityType: "deploy", Key: "name", Value: "dpl"},
-		{EntityID: "d2", EntityType: "deploy", Key: "version", Value: "2"},
-	}
-
-	for _, tag := range tags {
-		if err := store.Insert(tag); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	cases := []struct {
-		EntityID   string
+	entityGroups := []struct {
 		EntityType string
-		Expected   models.Tags
+		Count      int
 	}{
-		// filter by nothing
-		{
-			Expected: tags,
-		},
-		// filter by entityID
-		{
-			EntityID: "invalid",
-			Expected: models.Tags{},
-		},
-		{
-			EntityID: "e1",
-			Expected: tags[0:1],
-		},
-		{
-			EntityID: "e2",
-			Expected: tags[1:2],
-		},
-		{
-			EntityID: "s1",
-			Expected: tags[2:4],
-		},
-		{
-			EntityID: "s2",
-			Expected: tags[4:6],
-		},
-		{
-			EntityID: "l1",
-			Expected: tags[6:8],
-		},
-		{
-			EntityID: "l2",
-			Expected: tags[8:10],
-		},
-		{
-			EntityID: "d1",
-			Expected: tags[10:12],
-		},
-		{
-			EntityID: "d2",
-			Expected: tags[12:14],
-		},
-		// filter by entityType
-		{
-			EntityType: "invalid",
-			Expected:   models.Tags{},
-		},
 		{
 			EntityType: "environment",
-			Expected:   tags[0:2],
-		},
-		{
-			EntityType: "service",
-			Expected:   tags[2:6],
-		},
-		{
-			EntityType: "load_balancer",
-			Expected:   tags[6:10],
+			Count:      5,
 		},
 		{
 			EntityType: "deploy",
-			Expected:   tags[10:14],
-		},
-		// filter by both
-		{
-			EntityType: "invalid",
-			EntityID:   "invalid",
-			Expected:   models.Tags{},
-		},
-		{
-			EntityType: "environment",
-			EntityID:   "e1",
-			Expected:   tags[0:1],
-		},
-		{
-			EntityType: "service",
-			EntityID:   "s1",
-			Expected:   tags[2:4],
+			Count:      5000,
 		},
 		{
 			EntityType: "load_balancer",
-			EntityID:   "l1",
-			Expected:   tags[6:8],
+			Count:      25,
 		},
 		{
-			EntityType: "deploy",
-			EntityID:   "d1",
-			Expected:   tags[10:12],
+			EntityType: "service",
+			Count:      25,
+		},
+		{
+			EntityType: "task",
+			Count:      500,
 		},
 	}
 
-	for query, c := range cases {
-		results, err := store.SelectByQuery(c.EntityType, c.EntityID)
-		if err != nil {
-			t.Fatalf("Query %d: %v", query, err)
-		}
+	for start := time.Now(); time.Since(start) < time.Minute*180; {
+		sleep := time.Second*time.Duration(rand.Intn(10))
+		fmt.Printf("Sleeping for %v\n", sleep)
 
-		if r, e := len(results), len(c.Expected); r != e {
-			t.Fatalf("Query %d: expected %d tags, got %d", query, e, r)
-		}
+		time.Sleep(sleep)
 
-		for _, expected := range c.Expected {
-			var isInResults bool
+		for _, eg := range entityGroups {
+			now := time.Now()
+			 fmt.Printf("running %s query\n", eg.EntityType)
+			_, err := store.SelectByType(eg.EntityType)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-			for _, result := range results {
-				if *expected == *result {
-					isInResults = true
-					break
+			fmt.Printf("query took %v\n", time.Since(now))
+			/*
+			if result, expected := len(tags), eg.Count; result != expected {
+				t.Errorf("%s: Length was %d, expected %d", eg.EntityType, result, expected)
+			}
+
+			for _, tag := range tags {
+				if result, expected := tag.EntityType, eg.EntityType; result != expected {
+					t.Errorf("EntityType was '%s', expected '%s'", result, expected)
 				}
 			}
-
-			if !isInResults {
-				t.Fatalf("Query %d: tag %#v is not in results", query, expected)
-			}
+			*/
 		}
 	}
 }
