@@ -9,7 +9,7 @@ import (
 
 const (
 	JOB_LIFETIME           = time.Hour * 24
-	JANITOR_SLEEP_DURATION = time.Hour * 1
+	JANITOR_SLEEP_DURATION = time.Minute * 10
 )
 
 var jobLogger = logutils.NewStackTraceLogger("Job Janitor")
