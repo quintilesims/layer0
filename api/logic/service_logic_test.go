@@ -126,7 +126,7 @@ func TestDeleteService(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tags, err := testLogic.TagStore.SelectAll()
+	tags, err := testLogic.TagStore.SelectByType("service")
 	if err != nil {
 		t.Fatal(err)
 	}

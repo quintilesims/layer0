@@ -16,23 +16,23 @@ var TestTags = models.Tags{
 	{EntityID: "d2", EntityType: "deploy", Key: "name", Value: "dpl"},
 	{EntityID: "d2", EntityType: "deploy", Key: "version", Value: "2"},
 
-	{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env1"},
-	{EntityID: "e2", EntityType: "environment", Key: "name", Value: "env2"},
+	{EntityID: "e1", EntityType: "environment", Key: "name", Value: "e1"},
+	{EntityID: "e2", EntityType: "environment", Key: "name", Value: "e2"},
 
 	{EntityID: "l1", EntityType: "load_balancer", Key: "name", Value: "lb1"},
-	{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "env1"},
+	{EntityID: "l1", EntityType: "load_balancer", Key: "environment_id", Value: "e1"},
 	{EntityID: "l2", EntityType: "load_balancer", Key: "name", Value: "lb2"},
-	{EntityID: "l2", EntityType: "load_balancer", Key: "environment_id", Value: "env2"},
+	{EntityID: "l2", EntityType: "load_balancer", Key: "environment_id", Value: "e2"},
 
 	{EntityID: "s1", EntityType: "service", Key: "name", Value: "svc1"},
-	{EntityID: "s1", EntityType: "service", Key: "environment_id", Value: "env1"},
+	{EntityID: "s1", EntityType: "service", Key: "environment_id", Value: "e1"},
 	{EntityID: "s2", EntityType: "service", Key: "name", Value: "svc2"},
-	{EntityID: "s2", EntityType: "service", Key: "environment_id", Value: "env2"},
+	{EntityID: "s2", EntityType: "service", Key: "environment_id", Value: "e2"},
 
 	{EntityID: "t1", EntityType: "task", Key: "name", Value: "tsk1"},
-	{EntityID: "t1", EntityType: "task", Key: "environment_id", Value: "env1"},
+	{EntityID: "t1", EntityType: "task", Key: "environment_id", Value: "e1"},
 	{EntityID: "t2", EntityType: "task", Key: "name", Value: "tsk2"},
-	{EntityID: "t2", EntityType: "task", Key: "environment_id", Value: "env2"},
+	{EntityID: "t2", EntityType: "task", Key: "environment_id", Value: "e2"},
 }
 
 func NewTestTagStore(t *testing.T) *DynamoTagStore {

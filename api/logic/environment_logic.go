@@ -62,7 +62,7 @@ func (e *L0EnvironmentLogic) GetEnvironment(environmentID string) (*models.Envir
 }
 
 func (e *L0EnvironmentLogic) DeleteEnvironment(environmentID string) error {
-	tags, err := e.TagStore.SelectByQuery("environment", environmentID)
+	tags, err := e.TagStore.SelectByTypeAndID("environment", environmentID)
 	if err != nil {
 		return err
 	}
@@ -85,7 +85,7 @@ func (e *L0EnvironmentLogic) DeleteEnvironment(environmentID string) error {
 }
 
 func (e *L0EnvironmentLogic) CanCreateEnvironment(req models.CreateEnvironmentRequest) (bool, error) {
-	tags, err := e.TagStore.SelectByQuery("environment", "")
+	tags, err := e.TagStore.SelectByType("environment")
 	if err != nil {
 		return false, err
 	}
@@ -114,11 +114,11 @@ func (e *L0EnvironmentLogic) CreateEnvironment(req models.CreateEnvironmentReque
 		return nil, err
 	}
 
-	if err := e.upsertTag(models.Tag{EntityID: environment.EnvironmentID, EntityType: "environment", Key: "name", Value: req.EnvironmentName}); err != nil {
+	if err := e.TagStore.Insert(models.Tag{EntityID: environment.EnvironmentID, EntityType: "environment", Key: "name", Value: req.EnvironmentName}); err != nil {
 		return nil, err
 	}
 
-	if err := e.upsertTag(models.Tag{EntityID: environment.EnvironmentID, EntityType: "environment", Key: "os", Value: req.OperatingSystem}); err != nil {
+	if err := e.TagStore.Insert(models.Tag{EntityID: environment.EnvironmentID, EntityType: "environment", Key: "os", Value: req.OperatingSystem}); err != nil {
 		return nil, err
 	}
 
@@ -147,11 +147,11 @@ func (e *L0EnvironmentLogic) CreateEnvironmentLink(sourceEnvironmentID, destEnvi
 		return err
 	}
 
-	if err := e.upsertTag(models.Tag{EntityID: sourceEnvironmentID, EntityType: "environment", Key: "link", Value: destEnvironmentID}); err != nil {
+	if err := e.TagStore.Insert(models.Tag{EntityID: sourceEnvironmentID, EntityType: "environment", Key: "link", Value: destEnvironmentID}); err != nil {
 		return err
 	}
 
-	if err := e.upsertTag(models.Tag{EntityID: destEnvironmentID, EntityType: "environment", Key: "link", Value: sourceEnvironmentID}); err != nil {
+	if err := e.TagStore.Insert(models.Tag{EntityID: destEnvironmentID, EntityType: "environment", Key: "link", Value: sourceEnvironmentID}); err != nil {
 		return err
 	}
 
@@ -163,24 +163,24 @@ func (e *L0EnvironmentLogic) DeleteEnvironmentLink(sourceEnvironmentID, destEnvi
 		return err
 	}
 
-	sourceTags, err := e.TagStore.SelectByQuery("environment", sourceEnvironmentID)
+	sourceTags, err := e.TagStore.SelectByTypeAndID("environment", sourceEnvironmentID)
 	if err != nil {
 		return err
 	}
 
 	for _, tag := range sourceTags.WithKey("link").WithValue(destEnvironmentID) {
-		if err := e.TagStore.Delete(tag.TagID); err != nil {
+		if err := e.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
 			return err
 		}
 	}
 
-	destTags, err := e.TagStore.SelectByQuery("environment", destEnvironmentID)
+	destTags, err := e.TagStore.SelectByTypeAndID("environment", destEnvironmentID)
 	if err != nil {
 		return err
 	}
 
 	for _, tag := range destTags.WithKey("link").WithValue(sourceEnvironmentID) {
-		if err := e.TagStore.Delete(tag.TagID); err != nil {
+		if err := e.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
 			return err
 		}
 	}
@@ -189,16 +189,16 @@ func (e *L0EnvironmentLogic) DeleteEnvironmentLink(sourceEnvironmentID, destEnvi
 }
 
 func (e *L0EnvironmentLogic) populateModel(model *models.Environment) error {
-	tags, err := e.TagStore.SelectByQuery("environment", model.EnvironmentID)
+	tags, err := e.TagStore.SelectByTypeAndID("environment", model.EnvironmentID)
 	if err != nil {
 		return err
 	}
 
-	if tag := tags.WithKey("name").First(); tag != nil {
+	if tag, ok := tags.WithKey("name").First(); ok  {
 		model.EnvironmentName = tag.Value
 	}
 
-	if tag := tags.WithKey("os").First(); tag != nil {
+	if tag, ok := tags.WithKey("os").First(); ok {
 		model.OperatingSystem = tag.Value
 	}
 
