@@ -17,7 +17,7 @@ type DynamoTagSchema struct {
 func (s DynamoTagSchema) ToTags() models.Tags {
 	tags := models.Tags{}
 	for k, v := range s.Tags {
-		tag := &models.Tag{
+		tag := models.Tag{
 			EntityType: s.EntityType,
 			EntityID:   s.EntityID,
 			Key:        k,
@@ -47,7 +47,51 @@ func (d *DynamoTagStore) Init() error {
 }
 
 func (d *DynamoTagStore) Clear() error {
+	var schemas []DynamoTagSchema
+	if err := d.table.Scan().All(&schemas); err != nil {
+		return err
+	}
+
+	keys := make([]dynamo.Keyed, len(schemas))
+	for i, schema := range schemas {
+		keys[i] = dynamo.Keys{schema.EntityType, schema.EntityID}
+	}
+
+	if _, err := d.table.Batch("EntityType", "EntityID").
+		Write().
+		Delete(keys...).
+		Run(); err != nil {
+		return err
+	}
+
 	return nil
+}
+
+func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
+	schema, err := d.selectByQuery(entityType, entityID)
+	if err != nil {
+		return err
+	}
+
+	// do nothing if key doesn't exist
+	if _, ok := schema.Tags[key]; !ok {
+		return nil
+	}
+
+	delete(schema.Tags, key)
+
+	// update entry if it still has tags
+	if len(schema.Tags) >= 0 {
+		return d.table.Update("EntityType", schema.EntityType).
+			Range("EntityID", schema.EntityID).
+			Set("Tags", schema.Tags).
+			Run()
+	}
+
+	// delete the entire entry if this was the last tag
+	return d.table.Delete("EntityType", schema.EntityType).
+		Range("EntityID", schema.EntityID).
+		Run()
 }
 
 func (d *DynamoTagStore) Insert(tag models.Tag) error {
@@ -81,10 +125,13 @@ func (d *DynamoTagStore) insertKey(tag models.Tag) error {
 		Run()
 }
 
-// todo: don't allow empty args
 func (d *DynamoTagStore) SelectByQuery(entityType, entityID string) (models.Tags, error) {
 	schema, err := d.selectByQuery(entityType, entityID)
 	if err != nil {
+		if err.Error() == "dynamo: no item found" {
+			return models.Tags{}, nil
+		}
+
 		return nil, err
 	}
 
@@ -118,6 +165,10 @@ func (d *DynamoTagStore) selectByQuery(entityType, entityID string) (*DynamoTagS
 func (d *DynamoTagStore) SelectByType(entityType string) (models.Tags, error) {
 	schemas, err := d.selectByType(entityType)
 	if err != nil {
+		if err.Error() == "dynamo: no item found" {
+			return models.Tags{}, nil
+		}
+
 		return nil, err
 	}
 
@@ -133,16 +184,10 @@ func (d *DynamoTagStore) selectByType(entityType string) ([]*DynamoTagSchema, er
 	var schemas []*DynamoTagSchema
 
 	if err := d.table.Get("EntityType", entityType).
-		//Range("EntityID", dynamo.Equal, entityID).
 		Consistent(true).
 		All(&schemas); err != nil {
 		return nil, err
 	}
 
 	return schemas, nil
-}
-
-// todo: we should delete by all tags, or by key
-func (d *DynamoTagStore) Delete(tagID int64) error {
-	return nil
 }
