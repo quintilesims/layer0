@@ -93,7 +93,7 @@ func TestDynamoTagStoreDelete(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	result, err := store.SelectByQuery(tags[1].EntityType, tags[1].EntityID)
+	result, err := store.SelectByTypeAndID(tags[1].EntityType, tags[1].EntityID)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +101,7 @@ func TestDynamoTagStoreDelete(t *testing.T) {
 	assert.Equal(t, result[0], tags[1])
 }
 
-func TestDynamoTagStoreSelectByQuery(t *testing.T) {
+func TestDynamoTagStoreSelectByTypeAndID(t *testing.T) {
 	store := NewTestTagStore(t)
 
 	for _, tag := range TestTags {
@@ -148,7 +148,7 @@ func TestDynamoTagStoreSelectByQuery(t *testing.T) {
 	}
 
 	for query, c := range cases {
-		results, err := store.SelectByQuery(c.EntityType, c.EntityID)
+		results, err := store.SelectByTypeAndID(c.EntityType, c.EntityID)
 		if err != nil {
 			t.Fatalf("Query %d: %v", query, err)
 		}
