@@ -81,7 +81,7 @@ func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
 	delete(schema.Tags, key)
 
 	// update entry if it still has tags
-	if len(schema.Tags) >= 0 {
+	if len(schema.Tags) > 0 {
 		return d.table.Update("EntityType", schema.EntityType).
 			Range("EntityID", schema.EntityID).
 			Set("Tags", schema.Tags).
