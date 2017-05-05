@@ -8,7 +8,6 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// todo: this assume entity_id, type, and key are unique
 type DynamoTagSchema struct {
 	EntityType string
 	EntityID   string
