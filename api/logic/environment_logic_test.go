@@ -109,7 +109,7 @@ func TestDeleteEnvironment(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tags, err := testLogic.TagStore.SelectAll()
+	tags, err := testLogic.TagStore.SelectByType("environment")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -280,7 +280,7 @@ func TestDeleteEnvironmentLink(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tags, err := testLogic.TagStore.SelectAll()
+	tags, err := testLogic.TagStore.SelectByType("environment")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -86,7 +86,7 @@ func TestDeleteDeploy(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tags, err := testLogic.TagStore.SelectAll()
+	tags, err := testLogic.TagStore.SelectByType("deploy")
 	if err != nil {
 		t.Fatal(err)
 	}
