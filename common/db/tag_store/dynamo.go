@@ -68,7 +68,7 @@ func (d *DynamoTagStore) Clear() error {
 }
 
 func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
-	schema, err := d.selectByQuery(entityType, entityID)
+	schema, err := d.selectByTypeAndID(entityType, entityID)
 	if err != nil {
 		return err
 	}
@@ -113,7 +113,7 @@ func (d *DynamoTagStore) Insert(tag models.Tag) error {
 }
 
 func (d *DynamoTagStore) insertKey(tag models.Tag) error {
-	schema, err := d.selectByQuery(tag.EntityType, tag.EntityID)
+	schema, err := d.selectByTypeAndID(tag.EntityType, tag.EntityID)
 	if err != nil {
 		return err
 	}
@@ -125,8 +125,8 @@ func (d *DynamoTagStore) insertKey(tag models.Tag) error {
 		Run()
 }
 
-func (d *DynamoTagStore) SelectByQuery(entityType, entityID string) (models.Tags, error) {
-	schema, err := d.selectByQuery(entityType, entityID)
+func (d *DynamoTagStore) SelectByTypeAndID(entityType, entityID string) (models.Tags, error) {
+	schema, err := d.selectByTypeAndID(entityType, entityID)
 	if err != nil {
 		if err.Error() == "dynamo: no item found" {
 			return models.Tags{}, nil
@@ -138,7 +138,7 @@ func (d *DynamoTagStore) SelectByQuery(entityType, entityID string) (models.Tags
 	return schema.ToTags(), nil
 }
 
-func (d *DynamoTagStore) selectByQuery(entityType, entityID string) (*DynamoTagSchema, error) {
+func (d *DynamoTagStore) selectByTypeAndID(entityType, entityID string) (*DynamoTagSchema, error) {
 	if entityType == "" {
 		return nil, fmt.Errorf("EntityType is required")
 	}
