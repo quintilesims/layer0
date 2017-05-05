@@ -194,7 +194,7 @@ func (e *L0EnvironmentLogic) populateModel(model *models.Environment) error {
 		return err
 	}
 
-	if tag, ok := tags.WithKey("name").First(); ok  {
+	if tag, ok := tags.WithKey("name").First(); ok {
 		model.EnvironmentName = tag.Value
 	}
 
