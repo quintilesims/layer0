@@ -17,13 +17,11 @@ func TestListJobs(t *testing.T) {
 			JobID:       "some_id_1",
 			Meta:        map[string]string{},
 			TimeCreated: time.Now(),
-			LastUpdated: time.Now(),
 		},
 		{
 			JobID:       "some_id_2",
 			Meta:        map[string]string{},
 			TimeCreated: time.Now(),
-			LastUpdated: time.Now(),
 		},
 	}
 
