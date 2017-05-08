@@ -95,6 +95,7 @@ guestbook_url = <http endpoint for the sample application>
 !!! Note
 	It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time, you may get HTTP 503 errors when making HTTP requests against the load balancer URL.
 
+
 Terraform will set up the entire environment for you and then output a link to the application's load balancer.
 
 ### What's happening
@@ -225,7 +226,6 @@ services = <guestbook_service_url>
 To confirm your service has been updated to the desired scale, you can run the following layer0 command. Note that the desired scale for the guestbook service should be eventually be 3/3.
 
 `l0 service get guestbook1_guestbook_svc`
-
 Outputs:
 
 ```
@@ -504,3 +504,4 @@ Directories:
 
 !!! Tip "Remote Backend Resources"
 	If you created additional resources (S3 bucket and a DynamoDB Table) separately when configuring a [Remote Backend](#part-5-terraform-remote-state), do not forget to delete those if they are no longer needed. You should be able to look at your Terraform configuration file `layer0.tf` to determine the name of the bucket and table.
+
