@@ -19,7 +19,6 @@ const (
 	AWS_ECS_ROLE                    = "LAYER0_AWS_ECS_ROLE"
 	AWS_SSH_KEY_PAIR                    = "LAYER0_AWS_SSH_KEY_PAIR"
 	AWS_S3_BUCKET                   = "LAYER0_AWS_S3_BUCKET"
-	AWS_ECS_AGENT_SECURITY_GROUP_ID = "LAYER0_AWS_ECS_AGENT_SECURITY_GROUP_ID"
 	AWS_ECS_INSTANCE_PROFILE        = "LAYER0_AWS_ECS_INSTANCE_PROFILE"
 	AWS_DYNAMO_TAG_TABLE            = "LAYER0_AWS_DYNAMO_TAG_TABLE"
 	AWS_DYNAMO_JOB_TABLE            = "LAYER0_AWS_DYNAMO_JOB_TABLE"
@@ -70,7 +69,6 @@ var RequiredAPIVariables = []string{
 	AWS_ECS_ROLE,
 	AWS_SSH_KEY_PAIR,
 	AWS_S3_BUCKET,
-	AWS_ECS_AGENT_SECURITY_GROUP_ID,
 	AWS_ECS_INSTANCE_PROFILE,
 	AWS_LINUX_SERVICE_AMI,
 	AWS_WINDOWS_SERVICE_AMI,
@@ -226,10 +224,6 @@ func RunnerLogLevel() string {
 
 func RunnerVersionTag() string {
 	return getOr(RUNNER_VERSION_TAG, "latest")
-}
-
-func AWSAgentGroupID() string {
-	return get(AWS_ECS_AGENT_SECURITY_GROUP_ID)
 }
 
 func AWSECSInstanceProfile() string {

@@ -4,6 +4,8 @@ provider "aws" {
   region     = "${var.region}"
 }
 
+data "aws_caller_identity" "current" {}
+
 module "vpc" {
   # todo: include once 'count' param supported: count = "${var.vpc_id == "" ? 1 : 0 }"
 
@@ -34,12 +36,14 @@ module "api" {
   version          = "${var.version}"
   username         = "${var.username}"
   password         = "${var.password}"
+  access_key       = "${module.core.user_access_key}"
+  secret_key       = "${module.core.user_secret_key}"
   vpc_id           = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id}"
   bucket_name      = "${module.core.bucket_name}"
   ssh_key_pair     = "${var.ssh_key_pair}"
   instance_profile = "${module.core.instance_profile}"
   iam_role         = "${module.core.iam_role}"
-  log_group = "${module.core.log_group}"
+  log_group        = "${module.core.log_group}"
 
   tags {
     "layer0" = "${var.name}"

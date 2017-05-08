@@ -13,3 +13,11 @@ output "iam_role" {
 output "log_group" {
   value = "${aws_cloudwatch_log_group.mod.id}"
 }
+
+output "user_access_key" {
+  value = "${aws_iam_access_key.mod.id}"
+}
+
+output "user_secret_key" {
+  value = "${aws_iam_access_key.mod.secret}"
+}

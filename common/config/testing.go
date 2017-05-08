@@ -14,7 +14,6 @@ const (
 	TEST_AWS_SERVICE_AMI                 = "ami-abc123"
 	TEST_AWS_ECS_ROLE                    = "role-abc123"
 	TEST_AWS_KEY_PAIR                    = "test-key-pair"
-	TEST_AWS_ECS_AGENT_SECURITY_GROUP_ID = "agent-abc123"
 )
 
 func SetTestConfig() {
@@ -28,5 +27,4 @@ func SetTestConfig() {
 	os.Setenv(AWS_WINDOWS_SERVICE_AMI, TEST_AWS_SERVICE_AMI)
 	os.Setenv(AWS_ECS_ROLE, TEST_AWS_ECS_ROLE)
 	os.Setenv(AWS_SSH_KEY_PAIR, TEST_AWS_KEY_PAIR)
-	os.Setenv(AWS_ECS_AGENT_SECURITY_GROUP_ID, TEST_AWS_ECS_AGENT_SECURITY_GROUP_ID)
 }

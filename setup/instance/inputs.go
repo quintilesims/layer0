@@ -54,18 +54,26 @@ Layer0 API will use its own key with limited permissions to provision AWS resour
 
 const INPUT_AWS_REGION_DESCRIPTION = `
 AWS Region: The region input variable specifies which region to provision the
-AWS resources required for Layer0. Note that changing this value will destroy and 
-recreate any existing resources.
+AWS resources required for Layer0. The following regions can be used: 
+
+    - us-west-1
+    - us-west-2
+    - us-east-1
+    - eu-west-1
+
+Note that changing this value will destroy and recreate any existing resources.
 `
 
 const INPUT_USERNAME_DESCRIPTION = `
-Username: The username input variable specifies the name of the
-...
+Username: The username input variable specifies the name portion of basic auth used to secure 
+the Layer0 API. This value will be base64 encoded along with the password input variable to
+generate your LAYER0_AUTH_TOKEN.
 `
 
 const INPUT_PASSWORD_DESCRIPTION = `
-Password: The password input variable specifies the name of the
-...
+Password: The password input variable specifies the password portion of basic auth used to secure
+the Layer0 API. This value will be base64 encoded along with the username input variable to
+generate your LAYER0_AUTH_TOKEN.
 `
 
 const INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION = `
@@ -81,9 +89,8 @@ VPC ID (optional): The vpc_id input variable specifies an existing AWS VPC to pr
 the AWS resources required for Layer0. If no input is specified, a new VPC will be
 created for you. Existing VPCs must satisfy the following constraints:
 
-    - CIDR something something
-    - Subets something something
-    - Subnets tagged with "Tier" = "Private" or "Public"
+    - Have at least 1 public and 1 private subnet
+    - Each subnet must be tagged with ["Tier": "Private"] or ["Tier": "Public"]
 
 Note that changing this value will destroy and recreate any existing resources.
 `

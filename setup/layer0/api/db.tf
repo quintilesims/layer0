@@ -1,12 +1,19 @@
 resource "aws_dynamodb_table" "tags" {
   name           = "l0-${var.name}-tags"
-  read_capacity  = 100
-  write_capacity = 50
-  hash_key       = "TagID"
+  read_capacity  = 50
+  write_capacity = 5
+  hash_key       = "EntityType"
+  range_key      = "EntityID"
+  tags           = "${var.tags}"
 
   attribute {
-    name = "TagID"
-    type = "N"
+    name = "EntityType"
+    type = "S"
+  }
+
+  attribute {
+    name = "EntityID"
+    type = "S"
   }
 }
 

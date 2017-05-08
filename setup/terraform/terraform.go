@@ -2,6 +2,7 @@ package terraform
 
 import (
 	"fmt"
+	"github.com/blang/semver"
 	"os"
 	"os/exec"
 	"os/signal"
@@ -9,7 +10,9 @@ import (
 	"syscall"
 )
 
-type Terraform struct{}
+const REQUIRED_TERRAFORM_VERSION = "0.9.4"
+
+type Terraform struct {}
 
 func New() *Terraform {
 	return &Terraform{}
@@ -36,6 +39,10 @@ func (t *Terraform) Get(dir string) error {
 }
 
 func (t *Terraform) Output(dir, key string) (string, error) {
+	if err := t.validateTerraformVersion(); err != nil {
+		return "", err
+	}
+
 	cmd := exec.Command("terraform", "output", "-module", "layer0", key)
 	cmd.Dir = dir
 
@@ -57,6 +64,10 @@ func (t *Terraform) Plan(dir string) error {
 }
 
 func (t *Terraform) run(dir string, args ...string) error {
+	if err := t.validateTerraformVersion(); err != nil {
+		return err
+	}
+
 	cmd := exec.Command("terraform", args...)
 	cmd.Dir = dir
 	cmd.Stdin = os.Stdin
@@ -73,4 +84,33 @@ func (t *Terraform) handleSIGTERM(cmd *exec.Cmd) {
 	<-c
 	cmd.Process.Kill()
 	os.Exit(1)
+}
+
+func (t *Terraform) validateTerraformVersion() error {
+	required, err := semver.Make(REQUIRED_TERRAFORM_VERSION)
+	if err != nil {
+		return fmt.Errorf("Failed to parse required Terraform version: %v", err)
+	}
+
+	cmd := exec.Command("terraform", "version")
+	output, err := cmd.CombinedOutput()
+	if err != nil {
+		return fmt.Errorf("Could not determine current Terraform version: %v", err)
+	}
+
+	version := strings.TrimSpace(string(output))
+	version = strings.TrimPrefix(version, "Terraform v")
+
+	current, err := semver.Make(version)
+	if err != nil {
+		return fmt.Errorf("Failed to parse current Terraform version: %v", err)
+	}
+
+	if current.LT(required) {
+		text := fmt.Sprintf("Current version of Terraform (%s) is less than the ", current)
+		text += fmt.Sprintf("minimum required version (%s)", required)
+		return fmt.Errorf(text)
+	}
+
+	return nil
 }

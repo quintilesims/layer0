@@ -34,7 +34,7 @@ data "template_file" "user_data" {
 
 resource "aws_launch_configuration" "api" {
   name_prefix          = "l0-${var.name}-api-"
-  image_id             = "${lookup(var.service_amis, var.region)}"
+  image_id             = "${lookup(var.linux_region_amis, var.region)}"
   instance_type        = "t2.small"
   security_groups      = ["${aws_security_group.api_env.id}"]
   iam_instance_profile = "${var.instance_profile}"
