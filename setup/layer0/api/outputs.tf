@@ -21,3 +21,27 @@ output "linux_service_ami" {
 output "windows_service_ami" {
   value = "${lookup(var.windows_region_amis, var.region)}"
 }
+
+output "bucket_name" {
+  value = "${aws_s3_bucket.mod.id}"
+}
+
+output "instance_profile" {
+  value = "${aws_iam_instance_profile.mod.id}"
+}
+
+output "iam_role" {
+  value = "${aws_iam_role.mod.id}"
+}
+
+output "log_group" {
+  value = "${aws_cloudwatch_log_group.mod.id}"
+}
+
+output "user_access_key" {
+  value = "${aws_iam_access_key.mod.id}"
+}
+
+output "user_secret_key" {
+  value = "${aws_iam_access_key.mod.secret}"
+}

@@ -1,3 +1,5 @@
+variable "count_hack" {}
+
 variable "name" {}
 
 variable "cidr" {}

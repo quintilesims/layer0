@@ -15,15 +15,15 @@ output "token" {
 }
 
 output "s3_bucket" {
-  value = "${module.core.bucket_name}"
+  value = "${module.api.bucket_name}"
 }
 
 output "access_key" {
-  value = "${module.core.user_access_key}"
+  value = "${module.api.user_access_key}"
 }
 
 output "secret_key" {
-  value = "${module.core.user_secret_key}"
+  value = "${module.api.user_secret_key}"
 }
 
 output "vpc_id" {
@@ -39,7 +39,7 @@ output "private_subnets" {
 }
 
 output "ecs_role" {
-  value = "${module.core.iam_role}"
+  value = "${module.api.iam_role}"
 }
 
 output "ssh_key_pair" {
@@ -47,7 +47,7 @@ output "ssh_key_pair" {
 }
 
 output "ecs_agent_instance_profile" {
-  value = "${module.core.instance_profile}"
+  value = "${module.api.instance_profile}"
 }
 
 output "linux_service_ami" {
@@ -55,6 +55,5 @@ output "linux_service_ami" {
 }
 
 output "windows_service_ami" {
- value = "${module.api.windows_service_ami}"
+  value = "${module.api.windows_service_ami}"
 }
-

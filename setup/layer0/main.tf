@@ -7,7 +7,8 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 module "vpc" {
-  # todo: include once 'count' param supported: count = "${var.vpc_id == "" ? 1 : 0 }"
+  # todo: change once 'count' param supported: count = "${var.vpc_id == "" ? 1 : 0 }"
+  count_hack = "${var.vpc_id == "" ? 1 : 0}"
 
   source          = "./vpc"
   name            = "${var.name}"
@@ -21,29 +22,16 @@ module "vpc" {
   }
 }
 
-module "core" {
-  source    = "./core"
-  name      = "${var.name}"
-  region    = "${var.region}"
-  dockercfg = "${var.dockercfg}"
-  vpc_id    = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id}"
-}
-
 module "api" {
-  source           = "./api"
-  name             = "${var.name}"
-  region           = "${var.region}"
-  version          = "${var.version}"
-  username         = "${var.username}"
-  password         = "${var.password}"
-  access_key       = "${module.core.user_access_key}"
-  secret_key       = "${module.core.user_secret_key}"
-  vpc_id           = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id}"
-  bucket_name      = "${module.core.bucket_name}"
-  ssh_key_pair     = "${var.ssh_key_pair}"
-  instance_profile = "${module.core.instance_profile}"
-  iam_role         = "${module.core.iam_role}"
-  log_group        = "${module.core.log_group}"
+  source       = "./api"
+  name         = "${var.name}"
+  region       = "${var.region}"
+  version      = "${var.version}"
+  username     = "${var.username}"
+  password     = "${var.password}"
+  vpc_id       = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id}"
+  ssh_key_pair = "${var.ssh_key_pair}"
+  dockercfg    = "${var.dockercfg}"
 
   tags {
     "layer0" = "${var.name}"

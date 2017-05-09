@@ -12,19 +12,9 @@ variable "username" {}
 
 variable "password" {}
 
-variable "bucket_name" {}
-
 variable "ssh_key_pair" {}
 
-variable "instance_profile" {}
-
-variable "iam_role" {}
-
-variable "log_group" {}
-
-variable "access_key" {}
-
-variable "secret_key" {}
+variable "dockercfg" {}
 
 variable "tags" {
   description = "A map of tags to add to all resources"
@@ -49,4 +39,16 @@ variable "windows_region_amis" {
     us-east-1 = "ami-e7b755f1"
     eu-west-1 = "ami-eef4de9d"
   }
+}
+
+variable "group_policies" {
+  default = [
+    "autoscaling",
+    "dynamodb",
+    "ec2",
+    "ecs",
+    "elb",
+    "iam",
+    "logs",
+  ]
 }

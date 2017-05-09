@@ -28,7 +28,7 @@ data "template_file" "user_data" {
 
   vars {
     cluster_id = "${aws_ecs_cluster.api.id}"
-    s3_bucket  = "${var.bucket_name}"
+    s3_bucket  = "${aws_s3_bucket.mod.id}"
   }
 }
 
@@ -37,20 +37,12 @@ resource "aws_launch_configuration" "api" {
   image_id             = "${lookup(var.linux_region_amis, var.region)}"
   instance_type        = "t2.small"
   security_groups      = ["${aws_security_group.api_env.id}"]
-  iam_instance_profile = "${var.instance_profile}"
+  iam_instance_profile = "${aws_iam_instance_profile.mod.id}"
   user_data            = "${data.template_file.user_data.rendered}"
   key_name             = "${var.ssh_key_pair}"
 
   lifecycle {
     create_before_destroy = true
-  }
-}
-
-data "aws_subnet_ids" "private" {
-  vpc_id = "${var.vpc_id}"
-
-  tags {
-    Tier = "Private"
   }
 }
 

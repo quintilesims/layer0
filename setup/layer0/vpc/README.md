@@ -1,4 +1,4 @@
-vpc terraform module
+VPC Terraform module
 ===========
 
 A terraform module to provide a VPC in AWS.

@@ -47,14 +47,6 @@ resource "aws_iam_server_certificate" "api" {
   private_key      = "${tls_private_key.api.private_key_pem}"
 }
 
-data "aws_subnet_ids" "public" {
-  vpc_id = "${var.vpc_id}"
-
-  tags {
-    Tier = "Public"
-  }
-}
-
 resource "aws_elb" "api" {
   name            = "l0-${var.name}-api"
   subnets         = ["${data.aws_subnet_ids.public.ids}"]
