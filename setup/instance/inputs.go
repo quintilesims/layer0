@@ -119,7 +119,6 @@ func InitializeLayer0ModuleInputs(version string) {
 	}
 }
 
-// todo: set source version
 var Layer0ModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_SOURCE,

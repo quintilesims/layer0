@@ -8,11 +8,12 @@ import (
 func (f *CommandFactory) Apply() cli.Command {
 	return cli.Command{
 		Name:      "apply",
-		Usage:     "create and/or update resources for your layer0 instance",
+		Usage:     "create and/or update resources for your Layer0 instance",
 		ArgsUsage: "NAME",
 		Flags: []cli.Flag{
 			cli.BoolFlag{
-				Name: "quick",
+				Name:  "quick",
+				Usage: "skips verification checks once 'terraform apply' has completed",
 			},
 		},
 		Action: func(c *cli.Context) error {

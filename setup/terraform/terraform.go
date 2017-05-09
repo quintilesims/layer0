@@ -12,7 +12,7 @@ import (
 
 const REQUIRED_TERRAFORM_VERSION = "0.9.4"
 
-type Terraform struct {}
+type Terraform struct{}
 
 func New() *Terraform {
 	return &Terraform{}

@@ -8,11 +8,12 @@ import (
 func (f *CommandFactory) Destroy() cli.Command {
 	return cli.Command{
 		Name:      "destroy",
-		Usage:     "destroy all resources associated with your layer0 instance",
+		Usage:     "destroy all resources associated with your Layer0 instance",
 		ArgsUsage: "NAME",
 		Flags: []cli.Flag{
 			cli.BoolFlag{
-				Name: "force",
+				Name:  "force",
+				Usage: "skip confirmation prompt",
 			},
 		},
 		Action: func(c *cli.Context) error {

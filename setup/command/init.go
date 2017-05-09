@@ -12,7 +12,7 @@ import (
 func (f *CommandFactory) Init() cli.Command {
 	return cli.Command{
 		Name:  "init",
-		Usage: "initialize or reconfigure a layer0 instance",
+		Usage: "initialize or reconfigure a Layer0 instance",
 		Flags: []cli.Flag{
 			cli.StringFlag{
 				Name:   "docker-path",
@@ -21,32 +21,32 @@ func (f *CommandFactory) Init() cli.Command {
 			},
 			cli.StringFlag{
 				Name:   "module-source",
-				Usage:  "path to Layer0 module",
+				Usage:  instance.INPUT_SOURCE_DESCRIPTION,
 				EnvVar: "LAYER0_MODULE_SOURCE",
 			},
 			cli.StringFlag{
 				Name:   "version",
-				Usage:  "version of Layer0 to use",
+				Usage:  instance.INPUT_VERSION_DESCRIPTION,
 				EnvVar: "LAYER0_VERSION",
 			},
 			cli.StringFlag{
 				Name:   "aws-access-key",
-				Usage:  "AWS access key id",
+				Usage:  instance.INPUT_AWS_ACCESS_KEY_DESCRIPTION,
 				EnvVar: config.AWS_ACCESS_KEY_ID,
 			},
 			cli.StringFlag{
 				Name:   "aws-secret-key",
-				Usage:  "AWS secret access key",
+				Usage:  instance.INPUT_AWS_SECRET_KEY_DESCRIPTION,
 				EnvVar: config.AWS_SECRET_ACCESS_KEY,
 			},
 			cli.StringFlag{
 				Name:   "aws-region",
-				Usage:  "AWS region",
+				Usage:  instance.INPUT_AWS_REGION_DESCRIPTION,
 				EnvVar: config.AWS_REGION,
 			},
 			cli.StringFlag{
 				Name:   "aws-ssh-key-pair",
-				Usage:  "AWS ssh key pair",
+				Usage:  instance.INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION,
 				EnvVar: config.AWS_SSH_KEY_PAIR,
 			},
 		},

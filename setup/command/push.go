@@ -8,7 +8,7 @@ import (
 func (f *CommandFactory) Push() cli.Command {
 	return cli.Command{
 		Name:      "push",
-		Usage:     "todo",
+		Usage:     "push a Layer0 instance configuration to S3",
 		ArgsUsage: "NAME",
 		Flags:     awsFlags,
 		Action: func(c *cli.Context) error {

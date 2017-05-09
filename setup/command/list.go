@@ -10,7 +10,7 @@ import (
 func (f *CommandFactory) List() cli.Command {
 	return cli.Command{
 		Name:  "list",
-		Usage: "list local and remote layer0 instances",
+		Usage: "list local and remote Layer0 instances",
 		Flags: awsFlags,
 		Action: func(c *cli.Context) error {
 			provider, err := f.newAWSProviderHelper(c)

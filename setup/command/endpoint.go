@@ -10,18 +10,21 @@ import (
 func (f *CommandFactory) Endpoint() cli.Command {
 	return cli.Command{
 		Name:      "endpoint",
-		Usage:     "todo",
+		Usage:     "show environment variables used to connect to a Layer0 instance",
 		ArgsUsage: "NAME",
 		Flags: []cli.Flag{
 			cli.BoolFlag{
-				Name: "i, insecure",
+				Name:  "i, insecure",
+				Usage: "show environment variables that allow for insecure settings",
 			},
 			cli.BoolFlag{
-				Name: "d, dev",
+				Name:  "d, dev",
+				Usage: "show environment variables that allow for local development",
 			},
 			cli.StringFlag{
 				Name:  "s, syntax",
 				Value: "bash",
+				Usage: "choose the syntax to display environment variables (choices: bash, cmd, powershell)",
 			},
 		},
 		Action: func(c *cli.Context) error {

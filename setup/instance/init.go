@@ -9,6 +9,10 @@ import (
 )
 
 func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]interface{}) error {
+	if err := l.validateInstanceName(); err != nil {
+		return err
+	}
+
 	if err := os.MkdirAll(l.Dir, 0700); err != nil {
 		return err
 	}

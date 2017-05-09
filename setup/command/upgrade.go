@@ -8,11 +8,12 @@ import (
 func (f *CommandFactory) Upgrade() cli.Command {
 	return cli.Command{
 		Name:      "upgrade",
-		Usage:     "upgrade your layer0 instance to a new version",
+		Usage:     "upgrade a Layer0 instance to a new version",
 		ArgsUsage: "NAME VERSION",
 		Flags: []cli.Flag{
 			cli.BoolFlag{
-				Name: "force",
+				Name:  "force",
+				Usage: "skips confirmation prompt",
 			},
 		},
 		Action: func(c *cli.Context) error {

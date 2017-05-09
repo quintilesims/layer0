@@ -5,6 +5,7 @@ import (
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
+	"github.com/quintilesims/layer0/setup/aws"
 	"github.com/quintilesims/layer0/setup/command"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
@@ -25,7 +26,7 @@ func main() {
 		},
 	}
 
-	commandFactory := command.NewCommandFactory()
+	commandFactory := command.NewCommandFactory(instance.NewLocalInstance, aws.NewProvider)
 	app.Commands = []cli.Command{
 		commandFactory.Init(),
 		commandFactory.List(),
