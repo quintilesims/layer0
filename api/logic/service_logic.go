@@ -157,17 +157,17 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 	}
 
 	serviceID := service.ServiceID
-	if err := this.upsertTag(models.Tag{EntityID: serviceID, EntityType: "service", Key: "name", Value: req.ServiceName}); err != nil {
+	if err := this.TagStore.Insert(models.Tag{EntityID: serviceID, EntityType: "service", Key: "name", Value: req.ServiceName}); err != nil {
 		return service, err
 	}
 
 	environmentID := req.EnvironmentID
-	if err := this.upsertTag(models.Tag{EntityID: serviceID, EntityType: "service", Key: "environment_id", Value: environmentID}); err != nil {
+	if err := this.TagStore.Insert(models.Tag{EntityID: serviceID, EntityType: "service", Key: "environment_id", Value: environmentID}); err != nil {
 		return service, err
 	}
 
 	if loadBalancerID := req.LoadBalancerID; loadBalancerID != "" {
-		if err := this.upsertTag(models.Tag{EntityID: serviceID, EntityType: "service", Key: "load_balancer_id", Value: loadBalancerID}); err != nil {
+		if err := this.TagStore.Insert(models.Tag{EntityID: serviceID, EntityType: "service", Key: "load_balancer_id", Value: loadBalancerID}); err != nil {
 			return service, err
 		}
 	}
@@ -196,12 +196,12 @@ func (this *L0ServiceLogic) GetServiceLogs(serviceID string, tail int) ([]*model
 }
 
 func (this *L0ServiceLogic) getEnvironmentID(serviceID string) (string, error) {
-	tags, err := this.TagStore.SelectByQuery("service", serviceID)
+	tags, err := this.TagStore.SelectByTypeAndID("service", serviceID)
 	if err != nil {
 		return "", err
 	}
 
-	if tag := tags.WithKey("environment_id").First(); tag != nil {
+	if tag, ok := tags.WithKey("environment_id").First(); ok {
 		return tag.Value, nil
 	}
 
@@ -220,7 +220,7 @@ func (this *L0ServiceLogic) getEnvironmentID(serviceID string) (string, error) {
 }
 
 func (this *L0ServiceLogic) doesServiceTagExist(environmentID, name string) (bool, error) {
-	tags, err := this.TagStore.SelectByQuery("service", "")
+	tags, err := this.TagStore.SelectByType("service")
 	if err != nil {
 		return false, err
 	}
@@ -235,57 +235,57 @@ func (this *L0ServiceLogic) doesServiceTagExist(environmentID, name string) (boo
 }
 
 func (this *L0ServiceLogic) populateModel(model *models.Service) error {
-	tags, err := this.TagStore.SelectByQuery("service", model.ServiceID)
+	tags, err := this.TagStore.SelectByTypeAndID("service", model.ServiceID)
 	if err != nil {
 		return err
 	}
 
-	if tag := tags.WithKey("environment_id").First(); tag != nil {
+	if tag, ok := tags.WithKey("environment_id").First(); ok {
 		model.EnvironmentID = tag.Value
 	}
 
-	if tag := tags.WithKey("load_balancer_id").First(); tag != nil {
+	if tag, ok := tags.WithKey("load_balancer_id").First(); ok {
 		model.LoadBalancerID = tag.Value
 	}
 
-	if tag := tags.WithKey("name").First(); tag != nil {
+	if tag, ok := tags.WithKey("name").First(); ok {
 		model.ServiceName = tag.Value
 	}
 
 	if model.EnvironmentID != "" {
-		tags, err := this.TagStore.SelectByQuery("environment", model.EnvironmentID)
+		tags, err := this.TagStore.SelectByTypeAndID("environment", model.EnvironmentID)
 		if err != nil {
 			return err
 		}
 
-		if tag := tags.WithKey("name").First(); tag != nil {
+		if tag, ok := tags.WithKey("name").First(); ok {
 			model.EnvironmentName = tag.Value
 		}
 	}
 
 	if model.LoadBalancerID != "" {
-		tags, err := this.TagStore.SelectByQuery("load_balancer", model.LoadBalancerID)
+		tags, err := this.TagStore.SelectByTypeAndID("load_balancer", model.LoadBalancerID)
 		if err != nil {
 			return err
 		}
 
-		if tag := tags.WithKey("name").First(); tag != nil {
+		if tag, ok := tags.WithKey("name").First(); ok {
 			model.LoadBalancerName = tag.Value
 		}
 	}
 
 	deployments := []models.Deployment{}
 	for _, deploy := range model.Deployments {
-		tags, err := this.TagStore.SelectByQuery("deploy", deploy.DeployID)
+		tags, err := this.TagStore.SelectByTypeAndID("deploy", deploy.DeployID)
 		if err != nil {
 			return err
 		}
 
-		if tag := tags.WithKey("name").First(); tag != nil {
+		if tag, ok := tags.WithKey("name").First(); ok {
 			deploy.DeployName = tag.Value
 		}
 
-		if tag := tags.WithKey("version").First(); tag != nil {
+		if tag, ok := tags.WithKey("version").First(); ok {
 			deploy.DeployVersion = tag.Value
 		}
 

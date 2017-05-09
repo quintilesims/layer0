@@ -99,7 +99,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tags, err := testLogic.TagStore.SelectAll()
+	tags, err := testLogic.TagStore.SelectByType("load_balancer")
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -6,8 +6,8 @@ import (
 
 type TagStore interface {
 	Init() error
-	Delete(tagID int64) error
-	Insert(tag *models.Tag) error
-	SelectAll() (models.Tags, error)
-	SelectByQuery(entityType, entityID string) (models.Tags, error)
+	Delete(entityType, entityID, key string) error
+	Insert(tag models.Tag) error
+	SelectByType(entityType string) (models.Tags, error)
+	SelectByTypeAndID(entityType, entityID string) (models.Tags, error)
 }
