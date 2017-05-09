@@ -38,8 +38,10 @@ func TestTaskPerformance(t *testing.T) {
 	}
 
 	for taskName, copies := range taskNameCopies {
-		log.Debugf("Creating task %s (copies: %d)", taskName, copies)
-		s.Layer0.CreateTask(taskName, environmentID, deployID, copies, nil)
+		go func(taskName string, copies int) {
+			log.Debugf("Creating task %s (copies: %d)", taskName, copies)
+			s.Layer0.CreateTask(taskName, environmentID, deployID, copies, nil)
+		}(taskName, copies)
 	}
 
 	testutils.WaitFor(t, time.Second*30, time.Minute*10, func() bool {
