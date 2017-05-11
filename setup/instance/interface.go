@@ -12,5 +12,6 @@ type Instance interface {
 	Plan() error
 	Pull(s s3iface.S3API) error
 	Push(s s3iface.S3API) error
+	Set(inputs map[string]interface{}) error
 	Upgrade(version string, force bool) error
 }

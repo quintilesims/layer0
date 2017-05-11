@@ -36,6 +36,7 @@ func main() {
 		commandFactory.Endpoint(),
 		commandFactory.Push(),
 		commandFactory.Pull(),
+		commandFactory.Set(),
 		commandFactory.Upgrade(),
 	}
 

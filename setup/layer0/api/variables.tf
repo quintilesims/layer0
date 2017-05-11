@@ -34,10 +34,10 @@ variable "linux_region_amis" {
 # Current AMI: Microsoft Windows Server 2016 Base with Containers
 variable "windows_region_amis" {
   default = {
-    us-west-1 = "ami-4699ca26"
-    us-west-2 = "ami-7a803d1a"
-    us-east-1 = "ami-e7b755f1"
-    eu-west-1 = "ami-eef4de9d"
+    us-west-1 = "ami-7c2b0e1c"
+    us-west-2 = "ami-7729b917"
+    us-east-1 = "ami-9667ef80"
+    eu-west-1 = "ami-b9fac0df"
   }
 }
 
@@ -50,5 +50,6 @@ variable "group_policies" {
     "elb",
     "iam",
     "logs",
+    "s3",
   ]
 }

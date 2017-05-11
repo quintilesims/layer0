@@ -93,6 +93,7 @@ data "template_file" "group_policy" {
     name       = "${var.name}"
     region     = "${var.region}"
     account_id = "${data.aws_caller_identity.current.account_id}"
+    s3_bucket  = "${aws_s3_bucket.mod.id}"
     vpc_id     = "${var.vpc_id}"
   }
 }

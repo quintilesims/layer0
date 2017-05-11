@@ -4,6 +4,16 @@
         {
             "Effect": "Allow",
             "Action": [
+                "logs:Describe*",
+                "logs:List*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
                 "logs:*"
             ],
             "Resource": [

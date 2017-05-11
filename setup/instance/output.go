@@ -1,9 +1,9 @@
 package instance
 
-func (i *LocalInstance) Output(key string) (string, error) {
-	if err := i.assertExists(); err != nil {
+func (l *LocalInstance) Output(key string) (string, error) {
+	if err := l.assertExists(); err != nil {
 		return "", err
 	}
 
-	return i.Terraform.Output(i.Dir, key)
+	return l.Terraform.Output(l.Dir, key)
 }

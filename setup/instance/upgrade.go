@@ -3,7 +3,6 @@ package instance
 import (
 	"fmt"
 	"github.com/quintilesims/layer0/setup/terraform"
-	//"github.com/Sirupsen/logrus"
 )
 
 func (l *LocalInstance) Upgrade(version string, force bool) error {

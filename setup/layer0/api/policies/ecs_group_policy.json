@@ -4,21 +4,22 @@
         {
             "Effect": "Allow",
             "Action": [
-		"ecs:Describe*",
-                "ecs:List*",
+                "ecs:RunTask",
                 "ecs:CreateService",
                 "ecs:UpdateService",
                 "ecs:DeleteService",
+                "ecs:DescribeServices",
                 "ecs:CreateCluster",
                 "ecs:RegisterTaskDefinition",
-                "ecs:DeregisterTaskDefinition"
+                "ecs:DeregisterTaskDefinition",
+                "ecs:Describe*",
+                "ecs:List*"
             ],
             "Resource": "*"
         },
 	{
             "Effect": "Allow",
             "Action": [
-		"ecs:RunTask",
 		"ecs:StartTask",
 		"ecs:StopTask"
             ],

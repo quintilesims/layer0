@@ -23,7 +23,9 @@
 		{
 			"Effect": "Allow",
 			"Action": [
-				"iam:ListServerCertificates"
+				"iam:List*",
+				"iam:Get*",
+				"iam:PutRolePolicy"
 			],
 			"Resource": "*"
 		}

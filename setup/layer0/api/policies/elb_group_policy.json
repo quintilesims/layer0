@@ -1,6 +1,13 @@
 {
     "Version": "2012-10-17",
     "Statement": [
+	{
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:Describe*"
+            ],
+            "Resource": "*"
+        },
         {
             "Effect": "Allow",
             "Action": [

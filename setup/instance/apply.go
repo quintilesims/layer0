@@ -1,6 +1,7 @@
 package instance
 
 import (
+	"crypto/tls"
 	"fmt"
 	"github.com/Sirupsen/logrus"
 	"net/http"
@@ -29,10 +30,15 @@ func (l *LocalInstance) Apply(wait bool) error {
 }
 
 func (l *LocalInstance) waitForHealthyAPI(endpoint string, timeout time.Duration) error {
-	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 15) {
-		logrus.Infof("Waiting for API Service to be healthy... (%3s)", time.Since(start))
+	tr := &http.Transport{
+		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+	}
+	client := &http.Client{Transport: tr}
 
-		resp, err := http.Get(endpoint)
+	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 15) {
+		logrus.Infof("Waiting for API Service to be healthy... (%s)", time.Since(start).String())
+
+		resp, err := client.Get(endpoint)
 		if err != nil {
 			logrus.Debugf("Error occurred during GET %s: %v", endpoint, err)
 			continue
