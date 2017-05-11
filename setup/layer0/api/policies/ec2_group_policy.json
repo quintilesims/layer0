@@ -4,18 +4,7 @@
         {
             "Effect": "Allow",
             "Action": [
-                "ec2:Describe*",
-                "ec2:CreateSecurityGroup",
-                "ec2:CreateTags"
-            ],
-            "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ec2:AuthorizeSecurityGroup*",
-                "ec2:RevokeSecurityGroup*",
-                "ec2:DeleteSecurityGroup"
+                "ec2:*"
             ],
             "Resource": "*",
             "Condition": {

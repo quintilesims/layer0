@@ -4,9 +4,39 @@
         {
             "Effect": "Allow",
             "Action": [
-                "ecs:*"
+		"ecs:Describe*",
+                "ecs:List*",
+                "ecs:CreateService",
+                "ecs:UpdateService",
+                "ecs:DeleteService",
+                "ecs:CreateCluster",
+                "ecs:RegisterTaskDefinition",
+                "ecs:DeregisterTaskDefinition"
             ],
             "Resource": "*"
+        },
+	{
+            "Effect": "Allow",
+            "Action": [
+		"ecs:RunTask",
+		"ecs:StartTask",
+		"ecs:StopTask"
+            ],
+            "Resource": "*",
+	    "Condition": {
+		"ArnEquals": {
+		    "ecs:cluster": "arn:aws:ecs:${region}:${account_id}:cluster/l0-${name}-*"
+		}
+	    }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ecs:DeleteCluster"
+            ],
+            "Resource": [
+		"arn:aws:ecs:${region}:${account_id}:cluster/l0-${name}-*"
+	    ]
         }
     ]
 }

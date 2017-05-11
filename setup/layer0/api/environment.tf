@@ -37,7 +37,7 @@ resource "aws_launch_configuration" "api" {
   image_id             = "${lookup(var.linux_region_amis, var.region)}"
   instance_type        = "t2.small"
   security_groups      = ["${aws_security_group.api_env.id}"]
-  iam_instance_profile = "${aws_iam_instance_profile.mod.id}"
+  iam_instance_profile = "${aws_iam_instance_profile.ecs.id}"
   user_data            = "${data.template_file.user_data.rendered}"
   key_name             = "${var.ssh_key_pair}"
 

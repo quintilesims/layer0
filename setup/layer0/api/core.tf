@@ -8,7 +8,6 @@ data "aws_subnet_ids" "public" {
   }
 }
 
-
 data "aws_subnet_ids" "private" {
   vpc_id = "${var.vpc_id}"
 
@@ -33,18 +32,18 @@ resource "aws_cloudwatch_log_group" "mod" {
   name = "l0-${var.name}"
 }
 
-data "template_file" "assume_role_policy" {
-  template = "${file("${path.module}/policies/assume_role_policy.json")}"
+data "template_file" "ecs_assume_role_policy" {
+  template = "${file("${path.module}/policies/ecs_assume_role_policy.json")}"
 }
 
-resource "aws_iam_role" "mod" {
-  name               = "l0-${var.name}-role"
+resource "aws_iam_role" "ecs" {
+  name               = "l0-${var.name}-ecs-role"
   path               = "/l0/l0-${var.name}/"
-  assume_role_policy = "${data.template_file.assume_role_policy.rendered}"
+  assume_role_policy = "${data.template_file.ecs_assume_role_policy.rendered}"
 }
 
-data "template_file" "role_policy" {
-  template = "${file("${path.module}/policies/role_policy.json")}"
+data "template_file" "ecs_role_policy" {
+  template = "${file("${path.module}/policies/ecs_role_policy.json")}"
 
   vars {
     name       = "${var.name}"
@@ -54,16 +53,16 @@ data "template_file" "role_policy" {
   }
 }
 
-resource "aws_iam_role_policy" "mod" {
-  name   = "l0-${var.name}-role-policy"
-  role   = "${aws_iam_role.mod.id}"
-  policy = "${data.template_file.role_policy.rendered}"
+resource "aws_iam_role_policy" "ecs" {
+  name   = "l0-${var.name}-ecs-role-policy"
+  role   = "${aws_iam_role.ecs.id}"
+  policy = "${data.template_file.ecs_role_policy.rendered}"
 }
 
-resource "aws_iam_instance_profile" "mod" {
-  name = "l0-${var.name}-instance-profile"
+resource "aws_iam_instance_profile" "ecs" {
+  name = "l0-${var.name}-ecs-instance-profile"
   path = "/l0/l0-${var.name}/"
-  role = "${aws_iam_role.mod.name}"
+  role = "${aws_iam_role.ecs.name}"
 }
 
 resource "aws_iam_user" "mod" {

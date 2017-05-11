@@ -27,11 +27,11 @@ output "bucket_name" {
 }
 
 output "instance_profile" {
-  value = "${aws_iam_instance_profile.mod.id}"
+  value = "${aws_iam_instance_profile.ecs.id}"
 }
 
 output "iam_role" {
-  value = "${aws_iam_role.mod.id}"
+  value = "${aws_iam_role.ecs.id}"
 }
 
 output "log_group" {
