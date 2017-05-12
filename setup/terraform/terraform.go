@@ -98,7 +98,10 @@ func (t *Terraform) validateTerraformVersion() error {
 		return fmt.Errorf("Could not determine current Terraform version: %v", err)
 	}
 
-	version := strings.TrimSpace(string(output))
+	// only grab the first line - terraform will add additional messages
+	// when terraform is out o fdate
+	version := strings.Split(string(output), "\n")[0]
+	version = strings.TrimSpace(version)
 	version = strings.TrimPrefix(version, "Terraform v")
 
 	current, err := semver.Make(version)
