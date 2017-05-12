@@ -17,37 +17,30 @@ func (f *CommandFactory) Init() cli.Command {
 			cli.StringFlag{
 				Name:   "docker-path",
 				Usage:  "path to docker config.json file",
-				EnvVar: "LAYER0_DOCKERCFG_PATH",
 			},
 			cli.StringFlag{
 				Name:   "module-source",
 				Usage:  instance.INPUT_SOURCE_DESCRIPTION,
-				EnvVar: "LAYER0_MODULE_SOURCE",
 			},
 			cli.StringFlag{
 				Name:   "version",
 				Usage:  instance.INPUT_VERSION_DESCRIPTION,
-				EnvVar: "LAYER0_VERSION",
 			},
 			cli.StringFlag{
 				Name:   "aws-access-key",
 				Usage:  instance.INPUT_AWS_ACCESS_KEY_DESCRIPTION,
-				EnvVar: config.AWS_ACCESS_KEY_ID,
 			},
 			cli.StringFlag{
 				Name:   "aws-secret-key",
 				Usage:  instance.INPUT_AWS_SECRET_KEY_DESCRIPTION,
-				EnvVar: config.AWS_SECRET_ACCESS_KEY,
 			},
 			cli.StringFlag{
 				Name:   "aws-region",
 				Usage:  instance.INPUT_AWS_REGION_DESCRIPTION,
-				EnvVar: config.AWS_REGION,
 			},
 			cli.StringFlag{
 				Name:   "aws-ssh-key-pair",
 				Usage:  instance.INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION,
-				EnvVar: config.AWS_SSH_KEY_PAIR,
 			},
 		},
 		Action: func(c *cli.Context) error {
