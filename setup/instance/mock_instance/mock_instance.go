@@ -100,6 +100,16 @@ func (_mr *_MockInstanceRecorder) Push(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Push", arg0)
 }
 
+func (_m *MockInstance) Set(_param0 map[string]interface{}) error {
+	ret := _m.ctrl.Call(_m, "Set", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockInstanceRecorder) Set(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "Set", arg0)
+}
+
 func (_m *MockInstance) Upgrade(_param0 string, _param1 bool) error {
 	ret := _m.ctrl.Call(_m, "Upgrade", _param0, _param1)
 	ret0, _ := ret[0].(error)

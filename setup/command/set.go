@@ -9,12 +9,12 @@ import (
 func (f *CommandFactory) Set() cli.Command {
 	return cli.Command{
 		Name:      "set",
-		Usage:     "set a input variable(s) for the Layer0 module",
+		Usage:     "set input variable(s) for the Layer0 module",
 		ArgsUsage: "NAME",
 		Flags: []cli.Flag{
 			cli.StringSliceFlag{
 				Name:  "input",
-				Usage: "Specify input in key=val format",
+				Usage: "Specify an input using key=val format",
 			},
 		},
 		Action: func(c *cli.Context) error {
