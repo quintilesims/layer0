@@ -7,8 +7,8 @@
 				"iam:PassRole",
 				"iam:CreateRole",
 				"iam:ListRolePolicies",
-				"iam:DeleteRole",
-				"iam:DeleteRolePolicy",
+				"iam:Delete*",
+				"iam:Remove*",
 				"iam:GetUser",
 				"iam:ListInstanceProfiles"
 			],
