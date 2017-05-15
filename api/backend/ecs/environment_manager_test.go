@@ -397,15 +397,12 @@ func TestCreateEnvironment(t *testing.T) {
 					Return(nil)
 
 				var checkLaunchConfig = func(name, amiID, iamInstanceProfile, instanceType, keyName, userData *string, securityGroups []*string, volSizes map[string]int) error {
-					agentSGID := config.TEST_AWS_ECS_AGENT_SECURITY_GROUP_ID
-
 					reporter.AssertEqualf(launchConfigurationName, *name, "LaunchConfigurationName")
 					reporter.AssertEqualf("amiid", *amiID, "AMI ID")
 					reporter.AssertEqualf(config.TEST_AWS_ECS_INSTANCE_PROFILE, *iamInstanceProfile, "InstanceProfile")
 					reporter.AssertEqualf("m3.medium", *instanceType, "Instance Type")
 					reporter.AssertEqualf(config.TEST_AWS_KEY_PAIR, *keyName, "KeyPair")
 					reporter.AssertEqualf(securityGroupID, *securityGroups[0], "SecurityGroupID 0")
-					reporter.AssertEqualf(agentSGID, *securityGroups[1], "SecurityGroupID 1")
 					reporter.AssertEqualf(volSizes, map[string]int{"/dev/xvda": 8}, "Volume Sizes")
 
 					return nil

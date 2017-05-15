@@ -8,7 +8,7 @@ import (
 func (f *CommandFactory) Apply() cli.Command {
 	return cli.Command{
 		Name:      "apply",
-		Usage:     "create and/or update resources for your Layer0 instance",
+		Usage:     "create and/or update resources for a Layer0 instance",
 		ArgsUsage: "NAME",
 		Flags: []cli.Flag{
 			cli.BoolFlag{

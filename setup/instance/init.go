@@ -17,6 +17,11 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 		return err
 	}
 
+	// create/write ~/.layer/<instance>/dockercfg.json
+	if err := l.createOrWriteDockerCFG(dockerInputPath); err != nil {
+		return err
+	}
+
 	// load terraform config from ~/.layer0/<instance>/main.tf.json, or create a new one
 	config, err := l.loadLayer0Config()
 	if err != nil {
@@ -39,13 +44,8 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 		return err
 	}
 
-	// run `terraform fmt` to validate the terraform syntax
-	if err := l.Terraform.FMT(l.Dir); err != nil {
-		return err
-	}
-
-	// create/write ~/.layer/<instance>/dockercfg.json
-	if err := l.createOrWriteDockerCFG(dockerInputPath); err != nil {
+	// validate the terraform configuration
+	if err := l.Terraform.Validate(l.Dir); err != nil {
 		return err
 	}
 

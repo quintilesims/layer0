@@ -37,7 +37,7 @@ func (l *LocalInstance) Push(s s3iface.S3API) error {
 		}
 
 		key := strings.Replace(path, l.Dir, "terraform", 1)
-		logrus.Infof("Pushing %s to s3://%s/%s\n", path, bucket, key)
+		logrus.Infof("Pushing %s to s3://%s/%s", path, bucket, key)
 
 		input := &s3.PutObjectInput{
 			Bucket:      aws.String(bucket),

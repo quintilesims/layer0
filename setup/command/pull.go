@@ -8,7 +8,7 @@ import (
 func (f *CommandFactory) Pull() cli.Command {
 	return cli.Command{
 		Name:      "pull",
-		Usage:     "Pull a Layer0 instance configuration from S3",
+		Usage:     "pull a Layer0 instance configuration from S3",
 		ArgsUsage: "NAME",
 		Flags:     awsFlags,
 		Action: func(c *cli.Context) error {

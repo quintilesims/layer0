@@ -14,12 +14,12 @@ import (
 var awsFlags = []cli.Flag{
 	cli.StringFlag{
 		Name:   "aws-access-key",
-		Usage:  "Acess Key portion of an AWS key",
+		Usage:  "access key portion of an AWS key",
 		EnvVar: config.AWS_ACCESS_KEY_ID,
 	},
 	cli.StringFlag{
 		Name:   "aws-secret-key",
-		Usage:  "Secret Key portion on an AWS key",
+		Usage:  "secret key portion on an AWS key",
 		EnvVar: config.AWS_SECRET_ACCESS_KEY,
 	},
 	cli.StringFlag{

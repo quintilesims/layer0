@@ -5,15 +5,15 @@ import (
 )
 
 const (
-	TEST_PREFIX                          = "l0"
-	TEST_AWS_PRIVATE_SUBNETS             = "subnet-12345678,subnet-87654321"
-	TEST_AWS_PUBLIC_SUBNETS              = "subnet-11111111,subnet-22222222"
-	TEST_AWS_VPC_ID                      = "vpc-12345678"
-	TEST_AWS_ECS_INSTANCE_PROFILE        = "l0-test-vpc-ECSInstanceProfile-123456789ABC"
-	TEST_AWS_S3_BUCKET                   = "layer0-l0-123456789ABC"
-	TEST_AWS_SERVICE_AMI                 = "ami-abc123"
-	TEST_AWS_ECS_ROLE                    = "role-abc123"
-	TEST_AWS_KEY_PAIR                    = "test-key-pair"
+	TEST_PREFIX                   = "l0"
+	TEST_AWS_PRIVATE_SUBNETS      = "subnet-12345678,subnet-87654321"
+	TEST_AWS_PUBLIC_SUBNETS       = "subnet-11111111,subnet-22222222"
+	TEST_AWS_VPC_ID               = "vpc-12345678"
+	TEST_AWS_ECS_INSTANCE_PROFILE = "l0-test-vpc-ECSInstanceProfile-123456789ABC"
+	TEST_AWS_S3_BUCKET            = "layer0-l0-123456789ABC"
+	TEST_AWS_SERVICE_AMI          = "ami-abc123"
+	TEST_AWS_ECS_ROLE             = "role-abc123"
+	TEST_AWS_KEY_PAIR             = "test-key-pair"
 )
 
 func SetTestConfig() {

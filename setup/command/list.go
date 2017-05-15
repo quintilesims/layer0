@@ -15,15 +15,15 @@ type status struct {
 func (f *CommandFactory) List() cli.Command {
 	return cli.Command{
 		Name:  "list",
-		Usage: "list local and remote Layer0 instances. Local and remote status is denoted by 'l' and 'r'",
+		Usage: "list local and/or remote Layer0 instances",
 		Flags: append(awsFlags,
 			cli.BoolTFlag{
 				Name:  "l, local",
-				Usage: "show local Layer0 instances (default: true)",
+				Usage: "show local Layer0 instances, denoted by 'l' (default: true)",
 			},
 			cli.BoolTFlag{
 				Name:  "r, remote",
-				Usage: "show remote Layer0 instances (default: true)",
+				Usage: "show remote Layer0 instances, denoted by 'r' (default: true)",
 			}),
 		Action: func(c *cli.Context) error {
 			instances := map[string]status{}
@@ -42,12 +42,12 @@ func (f *CommandFactory) List() cli.Command {
 			fmt.Println("STATUS \t NAME")
 			sortAndIterate(instances, func(name string, status status) {
 				switch {
-					case status.Local && !status.Remote:
-						fmt.Printf("l \t %s\n", name)
-					case !status.Local && status.Remote:
-                                                fmt.Printf("r \t %s\n", name)
-					default:	
-						fmt.Printf("lr \t %s\n", name)
+				case status.Local && !status.Remote:
+					fmt.Printf("l \t %s\n", name)
+				case !status.Local && status.Remote:
+					fmt.Printf("r \t %s\n", name)
+				default:
+					fmt.Printf("lr \t %s\n", name)
 				}
 			})
 

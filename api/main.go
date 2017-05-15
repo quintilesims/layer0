@@ -72,10 +72,6 @@ func setupRestful(lgc logic.Logic) {
 
 		http.Redirect(w, r, config.SwaggerPath, 302)
 	})
-
-	if err := adminLogic.UpdateSQL(); err != nil {
-		logrus.Errorf("Failed to update sql: %v", err)
-	}
 }
 
 type SwaggerRedirectHandler struct{}
@@ -145,6 +141,11 @@ func main() {
 	deployLogic := logic.NewL0DeployLogic(*lgc)
 	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
 	environmentLogic := logic.NewL0EnvironmentLogic(*lgc)
+	adminLogic := logic.NewL0AdminLogic(*lgc)
+
+	if err := adminLogic.UpdateSQL(); err != nil {
+		logrus.Errorf("Failed to update sql: %v", err)
+	}
 
 	jobJanitor := logic.NewJobJanitor(jobLogic)
 	go runEnvironmentScaler(environmentLogic)

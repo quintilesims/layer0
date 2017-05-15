@@ -51,8 +51,8 @@ func (l *LocalInstance) Upgrade(version string, force bool) error {
 		return err
 	}
 
-	// run `terraform fmt` to validate the terraform syntax
-	if err := l.Terraform.FMT(l.Dir); err != nil {
+	// validate the terraform configuration
+	if err := l.Terraform.Validate(l.Dir); err != nil {
 		return err
 	}
 

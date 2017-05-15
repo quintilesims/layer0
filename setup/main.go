@@ -18,6 +18,14 @@ var Version string
 func main() {
 	app := cli.NewApp()
 	app.Name = "Layer0 Setup"
+	app.Usage = "Create and manage Layer0 instances"
+	app.UsageText = "l0-setup [global options] command [command options] [arguments...]"
+
+	app.Version = Version
+	if Version == "" {
+		app.Version = "unset/developer"
+	}
+
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:   "l, log",
@@ -63,11 +71,6 @@ func main() {
 		instance.InitializeLayer0ModuleInputs(Version)
 
 		return nil
-	}
-
-	app.Version = Version
-	if Version == "" {
-		app.Version = "unset/developer"
 	}
 
 	if err := app.Run(os.Args); err != nil {

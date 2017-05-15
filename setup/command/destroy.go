@@ -8,7 +8,7 @@ import (
 func (f *CommandFactory) Destroy() cli.Command {
 	return cli.Command{
 		Name:      "destroy",
-		Usage:     "destroy all resources associated with your Layer0 instance",
+		Usage:     "destroy all resources associated with a Layer0 instance",
 		ArgsUsage: "NAME",
 		Flags: []cli.Flag{
 			cli.BoolFlag{

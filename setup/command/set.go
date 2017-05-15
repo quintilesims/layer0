@@ -9,7 +9,7 @@ import (
 func (f *CommandFactory) Set() cli.Command {
 	return cli.Command{
 		Name:      "set",
-		Usage:     "set input variable(s) for the Layer0 module",
+		Usage:     "set input variable(s) for a Layer0 instance's Terraform module",
 		ArgsUsage: "NAME",
 		Flags: []cli.Flag{
 			cli.StringSliceFlag{

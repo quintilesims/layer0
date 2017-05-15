@@ -30,8 +30,8 @@ func (t *Terraform) Destroy(dir string, force bool) error {
 	return t.run(dir, "destroy")
 }
 
-func (t *Terraform) FMT(dir string) error {
-	return t.run(dir, "fmt")
+func (t *Terraform) Validate(dir string) error {
+	return t.run(dir, "validate")
 }
 
 func (t *Terraform) Get(dir string) error {

@@ -1,20 +1,14 @@
 package command
 
 import (
-	"flag"
-	"fmt"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/cli/client/mock_client"
 	"github.com/quintilesims/layer0/cli/command/mock_command"
 	"github.com/quintilesims/layer0/cli/printer"
-	"github.com/urfave/cli"
 	"io/ioutil"
 	"os"
 	"testing"
-	"time"
 )
-
-var TEST_TIMEOUT = time.Minute * 15
 
 type TestCommand struct {
 	Client   *mock_client.MockClient
