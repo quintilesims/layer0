@@ -54,6 +54,7 @@ func (f *CommandFactory) newAWSProviderHelper(c *cli.Context) (*aws.Provider, er
 		return nil, err
 	}
 
+	// use region if passed in by the user
 	config.WithRegion(aws.DEFAULT_AWS_REGION)
 	if region := c.String("aws-region"); region != "" {
 		config.WithRegion(region)
