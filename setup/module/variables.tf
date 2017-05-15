@@ -20,4 +20,5 @@ variable "password" {}
 
 variable "vpc_id" {
   description = "optional - use an empty string to provision a new vpc"
+  type        = "string"
 }

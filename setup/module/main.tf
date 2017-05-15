@@ -7,8 +7,8 @@ provider "aws" {
 data "aws_caller_identity" "current" {}
 
 module "vpc" {
-  # todo: change once 'count' param supported: count = "${var.vpc_id == "" ? 1 : 0 }"
-  count_hack = "${var.vpc_id == "" ? 1 : 0}"
+  # todo: count_hack is workaround for https://github.com/hashicorp/terraform/issues/953
+  count_hack = "${ var.vpc_id == "" ? 1 : 0 }"
 
   source          = "./vpc"
   name            = "${var.name}"
@@ -23,13 +23,16 @@ module "vpc" {
 }
 
 module "api" {
-  source       = "./api"
-  name         = "${var.name}"
-  region       = "${var.region}"
-  version      = "${var.version}"
-  username     = "${var.username}"
-  password     = "${var.password}"
-  vpc_id       = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id}"
+  source   = "./api"
+  name     = "${var.name}"
+  region   = "${var.region}"
+  version  = "${var.version}"
+  username = "${var.username}"
+  password = "${var.password}"
+
+  # todo: format hack is a workaround for https://github.com/hashicorp/terraform/issues/14399
+  vpc_id = "${ var.vpc_id == "" ? format("%s", module.vpc.vpc_id) : var.vpc_id }"
+
   ssh_key_pair = "${var.ssh_key_pair}"
   dockercfg    = "${var.dockercfg}"
 

@@ -3,7 +3,6 @@ package command
 import (
 	"fmt"
 	"github.com/docker/docker/pkg/homedir"
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 	"strings"
@@ -15,32 +14,32 @@ func (f *CommandFactory) Init() cli.Command {
 		Usage: "initialize or reconfigure a Layer0 instance",
 		Flags: []cli.Flag{
 			cli.StringFlag{
-				Name:   "docker-path",
-				Usage:  "path to docker config.json file",
+				Name:  "docker-path",
+				Usage: "path to docker config.json file",
 			},
 			cli.StringFlag{
-				Name:   "module-source",
-				Usage:  instance.INPUT_SOURCE_DESCRIPTION,
+				Name:  "module-source",
+				Usage: instance.INPUT_SOURCE_DESCRIPTION,
 			},
 			cli.StringFlag{
-				Name:   "version",
-				Usage:  instance.INPUT_VERSION_DESCRIPTION,
+				Name:  "version",
+				Usage: instance.INPUT_VERSION_DESCRIPTION,
 			},
 			cli.StringFlag{
-				Name:   "aws-access-key",
-				Usage:  instance.INPUT_AWS_ACCESS_KEY_DESCRIPTION,
+				Name:  "aws-access-key",
+				Usage: instance.INPUT_AWS_ACCESS_KEY_DESCRIPTION,
 			},
 			cli.StringFlag{
-				Name:   "aws-secret-key",
-				Usage:  instance.INPUT_AWS_SECRET_KEY_DESCRIPTION,
+				Name:  "aws-secret-key",
+				Usage: instance.INPUT_AWS_SECRET_KEY_DESCRIPTION,
 			},
 			cli.StringFlag{
-				Name:   "aws-region",
-				Usage:  instance.INPUT_AWS_REGION_DESCRIPTION,
+				Name:  "aws-region",
+				Usage: instance.INPUT_AWS_REGION_DESCRIPTION,
 			},
 			cli.StringFlag{
-				Name:   "aws-ssh-key-pair",
-				Usage:  instance.INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION,
+				Name:  "aws-ssh-key-pair",
+				Usage: instance.INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION,
 			},
 		},
 		Action: func(c *cli.Context) error {

@@ -72,6 +72,10 @@ func setupRestful(lgc logic.Logic) {
 
 		http.Redirect(w, r, config.SwaggerPath, 302)
 	})
+
+	if err := adminLogic.UpdateSQL(); err != nil {
+		logrus.Errorf("Failed to update sql: %v", err)
+	}
 }
 
 type SwaggerRedirectHandler struct{}

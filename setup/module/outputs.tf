@@ -26,8 +26,9 @@ output "secret_key" {
   value = "${module.api.user_secret_key}"
 }
 
+# todo :conditional
 output "vpc_id" {
-  value = "${var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id}"
+  value = "${ var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id }"
 }
 
 output "public_subnets" {
