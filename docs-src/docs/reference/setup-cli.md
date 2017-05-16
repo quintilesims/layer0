@@ -3,8 +3,7 @@ The Layer0 Setup application (commonly called **l0-setup**), is used to provisio
 
 ---
 ## General Usage
-* Terraform
-You can use the `-h, --help` command to get information about a `l0-setup` command:
+You can use the `-h, --help` command to get genrate information about the `l0-setup` tool:
 
 ```
 $ l0-setup -h
@@ -39,7 +38,7 @@ GLOBAL OPTIONS:
 ---
 ## Init
 The **init** command is used to initialize or reconfigure a Layer0 instance. 
-This command will prompt the user for inputs required to create/update the Layer0 instance. 
+This command will prompt the user for inputs required to create/update a Layer0 instance. 
 Each of the inputs can be specified through an optional flag.
 
 ### Usage
@@ -51,8 +50,7 @@ $ l0-setup init [options] <instance_name>
 * `--docker-path` - Path to docker config.json file. 
 This is used to include private Docker Registry authentication for this Layer0 instance.
 * `--module-source` - The source input variable is the path to the Terraform Layer0. 
-By default, this points to the Layer0 github repository with the same version tag
-as the l0-setup binary. 
+By default, this points to the Layer0 github repository. 
 Using values other than the default may result in undesired consequences.
 * `--version` - The version input variable specifies the tag to use for the Layer0
 Docker images: `quintilesims/l0-api` and `quintilesims/l0-runner`.
@@ -63,7 +61,7 @@ It is recommended this key has the `AdministratorAccess` policy.
 * `--aws-secret-key` The secret_key input variable is used to provision the AWS resources
 required for Layer0. 
 This corresponds to the Secret Access Key portion of an AWS Access Key.
-It is recommended this key has the 'AdministratorAccess' policy.
+It is recommended this key has the `AdministratorAccess` policy.
 * `--aws-region` - The region input variable specifies which region to provision the
 AWS resources required for Layer0. The following regions can be used:
     - us-west-1

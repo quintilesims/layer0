@@ -38,7 +38,7 @@ You will use the credentials created in this section when creating, updating, or
 8. Select the group **Administrators** and click **Add to Groups**. This will make your newly created user an administrator for your AWS account, so be sure to keep your security credentials safe!
 
 ## Part 3: Create a new Layer0 Instance
-Now that you have downloaded Layer0 and configured your AWS account, you can create your Layer0.
+Now that you have downloaded Layer0 and configured your AWS account, you can create your Layer0 instance.
 Fom a command prompt, run the following (replacing `<instance_name>` with a name for your Layer0 instance:
 ```
 $ l0-setup init <instance_name>
@@ -49,6 +49,7 @@ Simply press `enter` on all of the optional inputs to use the default values.
 Enter the required values for **AWS Access Key**, **AWS Secret Key**, and **AWS SSH Key** as they come up:
 
 ```
+...
 AWS Access Key: The access_key input variable is used to provision the AWS resources
 required for Layer0. This corresponds to the Access Key ID portion of an AWS Access Key.
 It is recommended this key has the 'AdministratorAccess' policy. Note that Layer0 will
@@ -78,6 +79,7 @@ that have already been provisioned.
 [current: <none>]
 Please enter a value and press 'enter'.
         Input: mySSHKey
+...
 ```
 
 The first time you run the **apply** command, it may take around 5 minutes to complete. 
@@ -87,7 +89,7 @@ It's a good idea to run the **push** command after **apply** commands complete.
 This will send a backup of your Layer0 instance's configuration and state to S3. 
 These files can be grabbed later using the **pull** command. 
 
-!!! note Using a Private Docker Registry
+!!! note "Using a Private Docker Registry"
     **The procedures in this section are optional, but are highly recommended for production use.**
 
 If you require authentication to a private Docker registry, you will need a Docker configuration file present on your machine with access to private repositories (typically located at `~/.docker/config.json`). 
@@ -103,7 +105,7 @@ $ l0-setup init --docker-path=<path/to/config.json> <instance_name>
 This will add a rendered file, `dockercfg.json` into your Layer0 instance's directory (`~/.layer0/<instance_name>/`).
 
 You can modify a Layer0 instance's `dockercfg.json` file and re-run the **apply** command to make changes to your authentication. 
-Note that any EC2 instances created prior to changing your `dockercfg.json` file will need to be manually terminated since they only grab the dockercfg authentication file once during instance creation. 
+Note that any EC2 instances created prior to changing your `dockercfg.json` file will need to be manually terminated since they only grab the authentication file during instance creation. 
 Terminated EC2 instances will be automatically re-created by autoscaling.
 
 ## Part 4: Connect to a Layer0 Instance
@@ -111,7 +113,7 @@ Once the **apply** command has run successfully, you can configure the environme
 
 ```
 $ l0-setup endpoint --insecure <instance_name>
-export LAYER0_API_ENDPOINT="https://l0-instance_name-api-1469040065.us-west-2.elb.amazonaws.com"
+export LAYER0_API_ENDPOINT="https://l0-instance_name-api-123456.us-west-2.elb.amazonaws.com"
 export LAYER0_AUTH_TOKEN="abcDEFG123"
 export LAYER0_SKIP_SSL_VERIFY="1"
 export LAYER0_SKIP_VERSION_VERIFY="1"
@@ -122,5 +124,6 @@ This is required as the Layer0 API created uses a self-signed certificate by def
 These settings are **not** recommended for production use!
 
 The **endpoint** command supports a `--syntax` option, which can be used to turn configuration into a single line:
+
 * Bash (default) - `$ eval "$(l0-setup endpoint --insecure <instance_name>)"`
 * Powershell - `$ l0-setup endpoint --insecure --syntax=powershell <instance_name> | Out-String | Invoke-Expression`

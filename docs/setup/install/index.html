@@ -236,20 +236,14 @@
             </li>
           
             <li class="anchor">
-              <a title="Part 3: Configure your Layer0" href="#part-3-configure-your-layer0">
-                Part 3: Configure your Layer0
+              <a title="Part 3: Create a new Layer0 Instance" href="#part-3-create-a-new-layer0-instance">
+                Part 3: Create a new Layer0 Instance
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Part 4: Configure the environment variables" href="#part-4-configure-the-environment-variables">
-                Part 4: Configure the environment variables
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="(Optional) Part 6: Using a custom certificate" href="#optional-part-6-using-a-custom-certificate">
-                (Optional) Part 6: Using a custom certificate
+              <a title="Part 4: Connect to a Layer0 Instance" href="#part-4-connect-to-a-layer0-instance">
+                Part 4: Connect to a Layer0 Instance
               </a>
             </li>
           
@@ -460,7 +454,7 @@
       <article class="article">
         <div class="wrapper">
           
-          <h1 id="install-and-configure-layer0">Install and Configure Layer0<a class="headerlink" href="#install-and-configure-layer0" title="Permanent link">#</a></h1>
+          <h1 id="create-a-new-layer0-instance">Create a new Layer0 Instance<a class="headerlink" href="#create-a-new-layer0-instance" title="Permanent link">#</a></h1>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h2>
 <p>Before you can install and configure Layer0, you must obtain the following:</p>
 <ul>
@@ -470,14 +464,16 @@
 <h2 id="part-1-download-and-extract-layer0">Part 1: Download and extract Layer0<a class="headerlink" href="#part-1-download-and-extract-layer0" title="Permanent link">#</a></h2>
 <ol>
 <li>In the <a href="../../index.html#download">Downloads section of the home page</a>, select the appropriate installation file for your operating system. Extract the zip file to a directory on your computer.</li>
-<li>Add both the directory that contains the <strong>l0</strong> application, as well as the entire l0-setup directory, to your system path. The l0-setup directory contains files that are necessary for the <strong>l0-setup</strong> application to work properly, so you must add the entire directory to your path.<br />For more information about adding directories to your system path, see the following resources:<ul>
+<li>(Optional) Place the <strong>l0</strong> and <strong>l0-setup</strong> binaries into your system path. 
+For more information about adding directories to your system path, see the following resources:<ul>
 <li>(Windows): <a href="http://www.howtogeek.com/118594/how-to-edit-your-system-path-for-easy-command-line-access/">How to Edit Your System PATH for Easy Command Line Access in Windows</a></li>
 <li>(Linux/macOS): <a href="http://www.troubleshooters.com/linux/prepostpath.htm">Adding a Directory to the Path</a></li>
 </ul>
 </li>
 </ol>
 <h2 id="part-2-create-an-access-key">Part 2: Create an Access Key<a class="headerlink" href="#part-2-create-an-access-key" title="Permanent link">#</a></h2>
-<p>This step will create an Identity &amp; Access Management (IAM) access key from your AWS account. You will use the credentials created in this section when installing, updating, or removing Layer0 resources.</p>
+<p>This step will create an Identity &amp; Access Management (IAM) access key from your AWS account. 
+You will use the credentials created in this section when creating, updating, or removing Layer0 instances.</p>
 <p><strong>To create an Access Key:</strong></p>
 <ol>
 <li>
@@ -505,64 +501,82 @@
 <p>Select the group <strong>Administrators</strong> and click <strong>Add to Groups</strong>. This will make your newly created user an administrator for your AWS account, so be sure to keep your security credentials safe!</p>
 </li>
 </ol>
-<h2 id="part-3-configure-your-layer0">Part 3: Configure your Layer0<a class="headerlink" href="#part-3-configure-your-layer0" title="Permanent link">#</a></h2>
-<p>Now that you have downloaded Layer0 and configured your AWS instance, you can create your Layer0.</p>
-<p><strong>To configure Layer0:</strong></p>
-<ol>
-<li>
-<p>At the command prompt, navigate to the <strong>l0-setup</strong> subdirectory in the folder in which you extracted the Layer0 files.</p>
-</li>
-<li>
-<p>Type the following command, replacing <code>[prefix]</code> with a unique name for your Layer0: <code>l0-setup apply [prefix]</code> <div class="admonition note">
-<p class="admonition-title">Using a private Docker registry</p>
-<br /><br />
-<p><strong>The procedures in this section are optional, but are highly recommended for production use.</strong></p>
-<br /><br />
-<p>If you require authentication to a private Docker registry, you will need to populate a file named <code>dockercfg</code> inside your Layer0 instance directory, located at <code>~/layer0/instances/[prefix]/dockercfg</code>. When you run <code>l0-setup</code> for the first time, use the <code>--dockercfg</code> flag, like so:</p>
-<br /><br />
-<p><code>l0-setup apply --dockercfg [path/to/config/file] [prefix]</code></p>
-<br /><br />
-<p>If you don't have a config file yet, you can generate one by running <code>docker login [registry-address]</code>. A configuration file will be generated at <code>~/.docker/config.json</code> for Docker versions 1.7 or higher, or at <code>~/.dockercfg</code> for Docker versions below 1.7.</p>
-<br /><br />
-<p>You can modify an instance's <code>dockercfg</code> file (the one located at <code>~/layer0/instances/[instance]/dockercfg</code>) and re-run <code>l0-setup apply</code> to make changes to your authentication. Note that any EC2 instances created prior to changing your <code>dockercfg</code> file will need to be manually terminated since they only grab the <code>dockercfg</code> authentication file once during instance creation. Terminated EC2 instances will be automatically re-created by autoscaling.</p>
-</div></p>
-</li>
-<li>
-<p>When prompted, enter the following information:</p>
-<ul>
-<li><strong>AWS Access Key ID</strong>: The access key ID contained in the credential file that you downloaded in step 6 of the previous section.</li>
-<li><strong>AWS Secret Access Key</strong>: The secret access key contained in the credential file that you downloaded in step 6 of the previous section.</li>
-<li><strong>Key Pair</strong>: The name of the key pair that you created in the Prerequisites section.
-The first time you run the <code>apply</code> command, it may take around 15 minutes to complete. If the <code>apply</code> command fails to complete successfully, it is safe to run it again until it succeeds.</li>
-</ul>
-</li>
-</ol>
-<h2 id="part-4-configure-the-environment-variables">Part 4: Configure the environment variables<a class="headerlink" href="#part-4-configure-the-environment-variables" title="Permanent link">#</a></h2>
-<p>Once the <code>apply</code> command has run successfully, you can configure the Layer0 environment variables using the <code>endpoint</code> command.</p>
-<p>To view the environment variables for your Layer0 and apply them to your shell, type the following command, replacing <code>[prefix]</code> with the name of the Layer0 prefix you created in Part 3:</p>
-<ul>
-<li>(Windows PowerShell): <code>l0-setup endpoint --insecure --syntax=powershell [prefix] | Out-String | Invoke-Expression</code></li>
-<li>(Linux/macOS): <code>eval "$(l0-setup endpoint --insecure [prefix])"</code></li>
-</ul>
-<h2 id="optional-part-6-using-a-custom-certificate">(Optional) Part 6: Using a custom certificate<a class="headerlink" href="#optional-part-6-using-a-custom-certificate" title="Permanent link">#</a></h2>
+<h2 id="part-3-create-a-new-layer0-instance">Part 3: Create a new Layer0 Instance<a class="headerlink" href="#part-3-create-a-new-layer0-instance" title="Permanent link">#</a></h2>
+<p>Now that you have downloaded Layer0 and configured your AWS account, you can create your Layer0.
+Fom a command prompt, run the following (replacing <code>&lt;instance_name&gt;</code> with a name for your Layer0 instance:</p>
+<pre class="code"><code>$ l0-setup init &lt;instance_name&gt;</code></pre>
+
+
+<p>This command will prompt you for many different inputs. 
+Simply press <code>enter</code> on all of the optional inputs to use the default values.
+Enter the required values for <strong>AWS Access Key</strong>, <strong>AWS Secret Key</strong>, and <strong>AWS SSH Key</strong> as they come up:</p>
+<pre class="code"><code>AWS Access Key: The access_key input variable is used to provision the AWS resources
+required for Layer0. This corresponds to the Access Key ID portion of an AWS Access Key.
+It is recommended this key has the 'AdministratorAccess' policy. Note that Layer0 will
+only use this key for 'l0-setup' commands associated with this Layer0 instance; the
+Layer0 API will use its own key with limited permissions to provision AWS resources.
+
+[current: &lt;none&gt;]
+Please enter a value and press 'enter'.
+        Input: ABC123xzy
+
+AWS Secret Key: The secret_key input variable is used to provision the AWS resources
+required for Layer0. This corresponds to the Secret Access Key portion of an AWS Access Key.
+It is recommended this key has the 'AdministratorAccess' policy. Note that Layer0 will
+only use this key for 'l0-setup' commands associated with this Layer0 instance; the
+Layer0 API will use its own key with limited permissions to provision AWS resources.
+
+[current: &lt;none&gt;]
+Please enter a value and press 'enter'.
+        Input: ZXY987cba
+
+AWS SSH Key Pair: The ssh_key_pair input variable specifies the name of the
+ssh key pair to include in EC2 instances provisioned by Layer0. This key pair must
+already exist in the AWS account. The names of existing key pairs can be found
+in the EC2 dashboard. Note that changing this value will not effect instances
+that have already been provisioned.
+
+[current: &lt;none&gt;]
+Please enter a value and press 'enter'.
+        Input: mySSHKey</code></pre>
+
+
+<p>The first time you run the <strong>apply</strong> command, it may take around 5 minutes to complete. 
+This command is idempotent; it is safe to run multiple times if it fails the first.</p>
+<p>It's a good idea to run the <strong>push</strong> command after <strong>apply</strong> commands complete. 
+This will send a backup of your Layer0 instance's configuration and state to S3. 
+These files can be grabbed later using the <strong>pull</strong> command. </p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The procedures in this section are optional, but are highly recommended for production use.</p>
 </div>
-<p>Layer0 uses a self-signed certificate to run the API.
-In a production setting, we recommend using a certificate from a trusted CA.</p>
-<p><strong>To use a custom certificate:</strong></p>
-<ol>
-    <li>In a text editor, open the file in your Layer0 directory named elb.tf.template.
-The full path will be `~/layer0/instances/<prefix>/elb.tf.template`.
-Update the following line the file:
-<pre class="code"><code>
-...
-    ssl_certificate_id = "[ARN of your SSL cert]"
-...
-</pre></code></li>
-    <li>Save the modified elb.tf.template file, and then run the following command: <code>l0-setup apply [prefix]</code></li>
-</ol>
+<p>Using a Private Docker Registry
+    <strong>The procedures in this section are optional, but are highly recommended for production use.</strong></p>
+<p>If you require authentication to a private Docker registry, you will need a Docker configuration file present on your machine with access to private repositories (typically located at <code>~/.docker/config.json</code>). </p>
+<p>If you don't have a config file yet, you can generate one by running <code>docker login [registry-address]</code>. 
+A configuration file will be generated at <code>~/.docker/config.json</code>.</p>
+<p>To add this authentication to your Layer0 instance, run:</p>
+<pre class="code"><code>$ l0-setup init --docker-path=&lt;path/to/config.json&gt; &lt;instance_name&gt;</code></pre>
+
+
+<p>This will add a rendered file, <code>dockercfg.json</code> into your Layer0 instance's directory (<code>~/.layer0/&lt;instance_name&gt;/</code>).</p>
+<p>You can modify a Layer0 instance's <code>dockercfg.json</code> file and re-run the <strong>apply</strong> command to make changes to your authentication. 
+Note that any EC2 instances created prior to changing your <code>dockercfg.json</code> file will need to be manually terminated since they only grab the dockercfg authentication file once during instance creation. 
+Terminated EC2 instances will be automatically re-created by autoscaling.</p>
+<h2 id="part-4-connect-to-a-layer0-instance">Part 4: Connect to a Layer0 Instance<a class="headerlink" href="#part-4-connect-to-a-layer0-instance" title="Permanent link">#</a></h2>
+<p>Once the <strong>apply</strong> command has run successfully, you can configure the environment variables needed to connect to the Layer0 API using the <strong>endpoint</strong> command.</p>
+<pre class="code"><code>$ l0-setup endpoint --insecure &lt;instance_name&gt;
+export LAYER0_API_ENDPOINT=&quot;https://l0-instance_name-api-1469040065.us-west-2.elb.amazonaws.com&quot;
+export LAYER0_AUTH_TOKEN=&quot;abcDEFG123&quot;
+export LAYER0_SKIP_SSL_VERIFY=&quot;1&quot;
+export LAYER0_SKIP_VERSION_VERIFY=&quot;1&quot;</code></pre>
+
+
+<p>The <strong>--insecure</strong> flag shows configurations that bypass SSL and version verifications. 
+This is required as the Layer0 API created uses a self-signed certificate by default.
+These settings are <strong>not</strong> recommended for production use!</p>
+<p>The <strong>endpoint</strong> command supports a <code>--syntax</code> option, which can be used to turn configuration into a single line:
+<em> Bash (default) - <code>$ eval "$(l0-setup endpoint --insecure &lt;instance_name&gt;)"</code>
+</em> Powershell - <code>$ l0-setup endpoint --insecure --syntax=powershell &lt;instance_name&gt; | Out-String | Invoke-Expression</code></p>
           <aside class="copyright" role="note">
             
             Documentation built with
