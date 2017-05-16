@@ -1,5 +1,3 @@
-# todo: descriptions
-
 variable "name" {}
 
 variable "version" {}

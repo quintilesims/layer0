@@ -23,5 +23,5 @@ type Variable struct {
 type Module map[string]interface{}
 
 type Output struct {
-	Value string `json:"value"`
+	Value interface{} `json:"value"`
 }

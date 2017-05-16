@@ -99,7 +99,7 @@ func (t *Terraform) validateTerraformVersion() error {
 	}
 
 	// only grab the first line - terraform will add additional messages
-	// when terraform is out o fdate
+	// when terraform is out of date
 	version := strings.Split(string(output), "\n")[0]
 	version = strings.TrimSpace(version)
 	version = strings.TrimPrefix(version, "Terraform v")

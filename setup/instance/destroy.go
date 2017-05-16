@@ -9,8 +9,6 @@ func (l *LocalInstance) Destroy(force bool) error {
 		return err
 	}
 
-	// todo: use layer0 client to destroy all resources
-
 	if err := l.Terraform.Destroy(l.Dir, force); err != nil {
 		return err
 	}

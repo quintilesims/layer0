@@ -71,6 +71,7 @@ func (l *LocalInstance) setLayer0ModuleInputs(config *terraform.Config, inputOve
 	for _, input := range Layer0ModuleInputs {
 		// if the input has a static value, it should always be set as the static value
 		if input.StaticValue != nil {
+			logrus.Debugf("Using static variable for %s", input.Name)
 			module[input.Name] = input.StaticValue
 			continue
 		}
@@ -106,10 +107,10 @@ func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
 			fmt.Printf("please run: \n")
 			fmt.Printf("\tl0-setup init --docker-path=<path/to/config.json> %s \n\n", l.Name)
 
-                        fmt.Printf("Press 'enter' to continue without private registry authentication: ")
+			fmt.Printf("Press 'enter' to continue without private registry authentication: ")
 
-                        var input string
-                        fmt.Scanln(&input)
+			var input string
+			fmt.Scanln(&input)
 
 			return docker.WriteConfig(dockerOutputPath, docker.NewConfig())
 		}
