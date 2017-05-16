@@ -1,32 +1,38 @@
-# Upgrade Layer0
+# Upgrade a Layer0 Instance
 
 This section provides procedures for upgrading your Layer0 installation to the latest version.
+This assumes you are using Layer0 version `v0.10.0` or later. 
 
-1. In the [Downloads section of the home page](/index.html#download), select the appropriate installation file for your operating system. Extract the zip file to a directory on your computer, and then move the **l0** and **l0-setup** files to a folder in your system path, replacing any previous versions of these files.
+!!! note 
+    Layer0 does not support updating MAJOR or MINOR versions in place unless explicitly stated otherwise.
+    Users will need to destroy and re-create Layer0 instances in these circumstances. 
 
-2. You will need your existing access keys when l0-setup prompts you for AWS credentials. Type the following commands to find them:
+Run the **upgrade** command, replacing `<instance_name>` and `<version>` with the name of the Layer0 instance and new version, respectively:
+```
+$ l0-setup upgrade <instance_name> <version>
+```
 
-    - `l0-setup terraform [prefix] output access_key`
-    - `l0-setup terraform [prefix] output secret_key`
+This will prompt you about the updated `source` and `version` inputs changing. 
+If you are not satisfied with the changes, exit the application during the prompts. 
+For full control on changing inputs, please use the **set** command. 
 
-3. Type the following command to verify that you are working with the correct version of Layer0:
+**Example Usage**
+```
+$ l0-setup upgrade mylayer0 v0.10.1
+This will update the 'version' input
+        From: [v0.10.0]
+        To:   [v0.10.1]
 
-    - `l0-setup --version`
+        Press 'enter' to accept this change:
+This will update the 'source' input
+        From: [github.com/quintilesims/layer0//setup/module?ref=v0.10.0]
+        To:   [github.com/quintilesims/layer0//setup/module?ref=v0.10.1]
 
-    The output of this command should display the version number of the most recent version of Layer0. If it does, proceed to the next step; if not, ensure that you copied the latest versions of **l0** and **l0-setup** to the appropriate directories in your system path.
+        Press 'enter' to accept this change:
+        ...
+        
+Everything looks good! You are now ready to run 'l0-setup apply mylayer0'
+```
 
-4. Type the following command to restore the state files for your Layer0, replacing `[prefix]` with the name of your Layer0 prefix:
-
-    - `l0-setup restore [prefix]`
-
-5. Type the following command to update your api image tag:
-
-    - `l0-setup plan [prefix] -var api_docker_image_tag=[version]`
-
-6. Type the following command to update your runner image tag:
-
-    - `l0-setup plan [prefix] -var runner_version_tag=[version]`
-
-7. Type the following command to apply the upgrade:
-
-    - `l0-setup apply [prefix]`
+As stated by the command output, run the **apply** command to apply the changes to the Layer0 instance.
+If any errors occur, please contact the Layer0 team. 

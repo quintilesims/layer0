@@ -13,7 +13,7 @@ func (f *CommandFactory) Apply() cli.Command {
 		Flags: []cli.Flag{
 			cli.BoolFlag{
 				Name:  "quick",
-				Usage: "skips verification checks once 'terraform apply' has completed",
+				Usage: "skips verification checks that normally run after 'terraform apply' has completed",
 			},
 		},
 		Action: func(c *cli.Context) error {
