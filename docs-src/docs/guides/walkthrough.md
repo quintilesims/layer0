@@ -250,7 +250,7 @@ We use these files to set up a Layer0 environment with Terraform:
 |`terraform.tfstate`|Tracks status of deployment _(created and managed by Terraform)_|
 |`terraform.tfvars`|Variables specific to the environment and application(s)|
 
-### `Layer0.tf`: A Brief Aside
+### `layer0.tf`: A Brief Aside
 
 Let's take a moment to look through the `layer0.tf` file. If you've followed along with the Layer0 CLI deployment above, it should be fairly easy to see how blocks in this file map to steps in the CLI process.
 
@@ -659,7 +659,7 @@ We'll use these files to manage our deployment with Terraform:
 
 ---
 
-### `Layer0.tf`: A Brief Aside: Revisited
+### `layer0.tf`: A Brief Aside: Revisited
 
 This file hasn't changed much since the first deployment - although, we _have_ added some things to it. You can see that the configurations for both the Guestbook _and_ the Redis services are contained within this single file.
 
@@ -1062,7 +1062,7 @@ We should see output like the following:
 
 Summary of commands passed in the above command:
 
-- `curl -s http://localhost:8500/v1/catalog/services`: use `curl` to send a GET request to the specified URL, where `localhost:8500` is an HTTP connection to the local Consul agent in this EC2 instance (the `-s` flag just silences excess output from `curl`)
+- `curl -s localhost:8500/v1/catalog/services`: use `curl` to send a GET request to the specified URL, where `localhost:8500` is an HTTP connection to the local Consul agent in this EC2 instance (the `-s` flag just silences excess output from `curl`)
 - `| jq '.'`: use a pipe (`|`) to take whatever returns from the left side of the pipe and pass it to the `jq` program, which we use here simply to pretty-print the JSON response
 - `echo $(...)`: print out whatever returns from running the stuff inside of the parens; not necessary, but it gives us a nice newline after we get our response
 
@@ -1101,6 +1101,16 @@ We should see output like the following:
 
 ```
 
+And finally, to see how the Guestbook application connects to Redis, we can take an even closer look.
+
+Run `docker ps` to generate a listing of all the containers that Docker is running on the EC2 instance, and note the Container ID for the Guestbook container. Then run the following command to connect to the Guestbook container:
+
+`docker exec -it [container_id] /bin/sh`
+
+Once we've gotten inside the container, we'll run a similar command to the previous `curl`:
+
+`curl -s consul-agent:8500/v1/catalog/service/redis`
+
 Our Guestbook application makes a call like this one and figures out how to connect to the Redis service by mushing together the information from the `ServiceAddress` and `ServicePort` fields!
 
 To close the `ssh` connection to the EC2 instance, run `exit` in the command prompt.
@@ -1119,13 +1129,93 @@ When you're finished with the example, we can instruct Layer0 to terminate the a
 
 ## 3b: Deploy with Terraform
 
-For this example, we'll be working in the `iterative-walkthrough/deployment-3/` directory.
+As before, we can complete this deployment using Terraform and the Layer0 provider instead of the Layer0 CLI.
+As before, we will assume that you've cloned the [layer0-examples](https://github.com/quintilesims/layer0-examples) repo and are working in the `iterative-walkthrough/deployment-3/` directory.
+
+We'll use these files to manage our deployment with Terraform:
+
+| Filename | Purpose |
+|----------|---------|
+| `Consul.Dockerrun.aws.json` | Template for running the Consul server cluster |
+| `Guestbook.Dockerrun.aws.json` | Template for running the Guestbook application |
+| `layer0.tf` | Provisions resources; populates variables in template files |
+| `Redis.Dockerrun.aws.json` | Template for running the Redis application |
+| `terraform.tfstate` | Tracks status of deployment _(created and managed by Terraform)_ |
+| `terraform.tfvars` | Variables specific to the environment and application(s) |
+
+---
+
+### `layer0.tf`: A Brief Aside: Revisited: Redux
+
+There are a couple of things to note about this `layer0.tf` that have changed since [Deployment 2](#2b-deploy-with-terraform).
+
+First, we have declarations for the Consul server cluster.
+Where we create the `consul-svc`, you can find a new `provisioner "local_exec"` block.
+We use this block to execute a couple of l0 CLI commands to scale the Consul server cluster down to one and then back up to three in order to ensure consistent leader election and the establishment of a quorum between the Consul server nodes.
+You can find more information on `local_exec` [here](https://www.terraform.io/docs/provisioners/local-exec.html), and information about Consul's Raft protocol re: leader election and quorum establishment can be found [here](https://www.consul.io/docs/internals/consensus.html).
+
+Additionally, we use the `depends_on` parameter (more information [here](https://www.terraform.io/intro/getting-started/dependencies.html)) in the creation of the load balancers for the Guestbook app and the Redis app.
+This parameter is available on any `resource`, and here we use it to make sure that the Consul server clusters have been appropriately scaled before we create these two load balancers.
+The idea is that we want to give the Consul server cluster time to elect a leader and establish a quorum before we attempt to register any other services.
 
 
 ---
 
-### Part 1:
+### Part 1: Terraform Plan
+
+As before, we can run `terraform plan` to see what's going to happen.
+We should see that there are 10 new resources to be created (the environment, and a load balancer, deploy, and service for each of Consul, Guestbook, and Redis).
 
 
 ---
+
+### Part 2: Terraform Apply
+
+Run `terraform apply`, and we should see output similar to the following:
+
+```
+data.template_file.consul: Refreshing state...
+layer0_deploy.consul-dpl: Creating...
+
+...
+...
+...
+
+layer0_service.guestbook-svc: Creation complete
+
+Apply complete! Resources: 10 added, 0 changed, 0 destroyed.
+
+The state of your infrastructure has been saved to the path
+below. This state is required to modify and destroy your
+infrastructure, so keep it safe. To inspect the complete state
+use the `terraform show` command.
+
+State path: terraform.tfstate
+
+Outputs:
+
+guestbook_url = <http endpoint for the sample application>
+```
+
+!!! Note
+	It may take a few minutes for the guestbook service to launch and the load balancer to become available.
+	During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.
+
+
+### What's Happening
+
+Terraform provisions the AWS resources through Layer0, configures environment variables for the application, and deploys the application into a Layer0 environment.
+Terraform also writes the state of your deployment to the `terraform.tfstate` file (creating a new one if it's not already there).
+
+
+### Cleanup
+
+When you're finished with the example, you can instruct Terraform to destroy the Layer0 environment, and terminate the application.
+Execute the following command (in the same directory):
+
+`terraform destroy`
+
+!!! Note
+	Again, Terraform writes the latest status of your deployment to `terraform.tfstate`.
+When you're finished with this section, destroy your Terraform deployment with `terraform destroy`.
 
