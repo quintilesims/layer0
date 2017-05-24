@@ -163,7 +163,6 @@ var Layer0ModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_PASSWORD,
 		Description: INPUT_PASSWORD_DESCRIPTION,
-		Default:     "nohaxplz",
 		prompter:    RequiredStringPrompter,
 	},
 	{

@@ -16,7 +16,7 @@ For more information about adding directories to your system path, see the follo
 	* (Linux/macOS): [Adding a Directory to the Path](http://www.troubleshooters.com/linux/prepostpath.htm)
 
 ## Part 2: Create an Access Key
-This step will create an Identity & Access Management (IAM) access key from your AWS account. 
+This step will create an Identity & Access Management (IAM) access key for your AWS account. 
 You will use the credentials created in this section when creating, updating, or removing Layer0 instances.
 
 **To create an Access Key:**
@@ -45,8 +45,8 @@ $ l0-setup init <instance_name>
 ```
 
 This command will prompt you for many different inputs. 
-Simply press `enter` on all of the optional inputs to use the default values.
-Enter the required values for **AWS Access Key**, **AWS Secret Key**, and **AWS SSH Key** as they come up:
+Enter the required values for **AWS Access Key**, **AWS Secret Key**, and **AWS SSH Key** as they come up.
+All remaining inputs are optional and can be set to their default by pressing enter.
 
 ```
 ...

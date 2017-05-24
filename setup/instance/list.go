@@ -8,12 +8,13 @@ import (
 	"github.com/docker/docker/pkg/homedir"
 	"io/ioutil"
 	"strings"
+	"os"
 )
 
 func ListLocalInstances() ([]string, error) {
 	dir := fmt.Sprintf("%s/.layer0", homedir.Get())
 	files, err := ioutil.ReadDir(dir)
-	if err != nil {
+	if err != nil && !os.IsNotExist(err) {
 		return nil, err
 	}
 

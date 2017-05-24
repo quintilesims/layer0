@@ -111,7 +111,8 @@ func (t *Terraform) validateTerraformVersion() error {
 
 	if current.LT(required) {
 		text := fmt.Sprintf("Current version of Terraform (%s) is less than the ", current)
-		text += fmt.Sprintf("minimum required version (%s)", required)
+		text += fmt.Sprintf("minimum required version (%s)\n", required)
+		text += "Please download the latest version from https://www.terraform.io/downloads.html"
 		return fmt.Errorf(text)
 	}
 
