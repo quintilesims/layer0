@@ -108,6 +108,41 @@ You can modify a Layer0 instance's `dockercfg.json` file and re-run the **apply*
 Note that any EC2 instances created prior to changing your `dockercfg.json` file will need to be manually terminated since they only grab the authentication file during instance creation. 
 Terminated EC2 instances will be automatically re-created by autoscaling.
 
+
+!!! note "Using an Existing VPC"
+    **The procedures in this section must be followed to properly install Layer0 into an existing VPC**
+
+By default, l0-setup creates a new VPC to place resources. 
+However, l0-setup can place resources in an existing VPC if it meets the following conditions:
+
+* Has access to the public internet (through a NAT instance or gateway)
+* Has at least 1 public and 1 private subnet
+* The public and private subnets have the tag `Tier: Public` or `Tier: Private`, respectively.
+For information on how to tag AWS resources, please visit the [AWS documentation](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html). 
+
+Once you are sure the existing VPC satisfies these requirements, run the **init** command, 
+placing the VPC ID when prompted:
+```
+$ l0-setup init <instance_name>
+...
+VPC ID (optional): The vpc_id input variable specifies an existing AWS VPC to provision
+the AWS resources required for Layer0. If no input is specified, a new VPC will be
+created for you. Existing VPCs must satisfy the following constraints:
+
+    - Have access to the public internet (through a NAT instance or gateway)
+    - Have at least 1 public and 1 private subnet
+    - Each subnet must be tagged with ["Tier": "Private"] or ["Tier": "Public"]
+
+Note that changing this value will destroy and recreate any existing resources.
+
+[current: ]
+Please enter a new value, or press 'enter' to keep the current value.
+        Input: vpc123
+```
+
+Once the command has completed, it is safe to run **apply** to provision the resources. 
+
+
 ## Part 4: Connect to a Layer0 Instance
 Once the **apply** command has run successfully, you can configure the environment variables needed to connect to the Layer0 API using the **endpoint** command.
 

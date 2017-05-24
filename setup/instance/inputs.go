@@ -90,6 +90,7 @@ VPC ID (optional): The vpc_id input variable specifies an existing AWS VPC to pr
 the AWS resources required for Layer0. If no input is specified, a new VPC will be
 created for you. Existing VPCs must satisfy the following constraints:
 
+    - Have access to the public internet (through a NAT instance or gateway)
     - Have at least 1 public and 1 private subnet
     - Each subnet must be tagged with ["Tier": "Private"] or ["Tier": "Public"]
 
