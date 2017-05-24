@@ -1,7 +1,9 @@
 package instance
 
 import (
+	"strings"
 	"fmt"
+	  "github.com/blang/semver"
 	"github.com/quintilesims/layer0/setup/terraform"
 )
 
@@ -21,13 +23,22 @@ func (l *LocalInstance) Upgrade(version string, force bool) error {
 		config.Modules["layer0"] = terraform.Module{}
 	}
 
+	 module := config.Modules["layer0"]
+
+	// only patch upgrades are allowed
+	if current, ok := module["version"]; ok && !force {
+		if err := assertPatchUpgrade(current.(string), version); err != nil{
+			return err
+		}
+	}
+
+
 	// set new input values for 'source' and 'version'
 	inputValues := map[string]string{
 		INPUT_SOURCE:  fmt.Sprintf("%s?ref=%v", LAYER0_MODULE_SOURCE, version),
 		INPUT_VERSION: version,
 	}
 
-	module := config.Modules["layer0"]
 	for input, value := range inputValues {
 		if current, ok := module[input]; ok && current != value && !force {
 			fmt.Printf("This will update the '%s' input \n\tFrom: [%s] \n\tTo:   [%s]\n\n", input, current, value)
@@ -55,6 +66,31 @@ func (l *LocalInstance) Upgrade(version string, force bool) error {
 	if err := l.Terraform.Validate(l.Dir); err != nil {
 		return err
 	}
+
+	return nil
+}
+
+func assertPatchUpgrade(currentVersion, desiredVersion string) error {
+	currentVersion = strings.TrimPrefix(currentVersion, "v")
+	desiredVersion = strings.TrimPrefix(desiredVersion, "v")
+
+        current, err := semver.Make(currentVersion)
+        if err != nil {
+                return fmt.Errorf("Failed to parse current version: %v", err)
+        }
+
+	desired, err := semver.Make(desiredVersion)
+        if err != nil {
+                return fmt.Errorf("Failed to parse desired version: %v", err)
+        }
+
+	if current.Major != desired.Major {
+		return fmt.Errorf("Cannot change Major versions (current: %s)", current.String())
+	}
+
+	if current.Minor != desired.Minor {
+                return fmt.Errorf("Cannot change Minor versions (current: %s)", current.String())
+        }
 
 	return nil
 }
