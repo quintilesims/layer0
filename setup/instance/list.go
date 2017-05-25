@@ -7,8 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 	"github.com/docker/docker/pkg/homedir"
 	"io/ioutil"
-	"strings"
 	"os"
+	"strings"
 )
 
 func ListLocalInstances() ([]string, error) {

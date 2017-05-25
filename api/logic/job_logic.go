@@ -89,6 +89,10 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 
 	jobID := id.GenerateHashedEntityID(string(jobType))
 
+	if err := this.JobStore.Insert(job); err != nil {
+		return nil, err
+	}
+
 	deploy, err := this.createJobDeploy(jobID)
 	if err != nil {
 		return nil, err
@@ -106,10 +110,6 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 		JobType:     int64(jobType),
 		Request:     reqStr,
 		TimeCreated: time.Now(),
-	}
-
-	if err := this.JobStore.Insert(job); err != nil {
-		return nil, err
 	}
 
 	if err := this.TagStore.Insert(models.Tag{EntityID: jobID, EntityType: "job", Key: "task_id", Value: task.TaskID}); err != nil {

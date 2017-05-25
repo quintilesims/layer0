@@ -71,8 +71,8 @@ func isCodeExpiredCreds(code string) bool {
 }
 
 var validParentCodes = map[string]struct{}{
-	ErrCodeSerialization: struct{}{},
-	ErrCodeRead:          struct{}{},
+	ErrCodeSerialization: {},
+	ErrCodeRead:          {},
 }
 
 func isNestedErrorRetryable(parentErr awserr.Error) bool {
