@@ -4,9 +4,17 @@ import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
 	"time"
 )
+
+const (
+	JOB_LOAD_ATTEMPTS       = 10
+	JOB_LOAD_SLEEP_INTERVAL = time.Second * 5
+)
+
+var timeMultiplier time.Duration = 1
 
 type JobRunner struct {
 	Logic   *logic.Logic
@@ -29,12 +37,12 @@ func (j *JobRunner) MarkStatus(status types.JobStatus) error {
 func (j *JobRunner) Load() error {
 	log.Infof("Loading job '%s'", j.jobID)
 
-	model, err := j.Logic.JobStore.SelectByID(j.jobID)
+	job, err := j.tryLoadJob()
 	if err != nil {
 		return err
 	}
 
-	switch types.JobType(model.JobType) {
+	switch types.JobType(job.JobType) {
 	case types.DeleteEnvironmentJob:
 		j.Steps = DeleteEnvironmentSteps
 	case types.DeleteLoadBalancerJob:
@@ -46,11 +54,29 @@ func (j *JobRunner) Load() error {
 	case types.CreateTaskJob:
 		j.Steps = CreateTaskSteps
 	default:
-		return fmt.Errorf("Unknown job type '%v'!", model.JobType)
+		return fmt.Errorf("Unknown job type '%v'!", job.JobType)
 	}
 
-	j.Context = NewJobContext(j.jobID, j.Logic, model.Request)
+	j.Context = NewJobContext(j.jobID, j.Logic, job.Request)
 	return nil
+}
+
+func (j *JobRunner) tryLoadJob() (*models.Job, error) {
+	var job *models.Job
+	var err error
+
+	for i := 0; i < JOB_LOAD_ATTEMPTS; i++ {
+		job, err = j.Logic.JobStore.SelectByID(j.jobID)
+		if err != nil {
+			log.Warningf("Failed to load job %s (attempt %d/%d): %v", j.jobID, i+1, JOB_LOAD_ATTEMPTS, err)
+			time.Sleep(JOB_LOAD_SLEEP_INTERVAL * timeMultiplier)
+			continue
+		}
+
+		return job, nil
+	}
+
+	return nil, err
 }
 
 func (j *JobRunner) Run() error {
@@ -58,13 +84,11 @@ func (j *JobRunner) Run() error {
 		return err
 	}
 
-	for i, step := range j.Steps {
+	for _, step := range j.Steps {
 		log.Infof("Running step '%s'", step.Name)
 
 		if err := j.runStep(step, j.Context); err != nil {
 			log.Errorf("Error on step '%s': %v", step.Name, err)
-
-			j.rollback(i)
 
 			if err := j.MarkStatus(types.Error); err != nil {
 				log.Errorf("Failed to mark job status to Error: %v", err)
@@ -92,30 +116,4 @@ func (j *JobRunner) runStep(step Step, context *JobContext) error {
 	}
 
 	return err
-}
-
-func (j *JobRunner) rollback(from int) {
-	log.Infof("Starting Rollback")
-
-	for i := from; i >= 0; i-- {
-		step := j.Steps[i]
-
-		if step.Rollback == nil {
-			continue
-		}
-
-		context, rollbackSteps, err := step.Rollback(j.Context)
-		if err != nil {
-			log.Errorf("Failed to get rollback steps for '%s': %v", step.Name, err)
-			continue
-		}
-
-		for _, rollbackStep := range rollbackSteps {
-			log.Infof("Running rollback step '%s'", rollbackStep.Name)
-
-			if err := j.runStep(rollbackStep, context); err != nil {
-				log.Errorf("Error during rollback step '%s': %v", rollbackStep.Name, err)
-			}
-		}
-	}
 }

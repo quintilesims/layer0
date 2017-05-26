@@ -58,7 +58,8 @@ func TestRunnerLoad(t *testing.T) {
 				mockJobStore := mock_job_store.NewMockJobStore(ctrl)
 
 				mockJobStore.EXPECT().SelectByID(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
+					Return(nil, fmt.Errorf("some error")).
+					AnyTimes()
 
 				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
 				return NewJobRunner(mockLogic, "some_job_id")
@@ -69,6 +70,29 @@ func TestRunnerLoad(t *testing.T) {
 				if err := runner.Load(); err == nil {
 					reporter.Errorf("Error was nil!")
 				}
+			},
+		},
+		{
+			Name: "Should retry after failed job load",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				mockJobStore := mock_job_store.NewMockJobStore(ctrl)
+
+				model := &models.Job{
+					JobID:   "some_job_id",
+					JobType: int64(types.DeleteEnvironmentJob),
+				}
+
+				gomock.InOrder(
+					mockJobStore.EXPECT().SelectByID("some_job_id").Return(nil, fmt.Errorf("some error")),
+					mockJobStore.EXPECT().SelectByID("some_job_id").Return(model, nil),
+				)
+
+				mockLogic := logic.NewLogic(nil, mockJobStore, nil, nil)
+				return NewJobRunner(mockLogic, "some_job_id")
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				runner := target.(*JobRunner)
+				runner.Load()
 			},
 		},
 	}
@@ -151,77 +175,6 @@ func TestRunnerRun_StepExecution(t *testing.T) {
 								t.Errorf("quit channel was not closed")
 								return nil
 							}
-						},
-					},
-				}
-
-				return runner
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				runner := target.(*JobRunner)
-				runner.Run()
-			},
-		},
-	}
-
-	testutils.RunTests(t, testCases)
-}
-
-func TestRunnerRun_RollbackExecution(t *testing.T) {
-	testCases := []testutils.TestCase{
-		{
-			Name: "Should call step.Rollback when error occurs",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				logic := getStubbedLogic(ctrl)
-				runner := NewJobRunner(logic, "")
-
-				recorder := testutils.NewRecorder(ctrl)
-				recorder.EXPECT().Call(gomock.Any())
-
-				step := stepWithError()
-				step.Rollback = func(*JobContext) (*JobContext, []Step, error) {
-					recorder.Call("")
-					return nil, nil, nil
-				}
-
-				runner.Steps = []Step{step}
-				return runner
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				runner := target.(*JobRunner)
-				runner.Run()
-			},
-		},
-		{
-			Name: "Should call step.Rollback in correct order",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				logic := getStubbedLogic(ctrl)
-				runner := NewJobRunner(logic, "")
-
-				recorder := testutils.NewRecorder(ctrl)
-
-				gomock.InOrder(
-					recorder.EXPECT().Call("step2"),
-					recorder.EXPECT().Call("step1"),
-				)
-
-				runner.Steps = []Step{
-					{
-						Name:    "step1",
-						Timeout: time.Second * 1,
-						Action:  func(chan bool, *JobContext) error { return nil },
-						Rollback: func(*JobContext) (*JobContext, []Step, error) {
-							recorder.Call("step1")
-							return nil, nil, nil
-						},
-					},
-					{
-						Name:    "step2",
-						Timeout: time.Second * 1,
-						Action:  func(chan bool, *JobContext) error { return fmt.Errorf("some error") },
-						Rollback: func(*JobContext) (*JobContext, []Step, error) {
-							recorder.Call("step2")
-							return nil, nil, nil
 						},
 					},
 				}
