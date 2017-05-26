@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	JOB_LIFETIME           = time.Hour * 24
+	JOB_LIFETIME           = time.Hour * 1
 	JANITOR_SLEEP_DURATION = time.Minute * 10
 )
 
