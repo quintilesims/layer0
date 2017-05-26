@@ -3,37 +3,7 @@ The Layer0 Setup application (commonly called **l0-setup**), is used to provisio
 
 ---
 ## General Usage
-You can use the `-h, --help` command to get genrate information about the `l0-setup` tool:
-
-```
-$ l0-setup -h
-NAME:
-   Layer0 Setup - Create and manage Layer0 instances
-
-USAGE:
-   l0-setup [global options] command [command options] [arguments...]
-
-VERSION:
-   unset/developer
-
-COMMANDS:
-     init      initialize or reconfigure a Layer0 instance
-     list      list local and/or remote Layer0 instances
-     plan      show the planned operation(s) to run during the next 'apply' on a Layer0 instance
-     apply     create and/or update resources for a Layer0 instance
-     destroy   destroy all resources associated with a Layer0 instance
-     endpoint  show environment variables used to connect to a Layer0 instance
-     push      push a Layer0 instance configuration to S3
-     pull      pull a Layer0 instance configuration from S3
-     set       set input variable(s) for a Layer0 instance's Terraform module
-     upgrade   upgrade a Layer0 instance to a new version
-     help, h   Shows a list of commands or help for one command
-
-GLOBAL OPTIONS:
-   -l value, --log value  (default: "info") [$LAYER0_SETUP_LOG_LEVEL]
-   --help, -h             show help
-   --version, -v          print the version
-```
+You can use the `-h, --help` command to get generate information about the `l0-setup` tool:
 
 ---
 ## Init
@@ -77,7 +47,7 @@ The names of existing key pairs can be found in the EC2 dashboard.
 
 ---
 ## Plan
-The **plan** command is used to show the planned operation(s) to run during the next `apply` on a Layer0 instance
+The **plan** command is used to show the planned operation(s) to run during the next `apply` on a Layer0 instance without actually executing any actions
 
 ### Usage
 ```

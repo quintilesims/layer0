@@ -21,13 +21,13 @@ variable "tags" {
   default     = {}
 }
 
-# Current AMI: amzn-ami-2016.03.c-amazon-ecs-optimized
+# Current AMI: 	amzn-ami-2016.09.g-amazon-ecs-optimized
 variable "linux_region_amis" {
   default = {
-    us-west-1 = "ami-bb473cdb"
-    us-west-2 = "ami-84b44de4"
-    us-east-1 = "ami-8f7687e2"
-    eu-west-1 = "ami-4e6ffe3d"
+    us-west-1 = "ami-689bc208"
+    us-west-2 = "ami-62d35c02"
+    us-east-1 = "ami-62745007"
+    eu-west-1 = "ami-95f8d2f3"
   }
 }
 

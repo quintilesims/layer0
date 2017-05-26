@@ -30,7 +30,7 @@ func WriteConfig(path string, config *Config) error {
 		return fmt.Errorf("Failed to marshal terraform config: %v", err)
 	}
 
-	if err := ioutil.WriteFile(path, data, 0644); err != nil {
+	if err := ioutil.WriteFile(path, data, 0600); err != nil {
 		return err
 	}
 

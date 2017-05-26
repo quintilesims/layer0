@@ -68,7 +68,7 @@ func (l *LocalInstance) Pull(s s3iface.S3API) error {
 		}
 		defer output.Body.Close()
 
-		if err := ioutil.WriteFile(path, data, 0644); err != nil {
+		if err := ioutil.WriteFile(path, data, 0600); err != nil {
 			return err
 		}
 	}
