@@ -85,8 +85,8 @@ func TestLoadBalancerAddPort(t *testing.T) {
 		UpdateLoadBalancerPorts("id", []models.Port{port}).
 		Return(&models.LoadBalancer{}, nil)
 
-	flags := Flags{"certificate": "cert_name"}
-	c := getCLIContext(t, Args{"name", "443:80/https"}, flags)
+	flags := map[string]interface{}{"certificate": "cert_name"}
+	c := testutils.GetCLIContext(t, []string{"name", "443:80/https"}, flags)
 	if err := command.AddPort(c); err != nil {
 		t.Fatal(err)
 	}
@@ -98,8 +98,8 @@ func TestLoadBalancerAddPort_userInputErrors(t *testing.T) {
 	command := NewLoadBalancerCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
-		"Missing PORT arg": getCLIContext(t, Args{"name"}, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
+		"Missing PORT arg": testutils.GetCLIContext(t, []string{"name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -145,7 +145,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		CreateLoadBalancer("name", "environmentID", healthCheck, ports, false).
 		Return(&models.LoadBalancer{}, nil)
 
-	flags := Flags{
+	flags := map[string]interface{}{
 		"port":                            []string{"443:80/https", "8000:8000/http"},
 		"certificate":                     "cert_name",
 		"private":                         true,
@@ -156,7 +156,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		"healthcheck-unhealthy-threshold": 2,
 	}
 
-	c := getCLIContext(t, Args{"environment", "name"}, flags)
+	c := testutils.GetCLIContext(t, []string{"environment", "name"}, flags)
 	if err := command.Create(c); err != nil {
 		t.Fatal(err)
 	}
@@ -168,8 +168,8 @@ func TestCreateLoadBalancer_userInputErrors(t *testing.T) {
 	command := NewLoadBalancerCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing ENVIRONMENT arg": getCLIContext(t, nil, nil),
-		"Missing NAME arg":        getCLIContext(t, Args{"environment"}, nil),
+		"Missing ENVIRONMENT arg": testutils.GetCLIContext(t, nil, nil),
+		"Missing NAME arg":        testutils.GetCLIContext(t, []string{"environment"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -192,7 +192,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 		DeleteLoadBalancer("id").
 		Return("jobid", nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -212,10 +212,10 @@ func TestDeleteLoadBalancerWait(t *testing.T) {
 		Return("jobid", nil)
 
 	tc.Client.EXPECT().
-		WaitForJob("jobid", TEST_TIMEOUT).
+		WaitForJob("jobid", testutils.TEST_TIMEOUT).
 		Return(nil)
 
-	c := getCLIContext(t, Args{"name"}, Flags{"wait": true})
+	c := testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"wait": true})
 	if err := command.Delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -227,7 +227,7 @@ func TestDeleteLoadBalancer_userInputErrors(t *testing.T) {
 	command := NewLoadBalancerCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -250,7 +250,7 @@ func TestGetLoadBalancer(t *testing.T) {
 		GetLoadBalancer("id").
 		Return(&models.LoadBalancer{}, nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Get(c); err != nil {
 		t.Fatal(err)
 	}
@@ -262,7 +262,7 @@ func TestGetLoadBalancer_userInputErrors(t *testing.T) {
 	command := NewLoadBalancerCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -281,7 +281,7 @@ func TestListLoadBalancers(t *testing.T) {
 		ListLoadBalancers().
 		Return([]*models.LoadBalancerSummary{}, nil)
 
-	c := getCLIContext(t, nil, nil)
+	c := testutils.GetCLIContext(t, nil, nil)
 	if err := command.List(c); err != nil {
 		t.Fatal(err)
 	}
@@ -300,7 +300,7 @@ func TestHealthCheck_noUpdateRequired(t *testing.T) {
 		GetLoadBalancer("id").
 		Return(&models.LoadBalancer{}, nil)
 
-	c := getCLIContext(t, Args{"env", "name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"env", "name"}, nil)
 	if err := command.HealthCheck(c); err != nil {
 		t.Fatal(err)
 	}
@@ -340,12 +340,12 @@ func TestHealthCheck_partialUpdateRequired(t *testing.T) {
 	tc.Client.EXPECT().
 		UpdateLoadBalancerHealthCheck("id", expectedHealthCheck)
 
-	flags := Flags{
+	flags := map[string]interface{}{
 		"set-target":   "TCP:88",
 		"set-interval": 45,
 	}
 
-	c := getCLIContext(t, Args{"env", "name"}, flags)
+	c := testutils.GetCLIContext(t, []string{"env", "name"}, flags)
 	if err := command.HealthCheck(c); err != nil {
 		t.Fatal(err)
 	}
@@ -357,11 +357,11 @@ func TestHealthCheck_userInputErrors(t *testing.T) {
 	command := NewLoadBalancerCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Non-int '--set-interval' flag":            getCLIContext(t, Args{"name"}, Flags{"set-interval": "two"}),
-		"Non-int '--set-timeout' flag":             getCLIContext(t, Args{"name"}, Flags{"set-timeout": "two"}),
-		"Non-int '--set-healthy-threshold' flag":   getCLIContext(t, Args{"name"}, Flags{"set-healthy-threshold": "two"}),
-		"Non-int '--set-unhealthy-threshold' flag": getCLIContext(t, Args{"name"}, Flags{"set-unhealthy-threshold": "two"}),
-		"Missing NAME arg":                         getCLIContext(t, nil, Flags{"set-interval": 2}),
+		"Non-int '--set-interval' flag":            testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"set-interval": "two"}),
+		"Non-int '--set-timeout' flag":             testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"set-timeout": "two"}),
+		"Non-int '--set-healthy-threshold' flag":   testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"set-healthy-threshold": "two"}),
+		"Non-int '--set-unhealthy-threshold' flag": testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"set-unhealthy-threshold": "two"}),
+		"Missing NAME arg":                         testutils.GetCLIContext(t, nil, map[string]interface{}{"set-interval": 2}),
 	}
 
 	for name, c := range contexts {

@@ -242,8 +242,8 @@
             </li>
           
             <li class="anchor">
-              <a title="Part 2: Destroy the Layer0 instance" href="#part-2-destroy-the-layer0-instance">
-                Part 2: Destroy the Layer0 instance
+              <a title="Part 2: Destroy the Layer0 Instance" href="#part-2-destroy-the-layer0-instance">
+                Part 2: Destroy the Layer0 Instance
               </a>
             </li>
           
@@ -436,37 +436,28 @@
       <article class="article">
         <div class="wrapper">
           
-          <h1 id="destroying-a-layer0-instance">Destroying a Layer0 instance<a class="headerlink" href="#destroying-a-layer0-instance" title="Permanent link">#</a></h1>
-<p>During testing or migration, you may find that you need to delete a non-functional or outdated instance of Layer0. This section provides procedures for destroying (deleting) a Layer0 instance.</p>
+          <h1 id="destroying-a-layer0-instance">Destroying a Layer0 Instance<a class="headerlink" href="#destroying-a-layer0-instance" title="Permanent link">#</a></h1>
+<p>This section provides procedures for destroying (deleting) a Layer0 instance.</p>
 <h2 id="part-1-clean-up-your-layer0-environments">Part 1: Clean Up Your Layer0 Environments<a class="headerlink" href="#part-1-clean-up-your-layer0-environments" title="Permanent link">#</a></h2>
-<p>In order to destroy a Layer0 instance, you must first delete all environments in the instance.</p>
-<p><strong>To delete Layer0 environments:</strong>
-<ol>
-  <li>At the command prompt, type the following command to see a list of environments in your Layer0 instance:
-    <ul>
-      <li class="command"><code>l0 environment list</code></li>
-    </ul></p>
-<p><li>For each environment listed in the previous step, with the exception of the environments that begin with "api", issue the following command (where <code>[environment_name]</code> is the name of the environment you want to delete):
-    <ul>
-      <li class="command"><code>l0 environment delete [environment_name] --wait</code></li>
-    </ul></p>
-<p>Repeat this step until all of the environments (except the "api" environments) have been deleted. When you have finished deleting the environments in your Layer0 instance, proceed to Part 2.
-  </li>
-</ol></p>
-<h2 id="part-2-destroy-the-layer0-instance">Part 2: Destroy the Layer0 instance<a class="headerlink" href="#part-2-destroy-the-layer0-instance" title="Permanent link">#</a></h2>
-<p>Once you have prepared your Layer0 instance for deletion, you can use the <code>l0-setup destroy</code> command to destroy the instance.</p>
-<p><strong>To destroy a Layer0 instance:</strong>
-<ol>
-  <li>At the command prompt, type the following command, replacing <code>[prefix]</code> with the prefix you created when you created your Layer0 instance:
-    <ul>
-      <li class="command"><code>l0-setup destroy [prefix]</code></li>
-    </ul>
-  </li>
-</ol>
-<div class="admonition note">
-  <p class="admonition-title">Note</p>
-  <p>The <code>l0-setup destroy</code> operation is idempotent (that is, it has no additional effects if you execute it multiple times with the same parameters). Therefore, if the <code>destroy</code> operation fails, you may be able to make it complete by running it again. If the <code>destroy</code> operation continues to fail after running it again, please contact the Xfra team at <strong>xfra@us.imshealth.com</strong>.</p>
-</div></p>
+<p>In order to destroy a Layer0 instance, you must first delete all environments in the instance.
+List all environments with:</p>
+<pre class="code"><code>$ l0 environment list</code></pre>
+
+
+<p>For each environment listed in the previous step, with the exception of the environment named <code>api</code>, 
+issue the following command (replacing <code>&lt;environment_name&gt;</code> with the name of the environment to delete):</p>
+<pre class="code"><code>l0 environment delete --wait &lt;environment_name&gt;</code></pre>
+
+
+<h2 id="part-2-destroy-the-layer0-instance">Part 2: Destroy the Layer0 Instance<a class="headerlink" href="#part-2-destroy-the-layer0-instance" title="Permanent link">#</a></h2>
+<p>Once all environments have been deleted, the Layer0 instance can be deleted using the <code>l0-setup</code> tool. 
+Run the following command (replacing <code>&lt;instance_name&gt;</code> with the name of the Layer0 instance):</p>
+<pre class="code"><code>$ l0-setup destroy &lt;instance_name&gt;</code></pre>
+
+
+<p>The <strong>destroy</strong> command is idempotent; if it fails, it is safe to re-attempt multiple times. 
+If the  operation continues to fail, it is likely there are resources that were created outside of Layer0 that have dependencies on the resources <code>l0-setup</code> is attempting to destroy. 
+You will need to manually remove these dependencies in order to get the <strong>destroy</strong> command to complete successfully. </p>
           <aside class="copyright" role="note">
             
             Documentation built with

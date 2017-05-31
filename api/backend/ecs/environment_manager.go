@@ -204,8 +204,7 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 		return nil, err
 	}
 
-	agentGroupID := config.AWSAgentGroupID()
-	securityGroups := []*string{groupID, &agentGroupID}
+	securityGroups := []*string{groupID}
 	ecsRole := config.AWSECSInstanceProfile()
 	keyPair := config.AWSKeyPair()
 	launchConfigurationName := ecsEnvironmentID.LaunchConfigurationName()

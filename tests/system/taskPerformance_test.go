@@ -10,10 +10,6 @@ import (
 // This test creates an environment named 'tp'
 // and a deploy named 'alpine'
 func TestTaskPerformance(t *testing.T) {
-	if testing.Short() {
-		t.Skip("Skipping TestTaskPerformance in short mode")
-	}
-
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/task_performance", nil)
@@ -38,8 +34,10 @@ func TestTaskPerformance(t *testing.T) {
 	}
 
 	for taskName, copies := range taskNameCopies {
-		log.Debugf("Creating task %s (copies: %d)", taskName, copies)
-		s.Layer0.CreateTask(taskName, environmentID, deployID, copies, nil)
+		go func(taskName string, copies int) {
+			log.Debugf("Creating task %s (copies: %d)", taskName, copies)
+			s.Layer0.CreateTask(taskName, environmentID, deployID, copies, nil)
+		}(taskName, copies)
 	}
 
 	testutils.WaitFor(t, time.Second*30, time.Minute*10, func() bool {

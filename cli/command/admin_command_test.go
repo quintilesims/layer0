@@ -2,6 +2,7 @@ package command
 
 import (
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"testing"
 )
 
@@ -14,7 +15,7 @@ func TestAdminDebug(t *testing.T) {
 		GetVersion().
 		Return("v1.2.3", nil)
 
-	c := getCLIContext(t, nil, nil)
+	c := testutils.GetCLIContext(t, nil, nil)
 	if err := command.Debug(c); err != nil {
 		t.Fatal(err)
 	}
@@ -29,7 +30,7 @@ func TestAdminVersion(t *testing.T) {
 		GetVersion().
 		Return("v1.2.3", nil)
 
-	c := getCLIContext(t, nil, nil)
+	c := testutils.GetCLIContext(t, nil, nil)
 	if err := command.Version(c); err != nil {
 		t.Fatal(err)
 	}
@@ -44,7 +45,7 @@ func TestAdminSQL(t *testing.T) {
 		UpdateSQL().
 		Return(nil)
 
-	c := getCLIContext(t, nil, nil)
+	c := testutils.GetCLIContext(t, nil, nil)
 	if err := command.SQL(c); err != nil {
 		t.Fatal(err)
 	}
@@ -63,7 +64,7 @@ func TestAdminScale(t *testing.T) {
 		Resolve("environment", "env").
 		Return([]string{"id"}, nil)
 
-	c := getCLIContext(t, Args{"env"}, nil)
+	c := testutils.GetCLIContext(t, []string{"env"}, nil)
 	if err := command.Scale(c); err != nil {
 		t.Fatal(err)
 	}

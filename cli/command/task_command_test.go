@@ -71,12 +71,12 @@ func TestCreateTask(t *testing.T) {
 		CreateTask("name", "environmentID", "deployID", 2, overrides).
 		Return("jobid", nil)
 
-	flags := Flags{
+	flags := map[string]interface{}{
 		"copies": 2,
 		"env":    []string{"container:key=val"},
 	}
 
-	c := getCLIContext(t, Args{"environment", "name", "deploy"}, flags)
+	c := testutils.GetCLIContext(t, []string{"environment", "name", "deploy"}, flags)
 	if err := command.Create(c); err != nil {
 		t.Fatal(err)
 	}
@@ -116,11 +116,11 @@ func TestCreateTaskWait(t *testing.T) {
 		GetTask("tid1").
 		Return(&models.Task{}, nil)
 
-	flags := Flags{
+	flags := map[string]interface{}{
 		"wait": true,
 	}
 
-	c := getCLIContext(t, Args{"environment", "name", "deploy"}, flags)
+	c := testutils.GetCLIContext(t, []string{"environment", "name", "deploy"}, flags)
 	if err := command.Create(c); err != nil {
 		t.Fatal(err)
 	}
@@ -132,9 +132,9 @@ func TestCreateTask_userInputErrors(t *testing.T) {
 	command := NewTaskCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing ENVIRONMENT arg": getCLIContext(t, nil, nil),
-		"Missing NAME arg":        getCLIContext(t, Args{"environment"}, nil),
-		"Missing DEPLOY arg":      getCLIContext(t, Args{"environment", "name"}, nil),
+		"Missing ENVIRONMENT arg": testutils.GetCLIContext(t, nil, nil),
+		"Missing NAME arg":        testutils.GetCLIContext(t, []string{"environment"}, nil),
+		"Missing DEPLOY arg":      testutils.GetCLIContext(t, []string{"environment", "name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -157,7 +157,7 @@ func TestDeleteTask(t *testing.T) {
 		DeleteTask("id").
 		Return(nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -169,7 +169,7 @@ func TestDeleteTask_userInputErrors(t *testing.T) {
 	command := NewTaskCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -192,7 +192,7 @@ func TestGetTask(t *testing.T) {
 		GetTask("id").
 		Return(&models.Task{}, nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Get(c); err != nil {
 		t.Fatal(err)
 	}
@@ -204,7 +204,7 @@ func TestGetTask_userInputErrors(t *testing.T) {
 	command := NewTaskCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -223,7 +223,7 @@ func TestListTasks(t *testing.T) {
 		ListTasks().
 		Return([]*models.TaskSummary{}, nil)
 
-	c := getCLIContext(t, nil, nil)
+	c := testutils.GetCLIContext(t, nil, nil)
 	if err := command.List(c); err != nil {
 		t.Fatal(err)
 	}
@@ -241,7 +241,7 @@ func TestGetTaskLogs(t *testing.T) {
 	tc.Client.EXPECT().
 		GetTaskLogs("id", 100)
 
-	c := getCLIContext(t, Args{"name"}, Flags{"tail": 100})
+	c := testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"tail": 100})
 	if err := command.Logs(c); err != nil {
 		t.Fatal(err)
 	}
@@ -253,7 +253,7 @@ func TestGetTaskLogs_userInputErrors(t *testing.T) {
 	command := NewTaskCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
