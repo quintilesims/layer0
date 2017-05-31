@@ -1,13 +1,5 @@
 package job
 
-// Job Design:
-// Each JobType has list of Steps that get executed in sequence.
-// The JobRunner will continue to execute each step until an error occurs or it runs out of steps.
-// If an error occurs, the JobRunner will traverse the list of steps from the current index back to the start,
-// running the rollback function (if it is set) for each step along the way.
-// Regardless of any actions the rollback(s) take, the job will always be marked in the Error state.
-// Because of this, any retry logic should be performed in step.Action, not step.Rollback.
-
 import (
 	"fmt"
 	log "github.com/Sirupsen/logrus"
@@ -17,15 +9,14 @@ import (
 )
 
 type Action func(chan bool, *JobContext) error
-type Rollback func(*JobContext) (*JobContext, []Step, error)
 
 type Step struct {
-	Name     string
-	Timeout  time.Duration
-	Action   Action
-	Rollback Rollback
+	Name    string
+	Timeout time.Duration
+	Action  Action
 }
 
+// Fold takes a slice of Actions and runs them async
 func Fold(actions ...Action) Action {
 	return func(quit chan bool, context *JobContext) error {
 		var wg sync.WaitGroup

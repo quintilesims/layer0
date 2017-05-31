@@ -6,6 +6,7 @@ import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/startup"
+	"github.com/quintilesims/layer0/common/types"
 	"github.com/quintilesims/layer0/runner/job"
 	"github.com/urfave/cli"
 	"os"
@@ -110,10 +111,12 @@ func Run(c *cli.Context) {
 	runner := job.NewJobRunner(logic, c.String("job"))
 
 	if err := runner.Load(); err != nil {
+		runner.MarkStatus(types.Error)
 		log.Fatal(err)
 	}
 
 	if err := runner.Run(); err != nil {
+		runner.MarkStatus(types.Error)
 		log.Fatal(err)
 	}
 

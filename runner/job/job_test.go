@@ -6,4 +6,6 @@ import (
 
 func init() {
 	log.SetLevel(log.FatalLevel)
+
+	timeMultiplier = 0
 }
