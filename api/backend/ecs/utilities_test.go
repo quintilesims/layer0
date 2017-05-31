@@ -29,6 +29,7 @@ func TestGetLogs(t *testing.T) {
 				mockCW := mock_cloudwatchlogs.NewMockProvider(ctrl)
 
 				stream := cloudwatchlogs.NewLogStream("prefix/container_name/taskARN")
+				stream.StoredBytes = int64p(int64(1))
 
 				mockCW.EXPECT().
 					DescribeLogStreams(config.AWSLogGroupID(), "LogStreamName").
