@@ -103,7 +103,7 @@ $ l0-setup push [options] <instance_name>
 
 ---
 ## Pull
-The **push** command is used copy Layer0 configuration files from an S3 bucket.
+The **pull** command is used copy Layer0 configuration files from an S3 bucket.
 
 ### Usage
 ```
@@ -170,7 +170,7 @@ You will need to run an **apply** after this command has completed.
 
 ### Usage
 ```
-$ l0-setup upgrade [options] <instance_name> <version>
+$ l0-setup set [options] <instance_name>
 ```
 
 **Example Usage**

@@ -39,7 +39,7 @@ You will use the credentials created in this section when creating, updating, or
 
 ## Part 3: Create a new Layer0 Instance
 Now that you have downloaded Layer0 and configured your AWS account, you can create your Layer0 instance.
-Fom a command prompt, run the following (replacing `<instance_name>` with a name for your Layer0 instance:
+From a command prompt, run the following (replacing `<instance_name>` with a name for your Layer0 instance:
 ```
 $ l0-setup init <instance_name>
 ```

@@ -176,7 +176,7 @@ var getTaskARNs = func(ecs ecs.Provider, ecsEnvironmentID id.ECSEnvironmentID, s
 var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, tail int) ([]*models.LogFile, error) {
 	taskIDCatalog := generateTaskIDCatalog(taskARNs)
 
-	fmt.Println("GEtting streamss")
+	fmt.Println("Getting streams")
 
 	orderBy := "LogStreamName"
 	logStreams, err := cloudWatchLogs.DescribeLogStreams(config.AWSLogGroupID(), orderBy)
@@ -203,7 +203,7 @@ var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, t
 			Lines: []string{},
 		}
 
-		fmt.Println("Getting eevetsn")
+		fmt.Println("Getting events")
 		// since the time range is exclusive, expand the range to get first/last events
 		logEvents, err := cloudWatchLogs.GetLogEvents(
 			config.AWSLogGroupID(),
