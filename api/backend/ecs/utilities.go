@@ -1,8 +1,6 @@
 package ecsbackend
 
 import (
-	"strings"
-
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	awsecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
@@ -10,6 +8,7 @@ import (
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
+	"strings"
 )
 
 const MAX_TASK_IDS = 100
@@ -208,8 +207,6 @@ var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, t
 		logEvents, err := cloudWatchLogs.GetLogEvents(
 			config.AWSLogGroupID(),
 			*logStream.LogStreamName,
-			*logStream.FirstEventTimestamp-1,
-			*logStream.LastEventTimestamp+1,
 			int64(tail))
 		if err != nil {
 			return nil, err

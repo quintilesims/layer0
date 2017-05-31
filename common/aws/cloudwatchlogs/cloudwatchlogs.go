@@ -11,7 +11,7 @@ type Provider interface {
 	DeleteLogGroup(logGroupName string) error
 	DescribeLogGroups(logGroupNamePrefix string, nextToken *string) ([]*LogGroup, error)
 	DescribeLogStreams(logGroupName, orderBy string) ([]*LogStream, error)
-	GetLogEvents(logGroupName, logStreamName string, startTime, endTime, limit int64) ([]*OutputLogEvent, error)
+	GetLogEvents(logGroupName, logStreamName string, limit int64) ([]*OutputLogEvent, error)
 	FilterLogEvents(filterPattern, logGroupName, nextToken *string, logStreamNames []*string, endTime, startTime *int64, interleaved *bool) ([]*FilteredLogEvent, []*SearchedLogStream, error)
 }
 
@@ -189,8 +189,6 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 func (this *CloudWatchLogs) GetLogEvents(
 	logGroupName string,
 	logStreamName string,
-	startTime int64,
-	endTime int64,
 	limit int64,
 ) ([]*OutputLogEvent, error) {
 	connection, err := this.Connect()
@@ -206,8 +204,6 @@ func (this *CloudWatchLogs) GetLogEvents(
 	input := &cloudwatchlogs.GetLogEventsInput{
 		LogGroupName:  aws.String(logGroupName),
 		LogStreamName: aws.String(logStreamName),
-		StartTime:     aws.Int64(startTime),
-		EndTime:       aws.Int64(endTime),
 		Limit:         limitp,
 	}
 
