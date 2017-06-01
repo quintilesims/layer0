@@ -22,9 +22,12 @@ Using Terraform, you will deploy a simple guestbook application backed by AWS Dy
 
 ## Part 1: Clone the guides repository
 
-Run this command to clone the `quintilesims/guides` repository. Once you have cloned the repository, navigate to `.terraform-beyond-layer0/example-1` folder for the rest of this example.
+Run this command to clone the `quintilesims/guides` repository:
 
-`git clone https://github.com/quintilesims/guides.git`  
+`git clone https://github.com/quintilesims/guides.git`
+
+Once you have cloned the repository, navigate to the `guides/terraform-beyond-layer0/example-1` folder for the rest of this example.
+
 
 ## Part 2: Terraform Plan
 
@@ -136,7 +139,7 @@ data "template_file" "guestbook" {
 
 Note the resource definitions for `aws_dynamodb_table` and `layer0_deploy`. To configure the guestbook application to use the provisioned DynamoDB table, we reference the `name` property from the DynamoDB definition `table_name = "${aws_dynamodb_table.guestbook.name}"`. 
 
-This is then used to populate the template fields in our [Dockerrun.aws.json](https://github.com/quintilesims/guides/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/Dockerrun.aws.json) file. 
+These `vars` are used to populate the template fields in our [Dockerrun.aws.json](https://github.com/quintilesims/guides/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/Dockerrun.aws.json) file. 
 
 ```
 {
@@ -314,20 +317,20 @@ For securing the state file further, you can also enable access logging on the S
 
 ## Part 6: Terraform Configuration Structure
 
-There are many different approaches to setup your Terraform code structure. Although there is no one prescribed approach, whatever approach you take needs to be catered for the needs of your particular project. Keeping that in mind; the file structure for [Terraform beyond Layer0 example](https://github.com/quintilesims/guides/blob/master/terraform-beyond-layer0/example-1) is as below:
+While there are many different approaches to organizing your Terraform code, we suggest using the following file structure:
 
 ```
-example1/
+example1/  # contains overarching Terraform deployment, pulls in any modules that might exist
   ─ main.tf  
   ─ variables.tf  
   ─ output.tf  
-  + modules/  
-      + guestbook_service/
+  + modules/  # if you can break up deployment into smaller modules, keep the modules in here
+      + guestbook_service/  # contains Terraform configuration for a module
         ─ main.tf  
         ─ variables.tf  
         ─ output.tf
-      + service2/
-      + service3/
+      + service2/  # contains another module
+      + service3/  # contains another module
 ```
 
 Here we are making use of Terraform [Modules](https://www.terraform.io/docs/modules/index.html). Modules in Terraform are self-contained packages of Terraform configurations, that are managed as a group. Modules are used to create reusable components in Terraform as well as for basic code organization. In this example, we are using modules to separate each service and making it consumable as a module.
