@@ -17,7 +17,7 @@ SSL certificates obtained from a valid [Certificate Authority (CA)](https://en.w
 
 ### Deploys
 
-[ECS Task Definitions](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html). These configuration files detail how to deploy your application. We have several [sample applications](https://github.com/quintilesims/layer0-examples) available that show what these files look like --- they're called `Dockerrun.aws.json` within each sample app.
+[ECS Task Definitions](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html). These configuration files detail how to deploy your application. We have several [sample applications](https://github.com/quintilesims/guides) available that show what these files look like --- they're called `Dockerrun.aws.json` within each sample app.
 
 ### Tasks
 
