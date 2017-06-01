@@ -289,7 +289,7 @@ We'll use these files to manage our deployment with Terraform:
 | `outputs.tf` | Values that Terraform will yield during deployment |
 | `terraform.tfstate` | Tracks status of deployment _(created and managed by Terraform)_ |
 | `terraform.tfvars` | Variables specific to the environment and application(s) |
-| `variables.tf` | Variabltes that Terraform will use during deployment |
+| `variables.tf` | Values that Terraform will use during deployment |
 
 
 ---
@@ -454,10 +454,8 @@ Execute the following command (in the same directory):
 
 `terraform destroy`
 
-Then, remove the `.terraform/` directory.
+It's also now safe to remove the `.terraform/` directory and the `*.tfstate*` files.
 
-!!! Note
-    Again, Terraform writes the latest status of your deployment to `terraform.tfstate`. When you're finished with this section and ready to move on to [Deployment 3](#3b-deploy-with-terraform), destroy your Terraform deployment with `terraform destroy`.
 
 ---
 

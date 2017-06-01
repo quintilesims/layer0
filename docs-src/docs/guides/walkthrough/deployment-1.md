@@ -261,7 +261,7 @@ We use these files to set up a Layer0 environment with Terraform:
 | `outputs.tf` | Values that Terraform will yield during deployment |
 | `terraform.tfstate` | Tracks status of deployment _(created and managed by Terraform)_ |
 | `terraform.tfvars` | Variables specific to the environment and application(s) |
-| `variables.tf` | Variables that Terraform will use during deployment |
+| `variables.tf` | Values that Terraform will use during deployment |
 
 ### `*.tf`: A Brief Aside
 
@@ -482,7 +482,7 @@ When you're finished with the example, you can instruct Terraform to destroy the
 
 `terraform destroy`
 
-Then, remove the `.terraform/` directory.
+It's also now safe to remove the `.terraform/` directory and the `*.tfstate*` files.
 
 
 ---
