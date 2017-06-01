@@ -20,7 +20,7 @@ Files used in this deployment:
 | Filename | Purpose |
 |----------|---------|
 | `Guestbook.Dockerrun.aws.json` | Template for running the Guestbook application |
-| `Redis.Dockerrun.aws.json` | Template for running the Redis application |
+| `Redis.Dockerrun.aws.json` | Template for running a Redis server |
 
 
 ---
