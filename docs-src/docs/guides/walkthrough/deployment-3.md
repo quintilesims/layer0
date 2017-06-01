@@ -1,6 +1,6 @@
-## Deployment 3: Guestbook + Redis + Consul
+# Deployment 3: Guestbook + Redis + Consul
 
-In [Deployment 2](#2a-deploy-with-layer0-cli), we created two services in the same environment and linked them together manually.
+In [Deployment 2](deployment-2#deploy-with-layer0-cli), we created two services in the same environment and linked them together manually.
 While that can work for a small system, it's not really feasible for a system with a lot of moving parts - we would need to look up load balancer endpoints for all of our services and manually link them all together.
 To that end, here we're going to to redeploy our two-service system using [Consul](https://www.consul.io), a service discovery tool.
 
@@ -10,19 +10,27 @@ We'll also deploy new versions of the Guestbook and Redis task definition files 
  - a container for a Consul agent, which is in charge of communicating with the Consul server cluster
  - a container for [Registrator](https://github.com/gliderlabs/registrator), which is charge of talking to the local Consul agent when a service comes up or goes down.
 
-You can choose to complete this section using either the [Layer0 CLI](#3a-deploy-with-layer0-cli) or [Terraform](#3b-deploy-with-terraform).
+You can choose to complete this section using either the [Layer0 CLI](#deploy-with-layer0-cli) or [Terraform](#deploy-with-terraform).
 
 
-## 3a: Deploy with Layer0 CLI
+## Deploy with Layer0 CLI
 
-For this example, we'll be working in the `iterative-walkthrough/deployment-3/` directory.
+If you're following along, you'll want to be working in the `walkthrough/deployment-3/` directory of your clone of the [guides](https://github.com/quintilesims/guides) repo.
+
+Files used in this deployment:
+
+| Filename | Purpose |
+|----------|---------|
+| `CLI.Consul.Dockerrun.aws.json` | Template for running a Consul server |
+| `CLI.Guestbook.Dockerrun.aws.json` | Template for running the Guestbook application with Registrator and Consul agent |
+| `CLI.Redis.Dockerrun.aws.json` | Template for running a Redis server with Registrator and Consul agent |
 
 
 ---
 
 ### Part 1: Create the Consul Load Balancer
 
-The Consul server cluster will live in the same environment as our Guestbook and Redis services - if you've completed the previous deployment, this environment already exists as **demo-env**.
+The Consul server cluster will live in the same environment as our Guestbook and Redis services - if you've completed [Deployment 1](deployment-1) and [Deployment 2](deployment-2), this environment already exists as **demo-env**.
 We'll start by creating the load balancer behind which the Consul cluster will be deployed.
 The load balancer is a private one, and is really only used to bootstrap the Consul servers into working order.
 At the command prompt, execute the following:
@@ -62,20 +70,20 @@ Make note of it for when we reference it later.
 ### Part 2: Deploy the Consul Task Definition
 
 Before we can create the deploy, we need to supply the URL of the Consul load balancer that we got in Part 1.
-In `Consul.Dockerrun.aws.json`, find the entry in the `environment` block that looks like this:
+In `CLI.Consul.Dockerrun.aws.json`, find the entry in the `environment` block that looks like this:
 
 ```
 {
     "name": "CONSUL_SERVER_URL",
-    "value": "${consul_server_url}"
+    "value": ""
 }
 ```
 
-Replace `${consul_server_url}` with the Consul load balancer's URL and save the file.
+Update the "value" with the Consul load balancer's URL into and save the file.
 We can then create the deploy.
 At the command prompt, execute the following:
 
-`l0 deploy create Consul.Dockerrun.aws.json consul-dpl`
+`l0 deploy create CLI.Consul.Dockerrun.aws.json consul-dpl`
 
 We should see output like the following:
 
@@ -87,7 +95,7 @@ consul-dpl.1  consul-dpl   1
 The following is a summary of the arguments passed in the above command:
 
 - `deploy create`: creates a new Layer0 Deploy and allows you to specifiy a Docker task definition
-- `Consul.Dockerrun.aws.json`: the file name of the Docker task definition (use the full path of the file if it is not in the current working directory)
+- `CLI.Consul.Dockerrun.aws.json`: the file name of the Docker task definition (use the full path of the file if it is not in the current working directory)
 - `consul-dpl`: a name for the deploy, which will later be used in creating the service
 
 
@@ -148,12 +156,12 @@ consuls2f3c6  consul-svc    demo-env     consul-lb     consul-dpl:1  3/3
 ### Part 4: Update and Redeploy the Redis and Guestbook Applications
 
 We're going to need the URL of the Consul load balancer again.
-In each of the Redis and Guestbook task definition files, look for the `CONSUL_SERVER_URL` block in the `consul-agent` container and replace the value field with the Consul load balancer URL, then save the file.
-At the command prompt, execute the two following commands to create new version of the deploys for the Redis and Guestbook applications:
+In each of the CLI.Redis and CLI.Guestbook task definition files, look for the `CONSUL_SERVER_URL` block in the `consul-agent` container and populate the value field with the Consul load balancer's URL, then save the file.
+At the command prompt, execute the two following commands to create new versions of the deploys for the Redis and Guestbook applications:
 
-`l0 deploy create Redis.Dockerrun.aws.json redis-dpl`
+`l0 deploy create CLI.Redis.Dockerrun.aws.json redis-dpl`
 
-`l0 deploy create Guestbook.Dockerrun.aws.json guestbook-dpl`
+`l0 deploy create CLI.Guestbook.Dockerrun.aws.json guestbook-dpl`
 
 Then, execute the two following commands to redeploy the existing Redis and Guestbook services using those new deploys:
 
@@ -164,7 +172,7 @@ Then, execute the two following commands to redeploy the existing Redis and Gues
 !!! NOTE
     Here, we should run `l0 service logs consul-svc` again and confirm that the Consul cluster has discovered these two services.
 
-We can use `l0 loadbalancer get guestbook-lb` to obtain the guestbook application's URL, and then hit it with a web browser.
+We can use `l0 loadbalancer get guestbook-lb` to obtain the guestbook application's URL, and then navigate to it with a web browser.
 Our guestbook app should be up and running - this time, it's been deployed without needing to know the address of the Redis backend!
 
 Of course, this is a simple example; in both this deployment and [Deployment 2](#2a-deploy-with-layer0-cli), we needed to use `l0 loadbalancer get` to obtain the URL of a load balancer.
@@ -280,7 +288,7 @@ We should see output like the following:
 
 ```
 
-To _really_ see how the Guestbook application connects to Redis, we can take an even closer look.
+To _really_ see how the Guestbook application connects to Redis, we can take an _even closer_ look!
 
 Run `docker ps` to generate a listing of all the containers that Docker is running on the EC2 instance, and note the Container ID for the Guestbook container. Then run the following command to connect to the Guestbook container:
 
@@ -306,7 +314,7 @@ When you're finished with the example, we can instruct Layer0 to terminate the a
 
 ---
 
-## 3b: Deploy with Terraform
+## Deploy with Terraform
 
 As before, we can complete this deployment using Terraform and the Layer0 provider instead of the Layer0 CLI.
 As before, we will assume that you've cloned the [layer0-examples](https://github.com/quintilesims/layer0-examples) repo and are working in the `iterative-walkthrough/deployment-3/` directory.
@@ -315,40 +323,54 @@ We'll use these files to manage our deployment with Terraform:
 
 | Filename | Purpose |
 |----------|---------|
-| `Consul.Dockerrun.aws.json` | Template for running the Consul server cluster |
 | `Guestbook.Dockerrun.aws.json` | Template for running the Guestbook application |
-| `layer0.tf` | Provisions resources; populates variables in template files |
+| `main.tf` | Provisions resources; populates variables in template files |
+| `outputs.tf` | Values that Terraform will yield during deployment |
 | `Redis.Dockerrun.aws.json` | Template for running the Redis application |
 | `terraform.tfstate` | Tracks status of deployment _(created and managed by Terraform)_ |
 | `terraform.tfvars` | Variables specific to the environment and application(s) |
+| `variables.tf` | Values that Terraform will use during deployment |
 
 ---
 
-### `layer0.tf`: A Brief Aside: Revisited: Redux
+### `*.tf`: A Brief Aside: Revisited: Redux
 
-There are a couple of things to note about this `layer0.tf` that have changed since [Deployment 2](#2b-deploy-with-terraform).
+In looking at `main.tf`, you can see that we're pulling in a Consul module that we maintain (here's the [repo](https://github.com/quintilesims/consul)); this removes the need for a local task definition file.
 
-First, we have declarations for the Consul server cluster.
-Where we create the `consul-svc`, you can find a new `provisioner "local_exec"` block.
-We use this block to execute a couple of l0 CLI commands to scale the Consul server cluster down to one and then back up to three in order to ensure consistent leader election and the establishment of a quorum between the Consul server nodes.
-You can find more information on `local_exec` [here](https://www.terraform.io/docs/provisioners/local-exec.html), and information about Consul's Raft protocol re: leader election and quorum establishment can be found [here](https://www.consul.io/docs/internals/consensus.html).
+We also are continuing to use modules for Redis and Guestbook.
+However, instead of just sourcing the module and passing in a value or two, you can see that we actually create new deploys from local task definition files and pass those deploys in to the module.
+This design allows us to use pre-made modules while also offering a great deal of flexibility.
+If you'd like to follow along the Redis deployment logic chain (the other applications/services work similarly), it goes something like this:
 
-Additionally, we use the `depends_on` parameter (more information [here](https://www.terraform.io/intro/getting-started/dependencies.html)) in the creation of the load balancers for the Guestbook app and the Redis app.
-This parameter is available on any `resource`, and here we use it to make sure that the Consul server clusters have been appropriately scaled before we create these two load balancers.
-The idea is that we want to give the Consul server cluster time to elect a leader and establish a quorum before we attempt to register any other services.
+- `main.tf` creates a deploy for the Redis server by rendering a local task definition and populating it with certain values
+- `main.tf` passes the ID of the deploy into the Redis module, along with other values the module requires
+- [the Redis module](https://github.com/quintilesims/redis/tree/master/terraform) pulls all the variables it knows about (both the defaults in `variables.tf` as well as the ones passed in)
+- among other Layer0/AWS resources, the module spins up a Redis service; since a deploy ID has been provided, it uses that deploy to create the service instead of a deploy made from a [default task definition](https://github.com/quintilesims/redis/tree/master/terraform/Dockerrun.aws.json) contained within the module
 
 
 ---
 
-### Part 1: Terraform Plan
+### Part 1: Terraform Get
+
+Run `terraform get` to pull down all the source materials Terraform needs for our deployment.
+
+
+---
+
+### Part 2: Terraform Plan
 
 As before, we can run `terraform plan` to see what's going to happen.
-We should see that there are 10 new resources to be created (the environment, and a load balancer, deploy, and service for each of Consul, Guestbook, and Redis).
+We should see that there are 12 new resources to be created:
+
+- the environment
+- the two local deploys which will be used for Guestbook and Redis
+- the load balancer, deploy, and service from each of the Consul, Guestbook, and Redis modules
+    - _note that even though the default modules' deploys are created, they won't actually be used to deploy services_
 
 
 ---
 
-### Part 2: Terraform Apply
+### Part 3: Terraform Apply
 
 Run `terraform apply`, and we should see output similar to the following:
 
@@ -373,7 +395,7 @@ State path: terraform.tfstate
 
 Outputs:
 
-guestbook_url = <http endpoint for the sample application>
+guestbook_url = <http endpoint for the guestbook application>
 ```
 
 !!! Note
@@ -394,8 +416,8 @@ Execute the following command (in the same directory):
 
 `terraform destroy`
 
-!!! Note
-    Again, Terraform writes the latest status of your deployment to `terraform.tfstate`.
-When you're finished with this section, destroy your Terraform deployment with `terraform destroy`.
+It's also now safe to remove the `.terraform/` directory and the `*.tfstate*` files.
 
+
+---
 
