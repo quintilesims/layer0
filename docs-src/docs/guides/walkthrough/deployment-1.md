@@ -110,9 +110,9 @@ Try running the following commands to get an idea of the information available t
 
 ---
 
-### Part 3: Deploy the Docker Task Definition
+### Part 3: Deploy the ECS Task Definition
 
-The `deploy` command is used to specify the Docker task definition that refers to a web application.
+The `deploy` command is used to specify the ECS task definition that refers to a web application.
 
 Here, we'll create a new deploy called **guestbook-dpl** that refers to the **Guestbook.Dockerrun.aws.json** file found in the guides reposiory.
 At the command prompt, execute the following:
@@ -128,8 +128,8 @@ guestbook-dpl.1  guestbook-dpl  1
 
 The following is a summary of the arguments passed in the above command:
 
-* `deploy create`: creates a new deployment and allows you to specify a Docker task definition
-* `Guestbook.Dockerrun.aws.json`: the file name of the Docker task definition (use the full path of the file if it is not in your current working directory)
+* `deploy create`: creates a new deployment and allows you to specify an ECS task definition
+* `Guestbook.Dockerrun.aws.json`: the file name of the ECS task definition (use the full path of the file if it is not in your current working directory)
 * `guestbook-dpl`: a name for the deploy, which you will use later when you create the service
 
 !!! Note

@@ -57,7 +57,7 @@ The following is a summary of the arguments passed in the above command:
 
 ---
 
-### Part 2: Deploy the Docker Task Definition
+### Part 2: Deploy the ECS Task Definition
 
 Here, we just need to create the deploy using the `Redis.Dockerrun.aws.json` task definition file.
 At the command prompt, execute the following:
@@ -73,8 +73,8 @@ redis-dpl.1  redis-dpl    1
 
 The following is a summary of the arguments passed in the above command:
 
-- `deploy create`: creates a new Layer0 Deploy and allows you to specify a Docker task definition
-- `Redis.Dockerrun.aws.json`: the file name of the Docker task definition (use the full path of the file if it is not in your current working directory)
+- `deploy create`: creates a new Layer0 Deploy and allows you to specify an ECS task definition
+- `Redis.Dockerrun.aws.json`: the file name of the ECS task definition (use the full path of the file if it is not in your current working directory)
 - `redis-dpl`: a name for the deploy, which we will use later when we create the service
 
 

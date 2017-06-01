@@ -94,8 +94,8 @@ consul-dpl.1  consul-dpl   1
 
 The following is a summary of the arguments passed in the above command:
 
-- `deploy create`: creates a new Layer0 Deploy and allows you to specifiy a Docker task definition
-- `CLI.Consul.Dockerrun.aws.json`: the file name of the Docker task definition (use the full path of the file if it is not in the current working directory)
+- `deploy create`: creates a new Layer0 Deploy and allows you to specifiy an ECS task definition
+- `CLI.Consul.Dockerrun.aws.json`: the file name of the ECS task definition (use the full path of the file if it is not in the current working directory)
 - `consul-dpl`: a name for the deploy, which will later be used in creating the service
 
 
