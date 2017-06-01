@@ -9,7 +9,7 @@ In order to complete the procedures in this section, you must install and config
 
 ## Part 1: Prepare the task definition
 
-1. Download the [Guestbook One-off Task Definition](https://github.com/quintilesims/layer0-examples/blob/master/one-off-task/Dockerrun.aws.json) and save it to your computer as **Dockerrun.aws.json**.
+1. Download the [Guestbook One-off Task Definition](https://github.com/quintilesims/guides/blob/master/one-off-task/Dockerrun.aws.json) and save it to your computer as **Dockerrun.aws.json**.
 
 ## Part 2: Create a deploy
 Next, you will create a new deploy for the task using the **deploy create** command. At the command prompt, run the following command:

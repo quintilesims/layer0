@@ -20,11 +20,11 @@ See the [Terraform installation guide](/reference/terraform-plugin#install) to i
 
 Using Terraform, you will deploy a simple guestbook application backed by AWS DynamoDB Table. The terraform configuration file will use both the Layer0 and AWS Terraform providers, to deploy the guestbook application and provision a new DynamoDB Table.
 
-## Part 1: Clone the Layer0 examples repository
+## Part 1: Clone the guides repository
 
-Run this command to clone the `quintilesims/layer0-examples` repository. Once you have cloned the repository, navigate to `.terraform-beyond-layer0/example-1` folder for the rest of this example.
+Run this command to clone the `quintilesims/guides` repository. Once you have cloned the repository, navigate to `.terraform-beyond-layer0/example-1` folder for the rest of this example.
 
-`git clone https://github.com/quintilesims/layer0-examples.git`  
+`git clone https://github.com/quintilesims/guides.git`  
 
 ## Part 2: Terraform Plan
 
@@ -33,7 +33,7 @@ Run this command to clone the `quintilesims/layer0-examples` repository. Once yo
 
 	`terraform get`
 
-	Get: file:///Users/<username>/go/src/github.com/quintilesims/layer0-examples/terraform-beyond-layer0/example-1/modules/guestbook_service
+	Get: file:///Users/<username>/go/src/github.com/quintilesims/guides/terraform-beyond-layer0/example-1/modules/guestbook_service
 
 Before deploying, we can run the following command to see what changes Terraform will make to your infrastructure should you go ahead and apply. If you had any errors in your layer0.tf file, running `terraform plan` would output those errors so that you can address them. Also, Terraform will prompt you for configuration values that it does not have.
 
@@ -102,7 +102,7 @@ Terraform will set up the entire environment for you and then output a link to t
 
 Terraform using the [AWS provider](https://www.terraform.io/docs/providers/aws/index.html), provisions a new DynamoDB table. It also uses the [Layer0 provider](http://layer0.ims.io/reference/terraform-plugin/#provider) to provision the environment, deploy, load balancer and service required to run the entire guestbook application.
 
-Looking at an excerpt of the file [./terraform-beyond-layer0/example-1/modules/guestbook_service/main.tf](https://github.com/quintilesims/layer0-examples/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/main.tf), we can see the following definitions:
+Looking at an excerpt of the file [./terraform-beyond-layer0/example-1/modules/guestbook_service/main.tf](https://github.com/quintilesims/guides/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/main.tf), we can see the following definitions:
 
 ```
 resource "aws_dynamodb_table" "guestbook" {
@@ -136,7 +136,7 @@ data "template_file" "guestbook" {
 
 Note the resource definitions for `aws_dynamodb_table` and `layer0_deploy`. To configure the guestbook application to use the provisioned DynamoDB table, we reference the `name` property from the DynamoDB definition `table_name = "${aws_dynamodb_table.guestbook.name}"`. 
 
-This is then used to populate the template fields in our [Dockerrun.aws.json](https://github.com/quintilesims/layer0-examples/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/Dockerrun.aws.json) file. 
+This is then used to populate the template fields in our [Dockerrun.aws.json](https://github.com/quintilesims/guides/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/Dockerrun.aws.json) file. 
 
 ```
 {
@@ -314,7 +314,7 @@ For securing the state file further, you can also enable access logging on the S
 
 ## Part 6: Terraform Configuration Structure
 
-There are many different approaches to setup your Terraform code structure. Although there is no one prescribed approach, whatever approach you take needs to be catered for the needs of your particular project. Keeping that in mind; the file structure for [Terraform beyond Layer0 example](https://github.com/quintilesims/layer0-examples/blob/master/terraform-beyond-layer0/example-1) is as below:
+There are many different approaches to setup your Terraform code structure. Although there is no one prescribed approach, whatever approach you take needs to be catered for the needs of your particular project. Keeping that in mind; the file structure for [Terraform beyond Layer0 example](https://github.com/quintilesims/guides/blob/master/terraform-beyond-layer0/example-1) is as below:
 
 ```
 example1/

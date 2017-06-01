@@ -317,7 +317,7 @@ When you're finished with the example, we can instruct Layer0 to terminate the a
 ## Deploy with Terraform
 
 As before, we can complete this deployment using Terraform and the Layer0 provider instead of the Layer0 CLI.
-As before, we will assume that you've cloned the [layer0-examples](https://github.com/quintilesims/layer0-examples) repo and are working in the `iterative-walkthrough/deployment-3/` directory.
+As before, we will assume that you've cloned the [guides](https://github.com/quintilesims/guides) repo and are working in the `iterative-walkthrough/deployment-3/` directory.
 
 We'll use these files to manage our deployment with Terraform:
 
