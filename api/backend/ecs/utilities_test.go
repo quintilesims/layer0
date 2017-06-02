@@ -29,8 +29,7 @@ func TestGetLogs(t *testing.T) {
 				mockCW := mock_cloudwatchlogs.NewMockProvider(ctrl)
 
 				stream := cloudwatchlogs.NewLogStream("prefix/container_name/taskARN")
-				stream.FirstEventTimestamp = int64p(int64(0))
-				stream.LastEventTimestamp = int64p(int64(1))
+				stream.StoredBytes = int64p(int64(1))
 
 				mockCW.EXPECT().
 					DescribeLogStreams(config.AWSLogGroupID(), "LogStreamName").
@@ -42,8 +41,6 @@ func TestGetLogs(t *testing.T) {
 					GetLogEvents(
 						config.AWSLogGroupID(),
 						*stream.LogStreamName,
-						*stream.FirstEventTimestamp-1,
-						*stream.LastEventTimestamp+1,
 						int64(30),
 					).Return([]*cloudwatchlogs.OutputLogEvent{event}, nil)
 

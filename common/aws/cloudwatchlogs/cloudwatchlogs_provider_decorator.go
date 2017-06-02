@@ -42,10 +42,10 @@ func (this *ProviderDecorator) DescribeLogStreams(p0 string, p1 string) (v0 []*L
 	err = this.Decorator("DescribeLogStreams", call)
 	return v0, err
 }
-func (this *ProviderDecorator) GetLogEvents(p0 string, p1 string, p2 int64, p3 int64, p4 int64) (v0 []*OutputLogEvent, err error) {
+func (this *ProviderDecorator) GetLogEvents(p0 string, p1 string, p2 int64) (v0 []*OutputLogEvent, err error) {
 	call := func() error {
 		var err error
-		v0, err = this.Inner.GetLogEvents(p0, p1, p2, p3, p4)
+		v0, err = this.Inner.GetLogEvents(p0, p1, p2)
 		return err
 	}
 	err = this.Decorator("GetLogEvents", call)

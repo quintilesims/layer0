@@ -187,6 +187,10 @@ var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, t
 
 	logFiles := []*models.LogFile{}
 	for _, logStream := range logStreams {
+		if *logStream.StoredBytes == 0 {
+			continue
+		}
+
 		// filter by streams that have <prefix>/<container name>/<stream task id>
 		streamNameSplit := strings.Split(*logStream.LogStreamName, "/")
 		if len(streamNameSplit) != 3 {
@@ -208,8 +212,6 @@ var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, t
 		logEvents, err := cloudWatchLogs.GetLogEvents(
 			config.AWSLogGroupID(),
 			*logStream.LogStreamName,
-			*logStream.FirstEventTimestamp-1,
-			*logStream.LastEventTimestamp+1,
 			int64(tail))
 		if err != nil {
 			return nil, err
