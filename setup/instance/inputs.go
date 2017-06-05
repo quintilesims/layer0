@@ -25,7 +25,7 @@ const INPUT_SOURCE_DESCRIPTION = `
 Source: The source input variable is the path to the Terraform module for Layer0.
 By default, this points to the Layer0 github repository with the same version tag
 as this l0-setup binary. Using values other than the default may result in 
-undesired consequences. 
+undesired consequences (the double slash is intentional). 
 `
 
 const INPUT_VERSION_DESCRIPTION = `
