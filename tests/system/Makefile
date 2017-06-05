@@ -1,5 +1,5 @@
 test:
-	go test -v -short -parallel 10 -timeout 20m
+	go test -v -short -parallel 5 -timeout 30m
 
 test-all: 
 	go test -v -parallel 10 -timeout 1h

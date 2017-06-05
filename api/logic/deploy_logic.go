@@ -77,11 +77,11 @@ func (d *L0DeployLogic) CreateDeploy(req models.CreateDeployRequest) (*models.De
 		return deploy, err
 	}
 
-	if err := d.upsertTag(models.Tag{EntityID: deploy.DeployID, EntityType: "deploy", Key: "name", Value: req.DeployName}); err != nil {
+	if err := d.TagStore.Insert(models.Tag{EntityID: deploy.DeployID, EntityType: "deploy", Key: "name", Value: req.DeployName}); err != nil {
 		return deploy, err
 	}
 
-	if err := d.upsertTag(models.Tag{EntityID: deploy.DeployID, EntityType: "deploy", Key: "version", Value: deploy.Version}); err != nil {
+	if err := d.TagStore.Insert(models.Tag{EntityID: deploy.DeployID, EntityType: "deploy", Key: "version", Value: deploy.Version}); err != nil {
 		return deploy, err
 	}
 
@@ -93,16 +93,16 @@ func (d *L0DeployLogic) CreateDeploy(req models.CreateDeployRequest) (*models.De
 }
 
 func (d *L0DeployLogic) populateModel(model *models.Deploy) error {
-	tags, err := d.TagStore.SelectByQuery("deploy", model.DeployID)
+	tags, err := d.TagStore.SelectByTypeAndID("deploy", model.DeployID)
 	if err != nil {
 		return err
 	}
 
-	if tag := tags.WithKey("name").First(); tag != nil {
+	if tag, ok := tags.WithKey("name").First(); ok {
 		model.DeployName = tag.Value
 	}
 
-	if tag := tags.WithKey("version").First(); tag != nil {
+	if tag, ok := tags.WithKey("version").First(); ok {
 		model.Version = tag.Value
 	}
 

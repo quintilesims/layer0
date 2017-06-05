@@ -1,4 +1,4 @@
-# Install and Configure Layer0
+# Create a new Layer0 Instance
 
 ## Prerequisites
 
@@ -10,12 +10,14 @@ Before you can install and configure Layer0, you must obtain the following:
 ## Part 1: Download and extract Layer0
 
 1. In the [Downloads section of the home page](/index.html#download), select the appropriate installation file for your operating system. Extract the zip file to a directory on your computer.
-2. Add both the directory that contains the **l0** application, as well as the entire l0-setup directory, to your system path. The l0-setup directory contains files that are necessary for the **l0-setup** application to work properly, so you must add the entire directory to your path.<br />For more information about adding directories to your system path, see the following resources:
+2. (Optional) Place the **l0** and **l0-setup** binaries into your system path. 
+For more information about adding directories to your system path, see the following resources:
 	* (Windows): [How to Edit Your System PATH for Easy Command Line Access in Windows](http://www.howtogeek.com/118594/how-to-edit-your-system-path-for-easy-command-line-access/)
 	* (Linux/macOS): [Adding a Directory to the Path](http://www.troubleshooters.com/linux/prepostpath.htm)
 
 ## Part 2: Create an Access Key
-This step will create an Identity & Access Management (IAM) access key from your AWS account. You will use the credentials created in this section when installing, updating, or removing Layer0 resources.
+This step will create an Identity & Access Management (IAM) access key for your AWS account. 
+You will use the credentials created in this section when creating, updating, or removing Layer0 instances.
 
 **To create an Access Key:**
 
@@ -35,59 +37,128 @@ This step will create an Identity & Access Management (IAM) access key from your
 
 8. Select the group **Administrators** and click **Add to Groups**. This will make your newly created user an administrator for your AWS account, so be sure to keep your security credentials safe!
 
-## Part 3: Configure your Layer0
-Now that you have downloaded Layer0 and configured your AWS instance, you can create your Layer0.
+## Part 3: Create a new Layer0 Instance
+Now that you have downloaded Layer0 and configured your AWS account, you can create your Layer0 instance.
+From a command prompt, run the following (replacing `<instance_name>` with a name for your Layer0 instance:
+```
+$ l0-setup init <instance_name>
+```
 
-**To configure Layer0:**
+This command will prompt you for many different inputs. 
+Enter the required values for **AWS Access Key**, **AWS Secret Key**, and **AWS SSH Key** as they come up.
+All remaining inputs are optional and can be set to their default by pressing enter.
 
-1. At the command prompt, navigate to the **l0-setup** subdirectory in the folder in which you extracted the Layer0 files.
-
-2. Type the following command, replacing ``[prefix]`` with a unique name for your Layer0: ```l0-setup apply [prefix]``` <div class="admonition note">
-<p class="admonition-title">Using a private Docker registry</p>
-<br /><br />
-<p>**The procedures in this section are optional, but are highly recommended for production use.**</p>
-<br /><br />
-<p>If you require authentication to a private Docker registry, you will need to populate a file named `dockercfg` inside your Layer0 instance directory, located at `~/layer0/instances/[prefix]/dockercfg`. When you run `l0-setup` for the first time, use the `--dockercfg` flag, like so:</p>
-<br /><br />
-<p>`l0-setup apply --dockercfg [path/to/config/file] [prefix]`</p>
-<br /><br />
-<p>If you don't have a config file yet, you can generate one by running `docker login [registry-address]`. A configuration file will be generated at `~/.docker/config.json` for Docker versions 1.7 or higher, or at `~/.dockercfg` for Docker versions below 1.7.</p>
-<br /><br />
-<p>You can modify an instance's `dockercfg` file (the one located at `~/layer0/instances/[instance]/dockercfg`) and re-run `l0-setup apply` to make changes to your authentication. Note that any EC2 instances created prior to changing your `dockercfg` file will need to be manually terminated since they only grab the `dockercfg` authentication file once during instance creation. Terminated EC2 instances will be automatically re-created by autoscaling.</p>
-</div>
-
-3. When prompted, enter the following information:
-	* **AWS Access Key ID**: The access key ID contained in the credential file that you downloaded in step 6 of the previous section.
-	* **AWS Secret Access Key**: The secret access key contained in the credential file that you downloaded in step 6 of the previous section.
-	* **Key Pair**: The name of the key pair that you created in the Prerequisites section.
-The first time you run the ```apply``` command, it may take around 15 minutes to complete. If the ```apply``` command fails to complete successfully, it is safe to run it again until it succeeds.
-
-## Part 4: Configure the environment variables
-Once the ```apply``` command has run successfully, you can configure the Layer0 environment variables using the ```endpoint``` command.
-
-To view the environment variables for your Layer0 and apply them to your shell, type the following command, replacing ```[prefix]``` with the name of the Layer0 prefix you created in Part 3:
-
-* (Windows PowerShell): ```l0-setup endpoint --insecure --syntax=powershell [prefix] | Out-String | Invoke-Expression```
-* (Linux/macOS): ```eval "$(l0-setup endpoint --insecure [prefix])"```
-
-## (Optional) Part 6: Using a custom certificate
-
-!!! note
-	The procedures in this section are optional, but are highly recommended for production use.
-
-Layer0 uses a self-signed certificate to run the API.
-In a production setting, we recommend using a certificate from a trusted CA.
-
-**To use a custom certificate:**
-
-<ol>
-	<li>In a text editor, open the file in your Layer0 directory named elb.tf.template.
-The full path will be `~/layer0/instances/<prefix>/elb.tf.template`.
-Update the following line the file:
-<pre class="code"><code>
+```
 ...
-	ssl_certificate_id = "[ARN of your SSL cert]"
+AWS Access Key: The access_key input variable is used to provision the AWS resources
+required for Layer0. This corresponds to the Access Key ID portion of an AWS Access Key.
+It is recommended this key has the 'AdministratorAccess' policy. Note that Layer0 will
+only use this key for 'l0-setup' commands associated with this Layer0 instance; the
+Layer0 API will use its own key with limited permissions to provision AWS resources.
+
+[current: <none>]
+Please enter a value and press 'enter'.
+        Input: ABC123xzy
+
+AWS Secret Key: The secret_key input variable is used to provision the AWS resources
+required for Layer0. This corresponds to the Secret Access Key portion of an AWS Access Key.
+It is recommended this key has the 'AdministratorAccess' policy. Note that Layer0 will
+only use this key for 'l0-setup' commands associated with this Layer0 instance; the
+Layer0 API will use its own key with limited permissions to provision AWS resources.
+
+[current: <none>]
+Please enter a value and press 'enter'.
+        Input: ZXY987cba
+
+AWS SSH Key Pair: The ssh_key_pair input variable specifies the name of the
+ssh key pair to include in EC2 instances provisioned by Layer0. This key pair must
+already exist in the AWS account. The names of existing key pairs can be found
+in the EC2 dashboard. Note that changing this value will not effect instances
+that have already been provisioned.
+
+[current: <none>]
+Please enter a value and press 'enter'.
+        Input: mySSHKey
 ...
-</pre></code></li>
-	<li>Save the modified elb.tf.template file, and then run the following command: <code>l0-setup apply [prefix]</code></li>
-</ol>
+```
+
+The first time you run the **apply** command, it may take around 5 minutes to complete. 
+This command is idempotent; it is safe to run multiple times if it fails the first.
+
+It's a good idea to run the **push** command after **apply** commands complete. 
+This will send a backup of your Layer0 instance's configuration and state to S3. 
+These files can be grabbed later using the **pull** command. 
+
+!!! note "Using a Private Docker Registry"
+    **The procedures in this section are optional, but are highly recommended for production use.**
+
+If you require authentication to a private Docker registry, you will need a Docker configuration file present on your machine with access to private repositories (typically located at `~/.docker/config.json`). 
+
+If you don't have a config file yet, you can generate one by running `docker login [registry-address]`. 
+A configuration file will be generated at `~/.docker/config.json`.
+
+To add this authentication to your Layer0 instance, run:
+```
+$ l0-setup init --docker-path=<path/to/config.json> <instance_name>
+```
+
+This will add a rendered file into your Layer0 instance's directory at `~/.layer0/<instance_name>/dockercfg.json`.
+
+You can modify a Layer0 instance's `dockercfg.json` file and re-run the **apply** command to make changes to your authentication. 
+Note that any EC2 instances created prior to changing your `dockercfg.json` file will need to be manually terminated since they only grab the authentication file during instance creation. 
+Terminated EC2 instances will be automatically re-created by autoscaling.
+
+
+!!! note "Using an Existing VPC"
+    **The procedures in this section must be followed to properly install Layer0 into an existing VPC**
+
+By default, l0-setup creates a new VPC to place resources. 
+However, l0-setup can place resources in an existing VPC if it meets the following conditions:
+
+* Has access to the public internet (through a NAT instance or gateway)
+* Has at least 1 public and 1 private subnet
+* The public and private subnets have the tag `Tier: Public` or `Tier: Private`, respectively.
+For information on how to tag AWS resources, please visit the [AWS documentation](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/Using_Tags.html). 
+
+Once you are sure the existing VPC satisfies these requirements, run the **init** command, 
+placing the VPC ID when prompted:
+```
+$ l0-setup init <instance_name>
+...
+VPC ID (optional): The vpc_id input variable specifies an existing AWS VPC to provision
+the AWS resources required for Layer0. If no input is specified, a new VPC will be
+created for you. Existing VPCs must satisfy the following constraints:
+
+    - Have access to the public internet (through a NAT instance or gateway)
+    - Have at least 1 public and 1 private subnet
+    - Each subnet must be tagged with ["Tier": "Private"] or ["Tier": "Public"]
+
+Note that changing this value will destroy and recreate any existing resources.
+
+[current: ]
+Please enter a new value, or press 'enter' to keep the current value.
+        Input: vpc123
+```
+
+Once the command has completed, it is safe to run **apply** to provision the resources. 
+
+
+## Part 4: Connect to a Layer0 Instance
+Once the **apply** command has run successfully, you can configure the environment variables needed to connect to the Layer0 API using the **endpoint** command.
+
+```
+$ l0-setup endpoint --insecure <instance_name>
+export LAYER0_API_ENDPOINT="https://l0-instance_name-api-123456.us-west-2.elb.amazonaws.com"
+export LAYER0_AUTH_TOKEN="abcDEFG123"
+export LAYER0_SKIP_SSL_VERIFY="1"
+export LAYER0_SKIP_VERSION_VERIFY="1"
+```
+
+The **--insecure** flag shows configurations that bypass SSL and version verifications. 
+This is required as the Layer0 API created uses a self-signed certificate by default.
+These settings are **not** recommended for production use!
+
+The **endpoint** command supports a `--syntax` option, which can be used to turn configuration into a single line:
+
+* Bash (default) - `$ eval "$(l0-setup endpoint --insecure <instance_name>)"`
+* Powershell - `$ l0-setup endpoint --insecure --syntax=powershell <instance_name> | Out-String | Invoke-Expression`

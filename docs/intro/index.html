@@ -254,8 +254,8 @@
       
         
   <li>
-    <a class="" title="Guestbook" href="../guides/guestbook/">
-      Guestbook
+    <a class="" title="Walkthrough: Introduction" href="../guides/walkthrough/intro/">
+      Walkthrough: Introduction
     </a>
     
   </li>
@@ -263,8 +263,8 @@
       
         
   <li>
-    <a class="" title="Guestbook with RDS" href="../guides/guestbook_rds/">
-      Guestbook with RDS
+    <a class="" title="Walkthrough: Deployment 1" href="../guides/walkthrough/deployment-1/">
+      Walkthrough: Deployment 1
     </a>
     
   </li>
@@ -272,8 +272,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../guides/consul/">
-      Consul
+    <a class="" title="Walkthrough: Deployment 2" href="../guides/walkthrough/deployment-2/">
+      Walkthrough: Deployment 2
     </a>
     
   </li>
@@ -281,8 +281,17 @@
       
         
   <li>
-    <a class="" title="Guestbook with Consul" href="../guides/guestbook_consul/">
-      Guestbook with Consul
+    <a class="" title="Walkthrough: Deployment 3" href="../guides/walkthrough/deployment-3/">
+      Walkthrough: Deployment 3
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Terraform beyond Layer0" href="../guides/terraform_beyond_layer0/">
+      Terraform beyond Layer0
     </a>
     
   </li>
@@ -436,7 +445,7 @@
 <h3 id="certificates">Certificates<a class="headerlink" href="#certificates" title="Permanent link">#</a></h3>
 <p>SSL certificates obtained from a valid <a href="https://en.wikipedia.org/wiki/Certificate_authority">Certificate Authority (CA)</a>. You can use these certificates to secure your HTTPS services by applying them to your Layer0 load balancers.</p>
 <h3 id="deploys">Deploys<a class="headerlink" href="#deploys" title="Permanent link">#</a></h3>
-<p><a href="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html">ECS Task Definitions</a>. These configuration files detail how to deploy your application. We have several <a href="https://github.com/quintilesims/layer0-examples">sample applications</a> available that show what these files look like --- they're called <code>Dockerrun.aws.json</code> within each sample app.</p>
+<p><a href="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_defintions.html">ECS Task Definitions</a>. These configuration files detail how to deploy your application. We have several <a href="https://github.com/quintilesims/guides">sample applications</a> available that show what these files look like --- they're called <code>Dockerrun.aws.json</code> within each sample app.</p>
 <h3 id="tasks">Tasks<a class="headerlink" href="#tasks" title="Permanent link">#</a></h3>
 <p>Manual one-off commands that don't necessarily make sense to keep running, or to restart when they finish. These run using Amazon's <code>RunTask</code> action (more info <a href="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/scheduling_tasks.html">here</a>), and are "ideally suited for processes such as batch jobs that perform work and then stop."</p>
 <h3 id="load-balancers">Load Balancers<a class="headerlink" href="#load-balancers" title="Permanent link">#</a></h3>

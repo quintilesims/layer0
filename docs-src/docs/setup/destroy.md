@@ -1,38 +1,28 @@
-# Destroying a Layer0 instance
+# Destroying a Layer0 Instance
 
-During testing or migration, you may find that you need to delete a non-functional or outdated instance of Layer0. This section provides procedures for destroying (deleting) a Layer0 instance.
+This section provides procedures for destroying (deleting) a Layer0 instance.
 
 ## Part 1: Clean Up Your Layer0 Environments
 In order to destroy a Layer0 instance, you must first delete all environments in the instance.
+List all environments with:
+```
+$ l0 environment list
+```
 
-**To delete Layer0 environments:**
-<ol>
-  <li>At the command prompt, type the following command to see a list of environments in your Layer0 instance:
-    <ul>
-      <li class="command">`l0 environment list`</li>
-    </ul>
+For each environment listed in the previous step, with the exception of the environment named `api`, 
+issue the following command (replacing `<environment_name>` with the name of the environment to delete):
+```
+l0 environment delete --wait <environment_name>
+```
 
-  <li>For each environment listed in the previous step, with the exception of the environments that begin with "api", issue the following command (where `[environment_name]` is the name of the environment you want to delete):
-    <ul>
-      <li class="command">`l0 environment delete [environment_name] --wait`</li>
-    </ul>
 
-  Repeat this step until all of the environments (except the "api" environments) have been deleted. When you have finished deleting the environments in your Layer0 instance, proceed to Part 2.
-  </li>
-</ol>
+## Part 2: Destroy the Layer0 Instance
+Once all environments have been deleted, the Layer0 instance can be deleted using the `l0-setup` tool. 
+Run the following command (replacing `<instance_name>` with the name of the Layer0 instance):
+```
+$ l0-setup destroy <instance_name>
+```
 
-## Part 2: Destroy the Layer0 instance
-Once you have prepared your Layer0 instance for deletion, you can use the `l0-setup destroy` command to destroy the instance.
-
-**To destroy a Layer0 instance:**
-<ol>
-  <li>At the command prompt, type the following command, replacing `[prefix]` with the prefix you created when you created your Layer0 instance:
-    <ul>
-      <li class="command">`l0-setup destroy [prefix]`</li>
-    </ul>
-  </li>
-</ol>
-<div class="admonition note">
-  <p class="admonition-title">Note</p>
-  <p>The `l0-setup destroy` operation is idempotent (that is, it has no additional effects if you execute it multiple times with the same parameters). Therefore, if the `destroy` operation fails, you may be able to make it complete by running it again. If the `destroy` operation continues to fail after running it again, please contact the Xfra team at **xfra@us.imshealth.com**.</p>
-</div>
+The **destroy** command is idempotent; if it fails, it is safe to re-attempt multiple times. 
+If the  operation continues to fail, it is likely there are resources that were created outside of Layer0 that have dependencies on the resources `l0-setup` is attempting to destroy. 
+You will need to manually remove these dependencies in order to get the **destroy** command to complete successfully. 

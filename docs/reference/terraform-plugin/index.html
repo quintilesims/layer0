@@ -243,8 +243,8 @@
       
         
   <li>
-    <a class="" title="Guestbook" href="../../guides/guestbook/">
-      Guestbook
+    <a class="" title="Walkthrough: Introduction" href="../../guides/walkthrough/intro/">
+      Walkthrough: Introduction
     </a>
     
   </li>
@@ -252,8 +252,8 @@
       
         
   <li>
-    <a class="" title="Guestbook with RDS" href="../../guides/guestbook_rds/">
-      Guestbook with RDS
+    <a class="" title="Walkthrough: Deployment 1" href="../../guides/walkthrough/deployment-1/">
+      Walkthrough: Deployment 1
     </a>
     
   </li>
@@ -261,8 +261,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../../guides/consul/">
-      Consul
+    <a class="" title="Walkthrough: Deployment 2" href="../../guides/walkthrough/deployment-2/">
+      Walkthrough: Deployment 2
     </a>
     
   </li>
@@ -270,8 +270,17 @@
       
         
   <li>
-    <a class="" title="Guestbook with Consul" href="../../guides/guestbook_consul/">
-      Guestbook with Consul
+    <a class="" title="Walkthrough: Deployment 3" href="../../guides/walkthrough/deployment-3/">
+      Walkthrough: Deployment 3
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Terraform beyond Layer0" href="../../guides/terraform_beyond_layer0/">
+      Terraform beyond Layer0
     </a>
     
   </li>
@@ -505,18 +514,17 @@ This provider allows users to create, manage, and update Layer0 entities using T
 <p>The Layer0 provider is used to interact with a Layer0 API.
 The provider needs to be configured with the proper credentials before it can be used.</p>
 <h3 id="example-usage">Example Usage<a class="headerlink" href="#example-usage" title="Permanent link">#</a></h3>
-<div class="code"><pre><span></span># Add &#39;endpoint&#39; and &#39;token&#39; variables
+<pre class="code"><code># Add 'endpoint' and 'token' variables
 variable &quot;endpoint&quot; {}
 
 variable &quot;token&quot; {}
 
 # Configure the layer0 provider
 provider &quot;layer0&quot; {
-  endpoint        = &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">endpoint</span><span class="cp">}</span>&quot;
-  token           = &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">token</span><span class="cp">}</span>&quot;
+  endpoint        = &quot;${var.endpoint}&quot;
+  token           = &quot;${var.token}&quot;
   skip_ssl_verify = true
-}
-</pre></div>
+}</code></pre>
 
 
 <h3 id="argument-reference">Argument Reference<a class="headerlink" href="#argument-reference" title="Permanent link">#</a></h3>
@@ -534,14 +542,13 @@ provider &quot;layer0&quot; {
 <h2 id="api-data-source">API Data Source<a class="headerlink" href="#api-data-source" title="Permanent link">#</a></h2>
 <p>The API data source is used to extract useful read-only variables from the Layer0 API.</p>
 <h3 id="example-usage_1">Example Usage<a class="headerlink" href="#example-usage_1" title="Permanent link">#</a></h3>
-<div class="code"><pre><span></span># Configure the api data source
+<pre class="code"><code># Configure the api data source
 data &quot;layer0_api&quot; &quot;config&quot; {}
 
 # Output the layer0 vpc id
 output &quot;vpc id&quot; {
-  val = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">layer0_api</span><span class="o">.</span><span class="n">vpc_id</span><span class="cp">}</span>&quot;
-}
-</pre></div>
+  val = &quot;${data.layer0_api.vpc_id}&quot;
+}</code></pre>
 
 
 <h3 id="attribute-reference">Attribute Reference<a class="headerlink" href="#attribute-reference" title="Permanent link">#</a></h3>
@@ -556,11 +563,11 @@ output &quot;vpc id&quot; {
 <h2 id="deploy">Deploy<a class="headerlink" href="#deploy" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Deploy.</p>
 <p>Performing variable substitution inside of your deploy's json file (typically named <code>Dockerrun.aws.json</code>) can be done through Terraform's <a href="https://www.terraform.io/docs/providers/template/">template_file</a>.
-For a working example, please see the sample <a href="https://github.com/quintilesims/layer0-examples/blob/master/guestbook/layer0.tf">Guestbook</a> application</p>
+For a working example, please see the sample <a href="https://github.com/quintilesims/guides/blob/master/guestbook/layer0.tf">Guestbook</a> application</p>
 <h3 id="example-usage_2">Example Usage<a class="headerlink" href="#example-usage_2" title="Permanent link">#</a></h3>
-<div class="code"><pre><span></span># Configure the deploy template
+<pre class="code"><code># Configure the deploy template
 data &quot;template_file&quot; &quot;guestbook&quot; {
-  template = &quot;<span class="cp">${</span><span class="nb">file</span><span class="p">(</span><span class="s2">&quot;Dockerrun.aws.json&quot;</span><span class="p">)</span><span class="cp">}</span>&quot;
+  template = &quot;${file(&quot;Dockerrun.aws.json&quot;)}&quot;
   vars {
     docker_image_tag = &quot;latest&quot;
   }
@@ -569,9 +576,8 @@ data &quot;template_file&quot; &quot;guestbook&quot; {
 # Create a deploy using the rendered template
 resource &quot;layer0_deploy&quot; &quot;guestbook&quot; {
   name    = &quot;guestbook&quot;
-  content = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">template_file</span><span class="o">.</span><span class="n">guestbook</span><span class="o">.</span><span class="n">rendered</span><span class="cp">}</span>&quot;
-}
-</pre></div>
+  content = &quot;${data.template_file.guestbook.rendered}&quot;
+}</code></pre>
 
 
 <h3 id="argument-reference_1">Argument Reference<a class="headerlink" href="#argument-reference_1" title="Permanent link">#</a></h3>
@@ -591,7 +597,7 @@ resource &quot;layer0_deploy&quot; &quot;guestbook&quot; {
 <h2 id="environment">Environment<a class="headerlink" href="#environment" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Environment</p>
 <h3 id="example-usage_3">Example Usage<a class="headerlink" href="#example-usage_3" title="Permanent link">#</a></h3>
-<div class="code"><pre><span></span># Create a new environment
+<pre class="code"><code># Create a new environment
 resource &quot;layer0_environment&quot; &quot;demo&quot; {
   name      = &quot;demo&quot;
   size      = &quot;m3.medium&quot;
@@ -599,8 +605,7 @@ resource &quot;layer0_environment&quot; &quot;demo&quot; {
   user_data = &quot;echo hello, world&quot;
   os        = &quot;linux&quot;
   ami       = &quot;ami123&quot;
-}
-</pre></div>
+}</code></pre>
 
 
 <h3 id="argument-reference_2">Argument Reference<a class="headerlink" href="#argument-reference_2" title="Permanent link">#</a></h3>
@@ -632,7 +637,7 @@ If not specified, Layer0 will use its default AMI ID for the specified operating
 <h2 id="load-balancer">Load Balancer<a class="headerlink" href="#load-balancer" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Load Balancer</p>
 <h3 id="example-usage_4">Example Usage<a class="headerlink" href="#example-usage_4" title="Permanent link">#</a></h3>
-<div class="code"><pre><span></span># Create a new load balancer
+<pre class="code"><code># Create a new load balancer
 resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
   name        = &quot;guestbook&quot;
   environment = &quot;demo123&quot;
@@ -658,8 +663,7 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
     healthy_threshold   = 2
     unhealthy_threshold = 2
   }
-}
-</pre></div>
+}</code></pre>
 
 
 <h3 id="argument-reference_3">Argument Reference<a class="headerlink" href="#argument-reference_3" title="Permanent link">#</a></h3>
@@ -703,7 +707,7 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <h2 id="service">Service<a class="headerlink" href="#service" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Service</p>
 <h3 id="example-usage_5">Example Usage<a class="headerlink" href="#example-usage_5" title="Permanent link">#</a></h3>
-<div class="code"><pre><span></span># Create a new service
+<pre class="code"><code># Create a new service
 resource &quot;layer0_service&quot; &quot;guestbook&quot; {
   name          = &quot;guestbook&quot;
   environment   = &quot;environment123&quot;
@@ -711,8 +715,7 @@ resource &quot;layer0_service&quot; &quot;guestbook&quot; {
   load_balancer = &quot;loadbalancer123&quot;
   scale         = 3
   wait          = true
-}
-</pre></div>
+}</code></pre>
 
 
 <h3 id="argument-reference_4">Argument Reference<a class="headerlink" href="#argument-reference_4" title="Permanent link">#</a></h3>

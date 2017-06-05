@@ -243,8 +243,8 @@
       
         
   <li>
-    <a class="" title="Guestbook" href="../../guides/guestbook/">
-      Guestbook
+    <a class="" title="Walkthrough: Introduction" href="../../guides/walkthrough/intro/">
+      Walkthrough: Introduction
     </a>
     
   </li>
@@ -252,8 +252,8 @@
       
         
   <li>
-    <a class="" title="Guestbook with RDS" href="../../guides/guestbook_rds/">
-      Guestbook with RDS
+    <a class="" title="Walkthrough: Deployment 1" href="../../guides/walkthrough/deployment-1/">
+      Walkthrough: Deployment 1
     </a>
     
   </li>
@@ -261,8 +261,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../../guides/consul/">
-      Consul
+    <a class="" title="Walkthrough: Deployment 2" href="../../guides/walkthrough/deployment-2/">
+      Walkthrough: Deployment 2
     </a>
     
   </li>
@@ -270,8 +270,17 @@
       
         
   <li>
-    <a class="" title="Guestbook with Consul" href="../../guides/guestbook_consul/">
-      Guestbook with Consul
+    <a class="" title="Walkthrough: Deployment 3" href="../../guides/walkthrough/deployment-3/">
+      Walkthrough: Deployment 3
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Terraform beyond Layer0" href="../../guides/terraform_beyond_layer0/">
+      Terraform beyond Layer0
     </a>
     
   </li>
@@ -448,47 +457,41 @@
 <p>When interacting with ECR, you will first need to create a repository and a login to interact from your development machine.</p>
 <h3 id="repository">Repository<a class="headerlink" href="#repository" title="Permanent link">#</a></h3>
 <p>Each repository needs to be created by an AWS api call.</p>
-<div class="code"><pre><span></span>  &gt; aws ecr create-repository --repository-name myteam/myproject
-</pre></div>
+<pre class="code"><code>  &gt; aws ecr create-repository --repository-name myteam/myproject</code></pre>
 
 
 <h3 id="login">Login<a class="headerlink" href="#login" title="Permanent link">#</a></h3>
 <p>To authenticate with the ECR service, Amazon provides the <code>get-login</code> command, which generates an authentication token, and returns a docker command to set it up</p>
-<div class="code"><pre><span></span>  &gt; aws ecr get-login
+<pre class="code"><code>  &gt; aws ecr get-login
   # this command will return the following: (password is typically hundreds of characters)
-  docker login -u AWS -p password -e none https://aws_account_id.dkr.ecr.us-east-1.amazonaws.com
-</pre></div>
+  docker login -u AWS -p password -e none https://aws_account_id.dkr.ecr.us-east-1.amazonaws.com</code></pre>
 
 
 <p>Execute the provided docker command to store the login credentials</p>
 <p>Afterward creating the repository and local login credentials you may interact with images (and tags) under this path from a local docker client.</p>
-<div class="code"><pre><span></span>  docker pull <span class="cp">${</span><span class="n">ecr</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/myteam/myproject
-  docker push <span class="cp">${</span><span class="n">ecr</span><span class="o">-</span><span class="n">url</span><span class="cp">}</span>/myteam/myproject:custom-tag-1
-</pre></div>
+<pre class="code"><code>  docker pull ${ecr-url}/myteam/myproject
+  docker push ${ecr-url}/myteam/myproject:custom-tag-1</code></pre>
 
 
 <h2 id="deploy-example">Deploy Example<a class="headerlink" href="#deploy-example" title="Permanent link">#</a></h2>
 <p>Here we'll walk through using ECR when deploying to Layer0,  Using a very basic wait container.</p>
 <h3 id="make-docker-image">Make docker image<a class="headerlink" href="#make-docker-image" title="Permanent link">#</a></h3>
 <p>Your docker image can be built locally or pulled from dockerhub.  For this example, we made a service that waits and then exits (useful for triggering regular restarts).</p>
-<div class="code"><pre><span></span>FROM busybox
+<pre class="code"><code>FROM busybox
 
 ENV SLEEP_TIME=60
 
-CMD sleep $SLEEP_TIME
-</pre></div>
+CMD sleep $SLEEP_TIME</code></pre>
 
 
 <p>Then build the file, with the tag <code>xfra/wait</code></p>
-<div class="code"><pre><span></span> &gt; docker build -f Dockerfile.wait -t xfra/wait .
-</pre></div>
+<pre class="code"><code> &gt; docker build -f Dockerfile.wait -t xfra/wait .</code></pre>
 
 
 <h3 id="upload-to-ecr">Upload to ECR<a class="headerlink" href="#upload-to-ecr" title="Permanent link">#</a></h3>
 <p>After preparing a login and registry, tag the image with the remote url, and use <code>docker push</code></p>
-<div class="code"><pre><span></span>  docker tag xfra/wait 111222333444.dkr.ecr.us-east-1.amazonaws.com/xfra-wait
-  docker push 111222333444.dkr.ecr.us-east-1.amazonaws.com/xfra-wait
-</pre></div>
+<pre class="code"><code>  docker tag xfra/wait 111222333444.dkr.ecr.us-east-1.amazonaws.com/xfra-wait
+  docker push 111222333444.dkr.ecr.us-east-1.amazonaws.com/xfra-wait</code></pre>
 
 
 <div class="admonition note">
@@ -496,7 +499,7 @@ CMD sleep $SLEEP_TIME
 </div>
 <h3 id="create-a-deploy">Create a deploy<a class="headerlink" href="#create-a-deploy" title="Permanent link">#</a></h3>
 <p>To run this image in Layer0, we create a dockerrun file, describing the instance and any additional variables</p>
-<div class="code"><pre><span></span>{
+<pre class="code"><code>{
   &quot;containerDefinitions&quot;: [
     {
       &quot;name&quot;: &quot;timeout&quot;,
@@ -508,19 +511,16 @@ CMD sleep $SLEEP_TIME
       ]
     }
   ]
-}
-</pre></div>
+}</code></pre>
 
 
 <p>And create that in Layer0</p>
-<div class="code"><pre><span></span>  l0 deploy create timeout.dockerrun.aws.json timeout
-</pre></div>
+<pre class="code"><code>  l0 deploy create timeout.dockerrun.aws.json timeout</code></pre>
 
 
 <h3 id="deploy">Deploy<a class="headerlink" href="#deploy" title="Permanent link">#</a></h3>
 <p>Finally, run that deploy as a service or a task. (the service will restart every 12 hours)</p>
-<div class="code"><pre><span></span>  l0 service create demo timeoutsvc timeout:latest
-</pre></div>
+<pre class="code"><code>  l0 service create demo timeoutsvc timeout:latest</code></pre>
 
 
 <h2 id="references">References<a class="headerlink" href="#references" title="Permanent link">#</a></h2>

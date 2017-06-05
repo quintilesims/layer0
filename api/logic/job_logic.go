@@ -109,10 +109,10 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 	}
 
 	if err := this.JobStore.Insert(job); err != nil {
-		return nil, err
-	}
+                return nil, err
+        }
 
-	if err := this.upsertTag(models.Tag{EntityID: jobID, EntityType: "job", Key: "task_id", Value: task.TaskID}); err != nil {
+	if err := this.TagStore.Insert(models.Tag{EntityID: jobID, EntityType: "job", Key: "task_id", Value: task.TaskID}); err != nil {
 		return nil, err
 	}
 

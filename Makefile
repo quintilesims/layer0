@@ -20,6 +20,7 @@ release:
 unittest:
 	$(MAKE) -C api test
 	$(MAKE) -C cli test
+	$(MAKE) -C common test
 	$(MAKE) -C runner test
 	$(MAKE) -C setup test
 	$(MAKE) -C plugins/terraform test

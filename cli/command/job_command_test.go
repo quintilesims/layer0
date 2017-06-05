@@ -2,6 +2,7 @@ package command
 
 import (
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/urfave/cli"
 	"testing"
 )
@@ -19,7 +20,7 @@ func TestDelete(t *testing.T) {
 		Delete("id").
 		Return(nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -31,7 +32,7 @@ func TestDelete_userInputErrors(t *testing.T) {
 	command := NewJobCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -54,7 +55,7 @@ func TestGetJob(t *testing.T) {
 		GetJob("id").
 		Return(&models.Job{}, nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Get(c); err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +67,7 @@ func TestGetJob_userInputErrors(t *testing.T) {
 	command := NewJobCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -85,7 +86,7 @@ func TestListJobs(t *testing.T) {
 		ListJobs().
 		Return([]*models.Job{}, nil)
 
-	c := getCLIContext(t, nil, nil)
+	c := testutils.GetCLIContext(t, nil, nil)
 	if err := command.List(c); err != nil {
 		t.Fatal(err)
 	}
@@ -108,7 +109,7 @@ func TestGetJobLogs(t *testing.T) {
 		GetTaskLogs("task-id", 100).
 		Return([]*models.LogFile{}, nil)
 
-	c := getCLIContext(t, Args{"name"}, Flags{"tail": 100})
+	c := testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"tail": 100})
 	if err := command.Logs(c); err != nil {
 		t.Fatal(err)
 	}
@@ -120,7 +121,7 @@ func TestGetJobLogs_userInputErrors(t *testing.T) {
 	command := NewJobCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {

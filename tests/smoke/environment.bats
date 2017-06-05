@@ -61,7 +61,7 @@
 }
 
 @test "environment delete --wait test3" {
-    l0 environment delete --wait test3
+    l0 environment delete test3
 }
 
 @test "environment delete --wait test4" {

@@ -105,12 +105,12 @@ func (l *L0LoadBalancerLogic) CreateLoadBalancer(req models.CreateLoadBalancerRe
 	}
 
 	loadBalancerID := loadBalancer.LoadBalancerID
-	if err := l.upsertTag(models.Tag{EntityID: loadBalancerID, EntityType: "load_balancer", Key: "name", Value: req.LoadBalancerName}); err != nil {
+	if err := l.TagStore.Insert(models.Tag{EntityID: loadBalancerID, EntityType: "load_balancer", Key: "name", Value: req.LoadBalancerName}); err != nil {
 		return loadBalancer, err
 	}
 
 	environmentID := loadBalancer.EnvironmentID
-	if err := l.upsertTag(models.Tag{EntityID: loadBalancerID, EntityType: "load_balancer", Key: "environment_id", Value: environmentID}); err != nil {
+	if err := l.TagStore.Insert(models.Tag{EntityID: loadBalancerID, EntityType: "load_balancer", Key: "environment_id", Value: environmentID}); err != nil {
 		return loadBalancer, err
 	}
 
@@ -148,7 +148,7 @@ func (l *L0LoadBalancerLogic) UpdateLoadBalancerHealthCheck(loadBalancerID strin
 }
 
 func (l *L0LoadBalancerLogic) doesLoadBalancerTagExist(environmentID, name string) (bool, error) {
-	tags, err := l.TagStore.SelectByQuery("load_balancer", "")
+	tags, err := l.TagStore.SelectByType("load_balancer")
 	if err != nil {
 		return false, err
 	}
@@ -163,44 +163,44 @@ func (l *L0LoadBalancerLogic) doesLoadBalancerTagExist(environmentID, name strin
 }
 
 func (l *L0LoadBalancerLogic) populateModel(model *models.LoadBalancer) error {
-	tags, err := l.TagStore.SelectByQuery("load_balancer", model.LoadBalancerID)
+	tags, err := l.TagStore.SelectByTypeAndID("load_balancer", model.LoadBalancerID)
 	if err != nil {
 		return err
 	}
 
-	if tag := tags.WithKey("environment_id").First(); tag != nil {
+	if tag, ok := tags.WithKey("environment_id").First(); ok {
 		model.EnvironmentID = tag.Value
 	}
 
-	if tag := tags.WithKey("name").First(); tag != nil {
+	if tag, ok := tags.WithKey("name").First(); ok {
 		model.LoadBalancerName = tag.Value
 	}
 
 	if model.EnvironmentID != "" {
-		tags, err := l.TagStore.SelectByQuery("environment", model.EnvironmentID)
+		tags, err := l.TagStore.SelectByTypeAndID("environment", model.EnvironmentID)
 		if err != nil {
 			return err
 		}
 
-		if tag := tags.WithKey("name").First(); tag != nil {
+		if tag, ok := tags.WithKey("name").First(); ok {
 			model.EnvironmentName = tag.Value
 		}
 	}
 
-	tags, err = l.TagStore.SelectByQuery("service", "")
+	tags, err = l.TagStore.SelectByType("service")
 	if err != nil {
 		return err
 	}
 
-	if tag := tags.WithKey("load_balancer_id").WithValue(model.LoadBalancerID).First(); tag != nil {
+	if tag, ok := tags.WithKey("load_balancer_id").WithValue(model.LoadBalancerID).First(); ok {
 		model.ServiceID = tag.EntityID
 
-		serviceTags, err := l.TagStore.SelectByQuery("service", model.ServiceID)
+		serviceTags, err := l.TagStore.SelectByTypeAndID("service", model.ServiceID)
 		if err != nil {
 			return err
 		}
 
-		if tag := serviceTags.WithKey("name").First(); tag != nil {
+		if tag, ok := serviceTags.WithKey("name").First(); ok {
 			model.ServiceName = tag.Value
 		}
 	}

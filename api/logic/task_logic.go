@@ -108,17 +108,17 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 	}
 
 	taskID := task.TaskID
-	if err := this.upsertTag(models.Tag{EntityID: taskID, EntityType: "task", Key: "name", Value: req.TaskName}); err != nil {
+	if err := this.TagStore.Insert(models.Tag{EntityID: taskID, EntityType: "task", Key: "name", Value: req.TaskName}); err != nil {
 		return task, err
 	}
 
 	environmentID := req.EnvironmentID
-	if err := this.upsertTag(models.Tag{EntityID: taskID, EntityType: "task", Key: "environment_id", Value: environmentID}); err != nil {
+	if err := this.TagStore.Insert(models.Tag{EntityID: taskID, EntityType: "task", Key: "environment_id", Value: environmentID}); err != nil {
 		return task, err
 	}
 
 	deployID := req.DeployID
-	if err := this.upsertTag(models.Tag{EntityID: taskID, EntityType: "task", Key: "deploy_id", Value: deployID}); err != nil {
+	if err := this.TagStore.Insert(models.Tag{EntityID: taskID, EntityType: "task", Key: "deploy_id", Value: deployID}); err != nil {
 		return task, err
 	}
 
@@ -144,12 +144,12 @@ func (this *L0TaskLogic) GetTaskLogs(taskID string, tail int) ([]*models.LogFile
 }
 
 func (this *L0TaskLogic) getEnvironmentID(taskID string) (string, error) {
-	tags, err := this.TagStore.SelectByQuery("task", taskID)
+	tags, err := this.TagStore.SelectByTypeAndID("task", taskID)
 	if err != nil {
 		return "", err
 	}
 
-	if tag := tags.WithKey("environment_id").First(); tag != nil {
+	if tag, ok := tags.WithKey("environment_id").First(); ok {
 		return tag.Value, nil
 	}
 
@@ -168,45 +168,45 @@ func (this *L0TaskLogic) getEnvironmentID(taskID string) (string, error) {
 }
 
 func (this *L0TaskLogic) populateModel(model *models.Task) error {
-	tags, err := this.TagStore.SelectByQuery("task", model.TaskID)
+	tags, err := this.TagStore.SelectByTypeAndID("task", model.TaskID)
 	if err != nil {
 		return err
 	}
 
-	if tag := tags.WithKey("environment_id").First(); tag != nil {
+	if tag, ok := tags.WithKey("environment_id").First(); ok {
 		model.EnvironmentID = tag.Value
 	}
 
-	if tag := tags.WithKey("deploy_id").First(); tag != nil {
+	if tag, ok := tags.WithKey("deploy_id").First(); ok {
 		model.DeployID = tag.Value
 	}
 
-	if tag := tags.WithKey("name").First(); tag != nil {
+	if tag, ok := tags.WithKey("name").First(); ok {
 		model.TaskName = tag.Value
 	}
 
 	if model.EnvironmentID != "" {
-		tags, err := this.TagStore.SelectByQuery("environment", model.EnvironmentID)
+		tags, err := this.TagStore.SelectByTypeAndID("environment", model.EnvironmentID)
 		if err != nil {
 			return err
 		}
 
-		if tag := tags.WithKey("name").First(); tag != nil {
+		if tag, ok := tags.WithKey("name").First(); ok {
 			model.EnvironmentName = tag.Value
 		}
 	}
 
 	if model.DeployID != "" {
-		tags, err := this.TagStore.SelectByQuery("deploy", model.DeployID)
+		tags, err := this.TagStore.SelectByTypeAndID("deploy", model.DeployID)
 		if err != nil {
 			return err
 		}
 
-		if tag := tags.WithKey("name").First(); tag != nil {
+		if tag, ok := tags.WithKey("name").First(); ok {
 			model.DeployName = tag.Value
 		}
 
-		if tag := tags.WithKey("version").First(); tag != nil {
+		if tag, ok := tags.WithKey("version").First(); ok {
 			model.DeployVersion = tag.Value
 		}
 	}

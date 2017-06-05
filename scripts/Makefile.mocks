@@ -2,7 +2,7 @@ deps:
 	go get github.com/golang/mock/mockgen/model
 	go install github.com/golang/mock/mockgen
 
-all: api cli
+all: api cli setup
 
 api: logic db backend aws scheduler
 
@@ -41,3 +41,6 @@ client:
 
 command:
 	mockgen github.com/quintilesims/layer0/cli/command Resolver > ../cli/command/mock_command/mock_resolver.go &
+
+setup: 
+	mockgen github.com/quintilesims/layer0/setup/instance Instance > ../setup/instance/mock_instance/mock_instance.go &

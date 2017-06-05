@@ -60,7 +60,7 @@ func TestJobDelete(t *testing.T) {
 
 	testLogic.AddTags(t, []*models.Tag{
 		{EntityID: "j1", EntityType: "job", Key: "task_id", Value: "t1"},
-		{EntityID: "extra", EntityType: "service", Key: "name", Value: "extra"},
+		{EntityID: "extra", EntityType: "job", Key: "name", Value: "extra"},
 	})
 
 	taskLogic.EXPECT().
@@ -72,7 +72,7 @@ func TestJobDelete(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	tags, err := testLogic.TagStore.SelectAll()
+	tags, err := testLogic.TagStore.SelectByType("job")
 	if err != nil {
 		t.Fatal(err)
 	}

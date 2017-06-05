@@ -43,7 +43,7 @@ func NewTestLogic(t *testing.T) (*TestLogic, *gomock.Controller) {
 
 func (l *TestLogic) AddTags(t *testing.T, tags []*models.Tag) {
 	for _, tag := range tags {
-		if err := l.TagStore.Insert(tag); err != nil {
+		if err := l.TagStore.Insert(*tag); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -58,7 +58,7 @@ func (l *TestLogic) AddJobs(t *testing.T, jobs []*models.Job) {
 }
 
 func (l *TestLogic) AssertTagExists(t *testing.T, tag models.Tag) {
-	tags, err := l.TagStore.SelectByQuery(tag.EntityType, tag.EntityID)
+	tags, err := l.TagStore.SelectByTypeAndID(tag.EntityType, tag.EntityID)
 	if err != nil {
 		t.Fatal(err)
 	}

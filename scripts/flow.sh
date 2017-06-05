@@ -15,7 +15,7 @@ update_api() {
     popd
 
     pushd $LAYER0_PATH/setup
-        go run main.go plan "$LAYER0_PREFIX" -var api_docker_image_tag="$GIT_HASH"
+        go run main.go set "$LAYER0_PREFIX" --input version="$GIT_HASH"
     popd
 }
 
@@ -27,7 +27,7 @@ update_runner() {
     popd
 
     pushd $LAYER0_PATH/setup
-        go run main.go plan "$LAYER0_PREFIX" -var runner_docker_image_tag="$GIT_HASH"
+        go run main.go set "$LAYER0_PREFIX" --input version="$GIT_HASH"
     popd
 }
 

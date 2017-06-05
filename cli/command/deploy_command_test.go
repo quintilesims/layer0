@@ -19,7 +19,7 @@ func TestCreateDeploy(t *testing.T) {
 		CreateDeploy("name", []byte("dockerrun")).
 		Return(&models.Deploy{}, nil)
 
-	c := getCLIContext(t, Args{file.Name(), "name"}, nil)
+	c := testutils.GetCLIContext(t, []string{file.Name(), "name"}, nil)
 	if err := command.Create(c); err != nil {
 		t.Fatal(err)
 	}
@@ -31,8 +31,8 @@ func TestCreateDeploy_userInputErrors(t *testing.T) {
 	command := NewDeployCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing PATH arg": getCLIContext(t, nil, nil),
-		"Missing NAME arg": getCLIContext(t, Args{"path"}, nil),
+		"Missing PATH arg": testutils.GetCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, []string{"path"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -55,7 +55,7 @@ func TestDeleteDeploy(t *testing.T) {
 		DeleteDeploy("id").
 		Return(nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -67,7 +67,7 @@ func TestDeleteDeploy_userInputErrors(t *testing.T) {
 	command := NewDeployCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -90,7 +90,7 @@ func TestGetDeploy(t *testing.T) {
 		GetDeploy("id").
 		Return(&models.Deploy{}, nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Get(c); err != nil {
 		t.Fatal(err)
 	}
@@ -102,7 +102,7 @@ func TestGetDeploy_userInputErrors(t *testing.T) {
 	command := NewDeployCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -121,7 +121,7 @@ func TestListDeploys(t *testing.T) {
 		ListDeploys().
 		Return([]*models.DeploySummary{}, nil)
 
-	c := getCLIContext(t, nil, Flags{"all": true})
+	c := testutils.GetCLIContext(t, nil, map[string]interface{}{"all": true})
 	if err := command.List(c); err != nil {
 		t.Fatal(err)
 	}

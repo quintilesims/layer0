@@ -2,6 +2,7 @@ package command
 
 import (
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/urfave/cli"
 	"testing"
 )
@@ -27,11 +28,11 @@ func TestCreateService(t *testing.T) {
 		CreateService("name", "environmentID", "deployID", "loadBalancerID").
 		Return(&models.Service{}, nil)
 
-	flags := Flags{
+	flags := map[string]interface{}{
 		"loadbalancer": "load_balancer",
 	}
 
-	c := getCLIContext(t, Args{"environment", "name", "deploy"}, flags)
+	c := testutils.GetCLIContext(t, []string{"environment", "name", "deploy"}, flags)
 	if err := command.Create(c); err != nil {
 		t.Fatal(err)
 	}
@@ -59,15 +60,15 @@ func TestCreateServiceWait(t *testing.T) {
 		Return(&models.Service{ServiceID: "serviceID"}, nil)
 
 	tc.Client.EXPECT().
-		WaitForDeployment("serviceID", TEST_TIMEOUT).
+		WaitForDeployment("serviceID", testutils.TEST_TIMEOUT).
 		Return(&models.Service{}, nil)
 
-	flags := Flags{
+	flags := map[string]interface{}{
 		"loadbalancer": "load_balancer",
 		"wait":         true,
 	}
 
-	c := getCLIContext(t, Args{"environment", "name", "deploy"}, flags)
+	c := testutils.GetCLIContext(t, []string{"environment", "name", "deploy"}, flags)
 	if err := command.Create(c); err != nil {
 		t.Fatal(err)
 	}
@@ -79,9 +80,9 @@ func TestCreateService_userInputErrors(t *testing.T) {
 	command := NewServiceCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing ENVIRONMENT arg": getCLIContext(t, nil, nil),
-		"Missing NAME arg":        getCLIContext(t, Args{"environment"}, nil),
-		"Missing DEPLOY arg":      getCLIContext(t, Args{"environment", "name"}, nil),
+		"Missing ENVIRONMENT arg": testutils.GetCLIContext(t, nil, nil),
+		"Missing NAME arg":        testutils.GetCLIContext(t, []string{"environment"}, nil),
+		"Missing DEPLOY arg":      testutils.GetCLIContext(t, []string{"environment", "name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -104,7 +105,7 @@ func TestDeleteService(t *testing.T) {
 		DeleteService("id").
 		Return("jobid", nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -124,10 +125,10 @@ func TestDeleteServiceWait(t *testing.T) {
 		Return("jobid", nil)
 
 	tc.Client.EXPECT().
-		WaitForJob("jobid", TEST_TIMEOUT).
+		WaitForJob("jobid", testutils.TEST_TIMEOUT).
 		Return(nil)
 
-	c := getCLIContext(t, Args{"name"}, Flags{"wait": true})
+	c := testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"wait": true})
 	if err := command.Delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -139,7 +140,7 @@ func TestDeleteService_userInputErrors(t *testing.T) {
 	command := NewServiceCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -166,7 +167,7 @@ func TestUpdateService(t *testing.T) {
 		UpdateService("serviceID", "deployID").
 		Return(&models.Service{}, nil)
 
-	c := getCLIContext(t, Args{"service", "deploy"}, nil)
+	c := testutils.GetCLIContext(t, []string{"service", "deploy"}, nil)
 	if err := command.Update(c); err != nil {
 		t.Fatal(err)
 	}
@@ -190,10 +191,10 @@ func TestUpdateServiceWait(t *testing.T) {
 		Return(&models.Service{}, nil)
 
 	tc.Client.EXPECT().
-		WaitForDeployment("serviceID", TEST_TIMEOUT).
+		WaitForDeployment("serviceID", testutils.TEST_TIMEOUT).
 		Return(&models.Service{}, nil)
 
-	c := getCLIContext(t, Args{"service", "deploy"}, Flags{"wait": true})
+	c := testutils.GetCLIContext(t, []string{"service", "deploy"}, map[string]interface{}{"wait": true})
 	if err := command.Update(c); err != nil {
 		t.Fatal(err)
 	}
@@ -205,8 +206,8 @@ func TestUpdateService_userInputErrors(t *testing.T) {
 	command := NewServiceCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg":   getCLIContext(t, nil, nil),
-		"Missing DEPLOY arg": getCLIContext(t, Args{"name"}, nil),
+		"Missing NAME arg":   testutils.GetCLIContext(t, nil, nil),
+		"Missing DEPLOY arg": testutils.GetCLIContext(t, []string{"name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -229,7 +230,7 @@ func TestGetService(t *testing.T) {
 		GetService("id").
 		Return(&models.Service{}, nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Get(c); err != nil {
 		t.Fatal(err)
 	}
@@ -241,7 +242,7 @@ func TestGetService_userInputErrors(t *testing.T) {
 	command := NewServiceCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -260,7 +261,7 @@ func TestListServices(t *testing.T) {
 		ListServices().
 		Return([]*models.ServiceSummary{}, nil)
 
-	c := getCLIContext(t, nil, nil)
+	c := testutils.GetCLIContext(t, nil, nil)
 	if err := command.List(c); err != nil {
 		t.Fatal(err)
 	}
@@ -278,7 +279,7 @@ func TestGetServiceLogs(t *testing.T) {
 	tc.Client.EXPECT().
 		GetServiceLogs("id", 100)
 
-	c := getCLIContext(t, Args{"name"}, Flags{"tail": 100})
+	c := testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"tail": 100})
 	if err := command.Logs(c); err != nil {
 		t.Fatal(err)
 	}
@@ -290,7 +291,7 @@ func TestGetServiceLogs_userInputErrors(t *testing.T) {
 	command := NewServiceCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -313,7 +314,7 @@ func TestScaleService(t *testing.T) {
 		ScaleService("id", 2).
 		Return(&models.Service{}, nil)
 
-	c := getCLIContext(t, Args{"name", "2"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name", "2"}, nil)
 	if err := command.Scale(c); err != nil {
 		t.Fatal(err)
 	}
@@ -333,10 +334,10 @@ func TestScaleServiceWait(t *testing.T) {
 		Return(&models.Service{}, nil)
 
 	tc.Client.EXPECT().
-		WaitForDeployment("id", TEST_TIMEOUT).
+		WaitForDeployment("id", testutils.TEST_TIMEOUT).
 		Return(&models.Service{}, nil)
 
-	c := getCLIContext(t, Args{"name", "2"}, Flags{"wait": true})
+	c := testutils.GetCLIContext(t, []string{"name", "2"}, map[string]interface{}{"wait": true})
 	if err := command.Scale(c); err != nil {
 		t.Fatal(err)
 	}
@@ -348,9 +349,9 @@ func TestScaleService_userInputErrors(t *testing.T) {
 	command := NewServiceCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg":      getCLIContext(t, nil, nil),
-		"Missing COUNT arg":     getCLIContext(t, Args{"name"}, nil),
-		"Non-integer COUNT arg": getCLIContext(t, Args{"name", "3e"}, nil),
+		"Missing NAME arg":      testutils.GetCLIContext(t, nil, nil),
+		"Missing COUNT arg":     testutils.GetCLIContext(t, []string{"name"}, nil),
+		"Non-integer COUNT arg": testutils.GetCLIContext(t, []string{"name", "3e"}, nil),
 	}
 
 	for name, c := range contexts {

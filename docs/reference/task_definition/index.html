@@ -243,8 +243,8 @@
       
         
   <li>
-    <a class="" title="Guestbook" href="../../guides/guestbook/">
-      Guestbook
+    <a class="" title="Walkthrough: Introduction" href="../../guides/walkthrough/intro/">
+      Walkthrough: Introduction
     </a>
     
   </li>
@@ -252,8 +252,8 @@
       
         
   <li>
-    <a class="" title="Guestbook with RDS" href="../../guides/guestbook_rds/">
-      Guestbook with RDS
+    <a class="" title="Walkthrough: Deployment 1" href="../../guides/walkthrough/deployment-1/">
+      Walkthrough: Deployment 1
     </a>
     
   </li>
@@ -261,8 +261,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../../guides/consul/">
-      Consul
+    <a class="" title="Walkthrough: Deployment 2" href="../../guides/walkthrough/deployment-2/">
+      Walkthrough: Deployment 2
     </a>
     
   </li>
@@ -270,8 +270,17 @@
       
         
   <li>
-    <a class="" title="Guestbook with Consul" href="../../guides/guestbook_consul/">
-      Guestbook with Consul
+    <a class="" title="Walkthrough: Deployment 3" href="../../guides/walkthrough/deployment-3/">
+      Walkthrough: Deployment 3
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Terraform beyond Layer0" href="../../guides/terraform_beyond_layer0/">
+      Terraform beyond Layer0
     </a>
     
   </li>
@@ -439,12 +448,12 @@ For more comprehensive documentation, we recommend taking a look at the official
 </ul>
 <h2 id="sample">Sample<a class="headerlink" href="#sample" title="Permanent link">#</a></h2>
 <p>The following snippet contains the task definition for the <a href="../../guides/guestbook">Guestbook</a> application</p>
-<div class="code"><pre><span></span>{
+<pre class="code"><code>{
     &quot;AWSEBDockerrunVersion&quot;: 2,
     &quot;containerDefinitions&quot;: [
         {
-            &quot;name&quot;: &quot;l0-demo-guestbook&quot;,
-            &quot;image&quot;: &quot;d.ims.io/xfra/l0-guestbook&quot;,
+            &quot;name&quot;: &quot;guestbook&quot;,
+            &quot;image&quot;: &quot;quintilesims/guestbook&quot;,
             &quot;essential&quot;: true,
             &quot;memory&quot;: 128,
             &quot;portMappings&quot;: [
@@ -453,16 +462,9 @@ For more comprehensive documentation, we recommend taking a look at the official
                     &quot;containerPort&quot;: 80
                 }
             ],
-            &quot;environment&quot;: [
-                {
-                    &quot;name&quot;: &quot;SERVICE_80_NAME&quot;,
-                    &quot;value&quot;: &quot;l0-guestbook&quot;
-                }
-            ]
         }
     ]
-}
-</pre></div>
+}</code></pre>
 
 
 <ul>
@@ -477,10 +479,10 @@ ECS will not know how the existing container(s) should be mapped over and you wi
 If you encounter a scenario where you must change or remove a container's name in a task definition, we recommend re-creating the Layer0 Deploy and Service.</p>
 <ul>
 <li><strong>Image</strong> The Docker image used to build the container. The image format is <code>url/image:tag</code><ul>
-<li>The <code>url</code> specifies which Docker Repo to pull the image from (e.g. <code>d.ims.io</code>).
-If <code>url</code> is not specified, <a href="https://hub.docker.com/">Docker Hub</a> is used</li>
-<li>The <code>image</code> specifies the name of the image to grab</li>
-<li>The <code>tag</code> specifies which version of image to grab.
+<li>The <code>url</code> specifies which Docker Repo to pull the image from
+    If a non-Docker-Hub <code>url</code> is not specified, <a href="https://hub.docker.com/">Docker Hub</a> is used (as is the case here)</li>
+<li>The <code>image</code> specifies the name of the image to grab (in this case, the <code>guestbook</code> image from the <code>quintilesims</code> Docker Hub group)</li>
+<li>The <code>tag</code> specifies which version of image to grab
 If <code>tag</code> is not specified, <code>:latest</code> is used</li>
 </ul>
 </li>
@@ -495,7 +497,6 @@ If your Layer0 Service is behind a Layer0 Load Balancer, this should map to an <
 Any traffic received from the instance's <code>hostPort</code> will be forwarded to the container on this port</li>
 </ul>
 </li>
-<li><strong>Environment</strong> A list of key/value pairs that will be available to the container as environment variables</li>
 </ul>
           <aside class="copyright" role="note">
             

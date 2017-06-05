@@ -1,11 +1,11 @@
 package command
 
 import (
-	"testing"
-
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/urfave/cli"
+	"testing"
 )
 
 func TestCreateEnvironment(t *testing.T) {
@@ -20,7 +20,7 @@ func TestCreateEnvironment(t *testing.T) {
 		CreateEnvironment("name", "m3.large", 2, []byte("user_data"), "linux", "ami").
 		Return(&models.Environment{}, nil)
 
-	flags := Flags{
+	flags := map[string]interface{}{
 		"size":      "m3.large",
 		"min-count": 2,
 		"user-data": file.Name(),
@@ -28,7 +28,7 @@ func TestCreateEnvironment(t *testing.T) {
 		"ami":       "ami",
 	}
 
-	c := getCLIContext(t, Args{"name"}, flags)
+	c := testutils.GetCLIContext(t, []string{"name"}, flags)
 	if err := command.Create(c); err != nil {
 		t.Fatal(err)
 	}
@@ -40,7 +40,7 @@ func TestCreateEnvironment_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -63,7 +63,7 @@ func TestDeleteEnvironment(t *testing.T) {
 		DeleteEnvironment("id").
 		Return("jobid", nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -83,10 +83,10 @@ func TestDeleteEnvironmentWait(t *testing.T) {
 		Return("jobid", nil)
 
 	tc.Client.EXPECT().
-		WaitForJob("jobid", TEST_TIMEOUT).
+		WaitForJob("jobid", testutils.TEST_TIMEOUT).
 		Return(nil)
 
-	c := getCLIContext(t, Args{"name"}, Flags{"wait": true})
+	c := testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"wait": true})
 	if err := command.Delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -98,7 +98,7 @@ func TestDeleteEnvironment_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -121,7 +121,7 @@ func TestGetEnvironment(t *testing.T) {
 		GetEnvironment("id").
 		Return(&models.Environment{}, nil)
 
-	c := getCLIContext(t, Args{"name"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Get(c); err != nil {
 		t.Fatal(err)
 	}
@@ -133,7 +133,7 @@ func TestGetEnvironment_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -152,7 +152,7 @@ func TestListEnvironments(t *testing.T) {
 		ListEnvironments().
 		Return([]*models.EnvironmentSummary{}, nil)
 
-	c := getCLIContext(t, nil, nil)
+	c := testutils.GetCLIContext(t, nil, nil)
 	if err := command.List(c); err != nil {
 		t.Fatal(err)
 	}
@@ -171,7 +171,7 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 		UpdateEnvironment("id", 2).
 		Return(&models.Environment{}, nil)
 
-	c := getCLIContext(t, Args{"name", "2"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name", "2"}, nil)
 	if err := command.SetMinCount(c); err != nil {
 		t.Fatal(err)
 	}
@@ -183,9 +183,9 @@ func TestEnvironmentSetMinCount_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg":      getCLIContext(t, nil, nil),
-		"Missing COUNT arg":     getCLIContext(t, Args{"name"}, nil),
-		"Non-integer COUNT arg": getCLIContext(t, Args{"name", "2w"}, nil),
+		"Missing NAME arg":      testutils.GetCLIContext(t, nil, nil),
+		"Missing COUNT arg":     testutils.GetCLIContext(t, []string{"name"}, nil),
+		"Non-integer COUNT arg": testutils.GetCLIContext(t, []string{"name", "2w"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -212,7 +212,7 @@ func TestEnvironmentLink(t *testing.T) {
 		CreateLink("id1", "id2").
 		Return(nil)
 
-	c := getCLIContext(t, Args{"name1", "name2"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name1", "name2"}, nil)
 	if err := command.Link(c); err != nil {
 		t.Fatal(err)
 	}
@@ -224,8 +224,8 @@ func TestEnvironmentLink_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing SOURCE arg":      getCLIContext(t, Args{}, nil),
-		"Missing DESTINATION arg": getCLIContext(t, Args{"name"}, nil),
+		"Missing SOURCE arg":      testutils.GetCLIContext(t, []string{}, nil),
+		"Missing DESTINATION arg": testutils.GetCLIContext(t, []string{"name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -245,7 +245,7 @@ func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
 		Return([]string{"id1"}, nil).
 		Times(2)
 
-	c := getCLIContext(t, Args{"name1", "name2"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name1", "name2"}, nil)
 	if err := command.Link(c); err == nil {
 		t.Fatal("error was nil!")
 	}
@@ -268,7 +268,7 @@ func TestEnvironmentUnlink(t *testing.T) {
 		DeleteLink("id1", "id2").
 		Return(nil)
 
-	c := getCLIContext(t, Args{"name1", "name2"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name1", "name2"}, nil)
 	if err := command.Unlink(c); err != nil {
 		t.Fatal(err)
 	}
@@ -280,8 +280,8 @@ func TestEnvironmentUnlink_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(tc.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing SOURCE arg":      getCLIContext(t, Args{}, nil),
-		"Missing DESTINATION arg": getCLIContext(t, Args{"name"}, nil),
+		"Missing SOURCE arg":      testutils.GetCLIContext(t, []string{}, nil),
+		"Missing DESTINATION arg": testutils.GetCLIContext(t, []string{"name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -301,7 +301,7 @@ func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
 		Return([]string{"id1"}, nil).
 		Times(2)
 
-	c := getCLIContext(t, Args{"name1", "name2"}, nil)
+	c := testutils.GetCLIContext(t, []string{"name1", "name2"}, nil)
 	if err := command.Unlink(c); err == nil {
 		t.Fatal("error was nil!")
 	}

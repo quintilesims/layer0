@@ -24,8 +24,8 @@ func (d *DynamoJobStore) Init() error {
 }
 
 func (d *DynamoJobStore) Clear() error {
-	jobs, err := d.SelectAll()
-	if err != nil {
+	var jobs []models.Job
+	if err := d.table.Scan().All(&jobs); err != nil {
 		return err
 	}
 
@@ -46,24 +46,6 @@ func (d *DynamoJobStore) Delete(jobID string) error {
 	return d.table.Delete("JobID", jobID).Run()
 }
 
-func (d *DynamoJobStore) SelectAll() ([]*models.Job, error) {
-	jobs := []*models.Job{}
-	if err := d.table.Scan().Consistent(true).All(&jobs); err != nil {
-		return nil, err
-	}
-
-	return jobs, nil
-}
-
-func (d *DynamoJobStore) SelectByID(jobID string) (*models.Job, error) {
-	var job *models.Job
-	if err := d.table.Get("JobID", jobID).Consistent(true).One(&job); err != nil {
-		return nil, err
-	}
-
-	return job, nil
-}
-
 func (d *DynamoJobStore) UpdateJobStatus(jobID string, status types.JobStatus) error {
 	if err := d.table.Update("JobID", jobID).Set("JobStatus", int64(status)).Run(); err != nil {
 		return err
@@ -78,4 +60,26 @@ func (d *DynamoJobStore) SetJobMeta(jobID string, meta map[string]string) error 
 	}
 
 	return nil
+}
+
+func (d *DynamoJobStore) SelectAll() ([]*models.Job, error) {
+	jobs := []*models.Job{}
+	if err := d.table.Scan().
+		Consistent(false).
+		All(&jobs); err != nil {
+		return nil, err
+	}
+
+	return jobs, nil
+}
+
+func (d *DynamoJobStore) SelectByID(jobID string) (*models.Job, error) {
+	var job *models.Job
+	if err := d.table.Get("JobID", jobID).
+		Consistent(true).
+		One(&job); err != nil {
+		return nil, err
+	}
+
+	return job, nil
 }

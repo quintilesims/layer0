@@ -51,10 +51,11 @@ func (t *TagHandler) Routes() *restful.WebService {
 	id := service.PathParameter("id", "identifier of the tag").
 		DataType("integer")
 
-	service.Route(service.DELETE("/{id}").
+	service.Route(service.DELETE("/").
 		Filter(basicAuthenticate).
 		To(t.DeleteTag).
 		Doc("Delete a tag").
+		Reads(models.Tag{}).
 		Param(id).
 		Returns(http.StatusNoContent, "Deleted", nil))
 
@@ -94,9 +95,20 @@ func (t *TagHandler) FindTags(request *restful.Request, response *restful.Respon
 		delete(params, "version")
 	}
 
-	// filter by entityID and/or entityType
-	// if neither are specified, this acts as a SelectAll
-	tags, err := t.TagStore.SelectByQuery(entityType, entityID)
+	if entityType == "" {
+		err := fmt.Errorf("Parameter 'type' is required")
+		BadRequest(response, errors.MissingParameter, err)
+		return
+	}
+
+	var query func() (models.Tags, error)
+	if entityID == "" {
+		query = func() (models.Tags, error) { return t.TagStore.SelectByType(entityType) }
+	} else {
+		query = func() (models.Tags, error) { return t.TagStore.SelectByTypeAndID(entityType, entityID) }
+	}
+
+	tags, err := query()
 	if err != nil {
 		ReturnError(response, err)
 		return
@@ -116,7 +128,7 @@ func (t *TagHandler) FindTags(request *restful.Request, response *restful.Respon
 			}
 
 			// don't remove if the name tag matches the fuzz prefix
-			if tag := e.Tags.WithKey("name").First(); tag != nil {
+			if tag, ok := e.Tags.WithKey("name").First(); ok {
 				return !strings.HasPrefix(tag.Value, fuzz)
 			}
 
@@ -129,7 +141,7 @@ func (t *TagHandler) FindTags(request *restful.Request, response *restful.Respon
 		latestVersion := -1
 
 		for i, ewt := range ewts {
-			if current := ewt.Tags.WithKey("version").First(); current != nil {
+			if current, ok := ewt.Tags.WithKey("version").First(); ok {
 				currentVersion, err := strconv.Atoi(current.Value)
 				if err != nil {
 					ReturnError(response, err)
@@ -154,21 +166,13 @@ func (t *TagHandler) FindTags(request *restful.Request, response *restful.Respon
 }
 
 func (t *TagHandler) DeleteTag(request *restful.Request, response *restful.Response) {
-	id := request.PathParameter("id")
-	if id == "" {
-		err := fmt.Errorf("Paramter 'id' is required")
-		BadRequest(response, errors.MissingParameter, err)
+	var tag models.Tag
+	if err := request.ReadEntity(&tag); err != nil {
+		BadRequest(response, errors.InvalidJSON, err)
 		return
 	}
 
-	tagID, err := strconv.ParseInt(id, 10, 64)
-	if err != nil {
-		err := fmt.Errorf("Paramter 'id' must be an int64")
-		BadRequest(response, errors.MissingParameter, err)
-		return
-	}
-
-	if err := t.TagStore.Delete(tagID); err != nil {
+	if err := t.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
 		ReturnError(response, err)
 		return
 	}
@@ -177,13 +181,13 @@ func (t *TagHandler) DeleteTag(request *restful.Request, response *restful.Respo
 }
 
 func (t *TagHandler) CreateTag(request *restful.Request, response *restful.Response) {
-	req := new(models.Tag)
-	if err := request.ReadEntity(&req); err != nil {
+	var tag models.Tag
+	if err := request.ReadEntity(&tag); err != nil {
 		BadRequest(response, errors.InvalidJSON, err)
 		return
 	}
 
-	if err := t.TagStore.Insert(req); err != nil {
+	if err := t.TagStore.Insert(tag); err != nil {
 		ReturnError(response, err)
 		return
 	}

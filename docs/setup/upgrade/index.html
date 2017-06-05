@@ -248,8 +248,8 @@
       
         
   <li>
-    <a class="" title="Guestbook" href="../../guides/guestbook/">
-      Guestbook
+    <a class="" title="Walkthrough: Introduction" href="../../guides/walkthrough/intro/">
+      Walkthrough: Introduction
     </a>
     
   </li>
@@ -257,8 +257,8 @@
       
         
   <li>
-    <a class="" title="Guestbook with RDS" href="../../guides/guestbook_rds/">
-      Guestbook with RDS
+    <a class="" title="Walkthrough: Deployment 1" href="../../guides/walkthrough/deployment-1/">
+      Walkthrough: Deployment 1
     </a>
     
   </li>
@@ -266,8 +266,8 @@
       
         
   <li>
-    <a class="" title="Consul" href="../../guides/consul/">
-      Consul
+    <a class="" title="Walkthrough: Deployment 2" href="../../guides/walkthrough/deployment-2/">
+      Walkthrough: Deployment 2
     </a>
     
   </li>
@@ -275,8 +275,17 @@
       
         
   <li>
-    <a class="" title="Guestbook with Consul" href="../../guides/guestbook_consul/">
-      Guestbook with Consul
+    <a class="" title="Walkthrough: Deployment 3" href="../../guides/walkthrough/deployment-3/">
+      Walkthrough: Deployment 3
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Terraform beyond Layer0" href="../../guides/terraform_beyond_layer0/">
+      Terraform beyond Layer0
     </a>
     
   </li>
@@ -420,51 +429,40 @@
       <article class="article">
         <div class="wrapper">
           
-          <h1 id="upgrade-layer0">Upgrade Layer0<a class="headerlink" href="#upgrade-layer0" title="Permanent link">#</a></h1>
-<p>This section provides procedures for upgrading your Layer0 installation to the latest version.</p>
-<ol>
-<li>
-<p>In the <a href="../../index.html#download">Downloads section of the home page</a>, select the appropriate installation file for your operating system. Extract the zip file to a directory on your computer, and then move the <strong>l0</strong> and <strong>l0-setup</strong> files to a folder in your system path, replacing any previous versions of these files.</p>
-</li>
-<li>
-<p>You will need your existing access keys when l0-setup prompts you for AWS credentials. Type the following commands to find them:</p>
-<ul>
-<li><code>l0-setup terraform [prefix] output access_key</code></li>
-<li><code>l0-setup terraform [prefix] output secret_key</code></li>
-</ul>
-</li>
-<li>
-<p>Type the following command to verify that you are working with the correct version of Layer0:</p>
-<ul>
-<li><code>l0-setup --version</code></li>
-</ul>
-<p>The output of this command should display the version number of the most recent version of Layer0. If it does, proceed to the next step; if not, ensure that you copied the latest versions of <strong>l0</strong> and <strong>l0-setup</strong> to the appropriate directories in your system path.</p>
-</li>
-<li>
-<p>Type the following command to restore the state files for your Layer0, replacing <code>[prefix]</code> with the name of your Layer0 prefix:</p>
-<ul>
-<li><code>l0-setup restore [prefix]</code></li>
-</ul>
-</li>
-<li>
-<p>Type the following command to update your api image tag:</p>
-<ul>
-<li><code>l0-setup plan [prefix] -var api_docker_image_tag=[version]</code></li>
-</ul>
-</li>
-<li>
-<p>Type the following command to update your runner image tag:</p>
-<ul>
-<li><code>l0-setup plan [prefix] -var runner_version_tag=[version]</code></li>
-</ul>
-</li>
-<li>
-<p>Type the following command to apply the upgrade:</p>
-<ul>
-<li><code>l0-setup apply [prefix]</code></li>
-</ul>
-</li>
-</ol>
+          <h1 id="upgrade-a-layer0-instance">Upgrade a Layer0 Instance<a class="headerlink" href="#upgrade-a-layer0-instance" title="Permanent link">#</a></h1>
+<p>This section provides procedures for upgrading your Layer0 installation to the latest version.
+This assumes you are using Layer0 version <code>v0.10.0</code> or later. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Layer0 does not support updating MAJOR or MINOR versions in place unless explicitly stated otherwise.
+Users will need to destroy and re-create Layer0 instances in these circumstances. </p>
+</div>
+<p>Run the <strong>upgrade</strong> command, replacing <code>&lt;instance_name&gt;</code> and <code>&lt;version&gt;</code> with the name of the Layer0 instance and new version, respectively:</p>
+<pre class="code"><code>$ l0-setup upgrade &lt;instance_name&gt; &lt;version&gt;</code></pre>
+
+
+<p>This will prompt you about the updated <code>source</code> and <code>version</code> inputs changing. 
+If you are not satisfied with the changes, exit the application during the prompts. 
+For full control on changing inputs, please use the <strong>set</strong> command. </p>
+<p><strong>Example Usage</strong></p>
+<pre class="code"><code>$ l0-setup upgrade mylayer0 v0.10.1
+This will update the 'version' input
+        From: [v0.10.0]
+        To:   [v0.10.1]
+
+        Press 'enter' to accept this change:
+This will update the 'source' input
+        From: [github.com/quintilesims/layer0//setup/module?ref=v0.10.0]
+        To:   [github.com/quintilesims/layer0//setup/module?ref=v0.10.1]
+
+        Press 'enter' to accept this change:
+        ...
+
+Everything looks good! You are now ready to run 'l0-setup apply mylayer0'</code></pre>
+
+
+<p>As stated by the command output, run the <strong>apply</strong> command to apply the changes to the Layer0 instance.
+If any errors occur, please contact the Layer0 team. </p>
           <aside class="copyright" role="note">
             
             Documentation built with

@@ -1,6 +1,7 @@
 package ecsbackend
 
 import (
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	awsecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
@@ -175,14 +176,21 @@ var getTaskARNs = func(ecs ecs.Provider, ecsEnvironmentID id.ECSEnvironmentID, s
 var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, tail int) ([]*models.LogFile, error) {
 	taskIDCatalog := generateTaskIDCatalog(taskARNs)
 
+	fmt.Println("Getting streams")
+
 	orderBy := "LogStreamName"
 	logStreams, err := cloudWatchLogs.DescribeLogStreams(config.AWSLogGroupID(), orderBy)
 	if err != nil {
 		return nil, err
 	}
+	fmt.Println("done")
 
 	logFiles := []*models.LogFile{}
 	for _, logStream := range logStreams {
+		if *logStream.StoredBytes == 0 {
+			continue
+		}
+
 		// filter by streams that have <prefix>/<container name>/<stream task id>
 		streamNameSplit := strings.Split(*logStream.LogStreamName, "/")
 		if len(streamNameSplit) != 3 {
@@ -199,21 +207,22 @@ var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, t
 			Lines: []string{},
 		}
 
+		fmt.Println("Getting events")
 		// since the time range is exclusive, expand the range to get first/last events
 		logEvents, err := cloudWatchLogs.GetLogEvents(
 			config.AWSLogGroupID(),
 			*logStream.LogStreamName,
-			*logStream.FirstEventTimestamp-1,
-			*logStream.LastEventTimestamp+1,
 			int64(tail))
 		if err != nil {
 			return nil, err
 		}
 
 		for _, logEvent := range logEvents {
+			fmt.Println(*logEvent.Message)
 			logFile.Lines = append(logFile.Lines, *logEvent.Message)
 		}
 
+		fmt.Println("done")
 		logFiles = append(logFiles, logFile)
 	}
 
