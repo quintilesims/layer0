@@ -31,8 +31,8 @@ Files used in this deployment:
 ### Part 1: Create the Consul Load Balancer
 
 The Consul server cluster will live in the same environment as our Guestbook and Redis services - if you've completed [Deployment 1](deployment-1) and [Deployment 2](deployment-2), this environment already exists as **demo-env**.
-We'll start by creating the load balancer behind which the Consul cluster will be deployed.
-The load balancer is a private one, and is really only used to bootstrap the Consul servers into working order.
+We'll start by creating a load balancer for the Consul cluster.
+The load balancer will be private since only Layer0 services need to communicate with the Consul cluster.
 At the command prompt, execute the following:
 
 `l0 loadbalancer create --port 8500:8500/tcp --port 8301:8301/tcp --private --healthcheck-target tcp:8500 demo-env consul-lb`

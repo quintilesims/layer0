@@ -32,7 +32,7 @@ At the command prompt, execute the following:
 We should see output like the following:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE
+ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
 demo00e6aa9     demo-env          0              m3.medium
 ```
 
@@ -49,14 +49,14 @@ api             api
 - `l0 environment get demo-env` will show us more information about the **demo-env** environment we just created:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE
+ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
 demo00e6aa9     demo-env          0              m3.medium
 ```
 
-- `l0 environment get \*` illustrates wildcard matching (you could also have used `demo*` in the above command), and will return detailed information for _each_ environment, not just one - it's like a detailed `list`:
+- `l0 environment get \*` illustrates wildcard matching (you could also have used `demo*` in the above command), and it will return detailed information for _each_ environment, not just one - it's like a detailed `list`:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE
+ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
 demo00e6aa9     demo-env          0              m3.medium
 api             api               2              m3.medium
 ```
@@ -89,7 +89,7 @@ guestbodb65a     guestbook-lb       demo-env              80:80/HTTP  true
 The following is a summary of the arguments passed in the above command:
 
 * `loadbalancer create`: creates a new load balancer
-* `--port 80:80/HTTP`: instructs the load balancer to forward requests from port 80 on the server to port 80 in the Docker container using the HTTP protocol
+* `--port 80:80/HTTP`: instructs the load balancer to forward requests from port 80 on the load balancer to port 80 in the EC2 instance using the HTTP protocol
 * `demo-env`: the name of the environment in which you are creating the load balancer
 * `guestbook-lb`: a name for the load balancer itself
 
@@ -112,7 +112,7 @@ Try running the following commands to get an idea of the information available t
 
 ### Part 3: Deploy the ECS Task Definition
 
-The `deploy` command is used to specify the ECS task definition that refers to a web application.
+The `deploy` command is used to specify the ECS task definition that outlines a web application.
 
 Here, we'll create a new deploy called **guestbook-dpl** that refers to the **Guestbook.Dockerrun.aws.json** file found in the guides reposiory.
 At the command prompt, execute the following:
@@ -141,6 +141,8 @@ Deploys support the same methods of inspection as environments and load balancer
 
 - `l0 deploy list`
 - `l0 deploy get guestbook*`
+- `l0 deploy get guestbook:1`
+- `l0 deploy get guestbook:latest`
 - `l0 deploy get \*`
 
 
@@ -199,18 +201,12 @@ SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1 (1)
 ```
 
-We should see output like the following:
+In the final phase of deployment, we will see **1/1** in the **Scale** column; this indicates that the service is running 1 copy:
 
 ```
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1   1/1
 ```
-
-!!! Note
-	More detailed information about the state of a service may be acquired by running the following command:
-
-	`l0 service logs <SERVICE>`
-
 
 ---
 
@@ -232,6 +228,14 @@ guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true
 Copy the value shown in the **URL** column and paste it into a web browser.
 The guestbook application will appear (once the service has completely finished deploying).
 
+
+---
+### Logs
+
+Output from a Service's docker containers may be acquired by running the following command:
+```
+l0 service logs <SERVICE>
+```
 
 ---
 

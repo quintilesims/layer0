@@ -4,7 +4,8 @@ In this section, we're going to add some complexity to the previous deployment.
 [Deployment 1](deployment-1) saw us create a simple guestbook application which kept its data in memory.
 But what if that ever came down, either by intention or accident?
 It would be easy enough to redeploy it, but all of the entered data would be lost.
-For this deployment, we're going to separate the data store from the guestbook application by creating a second Layer0 service which will house a local Redis database server and linking it to the first.
+What if we wanted to scale the application to run more than one copy?
+For this deployment, we're going to separate the data store from the guestbook application by creating a second Layer0 service which will house a Redis database server and linking it to the first.
 You can choose to complete this section using either [the Layer0 CLI](#deploy-with-layer0-cli) or [Terraform](#deploy-with-terraform).
 
 
@@ -85,7 +86,7 @@ The following is a summary of the arguments passed in the above command:
 Here, we just need to pull the previous resources together into a service.
 At the command prompt, execute the following:
 
-`l0 service create --loadbalancer demo-env:redis-lb demo-env redis-svc redis-dpl:latest`
+`l0 service create --wait --loadbalancer demo-env:redis-lb demo-env redis-svc redis-dpl:latest`
 
 We should see output like the following:
 
@@ -97,8 +98,9 @@ redislb16ae6  redis-svc     demo-env     redis-lb      redis-dpl:1  0/1
 The following is a summary of the arguments passed in the above commands:
 
 - `service create`: creates a new Layer0 Service
+- `--wait`:  instructs the CLI to keep hold of the shell until the service has been successfully deployed
 - `--loadbalancer demo-env:redis-lb`: the fully-qualified name of the load balancer; in this case, the load balancer named **redis-lb** in the environment named **demo-env**
-    - _(Again, it's not strictly necessary to use the fully-qualified name of the load balancer as long as there isn't another load balancer with the same name)_
+    - _(Again, it's not strictly necessary to use the fully-qualified name of the load balancer as long as there isn't another load balancer with the same name in a different environment)_
 - `demo-env`: the name of the environment in which the service is to reside
 - `redis-svc`: a name for the service we're creating
 - `redis-dpl:latest`: the name of the deploy the service will put into action
@@ -238,23 +240,18 @@ _above: `guestbook-dpl:1` has been removed, and only `guestbook-dpl:2` remains_
 
 ### Part 7: Prove It
 
-You should now be able to point your browser at the URL for the Guestbook load balancer (run `l0 loadbalancer get guestbook-svc` to find it) and see what looks like the same Guestbook application you deployed in the first section of the walkthrough.
+You should now be able to point your browser at the URL for the Guestbook load balancer (run `l0 loadbalancer get guestbook-lb` to find it) and see what looks like the same Guestbook application you deployed in the first section of the walkthrough.
 Go ahead and add a few entries, make sure it's functioning properly.
 We'll wait.
 
 Now, let's prove that we've actually separated the data from the application by deleting and redeploying the Guestbook application:
 
 `l0 service delete --wait guestbook-svc`
-`l0 loadbalancer delete --wait guestbook-lb`
 
 _(We'll leave the `deploy` intact so we can spin up a new service easily, and we'll leave the environment untouched because it also contained the Redis server.
 We'll also pass the `--wait` flag so that we don't need to keep checking on the status of the job to know when it's complete.)_
 
 Once those resources have been deleted, we can recreate them!
-
-Create another load balancer:
-
-`l0 loadbalancer create --ports 80:80/http demo-env guestbook-lb`
 
 Create another service, using the **guestbook-dpl** deploy we kept around:
 
@@ -272,7 +269,7 @@ If you're finished with the example and don't want to continue with this walkthr
 
 `l0 environment delete demo-env`
 
-However, if you intend to continue through [Deployment 3](#deployment-3-guestbook-redis-consul), you will want to keep the resources you made in this section.
+However, if you intend to continue through [Deployment 3](deployment-3), you will want to keep the resources you made in this section.
 
 
 ---
