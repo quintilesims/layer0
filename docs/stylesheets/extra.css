@@ -10,10 +10,9 @@
 
 .article h4 {
   color:#e84e40;
-  font-weight:normal;
-  padding-left:1em;
+  font-weight:bold;
+  font-style:normal;
 }
-
 
 .article ul>li:before {
   content:"";

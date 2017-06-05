@@ -105,7 +105,7 @@ Once completed, the zipped release files will be located in the [xfra-layer0](ht
 # Announce the release
 
 Once the release is available for download, send a message to
-[#xfra](https://ims-dev.slack.com/messages/xfra) with a link and a one-line
+[#carbon](https://ims-dev.slack.com/messages/carbon) with a link and a one-line
 summary of the release contents. For example:
 ```
 @here Layer0 has released v0.9.0 https://github.com/quintilesims/layer0/releases - which aims to be a stable version of our load balancer support.
