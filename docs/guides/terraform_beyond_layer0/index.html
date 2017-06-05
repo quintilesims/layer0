@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Terraform beyond Layer0 - Layer0</title>
+      
+      
+      
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/guides/terraform_beyond_layer0/">
+      
+      
+        <meta name="author" content="xfra">
+      
+    
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/guides/terraform_beyond_layer0/">
+    <meta property="og:title" content="Layer0">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/guides/terraform_beyond_layer0//../../static/logo_icon.png">
+    <meta name="apple-mobile-web-app-title" content="Layer0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+      <link rel="apple-touch-icon" href="../../static/logo_icon.png">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../../assets/fonts/icon.eot?52m981');
+      	src: url('../../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../../assets/stylesheets/application-b64b728552.css">
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Roboto+Mono">
+      <style>
+        body, input {
+          font-family: 'Roboto', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Roboto Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../../stylesheets/extra.css">
+    
+    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+              
+                Guides <i class="icon icon-link"></i>
+              
+            
+          </span>
+        
+        Terraform beyond Layer0
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/quintilesims/layer0/" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="../../static/logo_icon.png">
+        </div>
+      
+      <div class="name">
+        <strong>Layer0 v0.9.0</strong>
+        
+          <br>
+          quintilesims/layer0
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="../../#download" title="Download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="../..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Releases" href="../../releases/">
+      Releases
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Introduction" href="../../intro/">
+      Introduction
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Setup</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Install" href="../../setup/install/">
+      Install
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Upgrade" href="../../setup/upgrade/">
+      Upgrade
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Destroy" href="../../setup/destroy/">
+      Destroy
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Guides</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Walkthrough: Introduction" href="../walkthrough/intro/">
+      Walkthrough: Introduction
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Walkthrough: Deployment 1" href="../walkthrough/deployment-1/">
+      Walkthrough: Deployment 1
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Walkthrough: Deployment 2" href="../walkthrough/deployment-2/">
+      Walkthrough: Deployment 2
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Walkthrough: Deployment 3" href="../walkthrough/deployment-3/">
+      Walkthrough: Deployment 3
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="current" title="Terraform beyond Layer0" href="./">
+      Terraform beyond Layer0
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Before you start" href="#before-you-start">
+                Before you start
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Deploy with Terraform" href="#deploy-with-terraform">
+                Deploy with Terraform
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Part 1: Clone the guides repository" href="#part-1-clone-the-guides-repository">
+                Part 1: Clone the guides repository
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Part 2: Terraform Plan" href="#part-2-terraform-plan">
+                Part 2: Terraform Plan
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Part 3: Terraform Apply" href="#part-3-terraform-apply">
+                Part 3: Terraform Apply
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Part 4: Scaling a Layer0 Service" href="#part-4-scaling-a-layer0-service">
+                Part 4: Scaling a Layer0 Service
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Part 5: Terraform Remote State" href="#part-5-terraform-remote-state">
+                Part 5: Terraform Remote State
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Part 6: Terraform Configuration Structure" href="#part-6-terraform-configuration-structure">
+                Part 6: Terraform Configuration Structure
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Part 7: State Environments" href="#part-7-state-environments">
+                Part 7: State Environments
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Part 8: Multiple Provider Instances" href="#part-8-multiple-provider-instances">
+                Part 8: Multiple Provider Instances
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Part 9: Cleanup" href="#part-9-cleanup">
+                Part 9: Cleanup
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="One-off Task" href="../one_off_task/">
+      One-off Task
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Reference</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Layer0 CLI" href="../../reference/cli/">
+      Layer0 CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Layer0 Setup CLI" href="../../reference/setup-cli/">
+      Layer0 Setup CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Layer0 Terraform Plugin" href="../../reference/terraform-plugin/">
+      Layer0 Terraform Plugin
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Updating a Service" href="../../reference/updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../../reference/consul/">
+      Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Task Definitions" href="../../reference/task_definition/">
+      Task Definitions
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Architecture" href="../../reference/architecture/">
+      Architecture
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="ECR" href="../../reference/ecr/">
+      ECR
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Troubleshooting</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Common Issues" href="../../troubleshooting/commonissues/">
+      Common Issues
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Secure Shell (SSH)" href="../../troubleshooting/ssh/">
+      Secure Shell (SSH)
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+          <hr>
+          <span class="section">The author</span>
+          <ul>
+            
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <h1 id="deployment-guide-terraform-beyond-layer0">Deployment guide: Terraform beyond Layer0<a class="headerlink" href="#deployment-guide-terraform-beyond-layer0" title="Permanent link">#</a></h1>
+<p>In this example, we'll learn how you can use Terraform to create a Layer0 service as well as a persistent data store. The main goal of this example is to explore how you can combine Layer0 with other Terraform providers and best practices.</p>
+<h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">#</a></h2>
+<p>To complete the procedures in this section, you must have the following installed and configured correctly:</p>
+<ul>
+<li>Layer0 v0.8.4 or later</li>
+<li>Terraform v0.9.0 or later</li>
+<li>Layer0 Terraform Provider</li>
+</ul>
+<p>If you have not already configured Layer0, see the <a href="../../setup/install">Layer0 installation guide</a>. If you are running an older version of Layer0, see the <a href="../../setup/upgrade#upgrading-older-versions-of-layer0">Layer0 upgrade instructions</a>.</p>
+<p>See the <a href="../../reference/terraform-plugin#install">Terraform installation guide</a> to install Terraform and the Layer0 Terraform Plugin.</p>
+<hr />
+<h2 id="deploy-with-terraform">Deploy with Terraform<a class="headerlink" href="#deploy-with-terraform" title="Permanent link">#</a></h2>
+<p>Using Terraform, you will deploy a simple guestbook application backed by AWS DynamoDB Table. The terraform configuration file will use both the Layer0 and AWS Terraform providers, to deploy the guestbook application and provision a new DynamoDB Table.</p>
+<h2 id="part-1-clone-the-guides-repository">Part 1: Clone the guides repository<a class="headerlink" href="#part-1-clone-the-guides-repository" title="Permanent link">#</a></h2>
+<p>Run this command to clone the <code>quintilesims/guides</code> repository:</p>
+<p><code>git clone https://github.com/quintilesims/guides.git</code></p>
+<p>Once you have cloned the repository, navigate to the <code>guides/terraform-beyond-layer0/example-1</code> folder for the rest of this example.</p>
+<h2 id="part-2-terraform-plan">Part 2: Terraform Plan<a class="headerlink" href="#part-2-terraform-plan" title="Permanent link">#</a></h2>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As we're using modules in our Terraform configuration, we need to run <code>terraform get</code> command before performing other terraform operations. Running <code>terraform get</code> will download the modules to your local folder named <code>.terraform</code>. See here for more information on <a href="https://www.terraform.io/docs/commands/get.html">terraform get</a>.</p>
+<p><code>terraform get</code></p>
+<p>Get: file:///Users/<username>/go/src/github.com/quintilesims/guides/terraform-beyond-layer0/example-1/modules/guestbook_service</p>
+</div>
+<p>Before deploying, we can run the following command to see what changes Terraform will make to your infrastructure should you go ahead and apply. If you had any errors in your layer0.tf file, running <code>terraform plan</code> would output those errors so that you can address them. Also, Terraform will prompt you for configuration values that it does not have.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>There are a few ways to configure Terraform so that you don't have to keep entering these values every time you run a Terraform command (editing the <code>terraform.tfvars</code> file, or exporting environment variables like <code>TF_VAR_endpoint</code> and <code>TF_VAR_token</code>, for example). See the <a href="https://www.terraform.io/docs/configuration/variables.html">Terraform Docs</a> for more.</p>
+</div>
+<p><code>terraform plan</code></p>
+<pre class="code"><code>var.endpoint
+  Enter a value: &lt;enter your Layer0 endpoint&gt;
+
+var.token
+  Enter a value: &lt;enter your Layer0 token&gt;
+...
++ aws_DynamoDB_table.guestbook
+    arn:                       &quot;&lt;computed&gt;&quot;
+    attribute.#:               &quot;1&quot;
+    attribute.4228504427.name: &quot;id&quot;
+    attribute.4228504427.type: &quot;S&quot;
+    hash_key:                  &quot;id&quot;
+    name:                      &quot;guestbook&quot;
+    read_capacity:             &quot;20&quot;
+    stream_arn:                &quot;&lt;computed&gt;&quot;
+    stream_enabled:            &quot;&lt;computed&gt;&quot;
+    stream_view_type:          &quot;&lt;computed&gt;&quot;
+    write_capacity:            &quot;20&quot;
+
+...</code></pre>
+
+
+<h2 id="part-3-terraform-apply">Part 3: Terraform Apply<a class="headerlink" href="#part-3-terraform-apply" title="Permanent link">#</a></h2>
+<p>Run the following command to begin the deploy process.</p>
+<p><code>terraform apply</code></p>
+<pre class="code"><code>layer0_environment.demo: Refreshing state...
+...
+...
+...
+layer0_service.guestbook: Creation complete
+
+Apply complete! Resources: 7 added, 0 changed, 0 destroyed.
+
+The state of your infrastructure has been saved to the path
+below. This state is required to modify and destroy your
+infrastructure, so keep it safe. To inspect the complete state
+use the `terraform show` command.
+
+State path: terraform.tfstate
+
+Outputs:
+
+guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
+
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time, you may get HTTP 503 errors when making HTTP requests against the load balancer URL.</p>
+</div>
+<p>Terraform will set up the entire environment for you and then output a link to the application's load balancer.</p>
+<h3 id="whats-happening">What's happening<a class="headerlink" href="#whats-happening" title="Permanent link">#</a></h3>
+<p>Terraform using the <a href="https://www.terraform.io/docs/providers/aws/index.html">AWS provider</a>, provisions a new DynamoDB table. It also uses the <a href="http://layer0.ims.io/reference/terraform-plugin/#provider">Layer0 provider</a> to provision the environment, deploy, load balancer and service required to run the entire guestbook application.</p>
+<p>Looking at an excerpt of the file <a href="https://github.com/quintilesims/guides/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/main.tf">./terraform-beyond-layer0/example-1/modules/guestbook_service/main.tf</a>, we can see the following definitions:</p>
+<pre class="code"><code>resource &quot;aws_dynamodb_table&quot; &quot;guestbook&quot; {
+  name           = &quot;${var.table_name}&quot;
+  read_capacity  = 20
+  write_capacity = 20
+  hash_key       = &quot;id&quot;
+
+  attribute {
+    name = &quot;id&quot;
+    type = &quot;S&quot;
+  }
+}
+
+resource &quot;layer0_deploy&quot; &quot;guestbook&quot; {
+  name    = &quot;guestbook&quot;
+  content = &quot;${data.template_file.guestbook.rendered}&quot;
+}
+
+data &quot;template_file&quot; &quot;guestbook&quot; {
+  template = &quot;${file(&quot;Dockerrun.aws.json&quot;)}&quot;
+
+  vars {
+    access_key = &quot;${var.access_key}&quot;
+    secret_key = &quot;${var.secret_key}&quot;
+    region     = &quot;${var.region}&quot;
+    table_name = &quot;${aws_dynamodb_table.guestbook.name}&quot;
+  }
+}</code></pre>
+
+
+<p>Note the resource definitions for <code>aws_dynamodb_table</code> and <code>layer0_deploy</code>. To configure the guestbook application to use the provisioned DynamoDB table, we reference the <code>name</code> property from the DynamoDB definition <code>table_name = "${aws_dynamodb_table.guestbook.name}"</code>. </p>
+<p>These <code>vars</code> are used to populate the template fields in our <a href="https://github.com/quintilesims/guides/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/Dockerrun.aws.json">Dockerrun.aws.json</a> file. </p>
+<pre class="code"><code>{
+    &quot;AWSEBDockerrunVersion&quot;: 2,
+    &quot;containerDefinitions&quot;: [
+        {
+            &quot;name&quot;: &quot;guestbook&quot;,
+            &quot;image&quot;: &quot;quintilesims/guestbook-db&quot;,
+            &quot;essential&quot;: true,
+            &quot;memory&quot;: 128,
+            &quot;environment&quot;: [
+                {
+                    &quot;name&quot;: &quot;DYNAMO_TABLE&quot;,
+                    &quot;value&quot;: &quot;${table_name}&quot;
+                }
+                ...</code></pre>
+
+
+<p>The Layer0 configuration referencing the AWS DynamoDB configuration <code>table_name = "${aws_DynamoDB_table.guestbook.name}"</code>, infers an implicit dependency. Before Terraform creates the infrastructure, it will use this information to order the resource creation and create resources in parallel, where there are no dependencies. In this example, the AWS DynamoDB table will be created before the Layer0 deploy. See <a href="https://www.terraform.io/intro/getting-started/dependencies.html">Terraform Resource Dependencies</a> for more information.</p>
+<h2 id="part-4-scaling-a-layer0-service">Part 4: Scaling a Layer0 Service<a class="headerlink" href="#part-4-scaling-a-layer0-service" title="Permanent link">#</a></h2>
+<p>The workflow to make changes to your infrastructure generally involves updating your Terraform configuration file followed by a <code>terraform plan</code> and <code>terraform apply</code>.</p>
+<h3 id="update-the-terraform-configuration">Update the Terraform configuration<a class="headerlink" href="#update-the-terraform-configuration" title="Permanent link">#</a></h3>
+<p>Open the file <code>./example-1/modules/guestbook_service/main.tf</code> in a text editor and make the change to add a <code>scale</code> property with a value of <code>3</code> to the <code>layer0_service</code> section. For more information about the <code>scale</code> property, see <a href="http://layer0.ims.io/reference/terraform-plugin/#service">Layer0 Terraform Plugin</a> documentation. The result should look like the below:</p>
+<p>example-1/modules/guestbook_service/main.tf</p>
+<pre class="code"><code># Create a service named &quot;guestbook&quot;
+resource &quot;layer0_service&quot; &quot;guestbook&quot; {
+  name          = &quot;guestbook&quot;
+  environment   = &quot;${layer0_environment.demo.id}&quot;
+  deploy        = &quot;${layer0_deploy.guestbook.id}&quot;
+  load_balancer = &quot;${layer0_load_balancer.guestbook.id}&quot;
+  scale         = 3
+}</code></pre>
+
+
+<h3 id="plan-and-apply">Plan and Apply<a class="headerlink" href="#plan-and-apply" title="Permanent link">#</a></h3>
+<p>Execute the <code>terraform plan</code> command to understand the changes that you will be making. Note that if you did not specify <code>scale</code>, it defaults to '1'.</p>
+<p><code>terraform plan</code></p>
+<p>Outputs:</p>
+<pre class="code"><code>...
+
+~ module.guestbook.layer0_service.guestbook
+    scale: &quot;1&quot; =&gt; &quot;3&quot;</code></pre>
+
+
+<p>Now run the following command to deploy your changes:</p>
+<p><code>terraform apply</code></p>
+<p>Outputs:</p>
+<pre class="code"><code>layer0_environment.demo: Refreshing state... (ID: demoenvbb9f6)
+data.template_file.guestbook: Refreshing state...
+layer0_deploy.guestbook: Refreshing state... (ID: guestbook.6)
+layer0_load_balancer.guestbook: Refreshing state... (ID: guestbo43ab0)
+layer0_service.guestbook: Refreshing state... (ID: guestboebca1)
+layer0_service.guestbook: Modifying... (ID: guestboebca1)
+  scale: &quot;1&quot; =&gt; &quot;3&quot;
+layer0_service.guestbook: Modifications complete (ID: guestboebca1)
+
+Apply complete! Resources: 0 added, 1 changed, 0 destroyed.
+
+The state of your infrastructure has been saved to the path
+below. This state is required to modify and destroy your
+infrastructure, so keep it safe. To inspect the complete state
+use the `terraform show` command.
+
+State path: 
+
+Outputs:
+
+services = &lt;guestbook_service_url&gt;</code></pre>
+
+
+<p>To confirm your service has been updated to the desired scale, you can run the following layer0 command. Note that the desired scale for the guestbook service should be eventually be 3/3.</p>
+<p><code>l0 service get guestbook1_guestbook_svc</code>
+Outputs:</p>
+<pre class="code"><code>SERVICE ID    SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE
+SERVICE ID    SERVICE NAME              ENVIRONMENT  LOADBALANCER             DEPLOYMENTS                  SCALE
+guestbo4fd3b  guestbook1_guestbook_svc  demo         guestbook1_guestbook_lb  guestbook1_guestbook_dpl:3*  1/3 (2)</code></pre>
+
+
+<p>As scale is a parameter we are likely to change in the future, rather than hardcoding it to 3 as we have done just now, it would be better to use a variable to store  <code>service_scale</code>. The following Best Practices sections will show how you can achieve this.</p>
+<div class="admonition note">
+<p class="admonition-title">Best Practices with Terraform + Layer0</p>
+<p>The following sections outline some of the best practices and tips to take into consideration, when using Layer0 with Terraform.</p>
+</div>
+<h2 id="part-5-terraform-remote-state">Part 5: Terraform Remote State<a class="headerlink" href="#part-5-terraform-remote-state" title="Permanent link">#</a></h2>
+<p>Terraform stores the state of the deployed infrastructure in a local file named <code>terraform.tfstate</code> by default. To find out more about why Terraform needs to store state, see <a href="https://www.terraform.io/docs/state/purpose.html">Purpose of Terraform State</a>. </p>
+<p>How state is loaded and used for operations such as <code>terraform apply</code> is determined by a <a href="https://www.terraform.io/docs/backends">Backend</a>. As mentioned, by default the state is stored locally which is enabled by a "local" backend.</p>
+<h3 id="remote-state">Remote State<a class="headerlink" href="#remote-state" title="Permanent link">#</a></h3>
+<p>By default, Terraform stores state locally but it can also be configured to store state in a remote backend. This can prove useful when you are working as part of a team to provision and manage services deployed by Terraform. All the members of the team will need access to the state file to apply new changes and be able to do so without overwriting each others' changes. See here for more information on the different <a href="https://www.terraform.io/docs/backends/types/index.html">backend types</a> supported by Terraform.</p>
+<p>To configure a remote backend, append the <code>terraform</code> section below to your terraform file <code>./example-1/main.tf</code>. Populate the <code>bucket</code> property to an existing s3 bucket.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>If you have been following along with the guide, <code>./example-1/main.tf</code> should already have the below section commented out. You can uncomment the <code>terraform</code> section and populate the bucket property with an appropriate value.</p>
+</div>
+<pre class="code"><code>terraform {
+  backend &quot;s3&quot; {
+    bucket     = &quot;&lt;my-bucket-name&gt;&quot;
+    key        = &quot;demo-env/remote-backend/terraform.tfstate&quot;
+    region     = &quot;us-west-2&quot;
+  }
+}</code></pre>
+
+
+<p>Once you have modified <code>main.tf</code>, you will need to initialize the newly configured backend by running the following command.</p>
+<p><code>terraform init</code></p>
+<p>Outputs:</p>
+<pre class="code"><code>Initializing the backend...
+
+Do you want to copy state from &quot;local&quot; to &quot;consul&quot;?
+  ...
+  Do you want to copy the state from &quot;local&quot; to &quot;consul&quot;? Enter &quot;yes&quot; to copy
+  and &quot;no&quot; to start with the existing state in &quot;consul&quot;.
+
+  Enter a value: </code></pre>
+
+
+<p>Go ahead and enter: <code>yes</code>.</p>
+<pre class="code"><code>Successfully configured the backend &quot;consul&quot;! Terraform will automatically
+use this backend unless the backend configuration changes.
+
+Terraform has been successfully initialized!
+...</code></pre>
+
+
+<h3 id="whats-happening_1">What's happening<a class="headerlink" href="#whats-happening_1" title="Permanent link">#</a></h3>
+<p>As you are configuring a backend for the first time, Terraform will give you an option to migrate your state to the new backend. From now on, any further changes to your infrastructure made by Terraform will result in the remote state file being updated. For more information see <a href="https://www.terraform.io/docs/backends/index.html">Terraform backends</a>.</p>
+<p>A new team member can use the <code>main.tf</code> from their own machine without obtaining a copy of the state file <code>terraform.tfstate</code> as the configuration will retrieve the state file from the remote backend.</p>
+<h3 id="locking">Locking<a class="headerlink" href="#locking" title="Permanent link">#</a></h3>
+<p>Not all remote backends support locking (locking ensures only one person is able to change the state at a time). The <code>S3</code> backend we used earlier in the example supports locking which is disabled by default. The <code>S3</code> backend uses a DynamoDB table to acquire a lock before making a change to the state file. To enable locking, you need to specify <code>locking_table</code> property with the name of an existing DynamoDB table. The DynamoDB table also needs primary key named <code>LockID</code> of type <code>String</code>.</p>
+<h3 id="security">Security<a class="headerlink" href="#security" title="Permanent link">#</a></h3>
+<p>A Terraform state file is written in plain text. This can lead to a situation where deploying resources that require sensitive data can result in the sensitive data being stored in the state file. To minimize exposure of sensitive data, you can enable <a href="https://docs.aws.amazon.com/AmazonS3/latest/dev/UsingServerSideEncryption.html">server side encryption</a> of the state file by adding property <code>encrypt</code> set to <code>true</code>.</p>
+<p>This will ensure that the file is encrypted in S3 and by using a remote backend, you will also have the added benefit of the state file not being persisted to disk locally as it will only ever be held in memory by Terraform.</p>
+<p>For securing the state file further, you can also enable access logging on the S3 bucket you are using for the remote backend, which can help track down invalid access should it occur.</p>
+<h2 id="part-6-terraform-configuration-structure">Part 6: Terraform Configuration Structure<a class="headerlink" href="#part-6-terraform-configuration-structure" title="Permanent link">#</a></h2>
+<p>While there are many different approaches to organizing your Terraform code, we suggest using the following file structure:</p>
+<pre class="code"><code>example1/  # contains overarching Terraform deployment, pulls in any modules that might exist
+  ─ main.tf  
+  ─ variables.tf  
+  ─ output.tf  
+  + modules/  # if you can break up deployment into smaller modules, keep the modules in here
+      + guestbook_service/  # contains Terraform configuration for a module
+        ─ main.tf  
+        ─ variables.tf  
+        ─ output.tf
+      + service2/  # contains another module
+      + service3/  # contains another module</code></pre>
+
+
+<p>Here we are making use of Terraform <a href="https://www.terraform.io/docs/modules/index.html">Modules</a>. Modules in Terraform are self-contained packages of Terraform configurations, that are managed as a group. Modules are used to create reusable components in Terraform as well as for basic code organization. In this example, we are using modules to separate each service and making it consumable as a module.</p>
+<p>If you wanted to add a new service, you can create a new service folder inside the ./modules. If you wanted to you could even run multiple copies of the same service. See here for more information about <a href="https://www.terraform.io/docs/modules/create.html">Creating Modules</a>.</p>
+<p>Also see the below repositories for ideas on different ways you can organize your Terraform configuration files for the needs of your specific project: </p>
+<ul>
+<li><a href="https://github.com/terraform-community-modules">Terraform Community Modules</a></li>
+<li><a href="https://github.com/hashicorp/best-practices">Best Pratices Ops</a></li>
+</ul>
+<h2 id="part-7-state-environments">Part 7: State Environments<a class="headerlink" href="#part-7-state-environments" title="Permanent link">#</a></h2>
+<p>Layer0 recommends that you typically make a single environment for each tier of your application, such as <code>dev</code>, <code>staging</code> and <code>production</code>. That recommendation still holds when using Terraform with Layer0. Using Layer0 CLI, you can target a specific environment for most CLI commands. This enables you to service each tier relatively easily. In Terraform, there a few approaches you can take to enable a similar workflow.</p>
+<h3 id="single-terraform-configuration">Single Terraform Configuration<a class="headerlink" href="#single-terraform-configuration" title="Permanent link">#</a></h3>
+<p>You can use a single Terraform configuration to create and maintain multiple environments by making use of the <a href="https://www.terraform.io/docs/configuration/resources.html#count">Count</a> parameter, inside a Resource. Count enables you to create multiple copies of a given resource. </p>
+<p>For example</p>
+<pre class="code"><code>variable &quot;environments&quot; {
+  type = &quot;list&quot;
+
+  default = [
+    &quot;dev&quot;,
+    &quot;staging&quot;
+    &quot;production&quot;
+  ]
+}
+
+resource &quot;layer0_environment&quot; &quot;demo&quot; {
+  count = &quot;${length(var.environments)}&quot;
+
+  name = &quot;${var.environments[count.index]}_demo&quot;
+}</code></pre>
+
+
+<p>Let's have a more in-depth look in how this works. You can start by navigating to `./terraform-beyond-layer0/example-2' folder. Start by running the plan command.</p>
+<p><code>terraform plan</code></p>
+<p>Outputs:</p>
+<pre class="code"><code>+ module.environment.aws_dynamodb_table.guestbook.0
+    ...
+    name:                      &quot;dev_guestbook&quot;
+...
++ module.environment.aws_dynamodb_table.guestbook.1
+    ..
+    name:                      &quot;staging_guestbook&quot;
+...</code></pre>
+
+
+<p>Note that you will see a copy of each resource for each environment specified in your environments file in <code>./example-2/variables.tf</code>. Go ahead and run apply.</p>
+<p><code>terraform apply</code></p>
+<p>Outputs:</p>
+<pre class="code"><code>Apply complete! Resources: 10 added, 0 changed, 0 destroyed.
+
+Outputs:
+
+guestbook_urls = 
+&lt;dev_url&gt;
+&lt;staging_url&gt;</code></pre>
+
+
+<p>You have now created two separate environments using a single terraform configuration: dev &amp; staging. You can navigate to both the urls output and you should note that they are separate instances of the guestbook application backed with their own separate data store.</p>
+<p>A common use case for maintaining different environments is to configure each environment slightly differently. For example, you might want to scale your Layer0 service to 3 for staging and leave it as 1 for the dev environment. This can be done easily by using conditional logic to set our <code>scale</code> parameter in the layer0 service configuration in <code>./example-2/main.tf</code>. Go ahead and open <code>main.tf</code> in a text editor. Navigate to the <code>layer0_service guestbook</code> section. Uncomment the scale parameter so that your configuration looks like below.</p>
+<pre class="code"><code>resource &quot;layer0_service&quot; &quot;guestbook&quot; {
+  count = &quot;${length(var.environments)}&quot;
+
+  name          = &quot;${element(layer0_environment.demo.*.name, count.index)}_guestbook_svc&quot;
+  environment   = &quot;${element(layer0_environment.demo.*.id, count.index)}&quot;
+  deploy        = &quot;${element(layer0_deploy.guestbook.*.id, count.index)}&quot;
+  load_balancer = &quot;${element(layer0_load_balancer.guestbook.*.id, count.index)}&quot;
+  scale         = scale         = &quot;${lookup(var.service_scale, var.environments[count.index]), &quot;1&quot;)}&quot;
+}</code></pre>
+
+
+<p>The variable <code>service_scale</code> is already defined in <code>variables.tf</code>. If you now go ahead and run plan, you will see that the <code>guestbook</code> service for only the <code>staging</code> environment will be scaled up.</p>
+<p><code>terraform plan</code></p>
+<p>Outputs:</p>
+<pre class="code"><code>~ layer0_service.guestbook.1
+    scale: &quot;1&quot; =&gt; &quot;3&quot;</code></pre>
+
+
+<p>A potential downside of this approach however is that all your environments are using the same state file. Sharing a state file breaks some of the resource encapsulation between environments. Should there ever be a situation where your state file becomes corrupt, it would affect your ability to service all the environments till you resolve the issue by potentially rolling back to a previous copy of the state file. </p>
+<p>The next section will show you how you can separate your Terraform environment configuration such that each environment will have its own state file.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>As previously mentioned, you will want to avoid hardcoding resource parameter configuration values as much as possible. As an example the scale property of a layer0 service. But this extends to other properties as well like docker image version etc. You should avoid using <code>latest</code> and specify a explicit version via configurable variable when possible.</p>
+</div>
+<h3 id="multiple-terraform-configurations">Multiple Terraform Configurations<a class="headerlink" href="#multiple-terraform-configurations" title="Permanent link">#</a></h3>
+<p>The previous example used a single set of Terraform Configuration files to create and maintain multiple environments. This resulted in a single state file which had the state information for all the environments. To avoid all environments sharing a single state file, you can split your Terraform configuration so that you a state file for each environment.</p>
+<p>Go ahead and navigate to <code>./terraform-beyond-layer0/example-3</code> folder. Here we are using a folder to separate each environment. So <code>env-dev</code> and <code>env-staging</code> represent a <code>dev</code> and <code>staging</code> environment. To work with either of the environments, you will need to navigate into the desired environment's folder and run Terraform commands. This will ensure that each environment will have its own state file.</p>
+<p>Open the env-dev folder inside a text editor. Note that <code>main.tf</code> doesn't contain any resource definitions. Instead, we only have one module definition which has various variables being passed in, which is also how we are passing in the <code>environment</code> variable. To create a <code>dev</code> and <code>staging</code> environments for our guestbook application, go ahead and run terraform plan and apply commands from <code>env-dev</code> and <code>env-staging</code> folders.</p>
+<pre class="code"><code># assuming you are in the terraform-beyond-layer0/example-3 folder
+cd env-dev
+terraform get
+terraform plan
+terraform apply
+
+cd ../env-staging
+terraform get
+terraform plan
+terraform apply</code></pre>
+
+
+<p>You should now have two instances of the guestbook application running. Note that our guestbook service in our staging environment has been scaled to 3. We have done this by specifying a map variable <code>service_scale</code> in <code>./example-3/dev-staging/variables.tf</code> which can have different scale values for each environment.</p>
+<h2 id="part-8-multiple-provider-instances">Part 8: Multiple Provider Instances<a class="headerlink" href="#part-8-multiple-provider-instances" title="Permanent link">#</a></h2>
+<p>You can define multiple instances of the same provider that is uniquely customized. For example, you can have an <code>aws</code> provider to support multiple regions, different roles etc or in the case of the <code>layer0</code> provider, to support multiple layer0 endpoints.</p>
+<p>For example:</p>
+<pre class="code"><code># aws provider
+provider &quot;aws&quot; {
+  alias = &quot;east&quot;
+  region = &quot;us-east-1&quot;
+  # ...
+}
+
+# aws provider configured to a west region
+provider &quot;aws&quot; {
+  alias = &quot;west&quot;
+  region = &quot;us-west-1&quot;
+  # ...
+}</code></pre>
+
+
+<p>This will now allow you to reference aws providers configured to a different region. You can do so by referencing the provider using the naming scheme <code>TYPE.ALIAS</code>, which in the above example results in <code>aws.west</code>. See <a href="https://www.terraform.io/docs/configuration/providers.html">Provider Configuration</a> for more information.</p>
+<pre class="code"><code>resource &quot;aws.east_instance&quot; &quot;foo&quot; {
+  # ...
+}
+
+resource &quot;aws.west_instance&quot; &quot;bar&quot; {
+  # ...
+}</code></pre>
+
+
+<h2 id="part-9-cleanup">Part 9: Cleanup<a class="headerlink" href="#part-9-cleanup" title="Permanent link">#</a></h2>
+<p>When you're finished with the examples in this guide, run the following destroy command in all the following directories to destroy the Layer0 environment, application and the DynamoDB Table.</p>
+<p>Directories:  </p>
+<ul>
+<li>/example-1  </li>
+<li>/example-2  </li>
+<li>/example-3/env-dev  </li>
+<li>/example-3/env-staging  </li>
+</ul>
+<p><code>terraform destroy</code></p>
+<div class="admonition tip">
+<p class="admonition-title">Remote Backend Resources</p>
+<p>If you created additional resources (S3 bucket and a DynamoDB Table) separately when configuring a <a href="#part-5-terraform-remote-state">Remote Backend</a>, do not forget to delete those if they are no longer needed. You should be able to look at your Terraform configuration file <code>layer0.tf</code> to determine the name of the bucket and table.</p>
+</div>
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../walkthrough/deployment-3/" title="Walkthrough: Deployment 3">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Walkthrough: Deployment 3
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../one_off_task/" title="One-off Task">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                One-off Task
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '../..';
+      var repo_id  = 'quintilesims/layer0';
+    </script>
+    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
+    
+    
+  </body>
+</html>

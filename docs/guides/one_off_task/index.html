@@ -243,8 +243,44 @@
       
         
   <li>
-    <a class="" title="An Iterative Walkthrough" href="../walkthrough/">
-      An Iterative Walkthrough
+    <a class="" title="Walkthrough: Introduction" href="../walkthrough/intro/">
+      Walkthrough: Introduction
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Walkthrough: Deployment 1" href="../walkthrough/deployment-1/">
+      Walkthrough: Deployment 1
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Walkthrough: Deployment 2" href="../walkthrough/deployment-2/">
+      Walkthrough: Deployment 2
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Walkthrough: Deployment 3" href="../walkthrough/deployment-3/">
+      Walkthrough: Deployment 3
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Terraform beyond Layer0" href="../terraform_beyond_layer0/">
+      Terraform beyond Layer0
     </a>
     
   </li>
@@ -287,8 +323,8 @@
             </li>
           
             <li class="anchor">
-              <a title="Part 4: Wait for the task to complete" href="#part-4-wait-for-the-task-to-complete">
-                Part 4: Wait for the task to complete
+              <a title="Part 4: Check the status of the task" href="#part-4-check-the-status-of-the-task">
+                Part 4: Check the status of the task
               </a>
             </li>
           
@@ -428,44 +464,88 @@
         <div class="wrapper">
           
           <h1 id="deployment-guide-guestbook-one-off-task">Deployment guide: Guestbook one-off task<a class="headerlink" href="#deployment-guide-guestbook-one-off-task" title="Permanent link">#</a></h1>
-<p>In this example, you will learn how to use layer0 to run a one-off task. In this case, it will be to run a task to restore the <a href="../../guides/guestbook">guestbook application</a> from a backup.</p>
+<p>In this example, you will learn how to use layer0 to run a one-off task. A task is used to run a single instance of your Task Definition and is typically a short running job that will be stopped once finished.</p>
 <hr />
 <h2 id="before-you-start">Before you start<a class="headerlink" href="#before-you-start" title="Permanent link">#</a></h2>
 <p>In order to complete the procedures in this section, you must install and configure Layer0 v0.8.4 or later. If you have not already configured Layer0, see the <a href="../../setup/install">installation guide</a>. If you are running an older version of Layer0, see the <a href="../../setup/upgrade#upgrading-older-versions-of-layer0">upgrade instructions</a>.</p>
-<p>This guide expands upon the <a href="../../guides/guestbook">Guestbook deployment guide</a> deployment guide. You must complete the procedures in that guide before you can complete the procedures listed here. After completing the procedures in the Guestbook guide, your Layer0 should contain a service named "guestbooksvc", running a deploy named "guestbook", behind a load balancer named "guestbooklb", all within an environment named "demo".</p>
 <h2 id="part-1-prepare-the-task-definition">Part 1: Prepare the task definition<a class="headerlink" href="#part-1-prepare-the-task-definition" title="Permanent link">#</a></h2>
 <ol>
-<li>Download the <a href="https://github.com/quintilesims/layer0-examples/blob/master/1offtask/Dockerrun.aws.json">Guestbook One-off Task Definition</a> and save it to your computer as <strong>GuestbookRestore.Dockerrun.aws.json</strong>.</li>
-<li>Edit the <code>GUESTBOOK_URL</code> environment variable for the <code>l0-guestbook-restore</code> container to the url of the loadbalancer running your guestbook application. This url can be obtained by looking at the output of the command</li>
-</ol>
-<p><span style="padding-left:2em"><strong>l0 loadbalancer get guestbooklb</strong></span></p>
-<ol>
-<li>Edit the <code>BACKUP_FILE_URL</code> environment variable for the <code>l0-guestbook-restore</code> container to the url of the backup file that you wish to restore from. A sample backup file is provided at <a href="https://github.com/quintilesims/layer0-examples/raw/master/1offtask/backup.txt">https://github.com/quintilesims/layer0-examples/raw/master/1offtask/backup.txt</a>.</li>
+<li>Download the <a href="https://github.com/quintilesims/guides/blob/master/one-off-task/Dockerrun.aws.json">Guestbook One-off Task Definition</a> and save it to your computer as <strong>Dockerrun.aws.json</strong>.</li>
 </ol>
 <h2 id="part-2-create-a-deploy">Part 2: Create a deploy<a class="headerlink" href="#part-2-create-a-deploy" title="Permanent link">#</a></h2>
-<p>Next, you will create a new deploy for the task.</p>
-<p><strong>To create a new deploy:</strong></p>
-<p>At the command prompt, run the following command:</p>
-<p><span style="padding-left:2em"><strong>l0 deploy create GuestbookRestore.Dockerrun.aws.json guestbookrestore</strong></span></p>
+<p>Next, you will create a new deploy for the task using the <strong>deploy create</strong> command. At the command prompt, run the following command:</p>
+<p><code>l0 deploy create Dockerrun.aws.json one-off-task-dpl</code></p>
 <p>You will see the following output:</p>
 <pre class="code"><code>DEPLOY ID           DEPLOY NAME        VERSION
-guestbookrestore.1  guestbookrestore   1</code></pre>
+one-off-task-dpl.1  one-off-task-dpl   1</code></pre>
 
 
 <h2 id="part-3-create-the-task">Part 3: Create the task<a class="headerlink" href="#part-3-create-the-task" title="Permanent link">#</a></h2>
-<p>At this point, you can use the <strong>task create</strong> command to begin an instance of the task deployed above. This task requires two environment variables to be supplied to the <code>l0-guestbook-restore</code> container: <code>GUESTBOOK_URL</code> and <code>BACKUP_FILE_URL</code>. These were collected in Part 1 of this guide.</p>
+<p>At this point, you can use the <strong>task create</strong> command to run a copy of the task.</p>
 <p>To run the task, use the following command:</p>
-<p><span style="padding-left:2em"><strong>l0 task create demo guestbookrestore guestbookrestore</strong></span></p>
+<p><code>l0 task create demo-env echo-tsk one-off-task-dpl:latest --wait</code></p>
 <p>You will see the following output:</p>
 <pre class="code"><code>TASK ID       TASK NAME         ENVIRONMENT  DEPLOY              SCALE
-guestbo851c9  guestbookrestore  demo         guestbookrestore:2  0/1 (1)</code></pre>
+one-off851c9  echo-tsk          demo-env     one-off-task-dpl:1  0/1 (1)</code></pre>
 
 
-<h2 id="part-4-wait-for-the-task-to-complete">Part 4: Wait for the task to complete<a class="headerlink" href="#part-4-wait-for-the-task-to-complete" title="Permanent link">#</a></h2>
-<h3 id="check-the-logs-for-the-task">Check the logs for the task<a class="headerlink" href="#check-the-logs-for-the-task" title="Permanent link">#</a></h3>
-<p>To see the logs for this task, and evaluate progress, use the command:</p>
-<p><span style="padding-left:2em"><strong>l0 task logs guestbookrestore</strong></span></p>
-<p>Once it has completed, check your guestbook url, and note that the entries have been replaced with the contents of your backup file.</p>
+<p>The <code>SCALE</code> column shows the running, desired and pending counts. A value of <code>0/1 (1)</code> indicates that running = 0, desired = 1 and (1) for 1 pending task that is about to transition to running state. After your task has finished running, note that the desired count will remain 1 and pending value will no longer be shown, so the value will be <code>0/1</code> for a finished task.</p>
+<h2 id="part-4-check-the-status-of-the-task">Part 4: Check the status of the task<a class="headerlink" href="#part-4-check-the-status-of-the-task" title="Permanent link">#</a></h2>
+<p>To view the logs for this task, and evaluate its progress, you can use the <strong>task logs</strong> command:</p>
+<p><code>l0 task logs one-off-task-tsk</code>  </p>
+<p>You will see the following output:</p>
+<pre class="code"><code>alpine
+------
+Task finished!</code></pre>
+
+
+<p>You can also use the following command for more information in the task.</p>
+<p><code>l0 -o json task get echo-tsk</code></p>
+<p>Outputs:</p>
+<pre class="code"><code>[
+    {
+        &quot;copies&quot;: [
+            {
+                &quot;details&quot;: [],
+                &quot;reason&quot;: &quot;Waiting for cluster capacity to run&quot;,
+                &quot;task_copy_id&quot;: &quot;&quot;
+            }
+        ],
+        &quot;deploy_id&quot;: &quot;one-off-task-dpl.2&quot;,
+        &quot;deploy_name&quot;: &quot;one-off-task-dpl&quot;,
+        &quot;deploy_version&quot;: &quot;2&quot;,
+        &quot;desired_count&quot;: 1,
+        &quot;environment_id&quot;: &quot;demoenv669e4&quot;,
+        &quot;environment_name&quot;: &quot;demo-env&quot;,
+        &quot;pending_count&quot;: 1,
+        &quot;running_count&quot;: 0,
+        &quot;task_id&quot;: &quot;echotsk1facd&quot;,
+        &quot;task_name&quot;: &quot;echo-tsk&quot;
+    }
+]</code></pre>
+
+
+<p>After the task has finished, running <code>l0 -o json task get echo-tsk</code> will show a pending_count of 0.</p>
+<p>Outputs:</p>
+<pre class="code"><code>...
+&quot;copies&quot;: [
+    {
+        &quot;details&quot;: [
+            {
+                &quot;container_name&quot;: &quot;alpine&quot;,
+                &quot;exit_code&quot;: 0,
+                &quot;last_status&quot;: &quot;STOPPED&quot;,
+                &quot;reason&quot;: &quot;&quot;
+            }
+        ],
+        &quot;reason&quot;: &quot;Essential container in task exited&quot;,
+        &quot;task_copy_id&quot;: &quot;arn:aws:ecs:us-west-2:856306994068:task/0e723c3e-9cd1-4914-8393-b59abd40eb89&quot;
+    }
+],
+...
+&quot;pending_count&quot;: 0,
+&quot;running_count&quot;: 0,
+...</code></pre>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -482,7 +562,7 @@ guestbo851c9  guestbookrestore  demo         guestbookrestore:2  0/1 (1)</code><
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../walkthrough/" title="An Iterative Walkthrough">
+        <a href="../terraform_beyond_layer0/" title="Terraform beyond Layer0">
           <span class="direction">
             Previous
           </span>
@@ -492,7 +572,7 @@ guestbo851c9  guestbookrestore  demo         guestbookrestore:2  0/1 (1)</code><
             </div>
             <div class="stretch">
               <div class="title">
-                An Iterative Walkthrough
+                Terraform beyond Layer0
               </div>
             </div>
           </div>
