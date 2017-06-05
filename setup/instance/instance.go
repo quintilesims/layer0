@@ -26,7 +26,8 @@ func NewLocalInstance(name string) Instance {
 func (l *LocalInstance) assertExists() error {
 	if _, err := os.Stat(l.Dir); os.IsNotExist(err) {
 		text := fmt.Sprintf("Layer0 instance '%s' does not exist locally.\n", l.Name)
-		text += fmt.Sprintf("Have you tried running `l0-setup pull %s`?", l.Name)
+		text += fmt.Sprintf("Have you tried running `l0-setup pull %s` to copy the instance locally, \n", l.Name)
+		text += fmt.Sprintf("or `l0-setup init %s` to create a new instance?", l.Name)
 		return fmt.Errorf(text)
 	}
 

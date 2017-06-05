@@ -54,6 +54,8 @@ func (f *CommandFactory) Endpoint() cli.Command {
 				outputEnvvars[instance.OUTPUT_WINDOWS_SERVICE_AMI] = config.AWS_WINDOWS_SERVICE_AMI
 			}
 
+			fmt.Println("# set the following environment variables in your current session: ")
+
 			instance := f.NewInstance(args["NAME"])
 			for output, envvar := range outputEnvvars {
 				v, err := instance.Output(output)
