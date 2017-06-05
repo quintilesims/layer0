@@ -1,0 +1,927 @@
+<!DOCTYPE html>
+<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
+<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
+<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
+<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
+    
+      
+        <title>Walkthrough: Deployment 1 - Layer0</title>
+      
+      
+      
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/guides/walkthrough/deployment-1/">
+      
+      
+        <meta name="author" content="xfra">
+      
+    
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/guides/walkthrough/deployment-1/">
+    <meta property="og:title" content="Layer0">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/guides/walkthrough/deployment-1//../../../static/logo_icon.png">
+    <meta name="apple-mobile-web-app-title" content="Layer0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    
+      <link rel="apple-touch-icon" href="../../../static/logo_icon.png">
+    
+    
+    <link rel="shortcut icon" type="image/x-icon" href="../../../assets/images/favicon-e565ddfa3b.ico">
+    <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon-e565ddfa3b.ico">
+    <style>
+      @font-face {
+      	font-family: 'Icon';
+      	src: url('../../../assets/fonts/icon.eot?52m981');
+      	src: url('../../../assets/fonts/icon.eot?#iefix52m981')
+               format('embedded-opentype'),
+      		   url('../../../assets/fonts/icon.woff?52m981')
+               format('woff'),
+      		   url('../../../assets/fonts/icon.ttf?52m981')
+               format('truetype'),
+      		   url('../../../assets/fonts/icon.svg?52m981#icon')
+               format('svg');
+      	font-weight: normal;
+      	font-style: normal;
+      }
+    </style>
+    <link rel="stylesheet" href="../../../assets/stylesheets/application-b64b728552.css">
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/palettes-05ab2406df.css">
+    
+    
+      
+      
+      
+      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Roboto+Mono">
+      <style>
+        body, input {
+          font-family: 'Roboto', Helvetica, Arial, sans-serif;
+        }
+        pre, code {
+          font-family: 'Roboto Mono', 'Courier New', 'Courier', monospace;
+        }
+      </style>
+    
+    
+      <link rel="stylesheet" href="../../../stylesheets/extra.css">
+    
+    <script src="../../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
+    
+  </head>
+  
+  
+  
+  <body class="palette-primary-red palette-accent-grey">
+    
+      
+      
+        
+      
+    
+    <div class="backdrop">
+      <div class="backdrop-paper"></div>
+    </div>
+    <input class="toggle" type="checkbox" id="toggle-drawer">
+    <input class="toggle" type="checkbox" id="toggle-search">
+    <label class="toggle-button overlay" for="toggle-drawer"></label>
+    <header class="header">
+      <nav aria-label="Header">
+  <div class="bar default">
+    <div class="button button-menu" role="button" aria-label="Menu">
+      <label class="toggle-button icon icon-menu" for="toggle-drawer">
+        <span></span>
+      </label>
+    </div>
+    <div class="stretch">
+      <div class="title">
+        
+          <span class="path">
+            
+              
+                Guides <i class="icon icon-link"></i>
+              
+            
+          </span>
+        
+        Walkthrough: Deployment 1
+      </div>
+    </div>
+    
+    
+    <div class="button button-search" role="button" aria-label="Search">
+      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
+    </div>
+  </div>
+  <div class="bar search">
+    <div class="button button-close" role="button" aria-label="Close">
+      <label class="toggle-button icon icon-back" for="toggle-search"></label>
+    </div>
+    <div class="stretch">
+      <div class="field">
+        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      </div>
+    </div>
+    <div class="button button-reset" role="button" aria-label="Search">
+      <button class="toggle-button icon icon-close" id="reset-search"></button>
+    </div>
+  </div>
+</nav>
+    </header>
+    <main class="main">
+      
+      <div class="drawer">
+        <nav aria-label="Navigation">
+  
+  <a href="https://github.com/quintilesims/layer0/" class="project">
+    <div class="banner">
+      
+        <div class="logo">
+          <img src="../../../static/logo_icon.png">
+        </div>
+      
+      <div class="name">
+        <strong>Layer0 v0.9.0</strong>
+        
+          <br>
+          quintilesims/layer0
+        
+      </div>
+    </div>
+  </a>
+  <div class="scrollable">
+    <div class="wrapper">
+      
+        <ul class="repo">
+          <li class="repo-download">
+            
+            <a href="../../../#download" title="Download">
+              <i class="icon icon-download"></i> Download
+            </a>
+          </li>
+          <li class="repo-stars">
+            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
+              <i class="icon icon-star"></i> Stars
+              <span class="count">&ndash;</span>
+            </a>
+          </li>
+        </ul>
+        <hr>
+      
+      <div class="toc">
+        <ul>
+          
+            
+  <li>
+    <a class="" title="Home" href="../../..">
+      Home
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Releases" href="../../../releases/">
+      Releases
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <a class="" title="Introduction" href="../../../intro/">
+      Introduction
+    </a>
+    
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Setup</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Install" href="../../../setup/install/">
+      Install
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Upgrade" href="../../../setup/upgrade/">
+      Upgrade
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Destroy" href="../../../setup/destroy/">
+      Destroy
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Guides</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Walkthrough: Introduction" href="../intro/">
+      Walkthrough: Introduction
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="current" title="Walkthrough: Deployment 1" href="./">
+      Walkthrough: Deployment 1
+    </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="Deploy with Layer0 CLI" href="#deploy-with-layer0-cli">
+                Deploy with Layer0 CLI
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Deploy with Terraform" href="#deploy-with-terraform">
+                Deploy with Terraform
+              </a>
+            </li>
+          
+        </ul>
+      
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Walkthrough: Deployment 2" href="../deployment-2/">
+      Walkthrough: Deployment 2
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Walkthrough: Deployment 3" href="../deployment-3/">
+      Walkthrough: Deployment 3
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Terraform beyond Layer0" href="../../terraform_beyond_layer0/">
+      Terraform beyond Layer0
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="One-off Task" href="../../one_off_task/">
+      One-off Task
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Reference</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Layer0 CLI" href="../../../reference/cli/">
+      Layer0 CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Layer0 Setup CLI" href="../../../reference/setup-cli/">
+      Layer0 Setup CLI
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Layer0 Terraform Plugin" href="../../../reference/terraform-plugin/">
+      Layer0 Terraform Plugin
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Updating a Service" href="../../../reference/updateservice/">
+      Updating a Service
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Consul" href="../../../reference/consul/">
+      Consul
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Task Definitions" href="../../../reference/task_definition/">
+      Task Definitions
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Architecture" href="../../../reference/architecture/">
+      Architecture
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="ECR" href="../../../reference/ecr/">
+      ECR
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+            
+  <li>
+    <span class="section">Troubleshooting</span>
+    <ul>
+      
+        
+  <li>
+    <a class="" title="Common Issues" href="../../../troubleshooting/commonissues/">
+      Common Issues
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
+    <a class="" title="Secure Shell (SSH)" href="../../../troubleshooting/ssh/">
+      Secure Shell (SSH)
+    </a>
+    
+  </li>
+
+      
+    </ul>
+  </li>
+
+          
+        </ul>
+        
+          <hr>
+          <span class="section">The author</span>
+          <ul>
+            
+            
+          </ul>
+        
+      </div>
+    </div>
+  </div>
+</nav>
+      </div>
+      <article class="article">
+        <div class="wrapper">
+          
+          <h1 id="deployment-1-a-simple-guestbook-app">Deployment 1: A Simple Guestbook App<a class="headerlink" href="#deployment-1-a-simple-guestbook-app" title="Permanent link">#</a></h1>
+<p>In this section you'll learn how different Layer0 commands work together to deploy applications to the cloud.
+The example application in this section is a guestbook -- a web application that acts as a simple message board.
+You can choose to complete this section using either <a href="#deploy-with-layer0-cli">the Layer0 CLI</a> or <a href="#deploy-with-terraform">Terraform</a>.</p>
+<hr />
+<h2 id="deploy-with-layer0-cli">Deploy with Layer0 CLI<a class="headerlink" href="#deploy-with-layer0-cli" title="Permanent link">#</a></h2>
+<p>If you're following along, you'll want to be working in the <code>walkthrough/deployment-1/</code> directory of your clone of the <a href="https://github.com/quintilesims/guides">guides</a> repo.</p>
+<p>Files used in this deployment:</p>
+<table>
+<thead>
+<tr>
+<th>Filename</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Guestbook.Dockerrun.aws.json</code></td>
+<td>Template for running the Guestbook application</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h3 id="part-1-create-the-environment">Part 1: Create the Environment<a class="headerlink" href="#part-1-create-the-environment" title="Permanent link">#</a></h3>
+<p>The first step in deploying an application with Layer0 is to create an environment.
+An environment is a dedicated space in which one or more services can reside.
+Here, we'll create a new environment named <strong>demo-env</strong>.
+At the command prompt, execute the following:</p>
+<p><code>l0 environment create demo-env</code></p>
+<p>We should see output like the following:</p>
+<pre class="code"><code>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
+demo00e6aa9     demo-env          0              m3.medium</code></pre>
+
+
+<p>We can inspect our environments in a couple of different ways:</p>
+<ul>
+<li><code>l0 environment list</code> will give us a brief summary of all environments:</li>
+</ul>
+<pre class="code"><code>ENVIRONMENT ID  ENVIRONMENT NAME
+demo00e6aa9     demo-env
+api             api</code></pre>
+
+
+<ul>
+<li><code>l0 environment get demo-env</code> will show us more information about the <strong>demo-env</strong> environment we just created:</li>
+</ul>
+<pre class="code"><code>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
+demo00e6aa9     demo-env          0              m3.medium</code></pre>
+
+
+<ul>
+<li><code>l0 environment get \*</code> illustrates wildcard matching (you could also have used <code>demo*</code> in the above command), and it will return detailed information for <em>each</em> environment, not just one - it's like a detailed <code>list</code>:</li>
+</ul>
+<pre class="code"><code>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
+demo00e6aa9     demo-env          0              m3.medium
+api             api               2              m3.medium</code></pre>
+
+
+<hr />
+<h3 id="part-2-create-the-load-balancer">Part 2: Create the Load Balancer<a class="headerlink" href="#part-2-create-the-load-balancer" title="Permanent link">#</a></h3>
+<p>In order to expose a web application to the public internet, we need to create a load balancer.
+A load balancer listens for web traffic at a specific address and directs that traffic to a Layer0 service.</p>
+<p>A load balancer also has a notion of a health check - a way to assess whether or not the service is healthy and running properly.
+By default, Layer0 configures the health check of a load balancer based upon a simple TCP ping to port 80 every thirty seconds.
+Also by default, this ping will timeout after five seconds of no response from the service, and two consecutive successes or failures are required for the service to be considered healthy or unhealthy.</p>
+<p>Here, we'll create a new load balancer named <strong>guestbook-lb</strong> inside of our environment named <strong>demo-env</strong>.
+The load balancer will listen on port 80, and forward that traffic along to port 80 in the Docker container using the HTTP protocol.
+Since the port configuration is already aligned with the default health check, we don't need to specify any health check configuration when we create this load balancer.
+At the command prompt, execute the following:</p>
+<p><code>l0 loadbalancer create --port 80:80/http demo-env guestbook-lb</code></p>
+<p>We should see output like the following:</p>
+<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
+guestbodb65a     guestbook-lb       demo-env              80:80/HTTP  true</code></pre>
+
+
+<p>The following is a summary of the arguments passed in the above command:</p>
+<ul>
+<li><code>loadbalancer create</code>: creates a new load balancer</li>
+<li><code>--port 80:80/HTTP</code>: instructs the load balancer to forward requests from port 80 on the load balancer to port 80 in the EC2 instance using the HTTP protocol</li>
+<li><code>demo-env</code>: the name of the environment in which you are creating the load balancer</li>
+<li><code>guestbook-lb</code>: a name for the load balancer itself</li>
+</ul>
+<p>You can inspect load balancers in the same way that you inspected environments in Part 1.
+Try running the following commands to get an idea of the information available to you:</p>
+<ul>
+<li><code>l0 loadbalancer list</code></li>
+<li><code>l0 loadbalancer get guestbook-lb</code></li>
+<li><code>l0 loadbalancer get gues*</code></li>
+<li><code>l0 loadbalancer get \*</code></li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Notice that the load balancer <code>list</code> and <code>get</code> outputs list an <code>ENVIRONMENT</code> field - if you ever have load balancers (or other Layer0 entities) with the same name but in different environments, you can target a specific load balancer by qualifying it with its environment name:</p>
+<p><code>`l0 loadbalancer get demo-env:guestbook-lb`</code></p>
+</div>
+<hr />
+<h3 id="part-3-deploy-the-ecs-task-definition">Part 3: Deploy the ECS Task Definition<a class="headerlink" href="#part-3-deploy-the-ecs-task-definition" title="Permanent link">#</a></h3>
+<p>The <code>deploy</code> command is used to specify the ECS task definition that outlines a web application.</p>
+<p>Here, we'll create a new deploy called <strong>guestbook-dpl</strong> that refers to the <strong>Guestbook.Dockerrun.aws.json</strong> file found in the guides reposiory.
+At the command prompt, execute the following:</p>
+<p><code>l0 deploy create Guestbook.Dockerrun.aws.json guestbook-dpl</code></p>
+<p>We should see output like the following:</p>
+<pre class="code"><code>DEPLOY ID        DEPLOY NAME    VERSION
+guestbook-dpl.1  guestbook-dpl  1</code></pre>
+
+
+<p>The following is a summary of the arguments passed in the above command:</p>
+<ul>
+<li><code>deploy create</code>: creates a new deployment and allows you to specify an ECS task definition</li>
+<li><code>Guestbook.Dockerrun.aws.json</code>: the file name of the ECS task definition (use the full path of the file if it is not in your current working directory)</li>
+<li><code>guestbook-dpl</code>: a name for the deploy, which you will use later when you create the service</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The <code>DEPLOY NAME</code> and <code>VERSION</code> are combined to create a unique identifier for a deploy. If you create additional deploys named <strong>guestbook-dpl</strong>, they will be assigned different version numbers.</p>
+<p>You can always specify the latest version when targeting a deploy by using <code>&lt;deploy name&gt;:latest</code> -- for example, <code>guestbook-dpl:latest</code>.</p>
+</div>
+<p>Deploys support the same methods of inspection as environments and load balancers:</p>
+<ul>
+<li><code>l0 deploy list</code></li>
+<li><code>l0 deploy get guestbook*</code></li>
+<li><code>l0 deploy get guestbook:1</code></li>
+<li><code>l0 deploy get guestbook:latest</code></li>
+<li><code>l0 deploy get \*</code></li>
+</ul>
+<hr />
+<h3 id="part-4-create-the-service">Part 4: Create the Service<a class="headerlink" href="#part-4-create-the-service" title="Permanent link">#</a></h3>
+<p>The final stage of the deployment process involves using the <code>service</code> command to create a new service and associate it with the environment, load balancer, and deploy that we created in the previous sections.
+The service will execute the Docker containers which have been described in the deploy.</p>
+<p>Here, we'll create a new service called <strong>guestbook-svc</strong>. At the command prompt, execute the following:</p>
+<p><code>l0 service create --loadbalancer demo-env:guestbook-lb demo-env guestbook-svc guestbook-dpl:latest</code></p>
+<p>We should see output like the following:</p>
+<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1</code></pre>
+
+
+<p>The following is a summary of the arguments passed in the above command:</p>
+<ul>
+<li><code>service create</code>: creates a new service</li>
+<li><code>--loadbalancer demo-env:guestbook-lb</code>: the fully-qualified name of the load balancer; in this case, the load balancer named <strong>guestbook-lb</strong> in the environment named <strong>demo-env</strong>. <ul>
+<li><em>(It is not strictly necessary to use the fully qualified name of the load balancer, unless another load balancer with exactly the same name exists in a different environment.)</em></li>
+</ul>
+</li>
+<li><code>demo-env</code>: the name of the environment you created in Part 1</li>
+<li><code>guestbook-svc</code>: a name for the service you are creating</li>
+<li><code>guestbook-dpl</code>: the name of the deploy that you created in Part 3</li>
+</ul>
+<p>Layer0 services can be queried using the same <code>get</code> and <code>list</code> commands that we've come to expect by now.</p>
+<hr />
+<h3 id="check-the-status-of-the-service">Check the Status of the Service<a class="headerlink" href="#check-the-status-of-the-service" title="Permanent link">#</a></h3>
+<p>After a service has been created, it may take several minutes for that service to completely finish deploying.
+A service's status may be checked by using the <code>service get</code> command.</p>
+<p>Let's take a peek at our <strong>guestbook-svc</strong> service.
+At the command prompt, execute the following:</p>
+<p><code>l0 service get demo-env:guestbook-svc</code></p>
+<p>If we're quick enough, we'll be able to see the first stage of the process (this is what was output after running the <code>service create</code> command up in Part 4).
+We should see an asterisk (*) next to the name of the <strong>guestbook-dpl:1</strong> deploy, which indicates that the service is in a transitional state:</p>
+<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1</code></pre>
+
+
+<p>In the next phase of deployment, if we execute the <code>service get</code> command again, we will see <strong>(1)</strong> in the <strong>Scale</strong> column; this indicates that 1 copy of the service is transitioning to an active state:</p>
+<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1 (1)</code></pre>
+
+
+<p>In the final phase of deployment, we will see <strong>1/1</strong> in the <strong>Scale</strong> column; this indicates that the service is running 1 copy:</p>
+<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1   1/1</code></pre>
+
+
+<hr />
+<h3 id="get-the-applications-url">Get the Application's URL<a class="headerlink" href="#get-the-applications-url" title="Permanent link">#</a></h3>
+<p>Once the service has been completely deployed, we can obtain the URL for the application and launch it in a browser.</p>
+<p>At the command prompt, execute the following:</p>
+<p><code>l0 loadbalancer get demo-env:guestbook-lb</code></p>
+<p>We should see output like the following:</p>
+<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
+guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    &lt;url&gt;</code></pre>
+
+
+<p>Copy the value shown in the <strong>URL</strong> column and paste it into a web browser.
+The guestbook application will appear (once the service has completely finished deploying).</p>
+<hr />
+<h3 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">#</a></h3>
+<p>Output from a Service's docker containers may be acquired by running the following command:</p>
+<pre class="code"><code>l0 service logs &lt;SERVICE&gt;</code></pre>
+
+
+<hr />
+<h3 id="cleanup">Cleanup<a class="headerlink" href="#cleanup" title="Permanent link">#</a></h3>
+<p>If you're finished with the example and don't want to continue with this walkthrough, you can instruct Layer0 to delete the environment and terminate the application.</p>
+<p><code>l0 environment delete demo-env</code></p>
+<p>However, if you intend to continue through <a href="../deployment-2">Deployment 2</a>, you will want to keep the resources you made in this section.</p>
+<hr />
+<h2 id="deploy-with-terraform">Deploy with Terraform<a class="headerlink" href="#deploy-with-terraform" title="Permanent link">#</a></h2>
+<p>Instead of using the Layer0 CLI directly, you can instead use our Terraform provider, and deploy using Terraform <em>(<a href="../../../reference/terraform-plugin">learn more</a>)</em>.
+You can use Terraform with Layer0 and AWS to create "fire-and-forget" deployments for your applications.</p>
+<p>If you're following along, you'll want to be working in the <code>walkthrough/deployment-1/</code> directory of your clone of the <a href="https://github.com/quintilesims/guides">guides</a> repo.</p>
+<p>We use these files to set up a Layer0 environment with Terraform:</p>
+<table>
+<thead>
+<tr>
+<th>Filename</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>main.tf</code></td>
+<td>Provisions resources; populates resources in template files</td>
+</tr>
+<tr>
+<td><code>outputs.tf</code></td>
+<td>Values that Terraform will yield during deployment</td>
+</tr>
+<tr>
+<td><code>terraform.tfstate</code></td>
+<td>Tracks status of deployment <em>(created and managed by Terraform)</em></td>
+</tr>
+<tr>
+<td><code>terraform.tfvars</code></td>
+<td>Variables specific to the environment and application(s)</td>
+</tr>
+<tr>
+<td><code>variables.tf</code></td>
+<td>Values that Terraform will use during deployment</td>
+</tr>
+</tbody>
+</table>
+<h3 id="tf-a-brief-aside"><code>*.tf</code>: A Brief Aside<a class="headerlink" href="#tf-a-brief-aside" title="Permanent link">#</a></h3>
+<p>Let's take a moment to discuss the <code>.tf</code> files.
+The names of these files (and even the fact that they are separated out into multiple files at all) are completely arbitrary and exist soley for human-readability.
+Terraform understands all <code>.tf</code> files in a directory all together.</p>
+<p>In <code>variables.tf</code>, you'll see <code>"endpoint"</code> and <code>"token"</code> variables.</p>
+<p>In <code>outputs.tf</code>, you'll see that Terraform should spit out the url of the guestbook's load balancer once deployment has finished.</p>
+<p>In <code>main.tf</code>, you'll see the bulk of the deployment process.
+If you've followed along with the Layer0 CLI deployment above, it should be fairly easy to see how blocks in this file map to steps in the CLI process.
+When we began the CLI deployment, our first step was to create an environment:</p>
+<p><code>l0 environment create demo-env</code></p>
+<p>This command is recreated in <code>main.tf</code> like so:</p>
+<pre class="code"><code class="language-hcl"># walkthrough/deployment-1/main.tf
+
+resource &quot;layer0_environment&quot; &quot;demo-env&quot; {
+    name = &quot;demo-env&quot;
+}</code></pre>
+
+
+<p>We've bundled up the heart of the Guestbook deployment (load balancer, deploy, service, etc.) into a <a href="https://www.terraform.io/docs/modules/usage.html">Terraform module</a>.
+To use it, we declare a <code>module</code> block and pass in the source of the module as well as any configuration or variables that the module needs.</p>
+<pre class="code"><code class="language-hcl"># walkthrough/deployment-1/main.tf
+
+module &quot;guestbook&quot; {
+    source         = &quot;github.com/quintilesims/guides//guestbook/module&quot;
+    environment_id = &quot;${layer0_environment.demo.id}&quot;
+}</code></pre>
+
+
+<p>You can see that we pass in the ID of the environment we create.
+All variables declared in this block are passed to the module, so the next file we should look at is <code>variables.tf</code> inside of the module to get an idea of what the module is expecting.</p>
+<p>There are a lot of variables here, but only one of them doesn't have a default value.</p>
+<pre class="code"><code class="language-hcl"># guestbook/module/variables.tf
+
+variable &quot;environment_id&quot; {
+    description = &quot;id of the layer0 environment in which to create resources&quot;
+}</code></pre>
+
+
+<p>You'll notice that this is the variable that we're passing in.
+For this particular deployment of the Guestbook, all of the default options are fine.
+We could override any of them if we wanted to, just by specifying a new value for them back in <code>deployment-1/main.tf</code>.</p>
+<p>Now that we've seen the variables that the module will have, let's take a look at part of <code>module/main.tf</code> and see how some of them might be used:</p>
+<pre class="code"><code class="language-hcl"># guestbook/module/main.tf
+
+resource &quot;layer0_load_balancer&quot; &quot;guestbook-lb&quot; {
+    name = &quot;${var.load_balancer_name}&quot;
+    environment = &quot;${var.environment_id}&quot;
+    port {
+        host_port = 80
+        container_port = 80
+        protocol = &quot;http&quot;
+    }
+}
+
+...</code></pre>
+
+
+<p>You can follow <a href="../../../reference/terraform-plugin/">this link</a> to learn more about Layer0 resources in Terraform.</p>
+<hr />
+<h3 id="part-1-terraform-get">Part 1: Terraform Get<a class="headerlink" href="#part-1-terraform-get" title="Permanent link">#</a></h3>
+<p>This deployment uses modules, so we'll need to fetch those source materials.
+At the command prompt, execute the following command:</p>
+<p><code>terraform get</code></p>
+<p>We should see output like the following:</p>
+<pre class="code"><code>Get: git::https://github.com/quintilesims/guides.git</code></pre>
+
+
+<p>We should now have a new local directory called <code>.terraform/</code>.
+We don't need to do anything with it; we just want to make sure it's there.</p>
+<hr />
+<h3 id="part-2-terraform-plan">Part 2: Terraform Plan<a class="headerlink" href="#part-2-terraform-plan" title="Permanent link">#</a></h3>
+<p>Before we actually create/update/delete any resources, it's a good idea to find out what Terraform intends to do.</p>
+<p>Run <code>terraform plan</code>. Terraform will prompt you for configuration values that it does not have:</p>
+<pre class="code"><code>var.endpoint
+    Enter a value:
+
+var.token
+    Enter a value:</code></pre>
+
+
+<p>You can find these values by running <code>l0-setup endpoint &lt;your layer0 prefix&gt;</code>.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>There are a few ways to configure Terraform so that you don't have to keep entering these values every time you run a Terraform command (editing the <code>terraform.tfvars</code> file, or exporting evironment variables like <code>TF_VAR_endpoint</code> and <code>TF_VAR_token</code>, for example). See the <a href="https://www.terraform.io/docs/configuration/variables.html">Terraform Docs</a> for more.</p>
+</div>
+<p>The <code>plan</code> command should give us output like the following:</p>
+<pre class="code"><code>Refreshing Terraform state in-memory prior to plan...
+The refreshed state will be used to calculate this plan, but will not be
+persisted to local or remote state storage.
+
+data.template_file.guestbook: Refreshing state...
+The Terraform execution plan has been generated and is shown below.
+Resources are shown in alphabetical order for quick scanning. Green resources
+will be created (or destroyed and then created if an existing resource
+exists), yellow resources are being changed in-place, and red resources
+will be destroyed. Cyan entries are data sources to be read.
+
+Note: You didn't specify an &quot;-out&quot; parameter to save this plan, so when
+&quot;apply&quot; is called, Terraform can't guarantee this is what will execute.
+
++ layer0_environment.demo
+    ami:               &quot;&lt;computed&gt;&quot;
+    cluster_count:     &quot;&lt;computed&gt;&quot;
+    links:             &quot;&lt;computed&gt;&quot;
+    name:              &quot;demo&quot;
+    os:                &quot;linux&quot;
+    security_group_id: &quot;&lt;computed&gt;&quot;
+    size:              &quot;m3.medium&quot;
+
++ module.guestbook.layer0_deploy.guestbook
+    content: &quot;{\n    \&quot;AWSEBDockerrunVersion\&quot;: 2,\n    \&quot;containerDefinitions\&quot;: [\n        {\n            \&quot;name\&quot;: \&quot;guestbook\&quot;,\n            \&quot;image\&quot;: \&quot;quintilesims/guestbook\&quot;,\n            \&quot;essential\&quot;: true,\n      \&quot;memory\&quot;: 128,\n            \&quot;environment\&quot;: [\n                {\n                    \&quot;name\&quot;: \&quot;GUESTBOOK_BACKEND_TYPE\&quot;,\n                    \&quot;value\&quot;: \&quot;memory\&quot;\n                },\n                {\n          \&quot;name\&quot;: \&quot;GUESTBOOK_BACKEND_CONFIG\&quot;,\n                    \&quot;value\&quot;: \&quot;\&quot;\n                },\n           {\n                    \&quot;name\&quot;: \&quot;AWS_ACCESS_KEY_ID\&quot;,\n                    \&quot;value\&quot;: \&quot;\&quot;\n        },\n                {\n                    \&quot;name\&quot;: \&quot;AWS_SECRET_ACCESS_KEY\&quot;,\n                    \&quot;value\&quot;: \&quot;\&quot;\n                },\n                {\n                    \&quot;name\&quot;: \&quot;AWS_REGION\&quot;,\n      \&quot;value\&quot;: \&quot;us-west-2\&quot;\n                }\n            ],\n            \&quot;portMappings\&quot;: [\n   {\n                    \&quot;hostPort\&quot;: 80,\n                    \&quot;containerPort\&quot;: 80\n                }\n      ]\n        }\n    ]\n}\n&quot;
+    name:    &quot;guestbook&quot;
+
++ module.guestbook.layer0_load_balancer.guestbook
+    environment:                    &quot;${var.environment_id}&quot;
+    health_check.#:                 &quot;&lt;computed&gt;&quot;
+    name:                           &quot;guestbook&quot;
+    port.#:                         &quot;1&quot;
+    port.2027667003.certificate:    &quot;&quot;
+    port.2027667003.container_port: &quot;80&quot;
+    port.2027667003.host_port:      &quot;80&quot;
+    port.2027667003.protocol:       &quot;http&quot;
+    url:                            &quot;&lt;computed&gt;&quot;
+
++ module.guestbook.layer0_service.guestbook
+    deploy:        &quot;${ var.deploy_id == \&quot;\&quot; ? layer0_deploy.guestbook.id : var.deploy_id }&quot;
+    environment:   &quot;${var.environment_id}&quot;
+    load_balancer: &quot;${layer0_load_balancer.guestbook.id}&quot;
+    name:          &quot;guestbook&quot;
+    scale:         &quot;1&quot;
+    wait:          &quot;true&quot;
+
+
+Plan: 4 to add, 0 to change, 0 to destroy.</code></pre>
+
+
+<p>This shows you that Terraform intends to create a deploy, an environment, a load balancer, and a service, all through Layer0.</p>
+<p>If you've gone through this deployment using the <a href="#deploy-with-layer0-cli">Layer0 CLI</a>, you may notice that these resources appear out of order - that's fine. Terraform presents these resources in alphabetical order, but underneath, it knows the correct order in which to create them.</p>
+<p>Once we're satisfied that Terraform will do what we want it to do, we can move on to actually making these things exist!</p>
+<hr />
+<h3 id="part-3-terraform-apply">Part 3: Terraform Apply<a class="headerlink" href="#part-3-terraform-apply" title="Permanent link">#</a></h3>
+<p>Run <code>terraform apply</code> to begin the process.</p>
+<p>We should see output like the following:</p>
+<pre class="code"><code>layer0_environment.demo: Refreshing state...
+...
+...
+...
+layer0_service.guestbook: Creation complete
+
+Apply complete! Resources: 7 added, 0 changed, 0 destroyed.
+
+The state of your infrastructure has been saved to the path
+below. This state is required to modify and destroy your
+infrastructure, so keep it safe. To inspect the complete state
+use the `terraform show` command.
+
+State path: terraform.tfstate
+
+Outputs:
+
+guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
+
+
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.</p>
+</div>
+<h3 id="whats-happening">What's Happening<a class="headerlink" href="#whats-happening" title="Permanent link">#</a></h3>
+<p>Terraform provisions the AWS resources through Layer0, configures environment variables for the application, and deploys the application into a Layer0 environment. Terraform also writes the state of your deployment to the <code>terraform.tfstate</code> file (creating a new one if it's not already there).</p>
+<h3 id="cleanup_1">Cleanup<a class="headerlink" href="#cleanup_1" title="Permanent link">#</a></h3>
+<p>When you're finished with the example, you can instruct Terraform to destroy the Layer0 environment, and terminate the application. Execute the following command (in the same directory):</p>
+<p><code>terraform destroy</code></p>
+<p>It's also now safe to remove the <code>.terraform/</code> directory and the <code>*.tfstate*</code> files.</p>
+<hr />
+          <aside class="copyright" role="note">
+            
+            Documentation built with
+            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
+            using the
+            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
+              Material
+            </a>
+            theme.
+          </aside>
+          
+            <footer class="footer">
+              
+  <nav class="pagination" aria-label="Footer">
+    <div class="previous">
+      
+        <a href="../intro/" title="Walkthrough: Introduction">
+          <span class="direction">
+            Previous
+          </span>
+          <div class="page">
+            <div class="button button-previous" role="button" aria-label="Previous">
+              <i class="icon icon-back"></i>
+            </div>
+            <div class="stretch">
+              <div class="title">
+                Walkthrough: Introduction
+              </div>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+    <div class="next">
+      
+        <a href="../deployment-2/" title="Walkthrough: Deployment 2">
+          <span class="direction">
+            Next
+          </span>
+          <div class="page">
+            <div class="stretch">
+              <div class="title">
+                Walkthrough: Deployment 2
+              </div>
+            </div>
+            <div class="button button-next" role="button" aria-label="Next">
+              <i class="icon icon-forward"></i>
+            </div>
+          </div>
+        </a>
+      
+    </div>
+  </nav>
+
+            </footer>
+          
+        </div>
+      </article>
+      <div class="results" role="status" aria-live="polite">
+        <div class="scrollable">
+          <div class="wrapper">
+            <div class="meta"></div>
+            <div class="list"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+    <script>
+      var base_url = '../../..';
+      var repo_id  = 'quintilesims/layer0';
+    </script>
+    <script src="../../../assets/javascripts/application-997097ee0c.js"></script>
+    
+    
+  </body>
+</html>
