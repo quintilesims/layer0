@@ -40,7 +40,7 @@ pages:
 site_dir: ../docs
 theme_dir: material
 extra:
-    version: v0.9.0
+    version: v0.10.0
     logo: 'static/logo_icon.png'
     author: xfra
     palette:
