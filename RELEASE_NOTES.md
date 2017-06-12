@@ -1,6 +1,22 @@
 # Release Notes
 ---
-## v0.9.0 | [Download](https://quintilesims.github.io/layer0/)
+## v0.10.0 | [Download](http://layer0.ims.io/#download)
+6.12.2017
+
+#### Features
+* Windows container support
+* Linked environments
+* No limit for --copies option on task create
+* Allow --ami specification on environment create
+* New walkthroughs and examples
+
+#### Fixes
+* Refactor of l0-setup; use terraform modules for installation
+* Improved performance of DynamoDB tag and job tables
+* Documentation consistency issues
+
+---
+## v0.9.0 | [Download](http://layer0.ims.io/releases/)
 3.3.2017
 
 #### Features
@@ -20,11 +36,11 @@
 
 ---
 
-## v0.8.4 | [Download](http://docs.xfra.ims.io)
+## v0.8.4 | [Download](http://layer0.ims.io/releases/)
 12.1.2016
 
 #### Features
-* Add `terraform-layer0-plugin` see our [docs](http://docs.xfra.ims.io/reference/terraform-plugin) for more information.
+* Add `terraform-layer0-plugin`
 * Add terraform plugin examples in "Guestbook" and "Guestbook with RDS" walkthroughs
 * Add explicit prefix matching in CLI using '\*' on targets (e.g. `l0 service get d*`)
 * Use a single log group in Cloudwatch. 
@@ -32,7 +48,6 @@ Deploys are now rendered on `deploy create` to identify log streams instead of o
 * Add `/admin/config` endpoint for terraform plugin integration
 * Remove IMS references and certifcates from `l0-setup`. 
 Switch to using a user-defined `dockercfg` file for private registry authentication. 
-See [docs](https://docs.xfra.ims.io/setup/update/#upgrading-to-version-084) for more information. 
 
 
 #### Fixes
