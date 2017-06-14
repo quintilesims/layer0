@@ -1,23 +1,17 @@
-Addresses # .
+**What does this pull request do?**
+Include a short summary of what this PR intends to fix and/or a reference to an existing issue.
 
-**Checklist**
 
-- [ ] a task list item
-- [ ] normal **formatting**, @mentions, #1234 refs
-- [ ] incomplete
-- [x] completed
+**How should this be tested?**
+Include steps to test intended functionality.
 
-**What does this Pull Request Do?**
 
-Include a short summary of what this PR intends to fix and/or a reference to an
-existing issue.
+** Checklist **
+- [ ] Unit tests
+- [ ] Smoke tests (if applicable)
+- [ ] System tests (if applicable)
+- [ ] Documentation (if applicable)
 
-**Where should the reviewer start?**
 
-- [ ] Include specific examples
-- [ ] #1234 ref
-- [ ] the haxin/ directory
-
-**How should this be manually tested?**
-
-Include steps to run tests, QA, and/or test intended functionality.
+closes #
+(reference the issue(s) this pull request closes)

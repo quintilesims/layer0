@@ -6,8 +6,6 @@ Exceptionally long log output should be posted as a gist (https://gist.github.co
 
 ### Steps to reproduce the behavior
 
-Please include the following if applicable:
+Please also include the following if applicable:
 
-- [ ] Manual steps to reproduce issue
-- [ ] The output of `l0 admin debug`
-- [ ] The output of `l0-setup --version`
+- `l0 admin version` and `l0 --version`
