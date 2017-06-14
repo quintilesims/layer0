@@ -6,7 +6,7 @@ Include a short summary of what this PR intends to fix and/or a reference to an 
 Include steps to test intended functionality.
 
 
-** Checklist **
+**Checklist**
 - [ ] Unit tests
 - [ ] Smoke tests (if applicable)
 - [ ] System tests (if applicable)
