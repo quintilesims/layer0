@@ -39,7 +39,7 @@ You will use the credentials created in this section when creating, updating, or
 
 ## Part 3: Create a new Layer0 Instance
 Now that you have downloaded Layer0 and configured your AWS account, you can create your Layer0 instance.
-From a command prompt, run the following (replacing `<instance_name>` with a name for your Layer0 instance:
+From a command prompt, run the following (replacing `<instance_name>` with a name for your Layer0 instance):
 ```
 $ l0-setup init <instance_name>
 ```
@@ -82,12 +82,19 @@ Please enter a value and press 'enter'.
 ...
 ```
 
+Once the **init** command has successfully completed, you're ready to actually create the resources needed to use Layer0.
+Run the following command (again, replace `<instance_name>` with the name you've chosen for your Layer0 instance):
+
+```
+l0-setup apply <instance_name>
+```
+
 The first time you run the **apply** command, it may take around 5 minutes to complete. 
 This command is idempotent; it is safe to run multiple times if it fails the first.
 
-It's a good idea to run the **push** command after **apply** commands complete. 
+It's a good idea to run the **push** command (`l0-setup push <instance_name>`) after **apply** commands complete. 
 This will send a backup of your Layer0 instance's configuration and state to S3. 
-These files can be grabbed later using the **pull** command. 
+These files can be grabbed later using the **pull** command (`l0-setup pull <instance_name>`). 
 
 !!! note "Using a Private Docker Registry"
     **The procedures in this section are optional, but are highly recommended for production use.**
