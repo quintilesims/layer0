@@ -113,6 +113,7 @@ Try running the following commands to get an idea of the information available t
 ### Part 3: Deploy the ECS Task Definition
 
 The `deploy` command is used to specify the ECS task definition that outlines a web application.
+A deploy, once created, can be applied to multiple services - even across different environments!
 
 Here, we'll create a new deploy called **guestbook-dpl** that refers to the **Guestbook.Dockerrun.aws.json** file found in the guides reposiory.
 At the command prompt, execute the following:
@@ -132,8 +133,9 @@ The following is a summary of the arguments passed in the above command:
 * `Guestbook.Dockerrun.aws.json`: the file name of the ECS task definition (use the full path of the file if it is not in your current working directory)
 * `guestbook-dpl`: a name for the deploy, which you will use later when you create the service
 
-!!! Note
-	The `DEPLOY NAME` and `VERSION` are combined to create a unique identifier for a deploy. If you create additional deploys named **guestbook-dpl**, they will be assigned different version numbers.
+!!! Note "Deploy Versioning"
+	The `DEPLOY NAME` and `VERSION` are combined to create a unique identifier for a deploy.
+    If you create additional deploys named **guestbook-dpl**, they will be assigned different version numbers.
 
 	You can always specify the latest version when targeting a deploy by using `<deploy name>:latest` -- for example, `guestbook-dpl:latest`.
 
