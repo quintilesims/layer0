@@ -2,6 +2,8 @@ package ecsbackend
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	awsecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
@@ -9,7 +11,6 @@ import (
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
-	"strings"
 )
 
 const MAX_TASK_IDS = 100
@@ -187,10 +188,6 @@ var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, t
 
 	logFiles := []*models.LogFile{}
 	for _, logStream := range logStreams {
-		if *logStream.StoredBytes == 0 {
-			continue
-		}
-
 		// filter by streams that have <prefix>/<container name>/<stream task id>
 		streamNameSplit := strings.Split(*logStream.LogStreamName, "/")
 		if len(streamNameSplit) != 3 {
