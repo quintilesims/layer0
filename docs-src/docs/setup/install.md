@@ -121,7 +121,7 @@ $ l0-setup init --docker-path=<path/to/config.json> <instance_name>
 
 This will add a rendered file into your Layer0 instance's directory at `~/.layer0/<instance_name>/dockercfg.json`.
 
-You can modify a Layer0 instance's `dockercfg.json` file and re-run the **apply** command to make changes to your authentication. 
+You can modify a Layer0 instance's `dockercfg.json` file and re-run the **apply** command (`l0-setup apply <instance_name>`) to make changes to your authentication. 
 Note that any EC2 instances created prior to changing your `dockercfg.json` file will need to be manually terminated since they only grab the authentication file during instance creation. 
 Terminated EC2 instances will be automatically re-created by autoscaling.
 
