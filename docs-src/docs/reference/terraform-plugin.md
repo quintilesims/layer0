@@ -7,12 +7,12 @@ Layer0 has built a custom [provider](https://www.Terraform.io/docs/providers/ind
 This provider allows users to create, manage, and update Layer0 entities using Terraform.
 
 ## Prerequisites
-To use the Layer0 Terraform provider plugin, first ensure that you have a copy of Terraform and that it is accessible in your system path. A Terraform binary can be found in the `/bin` directory of a [Layer0 release](/releases). Alternatively, you can [download Terraform](https://www.Terraform.io/downloads.html) for the latest version.
-
-The Layer0 Terraform provider plugin in compatible with Terraform v0.2+.
+- **Terraform v0.9.4+** ([download](https://www.Terraform.io/downloads.html)), accessible in your system path.
 
 ## Install
-Download a Layer0 v0.8.4+ [release](/releases). The Terraform plugin binary is located in the release zip file as `terraform-provider-layer0`. Copy this `terraform-provider-layer0` binary into the same directory you installed Terraform - and you're done!
+Download a Layer0 v0.8.4+ [release](/releases).
+The Terraform plugin binary is located in the release zip file as `terraform-provider-layer0`.
+Copy this `terraform-provider-layer0` binary into the same directory as your Terraform binary - and you're done!
 
 For further information, see Terraform's documentation on installing a Terraform plugin [here](https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin).
 
