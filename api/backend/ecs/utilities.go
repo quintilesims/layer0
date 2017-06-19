@@ -177,7 +177,7 @@ var getTaskARNs = func(ecs ecs.Provider, ecsEnvironmentID id.ECSEnvironmentID, s
 var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, tail int) ([]*models.LogFile, error) {
 	taskIDCatalog := generateTaskIDCatalog(taskARNs)
 
-	orderBy := "LogStreamName"
+	orderBy := "LastEventTime"
 	logStreams, err := cloudWatchLogs.DescribeLogStreams(config.AWSLogGroupID(), orderBy)
 	if err != nil {
 		return nil, err
