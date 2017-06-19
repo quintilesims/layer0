@@ -32,7 +32,7 @@ func TestGetLogs(t *testing.T) {
 				stream := cloudwatchlogs.NewLogStream("prefix/container_name/taskARN")
 
 				mockCW.EXPECT().
-					DescribeLogStreams(config.AWSLogGroupID(), "LogStreamName").
+					DescribeLogStreams(config.AWSLogGroupID(), "LastEventTime").
 					Return([]*cloudwatchlogs.LogStream{stream}, nil)
 
 				event := cloudwatchlogs.NewOutputLogEvent("some_message")
