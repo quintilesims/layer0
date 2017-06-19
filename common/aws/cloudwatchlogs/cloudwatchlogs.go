@@ -171,12 +171,14 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 	}
 
 	result := []*LogStream{}
+	pageNum := 0
 	pagef := func(output *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
+		pageNum++
 		for _, stream := range output.LogStreams {
 			result = append(result, &LogStream{stream})
 		}
 
-		return !lastPage
+		return !lastPage || pageNum <= 5
 	}
 
 	if err := connection.DescribeLogStreamsPages(input, pagef); err != nil {
