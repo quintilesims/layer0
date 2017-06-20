@@ -1,7 +1,6 @@
 package ecsbackend
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -211,7 +210,6 @@ var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, t
 		}
 
 		for _, logEvent := range logEvents {
-			fmt.Println(*logEvent.Message)
 			logFile.Lines = append(logFile.Lines, *logEvent.Message)
 		}
 
