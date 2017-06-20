@@ -178,7 +178,7 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 			result = append(result, &LogStream{stream})
 		}
 
-		return !lastPage || pageNum <= 5
+		return !lastPage && pageNum <= 5
 	}
 
 	if err := connection.DescribeLogStreamsPages(input, pagef); err != nil {
