@@ -1,9 +1,10 @@
 package main
 
 import (
+	"testing"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/quintilesims/layer0/common/models"
-	"testing"
 )
 
 func TestDeployCreate(t *testing.T) {

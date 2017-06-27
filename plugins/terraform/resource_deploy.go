@@ -1,10 +1,11 @@
 package main
 
 import (
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/cli/client"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/quintilesims/layer0/cli/client"
 )
 
 func resourceLayer0Deploy() *schema.Resource {

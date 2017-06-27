@@ -1,10 +1,11 @@
 package main
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/quintilesims/layer0/common/models"
-	"testing"
 )
 
 func TestLoadBalancerCreate_defaults(t *testing.T) {
