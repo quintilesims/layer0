@@ -33,7 +33,7 @@ func dataSourceLayer0API() *schema.Resource {
 }
 
 func dataSourceLayer0APIRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*client.APIClient)
+	client := meta.(client.Client)
 
 	apiConfig, err := client.GetConfig()
 	if err != nil {
@@ -41,10 +41,11 @@ func dataSourceLayer0APIRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.SetId(apiConfig.Prefix)
-	d.Set("prefix", apiConfig.Prefix)
-	d.Set("vpc_id", apiConfig.VPCID)
-	d.Set("public_subnets", apiConfig.PublicSubnets)
-	d.Set("private_subnets", apiConfig.PrivateSubnets)
 
-	return nil
+	return setResourceData(d.Set, map[string]interface{}{
+		"prefix":          apiConfig.Prefix,
+		"vpc_id":          apiConfig.VPCID,
+		"public_subnets":  apiConfig.PublicSubnets,
+		"private_subnets": apiConfig.PrivateSubnets,
+	})
 }

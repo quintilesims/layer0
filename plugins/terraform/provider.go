@@ -1,10 +1,11 @@
 package main
 
 import (
+	"time"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/quintilesims/layer0/cli/client"
-	"time"
 )
 
 var defaultTimeout = time.Minute * 15
@@ -36,7 +37,11 @@ func Provider() terraform.ResourceProvider {
 			"layer0_service":          resourceLayer0Service(),
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"layer0_api": dataSourceLayer0API(),
+			"layer0_api":           dataSourceLayer0API(),
+			"layer0_environment":   dataSourceLayer0Environment(),
+			"layer0_load_balancer": dataSourcelayer0LoadBalancer(),
+			"layer0_deploy":        dataSourceLayer0Deploy(),
+			"layer0_service":       dataSourcelayer0Service(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
