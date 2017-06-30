@@ -31,11 +31,11 @@ func datasourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error 
 
 	deployName := d.Get("name").(string)
 	version := d.Get("version").(string)
-
-	deployID, err := resolveTags(client, deployName, map[string]string{
-		"type":    "deploy",
+	params := map[string]string{
 		"version": version,
-	})
+	}
+
+	deployID, err := resolveTags(client, deployName, "deploy", params)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,6 @@ func datasourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error 
 	d.SetId(deploy.DeployID)
 
 	return setResourceData(d.Set, map[string]interface{}{
-		"id":      deploy.DeployID,
 		"name":    deploy.DeployName,
 		"version": deploy.Version,
 	})

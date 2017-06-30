@@ -1,16 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func TestLoadBalancerDataResourceSelectByQueryParams(t *testing.T) {
 	ctrl, mockClient, provider := setupUnitTest(t)
 	defer ctrl.Finish()
 
+	loadBalancerID := "loadbalancer-id"
 	loadbalancerName := "loadbalancer-name"
 	environmentID := "l0-env-id"
 
@@ -21,14 +22,25 @@ func TestLoadBalancerDataResourceSelectByQueryParams(t *testing.T) {
 	}
 
 	mockClient.EXPECT().
-		SelectByQuery(params)
+		SelectByQuery(params).
+		Return([]*models.EntityWithTags{
+			&models.EntityWithTags{
+				EntityID:   loadBalancerID,
+				EntityType: "load_balancer",
+			},
+		}, nil)
+
+	mockClient.EXPECT().
+		GetLoadBalancer(loadBalancerID).
+		Return(&models.LoadBalancer{}, nil)
 
 	loadbalancerResource := provider.DataSourcesMap["layer0_load_balancer"]
-	d := schema.TestResourceDataRaw(t, loadbalancerResource.Schema, map[string]interface{}{})
-	d.Set("name", loadbalancerName)
-	d.Set("environment_id", environmentID)
+	d := schema.TestResourceDataRaw(t, loadbalancerResource.Schema, map[string]interface{}{
+		"name":           loadbalancerName,
+		"environment_id": environmentID,
+	})
 
-	if err := loadbalancerResource.Read(d, mockClient); err.Error() != fmt.Errorf("No entities found").Error() {
+	if err := loadbalancerResource.Read(d, mockClient); err != nil {
 		t.Fatal(err)
 	}
 }

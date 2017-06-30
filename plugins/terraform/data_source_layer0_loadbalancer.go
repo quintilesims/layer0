@@ -20,7 +20,7 @@ func dataSourcelayer0LoadBalancer() *schema.Resource {
 			},
 			"environment_name": {
 				Type:     schema.TypeString,
-				Optional: true,
+				Computed: true,
 			},
 			"id": {
 				Type:     schema.TypeString,
@@ -42,26 +42,6 @@ func dataSourcelayer0LoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"healthcheck_healthy_threshold": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"healthcheck_interval": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"healthcheck_target": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"healthcheck_timeout": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"healthcheck_unhealthy_threshold": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -71,11 +51,11 @@ func dataSourcelayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) 
 
 	lbName := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
-
-	loadbalancerID, err := resolveTags(client, lbName, map[string]string{
-		"type":           "load_balancer",
+	params := map[string]string{
 		"environment_id": environmentID,
-	})
+	}
+
+	loadbalancerID, err := resolveTags(client, lbName, "load_balancer", params)
 	if err != nil {
 		return err
 	}
@@ -87,18 +67,12 @@ func dataSourcelayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) 
 
 	d.SetId(loadbalancer.LoadBalancerID)
 	return setResourceData(d.Set, map[string]interface{}{
-		"id":                              loadbalancer.LoadBalancerID,
-		"name":                            loadbalancer.LoadBalancerName,
-		"private":                         !loadbalancer.IsPublic,
-		"url":                             loadbalancer.URL,
-		"service_id":                      loadbalancer.ServiceID,
-		"service_name":                    loadbalancer.ServiceName,
-		"environment_id":                  loadbalancer.EnvironmentID,
-		"environment_name":                loadbalancer.EnvironmentName,
-		"healthcheck_healthy_threshold":   loadbalancer.HealthCheck.HealthyThreshold,
-		"healthcheck_interval":            loadbalancer.HealthCheck.Interval,
-		"healthcheck_target":              loadbalancer.HealthCheck.Target,
-		"healthcheck_timeout":             loadbalancer.HealthCheck.Timeout,
-		"healthcheck_unhealthy_threshold": loadbalancer.HealthCheck.UnhealthyThreshold,
+		"name":             loadbalancer.LoadBalancerName,
+		"private":          !loadbalancer.IsPublic,
+		"url":              loadbalancer.URL,
+		"service_id":       loadbalancer.ServiceID,
+		"service_name":     loadbalancer.ServiceName,
+		"environment_id":   loadbalancer.EnvironmentID,
+		"environment_name": loadbalancer.EnvironmentName,
 	})
 }

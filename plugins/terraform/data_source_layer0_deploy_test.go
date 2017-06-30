@@ -1,16 +1,17 @@
 package main
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func TestDeployDataResourceSelectByQueryParams(t *testing.T) {
 	ctrl, mockClient, provider := setupUnitTest(t)
 	defer ctrl.Finish()
 
+	deployId := "deploy-id"
 	deployName := "deploy-name"
 	version := "1"
 
@@ -21,14 +22,25 @@ func TestDeployDataResourceSelectByQueryParams(t *testing.T) {
 	}
 
 	mockClient.EXPECT().
-		SelectByQuery(params)
+		SelectByQuery(params).
+		Return([]*models.EntityWithTags{
+			&models.EntityWithTags{
+				EntityID:   deployId,
+				EntityType: "deploy",
+			},
+		}, nil)
+
+	mockClient.EXPECT().
+		GetDeploy(deployId).
+		Return(&models.Deploy{}, nil)
 
 	deployResource := provider.DataSourcesMap["layer0_deploy"]
-	d := schema.TestResourceDataRaw(t, deployResource.Schema, map[string]interface{}{})
-	d.Set("name", deployName)
-	d.Set("version", version)
+	d := schema.TestResourceDataRaw(t, deployResource.Schema, map[string]interface{}{
+		"name":    deployName,
+		"version": version,
+	})
 
-	if err := deployResource.Read(d, mockClient); err.Error() != fmt.Errorf("No entities found").Error() {
+	if err := deployResource.Read(d, mockClient); err != nil {
 		t.Fatal(err)
 	}
 }

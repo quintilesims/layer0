@@ -6,8 +6,9 @@ import (
 	"github.com/quintilesims/layer0/cli/client"
 )
 
-func resolveTags(client client.Client, target string, params map[string]string) (string, error) {
+func resolveTags(client client.Client, target, entityType string, params map[string]string) (string, error) {
 	params["fuzz"] = target
+	params["type"] = entityType
 
 	taggedEntities, err := client.SelectByQuery(params)
 	if err != nil {
@@ -15,7 +16,7 @@ func resolveTags(client client.Client, target string, params map[string]string) 
 	}
 
 	if len(taggedEntities) == 0 {
-		return "", fmt.Errorf("No entities found")
+		return "", fmt.Errorf("No entities of type %s found matching %s", entityType, target)
 	}
 
 	if len(taggedEntities) == 1 {
@@ -33,7 +34,7 @@ func resolveTags(client client.Client, target string, params map[string]string) 
 		}
 	}
 
-	text := fmt.Sprintf("Multiple entities found: \n")
+	text := fmt.Sprintf("Multiple entities of type %s found matching %s: ", entityType, target)
 	for _, id := range entityIDs {
 		text += fmt.Sprintf("%s \n", id)
 	}
@@ -43,8 +44,7 @@ func resolveTags(client client.Client, target string, params map[string]string) 
 
 func setResourceData(setter func(string, interface{}) error, values map[string]interface{}) error {
 	for key, value := range values {
-		err := setter(key, value)
-		if err != nil {
+		if err := setter(key, value); err != nil {
 			return err
 		}
 	}
