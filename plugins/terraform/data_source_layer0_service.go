@@ -47,11 +47,11 @@ func dataSourcelayer0ServiceRead(d *schema.ResourceData, meta interface{}) error
 
 	serviceName := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
-
-	serviceID, err := resolveTags(client, serviceName, map[string]string{
-		"type":           "service",
+	params := map[string]string{
 		"environment_id": environmentID,
-	})
+	}
+
+	serviceID, err := resolveTags(client, serviceName, "service", params)
 	if err != nil {
 		return err
 	}
@@ -65,7 +65,6 @@ func dataSourcelayer0ServiceRead(d *schema.ResourceData, meta interface{}) error
 
 	return setResourceData(d.Set, map[string]interface{}{
 		"name":               service.ServiceName,
-		"id":                 service.ServiceID,
 		"environment_id":     service.EnvironmentID,
 		"environment_name":   service.EnvironmentName,
 		"load_balancer_name": service.LoadBalancerName,

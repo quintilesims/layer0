@@ -43,9 +43,7 @@ func datasourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) e
 
 	environmentName := d.Get("name").(string)
 
-	environmentID, err := resolveTags(client, environmentName, map[string]string{
-		"type": "environment",
-	})
+	environmentID, err := resolveTags(client, environmentName, "environment", map[string]string{})
 	if err != nil {
 		return err
 	}
@@ -58,7 +56,6 @@ func datasourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	d.SetId(environment.EnvironmentID)
 
 	return setResourceData(d.Set, map[string]interface{}{
-		"id":        environment.EnvironmentID,
 		"size":      environment.InstanceSize,
 		"min_count": environment.ClusterCount,
 		"os":        environment.OperatingSystem,
