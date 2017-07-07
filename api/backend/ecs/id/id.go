@@ -3,10 +3,11 @@ package id
 import (
 	"crypto/md5"
 	"fmt"
-	"github.com/quintilesims/layer0/common/config"
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/quintilesims/layer0/common/config"
 )
 
 const (

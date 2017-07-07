@@ -2,6 +2,8 @@ package ecsbackend
 
 import (
 	"fmt"
+	"testing"
+
 	aws_ecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
@@ -13,7 +15,6 @@ import (
 	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
-	"testing"
 )
 
 type MockECSServiceManager struct {

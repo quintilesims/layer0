@@ -147,7 +147,7 @@ var CreateRenderedDeploy = func(body []byte) (*Deploy, error) {
 }
 
 var getTaskARNs = func(ecs ecs.Provider, ecsEnvironmentID id.ECSEnvironmentID, startedBy *string) ([]*string, error) {
-	// we can only check each of the states individually, thus we must issue 3 API calls
+	// we can only check each of the states individually, thus we must issue 2 API calls
 
 	running := "RUNNING"
 	tasks, err := ecs.ListTasks(ecsEnvironmentID.String(), nil, &running, startedBy, nil)
@@ -161,14 +161,7 @@ var getTaskARNs = func(ecs ecs.Provider, ecsEnvironmentID id.ECSEnvironmentID, s
 		return nil, err
 	}
 
-	pending := "PENDING"
-	pendingTasks, err := ecs.ListTasks(ecsEnvironmentID.String(), nil, &pending, startedBy, nil)
-	if err != nil {
-		return nil, err
-	}
-
 	tasks = append(tasks, stoppedTasks...)
-	tasks = append(tasks, pendingTasks...)
 
 	return tasks, nil
 }
