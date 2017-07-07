@@ -1,7 +1,8 @@
 package ecsbackend
 
 import (
-	"fmt"
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	awsecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
@@ -9,7 +10,6 @@ import (
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
-	"strings"
 )
 
 const MAX_TASK_IDS = 100
@@ -147,7 +147,7 @@ var CreateRenderedDeploy = func(body []byte) (*Deploy, error) {
 }
 
 var getTaskARNs = func(ecs ecs.Provider, ecsEnvironmentID id.ECSEnvironmentID, startedBy *string) ([]*string, error) {
-	// we can only check each of the states individually, thus we must issue 3 API calls
+	// we can only check each of the states individually, thus we must issue 2 API calls
 
 	running := "RUNNING"
 	tasks, err := ecs.ListTasks(ecsEnvironmentID.String(), nil, &running, startedBy, nil)
@@ -161,14 +161,7 @@ var getTaskARNs = func(ecs ecs.Provider, ecsEnvironmentID id.ECSEnvironmentID, s
 		return nil, err
 	}
 
-	pending := "PENDING"
-	pendingTasks, err := ecs.ListTasks(ecsEnvironmentID.String(), nil, &pending, startedBy, nil)
-	if err != nil {
-		return nil, err
-	}
-
 	tasks = append(tasks, stoppedTasks...)
-	tasks = append(tasks, pendingTasks...)
 
 	return tasks, nil
 }
@@ -176,21 +169,14 @@ var getTaskARNs = func(ecs ecs.Provider, ecsEnvironmentID id.ECSEnvironmentID, s
 var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, tail int) ([]*models.LogFile, error) {
 	taskIDCatalog := generateTaskIDCatalog(taskARNs)
 
-	fmt.Println("Getting streams")
-
-	orderBy := "LogStreamName"
+	orderBy := "LastEventTime"
 	logStreams, err := cloudWatchLogs.DescribeLogStreams(config.AWSLogGroupID(), orderBy)
 	if err != nil {
 		return nil, err
 	}
-	fmt.Println("done")
 
 	logFiles := []*models.LogFile{}
 	for _, logStream := range logStreams {
-		if *logStream.StoredBytes == 0 {
-			continue
-		}
-
 		// filter by streams that have <prefix>/<container name>/<stream task id>
 		streamNameSplit := strings.Split(*logStream.LogStreamName, "/")
 		if len(streamNameSplit) != 3 {
@@ -207,7 +193,6 @@ var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, t
 			Lines: []string{},
 		}
 
-		fmt.Println("Getting events")
 		// since the time range is exclusive, expand the range to get first/last events
 		logEvents, err := cloudWatchLogs.GetLogEvents(
 			config.AWSLogGroupID(),
@@ -218,11 +203,9 @@ var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, t
 		}
 
 		for _, logEvent := range logEvents {
-			fmt.Println(*logEvent.Message)
 			logFile.Lines = append(logFile.Lines, *logEvent.Message)
 		}
 
-		fmt.Println("done")
 		logFiles = append(logFiles, logFile)
 	}
 

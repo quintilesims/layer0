@@ -31,3 +31,4 @@ terraform.tfstate*
 **/.terraform/
 terraform-provider-layer0
 *terraform.tfstate*
+.vscode/

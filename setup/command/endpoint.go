@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
@@ -52,6 +53,8 @@ func (f *CommandFactory) Endpoint() cli.Command {
 				outputEnvvars[instance.OUTPUT_ECS_INSTANCE_PROFILE] = config.AWS_ECS_INSTANCE_PROFILE
 				outputEnvvars[instance.OUTPUT_AWS_LINUX_SERVICE_AMI] = config.AWS_LINUX_SERVICE_AMI
 				outputEnvvars[instance.OUTPUT_WINDOWS_SERVICE_AMI] = config.AWS_WINDOWS_SERVICE_AMI
+				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_TAG_TABLE] = config.AWS_DYNAMO_TAG_TABLE
+				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_JOB_TABLE] = config.AWS_DYNAMO_JOB_TABLE
 			}
 
 			fmt.Println("# set the following environment variables in your current session: ")

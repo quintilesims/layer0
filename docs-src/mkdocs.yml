@@ -27,6 +27,7 @@ pages:
   - Reference:
     - Layer0 CLI: reference/cli.md
     - Layer0 Setup CLI: reference/setup-cli.md
+    - Terraform: reference/terraform_introduction.md
     - Layer0 Terraform Plugin: reference/terraform-plugin.md
     - Updating a Service: reference/updateservice.md
     - Consul: reference/consul.md

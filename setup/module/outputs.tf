@@ -57,3 +57,11 @@ output "linux_service_ami" {
 output "windows_service_ami" {
   value = "${module.api.windows_service_ami}"
 }
+
+output "dynamo_tag_table" {
+    value = "${module.api.dynamo_tag_table}"
+}
+
+output "dynamo_job_table" {
+    value = "${module.api.dynamo_job_table}"
+}

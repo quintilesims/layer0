@@ -1,13 +1,14 @@
 package ecsbackend
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs/mock_cloudwatchlogs"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
-	"testing"
 )
 
 func testCreateDeploy(models.CreateDeployRequest) (*models.Deploy, error) {
@@ -29,10 +30,9 @@ func TestGetLogs(t *testing.T) {
 				mockCW := mock_cloudwatchlogs.NewMockProvider(ctrl)
 
 				stream := cloudwatchlogs.NewLogStream("prefix/container_name/taskARN")
-				stream.StoredBytes = int64p(int64(1))
 
 				mockCW.EXPECT().
-					DescribeLogStreams(config.AWSLogGroupID(), "LogStreamName").
+					DescribeLogStreams(config.AWSLogGroupID(), "LastEventTime").
 					Return([]*cloudwatchlogs.LogStream{stream}, nil)
 
 				event := cloudwatchlogs.NewOutputLogEvent("some_message")

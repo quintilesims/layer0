@@ -6,6 +6,12 @@ import (
 	"github.com/quintilesims/layer0/common/aws/provider"
 )
 
+const (
+	// DescribeLogStreams is throttled after five transactions per second.
+	// With 50 streams/transaction, 1000 gives a reasonable streams:time ratio
+	MAX_DESCRIBE_STREAMS_COUNT = 1000
+)
+
 type Provider interface {
 	CreateLogGroup(logGroupName string) error
 	DeleteLogGroup(logGroupName string) error
@@ -166,14 +172,19 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 	}
 
 	input := &cloudwatchlogs.DescribeLogStreamsInput{
-		LogGroupName: aws.String(logGroupName),
-		OrderBy:      aws.String(orderBy),
+		LogGroupName:        aws.String(logGroupName),
+		OrderBy:             aws.String(orderBy),
+		Descending:          aws.Bool(true),
 	}
 
-	result := []*LogStream{}
+	streams := []*LogStream{}
 	pagef := func(output *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
 		for _, stream := range output.LogStreams {
-			result = append(result, &LogStream{stream})
+			streams = append(streams, &LogStream{stream})
+		}
+
+		if len(streams) >= MAX_DESCRIBE_STREAMS_COUNT {
+			return false
 		}
 
 		return !lastPage
@@ -183,7 +194,7 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 		return nil, err
 	}
 
-	return result, nil
+	return streams, nil
 }
 
 func (this *CloudWatchLogs) GetLogEvents(

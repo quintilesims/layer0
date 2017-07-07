@@ -2,13 +2,14 @@ package ecsbackend
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
-	"strings"
 )
 
 var ClusterCapacityReason = "Waiting for cluster capacity to run"

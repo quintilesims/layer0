@@ -45,3 +45,11 @@ output "user_access_key" {
 output "user_secret_key" {
   value = "${aws_iam_access_key.mod.secret}"
 }
+
+output "dynamo_tag_table" {
+    value = "${aws_dynamo_table.tags.id}"
+}
+
+output "dynamo_job_table" {
+    value = "${aws_dynamo_table.jobs.id}"
+}

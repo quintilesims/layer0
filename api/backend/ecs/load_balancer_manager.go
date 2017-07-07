@@ -2,6 +2,10 @@ package ecsbackend
 
 import (
 	"fmt"
+	"reflect"
+	"strings"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	awselb "github.com/aws/aws-sdk-go/service/elb"
 	"github.com/quintilesims/layer0/api/backend"
@@ -13,9 +17,6 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/waitutils"
-	"reflect"
-	"strings"
-	"time"
 )
 
 type ECSLoadBalancerManager struct {
