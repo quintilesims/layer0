@@ -143,7 +143,7 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.10.0</strong>
+        <strong>Layer0 v0.10.1</strong>
         
           <br>
           quintilesims/layer0
@@ -363,6 +363,15 @@
       
         
   <li>
+    <a class="" title="Terraform" href="../../reference/terraform_introduction/">
+      Terraform
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
     <a class="" title="Layer0 Terraform Plugin" href="../../reference/terraform-plugin/">
       Layer0 Terraform Plugin
     </a>
@@ -467,8 +476,22 @@
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h2>
 <p>Before you can install and configure Layer0, you must obtain the following:</p>
 <ul>
-<li><strong>An AWS account.</strong></li>
-<li><strong>An EC2 Key Pair.</strong> This key pair allows you to access the EC2 instances running your Services using SSH. If you have already created a key pair, you can use it for this process. Otherwise, follow the <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair">instructions at aws.amazon.com</a> to create a new key pair. Make a note of the name that you selected when creating the key pair.</li>
+<li>
+<p><strong>An AWS account.</strong></p>
+</li>
+<li>
+<p><strong>An EC2 Key Pair.</strong>
+This key pair allows you to access the EC2 instances running your Services using SSH.
+If you have already created a key pair, you can use it for this process.
+Otherwise, follow the <a href="http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair">instructions at aws.amazon.com</a> to create a new key pair.
+Make a note of the name that you selected when creating the key pair.</p>
+</li>
+<li>
+<p><strong>Terraform v0.9.4+</strong>
+We use Terraform to create the resources that Layer0 needs.
+If you're unfamiliar with Terraform, you may want to check out our <a href="../../reference/terraform_introduction">introduction</a>.
+If you're ready to install Terraform, there are instructions in the <a href="https://www.terraform.io/intro/getting-started/install.html">Terraform documentation</a>.</p>
+</li>
 </ul>
 <h2 id="part-1-download-and-extract-layer0">Part 1: Download and extract Layer0<a class="headerlink" href="#part-1-download-and-extract-layer0" title="Permanent link">#</a></h2>
 <ol>
@@ -512,7 +535,7 @@ You will use the credentials created in this section when creating, updating, or
 </ol>
 <h2 id="part-3-create-a-new-layer0-instance">Part 3: Create a new Layer0 Instance<a class="headerlink" href="#part-3-create-a-new-layer0-instance" title="Permanent link">#</a></h2>
 <p>Now that you have downloaded Layer0 and configured your AWS account, you can create your Layer0 instance.
-From a command prompt, run the following (replacing <code>&lt;instance_name&gt;</code> with a name for your Layer0 instance:</p>
+From a command prompt, run the following (replacing <code>&lt;instance_name&gt;</code> with a name for your Layer0 instance):</p>
 <pre class="code"><code>$ l0-setup init &lt;instance_name&gt;</code></pre>
 
 
@@ -552,11 +575,16 @@ Please enter a value and press 'enter'.
 ...</code></pre>
 
 
+<p>Once the <strong>init</strong> command has successfully completed, you're ready to actually create the resources needed to use Layer0.
+Run the following command (again, replace <code>&lt;instance_name&gt;</code> with the name you've chosen for your Layer0 instance):</p>
+<pre class="code"><code>l0-setup apply &lt;instance_name&gt;</code></pre>
+
+
 <p>The first time you run the <strong>apply</strong> command, it may take around 5 minutes to complete. 
 This command is idempotent; it is safe to run multiple times if it fails the first.</p>
-<p>It's a good idea to run the <strong>push</strong> command after <strong>apply</strong> commands complete. 
+<p>It's a good idea to run the <strong>push</strong> command (<code>l0-setup push &lt;instance_name&gt;</code>) after <strong>apply</strong> commands complete. 
 This will send a backup of your Layer0 instance's configuration and state to S3. 
-These files can be grabbed later using the <strong>pull</strong> command. </p>
+These files can be grabbed later using the <strong>pull</strong> command (<code>l0-setup pull &lt;instance_name&gt;</code>). </p>
 <div class="admonition note">
 <p class="admonition-title">Using a Private Docker Registry</p>
 <p><strong>The procedures in this section are optional, but are highly recommended for production use.</strong></p>
@@ -569,7 +597,7 @@ A configuration file will be generated at <code>~/.docker/config.json</code>.</p
 
 
 <p>This will add a rendered file into your Layer0 instance's directory at <code>~/.layer0/&lt;instance_name&gt;/dockercfg.json</code>.</p>
-<p>You can modify a Layer0 instance's <code>dockercfg.json</code> file and re-run the <strong>apply</strong> command to make changes to your authentication. 
+<p>You can modify a Layer0 instance's <code>dockercfg.json</code> file and re-run the <strong>apply</strong> command (<code>l0-setup apply &lt;instance_name&gt;</code>) to make changes to your authentication. 
 Note that any EC2 instances created prior to changing your <code>dockercfg.json</code> file will need to be manually terminated since they only grab the authentication file during instance creation. 
 Terminated EC2 instances will be automatically re-created by autoscaling.</p>
 <div class="admonition note">

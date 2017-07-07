@@ -1,5 +1,12 @@
 # Release Notes
 ---
+## v0.10.1 | [Download](http://layer0.ims.io/#download)
+7.7.2017
+
+#### Fixes
+* Includes a hotfix for "Pending Task" issue
+
+---
 ## v0.10.0 | [Download](http://layer0.ims.io/#download)
 6.12.2017
 
