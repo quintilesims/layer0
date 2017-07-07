@@ -2,6 +2,8 @@ package ecsbackend
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	aws_ecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
@@ -13,7 +15,6 @@ import (
 	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
-	"testing"
 )
 
 type MockECSTaskManager struct {
@@ -48,7 +49,7 @@ func TestGetTask(t *testing.T) {
 				mockTask.ECS.EXPECT().
 					ListTasks(environmentID.String(), nil, gomock.Any(), stringp(taskID.String()), nil).
 					Return(nil, nil).
-					Times(3)
+					Times(2)
 
 				return mockTask.Task()
 			},
@@ -65,7 +66,7 @@ func TestGetTask(t *testing.T) {
 				mockTask.ECS.EXPECT().
 					ListTasks(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 					Return([]*string{stringp("task_arn")}, nil).
-					Times(3)
+					Times(2)
 
 				task := &ecs.Task{
 					&aws_ecs.Task{
@@ -121,7 +122,7 @@ func TestListTasks(t *testing.T) {
 				mockTask.ECS.EXPECT().
 					ListTasks(environmentID.ECSEnvironmentID().String(), nil, gomock.Any(), nil, nil).
 					Return(nil, nil).
-					Times(3)
+					Times(2)
 
 				return mockTask.Task()
 			},
@@ -178,7 +179,7 @@ func TestDeleteTask(t *testing.T) {
 				mockTask.ECS.EXPECT().
 					ListTasks(environmentID.String(), nil, gomock.Any(), stringp(taskID.String()), nil).
 					Return(nil, nil).
-					Times(3)
+					Times(2)
 
 				return mockTask.Task()
 			},

@@ -3,6 +3,8 @@ package ecsbackend
 import (
 	"encoding/base64"
 	"fmt"
+	"testing"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	awsec2 "github.com/aws/aws-sdk-go/service/ec2"
@@ -18,7 +20,6 @@ import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
-	"testing"
 )
 
 type MockECSEnvironmentManager struct {

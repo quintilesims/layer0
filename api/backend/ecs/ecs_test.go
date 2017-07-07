@@ -1,10 +1,11 @@
 package ecsbackend
 
 import (
-	log "github.com/Sirupsen/logrus"
-	"github.com/quintilesims/layer0/common/config"
 	"os"
 	"testing"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 func TestMain(m *testing.M) {

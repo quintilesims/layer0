@@ -2,6 +2,8 @@ package ecsbackend
 
 import (
 	"fmt"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
@@ -11,7 +13,6 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/waitutils"
-	"time"
 )
 
 const MAX_SERVICE_CREATE_RETRIES = 10

@@ -2,6 +2,8 @@ package ecsbackend
 
 import (
 	"fmt"
+	"testing"
+
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	aws_ec2 "github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/golang/mock/gomock"
@@ -14,7 +16,6 @@ import (
 	"github.com/quintilesims/layer0/common/aws/iam/mock_iam"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
-	"testing"
 )
 
 type MockECSLoadBalancerManager struct {

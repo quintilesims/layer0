@@ -3,11 +3,12 @@ package ecsbackend
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
-	"strings"
 )
 
 type ECSDeployManager struct {

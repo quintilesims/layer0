@@ -2,6 +2,8 @@ package ecsbackend
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/api/scheduler/resource"
@@ -10,7 +12,6 @@ import (
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/zpatrick/go-bytesize"
-	"strconv"
 )
 
 type ECSResourceManager struct {
