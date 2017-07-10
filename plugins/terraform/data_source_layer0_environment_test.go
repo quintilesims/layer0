@@ -11,7 +11,7 @@ func TestEnvironmentDataResourceSelectByQueryParams(t *testing.T) {
 	ctrl, mockClient, provider := setupUnitTest(t)
 	defer ctrl.Finish()
 
-	environmentId := "environment-id"
+	environmentID := "environment-id"
 	environmentName := "environment-name"
 
 	params := map[string]string{
@@ -23,13 +23,13 @@ func TestEnvironmentDataResourceSelectByQueryParams(t *testing.T) {
 		SelectByQuery(params).
 		Return([]*models.EntityWithTags{
 			&models.EntityWithTags{
-				EntityID:   environmentId,
+				EntityID:   environmentID,
 				EntityType: "environment",
 			},
 		}, nil)
 
 	mockClient.EXPECT().
-		GetEnvironment(environmentId).
+		GetEnvironment(environmentID).
 		Return(&models.Environment{}, nil)
 
 	environmentResource := provider.DataSourcesMap["layer0_environment"]
