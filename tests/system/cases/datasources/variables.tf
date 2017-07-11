@@ -1,0 +1,3 @@
+variable "endpoint" {}
+
+variable "token" {}
