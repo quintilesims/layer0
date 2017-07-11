@@ -68,6 +68,7 @@ func dataSourcelayer0ServiceRead(d *schema.ResourceData, meta interface{}) error
 		"environment_id":     service.EnvironmentID,
 		"environment_name":   service.EnvironmentName,
 		"load_balancer_name": service.LoadBalancerName,
+		"load_balancer_id":   service.LoadBalancerID,
 		"scale":              service.DesiredCount,
 	})
 }
