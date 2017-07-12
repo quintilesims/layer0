@@ -34,14 +34,6 @@ func dataSourcelayer0LoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"service_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"service_name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 		},
 	}
 }
@@ -70,8 +62,6 @@ func dataSourcelayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) 
 		"name":             loadbalancer.LoadBalancerName,
 		"private":          !loadbalancer.IsPublic,
 		"url":              loadbalancer.URL,
-		"service_id":       loadbalancer.ServiceID,
-		"service_name":     loadbalancer.ServiceName,
 		"environment_id":   loadbalancer.EnvironmentID,
 		"environment_name": loadbalancer.EnvironmentName,
 	})

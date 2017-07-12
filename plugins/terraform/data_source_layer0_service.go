@@ -26,14 +26,6 @@ func dataSourcelayer0Service() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"load_balancer_id": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
-			"load_balancer_name": {
-				Type:     schema.TypeString,
-				Computed: true,
-			},
 			"scale": {
 				Type:     schema.TypeInt,
 				Computed: true,
@@ -64,11 +56,9 @@ func dataSourcelayer0ServiceRead(d *schema.ResourceData, meta interface{}) error
 	d.SetId(service.ServiceID)
 
 	return setResourceData(d.Set, map[string]interface{}{
-		"name":               service.ServiceName,
-		"environment_id":     service.EnvironmentID,
-		"environment_name":   service.EnvironmentName,
-		"load_balancer_name": service.LoadBalancerName,
-		"load_balancer_id":   service.LoadBalancerID,
-		"scale":              service.DesiredCount,
+		"name":             service.ServiceName,
+		"environment_id":   service.EnvironmentID,
+		"environment_name": service.EnvironmentName,
+		"scale":            service.DesiredCount,
 	})
 }

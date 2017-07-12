@@ -43,14 +43,10 @@ func TestDataSources(t *testing.T) {
 	checkOutput("load_balancer_environment_name")
 	checkOutput("load_balancer_private")
 	checkOutput("load_balancer_url")
-	checkOutput("load_balancer_service_id")
-	checkOutput("load_balancer_service_name")
 
 	//check service outputs
 	checkOutput("service_id")
 	checkOutput("service_environment_name")
-	checkOutput("service_lb_name")
-	checkOutput("service_lb_id")
 	checkOutput("service_scale")
 
 	log.Debugf("L0 Terraform Provider Data sources Tests completed.")

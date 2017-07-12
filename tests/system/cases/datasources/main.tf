@@ -56,6 +56,6 @@ data "layer0_service" "datasources" {
 
 data "layer0_load_balancer" "datasources" {
   depends_on     = ["layer0_load_balancer.datasources", "layer0_service.datasources"]
-  name           = "${layer0_load_balancer.datasources.id}"
+  name           = "${layer0_load_balancer.datasources.name}"
   environment_id = "${layer0_environment.datasources.id}"
 }
