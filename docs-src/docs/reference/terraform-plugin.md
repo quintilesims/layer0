@@ -65,7 +65,7 @@ data "layer0_api" "config" {}
 
 # Output the layer0 vpc id
 output "vpc id" {
-  val = "${data.layer0_api.vpc_id}"
+  val = "${data.layer0_api.config.vpc_id}"
 }
 ```
 
