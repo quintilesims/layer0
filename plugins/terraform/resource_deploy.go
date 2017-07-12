@@ -25,6 +25,10 @@ func resourceLayer0Deploy() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"version": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 		},
 	}
 }
