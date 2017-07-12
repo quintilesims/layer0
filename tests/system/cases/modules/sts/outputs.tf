@@ -13,7 +13,3 @@ output "load_balancer_url" {
 output "deploy_id" {
   value = "${layer0_deploy.sts.id}"
 }
-
-output "deploy_name" {
-  value = "${layer0_deploy.sts.name}"
-}
