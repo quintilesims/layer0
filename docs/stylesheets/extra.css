@@ -26,14 +26,6 @@
   list-style-type: none;
 }
 
-.admonition.note code {
-  color: #7ff;
-}
-
-.admonition.note a {
-  color: #7ff;
-}
-
 .divTable {
   display:table;
   width:auto;
@@ -61,6 +53,19 @@
 
 .noBreak {
   white-space:nowrap;
+}
+
+/*override code color*/
+.article .wrapper code {
+    color: #666;
+}
+
+.wrapper .admonition.note code {
+  color: #ddd;
+}
+
+.admonition.note a {
+  color: #7ff;
 }
 
 .article a.note {
