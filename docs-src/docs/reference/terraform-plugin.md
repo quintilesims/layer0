@@ -79,6 +79,140 @@ The following attributes are exported:
 
 ---
 
+##Deploy Data Source
+The Deploy data source is used to extract Layer0 Deploy attributes.
+
+### Example Usage
+```
+# Configure the deploy data source
+data "layer0_deploy" "dpl" {
+  name    = "my-deploy"
+  version = "1"
+}
+
+# Output the layer0 deploy id
+output "deploy_id" {
+  val = "${data.layer0_deploy.dpl.id}"
+}
+```
+
+### Argument Reference
+The following arguments are supported:
+
+* `name` - (Required) The name of the deploy
+* `version` - (Required) The version of the deploy
+
+### Attribute Reference
+The following attributes are exported:
+
+* `name` - The name of the deploy
+* `version` - The version of the deploy
+* `id` - The id of the deploy
+
+---
+
+##Environment Data Source
+The Environment data source is used to extract Layer0 Environment attributes.
+
+### Example Usage
+```
+# Configure the environment data source
+data "layer0_environment" "env" {
+  name = "my-environment"
+}
+
+# Output the layer0 environment id
+output "environment_id" {
+  val = "${data.layer0_environment.env.id}"
+}
+```
+
+### Argument Reference
+The following arguments are supported:
+
+* `name` - (Required) The name of the environment
+
+### Attribute Reference
+The following attributes are exported:
+
+* `id` - The id of the environment
+* `name` - The name of the environment
+* `size` - The size of the instances in the environment
+* `min_count` - The current number instances in the environment
+* `os` - The operating system used for the environment
+* `ami` - The AMI ID used for the environment
+
+---
+
+##Load Balancer Data Source
+The Load Balancer data source is used to extract Layer0 Load Balancer attributes.
+
+### Example Usage
+```
+# Configure the load balancer source
+data "layer0_load_balancer" "lb" {
+  name           = "my-loadbalancer"
+  environment_id = "${data.layer0_environment.env.environment_id}"
+}
+
+# Output the layer0 load balancer id
+output "load_balancer_id" {
+  val = "${data.layer0_load_balancer.lb.id}"
+}
+```
+
+### Argument Reference
+The following arguments are supported:
+
+* `name` - (required) The name of the load balancer
+* `environment_id` - (required) The id of the environment the load balancer exists in
+
+### Attribute Reference
+The following attributes are exported:
+
+* `id` - The id of the load balancer
+* `name` - The name of the load balancer
+* `environment_id` - The id of the environment the load balancer exists in
+* `environment_name` - The name of the environment the load balancer exists in
+* `private` - Whether or not the load balancer is private
+* `url` - The URL of the load balancer
+
+---
+
+##Service Data Source
+The Service data source is used to extract Layer0 Service attributes.
+
+### Example Usage
+```
+# Configure the service data source
+data "layer0_service" "svc" {
+  name           = "my-service"
+  environment_id = "${data.layer0_environment.env.environment_id}"
+}
+
+# Output the layer0 service id
+output "service_id" {
+  val = "${data.layer0_service.svc.id}"
+}
+```
+
+### Argument Reference
+The following arguments are supported:
+
+* `name` - (required) The name of the service
+* `environment_id` - (required) The id of the environment the service exists in
+
+### Attribute Reference
+The following attributes are exported:
+
+* `id` - The id of the service
+* `name` - The name of the service
+* `environment_id` - The id of the environment the service exists in
+* `environment_name` - The name of the environment the service exists in
+* `scale` - The current desired scale of the service
+
+---
+
 ##Deploy
 Provides a Layer0 Deploy.
 
