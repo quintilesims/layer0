@@ -324,6 +324,15 @@
       
         
   <li>
+    <a class="" title="Terraform" href="../terraform_introduction/">
+      Terraform
+    </a>
+    
+  </li>
+
+      
+        
+  <li>
     <a class="current" title="Layer0 Terraform Plugin" href="./">
       Layer0 Terraform Plugin
     </a>
@@ -499,10 +508,13 @@ If you are new to Terraform, we recommend checking out their <a href="https://ww
 <p>Layer0 has built a custom <a href="https://www.Terraform.io/docs/providers/index.html">provider</a> for Layer0.
 This provider allows users to create, manage, and update Layer0 entities using Terraform.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h2>
-<p>To use the Layer0 Terraform provider plugin, first ensure that you have a copy of Terraform and that it is accessible in your system path. A Terraform binary can be found in the <code>/bin</code> directory of a <a href="../../releases">Layer0 release</a>. Alternatively, you can <a href="https://www.Terraform.io/downloads.html">download Terraform</a> for the latest version.</p>
-<p>The Layer0 Terraform provider plugin in compatible with Terraform v0.2+.</p>
+<ul>
+<li><strong>Terraform v0.9.4+</strong> (<a href="https://www.Terraform.io/downloads.html">download</a>), accessible in your system path.</li>
+</ul>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">#</a></h2>
-<p>Download a Layer0 v0.8.4+ <a href="../../releases">release</a>. The Terraform plugin binary is located in the release zip file as <code>terraform-provider-layer0</code>. Copy this <code>terraform-provider-layer0</code> binary into the same directory you installed Terraform - and you're done!</p>
+<p>Download a Layer0 v0.8.4+ <a href="../../releases">release</a>.
+The Terraform plugin binary is located in the release zip file as <code>terraform-provider-layer0</code>.
+Copy this <code>terraform-provider-layer0</code> binary into the same directory as your Terraform binary - and you're done!</p>
 <p>For further information, see Terraform's documentation on installing a Terraform plugin <a href="https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin">here</a>.</p>
 <h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">#</a></h2>
 <ul>
@@ -547,7 +559,7 @@ data &quot;layer0_api&quot; &quot;config&quot; {}
 
 # Output the layer0 vpc id
 output &quot;vpc id&quot; {
-  val = &quot;${data.layer0_api.vpc_id}&quot;
+  val = &quot;${data.layer0_api.config.vpc_id}&quot;
 }</code></pre>
 
 
@@ -767,7 +779,7 @@ Terraform has documentation for using S3 as a backend <a href="https://www.Terra
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../setup-cli/" title="Layer0 Setup CLI">
+        <a href="../terraform_introduction/" title="Terraform">
           <span class="direction">
             Previous
           </span>
@@ -777,7 +789,7 @@ Terraform has documentation for using S3 as a backend <a href="https://www.Terra
             </div>
             <div class="stretch">
               <div class="title">
-                Layer0 Setup CLI
+                Terraform
               </div>
             </div>
           </div>

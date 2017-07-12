@@ -9,19 +9,19 @@
     <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
       
-        <title>Upgrade - Layer0</title>
+        <title>Terraform - Layer0</title>
       
       
       
-        <link rel="canonical" href="https://github.com/quintilesims/layer0/setup/upgrade/">
+        <link rel="canonical" href="https://github.com/quintilesims/layer0/reference/terraform_introduction/">
       
       
         <meta name="author" content="xfra">
       
     
-    <meta property="og:url" content="https://github.com/quintilesims/layer0/setup/upgrade/">
+    <meta property="og:url" content="https://github.com/quintilesims/layer0/reference/terraform_introduction/">
     <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://github.com/quintilesims/layer0/setup/upgrade//../../static/logo_icon.png">
+    <meta property="og:image" content="https://github.com/quintilesims/layer0/reference/terraform_introduction//../../static/logo_icon.png">
     <meta name="apple-mobile-web-app-title" content="Layer0">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -101,12 +101,12 @@
           <span class="path">
             
               
-                Setup <i class="icon icon-link"></i>
+                Reference <i class="icon icon-link"></i>
               
             
           </span>
         
-        Upgrade
+        Terraform
       </div>
     </div>
     
@@ -207,7 +207,7 @@
       
         
   <li>
-    <a class="" title="Install" href="../install/">
+    <a class="" title="Install" href="../../setup/install/">
       Install
     </a>
     
@@ -216,21 +216,16 @@
       
         
   <li>
-    <a class="current" title="Upgrade" href="./">
+    <a class="" title="Upgrade" href="../../setup/upgrade/">
       Upgrade
     </a>
-    
-      
-        
-      
-      
     
   </li>
 
       
         
   <li>
-    <a class="" title="Destroy" href="../destroy/">
+    <a class="" title="Destroy" href="../../setup/destroy/">
       Destroy
     </a>
     
@@ -311,7 +306,7 @@
       
         
   <li>
-    <a class="" title="Layer0 CLI" href="../../reference/cli/">
+    <a class="" title="Layer0 CLI" href="../cli/">
       Layer0 CLI
     </a>
     
@@ -320,7 +315,7 @@
       
         
   <li>
-    <a class="" title="Layer0 Setup CLI" href="../../reference/setup-cli/">
+    <a class="" title="Layer0 Setup CLI" href="../setup-cli/">
       Layer0 Setup CLI
     </a>
     
@@ -329,16 +324,49 @@
       
         
   <li>
-    <a class="" title="Terraform" href="../../reference/terraform_introduction/">
+    <a class="current" title="Terraform" href="./">
       Terraform
     </a>
+    
+      
+        
+      
+      
+        <ul>
+          
+            <li class="anchor">
+              <a title="What does Terraform do?" href="#what-does-terraform-do">
+                What does Terraform do?
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Why Terraform?" href="#why-terraform">
+                Why Terraform?
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Advantages Versus Layer0 CLI?" href="#advantages-versus-layer0-cli">
+                Advantages Versus Layer0 CLI?
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="How do I get Terraform?" href="#how-do-i-get-terraform">
+                How do I get Terraform?
+              </a>
+            </li>
+          
+        </ul>
+      
     
   </li>
 
       
         
   <li>
-    <a class="" title="Layer0 Terraform Plugin" href="../../reference/terraform-plugin/">
+    <a class="" title="Layer0 Terraform Plugin" href="../terraform-plugin/">
       Layer0 Terraform Plugin
     </a>
     
@@ -347,7 +375,7 @@
       
         
   <li>
-    <a class="" title="Updating a Service" href="../../reference/updateservice/">
+    <a class="" title="Updating a Service" href="../updateservice/">
       Updating a Service
     </a>
     
@@ -356,7 +384,7 @@
       
         
   <li>
-    <a class="" title="Consul" href="../../reference/consul/">
+    <a class="" title="Consul" href="../consul/">
       Consul
     </a>
     
@@ -365,7 +393,7 @@
       
         
   <li>
-    <a class="" title="Task Definitions" href="../../reference/task_definition/">
+    <a class="" title="Task Definitions" href="../task_definition/">
       Task Definitions
     </a>
     
@@ -374,7 +402,7 @@
       
         
   <li>
-    <a class="" title="Architecture" href="../../reference/architecture/">
+    <a class="" title="Architecture" href="../architecture/">
       Architecture
     </a>
     
@@ -383,7 +411,7 @@
       
         
   <li>
-    <a class="" title="ECR" href="../../reference/ecr/">
+    <a class="" title="ECR" href="../ecr/">
       ECR
     </a>
     
@@ -438,40 +466,33 @@
       <article class="article">
         <div class="wrapper">
           
-          <h1 id="upgrade-a-layer0-instance">Upgrade a Layer0 Instance<a class="headerlink" href="#upgrade-a-layer0-instance" title="Permanent link">#</a></h1>
-<p>This section provides procedures for upgrading your Layer0 installation to the latest version.
-This assumes you are using Layer0 version <code>v0.10.0</code> or later. </p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>Layer0 does not support updating MAJOR or MINOR versions in place unless explicitly stated otherwise.
-Users will need to destroy and re-create Layer0 instances in these circumstances. </p>
-</div>
-<p>Run the <strong>upgrade</strong> command, replacing <code>&lt;instance_name&gt;</code> and <code>&lt;version&gt;</code> with the name of the Layer0 instance and new version, respectively:</p>
-<pre class="code"><code>$ l0-setup upgrade &lt;instance_name&gt; &lt;version&gt;</code></pre>
-
-
-<p>This will prompt you about the updated <code>source</code> and <code>version</code> inputs changing. 
-If you are not satisfied with the changes, exit the application during the prompts. 
-For full control on changing inputs, please use the <strong>set</strong> command. </p>
-<p><strong>Example Usage</strong></p>
-<pre class="code"><code>$ l0-setup upgrade mylayer0 v0.10.1
-This will update the 'version' input
-        From: [v0.10.0]
-        To:   [v0.10.1]
-
-        Press 'enter' to accept this change:
-This will update the 'source' input
-        From: [github.com/quintilesims/layer0//setup/module?ref=v0.10.0]
-        To:   [github.com/quintilesims/layer0//setup/module?ref=v0.10.1]
-
-        Press 'enter' to accept this change:
-        ...
-
-Everything looks good! You are now ready to run 'l0-setup apply mylayer0'</code></pre>
-
-
-<p>As stated by the command output, run the <strong>apply</strong> command to apply the changes to the Layer0 instance.
-If any errors occur, please contact the Layer0 team. </p>
+          <h1 id="introduction-to-terraform">Introduction to Terraform<a class="headerlink" href="#introduction-to-terraform" title="Permanent link">#</a></h1>
+<h2 id="what-does-terraform-do">What does Terraform do?<a class="headerlink" href="#what-does-terraform-do" title="Permanent link">#</a></h2>
+<p>Terraform is a powerful orchestration tool for creating, updating, deleting, and otherwise managing infrastructure in an easy-to-understand, declarative manner.
+Terraform's <a href="https://www.terraform.io/intro/index.html">documentation</a> is very good, but at a glance:</p>
+<p><strong>Be Declarative -</strong>
+Specify desired infrastructure results in Terraform (<code>*.tf</code>) files, and let Terraform do the heavy work of figuring out how to make that specification a reality.</p>
+<p><strong>Scry the Future -</strong>
+Use <code>terraform plan</code> to see a list of everything that Terraform <em>would</em> do without actually making those changes.</p>
+<p><strong>Version Infrastructure -</strong>
+Check Terraform files into a VCS to track changes to and manage versions of your infrastructure.</p>
+<h2 id="why-terraform">Why Terraform?<a class="headerlink" href="#why-terraform" title="Permanent link">#</a></h2>
+<p>Why did we latch onto Terraform instead of something like CloudFormation?</p>
+<p><strong>Cloud-Agnostic -</strong>
+Unlike CloudFormation, Terraform is able to incorporate different <a href="https://www.terraform.io/docs/providers/index.html">resource providers</a> to manage infrastructure across multiple cloud services (not just AWS).</p>
+<p><strong>Custom Providers -</strong>
+Terraform can be extended to manage tools that don't come natively through use of custom providers.
+We wrote a <a href="../../reference/terraform-plugin">Layer0 provider</a> so that Terraform can manage Layer0 resources in addition to tools and resources and infrastructure beyond Layer0's scope.</p>
+<p>Terraform has some <a href="https://www.terraform.io/intro/vs/index.html">things to say</a> on the matter as well.</p>
+<h2 id="advantages-versus-layer0-cli">Advantages Versus Layer0 CLI?<a class="headerlink" href="#advantages-versus-layer0-cli" title="Permanent link">#</a></h2>
+<p>Why should you move from using (or scripting) the Layer0 CLI directly?</p>
+<p><strong>Reduce Fat-Fingering Mistakes -</strong>
+Creating Terraform files (and using <code>terraform plan</code>) allows you to review your deployment and catch errors.
+Executing Layer0 CLI commands one-by-one is tiresome, non-transportable, and a process ripe for typos.</p>
+<p><strong>Go Beyond Layer0 -</strong>
+Retain the benefits of leveraging Layer0's concepts and resources using our <a href="../../reference/terraform-plugin">provider</a>, but also gain the ability to orchestrate resources and tools beyond the CLI's scope.</p>
+<h2 id="how-do-i-get-terraform">How do I get Terraform?<a class="headerlink" href="#how-do-i-get-terraform" title="Permanent link">#</a></h2>
+<p>Check out Terraform's <a href="https://www.terraform.io/intro/getting-started/install.html">documentation</a> on the subject.</p>
           <aside class="copyright" role="note">
             
             Documentation built with
@@ -488,7 +509,7 @@ If any errors occur, please contact the Layer0 team. </p>
   <nav class="pagination" aria-label="Footer">
     <div class="previous">
       
-        <a href="../install/" title="Install">
+        <a href="../setup-cli/" title="Layer0 Setup CLI">
           <span class="direction">
             Previous
           </span>
@@ -498,7 +519,7 @@ If any errors occur, please contact the Layer0 team. </p>
             </div>
             <div class="stretch">
               <div class="title">
-                Install
+                Layer0 Setup CLI
               </div>
             </div>
           </div>
@@ -507,14 +528,14 @@ If any errors occur, please contact the Layer0 team. </p>
     </div>
     <div class="next">
       
-        <a href="../destroy/" title="Destroy">
+        <a href="../terraform-plugin/" title="Layer0 Terraform Plugin">
           <span class="direction">
             Next
           </span>
           <div class="page">
             <div class="stretch">
               <div class="title">
-                Destroy
+                Layer0 Terraform Plugin
               </div>
             </div>
             <div class="button button-next" role="button" aria-label="Next">
