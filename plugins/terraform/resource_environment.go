@@ -49,7 +49,7 @@ func resourceLayer0Environment() *schema.Resource {
 				Computed: true,
 			},
 			"cluster_count": {
-				Type:     schema.TypeString,
+				Type:     schema.TypeInt,
 				Computed: true,
 			},
 			"security_group_id": {
