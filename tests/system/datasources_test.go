@@ -4,6 +4,12 @@ import (
 	"testing"
 )
 
+// Test Resources:
+// This test creates the following:
+// - environment named dsrctest
+// - load balancer named dsrctest
+// - service named dsrctest
+// - deploy named dsrctest
 func TestDataSources(t *testing.T) {
 	t.Parallel()
 
@@ -15,20 +21,19 @@ func TestDataSources(t *testing.T) {
 	// values have the '_expected' suffix)
 	checkOutput := func(key string) {
 		log.Debugf("Checking data source vs resource output for key: %s", key)
-		datasourceOutput := s.Terraform.Output(key)
-		resourceOutput := s.Terraform.Output(key + "_expected")
 
-		if datasourceOutput != resourceOutput {
-			log.Fatalf(
+		if dVal, rVal := s.Terraform.Output(key), s.Terraform.Output(key+"_expected"); dVal != rVal {
+			t.Fatalf(
 				"Data value '%s' and Resource value '%s' do not match for key: %s",
-				datasourceOutput,
-				resourceOutput,
+				dVal,
+				rVal,
 				key)
 		}
 	}
 
 	//check environment outputs
 	checkOutput("environment_id")
+	checkOutput("environment_name")
 	checkOutput("environment_size")
 	checkOutput("environment_min_count")
 	checkOutput("environment_os")
@@ -36,6 +41,8 @@ func TestDataSources(t *testing.T) {
 
 	//check deploy output
 	checkOutput("deploy_id")
+	checkOutput("deploy_name")
+	checkOutput("deploy_version")
 
 	//check load balancer outputs
 	checkOutput("load_balancer_id")
@@ -46,6 +53,8 @@ func TestDataSources(t *testing.T) {
 
 	//check service outputs
 	checkOutput("service_id")
+	checkOutput("service_name")
+	checkOutput("service_environment_id")
 	checkOutput("service_environment_name")
 	checkOutput("service_scale")
 

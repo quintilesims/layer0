@@ -9,7 +9,7 @@ resource "layer0_environment" "datasources" {
 }
 
 resource "layer0_load_balancer" "datasources" {
-  name        = "dsrctest_lb"
+  name        = "dsrctest"
   environment = "${layer0_environment.datasources.id}"
 
   port {
@@ -20,21 +20,17 @@ resource "layer0_load_balancer" "datasources" {
 }
 
 resource "layer0_service" "datasources" {
-  name          = "dsrctest_svc"
+  name          = "dsrctest"
   environment   = "${layer0_environment.datasources.id}"
   deploy        = "${layer0_deploy.datasources.id}"
   load_balancer = "${layer0_load_balancer.datasources.id}"
   scale         = "1"
-  wait          = true
+  wait          = false
 }
 
 resource "layer0_deploy" "datasources" {
-  name    = "dsrctest_dpl"
-  content = "${data.template_file.datasources.rendered}"
-}
-
-data "template_file" "datasources" {
-  template = "${file("${path.module}/Dockerrun.aws.json")}"
+  name    = "dsrctest"
+  content = "${file("${path.module}/Dockerrun.aws.json")}"
 }
 
 data "layer0_environment" "datasources" {
