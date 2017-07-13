@@ -8,6 +8,14 @@ output "environment_id_expected" {
   value = "${layer0_environment.datasources.id}"
 }
 
+output "environment_name" {
+  value = "${data.layer0_environment.datasources.name}"
+}
+
+output "environment_name_expected" {
+  value = "${layer0_environment.datasources.name}"
+}
+
 output "environment_size" {
   value = "${data.layer0_environment.datasources.size}"
 }
@@ -48,6 +56,22 @@ output "deploy_id" {
 
 output "deploy_id_expected" {
   value = "${layer0_deploy.datasources.id}"
+}
+
+output "deploy_name" {
+  value = "${data.layer0_deploy.datasources.version}"
+}
+
+output "deploy_name_expected" {
+  value = "${layer0_deploy.datasources.version}"
+}
+
+output "deploy_version" {
+  value = "${data.layer0_deploy.datasources.version}"
+}
+
+output "deploy_version_expected" {
+  value = "${layer0_deploy.datasources.version}"
 }
 
 # -- Load Balancer --
@@ -100,6 +124,22 @@ output "service_id" {
 
 output "service_id_expected" {
   value = "${layer0_service.datasources.id}"
+}
+
+output "service_name" {
+  value = "${data.layer0_service.datasources.name}"
+}
+
+output "service_name_expected" {
+  value = "${layer0_service.datasources.name}"
+}
+
+output "service_environment_id" {
+  value = "${data.layer0_service.datasources.environment_id}"
+}
+
+output "service_environment_id_expected" {
+  value = "${layer0_environment.datasources.id}"
 }
 
 output "service_environment_name" {
