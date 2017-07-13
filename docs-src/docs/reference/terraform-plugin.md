@@ -213,7 +213,7 @@ The following attributes are exported:
 
 ---
 
-##Deploy
+##Deploy Resource
 Provides a Layer0 Deploy.
 
 Performing variable substitution inside of your deploy's json file (typically named `Dockerrun.aws.json`) can be done through Terraform's [template_file](https://www.terraform.io/docs/providers/template/).
@@ -251,7 +251,7 @@ The following attributes are exported:
 
 ---
 
-## Environment
+## Environment Resource
 
 Provides a Layer0 Environment
 
@@ -294,7 +294,7 @@ The following attributes are exported:
 * `ami` - The AMI ID used for the environment
 ---
 
-## Load Balancer
+## Load Balancer Resource
 
 Provides a Layer0 Load Balancer
 
@@ -366,7 +366,7 @@ The following attributes are exported:
 
 ---
 
-## Service
+## Service Resource
 
 Provides a Layer0 Service
 
