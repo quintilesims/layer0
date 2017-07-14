@@ -1,8 +1,9 @@
 package command
 
 import (
-	"github.com/urfave/cli"
 	"log"
+
+	"github.com/urfave/cli"
 )
 
 func HelpCommand(app *cli.App) cli.Command {

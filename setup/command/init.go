@@ -2,10 +2,11 @@ package command
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/docker/docker/pkg/homedir"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
-	"strings"
 )
 
 func (f *CommandFactory) Init() cli.Command {

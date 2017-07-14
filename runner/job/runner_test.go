@@ -2,14 +2,15 @@ package job
 
 import (
 	"fmt"
+	"testing"
+	"time"
+
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/logic"
 	"github.com/quintilesims/layer0/common/db/job_store/mock_job_store"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/common/types"
-	"testing"
-	"time"
 )
 
 func getStubbedLogic(ctrl *gomock.Controller) *logic.Logic {

@@ -3,8 +3,9 @@ package rclient
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/zpatrick/go-series"
 	"net/http"
+
+	"github.com/zpatrick/go-series"
 )
 
 // A ResponseReader attempts to read a *http.Response into v.

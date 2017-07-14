@@ -1,11 +1,12 @@
 package scheduler
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/scheduler/resource"
 	"github.com/quintilesims/layer0/api/scheduler/resource/mock_resource"
 	"github.com/zpatrick/go-bytesize"
-	"testing"
 )
 
 type MockProviderManager struct {

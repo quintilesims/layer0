@@ -3,9 +3,10 @@ package job
 import (
 	"encoding/json"
 	"fmt"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/models"
-	"time"
 )
 
 var DeleteTaskSteps = []Step{

@@ -2,9 +2,10 @@ package testutils
 
 import (
 	"flag"
-	"github.com/urfave/cli"
 	"testing"
 	"time"
+
+	"github.com/urfave/cli"
 )
 
 var TEST_TIMEOUT = time.Minute * 15

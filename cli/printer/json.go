@@ -3,8 +3,9 @@ package printer
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/quintilesims/layer0/common/models"
 	"os"
+
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type JSONPrinter struct{}

@@ -1,9 +1,10 @@
 package logic
 
 import (
+	"testing"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
-	"testing"
 )
 
 func TestTaskPopulateModel(t *testing.T) {

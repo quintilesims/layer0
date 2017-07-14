@@ -19,9 +19,10 @@ package resources
 // regenerated.
 
 import (
+	"net/http"
+
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
-	"net/http"
 )
 
 // ProvidersClient is the provides operations for working with resources and

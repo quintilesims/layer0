@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"testing"
+
 	"github.com/emicklei/go-restful"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/logic/mock_logic"
@@ -8,7 +10,6 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/common/types"
-	"testing"
 )
 
 func TestListLoadBalancers(t *testing.T) {

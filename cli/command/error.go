@@ -2,9 +2,10 @@ package command
 
 import (
 	"fmt"
-	"github.com/urfave/cli"
 	"os"
 	"strings"
+
+	"github.com/urfave/cli"
 )
 
 type NoMatchError struct {

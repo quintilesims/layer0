@@ -2,9 +2,10 @@ package instance
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/blang/semver"
 	"github.com/quintilesims/layer0/setup/terraform"
-	"strings"
 )
 
 func (l *LocalInstance) Upgrade(version string, force bool) error {

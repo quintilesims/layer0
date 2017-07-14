@@ -1,8 +1,9 @@
 package soap
 
 import (
-	"github.com/masterzen/simplexml/dom"
 	"strconv"
+
+	"github.com/masterzen/simplexml/dom"
 )
 
 type HeaderOption struct {

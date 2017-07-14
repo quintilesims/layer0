@@ -2,12 +2,13 @@ package scheduler
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/api/scheduler/resource"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/models"
-	"time"
 )
 
 type EnvironmentScaler interface {

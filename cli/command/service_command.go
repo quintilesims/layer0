@@ -1,9 +1,10 @@
 package command
 
 import (
+	"strconv"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
-	"strconv"
 )
 
 type ServiceCommand struct {

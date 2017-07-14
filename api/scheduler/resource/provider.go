@@ -2,9 +2,10 @@ package resource
 
 import (
 	"errors"
+	"sort"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/go-bytesize"
-	"sort"
 )
 
 type ProviderManager interface {

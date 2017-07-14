@@ -1,9 +1,10 @@
 package command
 
 import (
-	"github.com/urfave/cli"
 	"strings"
 	"time"
+
+	"github.com/urfave/cli"
 )
 
 func assertSingleID(entityType, target string, ids []string) (string, error) {

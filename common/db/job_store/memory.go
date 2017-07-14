@@ -2,6 +2,7 @@ package job_store
 
 import (
 	"fmt"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
 )

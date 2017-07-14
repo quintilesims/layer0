@@ -1,11 +1,13 @@
 package main
 
 import (
-	"appengine"
-	"appengine/memcache"
+	"net/http"
+
 	"github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful/swagger"
-	"net/http"
+
+	"appengine"
+	"appengine/memcache"
 )
 
 // This example is functionally the same as ../restful-user-service.go

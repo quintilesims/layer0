@@ -1,11 +1,12 @@
 package client
 
 import (
+	"net/http"
+	"testing"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/common/types"
-	"net/http"
-	"testing"
 )
 
 func TestDelete(t *testing.T) {

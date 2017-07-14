@@ -2,9 +2,10 @@ package alicloud
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
-	"strings"
 )
 
 func resourceAliyunRouteEntry() *schema.Resource {

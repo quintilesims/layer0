@@ -2,13 +2,14 @@ package instance
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
-	"io/ioutil"
-	"os"
-	"strings"
 )
 
 func (l *LocalInstance) Pull(s s3iface.S3API) error {

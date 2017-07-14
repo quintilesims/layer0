@@ -1,14 +1,15 @@
 package job_store
 
 import (
+	"reflect"
+	"testing"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
-	"reflect"
-	"testing"
 )
 
 func NewTestJobStore(t *testing.T) *DynamoJobStore {

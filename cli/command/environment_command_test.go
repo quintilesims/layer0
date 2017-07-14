@@ -1,11 +1,12 @@
 package command
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/urfave/cli"
-	"testing"
 )
 
 func TestCreateEnvironment(t *testing.T) {

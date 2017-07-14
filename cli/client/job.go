@@ -2,10 +2,11 @@ package client
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
 	"github.com/quintilesims/layer0/common/waitutils"
-	"time"
 )
 
 func (c *APIClient) Delete(id string) error {

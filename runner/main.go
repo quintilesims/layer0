@@ -1,6 +1,9 @@
 package main
 
 import (
+	"os"
+	"strings"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/aws/provider"
 	"github.com/quintilesims/layer0/common/config"
@@ -9,8 +12,6 @@ import (
 	"github.com/quintilesims/layer0/common/types"
 	"github.com/quintilesims/layer0/runner/job"
 	"github.com/urfave/cli"
-	"os"
-	"strings"
 )
 
 var Version string

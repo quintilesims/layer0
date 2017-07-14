@@ -19,9 +19,10 @@ package storage
 // regenerated.
 
 import (
+	"net/http"
+
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
-	"net/http"
 )
 
 // UsageOperationsClient is the the Storage Management Client.
