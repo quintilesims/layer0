@@ -3,18 +3,26 @@ package instance
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/Sirupsen/logrus"
 	"net/http"
 	"time"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 )
 
-func (l *LocalInstance) Apply(wait bool) error {
+func (l *LocalInstance) Apply(wait bool, s s3iface.S3API, push bool) error {
 	if err := l.assertExists(); err != nil {
 		return err
 	}
 
 	if err := l.Terraform.Apply(l.Dir); err != nil {
 		return err
+	}
+
+	if push {
+		if err := l.Push(s); err != nil {
+			return err
+		}
 	}
 
 	endpoint, err := l.Output(OUTPUT_ENDPOINT)
