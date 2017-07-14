@@ -10,7 +10,7 @@ type TaskLogic interface {
 	ListTasks() ([]*models.TaskSummary, error)
 	GetTask(string) (*models.Task, error)
 	DeleteTask(string) error
-	GetTaskLogs(string, int) ([]*models.LogFile, error)
+	GetTaskLogs(string, string, string, int) ([]*models.LogFile, error)
 }
 
 type L0TaskLogic struct {
@@ -129,13 +129,13 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 	return task, nil
 }
 
-func (this *L0TaskLogic) GetTaskLogs(taskID string, tail int) ([]*models.LogFile, error) {
+func (this *L0TaskLogic) GetTaskLogs(taskID, start, end string, tail int) ([]*models.LogFile, error) {
 	environmentID, err := this.getEnvironmentID(taskID)
 	if err != nil {
 		return nil, err
 	}
 
-	logs, err := this.Backend.GetTaskLogs(environmentID, taskID, tail)
+	logs, err := this.Backend.GetTaskLogs(environmentID, taskID, start, end, tail)
 	if err != nil {
 		return nil, err
 	}

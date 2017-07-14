@@ -319,9 +319,11 @@ func TestGetTaskLogs(t *testing.T) {
 				recorder := testutils.NewRecorder(ctrl)
 				recorder.EXPECT().Call("")
 
-				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, tail int) ([]*models.LogFile, error) {
+				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, start, end string, tail int) ([]*models.LogFile, error) {
 					recorder.Call("")
 					reporter.AssertEqual(tail, 100)
+					reporter.AssertEqual(start, "start")
+					reporter.AssertEqual(end, "end")
 					return nil, nil
 				}
 
@@ -329,7 +331,7 @@ func TestGetTaskLogs(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSTaskManager)
-				manager.GetTaskLogs("envid", "tskid", 100)
+				manager.GetTaskLogs("envid", "tskid", "start", "end", 100)
 			},
 		},
 		{
@@ -346,7 +348,7 @@ func TestGetTaskLogs(t *testing.T) {
 				recorder := testutils.NewRecorder(ctrl)
 				recorder.EXPECT().Call("")
 
-				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, tail int) ([]*models.LogFile, error) {
+				GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, start, end string, tail int) ([]*models.LogFile, error) {
 					recorder.Call("")
 					return nil, fmt.Errorf("some error")
 				}
@@ -356,7 +358,7 @@ func TestGetTaskLogs(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSTaskManager)
 
-				if _, err := manager.GetTaskLogs("envid", "tskid", 100); err == nil {
+				if _, err := manager.GetTaskLogs("envid", "tskid", "start", "end", 100); err == nil {
 					reporter.Fatalf("Error was nil!")
 				}
 			},

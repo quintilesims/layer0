@@ -1,6 +1,9 @@
 package cloudwatchlogs
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/quintilesims/layer0/common/aws/provider"
@@ -10,6 +13,9 @@ const (
 	// DescribeLogStreams is throttled after five transactions per second.
 	// With 50 streams/transaction, 1000 gives a reasonable streams:time ratio
 	MAX_DESCRIBE_STREAMS_COUNT = 1000
+
+	// 'MM/DD HH:MM' time layout as described by https://golang.org/src/time/format.go
+	TIME_LAYOUT = "01/02 15:04"
 )
 
 type Provider interface {
@@ -17,7 +23,7 @@ type Provider interface {
 	DeleteLogGroup(logGroupName string) error
 	DescribeLogGroups(logGroupNamePrefix string, nextToken *string) ([]*LogGroup, error)
 	DescribeLogStreams(logGroupName, orderBy string) ([]*LogStream, error)
-	GetLogEvents(logGroupName, logStreamName string, limit int64) ([]*OutputLogEvent, error)
+	GetLogEvents(logGroupName, logStreamName, start, stop string, limit int64) ([]*OutputLogEvent, error)
 	FilterLogEvents(filterPattern, logGroupName, nextToken *string, logStreamNames []*string, endTime, startTime *int64, interleaved *bool) ([]*FilteredLogEvent, []*SearchedLogStream, error)
 }
 
@@ -200,6 +206,8 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 func (this *CloudWatchLogs) GetLogEvents(
 	logGroupName string,
 	logStreamName string,
+	start string,
+	end string,
 	limit int64,
 ) ([]*OutputLogEvent, error) {
 	connection, err := this.Connect()
@@ -207,21 +215,47 @@ func (this *CloudWatchLogs) GetLogEvents(
 		return nil, err
 	}
 
-	var limitp *int64
-	if limit > 0 {
-		limitp = aws.Int64(limit)
-	}
-
 	input := &cloudwatchlogs.GetLogEventsInput{
 		LogGroupName:  aws.String(logGroupName),
 		LogStreamName: aws.String(logStreamName),
-		Limit:         limitp,
+	}
+
+	if limit > 0 {
+		input.SetLimit(limit)
+	}
+
+	if start != "" {
+		startDate, err := time.Parse(TIME_LAYOUT, start)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid start time: must be in format MM/DD HH:MM")
+		}
+
+		d := time.Date(time.Now().Year(), startDate.Month(), startDate.Day(),
+			startDate.Hour(), startDate.Minute(), startDate.Second(), 0, time.UTC)
+
+		input.SetStartTime(d.UnixNano())
+	}
+
+	if end != "" {
+		endDate, err := time.Parse(TIME_LAYOUT, end)
+		if err != nil {
+			return nil, fmt.Errorf("Invalid end time: must be in format MM/DD HH:MM")
+		}
+
+		d := time.Date(time.Now().Year(), endDate.Month(), endDate.Day(),
+			endDate.Hour(), endDate.Minute(), endDate.Second(), 0, time.UTC)
+
+		// end time needs to be in milliseconds, no nanoseconds
+		input.SetEndTime(d.UnixNano() / int64(time.Millisecond))
+
+		 fmt.Printf("Local Timestamp (number of milliseconds since 1970): %v\n", *input.EndTime)
 	}
 
 	var previousToken string
 	result := []*OutputLogEvent{}
 	pagef := func(output *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
 		for _, event := range output.Events {
+			fmt.Printf("Event Timestamp (number of milliseconds since 1970): %v\n", *event.Timestamp)
 			result = append(result, &OutputLogEvent{event})
 		}
 

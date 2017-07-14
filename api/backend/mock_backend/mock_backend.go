@@ -198,15 +198,15 @@ func (_mr *_MockBackendRecorder) GetService(arg0, arg1 interface{}) *gomock.Call
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetService", arg0, arg1)
 }
 
-func (_m *MockBackend) GetServiceLogs(_param0 string, _param1 string, _param2 int) ([]*models.LogFile, error) {
-	ret := _m.ctrl.Call(_m, "GetServiceLogs", _param0, _param1, _param2)
+func (_m *MockBackend) GetServiceLogs(_param0 string, _param1 string, _param2 string, _param3 string, _param4 int) ([]*models.LogFile, error) {
+	ret := _m.ctrl.Call(_m, "GetServiceLogs", _param0, _param1, _param2, _param3, _param4)
 	ret0, _ := ret[0].([]*models.LogFile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockBackendRecorder) GetServiceLogs(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetServiceLogs", arg0, arg1, arg2)
+func (_mr *_MockBackendRecorder) GetServiceLogs(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetServiceLogs", arg0, arg1, arg2, arg3, arg4)
 }
 
 func (_m *MockBackend) GetTask(_param0 string, _param1 string) (*models.Task, error) {
@@ -220,15 +220,15 @@ func (_mr *_MockBackendRecorder) GetTask(arg0, arg1 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTask", arg0, arg1)
 }
 
-func (_m *MockBackend) GetTaskLogs(_param0 string, _param1 string, _param2 int) ([]*models.LogFile, error) {
-	ret := _m.ctrl.Call(_m, "GetTaskLogs", _param0, _param1, _param2)
+func (_m *MockBackend) GetTaskLogs(_param0 string, _param1 string, _param2 string, _param3 string, _param4 int) ([]*models.LogFile, error) {
+	ret := _m.ctrl.Call(_m, "GetTaskLogs", _param0, _param1, _param2, _param3, _param4)
 	ret0, _ := ret[0].([]*models.LogFile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockBackendRecorder) GetTaskLogs(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTaskLogs", arg0, arg1, arg2)
+func (_mr *_MockBackendRecorder) GetTaskLogs(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTaskLogs", arg0, arg1, arg2, arg3, arg4)
 }
 
 func (_m *MockBackend) ListDeploys() ([]*models.Deploy, error) {
