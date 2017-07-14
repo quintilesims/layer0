@@ -4,9 +4,10 @@
 package mock_client
 
 import (
+	time "time"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	time "time"
 )
 
 // Mock of Client interface
@@ -234,15 +235,15 @@ func (_mr *_MockClientRecorder) GetService(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetService", arg0)
 }
 
-func (_m *MockClient) GetServiceLogs(_param0 string, _param1 int) ([]*models.LogFile, error) {
-	ret := _m.ctrl.Call(_m, "GetServiceLogs", _param0, _param1)
+func (_m *MockClient) GetServiceLogs(_param0 string, _param1 string, _param2 string, _param3 int) ([]*models.LogFile, error) {
+	ret := _m.ctrl.Call(_m, "GetServiceLogs", _param0, _param1, _param2, _param3)
 	ret0, _ := ret[0].([]*models.LogFile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockClientRecorder) GetServiceLogs(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetServiceLogs", arg0, arg1)
+func (_mr *_MockClientRecorder) GetServiceLogs(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetServiceLogs", arg0, arg1, arg2, arg3)
 }
 
 func (_m *MockClient) GetTask(_param0 string) (*models.Task, error) {
@@ -256,15 +257,15 @@ func (_mr *_MockClientRecorder) GetTask(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTask", arg0)
 }
 
-func (_m *MockClient) GetTaskLogs(_param0 string, _param1 int) ([]*models.LogFile, error) {
-	ret := _m.ctrl.Call(_m, "GetTaskLogs", _param0, _param1)
+func (_m *MockClient) GetTaskLogs(_param0 string, _param1 string, _param2 string, _param3 int) ([]*models.LogFile, error) {
+	ret := _m.ctrl.Call(_m, "GetTaskLogs", _param0, _param1, _param2, _param3)
 	ret0, _ := ret[0].([]*models.LogFile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockClientRecorder) GetTaskLogs(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTaskLogs", arg0, arg1)
+func (_mr *_MockClientRecorder) GetTaskLogs(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetTaskLogs", arg0, arg1, arg2, arg3)
 }
 
 func (_m *MockClient) GetVersion() (string, error) {

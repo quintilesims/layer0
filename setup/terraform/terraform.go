@@ -2,12 +2,13 @@ package terraform
 
 import (
 	"fmt"
-	"github.com/blang/semver"
 	"os"
 	"os/exec"
 	"os/signal"
 	"strings"
 	"syscall"
+
+	"github.com/blang/semver"
 )
 
 const REQUIRED_TERRAFORM_VERSION = "0.9.4"

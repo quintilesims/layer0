@@ -2,8 +2,9 @@ package arukas
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func validateMaxLength(minLength, maxLength int) schema.SchemaValidateFunc {

@@ -2,10 +2,11 @@ package command
 
 import (
 	"fmt"
-	"github.com/quintilesims/layer0/common/models"
-	"github.com/urfave/cli"
 	"strconv"
 	"strings"
+
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/urfave/cli"
 )
 
 type LoadBalancerCommand struct {

@@ -3,12 +3,13 @@ package alicloud
 import (
 	"fmt"
 
-	"github.com/denverdino/aliyungo/common"
-	"github.com/hashicorp/terraform/helper/resource"
-	"github.com/hashicorp/terraform/helper/schema"
 	"log"
 	"strings"
 	"time"
+
+	"github.com/denverdino/aliyungo/common"
+	"github.com/hashicorp/terraform/helper/resource"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceAliyunNatGateway() *schema.Resource {

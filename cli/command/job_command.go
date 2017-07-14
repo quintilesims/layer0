@@ -101,7 +101,7 @@ func (j *JobCommand) Logs(c *cli.Context) error {
 		return err
 	}
 
-	logs, err := j.Client.GetTaskLogs(job.TaskID, c.Int("tail"))
+	logs, err := j.Client.GetTaskLogs(job.TaskID, c.String("start"), c.String("end"), c.Int("tail"))
 	if err != nil {
 		return err
 	}

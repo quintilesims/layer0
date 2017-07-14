@@ -3,9 +3,10 @@ package instance
 import (
 	"crypto/tls"
 	"fmt"
-	"github.com/Sirupsen/logrus"
 	"net/http"
 	"time"
+
+	"github.com/Sirupsen/logrus"
 )
 
 func (l *LocalInstance) Apply(wait bool) error {

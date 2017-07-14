@@ -2,9 +2,10 @@ package profitbricks
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/profitbricks/profitbricks-sdk-go"
-	"log"
 )
 
 func resourceProfitBricksVolume() *schema.Resource {

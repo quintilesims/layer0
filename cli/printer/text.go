@@ -2,13 +2,14 @@ package printer
 
 import (
 	"fmt"
+	"os"
+	"strings"
+	"time"
+
 	"github.com/briandowns/spinner"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
 	"github.com/ryanuber/columnize"
-	"os"
-	"strings"
-	"time"
 )
 
 const TIME_FORMAT = "2006-01-02 15:04:05"

@@ -3,11 +3,12 @@ package client
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/quintilesims/layer0/common/testutils"
 	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"testing"
+
+	"github.com/quintilesims/layer0/common/testutils"
 )
 
 type Handler func(w http.ResponseWriter, r *http.Request)

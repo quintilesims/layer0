@@ -2,10 +2,11 @@ package instance
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/setup/docker"
 	"github.com/quintilesims/layer0/setup/terraform"
-	"os"
 )
 
 func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]interface{}) error {

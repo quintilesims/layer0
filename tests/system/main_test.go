@@ -3,12 +3,13 @@ package system
 import (
 	"flag"
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	"github.com/quintilesims/layer0/common/logutils"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/quintilesims/layer0/common/logutils"
 )
 
 var (

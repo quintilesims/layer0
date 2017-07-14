@@ -2,9 +2,10 @@ package native
 
 import (
 	"bufio"
-	"github.com/ziutek/mymysql/mysql"
 	"io"
 	"io/ioutil"
+
+	"github.com/ziutek/mymysql/mysql"
 )
 
 type pktReader struct {

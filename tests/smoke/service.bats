@@ -64,6 +64,10 @@
     l0 service logs --tail 100 service1
 }
 
+@test "service logs --start 01/01 01:01 --end 12/12 12:12 service1" {
+    l0 service logs --start '01/01 01:01' --end '12/12 12:12' service1
+}
+
 # twice since we created 2 deploys named guestbook
 @test "service: delete guestbook deploy" {
     l0 deploy delete guestbook:latest

@@ -1,20 +1,22 @@
 package client
 
 import (
-	log "github.com/Sirupsen/logrus"
 	"io"
 	"io/ioutil"
+
+	log "github.com/Sirupsen/logrus"
 
 	"bytes"
 	"crypto/tls"
 	"fmt"
-	"github.com/dghubble/sling"
-	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/waitutils"
 	"net/http"
 	"net/url"
 	"strings"
 	"sync"
+
+	"github.com/dghubble/sling"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/waitutils"
 )
 
 type DoerFunc func(req *http.Request) (*http.Response, error)

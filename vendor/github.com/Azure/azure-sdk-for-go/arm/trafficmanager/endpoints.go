@@ -19,9 +19,10 @@ package trafficmanager
 // regenerated.
 
 import (
+	"net/http"
+
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
-	"net/http"
 )
 
 // EndpointsClient is the client for the Endpoints methods of the

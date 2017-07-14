@@ -3,6 +3,7 @@ package alicloud
 import (
 	"bytes"
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/hashcode"
 )
 

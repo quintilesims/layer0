@@ -19,10 +19,11 @@ package scheduler
 // regenerated.
 
 import (
+	"net/http"
+
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/go-autorest/autorest/validation"
-	"net/http"
 )
 
 // JobsClient is the client for the Jobs methods of the Scheduler service.

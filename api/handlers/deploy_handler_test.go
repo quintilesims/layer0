@@ -1,13 +1,14 @@
 package handlers
 
 import (
+	"testing"
+
 	"github.com/emicklei/go-restful"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/logic/mock_logic"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
-	"testing"
 )
 
 func TestListDeploys(t *testing.T) {

@@ -2,10 +2,11 @@ package logutils
 
 import (
 	"fmt"
-	"github.com/Sirupsen/logrus"
-	"github.com/facebookgo/stack"
 	"os"
 	"strings"
+
+	"github.com/Sirupsen/logrus"
+	"github.com/facebookgo/stack"
 )
 
 const TIME_FORMAT = "2006-01-02 15:04:05"

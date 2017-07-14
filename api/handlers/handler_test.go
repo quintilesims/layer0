@@ -3,15 +3,16 @@ package handlers
 import (
 	"bytes"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"os"
+	"testing"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/emicklei/go-restful"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/testutils"
-	"net/http"
-	"net/http/httptest"
-	"os"
-	"testing"
 )
 
 // Main test entrypoint

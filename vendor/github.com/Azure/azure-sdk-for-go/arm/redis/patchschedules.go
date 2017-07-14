@@ -19,10 +19,11 @@ package redis
 // regenerated.
 
 import (
+	"net/http"
+
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
 	"github.com/Azure/go-autorest/autorest/validation"
-	"net/http"
 )
 
 // PatchSchedulesClient is the rEST API for Azure Redis Cache Service.

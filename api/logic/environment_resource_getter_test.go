@@ -2,13 +2,14 @@ package logic
 
 import (
 	"encoding/json"
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/logic/mock_logic"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/common/types"
 	"github.com/zpatrick/go-bytesize"
-	"testing"
 )
 
 func newTestEnvironmentResourceGetter(t *testing.T) (*TestEnvironmentResourceGetter, *gomock.Controller) {

@@ -2,8 +2,9 @@ package waitutils
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
 )
 
 // If timeout is specified, waiter will honor it

@@ -1,10 +1,11 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/common/models"
-	"github.com/urfave/cli"
 	"io/ioutil"
 	"strconv"
+
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/urfave/cli"
 )
 
 type DeployCommand struct {

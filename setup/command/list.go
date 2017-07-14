@@ -2,9 +2,10 @@ package command
 
 import (
 	"fmt"
+	"sort"
+
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
-	"sort"
 )
 
 type status struct {

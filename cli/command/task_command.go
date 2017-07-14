@@ -1,9 +1,10 @@
 package command
 
 import (
+	"strings"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
-	"strings"
 )
 
 type TaskCommand struct {
@@ -73,6 +74,14 @@ func (t *TaskCommand) GetCommand() cli.Command {
 					cli.IntFlag{
 						Name:  "tail",
 						Usage: "number of lines from the end to return",
+					},
+					cli.StringFlag{
+						Name:  "start",
+						Usage: "the start of the time range to fetch logs (format: MM/DD HH:MM)",
+					},
+					cli.StringFlag{
+						Name:  "end",
+						Usage: "the end of the time range to fetch logs (format: MM/DD HH:MM)",
 					},
 				},
 			},
@@ -193,7 +202,7 @@ func (t *TaskCommand) Logs(c *cli.Context) error {
 		return err
 	}
 
-	logs, err := t.Client.GetTaskLogs(id, c.Int("tail"))
+	logs, err := t.Client.GetTaskLogs(id, c.String("start"), c.String("end"), c.Int("tail"))
 	if err != nil {
 		return err
 	}

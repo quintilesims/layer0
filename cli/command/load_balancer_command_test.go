@@ -1,10 +1,11 @@
 package command
 
 import (
+	"testing"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/urfave/cli"
-	"testing"
 )
 
 func TestParsePort(t *testing.T) {

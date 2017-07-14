@@ -6,10 +6,11 @@ import (
 	"strconv"
 	"strings"
 
+	"regexp"
+
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/denverdino/aliyungo/slb"
-	"regexp"
 )
 
 // common

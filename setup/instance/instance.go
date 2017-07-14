@@ -2,10 +2,11 @@ package instance
 
 import (
 	"fmt"
-	"github.com/docker/docker/pkg/homedir"
-	"github.com/quintilesims/layer0/setup/terraform"
 	"os"
 	"regexp"
+
+	"github.com/docker/docker/pkg/homedir"
+	"github.com/quintilesims/layer0/setup/terraform"
 )
 
 type LocalInstance struct {

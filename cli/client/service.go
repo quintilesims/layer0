@@ -2,9 +2,12 @@ package client
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
+	"time"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/waitutils"
-	"time"
 )
 
 const REQUIRED_SUCCESS_WAIT_COUNT = 3
@@ -56,11 +59,21 @@ func (c *APIClient) GetService(id string) (*models.Service, error) {
 	return service, nil
 }
 
-func (c *APIClient) GetServiceLogs(id string, tail int) ([]*models.LogFile, error) {
-	url := id + "/logs"
+func (c *APIClient) GetServiceLogs(id, start, end string, tail int) ([]*models.LogFile, error) {
+	query := url.Values{}
 	if tail > 0 {
-		url = fmt.Sprintf("%s?tail=%d", url, tail)
+		query.Set("tail", strconv.Itoa(tail))
 	}
+
+	if start != "" {
+		query.Set("start", start)
+	}
+
+	if end != "" {
+		query.Set("end", end)
+	}
+
+	url := fmt.Sprintf("%s/logs?%s", id, query.Encode())
 
 	var logFiles []*models.LogFile
 	if err := c.Execute(c.Sling("service/").Get(url), &logFiles); err != nil {

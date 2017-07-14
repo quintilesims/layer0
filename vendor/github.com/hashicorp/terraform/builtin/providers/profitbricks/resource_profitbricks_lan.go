@@ -2,10 +2,11 @@ package profitbricks
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/profitbricks/profitbricks-sdk-go"
 	"log"
 	"time"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/profitbricks/profitbricks-sdk-go"
 )
 
 func resourceProfitBricksLan() *schema.Resource {

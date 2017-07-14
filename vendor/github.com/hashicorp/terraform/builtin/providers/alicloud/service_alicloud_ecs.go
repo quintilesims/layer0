@@ -3,9 +3,10 @@ package alicloud
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
+
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
-	"strings"
 )
 
 func (client *AliyunClient) DescribeImage(imageId string) (*ecs.ImageType, error) {

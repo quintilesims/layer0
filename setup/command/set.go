@@ -2,8 +2,9 @@ package command
 
 import (
 	"fmt"
-	"github.com/urfave/cli"
 	"strings"
+
+	"github.com/urfave/cli"
 )
 
 func (f *CommandFactory) Set() cli.Command {

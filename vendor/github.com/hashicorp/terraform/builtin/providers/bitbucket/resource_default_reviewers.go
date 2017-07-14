@@ -3,6 +3,7 @@ package bitbucket
 import (
 	"encoding/json"
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 )
 

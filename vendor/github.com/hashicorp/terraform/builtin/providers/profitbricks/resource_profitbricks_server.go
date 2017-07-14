@@ -3,12 +3,13 @@ package profitbricks
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/profitbricks/profitbricks-sdk-go"
-	"golang.org/x/crypto/ssh"
 	"io/ioutil"
 	"log"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/profitbricks/profitbricks-sdk-go"
+	"golang.org/x/crypto/ssh"
 )
 
 func resourceProfitBricksServer() *schema.Resource {

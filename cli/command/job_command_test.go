@@ -1,10 +1,11 @@
 package command
 
 import (
+	"testing"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/urfave/cli"
-	"testing"
 )
 
 func TestDelete(t *testing.T) {
@@ -106,10 +107,16 @@ func TestGetJobLogs(t *testing.T) {
 		Return(&models.Job{TaskID: "task-id"}, nil)
 
 	tc.Client.EXPECT().
-		GetTaskLogs("task-id", 100).
+		GetTaskLogs("task-id", "01/01 01:01", "12/12 12:12", 100).
 		Return([]*models.LogFile{}, nil)
 
-	c := testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"tail": 100})
+	flags := map[string]interface{}{
+		"tail":  100,
+		"start": "01/01 01:01",
+		"end":   "12/12 12:12",
+	}
+
+	c := testutils.GetCLIContext(t, []string{"name"}, flags)
 	if err := command.Logs(c); err != nil {
 		t.Fatal(err)
 	}

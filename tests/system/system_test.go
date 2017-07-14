@@ -1,10 +1,11 @@
 package system
 
 import (
+	"testing"
+
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/tests/system/clients"
 	"github.com/quintilesims/tftest"
-	"testing"
 )
 
 type SystemTest struct {

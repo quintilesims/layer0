@@ -1,9 +1,10 @@
 package clients
 
 import (
+	"testing"
+
 	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/common/models"
-	"testing"
 )
 
 type Layer0TestClient struct {
