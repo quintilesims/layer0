@@ -124,5 +124,26 @@ func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
 		return err
 	}
 
+	if len(config.Auths) == 0 {
+		fmt.Println("[WARNING] Even though you have specified a path to a docker config file, " +
+			"it does not contain any auth information. If you need to add auth information " +
+			"to the docker config file, you can do so and re-run the l0-setup init command to " +
+			"include private registry authentication.\n")
+
+		fmt.Println("Press 'enter' to continue without private registry authentication: ")
+
+		var input string
+		fmt.Scanln(&input)
+	} else if config.CredsStore != "" {
+		fmt.Printf("[WARNING] You are using a credential store '%s'. "+
+			"Layer0 does not support credential store authentication.\n\n",
+			config.CredsStore)
+
+		fmt.Println("Press 'enter' to continue without private registry authentication: ")
+
+		var input string
+		fmt.Scanln(&input)
+	}
+
 	return docker.WriteConfig(dockerOutputPath, config)
 }

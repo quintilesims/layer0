@@ -5,7 +5,8 @@ import (
 )
 
 type Config struct {
-	Auths map[string]Auth `json:"auths,omitempty"`
+	Auths      map[string]Auth `json:"auths,omitempty"`
+	CredsStore string          `json:"credsStore,omitempty"`
 }
 
 type Auth map[string]interface{}
