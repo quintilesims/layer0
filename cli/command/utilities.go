@@ -7,8 +7,6 @@ import (
 	"github.com/urfave/cli"
 )
 
-const DATE_FORMAT = "01/02 15:04"
-
 func assertSingleID(entityType, target string, ids []string) (string, error) {
 	if len(ids) == 0 {
 		return "", noMatchesError(entityType, target)
