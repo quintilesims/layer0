@@ -36,7 +36,7 @@ type Client interface {
 	DeleteService(id string) (string, error)
 	UpdateService(serviceID, deployID string) (*models.Service, error)
 	GetService(id string) (*models.Service, error)
-	GetServiceLogs(id string, tail int) ([]*models.LogFile, error)
+	GetServiceLogs(id, start, end string, tail int) ([]*models.LogFile, error)
 	ListServices() ([]*models.ServiceSummary, error)
 	ScaleService(id string, scale int) (*models.Service, error)
 	WaitForDeployment(serviceID string, timeout time.Duration) (*models.Service, error)
@@ -44,7 +44,7 @@ type Client interface {
 	CreateTask(name, environmentID, deployID string, copies int, overrides []models.ContainerOverride) (string, error)
 	DeleteTask(id string) error
 	GetTask(id string) (*models.Task, error)
-	GetTaskLogs(id string, tail int) ([]*models.LogFile, error)
+	GetTaskLogs(id, start, end string, tail int) ([]*models.LogFile, error)
 	ListTasks() ([]*models.TaskSummary, error)
 
 	SelectByQuery(params map[string]string) ([]*models.EntityWithTags, error)

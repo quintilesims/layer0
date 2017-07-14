@@ -278,9 +278,15 @@ func TestGetServiceLogs(t *testing.T) {
 		Return([]string{"id"}, nil)
 
 	tc.Client.EXPECT().
-		GetServiceLogs("id", 100)
+		GetServiceLogs("id", "01/01 01:01", "12/12 12:12", 100)
 
-	c := testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"tail": 100})
+	flags := map[string]interface{}{
+		"tail":  100,
+		"start": "01/01 01:01",
+		"end":   "12/12 12:12",
+	}
+
+	c := testutils.GetCLIContext(t, []string{"name"}, flags)
 	if err := command.Logs(c); err != nil {
 		t.Fatal(err)
 	}

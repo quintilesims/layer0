@@ -2,6 +2,8 @@ package client
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
 
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -47,11 +49,21 @@ func (c *APIClient) GetTask(id string) (*models.Task, error) {
 	return task, nil
 }
 
-func (c *APIClient) GetTaskLogs(id string, tail int) ([]*models.LogFile, error) {
-	url := id + "/logs"
+func (c *APIClient) GetTaskLogs(id, start, end string, tail int) ([]*models.LogFile, error) {
+	query := url.Values{}
 	if tail > 0 {
-		url = fmt.Sprintf("%s?tail=%d", url, tail)
+		query.Set("tail", strconv.Itoa(tail))
 	}
+
+	if start != "" {
+		query.Set("start", start)
+	}
+
+	if end != "" {
+		query.Set("end", end)
+	}
+
+	url := fmt.Sprintf("%s/logs?%s", id, query.Encode())
 
 	var logFiles []*models.LogFile
 	if err := c.Execute(c.Sling("task/").Get(url), &logFiles); err != nil {

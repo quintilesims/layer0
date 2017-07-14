@@ -82,6 +82,14 @@ func (s *ServiceCommand) GetCommand() cli.Command {
 						Name:  "tail",
 						Usage: "number of lines from the end to return",
 					},
+					cli.StringFlag{
+						Name:  "start",
+						Usage: "the start of the time range to fetch logs (format: MM/DD HH:MM)",
+					},
+					cli.StringFlag{
+						Name:  "end",
+						Usage: "the end of the time range to fetch logs (format: MM/DD HH:MM)",
+					},
 				},
 			},
 			{
@@ -231,7 +239,7 @@ func (s *ServiceCommand) Logs(c *cli.Context) error {
 		return err
 	}
 
-	logs, err := s.Client.GetServiceLogs(id, c.Int("tail"))
+	logs, err := s.Client.GetServiceLogs(id, c.String("start"), c.String("end"), c.Int("tail"))
 	if err != nil {
 		return err
 	}

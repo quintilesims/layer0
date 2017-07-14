@@ -47,6 +47,14 @@ func (j *JobCommand) GetCommand() cli.Command {
 						Name:  "tail",
 						Usage: "number of lines from the end to return",
 					},
+					  cli.StringFlag{
+                                                Name:  "start",
+                                                Usage: "the start of the time range to fetch logs (format: MM/DD HH:MM)",
+                                        },
+                                        cli.StringFlag{
+                                                Name:  "end",
+                                                Usage: "the end of the time range to fetch logs (format: MM/DD HH:MM)",
+                                        },
 				},
 			},
 		},
@@ -101,7 +109,7 @@ func (j *JobCommand) Logs(c *cli.Context) error {
 		return err
 	}
 
-	logs, err := j.Client.GetTaskLogs(job.TaskID, c.Int("tail"))
+	logs, err := j.Client.GetTaskLogs(job.TaskID, c.String("start"), c.String("end"), c.Int("tail"))
 	if err != nil {
 		return err
 	}

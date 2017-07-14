@@ -85,7 +85,9 @@ func TestGetTaskLogs(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		testutils.AssertEqual(t, r.Method, "GET")
 		testutils.AssertEqual(t, r.URL.Path, "/task/id/logs")
-		testutils.AssertEqual(t, r.URL.RawQuery, "tail=100")
+		testutils.AssertEqual(t, r.URL.Query().Get("tail"), "100")
+		testutils.AssertEqual(t, r.URL.Query().Get("start"), "01/01 01:01")
+		testutils.AssertEqual(t, r.URL.Query().Get("end"), "12/12 12:12")
 
 		logs := []models.LogFile{
 			{Name: "name1"},
@@ -98,7 +100,7 @@ func TestGetTaskLogs(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	logs, err := client.GetTaskLogs("id", 100)
+	logs, err := client.GetTaskLogs("id", "01/01 01:01", "12/12 12:12", 100)
 	if err != nil {
 		t.Fatal(err)
 	}
