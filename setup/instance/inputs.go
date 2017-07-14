@@ -2,6 +2,7 @@ package instance
 
 import (
 	"fmt"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/setup/aws"
 )

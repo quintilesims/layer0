@@ -2,9 +2,10 @@ package profitbricks
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/profitbricks/profitbricks-sdk-go"
-	"strings"
 )
 
 func dataSourceImage() *schema.Resource {

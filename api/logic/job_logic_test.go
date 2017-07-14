@@ -1,13 +1,14 @@
 package logic
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/api/logic/mock_logic"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/common/types"
-	"testing"
 )
 
 func TestJobSelectByID(t *testing.T) {

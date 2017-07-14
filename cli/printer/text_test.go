@@ -1,9 +1,10 @@
 package printer
 
 import (
+	"time"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
-	"time"
 )
 
 // testing stdout: https://blog.golang.org/examples

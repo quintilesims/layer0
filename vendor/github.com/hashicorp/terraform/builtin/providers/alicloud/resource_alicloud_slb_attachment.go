@@ -2,8 +2,9 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
 	"strings"
+
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceAliyunSlbAttachment() *schema.Resource {

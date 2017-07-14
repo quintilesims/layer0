@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"

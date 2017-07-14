@@ -1,6 +1,7 @@
 package main
 
 import (
+	restful "github.com/emicklei/go-restful"
 	"github.com/mjibson/appstats"
 )
 

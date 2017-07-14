@@ -1,9 +1,10 @@
 package arukas
 
 import (
+	"net"
+
 	API "github.com/arukasio/cli"
 	"github.com/hashicorp/terraform/helper/schema"
-	"net"
 )
 
 // Takes the result of flatmap.Expand for an array of strings

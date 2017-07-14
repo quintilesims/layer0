@@ -2,13 +2,14 @@ package profitbricks
 
 import (
 	"fmt"
-	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/profitbricks/profitbricks-sdk-go"
 	"log"
 	"regexp"
 	"runtime"
 	"strings"
 	"time"
+
+	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/profitbricks/profitbricks-sdk-go"
 )
 
 func resourceProfitBricksDatacenter() *schema.Resource {

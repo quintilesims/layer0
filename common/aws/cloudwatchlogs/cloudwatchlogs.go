@@ -172,9 +172,9 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 	}
 
 	input := &cloudwatchlogs.DescribeLogStreamsInput{
-		LogGroupName:        aws.String(logGroupName),
-		OrderBy:             aws.String(orderBy),
-		Descending:          aws.Bool(true),
+		LogGroupName: aws.String(logGroupName),
+		OrderBy:      aws.String(orderBy),
+		Descending:   aws.Bool(true),
 	}
 
 	streams := []*LogStream{}

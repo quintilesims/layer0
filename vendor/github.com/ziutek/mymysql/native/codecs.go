@@ -1,8 +1,9 @@
 package native
 
 import (
-	"github.com/ziutek/mymysql/mysql"
 	"time"
+
+	"github.com/ziutek/mymysql/mysql"
 )
 
 // Integers

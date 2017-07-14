@@ -6,9 +6,10 @@ import (
 	"regexp"
 	"sort"
 
+	"time"
+
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
-	"time"
 )
 
 func dataSourceAlicloudImages() *schema.Resource {

@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+
 	"github.com/quintilesims/sts/models"
 	"github.com/zpatrick/rclient"
 )

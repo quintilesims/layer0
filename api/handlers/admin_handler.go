@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/emicklei/go-restful"
 	"github.com/quintilesims/layer0/api/logic"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
-	"net/http"
-	"strings"
 )
 
 type AdminHandler struct {

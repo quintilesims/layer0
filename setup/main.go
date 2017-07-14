@@ -2,6 +2,9 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"strings"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
@@ -9,8 +12,6 @@ import (
 	"github.com/quintilesims/layer0/setup/command"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
-	"os"
-	"strings"
 )
 
 var Version string

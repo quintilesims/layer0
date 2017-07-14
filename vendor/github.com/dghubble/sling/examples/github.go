@@ -2,10 +2,11 @@ package main
 
 import (
 	"fmt"
-	"github.com/dghubble/sling"
-	"golang.org/x/oauth2"
 	"net/http"
 	"os"
+
+	"github.com/dghubble/sling"
+	"golang.org/x/oauth2"
 )
 
 const baseURL = "https://api.github.com/"

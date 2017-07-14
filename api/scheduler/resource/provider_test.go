@@ -1,9 +1,10 @@
 package resource
 
 import (
+	"testing"
+
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/zpatrick/go-bytesize"
-	"testing"
 )
 
 func TestResourceProviderHasMemoryFor(t *testing.T) {

@@ -1,6 +1,9 @@
 package logic
 
 import (
+	"os"
+	"testing"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/mock_backend"
@@ -9,8 +12,6 @@ import (
 	"github.com/quintilesims/layer0/common/db/job_store"
 	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/models"
-	"os"
-	"testing"
 )
 
 func TestMain(m *testing.M) {

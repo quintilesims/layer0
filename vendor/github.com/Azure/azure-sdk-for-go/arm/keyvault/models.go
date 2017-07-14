@@ -19,10 +19,11 @@ package keyvault
 // regenerated.
 
 import (
+	"net/http"
+
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/to"
 	"github.com/satori/uuid"
-	"net/http"
 )
 
 // CertificatePermissions enumerates the values for certificate permissions.

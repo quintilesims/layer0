@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/emicklei/go-restful"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
-	"net/http"
-	"strings"
 )
 
 func ToHttpError(code errors.ErrorCode) int {

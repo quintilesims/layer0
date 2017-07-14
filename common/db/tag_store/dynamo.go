@@ -2,6 +2,7 @@ package tag_store
 
 import (
 	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"

@@ -2,12 +2,13 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
+
 	"github.com/emicklei/go-restful"
 	"github.com/quintilesims/layer0/api/logic"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
-	"net/http"
 )
 
 type LoadBalancerHandler struct {

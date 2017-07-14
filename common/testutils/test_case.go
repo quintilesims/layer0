@@ -1,8 +1,9 @@
 package testutils
 
 import (
-	"github.com/golang/mock/gomock"
 	"testing"
+
+	"github.com/golang/mock/gomock"
 )
 
 type TestCase struct {

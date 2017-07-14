@@ -5,10 +5,11 @@ import (
 	"log"
 
 	"encoding/base64"
+	"strings"
+
 	"github.com/denverdino/aliyungo/common"
 	"github.com/denverdino/aliyungo/ecs"
 	"github.com/hashicorp/terraform/helper/schema"
-	"strings"
 )
 
 func resourceAliyunInstance() *schema.Resource {

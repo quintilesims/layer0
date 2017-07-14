@@ -2,6 +2,7 @@ package profitbricks
 
 import (
 	"fmt"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/profitbricks/profitbricks-sdk-go"

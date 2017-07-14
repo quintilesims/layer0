@@ -2,6 +2,7 @@ package arukas
 
 import (
 	"encoding/json"
+
 	"github.com/manyminds/api2go/jsonapi"
 )
 

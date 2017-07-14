@@ -2,11 +2,13 @@ package iam
 
 import (
 	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/iam"
 	//	"github.com/quintilesims/layer0/api/config"
-	"github.com/quintilesims/layer0/common/aws/provider"
 	"strings"
+
+	"github.com/quintilesims/layer0/common/aws/provider"
 )
 
 type Provider interface {

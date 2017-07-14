@@ -2,11 +2,12 @@ package job
 
 import (
 	"fmt"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/api/logic"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
-	"time"
 )
 
 const (

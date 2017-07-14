@@ -2,9 +2,10 @@ package command
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/common/models"
-	"strings"
 )
 
 type Resolver interface {

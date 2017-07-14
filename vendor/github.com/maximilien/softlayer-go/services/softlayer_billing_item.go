@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+
 	common "github.com/maximilien/softlayer-go/common"
 	softlayer "github.com/maximilien/softlayer-go/softlayer"
 )

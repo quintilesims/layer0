@@ -1,10 +1,11 @@
 package cloudwatch
 
 import (
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudwatch"
 	"github.com/quintilesims/layer0/common/aws/provider"
-	"time"
 )
 
 type Provider interface {

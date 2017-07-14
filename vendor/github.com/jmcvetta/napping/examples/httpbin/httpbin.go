@@ -11,8 +11,9 @@ package main
 
 import (
 	"fmt"
-	"github.com/jmcvetta/napping"
 	"log"
+
+	"github.com/jmcvetta/napping"
 )
 
 func init() {

@@ -1,10 +1,11 @@
 package logic
 
 import (
+	"time"
+
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/waitutils"
-	"time"
 )
 
 const (

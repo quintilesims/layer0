@@ -3,11 +3,12 @@ package winrm
 import (
 	"encoding/base64"
 	"fmt"
-	"github.com/masterzen/winrm/soap"
-	"github.com/masterzen/xmlpath"
 	"io"
 	"strconv"
 	"strings"
+
+	"github.com/masterzen/winrm/soap"
+	"github.com/masterzen/xmlpath"
 )
 
 func first(node *xmlpath.Node, xpath string) (content string, err error) {

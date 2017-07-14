@@ -1,11 +1,12 @@
 package command
 
 import (
+	"testing"
+
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/quintilesims/layer0/setup/instance/mock_instance"
-	"testing"
 )
 
 func TestSet(t *testing.T) {
