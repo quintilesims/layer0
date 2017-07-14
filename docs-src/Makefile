@@ -4,4 +4,7 @@ deps:
 build:
 	mkdocs build --clean
 
-.PHONY: deps build
+serve:
+	mkdocs serve -a 0.0.0.0:9090
+
+.PHONY: deps build serve

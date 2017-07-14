@@ -26,3 +26,9 @@
     result="$(l0 -o json job list | jq -r 'max_by(.time_created) | .job_id')"
     l0 job logs $result
 }
+
+@test "job logs --start 01/01 01:01 --end 12/12 12:12 (most recent)" {
+    result="$(l0 -o json job list | jq -r 'max_by(.time_created) | .job_id')"
+    l0 job logs --start '01/01 01:01' --end '12/12 12:12' $result
+}
+

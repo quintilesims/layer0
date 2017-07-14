@@ -465,24 +465,7 @@ Use the **logs** subcommand to display the logs from a Layer0 job that is curren
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 job logs** [--tail=*N* ] _jobName_</div>
-  </div>
-</div>
-
-####Required parameters
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap">_jobName_</div>
-    <div class="divCell">The name of the Layer0 job for which you want to view logs.</div>
-  </div>
-</div>
-### job logs
-Use the **logs** subcommand to display the logs from a Layer0 job that is currently running.
-
-####Usage
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoPadding">**l0 job logs** [--tail=*N* ] _jobName_</div>
+    <div class="divCellNoPadding">**l0 job logs**  [--start *MM/DD HH:MM*] [--end *MM/DD HH:MM*] [--tail=*N* ] _jobName_</div>
   </div>
 </div>
 
@@ -496,6 +479,14 @@ Use the **logs** subcommand to display the logs from a Layer0 job that is curren
 
 ####Optional arguments
 <div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--start *MM/DD HH:MM*</div>
+    <div class="divCell">The start of the time range to fetch logs.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--end *MM/DD HH:MM*</div>
+    <div class="divCell">The end of the time range to fetch logs.</div>
+  </div>
   <div class="divRow">
     <div class="divCellNoWrap">--tail=*N*</div>
     <div class="divCell">Display only the last _N_ lines of the log.</div>
@@ -1044,7 +1035,7 @@ Use the **logs** subcommand to display the logs from a Layer0 service that is cu
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 service logs** [--tail=*N* ] _serviceName_</div>
+    <div class="divCellNoPadding">**l0 service logs** [--start *MM/DD HH:MM*] [--end *MM/DD HH:MM*] [--tail=*N* ] _serviceName_ </div>
   </div>
 </div>
 
@@ -1058,6 +1049,14 @@ Use the **logs** subcommand to display the logs from a Layer0 service that is cu
 
 ####Optional arguments
 <div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--start *MM/DD HH:MM*</div>
+    <div class="divCell">The start of the time range to fetch logs.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--end *MM/DD HH:MM*</div>
+    <div class="divCell">The end of the time range to fetch logs.</div>
+  </div>
   <div class="divRow">
     <div class="divCellNoWrap">--tail=*N*</div>
     <div class="divCell">Display only the last _N_ lines of the log.</div>
@@ -1209,7 +1208,7 @@ Use the **logs** subcommand to display logs for a running Layer0 task.
 #### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 task logs** [--tail=_N_ ] _taskName_</div>
+    <div class="divCellNoPadding">**l0 task logs** [--start *MM/DD HH:MM*] [--end *MM/DD HH:MM*] [--tail=*N* ] _taskName_</div>
   </div>
 </div>
 
@@ -1218,6 +1217,22 @@ Use the **logs** subcommand to display logs for a running Layer0 task.
   <div class="divRow">
     <div class="divCellNoWrap">_taskName_</div>
     <div class="divCell">The name of an existing Layer0 task.</div>
+  </div>
+</div>
+
+####Optional arguments
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">--start *MM/DD HH:MM*</div>
+    <div class="divCell">The start of the time range to fetch logs.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--end *MM/DD HH:MM*</div>
+    <div class="divCell">The end of the time range to fetch logs.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">--tail=*N*</div>
+    <div class="divCell">Display only the last _N_ lines of the log.</div>
   </div>
 </div>
 
