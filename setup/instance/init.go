@@ -135,13 +135,8 @@ func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
 		var input string
 		fmt.Scanln(&input)
 	} else if config.CredsStore != "" {
-		fmt.Printf("[WARNING] Even though you have specified a path to a docker config file, "+
-			"the config file is using a credential store '%s' to cache the credentials. This "+
-			"means the credentials for private registry authentication aren't in the docker "+
-			"config file. You can either not use a credential store by removing the 'credsStore' "+
-			"section or add a 'credHelpers' section and exclude your private docker repository "+
-			"so that the private registry credentials, for just your repository are stored in "+
-			"the file you have specified.\n\n",
+		fmt.Printf("[WARNING] You are using a credential store '%s'. "+
+			"Layer0 does not support credential store authentication.\n\n",
 			config.CredsStore)
 
 		fmt.Println("Press 'enter' to continue without private registry authentication: ")
