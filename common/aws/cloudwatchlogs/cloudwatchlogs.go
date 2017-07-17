@@ -203,6 +203,19 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 	return streams, nil
 }
 
+func timeToMilliseconds(v string) (int64, error) {
+	t, err := time.Parse(TIME_LAYOUT, v)
+	if err != nil {
+		return 0, fmt.Errorf("Invalid time: must be in format MM/DD HH:MM")
+	}
+
+	year := time.Now().Year()
+	date := time.Date(year, t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
+
+	// convert ns to ms
+	return date.UnixNano() / int64(time.Millisecond), nil
+}
+
 func (this *CloudWatchLogs) GetLogEvents(
 	logGroupName string,
 	logStreamName string,
@@ -225,37 +238,27 @@ func (this *CloudWatchLogs) GetLogEvents(
 	}
 
 	if start != "" {
-		startDate, err := time.Parse(TIME_LAYOUT, start)
+		startTime, err := timeToMilliseconds(start)
 		if err != nil {
-			return nil, fmt.Errorf("Invalid start time: must be in format MM/DD HH:MM")
+			return nil, err
 		}
 
-		d := time.Date(time.Now().Year(), startDate.Month(), startDate.Day(),
-			startDate.Hour(), startDate.Minute(), startDate.Second(), 0, time.UTC)
-
-		input.SetStartTime(d.UnixNano())
+		input.SetStartTime(startTime)
 	}
 
 	if end != "" {
-		endDate, err := time.Parse(TIME_LAYOUT, end)
+		endTime, err := timeToMilliseconds(end)
 		if err != nil {
-			return nil, fmt.Errorf("Invalid end time: must be in format MM/DD HH:MM")
+			return nil, err
 		}
 
-		d := time.Date(time.Now().Year(), endDate.Month(), endDate.Day(),
-			endDate.Hour(), endDate.Minute(), endDate.Second(), 0, time.UTC)
-
-		// end time needs to be in milliseconds, no nanoseconds
-		input.SetEndTime(d.UnixNano() / int64(time.Millisecond))
-
-		 fmt.Printf("Local Timestamp (number of milliseconds since 1970): %v\n", *input.EndTime)
+		input.SetEndTime(endTime)
 	}
 
 	var previousToken string
 	result := []*OutputLogEvent{}
 	pagef := func(output *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
 		for _, event := range output.Events {
-			fmt.Printf("Event Timestamp (number of milliseconds since 1970): %v\n", *event.Timestamp)
 			result = append(result, &OutputLogEvent{event})
 		}
 
