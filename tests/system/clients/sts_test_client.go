@@ -1,12 +1,13 @@
 package clients
 
 import (
+	"testing"
+	"time"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/sts/client"
 	"github.com/quintilesims/sts/models"
-	"testing"
-	"time"
 )
 
 type STSTestClient struct {

@@ -1,11 +1,12 @@
 package client
 
 import (
-	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/common/testutils"
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 )
 
 func TestCreateService(t *testing.T) {

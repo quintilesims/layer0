@@ -1,10 +1,11 @@
 package client
 
 import (
-	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/common/testutils"
 	"net/http"
 	"testing"
+
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 )
 
 func TestCreateDeploy(t *testing.T) {

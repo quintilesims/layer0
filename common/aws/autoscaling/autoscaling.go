@@ -2,6 +2,7 @@ package autoscaling
 
 import (
 	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/quintilesims/layer0/common/aws/provider"

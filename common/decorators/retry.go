@@ -1,10 +1,11 @@
 package decorators
 
 import (
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/quintilesims/layer0/common/waitutils"
 	"strings"
 	"time"
+
+	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/quintilesims/layer0/common/waitutils"
 )
 
 type Retry struct {

@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/hashicorp/terraform/helper/resource"
-	"google.golang.org/api/servicemanagement/v1"
 )
 
 type ServiceManagementOperationWaiter struct {

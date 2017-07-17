@@ -2,8 +2,9 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/emicklei/go-restful"
 	"net/http"
+
+	"github.com/emicklei/go-restful"
 )
 
 func WriteJobResponse(response *restful.Response, jobID string) {

@@ -2,10 +2,11 @@ package ecs
 
 import (
 	"fmt"
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/aws/provider"
-	"strings"
 )
 
 const MAX_DESCRIBE_SERVICE_IDS = 10

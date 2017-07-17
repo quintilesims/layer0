@@ -1,9 +1,10 @@
 package arukas
 
 import (
-	API "github.com/arukasio/cli"
 	"os"
 	"time"
+
+	API "github.com/arukasio/cli"
 )
 
 const (

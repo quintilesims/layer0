@@ -5,12 +5,13 @@
 package openpgp
 
 import (
+	"io"
+	"time"
+
 	"github.com/keybase/go-crypto/openpgp/armor"
 	"github.com/keybase/go-crypto/openpgp/errors"
 	"github.com/keybase/go-crypto/openpgp/packet"
 	"github.com/keybase/go-crypto/rsa"
-	"io"
-	"time"
 )
 
 // PublicKeyType is the armor type for a PGP public key.

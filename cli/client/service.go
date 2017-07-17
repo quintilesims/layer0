@@ -2,9 +2,10 @@ package client
 
 import (
 	"fmt"
+	"time"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/waitutils"
-	"time"
 )
 
 const REQUIRED_SUCCESS_WAIT_COUNT = 3

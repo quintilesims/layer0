@@ -2,9 +2,10 @@ package logentries
 
 import (
 	"fmt"
+	"strconv"
+
 	"github.com/hashicorp/terraform/helper/schema"
 	logentries "github.com/logentries/le_goclient"
-	"strconv"
 )
 
 func resourceLogentriesLog() *schema.Resource {

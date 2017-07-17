@@ -1,11 +1,12 @@
 package handlers
 
 import (
+	"testing"
+
 	"github.com/emicklei/go-restful"
 	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
-	"testing"
 )
 
 var TestTags = models.Tags{

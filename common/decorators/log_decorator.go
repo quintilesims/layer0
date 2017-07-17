@@ -1,8 +1,9 @@
 package decorators
 
 import (
-	"github.com/quintilesims/layer0/common/logutils"
 	"time"
+
+	"github.com/quintilesims/layer0/common/logutils"
 )
 
 var log = logutils.NewStandardLogger("AWS Decorator")

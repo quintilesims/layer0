@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"gopkg.in/zorkian/go-datadog-api.v2"
 )
 
 func resourceDatadogDowntime() *schema.Resource {

@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/emicklei/go-restful"
 	"github.com/emicklei/go-restful/swagger"
@@ -10,9 +14,6 @@ import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/startup"
-	"net/http"
-	"strings"
-	"time"
 )
 
 const (

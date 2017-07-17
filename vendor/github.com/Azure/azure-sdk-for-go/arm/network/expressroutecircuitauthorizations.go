@@ -19,9 +19,10 @@ package network
 // regenerated.
 
 import (
+	"net/http"
+
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/azure"
-	"net/http"
 )
 
 // ExpressRouteCircuitAuthorizationsClient is the the Microsoft Azure Network

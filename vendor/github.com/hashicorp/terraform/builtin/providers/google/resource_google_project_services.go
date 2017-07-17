@@ -5,7 +5,6 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"google.golang.org/api/servicemanagement/v1"
 )
 
 func resourceGoogleProjectServices() *schema.Resource {

@@ -2,10 +2,11 @@ package arukas
 
 import (
 	"fmt"
-	API "github.com/arukasio/cli"
-	"github.com/hashicorp/terraform/helper/schema"
 	"strings"
 	"time"
+
+	API "github.com/arukasio/cli"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceArukasContainer() *schema.Resource {

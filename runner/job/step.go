@@ -2,10 +2,11 @@ package job
 
 import (
 	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"github.com/quintilesims/layer0/common/errors"
 	"sync"
 	"time"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/quintilesims/layer0/common/errors"
 )
 
 type Action func(chan bool, *JobContext) error

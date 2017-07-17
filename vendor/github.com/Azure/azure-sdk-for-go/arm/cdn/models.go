@@ -19,9 +19,10 @@ package cdn
 // regenerated.
 
 import (
+	"net/http"
+
 	"github.com/Azure/go-autorest/autorest"
 	"github.com/Azure/go-autorest/autorest/to"
-	"net/http"
 )
 
 // CustomDomainResourceState enumerates the values for custom domain resource

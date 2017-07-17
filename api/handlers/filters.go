@@ -1,10 +1,11 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/Sirupsen/logrus"
 	"github.com/emicklei/go-restful"
 	"github.com/quintilesims/layer0/common/config"
-	"time"
 )
 
 func LogRequest(req *restful.Request, resp *restful.Response, chain *restful.FilterChain) {

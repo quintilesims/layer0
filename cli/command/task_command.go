@@ -1,9 +1,10 @@
 package command
 
 import (
+	"strings"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
-	"strings"
 )
 
 type TaskCommand struct {

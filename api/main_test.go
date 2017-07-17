@@ -1,16 +1,17 @@
 package main
 
 import (
-	log "github.com/Sirupsen/logrus"
-	"github.com/emicklei/go-restful"
-	"github.com/quintilesims/layer0/api/backend/ecs"
-	"github.com/quintilesims/layer0/api/logic"
-	"github.com/quintilesims/layer0/common/config"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"strings"
 	"testing"
+
+	log "github.com/Sirupsen/logrus"
+	"github.com/emicklei/go-restful"
+	"github.com/quintilesims/layer0/api/backend/ecs"
+	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 // Main test entrypoint

@@ -2,6 +2,10 @@ package main
 
 import (
 	"fmt"
+	"os"
+	"sync"
+	"time"
+
 	log "github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/cli/command"
@@ -9,9 +13,6 @@ import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/waitutils"
 	"github.com/urfave/cli"
-	"os"
-	"sync"
-	"time"
 )
 
 var Version string

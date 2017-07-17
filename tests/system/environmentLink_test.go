@@ -1,10 +1,11 @@
 package system
 
 import (
-	"github.com/quintilesims/layer0/common/testutils"
-	"github.com/quintilesims/layer0/tests/system/clients"
 	"testing"
 	"time"
+
+	"github.com/quintilesims/layer0/common/testutils"
+	"github.com/quintilesims/layer0/tests/system/clients"
 )
 
 // Test Resources:

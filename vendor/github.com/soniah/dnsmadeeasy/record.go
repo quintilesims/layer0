@@ -4,8 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
-	"github.com/imdario/mergo"
 	"strconv"
+
+	"github.com/imdario/mergo"
 )
 
 // DataResponse is the response from a GET ie all records for

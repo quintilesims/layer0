@@ -2,10 +2,11 @@ package alicloud
 
 import (
 	"fmt"
-	"github.com/denverdino/aliyungo/ecs"
-	"github.com/hashicorp/terraform/helper/schema"
 	"log"
 	"strings"
+
+	"github.com/denverdino/aliyungo/ecs"
+	"github.com/hashicorp/terraform/helper/schema"
 )
 
 func resourceAliyunSecurityGroupRule() *schema.Resource {

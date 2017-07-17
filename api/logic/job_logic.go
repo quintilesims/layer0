@@ -4,14 +4,15 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"strings"
+	"text/template"
+	"time"
+
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
-	"strings"
-	"text/template"
-	"time"
 )
 
 type JobLogic interface {
