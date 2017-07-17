@@ -68,7 +68,7 @@ $ l0-setup apply [options] <instance_name>
 
 ### Options
 * `--quick` - Skips verification checks that normally run after `terraform apply` has completed
-* `--push` - Skips uploading local tfstate file to s3. (default: true)
+* `--push` - Skips uploading local Layer0 configuration files to an S3 bucket
 
 ---
 ## List

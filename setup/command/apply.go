@@ -33,8 +33,14 @@ func (f *CommandFactory) Apply() cli.Command {
 			}
 
 			instance := f.NewInstance(args["NAME"])
-			if err := instance.Apply(!c.Bool("quick"), provider.S3, c.Bool("push")); err != nil {
+			if err := instance.Apply(!c.Bool("quick")); err != nil {
 				return err
+			}
+
+			if c.Bool("push") {
+				if err := instance.Push(provider.S3); err != nil {
+					return err
+				}
 			}
 
 			fmt.Println("Apply complete!")

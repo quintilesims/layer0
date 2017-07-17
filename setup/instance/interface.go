@@ -5,7 +5,7 @@ import (
 )
 
 type Instance interface {
-	Apply(wait bool, s s3iface.S3API, push bool) error
+	Apply(wait bool) error
 	Destroy(force bool) error
 	Init(dockercfgPath string, inputOverrides map[string]interface{}) error
 	Output(key string) (string, error)
