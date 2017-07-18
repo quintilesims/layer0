@@ -11,7 +11,7 @@ func (f *CommandFactory) Apply() cli.Command {
 		Name:      "apply",
 		Usage:     "create and/or update resources for a Layer0 instance",
 		ArgsUsage: "NAME",
-		Flags: []cli.Flag{
+		Flags: append(awsFlags, []cli.Flag{
 			cli.BoolFlag{
 				Name:  "quick",
 				Usage: "skips verification checks that normally run after 'terraform apply' has completed",
@@ -20,7 +20,7 @@ func (f *CommandFactory) Apply() cli.Command {
 				Name:  "push",
 				Usage: "setting it to false skips pushing local tfstate to s3 (default: true)",
 			},
-		},
+		}...),
 		Action: func(c *cli.Context) error {
 			args, err := extractArgs(c.Args(), "NAME")
 			if err != nil {
