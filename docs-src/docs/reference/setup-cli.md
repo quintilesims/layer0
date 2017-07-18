@@ -59,7 +59,7 @@ There are no options for this command
 
 ---
 ## Apply
-The **apply** command is used to create and update Layer0 instances.
+The **apply** command is used to create and update Layer0 instances. Note that the default behavior of apply is to push the layer0 configuration to an S3 bucket unless the `--push=false` flag is set to false. Pushing the configuration to an S3 bucket requires aws crendentials (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`), either set as environment variables or a credentials file. 
 
 ### Usage
 ```
