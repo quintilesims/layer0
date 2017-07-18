@@ -3,13 +3,14 @@ package instance
 import (
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/setup/docker"
 	"github.com/quintilesims/layer0/setup/terraform"
 )
 
-func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]interface{}) error {
+func (l *LocalInstance) Init(dockerInputPath, dockerCredsHelperPath string, inputOverrides map[string]interface{}) error {
 	if err := l.validateInstanceName(); err != nil {
 		return err
 	}
@@ -18,8 +19,13 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 		return err
 	}
 
-	// create/write ~/.layer/<instance>/dockercfg.json
+	// create/write ~/.layer0/<instance>/dockercfg.json
 	if err := l.createOrWriteDockerCFG(dockerInputPath); err != nil {
+		return err
+	}
+
+	// copy docker credential helper ~/.layer0/<instance>/<helper-filename>
+	if err := l.copyDockerCredsHelper(dockerCredsHelperPath); err != nil {
 		return err
 	}
 
@@ -146,4 +152,17 @@ func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
 	}
 
 	return docker.WriteConfig(dockerOutputPath, config)
+}
+
+func (l *LocalInstance) copyDockerCredsHelper(dockerCredsHelperPath string) error {
+	if dockerCredsHelperPath != "" {
+		if _, err := os.Stat(dockerCredsHelperPath); os.IsNotExist(err) {
+			fmt.Printf("[WARNING] Invalid path specified for Docker Credential Helper: %s\n", dockerCredsHelperPath)
+		}
+
+		dockerCredsHelperOutputPath := fmt.Sprintf("%s/%s", l.Dir, path.Base(dockerCredsHelperPath))
+		return docker.CopyCredentialHelper(dockerCredsHelperPath, dockerCredsHelperOutputPath)
+	}
+
+	return nil
 }
