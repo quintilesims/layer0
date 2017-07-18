@@ -14,8 +14,8 @@ const (
 	// With 50 streams/transaction, 1000 gives a reasonable streams:time ratio
 	MAX_DESCRIBE_STREAMS_COUNT = 1000
 
-	// 'MM/DD HH:MM' time layout as described by https://golang.org/src/time/format.go
-	TIME_LAYOUT = "01/02 15:04"
+	// 'YYYY-MM-DD HH:MM' time layout as described by https://golang.org/src/time/format.go
+	TIME_LAYOUT = "2006-01-02 15:04"
 )
 
 type Provider interface {
@@ -206,11 +206,10 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 func timeToMilliseconds(v string) (int64, error) {
 	t, err := time.Parse(TIME_LAYOUT, v)
 	if err != nil {
-		return 0, fmt.Errorf("Invalid time: must be in format MM/DD HH:MM")
+		return 0, fmt.Errorf("Invalid time: must be in format YYYY-MM-DD HH:MM")
 	}
 
-	year := time.Now().Year()
-	date := time.Date(year, t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
+	date := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
 
 	// convert ns to ms
 	return date.UnixNano() / int64(time.Millisecond), nil

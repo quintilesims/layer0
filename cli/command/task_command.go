@@ -77,11 +77,11 @@ func (t *TaskCommand) GetCommand() cli.Command {
 					},
 					cli.StringFlag{
 						Name:  "start",
-						Usage: "the start of the time range to fetch logs (format: MM/DD HH:MM)",
+						Usage: "the start of the time range to fetch logs (format: YYYY-MM-DD HH:MM)",
 					},
 					cli.StringFlag{
 						Name:  "end",
-						Usage: "the end of the time range to fetch logs (format: MM/DD HH:MM)",
+						Usage: "the end of the time range to fetch logs (format: YYYY-MM-DD HH:MM)",
 					},
 				},
 			},

@@ -107,13 +107,13 @@ func TestGetJobLogs(t *testing.T) {
 		Return(&models.Job{TaskID: "task-id"}, nil)
 
 	tc.Client.EXPECT().
-		GetTaskLogs("task-id", "01/01 01:01", "12/12 12:12", 100).
+		GetTaskLogs("task-id", "start", "end", 100).
 		Return([]*models.LogFile{}, nil)
 
 	flags := map[string]interface{}{
 		"tail":  100,
-		"start": "01/01 01:01",
-		"end":   "12/12 12:12",
+		"start": "start",
+		"end":   "end",
 	}
 
 	c := testutils.GetCLIContext(t, []string{"name"}, flags)
