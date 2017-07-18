@@ -59,7 +59,7 @@ There are no options for this command
 
 ---
 ## Apply
-The **apply** command is used to create and update Layer0 instances.
+The **apply** command is used to create and update Layer0 instances. Note that the default behavior of apply is to push the layer0 configuration to an S3 bucket unless the `--push=false` flag is set to false. Pushing the configuration to an S3 bucket requires aws credentials which if not set via the optional `--aws-*` flags, are read from the environment variables or a credentials file. 
 
 ### Usage
 ```
@@ -68,6 +68,10 @@ $ l0-setup apply [options] <instance_name>
 
 ### Options
 * `--quick` - Skips verification checks that normally run after `terraform apply` has completed
+* `--push` - Skips uploading local Layer0 configuration files to an S3 bucket
+* `--aws-access-key` - The Access Key ID portion of an AWS Access Key that has permissions to push to the Layer0 instances's S3 bucket. If not specified, the application will attempt to use any AWS credentials used by the AWS CLI. 
+* `--aws-secret-key` - The Secret Access Key portion of an AWS Access Key that has permissions to push to the Layer0 instances's S3 bucket. If not specified, the application will attempt to use any AWS credentials used by the AWS CLI. 
+* `--aws-region` - The region of the Layer0 instance. The default value is `us-west-2`. 
 
 ---
 ## List
