@@ -27,17 +27,17 @@ func (f *CommandFactory) Apply() cli.Command {
 				return err
 			}
 
-			provider, err := f.newAWSProviderHelper(c)
-			if err != nil {
-				return err
-			}
-
 			instance := f.NewInstance(args["NAME"])
 			if err := instance.Apply(!c.Bool("quick")); err != nil {
 				return err
 			}
 
 			if c.Bool("push") {
+				provider, err := f.newAWSProviderHelper(c)
+				if err != nil {
+					return err
+				}
+
 				if err := instance.Push(provider.S3); err != nil {
 					return err
 				}
