@@ -20,7 +20,7 @@ func (l *LocalInstance) Init(dockerInputPath, dockerCredsHelperPath string, inpu
 	}
 
 	// create/write ~/.layer0/<instance>/dockercfg.json
-	if err := l.createOrWriteDockerCFG(dockerInputPath); err != nil {
+	if err := l.createOrWriteDockerCFG(dockerInputPath, dockerCredsHelperPath); err != nil {
 		return err
 	}
 
@@ -104,7 +104,7 @@ func (l *LocalInstance) setLayer0ModuleInputs(config *terraform.Config, inputOve
 	return nil
 }
 
-func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
+func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath, dockersCredsHelperPath string) error {
 	dockerOutputPath := fmt.Sprintf("%s/dockercfg.json", l.Dir)
 
 	// if user didn't specify a dockercfg, create an empty one if it doesn't already exist
@@ -140,9 +140,11 @@ func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
 
 		var input string
 		fmt.Scanln(&input)
-	} else if config.CredsStore != "" {
+	} else if dockersCredsHelperPath == "" && config.CredsStore != "" {
 		fmt.Printf("[WARNING] You are using a credential store '%s'. "+
-			"Layer0 does not support credential store authentication.\n\n",
+			"but have not specified a path to the docker credential helper. "+
+			"When running l0-setup, please additionally specify the flag \n"+
+			"\tl0-setup init --docker-creds-helper-path=<path/to/helper>\n\n",
 			config.CredsStore)
 
 		fmt.Println("Press 'enter' to continue without private registry authentication: ")
