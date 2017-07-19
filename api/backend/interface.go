@@ -24,13 +24,13 @@ type Backend interface {
 	DeleteService(environmentID, serviceID string) error
 	ScaleService(environmentID, serviceID string, count int) (*models.Service, error)
 	UpdateService(environmentID, serviceID, deployID string) (*models.Service, error)
-	GetServiceLogs(environmentID, serviceID string, tail int) ([]*models.LogFile, error)
+	GetServiceLogs(environmentID, serviceID, start, end string, tail int) ([]*models.LogFile, error)
 
 	CreateTask(envID, taskName, deployVersion string, overrides []models.ContainerOverride) (*models.Task, error)
 	ListTasks() ([]*models.Task, error)
 	GetTask(envID, taskID string) (*models.Task, error)
 	DeleteTask(envID, taskID string) error
-	GetTaskLogs(environmentID, taskID string, tail int) ([]*models.LogFile, error)
+	GetTaskLogs(environmentID, taskID, start, end string, tail int) ([]*models.LogFile, error)
 
 	ListLoadBalancers() ([]*models.LoadBalancer, error)
 	GetLoadBalancer(id string) (*models.LoadBalancer, error)

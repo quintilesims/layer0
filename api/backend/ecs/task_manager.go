@@ -164,7 +164,7 @@ func (this *ECSTaskManager) CreateTask(
 	return modelFromTasks(tasks)
 }
 
-func (this *ECSTaskManager) GetTaskLogs(environmentID, taskID string, tail int) ([]*models.LogFile, error) {
+func (this *ECSTaskManager) GetTaskLogs(environmentID, taskID, start, end string, tail int) ([]*models.LogFile, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
 
@@ -173,7 +173,7 @@ func (this *ECSTaskManager) GetTaskLogs(environmentID, taskID string, tail int) 
 		return nil, err
 	}
 
-	return GetLogs(this.CloudWatchLogs, taskARNs, tail)
+	return GetLogs(this.CloudWatchLogs, taskARNs, start, end, tail)
 }
 
 // Assumes the tasks are all of the same type

@@ -196,7 +196,7 @@ func TestGetTaskLogs(t *testing.T) {
 	}
 
 	testLogic.Backend.EXPECT().
-		GetTaskLogs("e1", "t1", 100).
+		GetTaskLogs("e1", "t1", "start", "end", 100).
 		Return(logs, nil)
 
 	testLogic.AddTags(t, []*models.Tag{
@@ -204,7 +204,7 @@ func TestGetTaskLogs(t *testing.T) {
 	})
 
 	taskLogic := NewL0TaskLogic(testLogic.Logic())
-	received, err := taskLogic.GetTaskLogs("t1", 100)
+	received, err := taskLogic.GetTaskLogs("t1", "start", "end", 100)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -1,6 +1,9 @@
 package cloudwatchlogs
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/quintilesims/layer0/common/aws/provider"
@@ -10,6 +13,9 @@ const (
 	// DescribeLogStreams is throttled after five transactions per second.
 	// With 50 streams/transaction, 1000 gives a reasonable streams:time ratio
 	MAX_DESCRIBE_STREAMS_COUNT = 1000
+
+	// 'YYYY-MM-DD HH:MM' time layout as described by https://golang.org/src/time/format.go
+	TIME_LAYOUT = "2006-01-02 15:04"
 )
 
 type Provider interface {
@@ -17,7 +23,7 @@ type Provider interface {
 	DeleteLogGroup(logGroupName string) error
 	DescribeLogGroups(logGroupNamePrefix string, nextToken *string) ([]*LogGroup, error)
 	DescribeLogStreams(logGroupName, orderBy string) ([]*LogStream, error)
-	GetLogEvents(logGroupName, logStreamName string, limit int64) ([]*OutputLogEvent, error)
+	GetLogEvents(logGroupName, logStreamName, start, stop string, limit int64) ([]*OutputLogEvent, error)
 	FilterLogEvents(filterPattern, logGroupName, nextToken *string, logStreamNames []*string, endTime, startTime *int64, interleaved *bool) ([]*FilteredLogEvent, []*SearchedLogStream, error)
 }
 
@@ -197,9 +203,23 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 	return streams, nil
 }
 
+func timeToMilliseconds(v string) (int64, error) {
+	t, err := time.Parse(TIME_LAYOUT, v)
+	if err != nil {
+		return 0, fmt.Errorf("Invalid time: must be in format YYYY-MM-DD HH:MM")
+	}
+
+	date := time.Date(t.Year(), t.Month(), t.Day(), t.Hour(), t.Minute(), t.Second(), 0, time.UTC)
+
+	// convert ns to ms
+	return date.UnixNano() / int64(time.Millisecond), nil
+}
+
 func (this *CloudWatchLogs) GetLogEvents(
 	logGroupName string,
 	logStreamName string,
+	start string,
+	end string,
 	limit int64,
 ) ([]*OutputLogEvent, error) {
 	connection, err := this.Connect()
@@ -207,15 +227,31 @@ func (this *CloudWatchLogs) GetLogEvents(
 		return nil, err
 	}
 
-	var limitp *int64
-	if limit > 0 {
-		limitp = aws.Int64(limit)
-	}
-
 	input := &cloudwatchlogs.GetLogEventsInput{
 		LogGroupName:  aws.String(logGroupName),
 		LogStreamName: aws.String(logStreamName),
-		Limit:         limitp,
+	}
+
+	if limit > 0 {
+		input.SetLimit(limit)
+	}
+
+	if start != "" {
+		startTime, err := timeToMilliseconds(start)
+		if err != nil {
+			return nil, err
+		}
+
+		input.SetStartTime(startTime)
+	}
+
+	if end != "" {
+		endTime, err := timeToMilliseconds(end)
+		if err != nil {
+			return nil, err
+		}
+
+		input.SetEndTime(endTime)
 	}
 
 	var previousToken string

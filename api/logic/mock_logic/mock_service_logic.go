@@ -61,15 +61,15 @@ func (_mr *_MockServiceLogicRecorder) GetService(arg0 interface{}) *gomock.Call 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetService", arg0)
 }
 
-func (_m *MockServiceLogic) GetServiceLogs(_param0 string, _param1 int) ([]*models.LogFile, error) {
-	ret := _m.ctrl.Call(_m, "GetServiceLogs", _param0, _param1)
+func (_m *MockServiceLogic) GetServiceLogs(_param0 string, _param1 string, _param2 string, _param3 int) ([]*models.LogFile, error) {
+	ret := _m.ctrl.Call(_m, "GetServiceLogs", _param0, _param1, _param2, _param3)
 	ret0, _ := ret[0].([]*models.LogFile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockServiceLogicRecorder) GetServiceLogs(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetServiceLogs", arg0, arg1)
+func (_mr *_MockServiceLogicRecorder) GetServiceLogs(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetServiceLogs", arg0, arg1, arg2, arg3)
 }
 
 func (_m *MockServiceLogic) ListServices() ([]*models.ServiceSummary, error) {

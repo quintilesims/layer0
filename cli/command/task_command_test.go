@@ -240,12 +240,12 @@ func TestGetTaskLogs(t *testing.T) {
 		Return([]string{"id"}, nil)
 
 	tc.Client.EXPECT().
-		GetTaskLogs("id", "01/01 01:01", "12/12 12:12", 100)
+		GetTaskLogs("id", "start", "end", 100)
 
 	flags := map[string]interface{}{
 		"tail":  100,
-		"start": "01/01 01:01",
-		"end":   "12/12 12:12",
+		"start": "start",
+		"end":   "end",
 	}
 
 	c := testutils.GetCLIContext(t, []string{"name"}, flags)

@@ -83,13 +83,13 @@ func (_mr *_MockProviderRecorder) FilterLogEvents(arg0, arg1, arg2, arg3, arg4, 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "FilterLogEvents", arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 }
 
-func (_m *MockProvider) GetLogEvents(_param0 string, _param1 string, _param2 int64) ([]*cloudwatchlogs.OutputLogEvent, error) {
-	ret := _m.ctrl.Call(_m, "GetLogEvents", _param0, _param1, _param2)
+func (_m *MockProvider) GetLogEvents(_param0 string, _param1 string, _param2 string, _param3 string, _param4 int64) ([]*cloudwatchlogs.OutputLogEvent, error) {
+	ret := _m.ctrl.Call(_m, "GetLogEvents", _param0, _param1, _param2, _param3, _param4)
 	ret0, _ := ret[0].([]*cloudwatchlogs.OutputLogEvent)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockProviderRecorder) GetLogEvents(arg0, arg1, arg2 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetLogEvents", arg0, arg1, arg2)
+func (_mr *_MockProviderRecorder) GetLogEvents(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetLogEvents", arg0, arg1, arg2, arg3, arg4)
 }

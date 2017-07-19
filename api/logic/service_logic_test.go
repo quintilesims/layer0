@@ -281,7 +281,7 @@ func TestGetServiceLogs(t *testing.T) {
 	}
 
 	testLogic.Backend.EXPECT().
-		GetServiceLogs("e1", "s1", 100).
+		GetServiceLogs("e1", "s1", "start", "end", 100).
 		Return(logs, nil)
 
 	testLogic.AddTags(t, []*models.Tag{
@@ -289,7 +289,7 @@ func TestGetServiceLogs(t *testing.T) {
 	})
 
 	serviceLogic := NewL0ServiceLogic(testLogic.Logic())
-	received, err := serviceLogic.GetServiceLogs("s1", 100)
+	received, err := serviceLogic.GetServiceLogs("s1", "start", "end", 100)
 	if err != nil {
 		t.Fatal(err)
 	}

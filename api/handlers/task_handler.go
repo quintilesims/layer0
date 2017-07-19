@@ -68,6 +68,8 @@ func (this *TaskHandler) Routes() *restful.WebService {
 		Doc("Return recent task logs").
 		Param(service.PathParameter("id", "identifier of the task").DataType("string")).
 		Param(service.QueryParameter("tail", "number of lines from the end to return").DataType("string")).
+		Param(service.QueryParameter("start", "The start of the time range to fetch logs (format YYYY-MM-DD HH:MM)").DataType("string")).
+		Param(service.QueryParameter("end", "The end of the time range to fetch logs (format YYYY-MM-DD HH:MM)").DataType("string")).
 		Writes([]models.LogFile{}))
 
 	return service
@@ -151,7 +153,7 @@ func (this *TaskHandler) GetTaskLogs(request *restful.Request, response *restful
 		tail = int(t)
 	}
 
-	logs, err := this.TaskLogic.GetTaskLogs(taskID, tail)
+	logs, err := this.TaskLogic.GetTaskLogs(taskID, request.QueryParameter("start"), request.QueryParameter("end"), tail)
 	if err != nil {
 		ReturnError(response, err)
 		return

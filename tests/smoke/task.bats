@@ -40,8 +40,8 @@
     l0 task logs --tail 100 task1
 }
 
-@test "task logs --start 01/01 01:01 --end 12/12 12:12 task1" {
-    l0 task logs --start '01/01 01:01' --end '12/12 12:12' task1
+@test "task logs --start 2001-01-01 01:01 --end 2012-12-12 12:12 task1" {
+    l0 task logs --start '2001-01-01 01:01' --end '2012-12-12 12:12' task1
 }
 
 @test "task delete task1" {

@@ -15,7 +15,7 @@ type ServiceLogic interface {
 	DeleteService(serviceID string) error
 	UpdateService(serviceID string, req models.UpdateServiceRequest) (*models.Service, error)
 	ScaleService(serviceID string, size int) (*models.Service, error)
-	GetServiceLogs(serviceID string, tail int) ([]*models.LogFile, error)
+	GetServiceLogs(serviceID, start, end string, tail int) ([]*models.LogFile, error)
 }
 
 type L0ServiceLogic struct {
@@ -182,13 +182,13 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 	return service, nil
 }
 
-func (this *L0ServiceLogic) GetServiceLogs(serviceID string, tail int) ([]*models.LogFile, error) {
+func (this *L0ServiceLogic) GetServiceLogs(serviceID, start, end string, tail int) ([]*models.LogFile, error) {
 	environmentID, err := this.getEnvironmentID(serviceID)
 	if err != nil {
 		return nil, err
 	}
 
-	logs, err := this.Backend.GetServiceLogs(environmentID, serviceID, tail)
+	logs, err := this.Backend.GetServiceLogs(environmentID, serviceID, start, end, tail)
 	if err != nil {
 		return nil, err
 	}

@@ -41,6 +41,8 @@ func TestGetLogs(t *testing.T) {
 					GetLogEvents(
 						config.AWSLogGroupID(),
 						*stream.LogStreamName,
+						"start",
+						"end",
 						int64(30),
 					).Return([]*cloudwatchlogs.OutputLogEvent{event}, nil)
 
@@ -49,7 +51,7 @@ func TestGetLogs(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				provider := target.(cloudwatchlogs.Provider)
 
-				logs, err := GetLogs(provider, []*string{stringp(taskARN)}, 30)
+				logs, err := GetLogs(provider, []*string{stringp(taskARN)}, "start", "end", 30)
 				if err != nil {
 					reporter.Fatal(err)
 				}

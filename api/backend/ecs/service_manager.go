@@ -279,7 +279,7 @@ func (this *ECSServiceManager) ScaleService(environmentID string, serviceID stri
 	return this.GetService(environmentID, serviceID)
 }
 
-func (this *ECSServiceManager) GetServiceLogs(environmentID, serviceID string, tail int) ([]*models.LogFile, error) {
+func (this *ECSServiceManager) GetServiceLogs(environmentID, serviceID, start, end string, tail int) ([]*models.LogFile, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 
 	service, err := this.GetService(environmentID, serviceID)
@@ -297,7 +297,7 @@ func (this *ECSServiceManager) GetServiceLogs(environmentID, serviceID string, t
 		taskARNs = append(taskARNs, arns...)
 	}
 
-	return GetLogs(this.CloudWatchLogs, taskARNs, tail)
+	return GetLogs(this.CloudWatchLogs, taskARNs, start, end, tail)
 }
 
 func (this *ECSServiceManager) populateModel(service *ecs.Service) *models.Service {
