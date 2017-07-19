@@ -44,15 +44,15 @@
     l0 deploy create ./common/Service.Dockerrun.aws.json guestbook
 }
 
-@test "service update service1 guestbook" {
+@test "service update service1 guestbook:latest" {
     l0 service update service1 guestbook:latest
 }
 
-@test "service update --wait service2 guestbook" {
+@test "service update --wait service2 guestbook:latest" {
     l0 service update --wait service2 guestbook:latest
 }
 
-@test "service update service3 guestbook" {
+@test "service update service3 guestbook:latest" {
     l0 service update service3 guestbook:latest
 }
 

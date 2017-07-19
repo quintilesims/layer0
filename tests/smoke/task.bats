@@ -8,12 +8,12 @@
     l0 deploy create ./common/Task.Dockerrun.aws.json alpine
 }
 
-@test "task create --wait test task1 alpine" {
-    l0 task create --wait test task1 alpine
+@test "task create --wait test task1 alpine:latest" {
+    l0 task create --wait test task1 alpine:latest
 }
 
-@test "task create --copies 2 --env alpine:key=val test task2 alpine" {
-    l0 task create --copies 2 --env alpine:key=val test task2 alpine 
+@test "task create --copies 2 --env alpine:key=val test task2 alpine:latest" {
+    l0 task create --copies 2 --env alpine:key=val test task2 alpine:latest
 }
 
 @test "task list" {
@@ -48,8 +48,8 @@
     l0 task delete task1
 }
 
-@test "deploy delete alpine" {
-    l0 deploy delete alpine
+@test "deploy delete alpine:latest" {
+    l0 deploy delete alpine:latest
 }
 
 # this deletes the remaining service(s), loadbalancer(s), and task(s)

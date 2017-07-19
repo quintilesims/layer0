@@ -16,6 +16,10 @@
     l0 deploy get guestbook1
 }
 
+@test "deploy get guestbook1:latest" {
+    l0 deploy get guestbook1:latest
+}
+
 @test "deploy get guest*" {
     l0 deploy get guest\*
 }
