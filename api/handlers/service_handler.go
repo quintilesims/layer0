@@ -88,8 +88,8 @@ func (this *ServiceHandler) Routes() *restful.WebService {
 		Doc("Return recent service logs").
 		Param(service.PathParameter("id", "identifier of the service").DataType("string")).
 		Param(service.QueryParameter("tail", "number of lines from the end to return").DataType("string")).
-		Param(service.QueryParameter("start", "The start of the time range to fetch logs (format MM/DD HH:MM)").DataType("string")).
-		Param(service.QueryParameter("end", "The end of the time range to fetch logs (format MM/DD HH:MM)").DataType("string")).
+		Param(service.QueryParameter("start", "The start of the time range to fetch logs (format YYYY-MM-DD HH:MM)").DataType("string")).
+		Param(service.QueryParameter("end", "The end of the time range to fetch logs (format YYYY-MM-DD HH:MM)").DataType("string")).
 		Writes([]models.LogFile{}))
 
 	return service
