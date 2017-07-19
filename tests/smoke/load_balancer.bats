@@ -74,8 +74,8 @@ certificate_name="l0-$LAYER0_PREFIX-api"
     l0 deploy create ./common/Service.Dockerrun.aws.json guestbook
 }
 
-@test "service create --loadbalancer loadbalancer4 test service1 guestbook" {
-    l0 service create --loadbalancer loadbalancer4 test service1 guestbook
+@test "service create --loadbalancer loadbalancer4 test service1 guestbook:latest" {
+    l0 service create --loadbalancer loadbalancer4 test service1 guestbook:latest
 }
 
 @test "loadbalancer list" {
@@ -86,8 +86,8 @@ certificate_name="l0-$LAYER0_PREFIX-api"
     l0 loadbalancer get loadbalancer4
 }
 
-@test "deploy delete guestbook" {
-    l0 deploy delete guestbook
+@test "deploy delete guestbook:latest" {
+    l0 deploy delete guestbook:latest
 }
 
 # this deletes the remaining service(s) and loadbalancer(s)

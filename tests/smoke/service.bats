@@ -12,16 +12,16 @@
     l0 deploy create ./common/Service.Dockerrun.aws.json guestbook
 }
 
-@test "service create --loadbalancer loadbalancer1 test service1 guestbook" {
-    l0 service create --loadbalancer loadbalancer1 test service1 guestbook
+@test "service create --loadbalancer loadbalancer1 test service1 guestbook:latest" {
+    l0 service create --loadbalancer loadbalancer1 test service1 guestbook:latest
 }
 
-@test "service create --wait test service2 guestbook" {
-    l0 service create --wait test service2 guestbook
+@test "service create --wait test service2 guestbook:latest" {
+    l0 service create --wait test service2 guestbook:latest
 }
 
-@test "service create test service3 guestbook" {
-    l0 service create test service3 guestbook
+@test "service create test service3 guestbook:latest" {
+    l0 service create test service3 guestbook:latest
 }
 
 @test "service list" {
