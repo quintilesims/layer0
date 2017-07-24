@@ -32,3 +32,4 @@ terraform.tfstate*
 terraform-provider-layer0
 *terraform.tfstate*
 .vscode/
+crash.log
