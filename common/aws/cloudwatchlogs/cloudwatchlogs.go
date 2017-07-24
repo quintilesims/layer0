@@ -13,7 +13,6 @@ const (
 	// DescribeLogStreams is throttled after five transactions per second.
 	// With 50 streams/transaction, 1000 gives a reasonable streams:time ratio
 	MAX_DESCRIBE_STREAMS_COUNT = 1000
-
 	// 'YYYY-MM-DD HH:MM' time layout as described by https://golang.org/src/time/format.go
 	TIME_LAYOUT = "2006-01-02 15:04"
 )
