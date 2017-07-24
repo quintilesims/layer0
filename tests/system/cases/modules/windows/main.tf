@@ -15,7 +15,6 @@ resource "layer0_service" "windows" {
   deploy        = "${layer0_deploy.windows.id}"
   load_balancer = "${layer0_load_balancer.windows.id}"
   scale         = "${var.scale}"
-  wait          = false
 }
 
 resource "layer0_deploy" "windows" {

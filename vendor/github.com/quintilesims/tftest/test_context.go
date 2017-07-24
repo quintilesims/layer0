@@ -29,6 +29,12 @@ func (c *TestContext) Destroy() {
 	}
 }
 
+func (c *TestContext) Import(resource, id string) {
+	if _, err := c.Context.Import(resource, id); err != nil {
+		c.t.Fatal(err)
+	}
+}
+
 func (c *TestContext) Output(name string) string {
 	output, err := c.Context.Output(name)
 	if err != nil {

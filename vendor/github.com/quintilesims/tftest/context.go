@@ -53,6 +53,10 @@ func (c *Context) Destroy() ([]byte, error) {
 	return c.Terraformf("destroy", "-force")
 }
 
+func (c *Context) Import(resource, id string) ([]byte, error) {
+	return c.Terraformf("import", resource, id)
+}
+
 func (c *Context) Output(name string) (string, error) {
 	output, err := c.Terraformf("output", name)
 	if err != nil {

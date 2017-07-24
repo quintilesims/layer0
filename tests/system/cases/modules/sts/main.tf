@@ -16,7 +16,6 @@ resource "layer0_service" "sts" {
   deploy        = "${layer0_deploy.sts.id}"
   load_balancer = "${layer0_load_balancer.sts.id}"
   scale         = "${var.scale}"
-  wait          = true
 }
 
 resource "layer0_deploy" "sts" {
