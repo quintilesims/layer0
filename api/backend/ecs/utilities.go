@@ -124,13 +124,13 @@ func IteratePages(fn paginatedf) error {
 	return nil
 }
 
-var CreateRenderedDeploy = func(body []byte) (*Deploy, error) {
-	deploy, err := MarshalDeploy(body)
+var CreateRenderedDockerrun = func(body []byte) (*models.Dockerrun, error) {
+	dockerrun, err := MarshalDockerrun(body)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, container := range deploy.ContainerDefinitions {
+	for _, container := range dockerrun.ContainerDefinitions {
 		if container.LogConfiguration == nil {
 			container.LogConfiguration = &awsecs.LogConfiguration{
 				LogDriver: stringp("awslogs"),
@@ -143,7 +143,7 @@ var CreateRenderedDeploy = func(body []byte) (*Deploy, error) {
 		}
 	}
 
-	return deploy, nil
+	return dockerrun, nil
 }
 
 var getTaskARNs = func(ecs ecs.Provider, ecsEnvironmentID id.ECSEnvironmentID, startedBy *string) ([]*string, error) {

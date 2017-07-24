@@ -31,6 +31,52 @@ func (l *Layer0TestClient) CreateTask(taskName, environmentID, deployID string, 
 	return jobID
 }
 
+func (l *Layer0TestClient) CreateEnvironment(name string) *models.Environment {
+	environment, err := l.Client.CreateEnvironment(name, "m3.medium", 0, nil, "linux", "")
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return environment
+}
+
+func (l *Layer0TestClient) CreateDeploy(name string, content []byte) *models.Deploy {
+	deploy, err := l.Client.CreateDeploy(name, content)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return deploy
+}
+
+func (l *Layer0TestClient) CreateLoadBalancer(name, environmentID string) *models.LoadBalancer {
+	hc := models.HealthCheck{
+		Target:             "TCP:80",
+		Interval:           10,
+		Timeout:            5,
+		HealthyThreshold:   2,
+		UnhealthyThreshold: 2,
+	}
+
+	ports := []models.Port{{HostPort: 80, ContainerPort: 80, Protocol: "http"}}
+
+	loadBalancer, err := l.Client.CreateLoadBalancer(name, environmentID, hc, ports, true)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return loadBalancer
+}
+
+func (l *Layer0TestClient) CreateService(name, environmentID, deployID, loadBalancerID string) *models.Service {
+	service, err := l.Client.CreateService(name, environmentID, deployID, loadBalancerID)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return service
+}
+
 func (l *Layer0TestClient) GetService(id string) *models.Service {
 	service, err := l.Client.GetService(id)
 	if err != nil {

@@ -75,24 +75,24 @@ func (this *ECSDeployManager) CreateDeploy(deployName string, body []byte) (*mod
 		return nil, errors.Newf(errors.InvalidDeployID, "Deploy names cannot contain '.'")
 	}
 
-	deploy, err := CreateRenderedDeploy(body)
+	dockerrun, err := CreateRenderedDockerrun(body)
 	if err != nil {
 		return nil, err
 	}
 
 	// deploys for jobs will have the deploy.Family field, but they will match familyName
 	familyName := id.L0DeployID(deployName).ECSDeployID().String()
-	if deploy.Family != "" && deploy.Family != familyName {
+	if dockerrun.Family != "" && dockerrun.Family != familyName {
 		return nil, fmt.Errorf("Custom family names are currently unsupported in Layer0")
 	}
 
 	taskDef, err := this.ECS.RegisterTaskDefinition(
 		familyName,
-		deploy.TaskRoleARN,
-		deploy.NetworkMode,
-		deploy.ContainerDefinitions,
-		deploy.Volumes,
-		deploy.PlacementConstraints)
+		dockerrun.TaskRoleARN,
+		dockerrun.NetworkMode,
+		dockerrun.ContainerDefinitions,
+		dockerrun.Volumes,
+		dockerrun.PlacementConstraints)
 	if err != nil {
 		return nil, err
 	}
@@ -117,17 +117,8 @@ func (this *ECSDeployManager) populateModel(taskDef *ecs.TaskDefinition) (*model
 	return deploy, nil
 }
 
-type Deploy struct {
-	ContainerDefinitions []*ecs.ContainerDefinition `json:"containerDefinitions,omitempty"`
-	Volumes              []*ecs.Volume              `json:"volumes,omitempty"`
-	Family               string                     `json:"family,omitempty"`
-	NetworkMode          string                     `json:"networkMode,omitempty"`
-	TaskRoleARN          string                     `json:"taskRoleArn,omitempty"`
-	PlacementConstraints []*ecs.PlacementConstraint `json:"placementConstraints,omitempty"`
-}
-
-func MarshalDeploy(body []byte) (*Deploy, error) {
-	var d Deploy
+func MarshalDockerrun(body []byte) (*models.Dockerrun, error) {
+	var d models.Dockerrun
 	if err := json.Unmarshal(body, &d); err != nil {
 		err := fmt.Errorf("Failed to decode deploy: %s", err.Error())
 		return nil, errors.New(errors.InvalidJSON, err)
@@ -156,7 +147,7 @@ func extractDockerrun(taskDef *ecs.TaskDefinition) ([]byte, error) {
 		placementConstraints[i] = &ecs.PlacementConstraint{p}
 	}
 
-	d := Deploy{
+	d := models.Dockerrun{
 		ContainerDefinitions: containers,
 		Volumes:              volumes,
 		Family:               pstring(taskDef.Family),
