@@ -1,5 +1,23 @@
 # Release Notes
 ---
+## v0.10.2 | [Download](http://layer0.ims.io/#download)
+7.24.2017
+
+#### Features
+* The `logs` command now supports `--start` and `--end` flags 
+* Data sources have been implemented for the Terraform provider
+
+#### Fixes
+* Instance files are automatically pushed to S3 after `apply`
+
+---
+## v0.10.1 | [Download](http://layer0.ims.io/#download)
+7.7.2017
+
+#### Fixes
+* Includes a hotfix for "Pending Task" issue
+
+---
 ## v0.10.0 | [Download](http://layer0.ims.io/#download)
 6.12.2017
 

@@ -143,7 +143,7 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.10.0</strong>
+        <strong>Layer0 v0.10.2</strong>
         
           <br>
           quintilesims/layer0
@@ -374,26 +374,50 @@
             </li>
           
             <li class="anchor">
-              <a title="Deploy" href="#deploy">
-                Deploy
+              <a title="Deploy Data Source" href="#deploy-data-source">
+                Deploy Data Source
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Environment" href="#environment">
-                Environment
+              <a title="Environment Data Source" href="#environment-data-source">
+                Environment Data Source
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Load Balancer" href="#load-balancer">
-                Load Balancer
+              <a title="Load Balancer Data Source" href="#load-balancer-data-source">
+                Load Balancer Data Source
               </a>
             </li>
           
             <li class="anchor">
-              <a title="Service" href="#service">
-                Service
+              <a title="Service Data Source" href="#service-data-source">
+                Service Data Source
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Deploy Resource" href="#deploy-resource">
+                Deploy Resource
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Environment Resource" href="#environment-resource">
+                Environment Resource
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Load Balancer Resource" href="#load-balancer-resource">
+                Load Balancer Resource
+              </a>
+            </li>
+          
+            <li class="anchor">
+              <a title="Service Resource" href="#service-resource">
+                Service Resource
               </a>
             </li>
           
@@ -572,11 +596,133 @@ output &quot;vpc id&quot; {
 <li><code>private_subnets</code> - A list containing the 2 private subnet ids in the layer0 vpc</li>
 </ul>
 <hr />
-<h2 id="deploy">Deploy<a class="headerlink" href="#deploy" title="Permanent link">#</a></h2>
+<h2 id="deploy-data-source">Deploy Data Source<a class="headerlink" href="#deploy-data-source" title="Permanent link">#</a></h2>
+<p>The Deploy data source is used to extract Layer0 Deploy attributes.</p>
+<h3 id="example-usage_2">Example Usage<a class="headerlink" href="#example-usage_2" title="Permanent link">#</a></h3>
+<pre class="code"><code># Configure the deploy data source
+data &quot;layer0_deploy&quot; &quot;dpl&quot; {
+  name    = &quot;my-deploy&quot;
+  version = &quot;1&quot;
+}
+
+# Output the layer0 deploy id
+output &quot;deploy_id&quot; {
+  val = &quot;${data.layer0_deploy.dpl.id}&quot;
+}</code></pre>
+
+
+<h3 id="argument-reference_1">Argument Reference<a class="headerlink" href="#argument-reference_1" title="Permanent link">#</a></h3>
+<p>The following arguments are supported:</p>
+<ul>
+<li><code>name</code> - (Required) The name of the deploy</li>
+<li><code>version</code> - (Required) The version of the deploy</li>
+</ul>
+<h3 id="attribute-reference_1">Attribute Reference<a class="headerlink" href="#attribute-reference_1" title="Permanent link">#</a></h3>
+<p>The following attributes are exported:</p>
+<ul>
+<li><code>name</code> - The name of the deploy</li>
+<li><code>version</code> - The version of the deploy</li>
+<li><code>id</code> - The id of the deploy</li>
+</ul>
+<hr />
+<h2 id="environment-data-source">Environment Data Source<a class="headerlink" href="#environment-data-source" title="Permanent link">#</a></h2>
+<p>The Environment data source is used to extract Layer0 Environment attributes.</p>
+<h3 id="example-usage_3">Example Usage<a class="headerlink" href="#example-usage_3" title="Permanent link">#</a></h3>
+<pre class="code"><code># Configure the environment data source
+data &quot;layer0_environment&quot; &quot;env&quot; {
+  name = &quot;my-environment&quot;
+}
+
+# Output the layer0 environment id
+output &quot;environment_id&quot; {
+  val = &quot;${data.layer0_environment.env.id}&quot;
+}</code></pre>
+
+
+<h3 id="argument-reference_2">Argument Reference<a class="headerlink" href="#argument-reference_2" title="Permanent link">#</a></h3>
+<p>The following arguments are supported:</p>
+<ul>
+<li><code>name</code> - (Required) The name of the environment</li>
+</ul>
+<h3 id="attribute-reference_2">Attribute Reference<a class="headerlink" href="#attribute-reference_2" title="Permanent link">#</a></h3>
+<p>The following attributes are exported:</p>
+<ul>
+<li><code>id</code> - The id of the environment</li>
+<li><code>name</code> - The name of the environment</li>
+<li><code>size</code> - The size of the instances in the environment</li>
+<li><code>min_count</code> - The current number instances in the environment</li>
+<li><code>os</code> - The operating system used for the environment</li>
+<li><code>ami</code> - The AMI ID used for the environment</li>
+</ul>
+<hr />
+<h2 id="load-balancer-data-source">Load Balancer Data Source<a class="headerlink" href="#load-balancer-data-source" title="Permanent link">#</a></h2>
+<p>The Load Balancer data source is used to extract Layer0 Load Balancer attributes.</p>
+<h3 id="example-usage_4">Example Usage<a class="headerlink" href="#example-usage_4" title="Permanent link">#</a></h3>
+<pre class="code"><code># Configure the load balancer source
+data &quot;layer0_load_balancer&quot; &quot;lb&quot; {
+  name           = &quot;my-loadbalancer&quot;
+  environment_id = &quot;${data.layer0_environment.env.environment_id}&quot;
+}
+
+# Output the layer0 load balancer id
+output &quot;load_balancer_id&quot; {
+  val = &quot;${data.layer0_load_balancer.lb.id}&quot;
+}</code></pre>
+
+
+<h3 id="argument-reference_3">Argument Reference<a class="headerlink" href="#argument-reference_3" title="Permanent link">#</a></h3>
+<p>The following arguments are supported:</p>
+<ul>
+<li><code>name</code> - (required) The name of the load balancer</li>
+<li><code>environment_id</code> - (required) The id of the environment the load balancer exists in</li>
+</ul>
+<h3 id="attribute-reference_3">Attribute Reference<a class="headerlink" href="#attribute-reference_3" title="Permanent link">#</a></h3>
+<p>The following attributes are exported:</p>
+<ul>
+<li><code>id</code> - The id of the load balancer</li>
+<li><code>name</code> - The name of the load balancer</li>
+<li><code>environment_id</code> - The id of the environment the load balancer exists in</li>
+<li><code>environment_name</code> - The name of the environment the load balancer exists in</li>
+<li><code>private</code> - Whether or not the load balancer is private</li>
+<li><code>url</code> - The URL of the load balancer</li>
+</ul>
+<hr />
+<h2 id="service-data-source">Service Data Source<a class="headerlink" href="#service-data-source" title="Permanent link">#</a></h2>
+<p>The Service data source is used to extract Layer0 Service attributes.</p>
+<h3 id="example-usage_5">Example Usage<a class="headerlink" href="#example-usage_5" title="Permanent link">#</a></h3>
+<pre class="code"><code># Configure the service data source
+data &quot;layer0_service&quot; &quot;svc&quot; {
+  name           = &quot;my-service&quot;
+  environment_id = &quot;${data.layer0_environment.env.environment_id}&quot;
+}
+
+# Output the layer0 service id
+output &quot;service_id&quot; {
+  val = &quot;${data.layer0_service.svc.id}&quot;
+}</code></pre>
+
+
+<h3 id="argument-reference_4">Argument Reference<a class="headerlink" href="#argument-reference_4" title="Permanent link">#</a></h3>
+<p>The following arguments are supported:</p>
+<ul>
+<li><code>name</code> - (required) The name of the service</li>
+<li><code>environment_id</code> - (required) The id of the environment the service exists in</li>
+</ul>
+<h3 id="attribute-reference_4">Attribute Reference<a class="headerlink" href="#attribute-reference_4" title="Permanent link">#</a></h3>
+<p>The following attributes are exported:</p>
+<ul>
+<li><code>id</code> - The id of the service</li>
+<li><code>name</code> - The name of the service</li>
+<li><code>environment_id</code> - The id of the environment the service exists in</li>
+<li><code>environment_name</code> - The name of the environment the service exists in</li>
+<li><code>scale</code> - The current desired scale of the service</li>
+</ul>
+<hr />
+<h2 id="deploy-resource">Deploy Resource<a class="headerlink" href="#deploy-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Deploy.</p>
 <p>Performing variable substitution inside of your deploy's json file (typically named <code>Dockerrun.aws.json</code>) can be done through Terraform's <a href="https://www.terraform.io/docs/providers/template/">template_file</a>.
 For a working example, please see the sample <a href="https://github.com/quintilesims/guides/blob/master/guestbook/layer0.tf">Guestbook</a> application</p>
-<h3 id="example-usage_2">Example Usage<a class="headerlink" href="#example-usage_2" title="Permanent link">#</a></h3>
+<h3 id="example-usage_6">Example Usage<a class="headerlink" href="#example-usage_6" title="Permanent link">#</a></h3>
 <pre class="code"><code># Configure the deploy template
 data &quot;template_file&quot; &quot;guestbook&quot; {
   template = &quot;${file(&quot;Dockerrun.aws.json&quot;)}&quot;
@@ -592,13 +738,13 @@ resource &quot;layer0_deploy&quot; &quot;guestbook&quot; {
 }</code></pre>
 
 
-<h3 id="argument-reference_1">Argument Reference<a class="headerlink" href="#argument-reference_1" title="Permanent link">#</a></h3>
+<h3 id="argument-reference_5">Argument Reference<a class="headerlink" href="#argument-reference_5" title="Permanent link">#</a></h3>
 <p>The following arguments are supported:</p>
 <ul>
 <li><code>name</code> - (Required) The name of the deploy</li>
 <li><code>content</code> - (Required) The content of the deploy</li>
 </ul>
-<h3 id="attribute-reference_1">Attribute Reference<a class="headerlink" href="#attribute-reference_1" title="Permanent link">#</a></h3>
+<h3 id="attribute-reference_5">Attribute Reference<a class="headerlink" href="#attribute-reference_5" title="Permanent link">#</a></h3>
 <p>The following attributes are exported:</p>
 <ul>
 <li><code>id</code> - The id of the deploy</li>
@@ -606,9 +752,9 @@ resource &quot;layer0_deploy&quot; &quot;guestbook&quot; {
 <li><code>version</code> - The version number of the deploy</li>
 </ul>
 <hr />
-<h2 id="environment">Environment<a class="headerlink" href="#environment" title="Permanent link">#</a></h2>
+<h2 id="environment-resource">Environment Resource<a class="headerlink" href="#environment-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Environment</p>
-<h3 id="example-usage_3">Example Usage<a class="headerlink" href="#example-usage_3" title="Permanent link">#</a></h3>
+<h3 id="example-usage_7">Example Usage<a class="headerlink" href="#example-usage_7" title="Permanent link">#</a></h3>
 <pre class="code"><code># Create a new environment
 resource &quot;layer0_environment&quot; &quot;demo&quot; {
   name      = &quot;demo&quot;
@@ -620,7 +766,7 @@ resource &quot;layer0_environment&quot; &quot;demo&quot; {
 }</code></pre>
 
 
-<h3 id="argument-reference_2">Argument Reference<a class="headerlink" href="#argument-reference_2" title="Permanent link">#</a></h3>
+<h3 id="argument-reference_6">Argument Reference<a class="headerlink" href="#argument-reference_6" title="Permanent link">#</a></h3>
 <p>The following arguments are supported:</p>
 <ul>
 <li><code>name</code> - (Required) The name of the environment</li>
@@ -634,7 +780,7 @@ Options are "linux" or "windows".</li>
 <li><code>ami</code> - (Optional) A custom AMI ID to use in the environment. 
 If not specified, Layer0 will use its default AMI ID for the specified operating system.</li>
 </ul>
-<h3 id="attribute-reference_2">Attribute Reference<a class="headerlink" href="#attribute-reference_2" title="Permanent link">#</a></h3>
+<h3 id="attribute-reference_6">Attribute Reference<a class="headerlink" href="#attribute-reference_6" title="Permanent link">#</a></h3>
 <p>The following attributes are exported:</p>
 <ul>
 <li><code>id</code> - The id of the environment</li>
@@ -646,9 +792,9 @@ If not specified, Layer0 will use its default AMI ID for the specified operating
 <li><code>ami</code> - The AMI ID used for the environment</li>
 </ul>
 <hr />
-<h2 id="load-balancer">Load Balancer<a class="headerlink" href="#load-balancer" title="Permanent link">#</a></h2>
+<h2 id="load-balancer-resource">Load Balancer Resource<a class="headerlink" href="#load-balancer-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Load Balancer</p>
-<h3 id="example-usage_4">Example Usage<a class="headerlink" href="#example-usage_4" title="Permanent link">#</a></h3>
+<h3 id="example-usage_8">Example Usage<a class="headerlink" href="#example-usage_8" title="Permanent link">#</a></h3>
 <pre class="code"><code># Create a new load balancer
 resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
   name        = &quot;guestbook&quot;
@@ -678,7 +824,7 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 }</code></pre>
 
 
-<h3 id="argument-reference_3">Argument Reference<a class="headerlink" href="#argument-reference_3" title="Permanent link">#</a></h3>
+<h3 id="argument-reference_7">Argument Reference<a class="headerlink" href="#argument-reference_7" title="Permanent link">#</a></h3>
 <p>The following arguments are supported:</p>
 <ul>
 <li><code>name</code> - (Required) The name of the load balancer</li>
@@ -706,7 +852,7 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <li><code>healthy_threshold</code> - (Required) The number of checks before the instance is declared healthy.</li>
 <li><code>unhealthy_threshold</code> - (Required) The number of checks before the instance is declared unhealthy.</li>
 </ul>
-<h3 id="attribute-reference_3">Attribute Reference<a class="headerlink" href="#attribute-reference_3" title="Permanent link">#</a></h3>
+<h3 id="attribute-reference_7">Attribute Reference<a class="headerlink" href="#attribute-reference_7" title="Permanent link">#</a></h3>
 <p>The following attributes are exported:</p>
 <ul>
 <li><code>id</code> - The id of the load balancer</li>
@@ -716,9 +862,9 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <li><code>url</code> - The URL of the load balancer</li>
 </ul>
 <hr />
-<h2 id="service">Service<a class="headerlink" href="#service" title="Permanent link">#</a></h2>
+<h2 id="service-resource">Service Resource<a class="headerlink" href="#service-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Service</p>
-<h3 id="example-usage_5">Example Usage<a class="headerlink" href="#example-usage_5" title="Permanent link">#</a></h3>
+<h3 id="example-usage_9">Example Usage<a class="headerlink" href="#example-usage_9" title="Permanent link">#</a></h3>
 <pre class="code"><code># Create a new service
 resource &quot;layer0_service&quot; &quot;guestbook&quot; {
   name          = &quot;guestbook&quot;
@@ -730,7 +876,7 @@ resource &quot;layer0_service&quot; &quot;guestbook&quot; {
 }</code></pre>
 
 
-<h3 id="argument-reference_4">Argument Reference<a class="headerlink" href="#argument-reference_4" title="Permanent link">#</a></h3>
+<h3 id="argument-reference_8">Argument Reference<a class="headerlink" href="#argument-reference_8" title="Permanent link">#</a></h3>
 <p>The following arguments are supported:</p>
 <ul>
 <li><code>name</code> - (Required) The name of the service</li>
@@ -740,7 +886,7 @@ resource &quot;layer0_service&quot; &quot;guestbook&quot; {
 <li><code>scale</code> (Optional, Default: 1) The number of copies of the service to run</li>
 <li><code>wait</code> (Optional) If true, will wait until the service's deployment completes before returning</li>
 </ul>
-<h3 id="attribute-reference_4">Attribute Reference<a class="headerlink" href="#attribute-reference_4" title="Permanent link">#</a></h3>
+<h3 id="attribute-reference_8">Attribute Reference<a class="headerlink" href="#attribute-reference_8" title="Permanent link">#</a></h3>
 <p>The following attributes are exported:</p>
 <ul>
 <li><code>id</code> - The id of the service</li>

@@ -143,7 +143,7 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.10.0</strong>
+        <strong>Layer0 v0.10.2</strong>
         
           <br>
           quintilesims/layer0
@@ -567,7 +567,7 @@ The names of existing key pairs can be found in the EC2 dashboard.</p>
 <p>There are no options for this command</p>
 <hr />
 <h2 id="apply">Apply<a class="headerlink" href="#apply" title="Permanent link">#</a></h2>
-<p>The <strong>apply</strong> command is used to create and update Layer0 instances.</p>
+<p>The <strong>apply</strong> command is used to create and update Layer0 instances. Note that the default behavior of apply is to push the layer0 configuration to an S3 bucket unless the <code>--push=false</code> flag is set to false. Pushing the configuration to an S3 bucket requires aws credentials which if not set via the optional <code>--aws-*</code> flags, are read from the environment variables or a credentials file. </p>
 <h3 id="usage_2">Usage<a class="headerlink" href="#usage_2" title="Permanent link">#</a></h3>
 <pre class="code"><code>$ l0-setup apply [options] &lt;instance_name&gt; </code></pre>
 
@@ -575,6 +575,10 @@ The names of existing key pairs can be found in the EC2 dashboard.</p>
 <h3 id="options_2">Options<a class="headerlink" href="#options_2" title="Permanent link">#</a></h3>
 <ul>
 <li><code>--quick</code> - Skips verification checks that normally run after <code>terraform apply</code> has completed</li>
+<li><code>--push</code> - Skips uploading local Layer0 configuration files to an S3 bucket</li>
+<li><code>--aws-access-key</code> - The Access Key ID portion of an AWS Access Key that has permissions to push to the Layer0 instances's S3 bucket. If not specified, the application will attempt to use any AWS credentials used by the AWS CLI. </li>
+<li><code>--aws-secret-key</code> - The Secret Access Key portion of an AWS Access Key that has permissions to push to the Layer0 instances's S3 bucket. If not specified, the application will attempt to use any AWS credentials used by the AWS CLI. </li>
+<li><code>--aws-region</code> - The region of the Layer0 instance. The default value is <code>us-west-2</code>. </li>
 </ul>
 <hr />
 <h2 id="list">List<a class="headerlink" href="#list" title="Permanent link">#</a></h2>

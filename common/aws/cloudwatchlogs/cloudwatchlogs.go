@@ -13,9 +13,12 @@ const (
 	// DescribeLogStreams is throttled after five transactions per second.
 	// With 50 streams/transaction, 1000 gives a reasonable streams:time ratio
 	MAX_DESCRIBE_STREAMS_COUNT = 1000
+<<<<<<< HEAD
 
 	// 'YYYY-MM-DD HH:MM' time layout as described by https://golang.org/src/time/format.go
 	TIME_LAYOUT = "2006-01-02 15:04"
+=======
+>>>>>>> remotes/origin/master
 )
 
 type Provider interface {
@@ -178,9 +181,15 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 	}
 
 	input := &cloudwatchlogs.DescribeLogStreamsInput{
+<<<<<<< HEAD
 		LogGroupName: aws.String(logGroupName),
 		OrderBy:      aws.String(orderBy),
 		Descending:   aws.Bool(true),
+=======
+		LogGroupName:        aws.String(logGroupName),
+		OrderBy:             aws.String(orderBy),
+		Descending:          aws.Bool(true),
+>>>>>>> remotes/origin/master
 	}
 
 	streams := []*LogStream{}
@@ -201,6 +210,7 @@ func (this *CloudWatchLogs) DescribeLogStreams(logGroupName, orderBy string) ([]
 	}
 
 	return streams, nil
+<<<<<<< HEAD
 }
 
 func timeToMilliseconds(v string) (int64, error) {
@@ -213,6 +223,8 @@ func timeToMilliseconds(v string) (int64, error) {
 
 	// convert ns to ms
 	return date.UnixNano() / int64(time.Millisecond), nil
+=======
+>>>>>>> remotes/origin/master
 }
 
 func (this *CloudWatchLogs) GetLogEvents(
