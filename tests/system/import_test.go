@@ -3,7 +3,6 @@ package system
 import (
 	"io/ioutil"
 	"testing"
-	//"github.com/quintilesims/layer0/tests/system/clients"
 )
 
 // Test Resources:
