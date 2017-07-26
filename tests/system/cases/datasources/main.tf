@@ -25,7 +25,6 @@ resource "layer0_service" "datasources" {
   deploy        = "${layer0_deploy.datasources.id}"
   load_balancer = "${layer0_load_balancer.datasources.id}"
   scale         = "1"
-  wait          = false
 }
 
 resource "layer0_deploy" "datasources" {
