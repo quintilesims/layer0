@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/cli/client"
 )
 
 func resourceLayer0EnvironmentLink() *schema.Resource {
@@ -30,11 +29,11 @@ func resourceLayer0EnvironmentLink() *schema.Resource {
 }
 
 func resourceLayer0EnvironmentLinkCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	sourceID := d.Get("source").(string)
 	destID := d.Get("dest").(string)
 
-	if err := client.CreateLink(sourceID, destID); err != nil {
+	if err := client.API.CreateLink(sourceID, destID); err != nil {
 		return err
 	}
 
@@ -42,11 +41,11 @@ func resourceLayer0EnvironmentLinkCreate(d *schema.ResourceData, meta interface{
 }
 
 func resourceLayer0EnvironmentLinkRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	sourceID := d.Get("source").(string)
 	destID := d.Get("dest").(string)
 
-	sourceEnvironment, err := client.GetEnvironment(sourceID)
+	sourceEnvironment, err := client.API.GetEnvironment(sourceID)
 	if err != nil {
 		if strings.Contains(err.Error(), "No environment found") {
 			d.SetId("")
@@ -69,11 +68,11 @@ func resourceLayer0EnvironmentLinkRead(d *schema.ResourceData, meta interface{})
 }
 
 func resourceLayer0EnvironmentLinkDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	sourceID := d.Get("source").(string)
 	destID := d.Get("dest").(string)
 
-	if err := client.DeleteLink(sourceID, destID); err != nil {
+	if err := client.API.DeleteLink(sourceID, destID); err != nil {
 		return err
 	}
 

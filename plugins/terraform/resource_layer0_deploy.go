@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/cli/client"
 )
 
 func resourceLayer0Deploy() *schema.Resource {
@@ -37,12 +36,12 @@ func resourceLayer0Deploy() *schema.Resource {
 }
 
 func resourceLayer0DeployCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 
 	name := d.Get("name").(string)
 	content := d.Get("content").(string)
 
-	deploy, err := client.CreateDeploy(name, []byte(content))
+	deploy, err := client.API.CreateDeploy(name, []byte(content))
 	if err != nil {
 		return err
 	}
@@ -52,10 +51,10 @@ func resourceLayer0DeployCreate(d *schema.ResourceData, meta interface{}) error 
 }
 
 func resourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	deployID := d.Id()
 
-	deploy, err := client.GetDeploy(deployID)
+	deploy, err := client.API.GetDeploy(deployID)
 	if err != nil {
 		if strings.Contains(err.Error(), "No deploy found") {
 			d.SetId("")
@@ -74,10 +73,10 @@ func resourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceLayer0DeployDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	deployID := d.Id()
 
-	if err := client.DeleteDeploy(deployID); err != nil {
+	if err := client.API.DeleteDeploy(deployID); err != nil {
 		if strings.Contains(err.Error(), "No deploy found") {
 			return nil
 		}

@@ -35,7 +35,8 @@ func TestLoadBalancerCreate_defaults(t *testing.T) {
 		"port":        flattenPorts(ports),
 	})
 
-	if err := loadBalancerResource.Create(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := loadBalancerResource.Create(d, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -74,7 +75,8 @@ func TestLoadBalancerCreate_specifyPorts(t *testing.T) {
 		"private":     true,
 	})
 
-	if err := loadBalancerResource.Create(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := loadBalancerResource.Create(d, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -104,7 +106,8 @@ func TestLoadBalancerCreate_specifyHealthCheck(t *testing.T) {
 		}),
 	})
 
-	if err := loadBalancerResource.Create(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := loadBalancerResource.Create(d, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -121,7 +124,8 @@ func TestLoadBalancerRead(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{})
 	d.SetId("lbid")
 
-	if err := loadBalancerResource.Read(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := loadBalancerResource.Read(d, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -168,11 +172,12 @@ func TestLoadBalancerUpdate_ports(t *testing.T) {
 
 	d2.SetId("lbid")
 
-	if err := loadBalancerResource.Create(d1, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := loadBalancerResource.Create(d1, client); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := loadBalancerResource.Update(d2, mockClient); err != nil {
+	if err := loadBalancerResource.Update(d2, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -219,11 +224,12 @@ func TestLoadBalancerUpdate_healthCheck(t *testing.T) {
 
 	d2.SetId("lbid")
 
-	if err := loadBalancerResource.Create(d1, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := loadBalancerResource.Create(d1, client); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := loadBalancerResource.Update(d2, mockClient); err != nil {
+	if err := loadBalancerResource.Update(d2, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -244,7 +250,8 @@ func TestLoadBalancerDelete(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{})
 	d.SetId("lbid")
 
-	if err := loadBalancerResource.Delete(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := loadBalancerResource.Delete(d, client); err != nil {
 		t.Fatal(err)
 	}
 }

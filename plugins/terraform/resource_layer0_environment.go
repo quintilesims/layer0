@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/cli/client"
 )
 
 func resourceLayer0Environment() *schema.Resource {
@@ -63,7 +62,7 @@ func resourceLayer0Environment() *schema.Resource {
 }
 
 func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 
 	name := d.Get("name").(string)
 	size := d.Get("size").(string)
@@ -72,7 +71,7 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	os := d.Get("os").(string)
 	ami := d.Get("ami").(string)
 
-	environment, err := client.CreateEnvironment(name, size, minCount, []byte(userData), os, ami)
+	environment, err := client.API.CreateEnvironment(name, size, minCount, []byte(userData), os, ami)
 	if err != nil {
 		return err
 	}
@@ -82,10 +81,10 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	environmentID := d.Id()
 
-	environment, err := client.GetEnvironment(environmentID)
+	environment, err := client.API.GetEnvironment(environmentID)
 	if err != nil {
 		if strings.Contains(err.Error(), "No environment found") {
 			d.SetId("")
@@ -107,13 +106,13 @@ func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) err
 }
 
 func resourceLayer0EnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	environmentID := d.Id()
 
 	if d.HasChange("min_count") {
 		minCount := d.Get("min_count").(int)
 
-		if _, err := client.UpdateEnvironment(environmentID, minCount); err != nil {
+		if _, err := client.API.UpdateEnvironment(environmentID, minCount); err != nil {
 			return err
 		}
 	}
@@ -122,10 +121,10 @@ func resourceLayer0EnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceLayer0EnvironmentDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	environmentID := d.Id()
 
-	jobID, err := client.DeleteEnvironment(environmentID)
+	jobID, err := client.API.DeleteEnvironment(environmentID)
 	if err != nil {
 		if strings.Contains(err.Error(), "No environment found") {
 			return nil
@@ -134,7 +133,7 @@ func resourceLayer0EnvironmentDelete(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	if err := client.WaitForJob(jobID, defaultTimeout); err != nil {
+	if err := client.API.WaitForJob(jobID, defaultTimeout); err != nil {
 		return err
 	}
 

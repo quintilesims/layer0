@@ -25,7 +25,8 @@ func TestDeployCreate(t *testing.T) {
 		"content": "sample task definition",
 	})
 
-	if err := deployResource.Create(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := deployResource.Create(d, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -42,7 +43,8 @@ func TestDeployRead(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, deployResource.Schema, map[string]interface{}{})
 	d.SetId("did")
 
-	if err := deployResource.Read(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := deployResource.Read(d, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -59,7 +61,8 @@ func TestDeployDelete(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, deployResource.Schema, map[string]interface{}{})
 	d.SetId("did")
 
-	if err := deployResource.Delete(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := deployResource.Delete(d, client); err != nil {
 		t.Fatal(err)
 	}
 }

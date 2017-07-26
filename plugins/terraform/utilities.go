@@ -6,15 +6,14 @@ import (
 	"reflect"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func resolveTags(client client.Client, target, entityType string, params map[string]string) (string, error) {
+func resolveTags(client *Layer0Client, target, entityType string, params map[string]string) (string, error) {
 	params["fuzz"] = target
 	params["type"] = entityType
 
-	taggedEntities, err := client.SelectByQuery(params)
+	taggedEntities, err := client.API.SelectByQuery(params)
 	if err != nil {
 		return "", err
 	}
