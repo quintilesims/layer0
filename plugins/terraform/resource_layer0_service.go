@@ -68,7 +68,7 @@ func resourceLayer0ServiceCreate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if _, err := client.API.WaitForDeployment(service.ServiceID, defaultTimeout); err != nil {
+	if err := waitForDeploymentWithContext(client, service.ServiceID); err != nil {
 		return err
 	}
 
@@ -108,16 +108,12 @@ func resourceLayer0ServiceUpdate(d *schema.ResourceData, meta interface{}) error
 	client := meta.(*Layer0Client)
 	serviceID := d.Id()
 
-	d.Partial(true)
-
 	if d.HasChange("deploy") {
 		deployID := d.Get("deploy").(string)
 
 		if _, err := client.API.UpdateService(serviceID, deployID); err != nil {
 			return err
 		}
-
-		d.SetPartial("deploy")
 	}
 
 	if d.HasChange("scale") {
@@ -126,11 +122,7 @@ func resourceLayer0ServiceUpdate(d *schema.ResourceData, meta interface{}) error
 		if _, err := client.API.ScaleService(serviceID, scale); err != nil {
 			return err
 		}
-
-		d.SetPartial("scale")
 	}
-
-	d.Partial(false)
 
 	if _, err := client.API.WaitForDeployment(serviceID, defaultTimeout); err != nil {
 		return err
@@ -152,7 +144,7 @@ func resourceLayer0ServiceDelete(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	if err := client.API.WaitForJob(jobID, defaultTimeout); err != nil {
+	if err := waitForJobWithContext(client, jobID); err != nil {
 		return err
 	}
 

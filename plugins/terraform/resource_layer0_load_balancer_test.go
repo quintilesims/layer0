@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -250,7 +251,7 @@ func TestLoadBalancerDelete(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{})
 	d.SetId("lbid")
 
-	client := &Layer0Client{API: mockClient}
+	client := &Layer0Client{API: mockClient, StopContext: context.Background()}
 	if err := loadBalancerResource.Delete(d, client); err != nil {
 		t.Fatal(err)
 	}

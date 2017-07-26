@@ -193,7 +193,7 @@ func resourceLayer0LoadBalancerDelete(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	if err := client.API.WaitForJob(jobID, defaultTimeout); err != nil {
+	if err := waitForJobWithContext(client, jobID); err != nil {
 		return err
 	}
 

@@ -44,9 +44,9 @@ func Provider() terraform.ResourceProvider {
 			"layer0_deploy":        dataSourceLayer0Deploy(),
 			"layer0_service":       dataSourcelayer0Service(),
 		},
-		ConfigureFunc: providerConfigure(p),
 	}
 
+	p.ConfigureFunc = providerConfigure(p)
 	return p
 }
 

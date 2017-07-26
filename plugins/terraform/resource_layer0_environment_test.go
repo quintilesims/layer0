@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -137,7 +138,7 @@ func TestEnvironmentDelete(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, environmentResource.Schema, map[string]interface{}{})
 	d.SetId("eid")
 
-	client := &Layer0Client{API: mockClient}
+	client := &Layer0Client{API: mockClient, StopContext: context.Background()}
 	if err := environmentResource.Delete(d, client); err != nil {
 		t.Fatal(err)
 	}

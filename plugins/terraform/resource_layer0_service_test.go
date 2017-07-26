@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -31,7 +32,7 @@ func TestServiceCreate_defaults(t *testing.T) {
 		"deploy":      "test-dep",
 	})
 
-	client := &Layer0Client{API: mockClient}
+	client := &Layer0Client{API: mockClient, StopContext: context.Background()}
 	if err := serviceResource.Create(d, client); err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +67,7 @@ func TestServiceCreate_specifyOptional(t *testing.T) {
 		"scale":         2,
 	})
 
-	client := &Layer0Client{API: mockClient}
+	client := &Layer0Client{API: mockClient, StopContext: context.Background()}
 	if err := serviceResource.Create(d, client); err != nil {
 		t.Fatal(err)
 	}
@@ -84,7 +85,7 @@ func TestServiceRead(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, serviceResource.Schema, map[string]interface{}{})
 	d.SetId("sid")
 
-	client := &Layer0Client{API: mockClient}
+	client := &Layer0Client{API: mockClient, StopContext: context.Background()}
 	if err := serviceResource.Read(d, client); err != nil {
 		t.Fatal(err)
 	}
@@ -135,7 +136,7 @@ func TestServiceUpdate(t *testing.T) {
 
 	d2.SetId("sid")
 
-	client := &Layer0Client{API: mockClient}
+	client := &Layer0Client{API: mockClient, StopContext: context.Background()}
 	if err := serviceResource.Create(d1, client); err != nil {
 		t.Fatal(err)
 	}
@@ -161,7 +162,7 @@ func TestServiceDelete(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, serviceResource.Schema, map[string]interface{}{})
 	d.SetId("sid")
 
-	client := &Layer0Client{API: mockClient}
+	client := &Layer0Client{API: mockClient, StopContext: context.Background()}
 	if err := serviceResource.Delete(d, client); err != nil {
 		t.Fatal(err)
 	}
