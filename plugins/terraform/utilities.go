@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 	"reflect"
@@ -71,17 +70,14 @@ func suppressEquivalentDockerrunDiffs(k, old, new string, d *schema.ResourceData
 }
 
 func waitForJobWithContext(client *Layer0Client, jobID string) error {
-	ctx, cancel := context.WithTimeout(client.StopContext, defaultTimeout)
-	defer cancel()
-
 	result := make(chan error, 1)
 	go func() { result <- client.API.WaitForJob(jobID, defaultTimeout) }()
 
 	select {
 	case err := <-result:
 		return err
-	case <-ctx.Done():
-		return ctx.Err()
+	case <-client.StopContext.Done():
+		return client.StopContext.Err()
 	}
 }
 

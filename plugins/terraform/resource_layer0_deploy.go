@@ -25,7 +25,6 @@ func resourceLayer0Deploy() *schema.Resource {
 				Type:             schema.TypeString,
 				Required:         true,
 				ForceNew:         true,
-				DiffSuppressFunc: suppressEquivalentDockerrunDiffs,
 			},
 			"version": {
 				Type:     schema.TypeString,
@@ -66,8 +65,8 @@ func resourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error {
 	}
 
 	d.Set("name", deploy.DeployName)
-	d.Set("content", string(deploy.Dockerrun))
 	d.Set("version", deploy.Version)
+		
 	// do not set content as it fails to properly diff against what's
 	// returned by the Layer0 API
 	// TODO: improve suppressEquivalentDockerrunDiffs to ignore non-critical
