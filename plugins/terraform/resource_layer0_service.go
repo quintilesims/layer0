@@ -124,9 +124,9 @@ func resourceLayer0ServiceUpdate(d *schema.ResourceData, meta interface{}) error
 		}
 	}
 
-	if _, err := client.API.WaitForDeployment(serviceID, defaultTimeout); err != nil {
-		return err
-	}
+	 if err := waitForDeploymentWithContext(client, serviceID); err != nil {
+                return err
+        }
 
 	return resourceLayer0ServiceRead(d, meta)
 }
