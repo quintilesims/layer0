@@ -205,7 +205,7 @@ func (c *EnvironmentResourceGetter) getContainerResourcesFromDeploy(deployID str
 		return nil, err
 	}
 
-	deploy, err := ecsbackend.MarshalDeploy(d.Dockerrun)
+	deploy, err := ecsbackend.MarshalDockerrun(d.Dockerrun)
 	if err != nil {
 		return nil, err
 	}
