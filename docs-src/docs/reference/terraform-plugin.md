@@ -379,7 +379,6 @@ resource "layer0_service" "guestbook" {
   deploy        = "deploy123"
   load_balancer = "loadbalancer123"
   scale         = 3
-  wait          = true
 }
 ```
 
@@ -391,7 +390,6 @@ The following arguments are supported:
 * `deploy` - (Required) The id of the deploy for the service to run
 * `load_balancer` (Optional) The id of the load balancer to place the service behind
 * `scale` (Optional, Default: 1) The number of copies of the service to run
-* `wait` (Optional) If true, will wait until the service's deployment completes before returning
 
 ### Attribute Reference
 The following attributes are exported:
