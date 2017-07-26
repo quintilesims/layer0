@@ -36,3 +36,16 @@ func WriteConfig(path string, config *Config) error {
 
 	return nil
 }
+
+func CopyCredentialHelper(inputPath, outputPath string) error {
+	data, err := ioutil.ReadFile(inputPath)
+	if err != nil {
+		return err
+	}
+
+	if err := ioutil.WriteFile(outputPath, data, 0600); err != nil {
+		return err
+	}
+
+	return nil
+}

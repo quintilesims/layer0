@@ -19,6 +19,10 @@ func (f *CommandFactory) Init() cli.Command {
 				Usage: "path to docker config.json file",
 			},
 			cli.StringFlag{
+				Name:  "docker-creds-helper-path",
+				Usage: "path to dokcer credential helper",
+			},
+			cli.StringFlag{
 				Name:  "module-source",
 				Usage: instance.INPUT_SOURCE_DESCRIPTION,
 			},
@@ -73,8 +77,10 @@ func (f *CommandFactory) Init() cli.Command {
 			}
 
 			dockerPath := strings.Replace(c.String("docker-path"), "~", homedir.Get(), -1)
+			dockerCredsHelperPath := strings.Replace(c.String("docker-creds-helper-path"), "~", homedir.Get(), -1)
+
 			instance := f.NewInstance(args["NAME"])
-			if err := instance.Init(dockerPath, overrides); err != nil {
+			if err := instance.Init(dockerPath, dockerCredsHelperPath, overrides); err != nil {
 				return err
 			}
 

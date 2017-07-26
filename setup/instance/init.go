@@ -3,13 +3,14 @@ package instance
 import (
 	"fmt"
 	"os"
+	"path"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/setup/docker"
 	"github.com/quintilesims/layer0/setup/terraform"
 )
 
-func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]interface{}) error {
+func (l *LocalInstance) Init(dockerInputPath, dockerCredsHelperPath string, inputOverrides map[string]interface{}) error {
 	if err := l.validateInstanceName(); err != nil {
 		return err
 	}
@@ -18,8 +19,13 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 		return err
 	}
 
-	// create/write ~/.layer/<instance>/dockercfg.json
-	if err := l.createOrWriteDockerCFG(dockerInputPath); err != nil {
+	// create/write ~/.layer0/<instance>/dockercfg.json
+	if err := l.createOrWriteDockerCFG(dockerInputPath, dockerCredsHelperPath); err != nil {
+		return err
+	}
+
+	// copy docker credential helper ~/.layer0/<instance>/<helper-filename>
+	if err := l.copyDockerCredsHelper(dockerCredsHelperPath); err != nil {
 		return err
 	}
 
@@ -98,7 +104,7 @@ func (l *LocalInstance) setLayer0ModuleInputs(config *terraform.Config, inputOve
 	return nil
 }
 
-func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
+func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath, dockersCredsHelperPath string) error {
 	dockerOutputPath := fmt.Sprintf("%s/dockercfg.json", l.Dir)
 
 	// if user didn't specify a dockercfg, create an empty one if it doesn't already exist
@@ -134,9 +140,11 @@ func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
 
 		var input string
 		fmt.Scanln(&input)
-	} else if config.CredsStore != "" {
+	} else if dockersCredsHelperPath == "" && config.CredsStore != "" {
 		fmt.Printf("[WARNING] You are using a credential store '%s'. "+
-			"Layer0 does not support credential store authentication.\n\n",
+			"but have not specified a path to the docker credential helper. "+
+			"When running l0-setup, please additionally specify the flag \n"+
+			"\tl0-setup init --docker-creds-helper-path=<path/to/helper>\n\n",
 			config.CredsStore)
 
 		fmt.Println("Press 'enter' to continue without private registry authentication: ")
@@ -146,4 +154,17 @@ func (l *LocalInstance) createOrWriteDockerCFG(dockerInputPath string) error {
 	}
 
 	return docker.WriteConfig(dockerOutputPath, config)
+}
+
+func (l *LocalInstance) copyDockerCredsHelper(dockerCredsHelperPath string) error {
+	if dockerCredsHelperPath != "" {
+		if _, err := os.Stat(dockerCredsHelperPath); os.IsNotExist(err) {
+			fmt.Printf("[WARNING] Invalid path specified for Docker Credential Helper: %s\n", dockerCredsHelperPath)
+		}
+
+		dockerCredsHelperOutputPath := fmt.Sprintf("%s/%s", l.Dir, path.Base(dockerCredsHelperPath))
+		return docker.CopyCredentialHelper(dockerCredsHelperPath, dockerCredsHelperOutputPath)
+	}
+
+	return nil
 }
