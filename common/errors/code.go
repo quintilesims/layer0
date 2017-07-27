@@ -25,4 +25,10 @@ const (
 	Throttled
 	UnexpectedError
 	FailedTagging
+	DeployDoesNotExist
+	EnvironmentDoesNotExist
+	JobDoesNotExist
+	LoadBalancerDoesNotExist
+	ServiceDoesNotExist
+	TaskDoesNotExist
 )

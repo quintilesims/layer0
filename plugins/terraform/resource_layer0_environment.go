@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/quintilesims/layer0/common/errors"
 )
 
 func resourceLayer0Environment() *schema.Resource {
@@ -86,7 +86,7 @@ func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) err
 
 	environment, err := client.API.GetEnvironment(environmentID)
 	if err != nil {
-		if strings.Contains(err.Error(), "No environment found") {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.EnvironmentDoesNotExist {
 			d.SetId("")
 			log.Printf("[WARN] Error Reading Environment (%s), environment does not exist", environmentID)
 			return nil
@@ -126,7 +126,7 @@ func resourceLayer0EnvironmentDelete(d *schema.ResourceData, meta interface{}) e
 
 	jobID, err := client.API.DeleteEnvironment(environmentID)
 	if err != nil {
-		if strings.Contains(err.Error(), "No environment found") {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.EnvironmentDoesNotExist {
 			return nil
 		}
 
