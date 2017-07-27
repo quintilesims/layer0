@@ -45,7 +45,7 @@ func (this *ECSDeployManager) GetDeploy(deployID string) (*models.Deploy, error)
 	if err != nil {
 		if ContainsErrMsg(err, "Unable to describe task definition") {
 			err := fmt.Errorf("Deploy with id '%s' does not exist", deployID)
-			return nil, errors.New(errors.InvalidDeployID, err)
+			return nil, errors.New(errors.DeployDoesNotExist, err)
 		}
 
 		return nil, err

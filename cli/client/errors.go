@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -19,4 +20,8 @@ type ServerError models.ServerError
 
 func (this *ServerError) Error() string {
 	return this.Message
+}
+
+func (this *ServerError) ToCommonError() *errors.ServerError {
+	return errors.Newf(errors.ErrorCode(this.ErrorCode), this.Message)
 }

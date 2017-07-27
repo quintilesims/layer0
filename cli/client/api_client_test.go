@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"testing"
 
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 )
@@ -22,13 +23,13 @@ func TestExecuteErrors(t *testing.T) {
 		t.Fatalf("Error was nil!")
 	}
 
-	se, ok := err.(*ServerError)
+	se, ok := err.(*errors.ServerError)
 	if !ok {
 		t.Fatalf("Error was not of type *ServerError")
 	}
 
-	testutils.AssertEqual(t, se.Message, "msg")
-	testutils.AssertEqual(t, se.ErrorCode, int64(1))
+	testutils.AssertEqual(t, se.Err.Error(), "msg")
+	testutils.AssertEqual(t, se.Code, errors.ErrorCode(1))
 }
 
 func TestExecuteWithJob(t *testing.T) {

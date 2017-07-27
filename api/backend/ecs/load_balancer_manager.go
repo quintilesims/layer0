@@ -65,7 +65,7 @@ func (e *ECSLoadBalancerManager) GetLoadBalancer(loadBalancerID string) (*models
 	if err != nil {
 		if ContainsErrCode(err, "LoadBalancerNotFound") {
 			err := fmt.Errorf("LoadBalancer with id '%s' does not exist", loadBalancerID)
-			return nil, errors.New(errors.InvalidLoadBalancerID, err)
+			return nil, errors.New(errors.LoadBalancerDoesNotExist, err)
 		}
 
 		return nil, err

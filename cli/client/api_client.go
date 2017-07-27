@@ -154,7 +154,7 @@ func (c *APIClient) execute(sling *sling.Sling, receive interface{}) (*http.Resp
 	}
 
 	if serverError != nil {
-		return nil, serverError
+		return nil, serverError.ToCommonError()
 	}
 
 	if resp.StatusCode < 200 || resp.StatusCode > 299 {
