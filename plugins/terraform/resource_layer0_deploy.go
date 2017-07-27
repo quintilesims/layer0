@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/quintilesims/layer0/common/errors"
 )
 
 func resourceLayer0Deploy() *schema.Resource {
@@ -22,9 +22,9 @@ func resourceLayer0Deploy() *schema.Resource {
 				ForceNew: true,
 			},
 			"content": {
-				Type:             schema.TypeString,
-				Required:         true,
-				ForceNew:         true,
+				Type:     schema.TypeString,
+				Required: true,
+				ForceNew: true,
 			},
 			"version": {
 				Type:     schema.TypeString,
@@ -55,7 +55,7 @@ func resourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error {
 
 	deploy, err := client.API.GetDeploy(deployID)
 	if err != nil {
-		if strings.Contains(err.Error(), "No deploy found") {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.DeployDoesNotExist {
 			d.SetId("")
 			log.Printf("[WARN] Error Reading Deploy (%s), deploy does not exist", deployID)
 			return nil
@@ -66,7 +66,7 @@ func resourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error {
 
 	d.Set("name", deploy.DeployName)
 	d.Set("version", deploy.Version)
-		
+
 	// do not set content as it fails to properly diff against what's
 	// returned by the Layer0 API
 	// TODO: improve suppressEquivalentDockerrunDiffs to ignore non-critical
@@ -80,7 +80,7 @@ func resourceLayer0DeployDelete(d *schema.ResourceData, meta interface{}) error 
 	deployID := d.Id()
 
 	if err := client.API.DeleteDeploy(deployID); err != nil {
-		if strings.Contains(err.Error(), "No deploy found") {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.DeployDoesNotExist {
 			return nil
 		}
 
