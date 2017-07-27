@@ -18,10 +18,10 @@ func sslError(err error) error {
 
 type ServerError models.ServerError
 
-func (this *ServerError) Error() string {
-	return this.Message
+func (s *ServerError) Error() string {
+	return s.Message
 }
 
-func (this *ServerError) ToCommonError() *errors.ServerError {
-	return errors.Newf(errors.ErrorCode(this.ErrorCode), this.Message)
+func (s *ServerError) ToCommonError() *errors.ServerError {
+	return errors.Newf(errors.ErrorCode(s.ErrorCode), s.Message)
 }
