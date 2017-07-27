@@ -65,7 +65,7 @@ func (this *ECSServiceManager) GetService(environmentID, serviceID string) (*mod
 	if err != nil {
 		if ContainsErrMsg(err, "Service Not Found") {
 			err := fmt.Errorf("Service with id '%s' does not exist", serviceID)
-			return nil, errors.New(errors.InvalidServiceID, err)
+			return nil, errors.New(errors.ServiceDoesNotExist, err)
 		}
 
 		return nil, err

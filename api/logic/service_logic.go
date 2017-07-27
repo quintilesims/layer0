@@ -217,7 +217,7 @@ func (this *L0ServiceLogic) getEnvironmentID(serviceID string) (string, error) {
 		}
 	}
 
-	return "", errors.Newf(errors.InvalidServiceID, "Service %s does not exist", serviceID)
+	return "", errors.Newf(errors.ServiceDoesNotExist, "Service %s does not exist", serviceID)
 }
 
 func (this *L0ServiceLogic) doesServiceTagExist(environmentID, name string) (bool, error) {
