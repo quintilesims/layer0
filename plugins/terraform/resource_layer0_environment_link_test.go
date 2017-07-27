@@ -26,7 +26,8 @@ func TestEnvironmentLinkCreate(t *testing.T) {
 		"dest":   "test-env2",
 	})
 
-	if err := environmentResource.Create(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := environmentResource.Create(d, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -45,7 +46,8 @@ func TestEnvironmentLinkRead(t *testing.T) {
 		"dest":   "test-env2",
 	})
 
-	if err := environmentResource.Read(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := environmentResource.Read(d, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -64,9 +66,11 @@ func TestEnvironmentLinkRead_noenv(t *testing.T) {
 		"dest":   "test-env2",
 	})
 
-	if err := environmentResource.Read(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := environmentResource.Read(d, client); err != nil {
 		t.Fatal(err)
 	}
+
 	if d.Id() != "" {
 		t.Fatal("Id should be set to empty string")
 	}
@@ -86,7 +90,8 @@ func TestEnvironmentLinkDelete(t *testing.T) {
 		"dest":   "test-env2",
 	})
 
-	if err := environmentResource.Delete(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := environmentResource.Delete(d, client); err != nil {
 		t.Fatal(err)
 	}
 }

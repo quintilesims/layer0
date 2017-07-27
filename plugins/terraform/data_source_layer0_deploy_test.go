@@ -40,7 +40,8 @@ func TestDeployDataResourceSelectByQueryParams(t *testing.T) {
 		"version": version,
 	})
 
-	if err := deployResource.Read(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := deployResource.Read(d, client); err != nil {
 		t.Fatal(err)
 	}
 }

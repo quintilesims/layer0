@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -25,7 +26,8 @@ func TestEnvironmentCreate_defaults(t *testing.T) {
 		"name": "test-env",
 	})
 
-	if err := environmentResource.Create(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := environmentResource.Create(d, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -52,7 +54,8 @@ func TestEnvironmentCreate_specifyOptional(t *testing.T) {
 		"ami":       "ami_id",
 	})
 
-	if err := environmentResource.Create(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := environmentResource.Create(d, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -69,7 +72,8 @@ func TestEnvironmentRead(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, environmentResource.Schema, map[string]interface{}{})
 	d.SetId("eid")
 
-	if err := environmentResource.Read(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := environmentResource.Read(d, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -108,11 +112,12 @@ func TestEnvironmentUpdate(t *testing.T) {
 
 	d2.SetId("eid")
 
-	if err := environmentResource.Create(d1, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := environmentResource.Create(d1, client); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := environmentResource.Update(d2, mockClient); err != nil {
+	if err := environmentResource.Update(d2, client); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -133,7 +138,8 @@ func TestEnvironmentDelete(t *testing.T) {
 	d := schema.TestResourceDataRaw(t, environmentResource.Schema, map[string]interface{}{})
 	d.SetId("eid")
 
-	if err := environmentResource.Delete(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient, StopContext: context.Background()}
+	if err := environmentResource.Delete(d, client); err != nil {
 		t.Fatal(err)
 	}
 }

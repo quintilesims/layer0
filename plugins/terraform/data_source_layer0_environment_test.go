@@ -37,7 +37,8 @@ func TestEnvironmentDataResourceSelectByQueryParams(t *testing.T) {
 		"name": environmentName,
 	})
 
-	if err := environmentResource.Read(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := environmentResource.Read(d, client); err != nil {
 		t.Fatal(err)
 	}
 }

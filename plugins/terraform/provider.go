@@ -11,7 +11,8 @@ import (
 var defaultTimeout = time.Minute * 15
 
 func Provider() terraform.ResourceProvider {
-	return &schema.Provider{
+	var p *schema.Provider
+	p = &schema.Provider{
 		Schema: map[string]*schema.Schema{
 			"endpoint": {
 				Type:        schema.TypeString,
@@ -43,16 +44,23 @@ func Provider() terraform.ResourceProvider {
 			"layer0_deploy":        dataSourceLayer0Deploy(),
 			"layer0_service":       dataSourcelayer0Service(),
 		},
-		ConfigureFunc: providerConfigure,
 	}
+
+	p.ConfigureFunc = providerConfigure(p)
+	return p
 }
 
-func providerConfigure(d *schema.ResourceData) (interface{}, error) {
-	client := client.NewAPIClient(client.Config{
-		Endpoint:  d.Get("endpoint").(string),
-		Token:     d.Get("token").(string),
-		VerifySSL: !d.Get("skip_ssl_verify").(bool),
-	})
+func providerConfigure(p *schema.Provider) schema.ConfigureFunc {
+	return func(d *schema.ResourceData) (interface{}, error) {
+		layer0Client := &Layer0Client{
+			API: client.NewAPIClient(client.Config{
+				Endpoint:  d.Get("endpoint").(string),
+				Token:     d.Get("token").(string),
+				VerifySSL: !d.Get("skip_ssl_verify").(bool),
+			}),
+			StopContext: p.StopContext(),
+		}
 
-	return client, nil
+		return layer0Client, nil
+	}
 }
