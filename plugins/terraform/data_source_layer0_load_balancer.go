@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/cli/client"
 )
 
 func dataSourcelayer0LoadBalancer() *schema.Resource {
@@ -39,7 +38,7 @@ func dataSourcelayer0LoadBalancer() *schema.Resource {
 }
 
 func dataSourcelayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 
 	lbName := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
@@ -52,7 +51,7 @@ func dataSourcelayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	loadbalancer, err := client.GetLoadBalancer(loadbalancerID)
+	loadbalancer, err := client.API.GetLoadBalancer(loadbalancerID)
 	if err != nil {
 		return err
 	}

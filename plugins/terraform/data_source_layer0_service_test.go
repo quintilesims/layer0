@@ -40,7 +40,8 @@ func TestServiceDataResourceSelectByQueryParams(t *testing.T) {
 		"environment_id": environmentID,
 	})
 
-	if err := serviceResource.Read(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := serviceResource.Read(d, client); err != nil {
 		t.Fatal(err)
 	}
 }

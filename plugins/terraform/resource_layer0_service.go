@@ -5,7 +5,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/cli/client"
 )
 
 func resourceLayer0Service() *schema.Resource {
@@ -47,7 +46,7 @@ func resourceLayer0Service() *schema.Resource {
 }
 
 func resourceLayer0ServiceCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 
 	environmentID := d.Get("environment").(string)
 	name := d.Get("name").(string)
@@ -55,7 +54,7 @@ func resourceLayer0ServiceCreate(d *schema.ResourceData, meta interface{}) error
 	loadBalancerID := d.Get("load_balancer").(string)
 	scale := d.Get("scale").(int)
 
-	service, err := client.CreateService(name, environmentID, deployID, loadBalancerID)
+	service, err := client.API.CreateService(name, environmentID, deployID, loadBalancerID)
 	if err != nil {
 		return err
 	}
@@ -64,12 +63,12 @@ func resourceLayer0ServiceCreate(d *schema.ResourceData, meta interface{}) error
 	d.SetId(service.ServiceID)
 
 	if scale != 1 {
-		if _, err := client.ScaleService(service.ServiceID, scale); err != nil {
+		if _, err := client.API.ScaleService(service.ServiceID, scale); err != nil {
 			return err
 		}
 	}
 
-	if _, err := client.WaitForDeployment(service.ServiceID, defaultTimeout); err != nil {
+	if err := waitForDeploymentWithContext(client, service.ServiceID); err != nil {
 		return err
 	}
 
@@ -77,10 +76,10 @@ func resourceLayer0ServiceCreate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceLayer0ServiceRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	serviceID := d.Id()
 
-	service, err := client.GetService(serviceID)
+	service, err := client.API.GetService(serviceID)
 	if err != nil {
 		if strings.Contains(err.Error(), "No service found") {
 			d.SetId("")
@@ -106,34 +105,26 @@ func resourceLayer0ServiceRead(d *schema.ResourceData, meta interface{}) error {
 }
 
 func resourceLayer0ServiceUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	serviceID := d.Id()
-
-	d.Partial(true)
 
 	if d.HasChange("deploy") {
 		deployID := d.Get("deploy").(string)
 
-		if _, err := client.UpdateService(serviceID, deployID); err != nil {
+		if _, err := client.API.UpdateService(serviceID, deployID); err != nil {
 			return err
 		}
-
-		d.SetPartial("deploy")
 	}
 
 	if d.HasChange("scale") {
 		scale := d.Get("scale").(int)
 
-		if _, err := client.ScaleService(serviceID, scale); err != nil {
+		if _, err := client.API.ScaleService(serviceID, scale); err != nil {
 			return err
 		}
-
-		d.SetPartial("scale")
 	}
 
-	d.Partial(false)
-
-	if _, err := client.WaitForDeployment(serviceID, defaultTimeout); err != nil {
+	if err := waitForDeploymentWithContext(client, serviceID); err != nil {
 		return err
 	}
 
@@ -141,10 +132,10 @@ func resourceLayer0ServiceUpdate(d *schema.ResourceData, meta interface{}) error
 }
 
 func resourceLayer0ServiceDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	serviceID := d.Id()
 
-	jobID, err := client.DeleteService(serviceID)
+	jobID, err := client.API.DeleteService(serviceID)
 	if err != nil {
 		if strings.Contains(err.Error(), "No service found") {
 			return nil
@@ -153,7 +144,7 @@ func resourceLayer0ServiceDelete(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	if err := client.WaitForJob(jobID, defaultTimeout); err != nil {
+	if err := waitForJobWithContext(client, jobID); err != nil {
 		return err
 	}
 

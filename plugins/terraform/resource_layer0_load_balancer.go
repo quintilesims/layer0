@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -106,7 +105,7 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 }
 
 func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 
 	name := d.Get("name").(string)
 	environmentID := d.Get("environment").(string)
@@ -124,7 +123,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
-	loadBalancer, err := client.CreateLoadBalancer(name, environmentID, *healthCheck, ports, !private)
+	loadBalancer, err := client.API.CreateLoadBalancer(name, environmentID, *healthCheck, ports, !private)
 	if err != nil {
 		return err
 	}
@@ -134,10 +133,10 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	loadBalancerID := d.Id()
 
-	loadBalancer, err := client.GetLoadBalancer(loadBalancerID)
+	loadBalancer, err := client.API.GetLoadBalancer(loadBalancerID)
 	if err != nil {
 		if strings.Contains(err.Error(), "No load_balancer found") {
 			d.SetId("")
@@ -159,13 +158,13 @@ func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) er
 }
 
 func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	loadBalancerID := d.Id()
 
 	if d.HasChange("port") {
 		ports := expandPorts(d.Get("port").(*schema.Set).List())
 
-		if _, err := client.UpdateLoadBalancerPorts(loadBalancerID, ports); err != nil {
+		if _, err := client.API.UpdateLoadBalancerPorts(loadBalancerID, ports); err != nil {
 			return err
 		}
 	}
@@ -173,7 +172,7 @@ func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("health_check") {
 		healthCheck := expandHealthCheck(d.Get("health_check"))
 
-		if _, err := client.UpdateLoadBalancerHealthCheck(loadBalancerID, *healthCheck); err != nil {
+		if _, err := client.API.UpdateLoadBalancerHealthCheck(loadBalancerID, *healthCheck); err != nil {
 			return err
 		}
 	}
@@ -182,10 +181,10 @@ func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) 
 }
 
 func resourceLayer0LoadBalancerDelete(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 	loadBalancerID := d.Id()
 
-	jobID, err := client.DeleteLoadBalancer(loadBalancerID)
+	jobID, err := client.API.DeleteLoadBalancer(loadBalancerID)
 	if err != nil {
 		if strings.Contains(err.Error(), "No load_balancer found") {
 			return nil
@@ -194,7 +193,7 @@ func resourceLayer0LoadBalancerDelete(d *schema.ResourceData, meta interface{}) 
 		return err
 	}
 
-	if err := client.WaitForJob(jobID, defaultTimeout); err != nil {
+	if err := waitForJobWithContext(client, jobID); err != nil {
 		return err
 	}
 

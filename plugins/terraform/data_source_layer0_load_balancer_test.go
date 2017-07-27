@@ -40,7 +40,8 @@ func TestLoadBalancerDataResourceSelectByQueryParams(t *testing.T) {
 		"environment_id": environmentID,
 	})
 
-	if err := loadbalancerResource.Read(d, mockClient); err != nil {
+	client := &Layer0Client{API: mockClient}
+	if err := loadbalancerResource.Read(d, client); err != nil {
 		t.Fatal(err)
 	}
 }

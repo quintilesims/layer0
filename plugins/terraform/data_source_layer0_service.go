@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/cli/client"
 )
 
 func dataSourcelayer0Service() *schema.Resource {
@@ -35,7 +34,7 @@ func dataSourcelayer0Service() *schema.Resource {
 }
 
 func dataSourcelayer0ServiceRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 
 	serviceName := d.Get("name").(string)
 	environmentID := d.Get("environment_id").(string)
@@ -48,7 +47,7 @@ func dataSourcelayer0ServiceRead(d *schema.ResourceData, meta interface{}) error
 		return err
 	}
 
-	service, err := client.GetService(serviceID)
+	service, err := client.API.GetService(serviceID)
 	if err != nil {
 		return err
 	}

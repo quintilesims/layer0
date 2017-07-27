@@ -2,7 +2,6 @@ package main
 
 import (
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/cli/client"
 )
 
 func dataSourceLayer0Deploy() *schema.Resource {
@@ -27,7 +26,7 @@ func dataSourceLayer0Deploy() *schema.Resource {
 }
 
 func datasourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(client.Client)
+	client := meta.(*Layer0Client)
 
 	deployName := d.Get("name").(string)
 	version := d.Get("version").(string)
@@ -40,7 +39,7 @@ func datasourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error 
 		return err
 	}
 
-	deploy, err := client.GetDeploy(deployID)
+	deploy, err := client.API.GetDeploy(deployID)
 	if err != nil {
 		return err
 	}
