@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -138,7 +139,7 @@ func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) er
 
 	loadBalancer, err := client.API.GetLoadBalancer(loadBalancerID)
 	if err != nil {
-		if strings.Contains(err.Error(), "No load_balancer found") {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
 			d.SetId("")
 			log.Printf("[WARN] Error Reading Load Balancer (%s), load balancer does not exist", loadBalancerID)
 			return nil
@@ -186,7 +187,7 @@ func resourceLayer0LoadBalancerDelete(d *schema.ResourceData, meta interface{}) 
 
 	jobID, err := client.API.DeleteLoadBalancer(loadBalancerID)
 	if err != nil {
-		if strings.Contains(err.Error(), "No load_balancer found") {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
 			return nil
 		}
 

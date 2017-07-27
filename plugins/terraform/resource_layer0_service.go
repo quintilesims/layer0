@@ -2,9 +2,9 @@ package main
 
 import (
 	"log"
-	"strings"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/quintilesims/layer0/common/errors"
 )
 
 func resourceLayer0Service() *schema.Resource {
@@ -81,7 +81,7 @@ func resourceLayer0ServiceRead(d *schema.ResourceData, meta interface{}) error {
 
 	service, err := client.API.GetService(serviceID)
 	if err != nil {
-		if strings.Contains(err.Error(), "No service found") {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.ServiceDoesNotExist {
 			d.SetId("")
 			log.Printf("[WARN] Error Reading Service (%s), service does not exist", serviceID)
 			return nil
@@ -137,7 +137,7 @@ func resourceLayer0ServiceDelete(d *schema.ResourceData, meta interface{}) error
 
 	jobID, err := client.API.DeleteService(serviceID)
 	if err != nil {
-		if strings.Contains(err.Error(), "No service found") {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.ServiceDoesNotExist {
 			return nil
 		}
 
