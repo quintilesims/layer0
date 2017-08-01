@@ -3,6 +3,7 @@ package command
 import (
 	"strings"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -160,8 +161,28 @@ func (t *TaskCommand) Delete(c *cli.Context) error {
 }
 
 func (t *TaskCommand) Get(c *cli.Context) error {
+	taskSummaries, err := t.Client.ListTasks()
+	if err != nil {
+		return err
+	}
+
+	taskExists := func(id string) bool {
+		for _, t := range taskSummaries {
+			if t.TaskID == id {
+				return true
+			}
+		}
+
+		return false
+	}
+
 	tasks := []*models.Task{}
 	getTaskf := func(id string) error {
+		if !taskExists(id) {
+			log.Debugln("No corresponding Task found for TaskID:", id)
+			return nil
+		}
+
 		task, err := t.Client.GetTask(id)
 		if err != nil {
 			return err

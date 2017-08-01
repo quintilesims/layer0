@@ -190,6 +190,12 @@ func TestGetTask(t *testing.T) {
 		Return([]string{"id"}, nil)
 
 	tc.Client.EXPECT().
+		ListTasks().
+		Return([]*models.TaskSummary{
+			{TaskID: "id"},
+		}, nil)
+
+	tc.Client.EXPECT().
 		GetTask("id").
 		Return(&models.Task{}, nil)
 
@@ -207,6 +213,10 @@ func TestGetTask_userInputErrors(t *testing.T) {
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
+
+	tc.Client.EXPECT().
+		ListTasks().
+		Return(nil, nil)
 
 	for name, c := range contexts {
 		if err := command.Get(c); err == nil {

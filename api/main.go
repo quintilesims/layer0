@@ -149,10 +149,14 @@ func main() {
 	}
 
 	jobJanitor := logic.NewJobJanitor(jobLogic)
+	tagJanitor := logic.NewTagJanitor(taskLogic, lgc.TagStore)
 	go runEnvironmentScaler(environmentLogic)
 
 	logrus.Infof("Starting Job Janitor")
 	jobJanitor.Run()
+
+	logrus.Infof("Starting Tag Janitor")
+	tagJanitor.Run()
 
 	logrus.Print("Service on localhost" + port)
 	logrus.Fatal(http.ListenAndServe(port, nil))
