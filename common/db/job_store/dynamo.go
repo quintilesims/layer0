@@ -3,6 +3,7 @@ package job_store
 import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
 )
@@ -75,9 +76,15 @@ func (d *DynamoJobStore) SelectAll() ([]*models.Job, error) {
 
 func (d *DynamoJobStore) SelectByID(jobID string) (*models.Job, error) {
 	var job *models.Job
+
 	if err := d.table.Get("JobID", jobID).
 		Consistent(true).
 		One(&job); err != nil {
+
+		if err.Error() == "dynamo: no item found" {
+			return nil, errors.Newf(errors.JobDoesNotExist, "Job %s does not exist", jobID)
+		}
+
 		return nil, err
 	}
 

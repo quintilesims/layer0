@@ -179,7 +179,7 @@ func (this *ECSTaskManager) GetTaskLogs(environmentID, taskID, start, end string
 // Assumes the tasks are all of the same type
 func modelFromTasks(tasks []*ecs.Task) (*models.Task, error) {
 	if len(tasks) == 0 {
-		return nil, errors.Newf(errors.InvalidTaskID, "The specified task does not exist")
+		return nil, errors.Newf(errors.TaskDoesNotExist, "The specified task does not exist")
 	}
 
 	var pendingCount, runningCount int64
