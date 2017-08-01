@@ -164,7 +164,7 @@ func (this *L0TaskLogic) getEnvironmentID(taskID string) (string, error) {
 		}
 	}
 
-	return "", errors.Newf(errors.InvalidTaskID, "Task %s does not exist", taskID)
+	return "", errors.Newf(errors.TaskDoesNotExist, "Task %s does not exist", taskID)
 }
 
 func (this *L0TaskLogic) populateModel(model *models.Task) error {

@@ -21,6 +21,9 @@ func ToHttpError(code errors.ErrorCode) int {
 		ret = http.StatusBadRequest
 	case errors.Throttled:
 		ret = http.StatusServiceUnavailable
+	case errors.DeployDoesNotExist, errors.EnvironmentDoesNotExist, errors.JobDoesNotExist,
+		errors.LoadBalancerDoesNotExist, errors.ServiceDoesNotExist, errors.TaskDoesNotExist:
+		ret = http.StatusNotFound
 	default:
 		ret = http.StatusInternalServerError
 	}
