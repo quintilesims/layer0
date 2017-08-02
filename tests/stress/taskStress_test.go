@@ -10,10 +10,10 @@ import (
 // Test Resources:
 // This test creates an environment named 'tp'
 // and a deploy named 'alpine'
-func TestTaskPerformance(t *testing.T) {
+func TestTaskStress(t *testing.T) {
 	t.Parallel()
 
-	s := NewSystemTest(t, "cases/task_performance", nil)
+	s := NewStressTest(t, "cases/task_stress", nil)
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 

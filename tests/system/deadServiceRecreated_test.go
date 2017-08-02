@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/quintilesims/layer0/common/testutils"
-	"github.com/quintilesims/layer0/tests/system/clients"
+	"github.com/quintilesims/layer0/tests/clients"
 )
 
 // Test Resources:
