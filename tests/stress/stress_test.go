@@ -8,12 +8,12 @@ import (
 	"github.com/quintilesims/tftest"
 )
 
-type SystemTest struct {
+type StressTest struct {
 	Terraform *tftest.TestContext
 	Layer0    *clients.Layer0TestClient
 }
 
-func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest {
+func NewStressTest(t *testing.T, dir string, vars map[string]string) *StressTest {
 	if vars == nil {
 		vars = map[string]string{}
 	}
@@ -32,7 +32,7 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 	// download modules using terraform get
 	tfContext.Terraformf("get")
 
-	return &SystemTest{
+	return &StressTest{
 		Terraform: tfContext,
 		Layer0:    layer0,
 	}

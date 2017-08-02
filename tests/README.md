@@ -1,7 +1,6 @@
-# Layer0 System Tests
-This package contains the system tests for Layer0.
-A system test can be defined as:
-> System testing is performed on the entire system in the context of a Functional Requirement Specification(s) (FRS) and/or a System Requirement Specification (SRS). System testing tests not only the design, but also the behaviour and even the believed expectations of the customer. It is also intended to test up to and beyond the bounds defined in the software/hardware requirements specification(s). (via [Wikipedia](https://en.wikipedia.org/wiki/System_testing))
+# Layer0 Tests
+This package contains all non-unit tests for Layer0, including system, smoke, and stress tests. 
+The following instructions pertain to system and stress tests. 
 
 ### Test Architecture
 Each test case contains two components: a subdirectory under `cases/`, and a `<case name>_test.go` file.
