@@ -179,7 +179,7 @@ func (t *TaskCommand) Get(c *cli.Context) error {
 	tasks := []*models.Task{}
 	getTaskf := func(id string) error {
 		if !taskExists(id) {
-			log.Debugln("No corresponding Task found for TaskID:", id)
+			log.Debugf("No corresponding Task found for TaskID: %s\n", id)
 			return nil
 		}
 

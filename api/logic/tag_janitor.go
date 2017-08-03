@@ -1,7 +1,6 @@
 package logic
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/quintilesims/layer0/common/db/tag_store"
@@ -65,14 +64,13 @@ func (t *TagJanitor) pulse() error {
 
 	errs := []error{}
 	for _, tag := range tags {
-		fmt.Printf("tag: %s, %s, %s, %s \n", tag.EntityID, tag.EntityType, tag.Key, tag.Value)
 		if !taskExists(tag.EntityID) {
 			if err := t.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
-				tagLogger.Errorf("Could not delete tag (id: %s, type: %s, key: %s) -  %s\n",
-					tag.EntityID, tag.EntityType, tag.Key, err.Error())
-			} else {
-				tagLogger.Infof("Tag for task (%s) has been deleted\n", tag.EntityID)
+				tagLogger.Errorf("Could not delete tag (%#v) -  %s\n", tag, err.Error())
+				continue
 			}
+
+			tagLogger.Infof("Tag for task (%s) has been deleted\n", tag.EntityID)
 		}
 	}
 

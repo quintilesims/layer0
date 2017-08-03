@@ -10,16 +10,25 @@ import (
 	"github.com/quintilesims/layer0/common/testutils"
 )
 
+var taskTags = []models.Tag{
+	{EntityID: "t1", EntityType: "task", Key: "name", Value: "task1"},
+	{EntityID: "t1", EntityType: "task", Key: "environment_id", Value: "e1"},
+	{EntityID: "t1", EntityType: "task", Key: "deploy_id", Value: "abcd.1"},
+	{EntityID: "t2", EntityType: "task", Key: "name", Value: "task2"},
+	{EntityID: "t2", EntityType: "task", Key: "environment_id", Value: "e2"},
+	{EntityID: "t2", EntityType: "task", Key: "deploy_id", Value: "efgh.1"},
+}
+
 func TestTagJanitorPulse(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	taskLogicMock := mock_logic.NewMockTaskLogic(ctrl)
-	tagStore, tagsAdded := getTagStore()
+	tagStore, tagsAdded := getTagStore(taskTags)
 
 	tasks := []*models.TaskSummary{
 		{
-			TaskID: "task2",
+			TaskID: "t2",
 		},
 	}
 
@@ -39,33 +48,17 @@ func TestTagJanitorPulse(t *testing.T) {
 
 	//expecting 3 tags for task1 to be deleted from the tagstore
 	testutils.AssertEqual(t, tagsAdded-3, len(tags))
-	testutils.AssertEqual(t, "task2", tags[0].EntityID)
+	testutils.AssertEqual(t, "t2", tags[0].EntityID)
 }
 
-func getTagStore() (tag_store.TagStore, int) {
+func getTagStore(tags []models.Tag) (tag_store.TagStore, int) {
 	store := tag_store.NewMemoryTagStore()
 	tagsAdded := 0
 
-	generateTag := func(entityType, entityID, key, value string) models.Tag {
+	for _, tag := range tags {
 		tagsAdded++
-
-		return models.Tag{
-			EntityType: entityType,
-			EntityID:   entityID,
-			Key:        key,
-			Value:      value,
-		}
+		store.Insert(tag)
 	}
-
-	//task 1
-	store.Insert(generateTag("task", "task1", "deploy_id", "efgh-task.1"))
-	store.Insert(generateTag("task", "task1", "environment_id", "env1"))
-	store.Insert(generateTag("task", "task1", "name", "random-task"))
-
-	//task 2
-	store.Insert(generateTag("task", "task2", "deploy_id", "abcd-task.2"))
-	store.Insert(generateTag("task", "task2", "environment_id", "env1"))
-	store.Insert(generateTag("task", "task2", "name", "not-so-random-task"))
 
 	return store, tagsAdded
 }
