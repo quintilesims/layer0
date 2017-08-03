@@ -184,10 +184,17 @@ func TestGetTask(t *testing.T) {
 	tc, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewTaskCommand(tc.Command())
+	result := []*models.TaskSummary{
+		{TaskID: "id"},
+	}
 
 	tc.Resolver.EXPECT().
 		Resolve("task", "name").
 		Return([]string{"id"}, nil)
+
+	tc.Client.EXPECT().
+		ListTasks().
+		Return(result, nil)
 
 	tc.Client.EXPECT().
 		GetTask("id").
@@ -208,10 +215,41 @@ func TestGetTask_userInputErrors(t *testing.T) {
 		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
 	}
 
+	tc.Client.EXPECT().
+		ListTasks().
+		Return(nil, nil)
+
 	for name, c := range contexts {
 		if err := command.Get(c); err == nil {
 			t.Fatalf("%s: error was nil!", name)
 		}
+	}
+}
+
+func TestGetTask_expiredTasks(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewTaskCommand(tc.Command())
+	result := []*models.TaskSummary{
+		{TaskID: "id3"},
+	}
+
+	tc.Resolver.EXPECT().
+		Resolve("task", "name").
+		Return([]string{"id3", "id4", "id5"}, nil)
+
+	tc.Client.EXPECT().
+		ListTasks().
+		Return(result, nil)
+
+	//only task 'id3' should result in a GetTask call
+	tc.Client.EXPECT().
+		GetTask("id3").
+		Return(&models.Task{}, nil)
+
+	c := testutils.GetCLIContext(t, []string{"name"}, nil)
+	if err := command.Get(c); err != nil {
+		t.Fatal(err)
 	}
 }
 
