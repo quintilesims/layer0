@@ -1,5 +1,18 @@
 # Release Notes
 ---
+## v0.10.3 | [Download](http://layer0.ims.io/#download)
+8.3.2017
+
+#### Features
+* Layer0 resources can now be imported into existing Terraform configurations using `terraform import`
+* Leftover tags from old tasks are automatically cleaned up by the API and ignored by the CLI
+
+#### Fixes
+* Removed `wait` field from terraform service resource
+* Improve handling of sigterm during terraform execution on Layer0 services
+* API returns 404 status instead of 400 when entities do not exist
+
+---
 ## v0.10.2 | [Download](http://layer0.ims.io/#download)
 7.24.2017
 

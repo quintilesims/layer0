@@ -143,7 +143,7 @@
         </div>
       
       <div class="name">
-        <strong>Layer0 v0.10.2</strong>
+        <strong>Layer0 v0.10.3</strong>
         
           <br>
           quintilesims/layer0
@@ -872,7 +872,6 @@ resource &quot;layer0_service&quot; &quot;guestbook&quot; {
   deploy        = &quot;deploy123&quot;
   load_balancer = &quot;loadbalancer123&quot;
   scale         = 3
-  wait          = true
 }</code></pre>
 
 
@@ -884,7 +883,6 @@ resource &quot;layer0_service&quot; &quot;guestbook&quot; {
 <li><code>deploy</code> - (Required) The id of the deploy for the service to run</li>
 <li><code>load_balancer</code> (Optional) The id of the load balancer to place the service behind</li>
 <li><code>scale</code> (Optional, Default: 1) The number of copies of the service to run</li>
-<li><code>wait</code> (Optional) If true, will wait until the service's deployment completes before returning</li>
 </ul>
 <h3 id="attribute-reference_8">Attribute Reference<a class="headerlink" href="#attribute-reference_8" title="Permanent link">#</a></h3>
 <p>The following attributes are exported:</p>
