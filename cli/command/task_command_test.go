@@ -242,10 +242,10 @@ func TestGetTask_expiredTasks(t *testing.T) {
 		ListTasks().
 		Return(result, nil)
 
+	//only task 'id3' should result in a GetTask call
 	tc.Client.EXPECT().
-		GetTask(gomock.Any()).
-		Return(&models.Task{}, nil).
-		Times(1) //only task 'id3' should result in a gettask call
+		GetTask("id3").
+		Return(&models.Task{}, nil)
 
 	c := testutils.GetCLIContext(t, []string{"name"}, nil)
 	if err := command.Get(c); err != nil {
