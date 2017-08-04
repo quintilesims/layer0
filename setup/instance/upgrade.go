@@ -76,7 +76,7 @@ func assertPatchUpgrade(currentVersion, desiredVersion string) error {
 
 	current, err := semver.Make(currentVersion)
 	if err != nil {
-		return fmt.Errorf("Failed to parse current version: %v", err)
+		return fmt.Errorf("Current version not semver compatible: %v\nUse --force to override this behavior", currentVersion)
 	}
 
 	desired, err := semver.Make(desiredVersion)
