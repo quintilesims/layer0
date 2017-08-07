@@ -9,8 +9,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 )
 
-const DEFAULT_AWS_REGION = "us-west-2"
-
 type Provider struct {
 	EC2 ec2iface.EC2API
 	S3  s3iface.S3API
