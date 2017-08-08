@@ -1,7 +1,7 @@
 package models
 
 import (
-	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
 type Dockerrun struct {
