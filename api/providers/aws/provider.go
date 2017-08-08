@@ -1,8 +1,8 @@
 package aws
 
 import (
+	"github.com/quintilesims/layer0/api/entity"
 	"github.com/quintilesims/layer0/common/aws"
-	"github.com/zpatrick/forge/api/entity"
 )
 
 type AWSProvider struct {
