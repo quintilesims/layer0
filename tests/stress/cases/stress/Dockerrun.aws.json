@@ -1,0 +1,12 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "containerDefinitions": [
+        {
+            "name": "alpine",
+            "image": "alpine",
+            "entrypoint": [ "/bin/sh", "-c" ],
+            "essential": true,
+            "memory": 100,
+        }
+    ]
+}

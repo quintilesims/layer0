@@ -18,7 +18,7 @@ func New() backend.Backend {
 		// Set the schema
 		Backend: &schema.Backend{
 			Schema: map[string]*schema.Schema{
-				"lock_id": {
+				"lock_id": &schema.Schema{
 					Type:        schema.TypeString,
 					Optional:    true,
 					Description: "initializes the state in a locked configuration",

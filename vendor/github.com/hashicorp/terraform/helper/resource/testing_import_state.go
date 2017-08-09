@@ -25,6 +25,10 @@ func testStepImportState(
 
 		importId = resource.Primary.ID
 	}
+	importPrefix := step.ImportStateIdPrefix
+	if importPrefix != "" {
+		importId = fmt.Sprintf("%s%s", importPrefix, importId)
+	}
 
 	// Setup the context. We initialize with an empty state. We use the
 	// full config for provider configurations.
@@ -46,7 +50,7 @@ func testStepImportState(
 		Module: mod,
 
 		Targets: []*terraform.ImportTarget{
-			{
+			&terraform.ImportTarget{
 				Addr: step.ResourceName,
 				ID:   importId,
 			},
@@ -101,12 +105,12 @@ func testStepImportState(
 
 			// Remove fields we're ignoring
 			for _, v := range step.ImportStateVerifyIgnore {
-				for k := range actual {
+				for k, _ := range actual {
 					if strings.HasPrefix(k, v) {
 						delete(actual, k)
 					}
 				}
-				for k := range expected {
+				for k, _ := range expected {
 					if strings.HasPrefix(k, v) {
 						delete(expected, k)
 					}

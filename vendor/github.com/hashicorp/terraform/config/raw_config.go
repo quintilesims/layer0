@@ -180,7 +180,7 @@ func (r *RawConfig) Merge(other *RawConfig) *RawConfig {
 		}
 
 		result.unknownKeys = make([]string, 0, len(unknownKeys))
-		for k := range unknownKeys {
+		for k, _ := range unknownKeys {
 			result.unknownKeys = append(result.unknownKeys, k)
 		}
 	}
