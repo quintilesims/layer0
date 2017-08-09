@@ -1,7 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"log"
+	"net/http"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -12,10 +14,21 @@ import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/urfave/cli"
 	"github.com/zpatrick/example/logging"
+	"github.com/zpatrick/fireball"
 )
 
-// todo: handle swagger
 // todo: handle main.Version
+
+const (
+	SWAGGER_URL     = "/api/"
+	SWAGGER_UI_PATH = "static/swagger-ui/dist"
+)
+
+func serveSwaggerUI(w http.ResponseWriter, r *http.Request) {
+	dir := http.Dir(SWAGGER_UI_PATH)
+	fileServer := http.FileServer(dir)
+	http.StripPrefix(SWAGGER_URL, fileServer).ServeHTTP(w, r)
+}
 
 func main() {
 	app := cli.NewApp()
@@ -39,16 +52,16 @@ func main() {
 		provider := aws.NewAWSProvider(client)
 
 		// todo: inject job scheduler
-		environmentController := controllers.NewEnvironmentController(provider, nil)
-		print(environmentController)
-		//restful.Add(environmentController.Routes())
+		routes := controllers.NewEnvironmentController(provider, nil).Routes()
 
-		// todo: add restful.Filters
-		// todo: add swagger service
+		// todo: add decorators to routes
+		server := fireball.NewApp(routes)
 
 		log.Printf("[INFO] Listening on port %d", cfg.Port())
+		http.Handle("/", server)
 
-		return nil
+		http.HandleFunc(SWAGGER_URL, serveSwaggerUI)
+		return http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port()), nil)
 	}
 
 	if err := app.Run(os.Args); err != nil {
