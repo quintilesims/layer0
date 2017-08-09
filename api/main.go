@@ -12,8 +12,8 @@ import (
 	"github.com/quintilesims/layer0/api/providers/aws"
 	awsclient "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/logging"
 	"github.com/urfave/cli"
-	"github.com/zpatrick/example/logging"
 	"github.com/zpatrick/fireball"
 )
 
