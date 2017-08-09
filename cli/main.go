@@ -7,9 +7,9 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/cli/command"
 	"github.com/quintilesims/layer0/cli/printer"
+	"github.com/quintilesims/layer0/common/client"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/waitutils"
 	"github.com/urfave/cli"

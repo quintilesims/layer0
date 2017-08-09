@@ -6,7 +6,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/cli/client/mock_client"
+	"github.com/quintilesims/layer0/common/client/mock_client"
 	"github.com/quintilesims/layer0/cli/command/mock_command"
 	"github.com/quintilesims/layer0/cli/printer"
 )
