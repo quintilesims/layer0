@@ -4,12 +4,13 @@ import (
 	"bytes"
 	"encoding/json"
 	"net/http"
+	"net/http/httptest"
 	"testing"
 
-	restful "github.com/emicklei/go-restful"
+	"github.com/zpatrick/fireball"
 )
 
-func newRequest(t *testing.T, body interface{}, params map[string]string) *restful.Request {
+func newFireballContext(t *testing.T, body interface{}, params map[string]string) *fireball.Context {
 	b, err := json.Marshal(body)
 	if err != nil {
 		t.Fatal(err)
@@ -20,17 +21,21 @@ func newRequest(t *testing.T, body interface{}, params map[string]string) *restf
 		t.Fatal(err)
 	}
 
-	restfulRequest := restful.NewRequest(req)
-	for key, val := range params {
-		restfulRequest.PathParameters()[key] = val
+	return &fireball.Context{
+		Request:       req,
+		PathVariables: params,
 	}
-
-	req.Header.Set("Content-Type", "application/json")
-	return restfulRequest
 }
 
-func unmarshalBody(t *testing.T, b []byte, v interface{}) {
-	if err := json.Unmarshal(b, v); err != nil {
-		t.Fatal(err)
+func unmarshalBody(t *testing.T, resp fireball.Response, v interface{}) *httptest.ResponseRecorder {
+	recorder := httptest.NewRecorder()
+	resp.Write(recorder, nil)
+
+	if v != nil {
+		if err := json.Unmarshal(recorder.Body.Bytes(), v); err != nil {
+			t.Fatal(err)
+		}
 	}
+
+	return recorder
 }

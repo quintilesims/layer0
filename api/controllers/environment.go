@@ -1,11 +1,14 @@
 package controllers
 
 import (
-	restful "github.com/emicklei/go-restful"
+	"encoding/json"
+
 	"github.com/quintilesims/layer0/api/entity"
 	"github.com/quintilesims/layer0/api/scheduler"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/zpatrick/fireball"
 )
 
 type EnvironmentController struct {
@@ -20,32 +23,46 @@ func NewEnvironmentController(p entity.Provider, j scheduler.JobScheduler) *Envi
 	}
 }
 
-func (e *EnvironmentController) CreateEnvironment(request *restful.Request, response *restful.Response) {
+func (e *EnvironmentController) Routes() []*fireball.Route {
+	return []*fireball.Route{
+		{
+			Path: "/environment",
+			Handlers: fireball.Handlers{
+				"GET":  e.ListEnvironments,
+				"POST": e.CreateEnvironment,
+			},
+		},
+		{
+			Path: "/environment/:id",
+			Handlers: fireball.Handlers{
+				"GET":    e.GetEnvironment,
+				"DELETE": e.DeleteEnvironment,
+			},
+		},
+	}
+}
+
+func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball.Response, error) {
 	var req models.CreateEnvironmentRequest
-	if err := request.ReadEntity(&req); err != nil {
-		// todo: handle error
+	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	// todo: call req.Validate in provider layer
 	environment := e.Provider.GetEnvironment("")
 	if err := environment.Create(req); err != nil {
-		// todo: handle error
+		return nil, err
 	}
 
 	environmentModel, err := environment.Model()
 	if err != nil {
-		// todo: handle error
+		return nil, err
 	}
 
-	response.WriteAsJson(environmentModel)
+	return fireball.NewJSONResponse(202, environmentModel)
 }
 
-func (e *EnvironmentController) DeleteEnvironment(request *restful.Request, response *restful.Response) {
-	id := request.PathParameter("id")
-	if id == "" {
-		// todo: handle error
-	}
-
+func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball.Response, error) {
+	id := c.PathVariables["id"]
 	job := models.CreateJobRequest{
 		JobType: job.DeleteEnvironmentJob,
 		Request: id,
@@ -53,31 +70,27 @@ func (e *EnvironmentController) DeleteEnvironment(request *restful.Request, resp
 
 	jobID, err := e.JobScheduler.ScheduleJob(job)
 	if err != nil {
-		// todo: handle error
+		return nil, err
 	}
 
-	WriteJobResponse(response, jobID)
+	return newJobResponse(jobID), nil
 }
 
-func (e *EnvironmentController) GetEnvironment(request *restful.Request, response *restful.Response) {
-	id := request.PathParameter("id")
-	if id == "" {
-		// todo: handle error
-	}
-
+func (e *EnvironmentController) GetEnvironment(c *fireball.Context) (fireball.Response, error) {
+	id := c.PathVariables["id"]
 	environment := e.Provider.GetEnvironment(id)
 	environmentModel, err := environment.Model()
 	if err != nil {
-		// todo: handle error
+		return nil, err
 	}
 
-	response.WriteAsJson(environmentModel)
+	return fireball.NewJSONResponse(200, environmentModel)
 }
 
-func (e *EnvironmentController) ListEnvironments(request *restful.Request, response *restful.Response) {
+func (e *EnvironmentController) ListEnvironments(c *fireball.Context) (fireball.Response, error) {
 	environmentIDs, err := e.Provider.ListEnvironmentIDs()
 	if err != nil {
-		// todo: handle error
+		return nil, err
 	}
 
 	environmentSummaries := make([]*models.EnvironmentSummary, len(environmentIDs))
@@ -85,11 +98,12 @@ func (e *EnvironmentController) ListEnvironments(request *restful.Request, respo
 		environment := e.Provider.GetEnvironment(environmentID)
 		environmentSummary, err := environment.Summary()
 		if err != nil {
-			// todo: handle error
+			return nil, err
 		}
 
 		environmentSummaries[i] = environmentSummary
 	}
 
-	response.WriteAsJson(environmentSummaries)
+	return fireball.NewJSONResponse(200, environmentSummaries)
+
 }
