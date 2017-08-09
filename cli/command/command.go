@@ -1,8 +1,8 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/cli/printer"
+	"github.com/quintilesims/layer0/common/client"
 	"github.com/urfave/cli"
 )
 

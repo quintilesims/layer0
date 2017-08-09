@@ -5,7 +5,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/quintilesims/layer0/cli/client"
+	"github.com/quintilesims/layer0/common/client"
 )
 
 var defaultTimeout = time.Minute * 15
