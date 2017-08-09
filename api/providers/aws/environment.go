@@ -1,8 +1,10 @@
 package aws
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/quintilesims/layer0/common/aws"
+	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -11,7 +13,7 @@ type Environment struct {
 	*AWSEntity
 }
 
-func NewEnvironment(aws *aws.Client, environmentID string) *Environment {
+func NewEnvironment(aws *awsc.Client, environmentID string) *Environment {
 	return &Environment{
 		NewAWSEntity(aws, environmentID),
 	}
@@ -51,22 +53,83 @@ func (e *Environment) Delete() error {
 	// todo: deleteSG
 	// todo: deleteLC
 	// todo: deleteASG
-	// todo: deleteCluster
+
+	if err := e.deleteCluster(); err != nil {
+		return err
+	}
+
 	return nil
 }
 
+func (e *Environment) deleteCluster() error {
+	input := &ecs.DeleteClusterInput{}
+	input.SetCluster(e.id)
+
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	if _, err := e.AWS.ECS.DeleteCluster(input); err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "ClusterNotFoundException" {
+			return nil
+		}
+
+		return err
+	}
+
+	return nil
+}
+
+func (e *Environment) Read() (*models.Environment, error) {
+	if _, err := e.readCluster(); err != nil {
+		return nil, err
+	}
+
+	model := &models.Environment{
+		EnvironmentID: e.id,
+	}
+
+	return model, nil
+}
+
+func (e *Environment) readCluster() (*ecs.Cluster, error) {
+	input := &ecs.DescribeClustersInput{}
+	input.SetClusters([]*string{aws.String(e.id)})
+
+	output, err := e.AWS.ECS.DescribeClusters(input)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cluster := range output.Clusters {
+		if aws.StringValue(cluster.ClusterName) == e.id && aws.StringValue(cluster.Status) == "ACTIVE" {
+			return cluster, nil
+		}
+	}
+
+	return nil, errors.Newf(errors.EnvironmentDoesNotExist, "Environment %s does not exist", e.id)
+}
+
 func (e *Environment) Model() (*models.Environment, error) {
-	// todo: readSG
-	// todo: readLC
-	// todo: readASG
-	// todo: readCluster
-	return nil, nil
+	if _, err := e.readCluster(); err != nil {
+		return nil, err
+	}
+
+	model := &models.Environment{
+		EnvironmentID: e.id,
+	}
+
+	return model, nil
 }
 
 func (e *Environment) Summary() (*models.EnvironmentSummary, error) {
-	// todo: readSG
-	// todo: readLC
-	// todo: readASG
-	// todo: readCluster
-	return nil, nil
+	if _, err := e.readCluster(); err != nil {
+		return nil, err
+	}
+
+	summary := &models.EnvironmentSummary{
+		EnvironmentID: e.id,
+	}
+
+	return summary, nil
 }
