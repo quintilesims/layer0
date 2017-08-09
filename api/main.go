@@ -1,49 +1,57 @@
 package main
 
 import (
-	"fmt"
-	"net/http"
-	"strings"
+	"log"
+	"os"
 
-	"github.com/Sirupsen/logrus"
+	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/defaults"
+	restful "github.com/emicklei/go-restful"
+	"github.com/quintilesims/layer0/api/controllers"
+	"github.com/quintilesims/layer0/api/providers/aws"
+	awsclient "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/urfave/cli"
+	"github.com/zpatrick/example/logging"
 )
 
-type SwaggerRedirectHandler struct{}
-
-var swaggerPath = "/apidocs/"
-var swaggerFilePath = "api/external/swagger-ui/dist"
-
-func (*SwaggerRedirectHandler) ServeHTTP(writer http.ResponseWriter, req *http.Request) {
-	proto := req.Header.Get("X-Forwarded-Proto")
-	if proto == "http" {
-		url := fmt.Sprintf("https://%v%v", req.Host, req.URL)
-		http.Redirect(writer, req, url, 301)
-	} else {
-		http.StripPrefix(swaggerPath, http.FileServer(http.Dir(swaggerFilePath))).ServeHTTP(writer, req)
-	}
-}
-
-var Version string
+// todo: handle swagger
+// todo: handle main.Version
 
 func main() {
-	if err := config.Validate(config.RequiredAPIVariables); err != nil {
-		logrus.Fatal(err)
+	app := cli.NewApp()
+	app.Name = "Layer0 API"
+	app.Flags = config.APIFlags()
+	app.Action = func(c *cli.Context) error {
+		cfg := config.NewContextAPIConfig(c)
+		if err := cfg.Validate(); err != nil {
+			return err
+		}
+
+		logger := logging.NewLogWriter(c.Bool("debug"))
+		log.SetOutput(logger)
+
+		awsConfig := defaults.Get().Config
+		staticCreds := credentials.NewStaticCredentials(cfg.AccessKey(), cfg.SecretKey(), "")
+		awsConfig.WithCredentials(staticCreds)
+		awsConfig.WithRegion(cfg.Region())
+
+		client := awsclient.NewClient(awsConfig)
+		provider := aws.NewAWSProvider(client)
+
+		// todo: inject job scheduler
+		environmentController := controllers.NewEnvironmentController(provider, nil)
+		restful.Add(environmentController.Routes())
+
+		// todo: add restful.Filters
+		// todo: add swagger service
+
+		log.Printf("[INFO] Listening on port %d", cgf.Port())
+
+		return nil
 	}
 
-	switch strings.ToLower(config.APILogLevel()) {
-	case "0", "debug":
-		logrus.SetLevel(logrus.DebugLevel)
-	case "1", "info":
-		logrus.SetLevel(logrus.InfoLevel)
-	case "2", "warning":
-		logrus.SetLevel(logrus.WarnLevel)
-	case "3", "error":
-		logrus.SetLevel(logrus.ErrorLevel)
-	case "4", "fatal":
-		logrus.SetLevel(logrus.FatalLevel)
-	default:
-		logrus.SetLevel(logrus.InfoLevel)
+	if err := app.Run(os.Args); err != nil {
+		log.Fatal(err)
 	}
-
 }

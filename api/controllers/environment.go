@@ -3,7 +3,7 @@ package controllers
 import (
 	restful "github.com/emicklei/go-restful"
 	"github.com/quintilesims/layer0/api/entity"
-	"github.com/zpatrick/forge/common/models"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type EnvironmentController struct {
