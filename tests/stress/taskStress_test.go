@@ -1,11 +1,37 @@
 package system
 
 import (
+	"strconv"
 	"testing"
 	"time"
 
 	"github.com/quintilesims/layer0/common/testutils"
 )
+
+func BenchmarkEnvironmentStress10(b *testing.B) { benchmarkEnvironmentStress(10, b) }
+func BenchmarkEnvironmentStress50(b *testing.B) { benchmarkEnvironmentStress(50, b) }
+
+// func BenchmarkEnvironmentStress100(b *testing.B) { benchmarkEnvironmentStress(100, b) }
+// func BenchmarkEnvironmentStress250(b *testing.B) { benchmarkEnvironmentStress(250, b) }
+// func BenchmarkEnvironmentStress500(b *testing.B) { benchmarkEnvironmentStress(500, b) }
+
+func benchmarkEnvironmentStress(i int, b *testing.B) {
+	tfvars := map[string]string{
+		"num_environments": strconv.Itoa(i),
+	}
+
+	log.Debugf("Creating %v environments", i)
+
+	s := NewStressTest(b, "cases/environment_stress", tfvars)
+	s.Terraform.Apply()
+	defer s.Terraform.Destroy()
+
+	log.Debugf("Benchmarking list operations for %v environments", i)
+
+	for n := 0; n < b.N; n++ {
+		s.Layer0.ListEnvironments()
+	}
+}
 
 // Test Resources:
 // This test creates an environment named 'tp'
