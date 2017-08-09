@@ -94,24 +94,24 @@ func (b *Backend) Colorize() *colorstring.Colorize {
 func (b *Backend) init() {
 	b.schema = &schema.Backend{
 		Schema: map[string]*schema.Schema{
-			"name": {
+			"name": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: schemaDescriptions["name"],
 			},
 
-			"access_token": {
+			"access_token": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: schemaDescriptions["access_token"],
 				DefaultFunc: schema.EnvDefaultFunc("ATLAS_TOKEN", nil),
 			},
 
-			"address": {
+			"address": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
-				Default:     defaultAtlasServer,
 				Description: schemaDescriptions["address"],
+				DefaultFunc: schema.EnvDefaultFunc("ATLAS_ADDRESS", defaultAtlasServer),
 			},
 		},
 

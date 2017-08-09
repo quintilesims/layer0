@@ -24,7 +24,7 @@ const (
 func Provisioner() terraform.ResourceProvisioner {
 	return &schema.Provisioner{
 		Schema: map[string]*schema.Schema{
-			"command": {
+			"command": &schema.Schema{
 				Type:     schema.TypeString,
 				Required: true,
 			},
