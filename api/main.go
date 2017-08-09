@@ -6,7 +6,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/defaults"
-	restful "github.com/emicklei/go-restful"
 	"github.com/quintilesims/layer0/api/controllers"
 	"github.com/quintilesims/layer0/api/providers/aws"
 	awsclient "github.com/quintilesims/layer0/common/aws"
@@ -41,12 +40,13 @@ func main() {
 
 		// todo: inject job scheduler
 		environmentController := controllers.NewEnvironmentController(provider, nil)
-		restful.Add(environmentController.Routes())
+		print(environmentController)
+		//restful.Add(environmentController.Routes())
 
 		// todo: add restful.Filters
 		// todo: add swagger service
 
-		log.Printf("[INFO] Listening on port %d", cgf.Port())
+		log.Printf("[INFO] Listening on port %d", cfg.Port())
 
 		return nil
 	}

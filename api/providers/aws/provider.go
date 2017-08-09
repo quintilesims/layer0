@@ -17,6 +17,10 @@ func NewAWSProvider(a *aws.Client) *AWSProvider {
 	}
 }
 
+func (a *AWSProvider) ListEnvironmentIDs() ([]string, error) {
+	return nil, nil
+}
+
 func (a *AWSProvider) GetEnvironment(environmentID string) entity.Environment {
 	return NewEnvironment(a.AWS, environmentID)
 }

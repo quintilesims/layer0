@@ -69,7 +69,7 @@ func (c *ContextAPIConfig) Validate() error {
 }
 
 func (c *ContextAPIConfig) Port() int {
-        return c.C.Int(FLAG_PORT)
+	return c.C.Int(FLAG_PORT)
 }
 
 func (c *ContextAPIConfig) AccessKey() string {
@@ -81,5 +81,5 @@ func (c *ContextAPIConfig) SecretKey() string {
 }
 
 func (c *ContextAPIConfig) Region() string {
-        return c.C.String(FLAG_AWS_REGION)
+	return c.C.String(FLAG_AWS_REGION)
 }
