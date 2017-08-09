@@ -53,6 +53,7 @@ func main() {
 
 		// todo: inject job scheduler
 		routes := controllers.NewEnvironmentController(provider, nil).Routes()
+		routes = append(routes, controllers.NewJobController(provider).Routes()...)
 
 		// todo: add decorators to routes
 		server := fireball.NewApp(routes)

@@ -9,6 +9,7 @@ common: aws
 entity:
 	mockgen github.com/quintilesims/layer0/api/entity Provider > ../api/entity/mock_entity/mock_provider.go &
 	mockgen github.com/quintilesims/layer0/api/entity Environment > ../api/entity/mock_entity/mock_environment.go &
+	mockgen github.com/quintilesims/layer0/api/entity Job > ../api/entity/mock_entity/mock_job.go &
 
 aws:
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/ec2/ec2iface EC2API > ../common/aws/mock_aws/mock_ec2.go &
