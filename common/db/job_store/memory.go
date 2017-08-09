@@ -3,8 +3,8 @@ package job_store
 import (
 	"fmt"
 
+	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/common/types"
 )
 
 type MemoryJobStore struct {
@@ -51,13 +51,13 @@ func (m *MemoryJobStore) SelectByID(jobID string) (*models.Job, error) {
 	return nil, fmt.Errorf("Job with id '%d' does not exist", jobID)
 }
 
-func (m *MemoryJobStore) UpdateJobStatus(jobID string, status types.JobStatus) error {
+func (m *MemoryJobStore) UpdateJobStatus(jobID string, status job.JobStatus) error {
 	job, err := m.SelectByID(jobID)
 	if err != nil {
 		return err
 	}
 
-	job.JobStatus = int64(status)
+	job.JobStatus = status
 	return nil
 }
 

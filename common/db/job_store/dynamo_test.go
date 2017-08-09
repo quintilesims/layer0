@@ -8,8 +8,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/common/types"
 )
 
 func NewTestJobStore(t *testing.T) *DynamoJobStore {
@@ -37,7 +37,7 @@ func NewTestJobStore(t *testing.T) *DynamoJobStore {
 func TestDynamoJobStoreInsert(t *testing.T) {
 	store := NewTestJobStore(t)
 
-	job := &models.Job{JobID: "1", JobType: int64(types.DeleteEnvironmentJob)}
+	job := &models.Job{JobID: "1", JobType: int64(job.DeleteEnvironmentJob)}
 	if err := store.Insert(job); err != nil {
 		t.Fatal(err)
 	}

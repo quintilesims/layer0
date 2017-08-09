@@ -4,8 +4,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/common/types"
 )
 
 type DynamoJobStore struct {
@@ -47,7 +47,7 @@ func (d *DynamoJobStore) Delete(jobID string) error {
 	return d.table.Delete("JobID", jobID).Run()
 }
 
-func (d *DynamoJobStore) UpdateJobStatus(jobID string, status types.JobStatus) error {
+func (d *DynamoJobStore) UpdateJobStatus(jobID string, status job.JobStatus) error {
 	if err := d.table.Update("JobID", jobID).Set("JobStatus", int64(status)).Run(); err != nil {
 		return err
 	}
