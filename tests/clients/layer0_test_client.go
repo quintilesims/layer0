@@ -1,18 +1,21 @@
 package clients
 
 import (
-	"testing"
-
 	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/common/models"
 )
 
+type Tester interface {
+	Fatal(args ...interface{})
+	Fatalf(format string, args ...interface{})
+}
+
 type Layer0TestClient struct {
-	T      *testing.T
+	T      Tester
 	Client *client.APIClient
 }
 
-func NewLayer0TestClient(t *testing.T, endpoint, token string) *Layer0TestClient {
+func NewLayer0TestClient(t Tester, endpoint, token string) *Layer0TestClient {
 	return &Layer0TestClient{
 		T: t,
 		Client: client.NewAPIClient(client.Config{
@@ -102,6 +105,15 @@ func (l *Layer0TestClient) GetEnvironment(id string) *models.Environment {
 	}
 
 	return environment
+}
+
+func (l *Layer0TestClient) ListEnvironments() []*models.EnvironmentSummary {
+	environments, err := l.Client.ListEnvironments()
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return environments
 }
 
 func (l *Layer0TestClient) ListTasks() []*models.TaskSummary {
