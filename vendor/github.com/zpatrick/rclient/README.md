@@ -28,10 +28,7 @@ type Repository struct {
 }
 
 func main() {
-        client, err := rclient.NewRestClient("https://api.github.com")
-        if err != nil {
-                log.Fatal(err)
-        }
+        client := rclient.NewRestClient("https://api.github.com")
 
         var repos []Repository
         if err := client.Get("/users/zpatrick/repos", &repos); err != nil {

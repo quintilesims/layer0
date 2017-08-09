@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
 // Unmarshaler is the interface implemented by objects that can unmarshal
@@ -41,12 +42,17 @@ func unmarshalReflect(av *dynamodb.AttributeValue, rv reflect.Value) error {
 			iface = rv.Interface()
 		}
 
-		if u, ok := iface.(Unmarshaler); ok {
-			return u.UnmarshalDynamo(av)
-		}
-		if u, ok := iface.(encoding.TextUnmarshaler); ok {
+		switch x := iface.(type) {
+		case *dynamodb.AttributeValue:
+			*x = *av
+			return nil
+		case Unmarshaler:
+			return x.UnmarshalDynamo(av)
+		case dynamodbattribute.Unmarshaler:
+			return x.UnmarshalDynamoDBAttributeValue(av)
+		case encoding.TextUnmarshaler:
 			if av.S != nil {
-				return u.UnmarshalText([]byte(*av.S))
+				return x.UnmarshalText([]byte(*av.S))
 			}
 		}
 	}
@@ -131,6 +137,27 @@ func unmarshalReflect(av *dynamodb.AttributeValue, rv reflect.Value) error {
 		return nil
 	case reflect.Slice:
 		return unmarshalSlice(av, rv)
+	case reflect.Array:
+		arr := reflect.New(rv.Type()).Elem()
+		elemtype := arr.Type().Elem()
+		switch {
+		case av.B != nil:
+			for i, b := range av.B {
+				arr.Index(i).Set(reflect.ValueOf(b))
+			}
+			rv.Set(arr)
+			return nil
+		case av.L != nil:
+			for i, innerAV := range av.L {
+				innerRV := reflect.New(elemtype).Elem()
+				if err := unmarshalReflect(innerAV, innerRV); err != nil {
+					return err
+				}
+				arr.Index(i).Set(innerRV)
+			}
+			rv.Set(arr)
+			return nil
+		}
 	case reflect.Interface:
 		// interface{}
 		if rv.NumMethod() == 0 {
@@ -236,6 +263,11 @@ func fieldsInStruct(rv reflect.Value) map[string]reflect.Value {
 
 // unmarshals a struct
 func unmarshalItem(item map[string]*dynamodb.AttributeValue, out interface{}) error {
+	if out, ok := out.(*map[string]*dynamodb.AttributeValue); ok {
+		*out = item
+		return nil
+	}
+
 	rv := reflect.ValueOf(out)
 	if rv.Kind() != reflect.Ptr {
 		return fmt.Errorf("dynamo: unmarshal: not a pointer: %T", out)

@@ -13,52 +13,59 @@ import (
 func New() backend.Backend {
 	s := &schema.Backend{
 		Schema: map[string]*schema.Schema{
-			"path": {
+			"path": &schema.Schema{
 				Type:        schema.TypeString,
 				Required:    true,
 				Description: "Path to store state in Consul",
 			},
 
-			"access_token": {
+			"access_token": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Access token for a Consul ACL",
 				Default:     "", // To prevent input
 			},
 
-			"address": {
+			"address": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Address to the Consul Cluster",
 				Default:     "", // To prevent input
 			},
 
-			"scheme": {
+			"scheme": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Scheme to communicate to Consul with",
 				Default:     "", // To prevent input
 			},
 
-			"datacenter": {
+			"datacenter": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "Datacenter to communicate with",
 				Default:     "", // To prevent input
 			},
 
-			"http_auth": {
+			"http_auth": &schema.Schema{
 				Type:        schema.TypeString,
 				Optional:    true,
 				Description: "HTTP Auth in the format of 'username:password'",
 				Default:     "", // To prevent input
 			},
 
-			"gzip": {
+			"gzip": &schema.Schema{
 				Type:        schema.TypeBool,
 				Optional:    true,
 				Description: "Compress the state data using gzip",
 				Default:     false,
+			},
+
+			"lock": &schema.Schema{
+				Type:        schema.TypeBool,
+				Optional:    true,
+				Description: "Lock state access",
+				Default:     true,
 			},
 		},
 	}
@@ -71,12 +78,17 @@ func New() backend.Backend {
 type Backend struct {
 	*schema.Backend
 
+	// The fields below are set from configure
 	configData *schema.ResourceData
+	lock       bool
 }
 
 func (b *Backend) configure(ctx context.Context) error {
 	// Grab the resource data
 	b.configData = schema.FromContextBackendConfig(ctx)
+
+	// Store the lock information
+	b.lock = b.configData.Get("lock").(bool)
 
 	// Initialize a client to test config
 	_, err := b.clientRaw()

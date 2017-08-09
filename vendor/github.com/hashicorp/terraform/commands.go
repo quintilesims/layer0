@@ -30,9 +30,10 @@ func init() {
 	}
 
 	meta := command.Meta{
-		Color:       true,
-		ContextOpts: &ContextOpts,
-		Ui:          Ui,
+		Color:            true,
+		GlobalPluginDirs: globalPluginDirs(),
+		PluginOverrides:  &PluginOverrides,
+		Ui:               Ui,
 	}
 
 	// The command list is included in the terraform -help
@@ -42,8 +43,9 @@ func init() {
 	// that to match.
 
 	PlumbingCommands = map[string]struct{}{
-		"state": {}, // includes all subcommands
-		"debug": {}, // includes all subcommands
+		"state":        struct{}{}, // includes all subcommands
+		"debug":        struct{}{}, // includes all subcommands
+		"force-unlock": struct{}{},
 	}
 
 	Commands = map[string]cli.CommandFactory{
@@ -70,43 +72,42 @@ func init() {
 		},
 
 		"env": func() (cli.Command, error) {
-			return &command.EnvCommand{
-				Meta: meta,
+			return &command.WorkspaceCommand{
+				Meta:       meta,
+				LegacyName: true,
 			}, nil
 		},
 
 		"env list": func() (cli.Command, error) {
-			return &command.EnvListCommand{
-				Meta: meta,
+			return &command.WorkspaceListCommand{
+				Meta:       meta,
+				LegacyName: true,
 			}, nil
 		},
 
 		"env select": func() (cli.Command, error) {
-			return &command.EnvSelectCommand{
-				Meta: meta,
+			return &command.WorkspaceSelectCommand{
+				Meta:       meta,
+				LegacyName: true,
 			}, nil
 		},
 
 		"env new": func() (cli.Command, error) {
-			return &command.EnvNewCommand{
-				Meta: meta,
+			return &command.WorkspaceNewCommand{
+				Meta:       meta,
+				LegacyName: true,
 			}, nil
 		},
 
 		"env delete": func() (cli.Command, error) {
-			return &command.EnvDeleteCommand{
-				Meta: meta,
+			return &command.WorkspaceDeleteCommand{
+				Meta:       meta,
+				LegacyName: true,
 			}, nil
 		},
 
 		"fmt": func() (cli.Command, error) {
 			return &command.FmtCommand{
-				Meta: meta,
-			}, nil
-		},
-
-		"force-unlock": func() (cli.Command, error) {
-			return &command.UnlockCommand{
 				Meta: meta,
 			}, nil
 		},
@@ -149,6 +150,12 @@ func init() {
 
 		"plan": func() (cli.Command, error) {
 			return &command.PlanCommand{
+				Meta: meta,
+			}, nil
+		},
+
+		"providers": func() (cli.Command, error) {
+			return &command.ProvidersCommand{
 				Meta: meta,
 			}, nil
 		},
@@ -199,6 +206,42 @@ func init() {
 			}, nil
 		},
 
+		"workspace": func() (cli.Command, error) {
+			return &command.WorkspaceCommand{
+				Meta: meta,
+			}, nil
+		},
+
+		"workspace list": func() (cli.Command, error) {
+			return &command.WorkspaceListCommand{
+				Meta: meta,
+			}, nil
+		},
+
+		"workspace select": func() (cli.Command, error) {
+			return &command.WorkspaceSelectCommand{
+				Meta: meta,
+			}, nil
+		},
+
+		"workspace show": func() (cli.Command, error) {
+			return &command.WorkspaceShowCommand{
+				Meta: meta,
+			}, nil
+		},
+
+		"workspace new": func() (cli.Command, error) {
+			return &command.WorkspaceNewCommand{
+				Meta: meta,
+			}, nil
+		},
+
+		"workspace delete": func() (cli.Command, error) {
+			return &command.WorkspaceDeleteCommand{
+				Meta: meta,
+			}, nil
+		},
+
 		//-----------------------------------------------------------
 		// Plumbing
 		//-----------------------------------------------------------
@@ -211,6 +254,12 @@ func init() {
 
 		"debug json2dot": func() (cli.Command, error) {
 			return &command.DebugJSON2DotCommand{
+				Meta: meta,
+			}, nil
+		},
+
+		"force-unlock": func() (cli.Command, error) {
+			return &command.UnlockCommand{
 				Meta: meta,
 			}, nil
 		},
