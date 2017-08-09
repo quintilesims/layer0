@@ -1,10 +1,8 @@
 package controllers
 
 import (
-	"net/http/httptest"
 	"testing"
 
-	restful "github.com/emicklei/go-restful"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/entity/mock_entity"
 	"github.com/quintilesims/layer0/api/scheduler"
@@ -52,13 +50,16 @@ func TestCreateEnvironment(t *testing.T) {
 
 	controller := NewEnvironmentController(mockProvider, nil)
 
-	recorder := httptest.NewRecorder()
-	controller.CreateEnvironment(newRequest(t, req, nil), restful.NewResponse(recorder))
+	c := newFireballContext(t, req, nil)
+	resp, err := controller.CreateEnvironment(c)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	var response models.Environment
-	unmarshalBody(t, recorder.Body.Bytes(), &response)
+	recorder := unmarshalBody(t, resp, &response)
 
-	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, 202, recorder.Code)
 	assert.Equal(t, environmentModel, response)
 }
 
@@ -75,10 +76,13 @@ func TestDeleteEnvironment(t *testing.T) {
 
 	controller := NewEnvironmentController(nil, mockJobScheduler)
 
-	recorder := httptest.NewRecorder()
-	request := newRequest(t, nil, map[string]string{"id": "e1"})
-	controller.DeleteEnvironment(request, restful.NewResponse(recorder))
+	c := newFireballContext(t, nil, map[string]string{"id": "e1"})
+	resp, err := controller.DeleteEnvironment(c)
+	if err != nil {
+		t.Fatal(err)
+	}
 
+	recorder := unmarshalBody(t, resp, nil)
 	assert.Equal(t, 202, recorder.Code)
 	assert.Equal(t, "j1", recorder.HeaderMap.Get("X-JobID"))
 	assert.Equal(t, "/job/j1", recorder.HeaderMap.Get("Location"))
@@ -111,12 +115,14 @@ func TestGetEnvironment(t *testing.T) {
 
 	controller := NewEnvironmentController(mockProvider, nil)
 
-	recorder := httptest.NewRecorder()
-	request := newRequest(t, nil, map[string]string{"id": "e1"})
-	controller.GetEnvironment(request, restful.NewResponse(recorder))
+	c := newFireballContext(t, nil, map[string]string{"id": "e1"})
+	resp, err := controller.GetEnvironment(c)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	var response models.Environment
-	unmarshalBody(t, recorder.Body.Bytes(), &response)
+	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
 	assert.Equal(t, environmentModel, response)
@@ -159,11 +165,14 @@ func TestListEnvironments(t *testing.T) {
 
 	controller := NewEnvironmentController(mockProvider, nil)
 
-	recorder := httptest.NewRecorder()
-	controller.ListEnvironments(newRequest(t, nil, nil), restful.NewResponse(recorder))
+	c := newFireballContext(t, nil, nil)
+	resp, err := controller.ListEnvironments(c)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	var response []models.EnvironmentSummary
-	unmarshalBody(t, recorder.Body.Bytes(), &response)
+	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
 	assert.Equal(t, environmentSummaries, response)
