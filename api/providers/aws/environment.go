@@ -11,7 +11,7 @@ type Environment struct {
 	*AWSEntity
 }
 
-func NewEnvironment(aws *aws.Provider, environmentID string) *Environment {
+func NewEnvironment(aws *aws.Client, environmentID string) *Environment {
 	return &Environment{
 		NewAWSEntity(aws, environmentID),
 	}
