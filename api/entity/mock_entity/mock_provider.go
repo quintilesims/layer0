@@ -39,6 +39,16 @@ func (_mr *_MockProviderRecorder) GetEnvironment(arg0 interface{}) *gomock.Call 
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetEnvironment", arg0)
 }
 
+func (_m *MockProvider) GetJob(_param0 string) entity.Job {
+	ret := _m.ctrl.Call(_m, "GetJob", _param0)
+	ret0, _ := ret[0].(entity.Job)
+	return ret0
+}
+
+func (_mr *_MockProviderRecorder) GetJob(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "GetJob", arg0)
+}
+
 func (_m *MockProvider) ListEnvironmentIDs() ([]string, error) {
 	ret := _m.ctrl.Call(_m, "ListEnvironmentIDs")
 	ret0, _ := ret[0].([]string)
@@ -48,4 +58,15 @@ func (_m *MockProvider) ListEnvironmentIDs() ([]string, error) {
 
 func (_mr *_MockProviderRecorder) ListEnvironmentIDs() *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListEnvironmentIDs")
+}
+
+func (_m *MockProvider) ListJobIDs() ([]string, error) {
+	ret := _m.ctrl.Call(_m, "ListJobIDs")
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockProviderRecorder) ListJobIDs() *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "ListJobIDs")
 }

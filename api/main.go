@@ -49,10 +49,13 @@ func main() {
 		awsConfig.WithRegion(cfg.Region())
 
 		client := awsclient.NewClient(awsConfig)
-		provider := aws.NewAWSProvider(client)
+		
+		// todo: inject job_store.JobStore
+		provider := aws.NewAWSProvider(client, nil)
 
 		// todo: inject job scheduler
 		routes := controllers.NewEnvironmentController(provider, nil).Routes()
+		routes = append(routes, controllers.NewJobController(provider).Routes()...)
 
 		// todo: add decorators to routes
 		server := fireball.NewApp(routes)
