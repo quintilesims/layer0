@@ -33,5 +33,4 @@ terraform-provider-layer0
 *terraform.tfstate*
 .vscode/
 crash.log
-Gopkg.*
 _vendor*
