@@ -1,5 +1,9 @@
 package tftest
 
+import (
+	"testing"
+)
+
 type Logger interface {
 	Printf(string, ...interface{})
 }
