@@ -19,6 +19,7 @@ func NewJob(aws *awsc.Client, store job_store.JobStore, jobID string) *Job {
 }
 
 func (j *Job) Delete() error {
+	// todo: how to delete from a job scheduler?
 	return j.JobStore.Delete(j.id)
 }
 
