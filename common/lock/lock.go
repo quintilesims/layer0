@@ -1,22 +1,26 @@
 package lock
 
-import "fmt"
+import "errors"
 
 type Lock interface {
 	Acquire() error
 	Release() error
 }
 
-type LockError struct {
+type ContentionError struct {
 	error
 }
 
-func LockIsAcquiredError() *LockError {
-	return &LockError{
-		fmt.Errorf("Lock is already acquired"),
+func NewContentionError() *ContentionError {
+	return &ContentionError{
+		errors.New("Lock is in contention"),
 	}
 }
 
-func IsAcquiredError(err error) bool {
-	return err == LockIsAcquiredError()
+func IsContentionError(err error) bool {
+	if _, ok := err.(*ContentionError); ok {
+		return true
+	}
+
+	return false
 }
