@@ -80,36 +80,6 @@ func (e *Environment) deleteCluster() error {
 	return nil
 }
 
-func (e *Environment) Read() (*models.Environment, error) {
-	if _, err := e.readCluster(); err != nil {
-		return nil, err
-	}
-
-	model := &models.Environment{
-		EnvironmentID: e.id,
-	}
-
-	return model, nil
-}
-
-func (e *Environment) readCluster() (*ecs.Cluster, error) {
-	input := &ecs.DescribeClustersInput{}
-	input.SetClusters([]*string{aws.String(e.id)})
-
-	output, err := e.AWS.ECS.DescribeClusters(input)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, cluster := range output.Clusters {
-		if aws.StringValue(cluster.ClusterName) == e.id && aws.StringValue(cluster.Status) == "ACTIVE" {
-			return cluster, nil
-		}
-	}
-
-	return nil, errors.Newf(errors.EnvironmentDoesNotExist, "Environment %s does not exist", e.id)
-}
-
 func (e *Environment) Model() (*models.Environment, error) {
 	if _, err := e.readCluster(); err != nil {
 		return nil, err
@@ -132,4 +102,22 @@ func (e *Environment) Summary() (*models.EnvironmentSummary, error) {
 	}
 
 	return summary, nil
+}
+
+func (e *Environment) readCluster() (*ecs.Cluster, error) {
+	input := &ecs.DescribeClustersInput{}
+	input.SetClusters([]*string{aws.String(e.id)})
+
+	output, err := e.AWS.ECS.DescribeClusters(input)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, cluster := range output.Clusters {
+		if aws.StringValue(cluster.ClusterName) == e.id && aws.StringValue(cluster.Status) == "ACTIVE" {
+			return cluster, nil
+		}
+	}
+
+	return nil, errors.Newf(errors.EnvironmentDoesNotExist, "Environment %s does not exist", e.id)
 }

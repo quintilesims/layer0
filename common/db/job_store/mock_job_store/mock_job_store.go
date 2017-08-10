@@ -5,8 +5,8 @@ package mock_job_store
 
 import (
 	gomock "github.com/golang/mock/gomock"
+	job "github.com/quintilesims/layer0/common/job"
 	models "github.com/quintilesims/layer0/common/models"
-	types "github.com/quintilesims/layer0/common/types"
 )
 
 // Mock of JobStore interface
@@ -92,7 +92,7 @@ func (_mr *_MockJobStoreRecorder) SetJobMeta(arg0, arg1 interface{}) *gomock.Cal
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "SetJobMeta", arg0, arg1)
 }
 
-func (_m *MockJobStore) UpdateJobStatus(_param0 string, _param1 types.JobStatus) error {
+func (_m *MockJobStore) UpdateJobStatus(_param0 string, _param1 job.JobStatus) error {
 	ret := _m.ctrl.Call(_m, "UpdateJobStatus", _param0, _param1)
 	ret0, _ := ret[0].(error)
 	return ret0

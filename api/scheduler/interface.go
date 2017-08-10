@@ -4,12 +4,6 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-type JobServiceTaskScheduler interface {
-	JobScheduler
-	TaskScheduler
-	ServiceScheduler
-}
-
 type JobScheduler interface {
 	ScheduleJob(req models.CreateJobRequest) (string, error)
 }

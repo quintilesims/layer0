@@ -6,6 +6,14 @@ import (
 	"github.com/urfave/cli"
 )
 
+const (
+	FLAG_AWS_DYNAMO_LOCK_TABLE = "aws-lock-table"
+)
+
+const (
+	ENVVAR_AWS_DYNAMO_LOCK_TABLE = "LAYER0_AWS_LOCK_DYNAMO_TABLE"
+)
+
 func APIFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.IntFlag{
@@ -32,6 +40,10 @@ func APIFlags() []cli.Flag {
 			Value:  "us-west-2",
 			EnvVar: ENVVAR_AWS_REGION,
 		},
+		cli.StringFlag{
+			Name:   FLAG_AWS_DYNAMO_LOCK_TABLE,
+			EnvVar: ENVVAR_AWS_DYNAMO_LOCK_TABLE,
+		},
 	}
 }
 
@@ -40,6 +52,7 @@ type APIConfig interface {
 	AccessKey() string
 	SecretKey() string
 	Region() string
+	LockTable() string
 }
 
 type ContextAPIConfig struct {
@@ -54,9 +67,10 @@ func NewContextAPIConfig(c *cli.Context) *ContextAPIConfig {
 
 func (c *ContextAPIConfig) Validate() error {
 	vars := map[string]error{
-		FLAG_AWS_ACCESS_KEY: fmt.Errorf("AWS Access Key not set! (EnvVar: %s)", ENVVAR_AWS_ACCESS_KEY),
-		FLAG_AWS_SECRET_KEY: fmt.Errorf("AWS Secret Key not set! (EnvVar: %s)", ENVVAR_AWS_SECRET_KEY),
-		FLAG_AWS_REGION:     fmt.Errorf("AWS Region not set! (EnvVar: %s)", ENVVAR_AWS_REGION),
+		FLAG_AWS_ACCESS_KEY:        fmt.Errorf("AWS Access Key not set! (EnvVar: %s)", ENVVAR_AWS_ACCESS_KEY),
+		FLAG_AWS_SECRET_KEY:        fmt.Errorf("AWS Secret Key not set! (EnvVar: %s)", ENVVAR_AWS_SECRET_KEY),
+		FLAG_AWS_REGION:            fmt.Errorf("AWS Region not set! (EnvVar: %s)", ENVVAR_AWS_REGION),
+		FLAG_AWS_DYNAMO_LOCK_TABLE: fmt.Errorf("AWS Lock Table not set! (EnvVar: %s)", ENVVAR_AWS_DYNAMO_LOCK_TABLE),
 	}
 
 	for name, err := range vars {
@@ -82,4 +96,8 @@ func (c *ContextAPIConfig) SecretKey() string {
 
 func (c *ContextAPIConfig) Region() string {
 	return c.C.String(FLAG_AWS_REGION)
+}
+
+func (c *ContextAPIConfig) LockTable() string {
+	return c.C.String(FLAG_AWS_DYNAMO_LOCK_TABLE)
 }
