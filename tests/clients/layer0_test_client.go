@@ -116,6 +116,33 @@ func (l *Layer0TestClient) ListEnvironments() []*models.EnvironmentSummary {
 	return environments
 }
 
+func (l *Layer0TestClient) ListLoadBalancers() []*models.LoadBalancerSummary {
+	loadBalancers, err := l.Client.ListLoadBalancers()
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return loadBalancers
+}
+
+func (l *Layer0TestClient) ListDeploys() []*models.DeploySummary {
+	deploys, err := l.Client.ListDeploys()
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return deploys
+}
+
+func (l *Layer0TestClient) ListServices() []*models.ServiceSummary {
+	services, err := l.Client.ListServices()
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return services
+}
+
 func (l *Layer0TestClient) ListTasks() []*models.TaskSummary {
 	tasks, err := l.Client.ListTasks()
 	if err != nil {
