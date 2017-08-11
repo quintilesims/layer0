@@ -65,7 +65,17 @@ Using this method, you can run your test multiple times without terraform destro
 
 Some useful builtin flags:
 * `-run nameOfTest` - Executes tests that match the specified name (can be used to run a single test case).
+* `-bench pathOrFileOrFunc` - Executes tests that use benchmarking.
+To run only the benchmark tests, try `-run XXX -bench .` from the directory that contains benchmark tests.
 * `-parallel n` - Specifies the number of tests to run in parallel at once.
 * `-short` - Execute the tests in short mode. Long running tests will be skipped.
 * `-timeout t` - Specifies the timeout for the tests. 
 The default is `10m`, which typically isn't long enough to complete all of the system tests. 
+
+## WARNING: Stress Tests and Service Limits
+The stress tests found in `layer0/tests/stress/` have the potential to create more resources than your AWS account may allow.
+Before running stress tests, make sure that the tests you intend to run will not create more resources than your account can handle (comment out tests you don't want to run).
+
+References:
+- http://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_limits.html
+- http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html

@@ -7,6 +7,7 @@
             "entrypoint": [ "/bin/sh", "-c" ],
             "essential": true,
             "memory": 100,
+            "command": [ "${var.service_command}" ]
         }
     ]
 }
