@@ -10,9 +10,15 @@ const (
 	taskCommand    = "sleep 10"
 )
 
-func BenchmarkStress1Environment0Deploys0Services(b *testing.B)   { benchmarkStress(1, 0, 0, "", b) }
-func BenchmarkStress5Environments0Deploys0Services(b *testing.B)  { benchmarkStress(5, 0, 0, "", b) }
-func BenchmarkStress10Environments0Deploys0Services(b *testing.B) { benchmarkStress(10, 0, 0, "", b) }
+func BenchmarkStress1Environment0Deploys0Services(b *testing.B) {
+	benchmarkStress(1, 0, 0, "", b)
+}
+func BenchmarkStress10Environments0Deploys0Services(b *testing.B) {
+	benchmarkStress(10, 0, 0, "", b)
+}
+func BenchmarkStress50Environments0Deploys0Services(b *testing.B) {
+	benchmarkStress(50, 0, 0, "", b)
+}
 
 func BenchmarkStress1Environment1Deploy1Service(b *testing.B) {
 	benchmarkStress(1, 1, 1, serviceCommand, b)
@@ -40,7 +46,21 @@ func benchmarkStress(env int, dep int, ser int, cmd string, b *testing.B) {
 
 	log.Debug("Benchmarking list operations")
 
-	for n := 0; n < b.N; n++ {
-		s.Layer0.ListEnvironments()
-	}
+	b.Run("ListEnvironments", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			s.Layer0.ListEnvironments()
+		}
+	})
+
+	b.Run("ListDeploys", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			s.Layer0.ListDeploys()
+		}
+	})
+
+	b.Run("ListServices", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			s.Layer0.ListServices()
+		}
+	})
 }
