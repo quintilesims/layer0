@@ -7,6 +7,7 @@
             "entrypoint": [ "/bin/sh", "-c" ],
             "essential": true,
             "memory": 100,
+            "command": [ "while true ; do echo LONG RUNNING SERVICE ; sleep 10 ; done" ]
         }
     ]
 }
