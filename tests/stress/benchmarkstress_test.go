@@ -60,7 +60,6 @@ func BenchmarkStress(b *testing.B) {
 
 		s := NewStressTest(b, "cases/stress", tfvars)
 		s.Terraform.Apply()
-		defer s.Terraform.Destroy()
 
 		b.Run(title+"ListEnvironments", func(b *testing.B) {
 			for n := 0; n < b.N; n++ {
@@ -85,5 +84,7 @@ func BenchmarkStress(b *testing.B) {
 				s.Layer0.ListServices()
 			}
 		})
+
+		s.Terraform.Destroy()
 	}
 }
