@@ -5,22 +5,20 @@ provider "layer0" {
 }
 
 module "environment" {
-  source = "modules/environment"
-
+  source = "environment"
   num_environments = "${var.num_environments}"
 }
 
 
 module "deploy" {
-  source = "modules/deploy"
-
+  source = "deploy"
   num_deploys = "${var.num_deploys}"
+  deploy_command = "${var.deploy_command}"
 }
 
 module "service" {
-  source = "modules/service"
+  source = "service"
   num_services = "${var.num_services}"
   environment_ids = "${module.environment.environment_ids}"
   deploy_ids = "${module.deploy.deploy_ids}"
 }
-
