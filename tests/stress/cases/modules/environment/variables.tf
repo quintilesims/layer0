@@ -1,0 +1,1 @@
+variable "num_environments" {}
