@@ -57,21 +57,33 @@ func benchmarkStress(envs int, deps int, servs int, deploycomm string, b *testin
 		}
 	})
 
-	b.Run("ListDeploys", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
-			s.Layer0.ListDeploys()
-		}
-	})
-
 	b.Run("ListLoadBalancers", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
 			s.Layer0.ListLoadBalancers()
 		}
 	})
 
+	b.Run("ListDeploys", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			s.Layer0.ListDeploys()
+		}
+	})
+
 	b.Run("ListServices", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
 			s.Layer0.ListServices()
+		}
+	})
+
+	b.Run("ListTasks", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			s.Layer0.ListTasks()
+		}
+	})
+
+	b.Run("ListJobs", func(b *testing.B) {
+		for n := 0; n < b.N; n++ {
+			s.Layer0.ListJobs()
 		}
 	})
 }
