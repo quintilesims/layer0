@@ -124,7 +124,7 @@ func (e *EnvironmentProvider) createSG(environmentID, vpcID string) (*ec2.Securi
 }
 
 func (e *EnvironmentProvider) createLC(
-	environmentID string,
+	launchConfigName string,
 	securityGroupID string,
 	instanceType string,
 	instanceProfile string,
@@ -132,7 +132,7 @@ func (e *EnvironmentProvider) createLC(
 	userData string,
 ) error {
 	input := &autoscaling.CreateLaunchConfigurationInput{}
-	input.SetLaunchConfigurationName(environmentID)
+	input.SetLaunchConfigurationName(launchConfigName)
 	input.SetSecurityGroups([]*string{aws.String(securityGroupID)})
 	input.SetInstanceType(instanceType)
 	input.SetIamInstanceProfile(instanceProfile)
@@ -150,10 +150,10 @@ func (e *EnvironmentProvider) createLC(
 	return nil
 }
 
-func (e *EnvironmentProvider) createASG(environmentID, launchConfigName string, privateSubnets []string) error {
+func (e *EnvironmentProvider) createASG(autoScalingGroupName, launchConfigName string, privateSubnets []string) error {
 	tag := &autoscaling.Tag{}
 	tag.SetKey("Name")
-	tag.SetValue(environmentID)
+	tag.SetValue(autoScalingGroupName)
 	tag.SetPropagateAtLaunch(true)
 
 	var subnetIdentifier string
@@ -162,7 +162,7 @@ func (e *EnvironmentProvider) createASG(environmentID, launchConfigName string, 
 	}
 
 	input := &autoscaling.CreateAutoScalingGroupInput{}
-	input.SetAutoScalingGroupName(environmentID)
+	input.SetAutoScalingGroupName(autoScalingGroupName)
 	input.SetLaunchConfigurationName(launchConfigName)
 	input.SetVPCZoneIdentifier(subnetIdentifier)
 	input.SetMinSize(0)
@@ -180,9 +180,9 @@ func (e *EnvironmentProvider) createASG(environmentID, launchConfigName string, 
 	return nil
 }
 
-func (e *EnvironmentProvider) createCluster(environmentID string) error {
+func (e *EnvironmentProvider) createCluster(clusterName string) error {
 	input := &ecs.CreateClusterInput{}
-	input.SetClusterName(environmentID)
+	input.SetClusterName(clusterName)
 
 	if _, err := e.AWS.ECS.CreateCluster(input); err != nil {
 		return err
