@@ -12,7 +12,7 @@ import (
 )
 
 type EnvironmentController struct {
-	Provider     entity.Provider
+	EnvironmentProvider     entity.EnvironmentProvider
 	JobScheduler scheduler.JobScheduler
 }
 
@@ -48,7 +48,7 @@ func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	environment := e.Provider.GetEnvironment("")
+	environment := e.EnvironmentProvider.GetEnvironment("")
 	if err := environment.Create(req); err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball
 
 func (e *EnvironmentController) GetEnvironment(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	environment := e.Provider.GetEnvironment(id)
+	environment := e.EnvironmentProvider.GetEnvironment(id)
 	environmentModel, err := environment.Model()
 	if err != nil {
 		return nil, err
@@ -88,14 +88,14 @@ func (e *EnvironmentController) GetEnvironment(c *fireball.Context) (fireball.Re
 }
 
 func (e *EnvironmentController) ListEnvironments(c *fireball.Context) (fireball.Response, error) {
-	environmentIDs, err := e.Provider.ListEnvironmentIDs()
+	environmentIDs, err := e.EnvironmentProvider.ListEnvironmentIDs()
 	if err != nil {
 		return nil, err
 	}
 
 	environmentSummaries := make([]*models.EnvironmentSummary, len(environmentIDs))
 	for i, environmentID := range environmentIDs {
-		environment := e.Provider.GetEnvironment(environmentID)
+		environment := e.EnvironmentProvider.GetEnvironment(environmentID)
 		environmentSummary, err := environment.Summary()
 		if err != nil {
 			return nil, err

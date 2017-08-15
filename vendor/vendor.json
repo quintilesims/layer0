@@ -618,6 +618,12 @@
 			"revisionTime": "2017-04-25T16:20:50Z"
 		},
 		{
+			"checksumSHA1": "qwDbqmAPoAx4FiPiNYdTojwrYDs=",
+			"path": "github.com/aws/aws-sdk-go/service/autoscaling/autoscalingiface",
+			"revision": "00cd9d8682fc2ac26e338236d081eb0927ebf722",
+			"revisionTime": "2017-05-16T20:59:04Z"
+		},
+		{
 			"checksumSHA1": "n6v4S6jPpkHsS59Oj1EZPQIdRNg=",
 			"path": "github.com/aws/aws-sdk-go/service/cloudformation",
 			"revision": "fe4c33d5e201f595b450d08d9d7e36fedb2cbcf8",
@@ -3597,6 +3603,12 @@
 			"path": "github.com/ziutek/mymysql/thrsafe",
 			"revision": "1f036e774386b791837466ab89889d49cd8a6e39",
 			"revisionTime": "2017-01-11T18:39:26Z"
+		},
+		{
+			"checksumSHA1": "yLE1mGY6XpQowtDwgWRNdFeFQrc=",
+			"path": "github.com/zpatrick/fireball",
+			"revision": "3e4ffde20763c94ddfc5591126a7e473e8680616",
+			"revisionTime": "2017-07-12T19:29:43Z"
 		},
 		{
 			"checksumSHA1": "SZaMeoqPH0b36UUwpmgnW7VqDB0=",
