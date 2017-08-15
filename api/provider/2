@@ -1,0 +1,8 @@
+package provider
+
+type JobProvider interface {
+ 	Create(req models.CreateJobRequest) error
+        Read(jobID string) (*models.Environment, error)
+        List() ([]*models.EnvironmentSummary, error)
+        Delete(jobID string) error	
+}
