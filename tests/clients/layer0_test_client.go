@@ -116,6 +116,15 @@ func (l *Layer0TestClient) ListEnvironments() []*models.EnvironmentSummary {
 	return environments
 }
 
+func (l *Layer0TestClient) ListLoadBalancers() []*models.LoadBalancerSummary {
+	loadbalancers, err := l.Client.ListLoadBalancers()
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return loadbalancers
+}
+
 func (l *Layer0TestClient) ListDeploys() []*models.DeploySummary {
 	deploys, err := l.Client.ListDeploys()
 	if err != nil {
@@ -123,6 +132,15 @@ func (l *Layer0TestClient) ListDeploys() []*models.DeploySummary {
 	}
 
 	return deploys
+}
+
+func (l *Layer0TestClient) ListServices() []*models.ServiceSummary {
+	services, err := l.Client.ListServices()
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return services
 }
 
 func (l *Layer0TestClient) ListTasks() []*models.TaskSummary {
@@ -134,22 +152,13 @@ func (l *Layer0TestClient) ListTasks() []*models.TaskSummary {
 	return tasks
 }
 
-func (l *Layer0TestClient) ListLoadBalancers() []*models.LoadBalancerSummary {
-	loadbalancers, err := l.Client.ListLoadBalancers()
+func (l *Layer0TestClient) ListJobs() []*models.Job {
+	jobs, err := l.Client.ListJobs()
 	if err != nil {
 		l.T.Fatal(err)
 	}
 
-	return loadbalancers
-}
-
-func (l *Layer0TestClient) ListServices() []*models.ServiceSummary {
-	services, err := l.Client.ListServices()
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	return services
+	return jobs
 }
 
 func (l *Layer0TestClient) ScaleService(id string, scale int) *models.Service {
