@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/defaults"
 	"github.com/quintilesims/layer0/api/controllers"
-	"github.com/quintilesims/layer0/api/providers/aws"
+	"github.com/quintilesims/layer0/api/provider/aws"
 	awsclient "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logging"
@@ -49,13 +49,12 @@ func main() {
 		awsConfig.WithRegion(cfg.Region())
 
 		client := awsclient.NewClient(awsConfig)
-		
+
 		// todo: inject job_store.JobStore
-		provider := aws.NewAWSProvider(client, nil)
+		environmentProvider := aws.NewEnvironmentProvider(client, nil)
 
 		// todo: inject job scheduler
-		routes := controllers.NewEnvironmentController(provider, nil).Routes()
-		routes = append(routes, controllers.NewJobController(provider).Routes()...)
+		routes := controllers.NewEnvironmentController(environmentProvider, nil).Routes()
 
 		// todo: add decorators to routes
 		server := fireball.NewApp(routes)

@@ -3,7 +3,7 @@ package controllers
 import (
 	"encoding/json"
 
-	"github.com/quintilesims/layer0/api/entity"
+	"github.com/quintilesims/layer0/api/provider"
 	"github.com/quintilesims/layer0/api/scheduler"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/job"
@@ -12,14 +12,14 @@ import (
 )
 
 type EnvironmentController struct {
-	EnvironmentProvider     entity.EnvironmentProvider
-	JobScheduler scheduler.JobScheduler
+	EnvironmentProvider provider.EnvironmentProvider
+	JobScheduler        scheduler.JobScheduler
 }
 
-func NewEnvironmentController(p entity.Provider, j scheduler.JobScheduler) *EnvironmentController {
+func NewEnvironmentController(e provider.EnvironmentProvider, j scheduler.JobScheduler) *EnvironmentController {
 	return &EnvironmentController{
-		Provider:     p,
-		JobScheduler: j,
+		EnvironmentProvider: e,
+		JobScheduler:        j,
 	}
 }
 
@@ -48,17 +48,12 @@ func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	environment := e.EnvironmentProvider.GetEnvironment("")
-	if err := environment.Create(req); err != nil {
-		return nil, err
-	}
-
-	environmentModel, err := environment.Model()
+	model, err := e.EnvironmentProvider.Create(req)
 	if err != nil {
 		return nil, err
 	}
 
-	return fireball.NewJSONResponse(202, environmentModel)
+	return fireball.NewJSONResponse(202, model)
 }
 
 func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball.Response, error) {
@@ -78,32 +73,20 @@ func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball
 
 func (e *EnvironmentController) GetEnvironment(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	environment := e.EnvironmentProvider.GetEnvironment(id)
-	environmentModel, err := environment.Model()
+	model, err := e.EnvironmentProvider.Read(id)
 	if err != nil {
 		return nil, err
 	}
 
-	return fireball.NewJSONResponse(200, environmentModel)
+	return fireball.NewJSONResponse(200, model)
 }
 
 func (e *EnvironmentController) ListEnvironments(c *fireball.Context) (fireball.Response, error) {
-	environmentIDs, err := e.EnvironmentProvider.ListEnvironmentIDs()
+	summaries, err := e.EnvironmentProvider.List()
 	if err != nil {
 		return nil, err
 	}
 
-	environmentSummaries := make([]*models.EnvironmentSummary, len(environmentIDs))
-	for i, environmentID := range environmentIDs {
-		environment := e.EnvironmentProvider.GetEnvironment(environmentID)
-		environmentSummary, err := environment.Summary()
-		if err != nil {
-			return nil, err
-		}
-
-		environmentSummaries[i] = environmentSummary
-	}
-
-	return fireball.NewJSONResponse(200, environmentSummaries)
+	return fireball.NewJSONResponse(200, summaries)
 
 }

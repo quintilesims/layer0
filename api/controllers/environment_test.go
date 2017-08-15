@@ -4,8 +4,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/entity/mock_entity"
+	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/api/scheduler"
+	"github.com/quintilesims/layer0/api/scheduler/mock_scheduler"
 	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -34,21 +35,13 @@ func TestCreateEnvironment(t *testing.T) {
 		Links:           []string{"e2"},
 	}
 
-	mockEnvironment := mock_entity.NewMockEnvironment(ctrl)
+	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
+	mockEnvironment := mock_provider.NewMockEnvironmentProvider(ctrl)
+	controller := NewEnvironmentController(mockEnvironment, mockJobScheduler)
+
 	mockEnvironment.EXPECT().
 		Create(req).
-		Return(nil)
-
-	mockEnvironment.EXPECT().
-		Model().
 		Return(&environmentModel, nil)
-
-	mockProvider := mock_entity.NewMockProvider(ctrl)
-	mockProvider.EXPECT().
-		GetEnvironment("").
-		Return(mockEnvironment)
-
-	controller := NewEnvironmentController(mockProvider, nil)
 
 	c := newFireballContext(t, req, nil)
 	resp, err := controller.CreateEnvironment(c)
@@ -74,7 +67,8 @@ func TestDeleteEnvironment(t *testing.T) {
 		return "j1", nil
 	})
 
-	controller := NewEnvironmentController(nil, mockJobScheduler)
+	mockEnvironment := mock_provider.NewMockEnvironmentProvider(ctrl)
+	controller := NewEnvironmentController(mockEnvironment, mockJobScheduler)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "e1"})
 	resp, err := controller.DeleteEnvironment(c)
@@ -103,17 +97,13 @@ func TestGetEnvironment(t *testing.T) {
 		Links:           []string{"e2"},
 	}
 
-	mockEnvironment := mock_entity.NewMockEnvironment(ctrl)
+	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
+	mockEnvironment := mock_provider.NewMockEnvironmentProvider(ctrl)
+	controller := NewEnvironmentController(mockEnvironment, mockJobScheduler)
+
 	mockEnvironment.EXPECT().
-		Model().
+		Read("e1").
 		Return(&environmentModel, nil)
-
-	mockProvider := mock_entity.NewMockProvider(ctrl)
-	mockProvider.EXPECT().
-		GetEnvironment("e1").
-		Return(mockEnvironment)
-
-	controller := NewEnvironmentController(mockProvider, nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "e1"})
 	resp, err := controller.GetEnvironment(c)
@@ -145,25 +135,13 @@ func TestListEnvironments(t *testing.T) {
 		},
 	}
 
-	mockProvider := mock_entity.NewMockProvider(ctrl)
-	mockProvider.EXPECT().
-		ListEnvironmentIDs().
-		Return([]string{"e1", "e2"}, nil)
+	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
+	mockEnvironment := mock_provider.NewMockEnvironmentProvider(ctrl)
+	controller := NewEnvironmentController(mockEnvironment, mockJobScheduler)
 
-	for i := range environmentSummaries {
-		summary := environmentSummaries[i]
-
-		mockEnvironment := mock_entity.NewMockEnvironment(ctrl)
-		mockEnvironment.EXPECT().
-			Summary().
-			Return(&summary, nil)
-
-		mockProvider.EXPECT().
-			GetEnvironment(summary.EnvironmentID).
-			Return(mockEnvironment)
-	}
-
-	controller := NewEnvironmentController(mockProvider, nil)
+	mockEnvironment.EXPECT().
+		List().
+		Return(environmentSummaries, nil)
 
 	c := newFireballContext(t, nil, nil)
 	resp, err := controller.ListEnvironments(c)

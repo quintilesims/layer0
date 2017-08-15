@@ -18,13 +18,13 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 		return nil, err
 	}
 
-	// launchConfigName is same as fqEnvironmentID
-	launchConfig, err := e.readLC(fqEnvironmentID)
+	autoScalingGroup, err := e.readASG(fqEnvironmentID)
 	if err != nil {
 		return nil, err
 	}
 
-	autoScalingGroup, err := e.readASG(fqEnvironmentID)
+	// launchConfigName is same as fqEnvironmentID
+	launchConfig, err := e.readLC(aws.StringValue(autoScalingGroup.LaunchConfigurationName))
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (e *EnvironmentProvider) readLC(launchConfigName string) (*autoscaling.Laun
 		}
 	}
 
-	return nil, fmt.Errorf("Launch configuration '%s' does not exist", launchConfigName)
+	return nil, fmt.Errorf("Launch Configuration '%s' does not exist", launchConfigName)
 }
 
 func (e *EnvironmentProvider) readASG(autoScalingGroupName string) (*autoscaling.Group, error) {
