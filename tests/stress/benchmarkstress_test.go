@@ -9,32 +9,32 @@ const (
 	deployCommand = "while true ; do echo LONG RUNNING SERVICE ; sleep 5 ; done"
 )
 
-func BenchmarkStress1Environment0Deploys0Services(b *testing.B) {
-	benchmarkStress(1, 0, 0, deployCommand, b)
-}
 func BenchmarkStress5Environments0Deploys0Services(b *testing.B) {
 	benchmarkStress(5, 0, 0, deployCommand, b)
 }
 func BenchmarkStress10Environments0Deploys0Services(b *testing.B) {
 	benchmarkStress(10, 0, 0, deployCommand, b)
 }
-func BenchmarkStress1Environment1Deploy0Service(b *testing.B) {
-	benchmarkStress(1, 1, 0, deployCommand, b)
+func BenchmarkStress20Environments0Deploys0Services(b *testing.B) {
+	benchmarkStress(20, 0, 0, deployCommand, b)
 }
-func BenchmarkStress1Environment5Deploys0Services(b *testing.B) {
-	benchmarkStress(1, 5, 0, deployCommand, b)
+func BenchmarkStress5Environments5Deploys0Services(b *testing.B) {
+	benchmarkStress(5, 5, 0, deployCommand, b)
 }
-func BenchmarkStress1Environment10Deploys0Services(b *testing.B) {
-	benchmarkStress(1, 10, 0, deployCommand, b)
+func BenchmarkStress10Environments10Deploys0Services(b *testing.B) {
+	benchmarkStress(10, 10, 0, deployCommand, b)
 }
-func BenchmarkStress2Environments2Deploys1Service(b *testing.B) {
-	benchmarkStress(2, 2, 1, deployCommand, b)
+func BenchmarkStress20Environments20Deploys0Services(b *testing.B) {
+	benchmarkStress(20, 20, 0, deployCommand, b)
 }
-func BenchmarkStress2Environments2Deploy5Services(b *testing.B) {
-	benchmarkStress(2, 2, 5, deployCommand, b)
+func BenchmarkStress10Environments10Deploys10Services(b *testing.B) {
+	benchmarkStress(10, 10, 10, deployCommand, b)
 }
-func BenchmarkStress2Environments2Deploys10Services(b *testing.B) {
-	benchmarkStress(2, 2, 10, deployCommand, b)
+func BenchmarkStress20Environments20Deploys20Services(b *testing.B) {
+	benchmarkStress(20, 20, 20, deployCommand, b)
+}
+func BenchmarkStress20Environments20Deploys50Services(b *testing.B) {
+	benchmarkStress(20, 20, 50, deployCommand, b)
 }
 
 func benchmarkStress(envs int, deps int, servs int, deploycomm string, b *testing.B) {
