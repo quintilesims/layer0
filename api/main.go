@@ -52,10 +52,16 @@ func main() {
 		client := awsclient.NewClient(awsConfig)
 		tagStore := tag_store.NewDynamoTagStore(awsConfig, cfg.DynamoTagTable())
 
+		// todo: inject job_store.JobStore
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
+		environmentProvider := aws.NewEnvironmentProvider(client, nil)
+		deployProvider := aws.NewDeployProvider(client, nil)
+		loadbalancerProvider := aws.NewLoadBalancerProvider(client, nil)
 
 		// todo: inject job scheduler
 		routes := controllers.NewEnvironmentController(environmentProvider, nil).Routes()
+		routes = append(routes, controllers.NewDeployController(deployProvider).Routes()...)
+		routes = append(routes, controllers.NewLoadBalancerController(loadbalancerProvider, nil).Routes()...)
 
 		// todo: add decorators to routes
 		server := fireball.NewApp(routes)
