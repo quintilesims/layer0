@@ -64,8 +64,26 @@ When developing a system test, waiting for terraform to setup/destroy the test r
 Using this method, you can run your test multiple times without terraform destroying and rebuilding the resources.
 
 Some useful builtin flags:
-* `-run nameOfTest` - Executes tests that match the specified name (can be used to run a single test case).
+* `-run nameOfTest` - Executes tests that match the specified name (can be used to run a single test case, or given a param that matches nothing to only run other types of tests).
+* `-bench PathOrFileOrTest` - Executes benchmark tests that match the specified identifier.
 * `-parallel n` - Specifies the number of tests to run in parallel at once.
 * `-short` - Execute the tests in short mode. Long running tests will be skipped.
 * `-timeout t` - Specifies the timeout for the tests. 
 The default is `10m`, which typically isn't long enough to complete all of the system tests. 
+
+### WARNING: Stress Tests and Service Limits
+The stress tests intentionally create and destroy a lot of AWS resources, so you should be aware of the AWS service limits on the account in which these tests will be run.
+If the tests exceed service limits, they will be unable to automatically destroy the resources that they have created.
+Layer0 commands will fail with the following error:
+```
+AWS Error: clusters cannot have more than 100 elements (code 'InvalidParameterException')
+```
+In such an event, you will have to manually enter the AWS console and terminate resources by hand until you're back under the limits.
+You could then programatically use Layer0 to destroy the remainder.
+
+To avoid such a scenario, before you run the stress tests, comment out specific functions that will exceed your service limits, or modify the parameters of some of the stress test functions.
+
+Some references:
+* [Viewing account-specific EC2-related service limits](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html)
+* [General ECS service limits](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/service_limits.html)
+* [General list of AWS service limits](https://docs.aws.amazon.com/general/latest/gr/aws_service_limits.html)

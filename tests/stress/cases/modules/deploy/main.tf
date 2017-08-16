@@ -1,7 +1,7 @@
 resource "layer0_deploy" "base" {
-  name    = "td-${var.num_deploys}-${count.index}"
-  count   = "${var.num_deploys}"
-  content = "${data.template_file.container.rendered}"
+   name    = "td-${var.num_deploys}-${count.index}"
+   count   = "${var.num_deploys}"
+   content = "${data.template_file.container.rendered}"
 }
 
 data "template_file" "container" {
