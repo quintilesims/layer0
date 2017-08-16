@@ -12,18 +12,20 @@ import (
 func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, error) {
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	securityGroup, err := e.readSG(fqEnvironmentID)
+	securityGroupName := fmt.Sprintf("%s-env", fqEnvironmentID)
+	securityGroup, err := e.readSG(securityGroupName)
 	if err != nil {
 		return nil, err
 	}
 
-	autoScalingGroup, err := e.readASG(fqEnvironmentID)
+	autoScalingGroupName := fqEnvironmentID
+	autoScalingGroup, err := e.readASG(autoScalingGroupName)
 	if err != nil {
 		return nil, err
 	}
 
-	// launchConfigName is same as fqEnvironmentID
-	launchConfig, err := e.readLC(aws.StringValue(autoScalingGroup.LaunchConfigurationName))
+	launchConfigName := aws.StringValue(autoScalingGroup.LaunchConfigurationName)
+	launchConfig, err := e.readLC(launchConfigName)
 	if err != nil {
 		return nil, err
 	}
@@ -43,10 +45,10 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 	return model, nil
 }
 
-func (e *EnvironmentProvider) readSG(environmentID string) (*ec2.SecurityGroup, error) {
+func (e *EnvironmentProvider) readSG(groupName string) (*ec2.SecurityGroup, error) {
 	filter := &ec2.Filter{}
 	filter.SetName("group-name")
-	filter.SetValues([]*string{aws.String(environmentID)})
+	filter.SetValues([]*string{aws.String(groupName)})
 
 	input := &ec2.DescribeSecurityGroupsInput{}
 	input.SetFilters([]*ec2.Filter{filter})
@@ -57,13 +59,13 @@ func (e *EnvironmentProvider) readSG(environmentID string) (*ec2.SecurityGroup, 
 	}
 
 	for _, group := range output.SecurityGroups {
-		if aws.StringValue(group.GroupName) == environmentID {
+		if aws.StringValue(group.GroupName) == groupName {
 			return group, nil
 		}
 	}
 
 	// todo: this should be a wrapped error: 'errors.MissingResource' or something
-	return nil, fmt.Errorf("Security group for environment '%s' does not exist", environmentID)
+	return nil, fmt.Errorf("Security group '%s' does not exist", groupName)
 }
 
 func (e *EnvironmentProvider) readLC(launchConfigName string) (*autoscaling.LaunchConfiguration, error) {
@@ -103,7 +105,7 @@ func (e *EnvironmentProvider) readASG(autoScalingGroupName string) (*autoscaling
 }
 
 func (e *EnvironmentProvider) readTags(environmentID string, model *models.Environment) error {
-	tags, err := e.TagStore.SelectByTypeAndID("environment", model.EnvironmentID)
+	tags, err := e.TagStore.SelectByTypeAndID("environment", environmentID)
 	if err != nil {
 		return err
 	}

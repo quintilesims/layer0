@@ -56,13 +56,13 @@ func (e *EnvironmentProvider) listTags(summaries []models.EnvironmentSummary) er
 		return err
 	}
 
-	for _, summary := range summaries {
+	for i, summary := range summaries {
 		if tag, ok := tags.WithID(summary.EnvironmentID).WithKey("name").First(); ok {
-			summary.EnvironmentName = tag.Value
+			summaries[i].EnvironmentName = tag.Value
 		}
 
 		if tag, ok := tags.WithID(summary.EnvironmentID).WithKey("os").First(); ok {
-			summary.OperatingSystem = tag.Value
+			summaries[i].OperatingSystem = tag.Value
 		}
 	}
 

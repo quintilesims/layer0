@@ -56,6 +56,10 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_INSTANCE_PROFILE,
 			EnvVar: ENVVAR_AWS_INSTANCE_PROFILE,
 		},
+		cli.StringFlag{
+                        Name:   FLAG_AWS_DYNAMO_TAG_TABLE,
+                        EnvVar: ENVVAR_AWS_DYNAMO_TAG_TABLE,
+                },
 		cli.StringSliceFlag{
 			Name:   FLAG_AWS_PUBLIC_SUBNETS,
 			EnvVar: ENVVAR_AWS_PUBLIC_SUBNETS,
@@ -80,6 +84,7 @@ type APIConfig interface {
 	InstanceProfile() string
 	PublicSubnets() []string
 	PrivateSubnets() []string
+	DynamoTagTable() string
 }
 
 type ContextAPIConfig struct {
@@ -103,6 +108,7 @@ func (c *ContextAPIConfig) Validate() error {
 		FLAG_AWS_WINDOWS_AMI:      fmt.Errorf("AWS Windows AMI not set! (EnvVar: %s)", ENVVAR_AWS_WINDOWS_AMI),
 		FLAG_AWS_S3_BUCKET:        fmt.Errorf("AWS S3 Bucket not set! (EnvVar: %s)", ENVVAR_AWS_S3_BUCKET),
 		FLAG_AWS_INSTANCE_PROFILE: fmt.Errorf("AWS Instance Profile not set! (EnvVar: %s)", ENVVAR_AWS_INSTANCE_PROFILE),
+		FLAG_AWS_DYNAMO_TAG_TABLE: fmt.Errorf("AWS Dynamo Tag Table not set! (EnvVar: %s)", ENVVAR_AWS_DYNAMO_TAG_TABLE),
 	}
 
 	for name, err := range stringVars {
@@ -163,6 +169,10 @@ func (c *ContextAPIConfig) S3Bucket() string {
 
 func (c *ContextAPIConfig) InstanceProfile() string {
 	return c.C.String(FLAG_AWS_INSTANCE_PROFILE)
+}
+
+func (c *ContextAPIConfig) DynamoTagTable() string {
+        return c.C.String(FLAG_AWS_DYNAMO_TAG_TABLE)
 }
 
 func (c *ContextAPIConfig) PublicSubnets() []string {

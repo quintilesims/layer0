@@ -3,6 +3,7 @@ package tag_store
 import (
 	"fmt"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
@@ -35,7 +36,8 @@ type DynamoTagStore struct {
 	table dynamo.Table
 }
 
-func NewDynamoTagStore(session *session.Session, table string) *DynamoTagStore {
+func NewDynamoTagStore(config *aws.Config, table string) *DynamoTagStore {
+	session := session.New(config)
 	db := dynamo.New(session)
 
 	return &DynamoTagStore{

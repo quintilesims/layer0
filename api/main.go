@@ -12,6 +12,7 @@ import (
 	"github.com/quintilesims/layer0/api/provider/aws"
 	awsclient "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/logging"
 	"github.com/urfave/cli"
 	"github.com/zpatrick/fireball"
@@ -49,9 +50,9 @@ func main() {
 		awsConfig.WithRegion(cfg.Region())
 
 		client := awsclient.NewClient(awsConfig)
+		tagStore := tag_store.NewDynamoTagStore(awsConfig, cfg.DynamoTagTable())
 
-		// todo: inject job_store.JobStore
-		environmentProvider := aws.NewEnvironmentProvider(client, nil)
+		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
 
 		// todo: inject job scheduler
 		routes := controllers.NewEnvironmentController(environmentProvider, nil).Routes()

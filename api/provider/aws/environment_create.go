@@ -54,7 +54,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 		return nil, err
 	}
 
-	securityGroupName := fqEnvironmentID
+	securityGroupName := fmt.Sprintf("%s-env", fqEnvironmentID)
 	securityGroup, err := e.createSG(
 		securityGroupName,
 		fmt.Sprintf("SG for Layer0 environment %s", environmentID),
