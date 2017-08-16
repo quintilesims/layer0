@@ -66,6 +66,7 @@ func TestEnvironment_listTags(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	assert.Len(t, 2, results)
 	assert.Equal(t, "ename1", results[0].EnvironmentName)
 	assert.Equal(t, "eos1", results[0].OperatingSystem)
 	assert.Equal(t, "ename2", results[1].EnvironmentName)
