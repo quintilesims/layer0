@@ -15,13 +15,13 @@ func TestCreateDeploy(t *testing.T) {
 
 	req := models.CreateDeployRequest{
 		DeployName: "deploy1",
-		Dockerrun:  nil,
+		Dockerrun:  ([]byte("content")),
 	}
 
 	DeployModel := models.Deploy{
 		DeployID:   "d1",
 		DeployName: "deploy1",
-		Dockerrun:  nil,
+		Dockerrun:  ([]byte("content")),
 		Version:    "1",
 	}
 
@@ -75,7 +75,7 @@ func TestGetDeploy(t *testing.T) {
 	DeployModel := models.Deploy{
 		DeployID:   "d1",
 		DeployName: "deploy1",
-		Dockerrun:  nil,
+		Dockerrun:  ([]byte("content")),
 		Version:    "1",
 	}
 
