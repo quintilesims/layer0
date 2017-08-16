@@ -1,6 +1,10 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+
+	swagger "github.com/zpatrick/go-plugin-swagger"
+)
 
 type CreateEnvironmentRequest struct {
 	EnvironmentName  string `json:"environment_name"`
@@ -25,4 +29,18 @@ func (r CreateEnvironmentRequest) Validate() error {
 	}
 
 	return nil
+}
+
+func (e CreateEnvironmentRequest) Definition() swagger.Definition {
+	return swagger.Definition{
+		Type: "object",
+		Properties: map[string]swagger.Property{
+			"environment_name":   swagger.NewStringProperty(),
+			"instance_size":      swagger.NewStringProperty(),
+			"user_data_template": swagger.NewStringProperty(),
+			"min_cluster_count":  swagger.NewIntProperty(),
+			"operating_system":   swagger.NewStringProperty(),
+			"ami_id":             swagger.NewStringProperty(),
+		},
+	}
 }

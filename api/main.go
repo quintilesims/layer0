@@ -18,8 +18,6 @@ import (
 	"github.com/zpatrick/fireball"
 )
 
-// todo: handle main.Version
-
 const (
 	SWAGGER_URL     = "/api/"
 	SWAGGER_UI_PATH = "static/swagger-ui/dist"
@@ -31,9 +29,16 @@ func serveSwaggerUI(w http.ResponseWriter, r *http.Request) {
 	http.StripPrefix(SWAGGER_URL, fileServer).ServeHTTP(w, r)
 }
 
+var Version string
+
 func main() {
+	if Version == "" {
+		Version = "unset/developer"
+	}
+
 	app := cli.NewApp()
 	app.Name = "Layer0 API"
+	app.Version = Version
 	app.Flags = config.APIFlags()
 	app.Action = func(c *cli.Context) error {
 		cfg := config.NewContextAPIConfig(c)
@@ -54,12 +59,12 @@ func main() {
 
 		// todo: inject job_store.JobStore
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
-		environmentProvider := aws.NewEnvironmentProvider(client, nil)
 		deployProvider := aws.NewDeployProvider(client, nil)
 		loadbalancerProvider := aws.NewLoadBalancerProvider(client, nil)
 
 		// todo: inject job scheduler
-		routes := controllers.NewEnvironmentController(environmentProvider, nil).Routes()
+		routes := controllers.NewSwaggerController(Version).Routes()
+		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, nil).Routes()...)
 		routes = append(routes, controllers.NewDeployController(deployProvider).Routes()...)
 		routes = append(routes, controllers.NewLoadBalancerController(loadbalancerProvider, nil).Routes()...)
 
