@@ -9,129 +9,145 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateDeploy(t *testing.T) {
+func TestCreateService(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	req := models.CreateDeployRequest{
-		DeployName: "deploy1",
-		Dockerrun:  ([]byte("content")),
+	req := models.CreateServiceRequest{
+		DeployID:       "deploy_id",
+		EnvironmentID:  "env_id",
+		LoadBalancerID: "lb_id",
+		ServiceName:    "service_name",
 	}
 
-	DeployModel := models.Deploy{
-		DeployID:   "d1",
-		DeployName: "deploy1",
-		Dockerrun:  ([]byte("content")),
-		Version:    "1",
+	serviceModel := models.Service{
+		Deployments:      ([]models.Deployment(nil)),
+		DesiredCount:     1,
+		EnvironmentID:    "env_id",
+		EnvironmentName:  "env_name",
+		LoadBalancerID:   "lb_id",
+		LoadBalancerName: "lb_name",
+		PendingCount:     1,
+		RunningCount:     0,
+		ServiceID:        "service_id",
+		ServiceName:      "service_name",
 	}
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
+	mockService := mock_provider.NewMockServiceProvider(ctrl)
+	controller := NewServiceController(mockService)
 
-	mockDeploy.EXPECT().
+	mockService.EXPECT().
 		Create(req).
-		Return(&DeployModel, nil)
+		Return(&serviceModel, nil)
 
 	c := newFireballContext(t, req, nil)
-	resp, err := controller.CreateDeploy(c)
+	resp, err := controller.CreateService(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Deploy
+	var response models.Service
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 202, recorder.Code)
-	assert.Equal(t, DeployModel, response)
+	assert.Equal(t, serviceModel, response)
 }
 
-func TestDeleteDeploy(t *testing.T) {
+func TestDeleteService(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
+	mockService := mock_provider.NewMockServiceProvider(ctrl)
+	controller := NewServiceController(mockService)
 
-	mockDeploy.EXPECT().
-		Delete("d1").
+	mockService.EXPECT().
+		Delete("service_id").
 		Return(nil)
 
-	c := newFireballContext(t, nil, map[string]string{"id": "d1"})
-	resp, err := controller.DeleteDeploy(c)
+	c := newFireballContext(t, nil, map[string]string{"id": "service_id"})
+	resp, err := controller.DeleteService(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Deploy
+	var response models.Service
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
 }
 
-func TestGetDeploy(t *testing.T) {
+func TestGetService(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	DeployModel := models.Deploy{
-		DeployID:   "d1",
-		DeployName: "deploy1",
-		Dockerrun:  ([]byte("content")),
-		Version:    "1",
+	serviceModel := models.Service{
+		Deployments:      ([]models.Deployment(nil)),
+		DesiredCount:     1,
+		EnvironmentID:    "env_id",
+		EnvironmentName:  "env_name",
+		LoadBalancerID:   "lb_id",
+		LoadBalancerName: "lb_name",
+		PendingCount:     1,
+		RunningCount:     0,
+		ServiceID:        "service_id",
+		ServiceName:      "service_name",
 	}
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
+	mockService := mock_provider.NewMockServiceProvider(ctrl)
+	controller := NewServiceController(mockService)
 
-	mockDeploy.EXPECT().
-		Read("d1").
-		Return(&DeployModel, nil)
+	mockService.EXPECT().
+		Read("service_id").
+		Return(&serviceModel, nil)
 
-	c := newFireballContext(t, nil, map[string]string{"id": "d1"})
-	resp, err := controller.GetDeploy(c)
+	c := newFireballContext(t, nil, map[string]string{"id": "service_id"})
+	resp, err := controller.GetService(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Deploy
+	var response models.Service
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, DeployModel, response)
+	assert.Equal(t, serviceModel, response)
 }
 
-func TestListDeploys(t *testing.T) {
+func TestListServices(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	DeploySummaries := []models.DeploySummary{
+	serviceSummaries := []models.ServiceSummary{
 		{
-			DeployID:   "d1",
-			DeployName: "deploy1",
-			Version:    "1",
+			ServiceID:       "service_id",
+			ServiceName:     "service_name",
+			EnvironmentID:   "env_id",
+			EnvironmentName: "env_name",
 		},
 		{
-			DeployID:   "d2",
-			DeployName: "deploy2",
-			Version:    "1",
+			ServiceID:       "service_id",
+			ServiceName:     "service_name",
+			EnvironmentID:   "env_id",
+			EnvironmentName: "env_name",
 		},
 	}
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
+	mockService := mock_provider.NewMockServiceProvider(ctrl)
+	controller := NewServiceController(mockService)
 
-	mockDeploy.EXPECT().
+	mockService.EXPECT().
 		List().
-		Return(DeploySummaries, nil)
+		Return(serviceSummaries, nil)
 
 	c := newFireballContext(t, nil, nil)
-	resp, err := controller.ListDeploys(c)
+	resp, err := controller.ListServices(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response []models.DeploySummary
+	var response []models.ServiceSummary
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, DeploySummaries, response)
+	assert.Equal(t, serviceSummaries, response)
 }

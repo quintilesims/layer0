@@ -9,129 +9,148 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestCreateDeploy(t *testing.T) {
+func TestCreateTask(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	req := models.CreateDeployRequest{
-		DeployName: "deploy1",
-		Dockerrun:  ([]byte("content")),
+	req := models.CreateTaskRequest{
+		ContainerOverrides: ([]models.ContainerOverride(nil)),
+		Copies:             1,
+		DeployID:           "deploy_id",
+		EnvironmentID:      "env_id",
+		TaskName:           "task_name",
 	}
 
-	DeployModel := models.Deploy{
-		DeployID:   "d1",
-		DeployName: "deploy1",
-		Dockerrun:  ([]byte("content")),
-		Version:    "1",
+	taskModel := models.Task{
+		Copies:          ([]models.TaskCopy(nil)),
+		DeployID:        "deploy_id",
+		DeployName:      "deploy_name",
+		DeployVersion:   "deploy_version",
+		DesiredCount:    1,
+		EnvironmentID:   "env_id",
+		EnvironmentName: "env_name",
+		PendingCount:    1,
+		RunningCount:    0,
+		TaskID:          "task_id",
+		TaskName:        "task_name",
 	}
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
+	mockTask := mock_provider.NewMockTaskProvider(ctrl)
+	controller := NewTaskController(mockTask)
 
-	mockDeploy.EXPECT().
+	mockTask.EXPECT().
 		Create(req).
-		Return(&DeployModel, nil)
+		Return(&taskModel, nil)
 
 	c := newFireballContext(t, req, nil)
-	resp, err := controller.CreateDeploy(c)
+	resp, err := controller.CreateTask(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Deploy
+	var response models.Task
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 202, recorder.Code)
-	assert.Equal(t, DeployModel, response)
+	assert.Equal(t, taskModel, response)
 }
 
-func TestDeleteDeploy(t *testing.T) {
+func TestDeleteTask(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
+	mockTask := mock_provider.NewMockTaskProvider(ctrl)
+	controller := NewTaskController(mockTask)
 
-	mockDeploy.EXPECT().
+	mockTask.EXPECT().
 		Delete("d1").
 		Return(nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "d1"})
-	resp, err := controller.DeleteDeploy(c)
+	resp, err := controller.DeleteTask(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Deploy
+	var response models.Task
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
 }
 
-func TestGetDeploy(t *testing.T) {
+func TestGetTask(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	DeployModel := models.Deploy{
-		DeployID:   "d1",
-		DeployName: "deploy1",
-		Dockerrun:  ([]byte("content")),
-		Version:    "1",
+	taskModel := models.Task{
+		Copies:          ([]models.TaskCopy(nil)),
+		DeployID:        "deploy_id",
+		DeployName:      "deploy_name",
+		DeployVersion:   "deploy_version",
+		DesiredCount:    1,
+		EnvironmentID:   "env_id",
+		EnvironmentName: "env_name",
+		PendingCount:    1,
+		RunningCount:    0,
+		TaskID:          "task_id",
+		TaskName:        "task_name",
 	}
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
+	mockTask := mock_provider.NewMockTaskProvider(ctrl)
+	controller := NewTaskController(mockTask)
 
-	mockDeploy.EXPECT().
-		Read("d1").
-		Return(&DeployModel, nil)
+	mockTask.EXPECT().
+		Read("task_id").
+		Return(&taskModel, nil)
 
-	c := newFireballContext(t, nil, map[string]string{"id": "d1"})
-	resp, err := controller.GetDeploy(c)
+	c := newFireballContext(t, nil, map[string]string{"id": "task_id"})
+	resp, err := controller.GetTask(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Deploy
+	var response models.Task
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, DeployModel, response)
+	assert.Equal(t, taskModel, response)
 }
 
-func TestListDeploys(t *testing.T) {
+func TestListTasks(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	DeploySummaries := []models.DeploySummary{
+	taskSummaries := []models.TaskSummary{
 		{
-			DeployID:   "d1",
-			DeployName: "deploy1",
-			Version:    "1",
+			TaskID:          "task_id",
+			TaskName:        "task_name",
+			EnvironmentID:   "env_id",
+			EnvironmentName: "env_name",
 		},
 		{
-			DeployID:   "d2",
-			DeployName: "deploy2",
-			Version:    "1",
+			TaskID:          "task_id",
+			TaskName:        "task_name",
+			EnvironmentID:   "env_id",
+			EnvironmentName: "env_name",
 		},
 	}
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
+	mockTask := mock_provider.NewMockTaskProvider(ctrl)
+	controller := NewTaskController(mockTask)
 
-	mockDeploy.EXPECT().
+	mockTask.EXPECT().
 		List().
-		Return(DeploySummaries, nil)
+		Return(taskSummaries, nil)
 
 	c := newFireballContext(t, nil, nil)
-	resp, err := controller.ListDeploys(c)
+	resp, err := controller.ListTasks(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response []models.DeploySummary
+	var response []models.TaskSummary
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, DeploySummaries, response)
+	assert.Equal(t, taskSummaries, response)
 }
