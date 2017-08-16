@@ -54,8 +54,8 @@ func BenchmarkStress20Environments20Deploys20Services20LoadBalancers(b *testing.
 func BenchmarkStress25Environments25Deploys25Services25LoadBalancers(b *testing.B) {
 	benchmarkStress(25, 25, 25, 25, deployCommand, b)
 }
-func BenchmarkStress5Environments5Deploys50Services10LoadBalancers(b *testing.B) {
-	benchmarkStress(5, 5, 50, 10, deployCommand, b)
+func BenchmarkStress5Environments5Deploys30Services10LoadBalancers(b *testing.B) {
+	benchmarkStress(5, 5, 30, 10, deployCommand, b)
 }
 
 func benchmarkStress(envs, deps, servs, lbs int, deploycomm string, b *testing.B) {
