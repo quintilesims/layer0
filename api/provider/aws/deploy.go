@@ -22,7 +22,7 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy,
 	return nil, nil
 }
 
-func (d *DeployProvider) Read(DeployID string) (*models.Deploy, error) {
+func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
 	return nil, nil
 }
 
@@ -30,6 +30,6 @@ func (d *DeployProvider) List() ([]models.DeploySummary, error) {
 	return nil, nil
 }
 
-func (d *DeployProvider) Delete(DeployID string) error {
+func (d *DeployProvider) Delete(deployID string) error {
 	return nil
 }

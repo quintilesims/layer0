@@ -22,7 +22,7 @@ func (d *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 	return nil, nil
 }
 
-func (d *LoadBalancerProvider) Read(LoadBalancerID string) (*models.LoadBalancer, error) {
+func (d *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer, error) {
 	return nil, nil
 }
 
@@ -30,6 +30,6 @@ func (d *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 	return nil, nil
 }
 
-func (d *LoadBalancerProvider) Delete(LoadBalancerID string) error {
+func (d *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	return nil
 }
