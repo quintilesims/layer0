@@ -52,13 +52,17 @@ func main() {
 
 		// todo: inject job_store.JobStore
 		environmentProvider := aws.NewEnvironmentProvider(client, nil)
+		serviceProvider := aws.NewServiceProvider(client, nil)
 		deployProvider := aws.NewDeployProvider(client, nil)
 		loadbalancerProvider := aws.NewLoadBalancerProvider(client, nil)
+		taskProvider := aws.NewTaskProvider(client, nil)
 
 		// todo: inject job scheduler
 		routes := controllers.NewEnvironmentController(environmentProvider, nil).Routes()
+		routes = append(routes, controllers.NewServiceController(serviceProvider).Routes()...)
 		routes = append(routes, controllers.NewDeployController(deployProvider).Routes()...)
 		routes = append(routes, controllers.NewLoadBalancerController(loadbalancerProvider, nil).Routes()...)
+		routes = append(routes, controllers.NewTaskController(taskProvider).Routes()...)
 
 		// todo: add decorators to routes
 		server := fireball.NewApp(routes)
