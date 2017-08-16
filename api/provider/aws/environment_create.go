@@ -78,6 +78,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 	if err := e.createASG(
 		autoScalingGroupName,
 		launchConfigName,
+		int64(req.MinClusterCount),
 		e.Config.PrivateSubnets()); err != nil {
 		return nil, err
 	}
@@ -161,7 +162,7 @@ func (e *EnvironmentProvider) createLC(
 	return nil
 }
 
-func (e *EnvironmentProvider) createASG(autoScalingGroupName, launchConfigName string, privateSubnets []string) error {
+func (e *EnvironmentProvider) createASG(autoScalingGroupName, launchConfigName string, minSize int64, privateSubnets []string) error {
 	tag := &autoscaling.Tag{}
 	tag.SetKey("Name")
 	tag.SetValue(autoScalingGroupName)
@@ -176,8 +177,8 @@ func (e *EnvironmentProvider) createASG(autoScalingGroupName, launchConfigName s
 	input.SetAutoScalingGroupName(autoScalingGroupName)
 	input.SetLaunchConfigurationName(launchConfigName)
 	input.SetVPCZoneIdentifier(subnetIdentifier)
-	input.SetMinSize(0)
-	input.SetMaxSize(0)
+	input.SetMinSize(minSize)
+	input.SetMaxSize(minSize)
 	input.SetTags([]*autoscaling.Tag{tag})
 
 	if err := input.Validate(); err != nil {

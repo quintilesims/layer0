@@ -57,9 +57,9 @@ func APIFlags() []cli.Flag {
 			EnvVar: ENVVAR_AWS_INSTANCE_PROFILE,
 		},
 		cli.StringFlag{
-                        Name:   FLAG_AWS_DYNAMO_TAG_TABLE,
-                        EnvVar: ENVVAR_AWS_DYNAMO_TAG_TABLE,
-                },
+			Name:   FLAG_AWS_DYNAMO_TAG_TABLE,
+			EnvVar: ENVVAR_AWS_DYNAMO_TAG_TABLE,
+		},
 		cli.StringSliceFlag{
 			Name:   FLAG_AWS_PUBLIC_SUBNETS,
 			EnvVar: ENVVAR_AWS_PUBLIC_SUBNETS,
@@ -172,7 +172,7 @@ func (c *ContextAPIConfig) InstanceProfile() string {
 }
 
 func (c *ContextAPIConfig) DynamoTagTable() string {
-        return c.C.String(FLAG_AWS_DYNAMO_TAG_TABLE)
+	return c.C.String(FLAG_AWS_DYNAMO_TAG_TABLE)
 }
 
 func (c *ContextAPIConfig) PublicSubnets() []string {
