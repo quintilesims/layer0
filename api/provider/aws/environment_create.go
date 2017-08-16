@@ -19,60 +19,71 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 		return nil, err
 	}
 
-	// todo: use config to get instance name
 	environmentID := generateEntityID(req.EnvironmentName)
-	fqEnvironmentID := addLayer0Prefix("INSTANCE", environmentID)
-
-	// todo: use config to get vpc id
-	securityGroup, err := e.createSG(fqEnvironmentID, "VPC")
-	if err != nil {
-		return nil, err
-	}
+	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	instanceType := DEFAULT_INSTANCE_SIZE
 	if req.InstanceSize != "" {
 		instanceType = req.InstanceSize
 	}
 
-	// todo: use config.AMIID()
-	amiID := "AMIID"
+	var userDataTemplate []byte
+	var amiID string
+
+	switch strings.ToLower(req.OperatingSystem) {
+	case "linux":
+		userDataTemplate = []byte(DEFAULT_LINUX_USERDATA_TEMPLATE)
+		amiID = e.Config.LinuxAMI()
+	case "windows":
+		userDataTemplate = []byte(DEFAULT_WINDOWS_USERDATA_TEMPLATE)
+		amiID = e.Config.WindowsAMI()
+	default:
+		return nil, fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)
+	}
+
 	if req.AMIID != "" {
 		amiID = req.AMIID
 	}
 
-	userDataTemplate := DEFAULT_USER_DATA_TEMPLATE
 	if len(req.UserDataTemplate) > 0 {
 		userDataTemplate = req.UserDataTemplate
 	}
 
-	// todo: use config.S3Bucket()
-	userData, err := renderUserData(fqEnvironmentID, "BUCKET", userDataTemplate)
+	userData, err := renderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
 	if err != nil {
 		return nil, err
 	}
 
-	// todo: use config.InstanceProfile()
-	// todo: operating systems
+	securityGroupName := fqEnvironmentID
+	securityGroup, err := e.createSG(
+		securityGroupName,
+		fmt.Sprintf("SG for Layer0 environment %s", environmentID),
+		e.Config.VPC())
+	if err != nil {
+		return nil, err
+	}
+
+	launchConfigName := fqEnvironmentID
 	if err := e.createLC(
-		fqEnvironmentID,
+		launchConfigName,
 		aws.StringValue(securityGroup.GroupId),
 		instanceType,
-		"INSTANCEPROFILE",
+		e.Config.InstanceProfile(),
 		amiID,
 		userData); err != nil {
 		return nil, err
 	}
 
-	// todo: use private subnets
-	// launchConfig name is same as environmentID
+	autoScalingGroupName := fqEnvironmentID
 	if err := e.createASG(
-		fqEnvironmentID,
-		fqEnvironmentID,
-		[]string{}); err != nil {
+		autoScalingGroupName,
+		launchConfigName,
+		e.Config.PrivateSubnets()); err != nil {
 		return nil, err
 	}
 
-	if err := e.createCluster(fqEnvironmentID); err != nil {
+	clusterName := fqEnvironmentID
+	if err := e.createCluster(clusterName); err != nil {
 		return nil, err
 	}
 
@@ -83,10 +94,10 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 	return e.Read(environmentID)
 }
 
-func (e *EnvironmentProvider) createSG(environmentID, vpcID string) (*ec2.SecurityGroup, error) {
+func (e *EnvironmentProvider) createSG(groupName, description, vpcID string) (*ec2.SecurityGroup, error) {
 	input := &ec2.CreateSecurityGroupInput{}
-	input.SetGroupName(environmentID)
-	input.SetDescription(fmt.Sprintf("SG for Layer0 environment %s", environmentID))
+	input.SetGroupName(groupName)
+	input.SetDescription(description)
 	input.SetVpcId(vpcID)
 
 	if err := input.Validate(); err != nil {
@@ -97,7 +108,7 @@ func (e *EnvironmentProvider) createSG(environmentID, vpcID string) (*ec2.Securi
 		return nil, err
 	}
 
-	securityGroup, err := e.readSG(environmentID)
+	securityGroup, err := e.readSG(groupName)
 	if err != nil {
 		return nil, err
 	}

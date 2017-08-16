@@ -18,6 +18,10 @@ func (m *MemoryTagStore) Init() error {
 	return nil
 }
 
+func (m *MemoryTagStore) Tags() models.Tags {
+	return m.tags
+}
+
 func (m *MemoryTagStore) Delete(entityType, entityID, key string) error {
 	for i := 0; i < len(m.tags); i++ {
 		tag := m.tags[i]

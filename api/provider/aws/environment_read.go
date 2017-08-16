@@ -10,8 +10,7 @@ import (
 )
 
 func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, error) {
-	// todo: use config.Instance()
-	fqEnvironmentID := addLayer0Prefix("INSTANCE", environmentID)
+	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	securityGroup, err := e.readSG(fqEnvironmentID)
 	if err != nil {

@@ -16,8 +16,7 @@ func (e *EnvironmentProvider) List() ([]models.EnvironmentSummary, error) {
 
 	summaries := make([]models.EnvironmentSummary, len(clusterNames))
 	for i, clusterName := range clusterNames {
-		// todo: use config.Instance()
-		environmentID := delLayer0Prefix("INSTANCE", clusterName)
+		environmentID := delLayer0Prefix(e.Config.Instance(), clusterName)
 		summary := models.EnvironmentSummary{
 			EnvironmentID: environmentID,
 		}
@@ -43,8 +42,7 @@ func (e *EnvironmentProvider) listClusterNames() ([]string, error) {
 		// cluster arn format: arn:aws:ecs:region:012345678910:cluster/name
 		clusterName := strings.Split(aws.StringValue(arn), "/")[1]
 
-		// todo: use config.Instance()
-		if hasLayer0Prefix("INSTANCE", clusterName) {
+		if hasLayer0Prefix(e.Config.Instance(), clusterName) {
 			clusterNames = append(clusterNames, clusterName)
 		}
 	}

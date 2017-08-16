@@ -11,8 +11,7 @@ import (
 )
 
 func (e *EnvironmentProvider) Delete(environmentID string) error {
-	//todo: use conifig.Instance()
-	fqEnvironmentID := addLayer0Prefix("INSTANCE", environmentID)
+	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	if err := e.deleteASG(fqEnvironmentID); err != nil {
 		return err

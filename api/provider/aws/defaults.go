@@ -2,4 +2,6 @@ package aws
 
 const DEFAULT_INSTANCE_SIZE = "m3.medium"
 
-var DEFAULT_USER_DATA_TEMPLATE []byte = []byte(``)
+const DEFAULT_LINUX_USERDATA_TEMPLATE = ``
+
+const DEFAULT_WINDOWS_USERDATA_TEMPLATE = ``
