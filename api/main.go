@@ -59,7 +59,7 @@ func main() {
 
 		// todo: inject job scheduler
 		routes := controllers.NewEnvironmentController(environmentProvider, nil).Routes()
-		routes = append(routes, controllers.NewServiceController(serviceProvider).Routes()...)
+		routes = append(routes, controllers.NewServiceController(serviceProvider, nil).Routes()...)
 		routes = append(routes, controllers.NewDeployController(deployProvider).Routes()...)
 		routes = append(routes, controllers.NewLoadBalancerController(loadbalancerProvider, nil).Routes()...)
 		routes = append(routes, controllers.NewTaskController(taskProvider).Routes()...)

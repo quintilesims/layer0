@@ -5,6 +5,9 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
+	"github.com/quintilesims/layer0/api/scheduler"
+	"github.com/quintilesims/layer0/api/scheduler/mock_scheduler"
+	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,20 +24,21 @@ func TestCreateService(t *testing.T) {
 	}
 
 	serviceModel := models.Service{
-		Deployments:      ([]models.Deployment(nil)),
-		DesiredCount:     1,
+		Deployments:      []models.Deployment{},
+		DesiredCount:     2,
 		EnvironmentID:    "env_id",
 		EnvironmentName:  "env_name",
 		LoadBalancerID:   "lb_id",
 		LoadBalancerName: "lb_name",
-		PendingCount:     1,
-		RunningCount:     0,
+		PendingCount:     2,
+		RunningCount:     1,
 		ServiceID:        "service_id",
 		ServiceName:      "service_name",
 	}
 
 	mockService := mock_provider.NewMockServiceProvider(ctrl)
-	controller := NewServiceController(mockService)
+	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
+	controller := NewServiceController(mockService, mockJobScheduler)
 
 	mockService.EXPECT().
 		Create(req).
@@ -57,12 +61,15 @@ func TestDeleteService(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockService := mock_provider.NewMockServiceProvider(ctrl)
-	controller := NewServiceController(mockService)
+	mockJobScheduler := scheduler.ScheduleJobFunc(func(req models.CreateJobRequest) (string, error) {
+		assert.Equal(t, job.DeleteServiceJob, req.JobType)
+		assert.Equal(t, "service_id", req.Request)
 
-	mockService.EXPECT().
-		Delete("service_id").
-		Return(nil)
+		return "j1", nil
+	})
+
+	mockService := mock_provider.NewMockServiceProvider(ctrl)
+	controller := NewServiceController(mockService, mockJobScheduler)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "service_id"})
 	resp, err := controller.DeleteService(c)
@@ -70,10 +77,10 @@ func TestDeleteService(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var response models.Service
-	recorder := unmarshalBody(t, resp, &response)
-
-	assert.Equal(t, 200, recorder.Code)
+	recorder := unmarshalBody(t, resp, nil)
+	assert.Equal(t, 202, recorder.Code)
+	assert.Equal(t, "j1", recorder.HeaderMap.Get("X-JobID"))
+	assert.Equal(t, "/job/j1", recorder.HeaderMap.Get("Location"))
 }
 
 func TestGetService(t *testing.T) {
@@ -82,19 +89,20 @@ func TestGetService(t *testing.T) {
 
 	serviceModel := models.Service{
 		Deployments:      ([]models.Deployment(nil)),
-		DesiredCount:     1,
+		DesiredCount:     2,
 		EnvironmentID:    "env_id",
 		EnvironmentName:  "env_name",
 		LoadBalancerID:   "lb_id",
 		LoadBalancerName: "lb_name",
-		PendingCount:     1,
-		RunningCount:     0,
+		PendingCount:     2,
+		RunningCount:     1,
 		ServiceID:        "service_id",
 		ServiceName:      "service_name",
 	}
 
 	mockService := mock_provider.NewMockServiceProvider(ctrl)
-	controller := NewServiceController(mockService)
+	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
+	controller := NewServiceController(mockService, mockJobScheduler)
 
 	mockService.EXPECT().
 		Read("service_id").
@@ -133,7 +141,8 @@ func TestListServices(t *testing.T) {
 	}
 
 	mockService := mock_provider.NewMockServiceProvider(ctrl)
-	controller := NewServiceController(mockService)
+	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
+	controller := NewServiceController(mockService, mockJobScheduler)
 
 	mockService.EXPECT().
 		List().
