@@ -14,7 +14,7 @@ func TestCreateTask(t *testing.T) {
 	defer ctrl.Finish()
 
 	req := models.CreateTaskRequest{
-		ContainerOverrides: ([]models.ContainerOverride(nil)),
+		ContainerOverrides: []models.ContainerOverride{},
 		Copies:             1,
 		DeployID:           "deploy_id",
 		EnvironmentID:      "env_id",
@@ -22,15 +22,15 @@ func TestCreateTask(t *testing.T) {
 	}
 
 	taskModel := models.Task{
-		Copies:          ([]models.TaskCopy(nil)),
+		Copies:          []models.TaskCopy{},
 		DeployID:        "deploy_id",
 		DeployName:      "deploy_name",
 		DeployVersion:   "deploy_version",
-		DesiredCount:    1,
+		DesiredCount:    2,
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
-		PendingCount:    1,
-		RunningCount:    0,
+		PendingCount:    2,
+		RunningCount:    1,
 		TaskID:          "task_id",
 		TaskName:        "task_name",
 	}
@@ -83,15 +83,15 @@ func TestGetTask(t *testing.T) {
 	defer ctrl.Finish()
 
 	taskModel := models.Task{
-		Copies:          ([]models.TaskCopy(nil)),
+		Copies:          []models.TaskCopy{},
 		DeployID:        "deploy_id",
 		DeployName:      "deploy_name",
 		DeployVersion:   "deploy_version",
-		DesiredCount:    1,
+		DesiredCount:    2,
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
-		PendingCount:    1,
-		RunningCount:    0,
+		PendingCount:    2,
+		RunningCount:    1,
 		TaskID:          "task_id",
 		TaskName:        "task_name",
 	}
