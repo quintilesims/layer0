@@ -14,6 +14,7 @@ module "deploy" {
   num_deploys    = "${var.num_deploys}"
   deploy_command = "${var.deploy_command}"
 }
+
 module "service" {
   source          = "service"
   num_services    = "${var.num_services}"
