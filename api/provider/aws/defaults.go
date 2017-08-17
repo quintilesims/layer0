@@ -1,6 +1,8 @@
 package aws
 
-const DEFAULT_INSTANCE_SIZE = "m3.medium"
+const (
+	DEFAULT_INSTANCE_SIZE = "m3.medium"
+)
 
 const DEFAULT_LINUX_USERDATA_TEMPLATE = `
 #!/bin/bash

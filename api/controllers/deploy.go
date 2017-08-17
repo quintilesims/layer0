@@ -47,8 +47,8 @@ func (d *DeployController) CreateDeploy(c *fireball.Context) (fireball.Response,
 	}
 
 	if err := req.Validate(); err != nil {
-                return nil, errors.New(errors.InvalidRequest, err)
-        }
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
 
 	model, err := d.DeployProvider.Create(req)
 	if err != nil {
