@@ -48,6 +48,10 @@ func (l *LoadBalancerController) CreateLoadBalancer(c *fireball.Context) (fireba
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
+	if err := req.Validate(); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
+
 	model, err := l.LoadBalancerProvider.Create(req)
 	if err != nil {
 		return nil, err

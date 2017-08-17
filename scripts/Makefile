@@ -11,6 +11,8 @@ provider:
 	mockgen github.com/quintilesims/layer0/api/provider JobProvider > ../api/provider/mock_provider/mock_job.go &
 	mockgen github.com/quintilesims/layer0/api/provider DeployProvider > ../api/provider/mock_provider/mock_deploy.go &
 	mockgen github.com/quintilesims/layer0/api/provider LoadBalancerProvider > ../api/provider/mock_provider/mock_loadbalancer.go &
+	mockgen github.com/quintilesims/layer0/api/provider ServiceProvider > ../api/provider/mock_provider/mock_service.go &
+	mockgen github.com/quintilesims/layer0/api/provider TaskProvider > ../api/provider/mock_provider/mock_task.go &
 
 scheduler:
 	mockgen github.com/quintilesims/layer0/api/scheduler JobScheduler > ../api/scheduler/mock_scheduler/mock_job_scheduler.go &
