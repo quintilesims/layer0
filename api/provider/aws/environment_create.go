@@ -15,10 +15,6 @@ import (
 )
 
 func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*models.Environment, error) {
-	if err := req.Validate(); err != nil {
-		return nil, err
-	}
-
 	environmentID := generateEntityID(req.EnvironmentName)
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 

@@ -48,6 +48,10 @@ func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
+	if err := req.Validate(); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
+
 	model, err := e.EnvironmentProvider.Create(req)
 	if err != nil {
 		return nil, err
