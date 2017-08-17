@@ -1,12 +1,12 @@
 package aws
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
-	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
@@ -23,14 +23,15 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 		return err
 	}
 
-	securityGroup, err := readSG(e.AWS.EC2, fqEnvironmentID)
+	securityGroupName := fmt.Sprintf("%s-env", fqEnvironmentID)
+	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
 	if err != nil && !strings.Contains(err.Error(), "does not exist") {
 		return err
 	}
 
 	if securityGroup != nil {
 		groupID := aws.StringValue(securityGroup.GroupId)
-		if err := e.deleteSG(groupID); err != nil {
+		if err := deleteSG(e.AWS.EC2, groupID); err != nil {
 			return err
 		}
 	}
@@ -80,17 +81,6 @@ func (e *EnvironmentProvider) deleteLC(launchConfigName string) error {
 			return nil
 		}
 
-		return err
-	}
-
-	return nil
-}
-
-func (e *EnvironmentProvider) deleteSG(securityGroupID string) error {
-	input := &ec2.DeleteSecurityGroupInput{}
-	input.SetGroupId(securityGroupID)
-
-	if _, err := e.AWS.EC2.DeleteSecurityGroup(input); err != nil {
 		return err
 	}
 

@@ -19,7 +19,3 @@ func NewLoadBalancerProvider(a *awsc.Client, t tag_store.TagStore, c config.APIC
 		Config:   c,
 	}
 }
-
-func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
-	return nil
-}

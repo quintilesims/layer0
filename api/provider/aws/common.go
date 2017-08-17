@@ -47,3 +47,14 @@ func readSG(ec2api ec2iface.EC2API, groupName string) (*ec2.SecurityGroup, error
 	// todo: this should be a wrapped error: 'errors.MissingResource' or something
 	return nil, fmt.Errorf("Security group '%s' does not exist", groupName)
 }
+
+func deleteSG(ec2api ec2iface.EC2API, securityGroupID string) error {
+	input := &ec2.DeleteSecurityGroupInput{}
+	input.SetGroupId(securityGroupID)
+
+	if _, err := ec2api.DeleteSecurityGroup(input); err != nil {
+		return err
+	}
+
+	return nil
+}
