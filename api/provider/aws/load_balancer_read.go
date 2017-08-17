@@ -8,6 +8,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// todo: catch 'EntityDoesNotExist' errors
 func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer, error) {
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	loadBalancer, err := l.describeLoadBalancer(fqLoadBalancerID)

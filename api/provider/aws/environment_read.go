@@ -8,6 +8,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// todo: catch 'EntityDoesNotExist' errors
 func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, error) {
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
