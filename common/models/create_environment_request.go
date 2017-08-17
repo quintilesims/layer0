@@ -20,5 +20,9 @@ func (r CreateEnvironmentRequest) Validate() error {
 		return fmt.Errorf("MinClusterCount must be a positive integer")
 	}
 
+	if r.OperatingSystem == "" {
+		return fmt.Errorf("OperatingSystem is required")
+	}
+
 	return nil
 }

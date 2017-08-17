@@ -11,14 +11,15 @@ import (
 )
 
 func (e *EnvironmentProvider) Delete(environmentID string) error {
-	//todo: use conifig.Instance()
-	fqEnvironmentID := addLayer0Prefix("INSTANCE", environmentID)
+	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	if err := e.deleteASG(fqEnvironmentID); err != nil {
+	autoScalingGroupName := fqEnvironmentID
+	if err := e.deleteASG(autoScalingGroupName); err != nil {
 		return err
 	}
 
-	if err := e.deleteLC(fqEnvironmentID); err != nil {
+	launchConfigName := fqEnvironmentID
+	if err := e.deleteLC(launchConfigName); err != nil {
 		return err
 	}
 
@@ -28,12 +29,18 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 	}
 
 	if securityGroup != nil {
-		if err := e.deleteSG(aws.StringValue(securityGroup.GroupId)); err != nil {
+		groupID := aws.StringValue(securityGroup.GroupId)
+		if err := e.deleteSG(groupID); err != nil {
 			return err
 		}
 	}
 
-	if err := e.deleteCluster(fqEnvironmentID); err != nil {
+	clusterName := fqEnvironmentID
+	if err := e.deleteCluster(clusterName); err != nil {
+		return err
+	}
+
+	if err := e.deleteTags(environmentID); err != nil {
 		return err
 	}
 
@@ -83,7 +90,6 @@ func (e *EnvironmentProvider) deleteSG(securityGroupID string) error {
 	input := &ec2.DeleteSecurityGroupInput{}
 	input.SetGroupId(securityGroupID)
 
-	// todo: catch does not exist error
 	if _, err := e.AWS.EC2.DeleteSecurityGroup(input); err != nil {
 		return err
 	}
@@ -105,6 +111,21 @@ func (e *EnvironmentProvider) deleteCluster(clusterName string) error {
 		}
 
 		return err
+	}
+
+	return nil
+}
+
+func (e *EnvironmentProvider) deleteTags(environmentID string) error {
+	tags, err := e.TagStore.SelectByTypeAndID("environment", environmentID)
+	if err != nil {
+		return err
+	}
+
+	for _, tag := range tags {
+		if err := e.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
+			return err
+		}
 	}
 
 	return nil

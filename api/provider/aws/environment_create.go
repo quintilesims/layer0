@@ -15,64 +15,81 @@ import (
 )
 
 func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*models.Environment, error) {
-	if err := req.Validate(); err != nil {
-		return nil, err
-	}
-
-	// todo: use config to get instance name
 	environmentID := generateEntityID(req.EnvironmentName)
-	fqEnvironmentID := addLayer0Prefix("INSTANCE", environmentID)
-
-	// todo: use config to get vpc id
-	securityGroup, err := e.createSG(fqEnvironmentID, "VPC")
-	if err != nil {
-		return nil, err
-	}
+	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	instanceType := DEFAULT_INSTANCE_SIZE
 	if req.InstanceSize != "" {
 		instanceType = req.InstanceSize
 	}
 
-	// todo: use config.AMIID()
-	amiID := "AMIID"
+	var userDataTemplate []byte
+	var amiID string
+
+	switch strings.ToLower(req.OperatingSystem) {
+	case "linux":
+		userDataTemplate = []byte(DEFAULT_LINUX_USERDATA_TEMPLATE)
+		amiID = e.Config.LinuxAMI()
+	case "windows":
+		userDataTemplate = []byte(DEFAULT_WINDOWS_USERDATA_TEMPLATE)
+		amiID = e.Config.WindowsAMI()
+	default:
+		return nil, fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)
+	}
+
 	if req.AMIID != "" {
 		amiID = req.AMIID
 	}
 
-	userDataTemplate := DEFAULT_USER_DATA_TEMPLATE
 	if len(req.UserDataTemplate) > 0 {
 		userDataTemplate = req.UserDataTemplate
 	}
 
-	// todo: use config.S3Bucket()
-	userData, err := renderUserData(fqEnvironmentID, "BUCKET", userDataTemplate)
+	userData, err := renderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
 	if err != nil {
 		return nil, err
 	}
 
-	// todo: use config.InstanceProfile()
-	// todo: operating systems
+	securityGroupName := fmt.Sprintf("%s-env", fqEnvironmentID)
+	if err := e.createSG(
+		securityGroupName,
+		fmt.Sprintf("SG for Layer0 environment %s", environmentID),
+		e.Config.VPC()); err != nil {
+		return nil, err
+	}
+
+	securityGroup, err := e.readSG(securityGroupName)
+	if err != nil {
+		return nil, err
+	}
+
+	groupID := aws.StringValue(securityGroup.GroupId)
+	if err := e.authorizeSGIngress(groupID); err != nil {
+		return nil, err
+	}
+
+	launchConfigName := fqEnvironmentID
 	if err := e.createLC(
-		fqEnvironmentID,
+		launchConfigName,
 		aws.StringValue(securityGroup.GroupId),
 		instanceType,
-		"INSTANCEPROFILE",
+		e.Config.InstanceProfile(),
 		amiID,
 		userData); err != nil {
 		return nil, err
 	}
 
-	// todo: use private subnets
-	// launchConfig name is same as environmentID
+	autoScalingGroupName := fqEnvironmentID
 	if err := e.createASG(
-		fqEnvironmentID,
-		fqEnvironmentID,
-		[]string{}); err != nil {
+		autoScalingGroupName,
+		launchConfigName,
+		int64(req.MinClusterCount),
+		e.Config.PrivateSubnets()); err != nil {
 		return nil, err
 	}
 
-	if err := e.createCluster(fqEnvironmentID); err != nil {
+	clusterName := fqEnvironmentID
+	if err := e.createCluster(clusterName); err != nil {
 		return nil, err
 	}
 
@@ -83,44 +100,41 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 	return e.Read(environmentID)
 }
 
-func (e *EnvironmentProvider) createSG(environmentID, vpcID string) (*ec2.SecurityGroup, error) {
+func (e *EnvironmentProvider) createSG(groupName, description, vpcID string) error {
 	input := &ec2.CreateSecurityGroupInput{}
-	input.SetGroupName(environmentID)
-	input.SetDescription(fmt.Sprintf("SG for Layer0 environment %s", environmentID))
+	input.SetGroupName(groupName)
+	input.SetDescription(description)
 	input.SetVpcId(vpcID)
 
 	if err := input.Validate(); err != nil {
-		return nil, err
+		return err
 	}
 
 	if _, err := e.AWS.EC2.CreateSecurityGroup(input); err != nil {
-		return nil, err
+		return err
 	}
 
-	securityGroup, err := e.readSG(environmentID)
-	if err != nil {
-		return nil, err
-	}
+	return nil
+}
 
-	groupPair := &ec2.UserIdGroupPair{
-		GroupId: securityGroup.GroupId,
-	}
+func (e *EnvironmentProvider) authorizeSGIngress(groupID string) error {
+	groupPair := &ec2.UserIdGroupPair{}
+	groupPair.SetGroupId(groupID)
 
 	permission := &ec2.IpPermission{}
 	permission.SetIpProtocol("-1")
 	permission.SetUserIdGroupPairs([]*ec2.UserIdGroupPair{groupPair})
 
-	ingressInput := &ec2.AuthorizeSecurityGroupIngressInput{
-		GroupId: securityGroup.GroupId,
-	}
+	ingressInput := &ec2.AuthorizeSecurityGroupIngressInput{}
+	ingressInput.SetGroupId(groupID)
 
 	ingressInput.SetIpPermissions([]*ec2.IpPermission{permission})
 
 	if _, err := e.AWS.EC2.AuthorizeSecurityGroupIngress(ingressInput); err != nil {
-		return nil, err
+		return err
 	}
 
-	return securityGroup, nil
+	return nil
 }
 
 func (e *EnvironmentProvider) createLC(
@@ -150,7 +164,7 @@ func (e *EnvironmentProvider) createLC(
 	return nil
 }
 
-func (e *EnvironmentProvider) createASG(autoScalingGroupName, launchConfigName string, privateSubnets []string) error {
+func (e *EnvironmentProvider) createASG(autoScalingGroupName, launchConfigName string, minSize int64, privateSubnets []string) error {
 	tag := &autoscaling.Tag{}
 	tag.SetKey("Name")
 	tag.SetValue(autoScalingGroupName)
@@ -165,8 +179,8 @@ func (e *EnvironmentProvider) createASG(autoScalingGroupName, launchConfigName s
 	input.SetAutoScalingGroupName(autoScalingGroupName)
 	input.SetLaunchConfigurationName(launchConfigName)
 	input.SetVPCZoneIdentifier(subnetIdentifier)
-	input.SetMinSize(0)
-	input.SetMaxSize(0)
+	input.SetMinSize(minSize)
+	input.SetMaxSize(minSize)
 	input.SetTags([]*autoscaling.Tag{tag})
 
 	if err := input.Validate(); err != nil {
