@@ -64,6 +64,16 @@ func BenchmarkStress1Environment1Deploy70Services1LoadBalancer(b *testing.B) {
 	benchmarkStress(1, 1, 70, 1, deployCommand, b)
 }
 
+func benchmark(b *testing.B, methods map[string]func()) {
+	for name, fn := range methods {
+		b.Run(name, func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				fn()
+			}
+		})
+	}
+}
+
 func benchmarkStress(envs, deps, servs, lbs int, deploycomm string, b *testing.B) {
 	tfvars := map[string]string{
 		"num_environments":  strconv.Itoa(envs),
@@ -79,39 +89,14 @@ func benchmarkStress(envs, deps, servs, lbs int, deploycomm string, b *testing.B
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 
-	b.Run("ListEnvironments", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
-			s.Layer0.ListEnvironments()
-		}
-	})
+	methodsToBenchmark := map[string]func(){
+		"ListEnvironments":  func() { s.Layer0.ListEnvironments() },
+		"ListLoadBalancers": func() { s.Layer0.ListLoadBalancers() },
+		"ListDeploys":       func() { s.Layer0.ListDeploys() },
+		"ListServices":      func() { s.Layer0.ListServices() },
+		"ListTasks":         func() { s.Layer0.ListTasks() },
+		"ListJobs":          func() { s.Layer0.ListJobs() },
+	}
 
-	b.Run("ListDeploys", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
-			s.Layer0.ListDeploys()
-		}
-	})
-
-	b.Run("ListLoadBalancers", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
-			s.Layer0.ListLoadBalancers()
-		}
-	})
-
-	b.Run("ListServices", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
-			s.Layer0.ListServices()
-		}
-	})
-
-	b.Run("ListTasks", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
-			s.Layer0.ListTasks()
-		}
-	})
-
-	b.Run("ListJobs", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
-			s.Layer0.ListJobs()
-		}
-	})
+	benchmark(b, methodsToBenchmark)
 }
