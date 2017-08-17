@@ -55,11 +55,20 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 	}
 
 	securityGroupName := fmt.Sprintf("%s-env", fqEnvironmentID)
-	securityGroup, err := e.createSG(
+	if err := e.createSG(
 		securityGroupName,
 		fmt.Sprintf("SG for Layer0 environment %s", environmentID),
-		e.Config.VPC())
+		e.Config.VPC()); err != nil {
+		return nil, err
+	}
+
+	securityGroup, err := e.readSG(securityGroupName)
 	if err != nil {
+		return nil, err
+	}
+
+	groupID := aws.StringValue(securityGroup.GroupId)
+	if err := e.authorizeSGIngress(groupID); err != nil {
 		return nil, err
 	}
 
@@ -95,44 +104,41 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 	return e.Read(environmentID)
 }
 
-func (e *EnvironmentProvider) createSG(groupName, description, vpcID string) (*ec2.SecurityGroup, error) {
+func (e *EnvironmentProvider) createSG(groupName, description, vpcID string) error {
 	input := &ec2.CreateSecurityGroupInput{}
 	input.SetGroupName(groupName)
 	input.SetDescription(description)
 	input.SetVpcId(vpcID)
 
 	if err := input.Validate(); err != nil {
-		return nil, err
+		return err
 	}
 
 	if _, err := e.AWS.EC2.CreateSecurityGroup(input); err != nil {
-		return nil, err
+		return err
 	}
 
-	securityGroup, err := e.readSG(groupName)
-	if err != nil {
-		return nil, err
-	}
+	return nil
+}
 
-	groupPair := &ec2.UserIdGroupPair{
-		GroupId: securityGroup.GroupId,
-	}
+func (e *EnvironmentProvider) authorizeSGIngress(groupID string) error {
+	groupPair := &ec2.UserIdGroupPair{}
+	groupPair.SetGroupId(groupID)
 
 	permission := &ec2.IpPermission{}
 	permission.SetIpProtocol("-1")
 	permission.SetUserIdGroupPairs([]*ec2.UserIdGroupPair{groupPair})
 
-	ingressInput := &ec2.AuthorizeSecurityGroupIngressInput{
-		GroupId: securityGroup.GroupId,
-	}
+	ingressInput := &ec2.AuthorizeSecurityGroupIngressInput{}
+	ingressInput.SetGroupId(groupID)
 
 	ingressInput.SetIpPermissions([]*ec2.IpPermission{permission})
 
 	if _, err := e.AWS.EC2.AuthorizeSecurityGroupIngress(ingressInput); err != nil {
-		return nil, err
+		return err
 	}
 
-	return securityGroup, nil
+	return nil
 }
 
 func (e *EnvironmentProvider) createLC(
