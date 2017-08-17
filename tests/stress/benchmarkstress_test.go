@@ -57,6 +57,12 @@ func BenchmarkStress25Environments25Deploys25Services25LoadBalancers(b *testing.
 func BenchmarkStress5Environments5Deploys30Services10LoadBalancers(b *testing.B) {
 	benchmarkStress(5, 5, 30, 10, deployCommand, b)
 }
+func BenchmarkStress2Environments2Deploys40Services2LoadBalancers(b *testing.B) {
+	benchmarkStress(2, 2, 40, 2, deployCommand, b)
+}
+func BenchmarkStress1Environment1Deploy70Services1LoadBalancer(b *testing.B) {
+	benchmarkStress(1, 1, 70, 1, deployCommand, b)
+}
 
 func benchmarkStress(envs, deps, servs, lbs int, deploycomm string, b *testing.B) {
 	tfvars := map[string]string{
