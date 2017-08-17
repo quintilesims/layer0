@@ -23,7 +23,7 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 		return err
 	}
 
-	securityGroup, err := e.readSG(fqEnvironmentID)
+	securityGroup, err := readSG(e.AWS.EC2, fqEnvironmentID)
 	if err != nil && !strings.Contains(err.Error(), "does not exist") {
 		return err
 	}

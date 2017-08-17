@@ -61,7 +61,7 @@ func main() {
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
 		serviceProvider := aws.NewServiceProvider(client, nil)
 		deployProvider := aws.NewDeployProvider(client, nil)
-		loadbalancerProvider := aws.NewLoadBalancerProvider(client, nil)
+		loadbalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
 		taskProvider := aws.NewTaskProvider(client, nil)
 
 		// todo: inject job scheduler

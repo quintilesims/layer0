@@ -76,3 +76,47 @@ Add-JobTrigger -Name $jobname -Trigger (New-JobTrigger -AtStartup -RandomDelay 0
 </powershell>
 <persist>true</persist>
 `
+
+const DEFAULT_ASSUME_ROLE_POLICY = `{
+  "Version": "2008-10-17",
+  "Statement": [
+    {
+      "Sid": "",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": [
+          "ecs.amazonaws.com"
+        ]
+      },
+      "Action": [
+        "sts:AssumeRole"
+      ]
+    }
+  ]
+}`
+
+const DEFAULT_LB_ROLE_POLICY_TEMPLATE = `{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:Describe*",
+                "ec2:Describe*"
+            ],
+            "Resource": [
+                "*"
+            ]
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "elasticloadbalancing:DeregisterInstancesFromLoadBalancer",
+                "elasticloadbalancing:RegisterInstancesWithLoadBalancer"
+            ],
+            "Resource": [
+                "arn:aws:elasticloadbalancing:{{ .Region }}:{{ .AccountID }}:loadbalancer/{{ .LoadBalancerID }}"
+            ]
+        }
+    ]
+}`

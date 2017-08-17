@@ -24,6 +24,10 @@ func APIFlags() []cli.Flag {
 			EnvVar: ENVVAR_INSTANCE,
 		},
 		cli.StringFlag{
+			Name:   FLAG_AWS_ACCOUNT_ID,
+			EnvVar: ENVVAR_AWS_ACCOUNT_ID,
+		},
+		cli.StringFlag{
 			Name:   FLAG_AWS_ACCESS_KEY,
 			EnvVar: ENVVAR_AWS_ACCESS_KEY,
 		},
@@ -73,6 +77,7 @@ func APIFlags() []cli.Flag {
 
 type APIConfig interface {
 	Port() int
+	AccountID() string
 	AccessKey() string
 	SecretKey() string
 	Region() string
@@ -100,6 +105,7 @@ func NewContextAPIConfig(c *cli.Context) *ContextAPIConfig {
 func (c *ContextAPIConfig) Validate() error {
 	stringVars := map[string]error{
 		FLAG_INSTANCE:             fmt.Errorf("Layer0 Instance not set! (EnvVar: %s)", ENVVAR_INSTANCE),
+		FLAG_AWS_ACCOUNT_ID:       fmt.Errorf("AWS Account ID not set! (EnvVar: %s)", ENVVAR_AWS_ACCOUNT_ID),
 		FLAG_AWS_ACCESS_KEY:       fmt.Errorf("AWS Access Key not set! (EnvVar: %s)", ENVVAR_AWS_ACCESS_KEY),
 		FLAG_AWS_SECRET_KEY:       fmt.Errorf("AWS Secret Key not set! (EnvVar: %s)", ENVVAR_AWS_SECRET_KEY),
 		FLAG_AWS_REGION:           fmt.Errorf("AWS Region not set! (EnvVar: %s)", ENVVAR_AWS_REGION),
@@ -137,6 +143,10 @@ func (c *ContextAPIConfig) Port() int {
 
 func (c *ContextAPIConfig) Instance() string {
 	return c.C.String(FLAG_INSTANCE)
+}
+
+func (c *ContextAPIConfig) AccountID() string {
+	return c.C.String(FLAG_AWS_ACCOUNT_ID)
 }
 
 func (c *ContextAPIConfig) AccessKey() string {

@@ -5,7 +5,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
-	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -13,7 +12,7 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	securityGroupName := fmt.Sprintf("%s-env", fqEnvironmentID)
-	securityGroup, err := e.readSG(securityGroupName)
+	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
 	if err != nil {
 		return nil, err
 	}
@@ -43,29 +42,6 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 	}
 
 	return model, nil
-}
-
-func (e *EnvironmentProvider) readSG(groupName string) (*ec2.SecurityGroup, error) {
-	filter := &ec2.Filter{}
-	filter.SetName("group-name")
-	filter.SetValues([]*string{aws.String(groupName)})
-
-	input := &ec2.DescribeSecurityGroupsInput{}
-	input.SetFilters([]*ec2.Filter{filter})
-
-	output, err := e.AWS.EC2.DescribeSecurityGroups(input)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, group := range output.SecurityGroups {
-		if aws.StringValue(group.GroupName) == groupName {
-			return group, nil
-		}
-	}
-
-	// todo: this should be a wrapped error: 'errors.MissingResource' or something
-	return nil, fmt.Errorf("Security group '%s' does not exist", groupName)
 }
 
 func (e *EnvironmentProvider) readLC(launchConfigName string) (*autoscaling.LaunchConfiguration, error) {

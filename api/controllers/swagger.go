@@ -39,13 +39,21 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			Version: s.version,
 		},
 		Definitions: map[string]swagger.Definition{
-			"CreateEnvironmentRequest": models.CreateEnvironmentRequest{}.Definition(),
-			"Environment":              models.Environment{}.Definition(),
+			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
+			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
+			"Environment":               models.Environment{}.Definition(),
+			"HealthCheck":               models.HealthCheck{}.Definition(),
+			"LoadBalancer":              models.LoadBalancer{}.Definition(),
+			"Port":                      models.Port{}.Definition(),
 		},
 		Tags: []swagger.Tag{
 			{
 				Name:        "Environment",
 				Description: "Methods related to environments",
+			},
+			{
+				Name:        "LoadBalancer",
+				Description: "Methods related to load balancers",
 			},
 		},
 		Paths: map[string]swagger.Path{
@@ -89,10 +97,62 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 				},
 				"delete": {
-					Summary: "Delete a Environment",
+					Summary: "Delete an Environment",
 					Tags:    []string{"Environment"},
 					Parameters: []swagger.Parameter{
 						swagger.NewStringPathParam("id", "ID of the environment to delete", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "Success",
+						},
+					},
+				},
+			},
+			"/loadbalancer": map[string]swagger.Method{
+				"get": {
+					Summary: "List all LoadBalancers",
+					Tags:    []string{"LoadBalancer"},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "An array of load balancers",
+							Schema:      swagger.NewObjectSliceSchema("LoadBalancer"),
+						},
+					},
+				},
+				"post": {
+					Summary: "Add a LoadBalancer",
+					Tags:    []string{"LoadBalancer"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("CreateLoadBalancerRequest", "LoadBalancer to add", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The added load balancer",
+							Schema:      swagger.NewObjectSchema("LoadBalancer"),
+						},
+					},
+				},
+			},
+			"/loadbalancer/{id}": map[string]swagger.Method{
+				"get": {
+					Summary: "Describe a LoadBalancer",
+					Tags:    []string{"LoadBalancer"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the load balancer to describe", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The desired load balancer",
+							Schema:      swagger.NewObjectSchema("LoadBalancer"),
+						},
+					},
+				},
+				"delete": {
+					Summary: "Delete a LoadBalancer",
+					Tags:    []string{"LoadBalancer"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the load balancer to delete", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
