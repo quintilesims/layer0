@@ -82,6 +82,7 @@ In such an event, you will have to manually enter the AWS console and terminate 
 You could then programatically use Layer0 to destroy the remainder.
 
 To avoid such a scenario, before you run the stress tests, comment out specific functions that will exceed your service limits, or modify the parameters of some of the stress test functions.
+It is also recommended that you use [flow](https://github.com/quintilesims/layer0/blob/develop/scripts/flow.sh) to clean out your layer0 instance prior to running the stress tests.
 
 Some references:
 * [Viewing account-specific EC2-related service limits](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html)
