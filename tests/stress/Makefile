@@ -1,4 +1,4 @@
 test: 
-	go test -v -run NOTHING -bench . -timeout 1h
+	go test -v -run NOTHING -bench . -timeout 2h
 
 .PHONY: test
