@@ -40,8 +40,9 @@ func BenchmarkStress2Environments2Deploys10Services(b *testing.B) {
 func benchmarkStress(envs int, deps int, servs int, deploycomm string, b *testing.B) {
 	tfvars := map[string]string{
 		"num_environments": strconv.Itoa(envs),
-		"num_deploys":      strconv.Itoa(deps), "num_services": strconv.Itoa(servs),
-		"deploy_command": deploycomm,
+		"num_deploys":      strconv.Itoa(deps),
+		"num_services":     strconv.Itoa(servs),
+		"deploy_command":   deploycomm,
 	}
 
 	log.Debugf("Testing with Environments: %v, Deploys: %v, Services: %v, Command: %v", envs, deps, servs, deploycomm)
