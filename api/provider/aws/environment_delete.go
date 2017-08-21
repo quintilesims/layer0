@@ -41,7 +41,7 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 		return err
 	}
 
-	if err := e.deleteTags(environmentID); err != nil {
+	if err := deleteEntityTags(e.TagStore, "environment", environmentID); err != nil {
 		return err
 	}
 
@@ -101,21 +101,6 @@ func (e *EnvironmentProvider) deleteCluster(clusterName string) error {
 		}
 
 		return err
-	}
-
-	return nil
-}
-
-func (e *EnvironmentProvider) deleteTags(environmentID string) error {
-	tags, err := e.TagStore.SelectByTypeAndID("environment", environmentID)
-	if err != nil {
-		return err
-	}
-
-	for _, tag := range tags {
-		if err := e.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
-			return err
-		}
 	}
 
 	return nil

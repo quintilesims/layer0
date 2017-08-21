@@ -48,7 +48,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 
 		loadBalancerSGID := aws.StringValue(loadBalancerSG.GroupId)
 		for _, port := range req.Ports {
-			if err := l.authorizeSGIngressFromPort(loadBalancerSGID, port); err != nil {
+			if err := l.authorizeSGIngressFromPort(loadBalancerSGID, int64(port.HostPort)); err != nil {
 				return nil, err
 			}
 		}
@@ -75,12 +75,17 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 		return nil, err
 	}
 
+	listeners, err := l.portsToListeners(req.Ports)
+	if err != nil {
+		return nil, err
+	}
+
 	if err := l.createLoadBalancer(
 		fqLoadBalancerID,
 		scheme,
 		securityGroupIDs,
 		subnets,
-		req.Ports); err != nil {
+		listeners); err != nil {
 		return nil, err
 	}
 
@@ -125,13 +130,13 @@ func (l *LoadBalancerProvider) putRolePolicy(policyName, roleName, policy string
 	return nil
 }
 
-func (l *LoadBalancerProvider) authorizeSGIngressFromPort(groupID string, port models.Port) error {
+func (l *LoadBalancerProvider) authorizeSGIngressFromPort(groupID string, port int64) error {
 	input := &ec2.AuthorizeSecurityGroupIngressInput{}
 	input.SetGroupId(groupID)
 	input.SetCidrIp("0.0.0.0/0")
 	input.SetIpProtocol("TCP")
-	input.SetFromPort(int64(port.HostPort))
-	input.SetToPort(int64(port.HostPort))
+	input.SetFromPort(port)
+	input.SetToPort(port)
 
 	if _, err := l.AWS.EC2.AuthorizeSecurityGroupIngress(input); err != nil {
 		return err
@@ -145,37 +150,8 @@ func (l *LoadBalancerProvider) createLoadBalancer(
 	scheme string,
 	securityGroupIDs []string,
 	subnetIDs []string,
-	ports []models.Port,
+	listeners []*elb.Listener,
 ) error {
-	listeners := make([]*elb.Listener, len(ports))
-	for i, port := range ports {
-		listener := &elb.Listener{}
-		listener.SetProtocol(port.Protocol)
-		listener.SetLoadBalancerPort(port.HostPort)
-		listener.SetInstancePort(port.ContainerPort)
-
-		if port.CertificateName != "" {
-			certificateARN, err := l.lookupCertificateARN(port.CertificateName)
-			if err != nil {
-				return err
-			}
-
-			listener.SetSSLCertificateId(certificateARN)
-		}
-
-		// terminate ssl/https on load balancer
-		switch strings.ToLower(port.Protocol) {
-		case "http", "https":
-			listener.SetInstanceProtocol("http")
-		case "tcp", "ssl":
-			listener.SetInstanceProtocol("tcp")
-		default:
-			return fmt.Errorf("Unrecognized procotol '%s'", port.Protocol)
-		}
-
-		listeners[i] = listener
-	}
-
 	securityGroups := make([]*string, len(securityGroupIDs))
 	for i, securityGroupID := range securityGroupIDs {
 		securityGroups[i] = aws.String(securityGroupID)
@@ -202,6 +178,39 @@ func (l *LoadBalancerProvider) createLoadBalancer(
 	}
 
 	return nil
+}
+
+func (l *LoadBalancerProvider) portsToListeners(ports []models.Port) ([]*elb.Listener, error) {
+	listeners := make([]*elb.Listener, len(ports))
+	for i, port := range ports {
+		listener := &elb.Listener{}
+		listener.SetProtocol(port.Protocol)
+		listener.SetLoadBalancerPort(port.HostPort)
+		listener.SetInstancePort(port.ContainerPort)
+
+		if port.CertificateName != "" {
+			certificateARN, err := l.lookupCertificateARN(port.CertificateName)
+			if err != nil {
+				return nil, err
+			}
+
+			listener.SetSSLCertificateId(certificateARN)
+		}
+
+		// terminate ssl/https on load balancer
+		switch strings.ToLower(port.Protocol) {
+		case "http", "https":
+			listener.SetInstanceProtocol("http")
+		case "tcp", "ssl":
+			listener.SetInstanceProtocol("tcp")
+		default:
+			return nil, fmt.Errorf("Unrecognized procotol '%s'", port.Protocol)
+		}
+
+		listeners[i] = listener
+	}
+
+	return listeners, nil
 }
 
 func (l *LoadBalancerProvider) lookupCertificateARN(certificateName string) (string, error) {

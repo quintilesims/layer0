@@ -3,8 +3,38 @@ package aws
 import (
 	"testing"
 
+	"github.com/quintilesims/layer0/common/db/tag_store"
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
+
+func TestLoadBalancer_createTags(t *testing.T) {
+	tagStore := tag_store.NewMemoryTagStore()
+	loadBalancer := NewLoadBalancerProvider(nil, tagStore, nil)
+
+	if err := loadBalancer.createTags("lb_id", "lb_name", "env_id"); err != nil {
+		t.Fatal(err)
+	}
+
+	expectedTags := models.Tags{
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "name",
+			Value:      "lb_name",
+		},
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "environment_id",
+			Value:      "env_id",
+		},
+	}
+
+	for _, tag := range expectedTags {
+		assert.Contains(t, tagStore.Tags(), tag)
+	}
+}
 
 func TestLoadBalancer_renderLoadBalancerRolePolicy(t *testing.T) {
 	template := "{{ .Region }} {{ .AccountID }} {{ .LoadBalancerID }}"

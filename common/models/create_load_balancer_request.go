@@ -23,6 +23,16 @@ func (c CreateLoadBalancerRequest) Validate() error {
 		return fmt.Errorf("Environment ID is required")
 	}
 
+	for _, port := range c.Ports {
+		if err := port.Validate(); err != nil {
+			return err
+		}
+	}
+
+	if err := c.HealthCheck.Validate(); err != nil {
+		return err
+	}
+
 	return nil
 }
 

@@ -87,16 +87,5 @@ func (l *LoadBalancerProvider) deleteTags(loadBalancerID string) error {
 		}
 	}
 
-	serviceTags, err := l.TagStore.SelectByType("service")
-	if err != nil {
-		return err
-	}
-
-	for _, tag := range serviceTags.WithKey("load_balancer_id").WithValue(loadBalancerID) {
-		if err := l.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }

@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
+	"github.com/quintilesims/layer0/common/db/tag_store"
 )
 
 func createSG(ec2api ec2iface.EC2API, groupName, description, vpcID string) error {
@@ -54,6 +55,21 @@ func deleteSG(ec2api ec2iface.EC2API, securityGroupID string) error {
 
 	if _, err := ec2api.DeleteSecurityGroup(input); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func deleteEntityTags(tagStore tag_store.TagStore, entityType, entityID string) error {
+	tags, err := tagStore.SelectByTypeAndID(entityType, entityID)
+	if err != nil {
+		return err
+	}
+
+	for _, tag := range tags {
+		if err := tagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
+			return err
+		}
 	}
 
 	return nil
