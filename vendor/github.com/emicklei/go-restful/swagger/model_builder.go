@@ -13,20 +13,7 @@ type ModelBuildable interface {
 }
 
 type modelBuilder struct {
-	Models *ModelList
-}
-
-type documentable interface {
-	SwaggerDoc() map[string]string
-}
-
-// Check if this structure has a method with signature func (<theModel>) SwaggerDoc() map[string]string
-// If it exists, retrive the documentation and overwrite all struct tag descriptions
-func getDocFromMethodSwaggerDoc2(model reflect.Type) map[string]string {
-	if docable, ok := reflect.New(model).Elem().Interface().(documentable); ok {
-		return docable.SwaggerDoc()
-	}
-	return make(map[string]string)
+	Models map[string]Model
 }
 
 // addModelFrom creates and adds a Model to the builder and detects and calls
@@ -36,7 +23,7 @@ func (b modelBuilder) addModelFrom(sample interface{}) {
 		// allow customizations
 		if buildable, ok := sample.(ModelBuildable); ok {
 			modelOrNil = buildable.PostBuildModel(modelOrNil)
-			b.Models.Put(modelOrNil.Id, *modelOrNil)
+			b.Models[modelOrNil.Id] = *modelOrNil
 		}
 	}
 }
@@ -51,16 +38,16 @@ func (b modelBuilder) addModel(st reflect.Type, nameOverride string) *Model {
 		return nil
 	}
 	// see if we already have visited this model
-	if _, ok := b.Models.At(modelName); ok {
+	if _, ok := b.Models[modelName]; ok {
 		return nil
 	}
 	sm := Model{
 		Id:         modelName,
 		Required:   []string{},
-		Properties: ModelPropertyList{}}
+		Properties: map[string]ModelProperty{}}
 
 	// reference the model before further initializing (enables recursive structs)
-	b.Models.Put(modelName, sm)
+	b.Models[modelName] = sm
 
 	// check for slice or array
 	if st.Kind() == reflect.Slice || st.Kind() == reflect.Array {
@@ -71,41 +58,23 @@ func (b modelBuilder) addModel(st reflect.Type, nameOverride string) *Model {
 	if st.Kind() != reflect.Struct {
 		return &sm
 	}
-
-	fullDoc := getDocFromMethodSwaggerDoc2(st)
-	modelDescriptions := []string{}
-
 	for i := 0; i < st.NumField(); i++ {
 		field := st.Field(i)
-		jsonName, modelDescription, prop := b.buildProperty(field, &sm, modelName)
-		if len(modelDescription) > 0 {
-			modelDescriptions = append(modelDescriptions, modelDescription)
+		jsonName, prop := b.buildProperty(field, &sm, modelName)
+		if descTag := field.Tag.Get("description"); descTag != "" {
+			prop.Description = descTag
 		}
-
-		// add if not omitted
+		// add if not ommitted
 		if len(jsonName) != 0 {
-			// update description
-			if fieldDoc, ok := fullDoc[jsonName]; ok {
-				prop.Description = fieldDoc
-			}
 			// update Required
 			if b.isPropertyRequired(field) {
 				sm.Required = append(sm.Required, jsonName)
 			}
-			sm.Properties.Put(jsonName, prop)
+			sm.Properties[jsonName] = prop
 		}
 	}
-
-	// We always overwrite documentation if SwaggerDoc method exists
-	// "" is special for documenting the struct itself
-	if modelDoc, ok := fullDoc[""]; ok {
-		sm.Description = modelDoc
-	} else if len(modelDescriptions) != 0 {
-		sm.Description = strings.Join(modelDescriptions, "\n")
-	}
-
 	// update model builder with completed model
-	b.Models.Put(modelName, sm)
+	b.Models[modelName] = sm
 
 	return &sm
 }
@@ -121,20 +90,11 @@ func (b modelBuilder) isPropertyRequired(field reflect.StructField) bool {
 	return required
 }
 
-func (b modelBuilder) buildProperty(field reflect.StructField, model *Model, modelName string) (jsonName, modelDescription string, prop ModelProperty) {
+func (b modelBuilder) buildProperty(field reflect.StructField, model *Model, modelName string) (jsonName string, prop ModelProperty) {
 	jsonName = b.jsonNameOfField(field)
 	if len(jsonName) == 0 {
 		// empty name signals skip property
-		return "", "", prop
-	}
-
-	if tag := field.Tag.Get("modelDescription"); tag != "" {
-		modelDescription = tag
-	}
-
-	prop.setPropertyMetadata(field)
-	if prop.Type != nil {
-		return jsonName, modelDescription, prop
+		return "", prop
 	}
 	fieldType := field.Type
 
@@ -142,13 +102,9 @@ func (b modelBuilder) buildProperty(field reflect.StructField, model *Model, mod
 	marshalerType := reflect.TypeOf((*json.Marshaler)(nil)).Elem()
 	if fieldType.Implements(marshalerType) {
 		var pType = "string"
-		if prop.Type == nil {
-			prop.Type = &pType
-		}
-		if prop.Format == "" {
-			prop.Format = b.jsonSchemaFormat(fieldType.String())
-		}
-		return jsonName, modelDescription, prop
+		prop.Type = &pType
+		prop.Format = b.jsonSchemaFormat(fieldType.String())
+		return jsonName, prop
 	}
 
 	// check if annotation says it is a string
@@ -157,37 +113,34 @@ func (b modelBuilder) buildProperty(field reflect.StructField, model *Model, mod
 		if len(s) > 1 && s[1] == "string" {
 			stringt := "string"
 			prop.Type = &stringt
-			return jsonName, modelDescription, prop
+			return jsonName, prop
 		}
 	}
 
 	fieldKind := fieldType.Kind()
 	switch {
 	case fieldKind == reflect.Struct:
-		jsonName, prop := b.buildStructTypeProperty(field, jsonName, model)
-		return jsonName, modelDescription, prop
+		return b.buildStructTypeProperty(field, jsonName, model)
 	case fieldKind == reflect.Slice || fieldKind == reflect.Array:
-		jsonName, prop := b.buildArrayTypeProperty(field, jsonName, modelName)
-		return jsonName, modelDescription, prop
+		return b.buildArrayTypeProperty(field, jsonName, modelName)
 	case fieldKind == reflect.Ptr:
-		jsonName, prop := b.buildPointerTypeProperty(field, jsonName, modelName)
-		return jsonName, modelDescription, prop
+		return b.buildPointerTypeProperty(field, jsonName, modelName)
 	case fieldKind == reflect.String:
 		stringt := "string"
 		prop.Type = &stringt
-		return jsonName, modelDescription, prop
+		return jsonName, prop
 	case fieldKind == reflect.Map:
 		// if it's a map, it's unstructured, and swagger 1.2 can't handle it
 		anyt := "any"
 		prop.Type = &anyt
-		return jsonName, modelDescription, prop
+		return jsonName, prop
 	}
 
 	if b.isPrimitiveType(fieldType.String()) {
 		mapped := b.jsonSchemaType(fieldType.String())
 		prop.Type = &mapped
 		prop.Format = b.jsonSchemaFormat(fieldType.String())
-		return jsonName, modelDescription, prop
+		return jsonName, prop
 	}
 	modelType := fieldType.String()
 	prop.Ref = &modelType
@@ -197,7 +150,7 @@ func (b modelBuilder) buildProperty(field reflect.StructField, model *Model, mod
 		prop.Ref = &nestedTypeName
 		b.addModel(fieldType, nestedTypeName)
 	}
-	return jsonName, modelDescription, prop
+	return jsonName, prop
 }
 
 func hasNamedJSONTag(field reflect.StructField) bool {
@@ -214,11 +167,6 @@ func hasNamedJSONTag(field reflect.StructField) bool {
 }
 
 func (b modelBuilder) buildStructTypeProperty(field reflect.StructField, jsonName string, model *Model) (nameJson string, prop ModelProperty) {
-	prop.setPropertyMetadata(field)
-	// Check for type override in tag
-	if prop.Type != nil {
-		return jsonName, prop
-	}
 	fieldType := field.Type
 	// check for anonymous
 	if len(fieldType.Name()) == 0 {
@@ -231,13 +179,13 @@ func (b modelBuilder) buildStructTypeProperty(field reflect.StructField, jsonNam
 
 	if field.Name == fieldType.Name() && field.Anonymous && !hasNamedJSONTag(field) {
 		// embedded struct
-		sub := modelBuilder{new(ModelList)}
+		sub := modelBuilder{map[string]Model{}}
 		sub.addModel(fieldType, "")
 		subKey := sub.keyFrom(fieldType)
 		// merge properties from sub
-		subModel, _ := sub.Models.At(subKey)
-		subModel.Properties.Do(func(k string, v ModelProperty) {
-			model.Properties.Put(k, v)
+		subModel := sub.Models[subKey]
+		for k, v := range subModel.Properties {
+			model.Properties[k] = v
 			// if subModel says this property is required then include it
 			required := false
 			for _, each := range subModel.Required {
@@ -249,15 +197,15 @@ func (b modelBuilder) buildStructTypeProperty(field reflect.StructField, jsonNam
 			if required {
 				model.Required = append(model.Required, k)
 			}
-		})
+		}
 		// add all new referenced models
-		sub.Models.Do(func(key string, sub Model) {
+		for key, sub := range sub.Models {
 			if key != subKey {
-				if _, ok := b.Models.At(key); !ok {
-					b.Models.Put(key, sub)
+				if _, ok := b.Models[key]; !ok {
+					b.Models[key] = sub
 				}
 			}
-		})
+		}
 		// empty name signals skip property
 		return "", prop
 	}
@@ -269,11 +217,6 @@ func (b modelBuilder) buildStructTypeProperty(field reflect.StructField, jsonNam
 }
 
 func (b modelBuilder) buildArrayTypeProperty(field reflect.StructField, jsonName, modelName string) (nameJson string, prop ModelProperty) {
-	// check for type override in tags
-	prop.setPropertyMetadata(field)
-	if prop.Type != nil {
-		return jsonName, prop
-	}
 	fieldType := field.Type
 	var pType = "array"
 	prop.Type = &pType
@@ -294,11 +237,6 @@ func (b modelBuilder) buildArrayTypeProperty(field reflect.StructField, jsonName
 }
 
 func (b modelBuilder) buildPointerTypeProperty(field reflect.StructField, jsonName, modelName string) (nameJson string, prop ModelProperty) {
-	prop.setPropertyMetadata(field)
-	// Check for type override in tags
-	if prop.Type != nil {
-		return jsonName, prop
-	}
 	fieldType := field.Type
 
 	// override type of pointer to list-likes
@@ -352,7 +290,7 @@ func (b modelBuilder) keyFrom(st reflect.Type) string {
 
 // see also https://golang.org/ref/spec#Numeric_types
 func (b modelBuilder) isPrimitiveType(modelName string) bool {
-	return strings.Contains("uint uint8 uint16 uint32 uint64 int int8 int16 int32 int64 float32 float64 bool string byte rune time.Time", modelName)
+	return strings.Contains("uint8 uint16 uint32 uint64 int int8 int16 int32 int64 float32 float64 bool string byte rune time.Time", modelName)
 }
 
 // jsonNameOfField returns the name of the field as it should appear in JSON format
@@ -373,7 +311,6 @@ func (b modelBuilder) jsonNameOfField(field reflect.StructField) string {
 // see also http://json-schema.org/latest/json-schema-core.html#anchor8
 func (b modelBuilder) jsonSchemaType(modelName string) string {
 	schemaMap := map[string]string{
-		"uint":   "integer",
 		"uint8":  "integer",
 		"uint16": "integer",
 		"uint32": "integer",
@@ -404,7 +341,6 @@ func (b modelBuilder) jsonSchemaFormat(modelName string) string {
 		"int32":      "int32",
 		"int64":      "int64",
 		"byte":       "byte",
-		"uint":       "integer",
 		"uint8":      "byte",
 		"float64":    "double",
 		"float32":    "float",

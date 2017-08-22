@@ -24,7 +24,7 @@ const (
 	// ErrCodeRead is an error that is returned during HTTP reads.
 	ErrCodeRead = "ReadError"
 
-	// ErrCodeResponseTimeout is the connection timeout error that is received
+	// ErrCodeResponseTimeout is the connection timeout error that is recieved
 	// during body reads.
 	ErrCodeResponseTimeout = "ResponseTimeout"
 
@@ -338,7 +338,10 @@ func (r *Request) Sign() error {
 	return r.Error
 }
 
-func (r *Request) getNextRequestBody() (io.ReadCloser, error) {
+// ResetBody rewinds the request body backto its starting position, and
+// set's the HTTP Request body reference. When the body is read prior
+// to being sent in the HTTP request it will need to be rewound.
+func (r *Request) ResetBody() {
 	if r.safeBody != nil {
 		r.safeBody.Close()
 	}
@@ -360,14 +363,14 @@ func (r *Request) getNextRequestBody() (io.ReadCloser, error) {
 	// Related golang/go#18257
 	l, err := computeBodyLength(r.Body)
 	if err != nil {
-		return nil, awserr.New(ErrCodeSerialization, "failed to compute request body size", err)
+		r.Error = awserr.New(ErrCodeSerialization, "failed to compute request body size", err)
+		return
 	}
 
-	var body io.ReadCloser
 	if l == 0 {
-		body = NoBody
+		r.HTTPRequest.Body = noBodyReader
 	} else if l > 0 {
-		body = r.safeBody
+		r.HTTPRequest.Body = r.safeBody
 	} else {
 		// Hack to prevent sending bodies for methods where the body
 		// should be ignored by the server. Sending bodies on these
@@ -379,13 +382,11 @@ func (r *Request) getNextRequestBody() (io.ReadCloser, error) {
 		// a io.Reader that was not also an io.Seeker.
 		switch r.Operation.HTTPMethod {
 		case "GET", "HEAD", "DELETE":
-			body = NoBody
+			r.HTTPRequest.Body = noBodyReader
 		default:
-			body = r.safeBody
+			r.HTTPRequest.Body = r.safeBody
 		}
 	}
-
-	return body, nil
 }
 
 // Attempts to compute the length of the body of the reader using the
@@ -487,7 +488,7 @@ func (r *Request) Send() error {
 			r.Handlers.Retry.Run(r)
 			r.Handlers.AfterRetry.Run(r)
 			if r.Error != nil {
-				debugLogReqError(r, "Send Request", false, err)
+				debugLogReqError(r, "Send Request", false, r.Error)
 				return r.Error
 			}
 			debugLogReqError(r, "Send Request", true, err)
@@ -496,13 +497,12 @@ func (r *Request) Send() error {
 		r.Handlers.UnmarshalMeta.Run(r)
 		r.Handlers.ValidateResponse.Run(r)
 		if r.Error != nil {
-			r.Handlers.UnmarshalError.Run(r)
 			err := r.Error
-
+			r.Handlers.UnmarshalError.Run(r)
 			r.Handlers.Retry.Run(r)
 			r.Handlers.AfterRetry.Run(r)
 			if r.Error != nil {
-				debugLogReqError(r, "Validate Response", false, err)
+				debugLogReqError(r, "Validate Response", false, r.Error)
 				return r.Error
 			}
 			debugLogReqError(r, "Validate Response", true, err)
@@ -515,7 +515,7 @@ func (r *Request) Send() error {
 			r.Handlers.Retry.Run(r)
 			r.Handlers.AfterRetry.Run(r)
 			if r.Error != nil {
-				debugLogReqError(r, "Unmarshal Response", false, err)
+				debugLogReqError(r, "Unmarshal Response", false, r.Error)
 				return r.Error
 			}
 			debugLogReqError(r, "Unmarshal Response", true, err)

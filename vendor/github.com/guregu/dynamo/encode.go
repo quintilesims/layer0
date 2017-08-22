@@ -9,7 +9,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
 // Marshaler is the interface implemented by objects that can marshal themselves into
@@ -101,13 +100,8 @@ func Marshal(v interface{}) (*dynamodb.AttributeValue, error) {
 
 func marshal(v interface{}, special string) (*dynamodb.AttributeValue, error) {
 	switch x := v.(type) {
-	case *dynamodb.AttributeValue:
-		return x, nil
 	case Marshaler:
 		return x.MarshalDynamo()
-	case dynamodbattribute.Marshaler:
-		av := &dynamodb.AttributeValue{}
-		return av, x.MarshalDynamoDBAttributeValue(av)
 	case encoding.TextMarshaler:
 		text, err := x.MarshalText()
 		if err != nil {
@@ -176,16 +170,7 @@ func marshalReflect(rv reflect.Value, special string) (*dynamodb.AttributeValue,
 			if rv.Len() == 0 {
 				return nil, nil
 			}
-			var data []byte
-			if rv.Kind() == reflect.Array {
-				data = make([]byte, rv.Len())
-				for i := 0; i < rv.Len(); i++ {
-					data[i] = rv.Index(i).Interface().(byte)
-				}
-			} else {
-				data = rv.Bytes()
-			}
-			return &dynamodb.AttributeValue{B: data}, nil
+			return &dynamodb.AttributeValue{B: rv.Bytes()}, nil
 		}
 
 		// sets

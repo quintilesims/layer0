@@ -7,7 +7,7 @@ import (
 )
 
 // PostBuildDeclarationMapFunc can be used to modify the api declaration map.
-type PostBuildDeclarationMapFunc func(apiDeclarationMap *ApiDeclarationList)
+type PostBuildDeclarationMapFunc func(apiDeclarationMap map[string]ApiDeclaration)
 
 type Config struct {
 	// url where the services are available, e.g. http://localhost:8080
@@ -29,6 +29,4 @@ type Config struct {
 	ApiVersion string
 	// If set then call this handler after building the complete ApiDeclaration Map
 	PostBuildHandler PostBuildDeclarationMapFunc
-	// Swagger global info struct
-	Info Info
 }

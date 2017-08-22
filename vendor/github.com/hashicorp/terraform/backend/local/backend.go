@@ -20,8 +20,8 @@ import (
 )
 
 const (
-	DefaultWorkspaceDir    = "terraform.tfstate.d"
-	DefaultWorkspaceFile   = "environment"
+	DefaultEnvDir          = "terraform.tfstate.d"
+	DefaultEnvFile         = "environment"
 	DefaultStateFilename   = "terraform.tfstate"
 	DefaultDataDir         = ".terraform"
 	DefaultBackupExtension = ".backup"
@@ -36,8 +36,8 @@ type Local struct {
 	CLI      cli.Ui
 	CLIColor *colorstring.Colorize
 
-	// The State* paths are set from the backend config, and may be left blank
-	// to use the defaults. If the actual paths for the local backend state are
+	// The State* paths are set from the CLI options, and may be left blank to
+	// use the defaults. If the actual paths for the local backend state are
 	// needed, use the StatePaths method.
 	//
 	// StatePath is the local path where state is read from.
@@ -48,12 +48,12 @@ type Local struct {
 	// StateBackupPath is the local path where a backup file will be written.
 	// Set this to "-" to disable state backup.
 	//
-	// StateWorkspaceDir is the path to the folder containing data for
-	// non-default workspaces. This defaults to DefaultWorkspaceDir if not set.
-	StatePath         string
-	StateOutPath      string
-	StateBackupPath   string
-	StateWorkspaceDir string
+	// StateEnvPath is the path to the folder containing environments. This
+	// defaults to DefaultEnvDir if not set.
+	StatePath       string
+	StateOutPath    string
+	StateBackupPath string
+	StateEnvDir     string
 
 	// We only want to create a single instance of a local state, so store them
 	// here as they're loaded.
@@ -127,7 +127,7 @@ func (b *Local) States() ([]string, error) {
 	// the listing always start with "default"
 	envs := []string{backend.DefaultStateName}
 
-	entries, err := ioutil.ReadDir(b.stateWorkspaceDir())
+	entries, err := ioutil.ReadDir(DefaultEnvDir)
 	// no error if there's no envs configured
 	if os.IsNotExist(err) {
 		return envs, nil
@@ -166,34 +166,13 @@ func (b *Local) DeleteState(name string) error {
 	}
 
 	delete(b.states, name)
-	return os.RemoveAll(filepath.Join(b.stateWorkspaceDir(), name))
+	return os.RemoveAll(filepath.Join(DefaultEnvDir, name))
 }
 
 func (b *Local) State(name string) (state.State, error) {
-	statePath, stateOutPath, backupPath := b.StatePaths(name)
-
 	// If we have a backend handling state, defer to that.
 	if b.Backend != nil {
-		s, err := b.Backend.State(name)
-		if err != nil {
-			return nil, err
-		}
-
-		// make sure we always have a backup state, unless it disabled
-		if backupPath == "" {
-			return s, nil
-		}
-
-		// see if the delegated backend returned a BackupState of its own
-		if s, ok := s.(*state.BackupState); ok {
-			return s, nil
-		}
-
-		s = &state.BackupState{
-			Real: s,
-			Path: backupPath,
-		}
-		return s, nil
+		return b.Backend.State(name)
 	}
 
 	if s, ok := b.states[name]; ok {
@@ -203,6 +182,8 @@ func (b *Local) State(name string) (state.State, error) {
 	if err := b.createState(name); err != nil {
 		return nil, err
 	}
+
+	statePath, stateOutPath, backupPath := b.StatePaths(name)
 
 	// Otherwise, we need to load the state.
 	var s state.State = &state.LocalState{
@@ -286,25 +267,16 @@ func (b *Local) Colorize() *colorstring.Colorize {
 func (b *Local) init() {
 	b.schema = &schema.Backend{
 		Schema: map[string]*schema.Schema{
-			"path": &schema.Schema{
+			"path": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
 			},
 
-			"workspace_dir": &schema.Schema{
+			"environment_dir": {
 				Type:     schema.TypeString,
 				Optional: true,
 				Default:  "",
-			},
-
-			"environment_dir": &schema.Schema{
-				Type:          schema.TypeString,
-				Optional:      true,
-				Default:       "",
-				ConflictsWith: []string{"workspace_dir"},
-
-				Deprecated: "workspace_dir should be used instead, with the same meaning",
 			},
 		},
 
@@ -327,18 +299,10 @@ func (b *Local) schemaConfigure(ctx context.Context) error {
 		b.StateOutPath = path
 	}
 
-	if raw, ok := d.GetOk("workspace_dir"); ok {
-		path := raw.(string)
-		if path != "" {
-			b.StateWorkspaceDir = path
-		}
-	}
-
-	// Legacy name, which ConflictsWith workspace_dir
 	if raw, ok := d.GetOk("environment_dir"); ok {
 		path := raw.(string)
 		if path != "" {
-			b.StateWorkspaceDir = path
+			b.StateEnvDir = path
 		}
 	}
 
@@ -356,12 +320,17 @@ func (b *Local) StatePaths(name string) (string, string, string) {
 		name = backend.DefaultStateName
 	}
 
+	envDir := DefaultEnvDir
+	if b.StateEnvDir != "" {
+		envDir = b.StateEnvDir
+	}
+
 	if name == backend.DefaultStateName {
 		if statePath == "" {
 			statePath = DefaultStateFilename
 		}
 	} else {
-		statePath = filepath.Join(b.stateWorkspaceDir(), name, DefaultStateFilename)
+		statePath = filepath.Join(envDir, name, DefaultStateFilename)
 	}
 
 	if stateOutPath == "" {
@@ -384,7 +353,12 @@ func (b *Local) createState(name string) error {
 		return nil
 	}
 
-	stateDir := filepath.Join(b.stateWorkspaceDir(), name)
+	envDir := DefaultEnvDir
+	if b.StateEnvDir != "" {
+		envDir = b.StateEnvDir
+	}
+
+	stateDir := filepath.Join(envDir, name)
 	s, err := os.Stat(stateDir)
 	if err == nil && s.IsDir() {
 		// no need to check for os.IsNotExist, since that is covered by os.MkdirAll
@@ -400,33 +374,21 @@ func (b *Local) createState(name string) error {
 	return nil
 }
 
-// stateWorkspaceDir returns the directory where state environments are stored.
-func (b *Local) stateWorkspaceDir() string {
-	if b.StateWorkspaceDir != "" {
-		return b.StateWorkspaceDir
+// currentStateName returns the name of the current named state as set in the
+// configuration files.
+// If there are no configured environments, currentStateName returns "default"
+func (b *Local) currentStateName() (string, error) {
+	contents, err := ioutil.ReadFile(filepath.Join(DefaultDataDir, DefaultEnvFile))
+	if os.IsNotExist(err) {
+		return backend.DefaultStateName, nil
+	}
+	if err != nil {
+		return "", err
 	}
 
-	return DefaultWorkspaceDir
+	if fromFile := strings.TrimSpace(string(contents)); fromFile != "" {
+		return fromFile, nil
+	}
+
+	return backend.DefaultStateName, nil
 }
-
-func (b *Local) pluginInitRequired(providerErr *terraform.ResourceProviderError) {
-	b.CLI.Output(b.Colorize().Color(fmt.Sprintf(
-		strings.TrimSpace(errPluginInit)+"\n",
-		providerErr)))
-}
-
-// this relies on multierror to format the plugin errors below the copy
-const errPluginInit = `
-[reset][bold][yellow]Plugin reinitialization required. Please run "terraform init".[reset]
-[yellow]Reason: Could not satisfy plugin requirements.
-
-Plugins are external binaries that Terraform uses to access and manipulate
-resources. The configuration provided requires plugins which can't be located,
-don't satisfy the version constraints, or are otherwise incompatible.
-
-[reset][red]%s
-
-[reset][yellow]Terraform automatically discovers provider requirements from your
-configuration, including providers used in child modules. To see the
-requirements and constraints from each module, run "terraform providers".
-`

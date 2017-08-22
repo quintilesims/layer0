@@ -15,10 +15,7 @@ type StateMvCommand struct {
 }
 
 func (c *StateMvCommand) Run(args []string) int {
-	args, err := c.Meta.process(args, true)
-	if err != nil {
-		return 1
-	}
+	args = c.Meta.process(args, true)
 
 	// We create two metas to track the two states
 	var meta1, meta2 Meta
@@ -136,7 +133,7 @@ func (c *StateMvCommand) Run(args []string) int {
 }
 
 // addableResult takes the result from a filter operation and returns what to
-// call State.Add with. The reason we do this is because in the module case
+// call State.Add with. The reason we do this is beacuse in the module case
 // we must add the list of all modules returned versus just the root module.
 func (c *StateMvCommand) addableResult(results []*terraform.StateFilterResult) interface{} {
 	switch v := results[0].Value.(type) {
@@ -206,7 +203,8 @@ Options:
   -backup=PATH        Path where Terraform should write the backup for the original
                       state. This can't be disabled. If not set, Terraform
                       will write it to the same path as the statefile with
-                      a backup extension.
+                      a backup extension. This backup will be made in addition
+                      to the timestamped backup.
 
   -backup-out=PATH    Path where Terraform should write the backup for the destination
                       state. This can't be disabled. If not set, Terraform

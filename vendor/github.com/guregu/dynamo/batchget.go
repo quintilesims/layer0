@@ -2,8 +2,8 @@ package dynamo
 
 import (
 	"fmt"
+	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/cenkalti/backoff"
 )
@@ -168,12 +168,6 @@ func newBGIter(bg *BatchGet, fn unmarshalFunc, err error) *bgIter {
 // Next tries to unmarshal the next result into out.
 // Returns false when it is complete or if it runs into an error.
 func (itr *bgIter) Next(out interface{}) bool {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return itr.NextWithContext(ctx, out)
-}
-
-func (itr *bgIter) NextWithContext(ctx aws.Context, out interface{}) bool {
 	// stop if we have an error
 	if itr.err != nil {
 		return false
@@ -208,18 +202,14 @@ func (itr *bgIter) NextWithContext(ctx aws.Context, out interface{}) bool {
 			// no, prepare a new request with the remaining keys
 			itr.input.RequestItems = itr.output.UnprocessedKeys
 			// we need to sleep here a bit as per the official docs
-			if err := aws.SleepWithContext(ctx, itr.backoff.NextBackOff()); err != nil {
-				// timed out
-				itr.err = err
-				return false
-			}
+			time.Sleep(itr.backoff.NextBackOff())
 		}
 		itr.idx = 0
 	}
 
-	itr.err = retry(ctx, func() error {
+	itr.err = retry(func() error {
 		var err error
-		itr.output, err = itr.bg.batch.table.db.client.BatchGetItemWithContext(ctx, itr.input)
+		itr.output, err = itr.bg.batch.table.db.client.BatchGetItem(itr.input)
 		return err
 	})
 

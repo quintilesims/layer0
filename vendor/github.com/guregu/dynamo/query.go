@@ -117,15 +117,8 @@ func (q *Query) Index(name string) *Query {
 
 // Project limits the result attributes to the given paths.
 func (q *Query) Project(paths ...string) *Query {
-	var expr string
-	for i, p := range paths {
-		if i != 0 {
-			expr += ", "
-		}
-		name, err := q.escape(p)
-		q.setError(err)
-		expr += name
-	}
+	expr, err := q.subExpr(strings.Join(paths, ", "), nil)
+	q.setError(err)
 	q.projection = expr
 	return q
 }
@@ -174,12 +167,6 @@ func (q *Query) Order(order Order) *Query {
 // One executes this query and retrieves a single result,
 // unmarshaling the result to out.
 func (q *Query) One(out interface{}) error {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return q.OneWithContext(ctx, out)
-}
-
-func (q *Query) OneWithContext(ctx aws.Context, out interface{}) error {
 	if q.err != nil {
 		return q.err
 	}
@@ -189,9 +176,9 @@ func (q *Query) OneWithContext(ctx aws.Context, out interface{}) error {
 		req := q.getItemInput()
 
 		var res *dynamodb.GetItemOutput
-		err := retry(ctx, func() error {
+		err := retry(func() error {
 			var err error
-			res, err = q.table.db.client.GetItemWithContext(ctx, req)
+			res, err = q.table.db.client.GetItem(req)
 			if err != nil {
 				return err
 			}
@@ -211,9 +198,9 @@ func (q *Query) OneWithContext(ctx aws.Context, out interface{}) error {
 	req := q.queryInput()
 
 	var res *dynamodb.QueryOutput
-	err := retry(ctx, func() error {
+	err := retry(func() error {
 		var err error
-		res, err = q.table.db.client.QueryWithContext(ctx, req)
+		res, err = q.table.db.client.Query(req)
 		if err != nil {
 			return err
 		}
@@ -238,12 +225,6 @@ func (q *Query) OneWithContext(ctx aws.Context, out interface{}) error {
 
 // Count executes this request, returning the number of results.
 func (q *Query) Count() (int64, error) {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return q.CountWithContext(ctx)
-}
-
-func (q *Query) CountWithContext(ctx aws.Context) (int64, error) {
 	if q.err != nil {
 		return 0, q.err
 	}
@@ -254,9 +235,9 @@ func (q *Query) CountWithContext(ctx aws.Context) (int64, error) {
 		req := q.queryInput()
 		req.Select = selectCount
 
-		err := retry(ctx, func() error {
+		err := retry(func() error {
 			var err error
-			res, err = q.table.db.client.QueryWithContext(ctx, req)
+			res, err = q.table.db.client.Query(req)
 			if err != nil {
 				return err
 			}
@@ -294,12 +275,6 @@ type queryIter struct {
 // Next tries to unmarshal the next result into out.
 // Returns false when it is complete or if it runs into an error.
 func (itr *queryIter) Next(out interface{}) bool {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return itr.NextWithContext(ctx, out)
-}
-
-func (itr *queryIter) NextWithContext(ctx aws.Context, out interface{}) bool {
 	// stop if we have an error
 	if itr.err != nil {
 		return false
@@ -334,9 +309,9 @@ func (itr *queryIter) NextWithContext(ctx aws.Context, out interface{}) bool {
 		itr.idx = 0
 	}
 
-	itr.err = retry(ctx, func() error {
+	itr.err = retry(func() error {
 		var err error
-		itr.output, err = itr.query.table.db.client.QueryWithContext(ctx, itr.input)
+		itr.output, err = itr.query.table.db.client.Query(itr.input)
 		return err
 	})
 
@@ -429,7 +404,7 @@ func (q *Query) queryInput() *dynamodb.QueryInput {
 
 func (q *Query) keyConditions() map[string]*dynamodb.Condition {
 	conds := map[string]*dynamodb.Condition{
-		q.hashKey: &dynamodb.Condition{
+		q.hashKey: {
 			AttributeValueList: []*dynamodb.AttributeValue{q.hashValue},
 			ComparisonOperator: Equal,
 		},
