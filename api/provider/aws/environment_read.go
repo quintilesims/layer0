@@ -38,7 +38,7 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 		AMIID:           aws.StringValue(launchConfig.ImageId),
 	}
 
-	if err := e.readTags(environmentID, model); err != nil {
+	if err := e.populateModelTagss(environmentID, model); err != nil {
 		return nil, err
 	}
 
@@ -81,7 +81,7 @@ func (e *EnvironmentProvider) readASG(autoScalingGroupName string) (*autoscaling
 	return nil, fmt.Errorf("AutoScaling Group '%s' does not exist", autoScalingGroupName)
 }
 
-func (e *EnvironmentProvider) readTags(environmentID string, model *models.Environment) error {
+func (e *EnvironmentProvider) populateModelTagss(environmentID string, model *models.Environment) error {
 	tags, err := e.TagStore.SelectByTypeAndID("environment", environmentID)
 	if err != nil {
 		return err

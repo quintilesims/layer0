@@ -22,7 +22,7 @@ func (e *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 		summaries[i] = summary
 	}
 
-	if err := e.listTags(summaries); err != nil {
+	if err := e.populateSummariesTags(summaries); err != nil {
 		return nil, err
 	}
 
@@ -47,7 +47,7 @@ func (e *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 	return loadBalancerNames, nil
 }
 
-func (e *LoadBalancerProvider) listTags(summaries []models.LoadBalancerSummary) error {
+func (e *LoadBalancerProvider) populateSummariesTags(summaries []models.LoadBalancerSummary) error {
 	environmentTags, err := e.TagStore.SelectByType("environment")
 	if err != nil {
 		return err

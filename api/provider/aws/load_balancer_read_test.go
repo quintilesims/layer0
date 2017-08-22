@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestLoadBalancer_readTags(t *testing.T) {
+func TestLoadBalancer_populateModelTagss(t *testing.T) {
 	tagStore := tag_store.NewMemoryTagStore()
 	loadBalancer := NewLoadBalancerProvider(nil, tagStore, nil)
 
@@ -64,7 +64,7 @@ func TestLoadBalancer_readTags(t *testing.T) {
 	}
 
 	result := &models.LoadBalancer{}
-	if err := loadBalancer.readTags("lid", result); err != nil {
+	if err := loadBalancer.populateModelTagss("lid", result); err != nil {
 		t.Fatal(err)
 	}
 
