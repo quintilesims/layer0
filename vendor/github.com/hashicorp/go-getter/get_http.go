@@ -38,13 +38,6 @@ type HttpGetter struct {
 	Netrc bool
 }
 
-func (g *HttpGetter) ClientMode(u *url.URL) (ClientMode, error) {
-	if strings.HasSuffix(u.Path, "/") {
-		return ClientModeDir, nil
-	}
-	return ClientModeFile, nil
-}
-
 func (g *HttpGetter) Get(dst string, u *url.URL) error {
 	// Copy the URL so we can modify it
 	var newU url.URL = *u
@@ -98,14 +91,6 @@ func (g *HttpGetter) Get(dst string, u *url.URL) error {
 }
 
 func (g *HttpGetter) GetFile(dst string, u *url.URL) error {
-
-	if g.Netrc {
-		// Add auth from netrc if we can
-		if err := addAuthFromNetrc(u); err != nil {
-			return err
-		}
-	}
-
 	resp, err := http.Get(u.String())
 	if err != nil {
 		return err

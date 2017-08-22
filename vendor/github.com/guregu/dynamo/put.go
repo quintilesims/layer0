@@ -1,7 +1,6 @@
 package dynamo
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
@@ -41,31 +40,16 @@ func (p *Put) If(expr string, args ...interface{}) *Put {
 
 // Run executes this put.
 func (p *Put) Run() error {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return p.RunWithContext(ctx)
-}
-
-// Run executes this put.
-func (p *Put) RunWithContext(ctx aws.Context) error {
 	p.returnType = "NONE"
-	_, err := p.run(ctx)
+	_, err := p.run()
 	return err
 }
 
 // OldValue executes this put, unmarshaling the previous value into out.
 // Returns ErrNotFound is there was no previous value.
 func (p *Put) OldValue(out interface{}) error {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return p.OldValueWithContext(ctx, out)
-}
-
-// OldValue executes this put, unmarshaling the previous value into out.
-// Returns ErrNotFound is there was no previous value.
-func (p *Put) OldValueWithContext(ctx aws.Context, out interface{}) error {
 	p.returnType = "ALL_OLD"
-	output, err := p.run(ctx)
+	output, err := p.run()
 	switch {
 	case err != nil:
 		return err
@@ -75,14 +59,14 @@ func (p *Put) OldValueWithContext(ctx aws.Context, out interface{}) error {
 	return unmarshalItem(output.Attributes, out)
 }
 
-func (p *Put) run(ctx aws.Context) (output *dynamodb.PutItemOutput, err error) {
+func (p *Put) run() (output *dynamodb.PutItemOutput, err error) {
 	if p.err != nil {
 		return nil, p.err
 	}
 
 	req := p.input()
-	retry(ctx, func() error {
-		output, err = p.table.db.client.PutItemWithContext(ctx, req)
+	retry(func() error {
+		output, err = p.table.db.client.PutItem(req)
 		return err
 	})
 	return

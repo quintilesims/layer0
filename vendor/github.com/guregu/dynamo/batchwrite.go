@@ -2,8 +2,8 @@ package dynamo
 
 import (
 	"math"
+	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/cenkalti/backoff"
 )
@@ -59,12 +59,6 @@ func (bw *BatchWrite) Delete(keys ...Keyed) *BatchWrite {
 // some records have been written and some have not. Consult the wrote
 // return amount to figure out which operations have succeeded.
 func (bw *BatchWrite) Run() (wrote int, err error) {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return bw.RunWithContext(ctx)
-}
-
-func (bw *BatchWrite) RunWithContext(ctx aws.Context) (wrote int, err error) {
 	if bw.err != nil {
 		return 0, bw.err
 	}
@@ -72,7 +66,8 @@ func (bw *BatchWrite) RunWithContext(ctx aws.Context) (wrote int, err error) {
 	// TODO: this could be made to be more efficient,
 	// by combining unprocessed items with the next request.
 
-	boff := backoff.WithContext(backoff.NewExponentialBackOff(), ctx)
+	boff := backoff.NewExponentialBackOff()
+	boff.MaxElapsedTime = 0
 	batches := int(math.Ceil(float64(len(bw.ops)) / maxWriteOps))
 	for i := 0; i < batches; i++ {
 		start, end := i*maxWriteOps, (i+1)*maxWriteOps
@@ -83,9 +78,9 @@ func (bw *BatchWrite) RunWithContext(ctx aws.Context) (wrote int, err error) {
 		for {
 			var res *dynamodb.BatchWriteItemOutput
 			req := bw.input(ops)
-			err := retry(ctx, func() error {
+			err := retry(func() error {
 				var err error
-				res, err = bw.batch.table.db.client.BatchWriteItemWithContext(ctx, req)
+				res, err = bw.batch.table.db.client.BatchWriteItem(req)
 				return err
 			})
 			if err != nil {
@@ -98,12 +93,8 @@ func (bw *BatchWrite) RunWithContext(ctx aws.Context) (wrote int, err error) {
 				break
 			}
 			ops = unprocessed
-
 			// need to sleep when re-requesting, per spec
-			if err := aws.SleepWithContext(ctx, boff.NextBackOff()); err != nil {
-				// timed out
-				return wrote, err
-			}
+			time.Sleep(boff.NextBackOff())
 		}
 	}
 

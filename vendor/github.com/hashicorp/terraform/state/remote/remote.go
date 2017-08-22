@@ -51,5 +51,7 @@ var BuiltinClients = map[string]Factory{
 	"gcs":         gcsFactory,
 	"http":        httpFactory,
 	"local":       fileFactory,
+	"s3":          s3Factory,
+	"swift":       swiftFactory,
 	"manta":       mantaFactory,
 }

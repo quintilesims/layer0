@@ -272,9 +272,7 @@ const (
 	// ErrCodeInvalidDBParameterGroupStateFault for service response error code
 	// "InvalidDBParameterGroupState".
 	//
-	// The DB parameter group is in use or is in an invalid state. If you are attempting
-	// to delete the parameter group, you cannot delete it when the parameter group
-	// is in this state.
+	// The DB parameter group cannot be deleted because it is in use.
 	ErrCodeInvalidDBParameterGroupStateFault = "InvalidDBParameterGroupState"
 
 	// ErrCodeInvalidDBSecurityGroupStateFault for service response error code

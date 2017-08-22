@@ -28,15 +28,9 @@ const (
 	// You tried to create more rules or add more targets to a rule than is allowed.
 	ErrCodeLimitExceededException = "LimitExceededException"
 
-	// ErrCodePolicyLengthExceededException for service response error code
-	// "PolicyLengthExceededException".
-	//
-	// The event bus policy is too long. For more information, see the limits.
-	ErrCodePolicyLengthExceededException = "PolicyLengthExceededException"
-
 	// ErrCodeResourceNotFoundException for service response error code
 	// "ResourceNotFoundException".
 	//
-	// An entity that you specified does not exist.
+	// The rule does not exist.
 	ErrCodeResourceNotFoundException = "ResourceNotFoundException"
 )

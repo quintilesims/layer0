@@ -16,7 +16,7 @@ import (
 )
 
 const defaultPeriodicUiTimer = 10 * time.Second
-const maxIdLen = 80
+const maxIdLen = 20
 
 type UiHook struct {
 	terraform.NilHook
@@ -39,8 +39,6 @@ type uiResourceState struct {
 	Start      time.Time
 
 	DoneCh chan struct{} // To be used for cancellation
-
-	done chan struct{} // used to coordinate tests
 }
 
 // uiResourceOp is an enum for operations on a resource
@@ -58,11 +56,6 @@ func (h *UiHook) PreApply(
 	s *terraform.InstanceState,
 	d *terraform.InstanceDiff) (terraform.HookAction, error) {
 	h.once.Do(h.init)
-
-	// if there's no diff, there's nothing to output
-	if d.Empty() {
-		return terraform.HookActionContinue, nil
-	}
 
 	id := n.HumanId()
 
@@ -93,7 +86,7 @@ func (h *UiHook) PreApply(
 
 	dAttrs := d.CopyAttributes()
 	keys := make([]string, 0, len(dAttrs))
-	for key, _ := range dAttrs {
+	for key := range dAttrs {
 		// Skip the ID since we do that specially
 		if key == "id" {
 			continue
@@ -153,7 +146,6 @@ func (h *UiHook) PreApply(
 		Op:         op,
 		Start:      time.Now().Round(time.Second),
 		DoneCh:     make(chan struct{}),
-		done:       make(chan struct{}),
 	}
 
 	h.l.Lock()
@@ -167,7 +159,6 @@ func (h *UiHook) PreApply(
 }
 
 func (h *UiHook) stillApplying(state uiResourceState) {
-	defer close(state.done)
 	for {
 		select {
 		case <-state.DoneCh:

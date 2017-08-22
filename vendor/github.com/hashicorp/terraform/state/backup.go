@@ -1,17 +1,12 @@
 package state
 
-import (
-	"sync"
-
-	"github.com/hashicorp/terraform/terraform"
-)
+import "github.com/hashicorp/terraform/terraform"
 
 // BackupState wraps a State that backs up the state on the first time that
 // a WriteState or PersistState is called.
 //
 // If Path exists, it will be overwritten.
 type BackupState struct {
-	mu   sync.Mutex
 	Real State
 	Path string
 
@@ -27,9 +22,6 @@ func (s *BackupState) RefreshState() error {
 }
 
 func (s *BackupState) WriteState(state *terraform.State) error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	if !s.done {
 		if err := s.backup(); err != nil {
 			return err
@@ -40,9 +32,6 @@ func (s *BackupState) WriteState(state *terraform.State) error {
 }
 
 func (s *BackupState) PersistState() error {
-	s.mu.Lock()
-	defer s.mu.Unlock()
-
 	if !s.done {
 		if err := s.backup(); err != nil {
 			return err
@@ -52,12 +41,19 @@ func (s *BackupState) PersistState() error {
 	return s.Real.PersistState()
 }
 
+// all states get wrapped by BackupState, so it has to be a Locker
 func (s *BackupState) Lock(info *LockInfo) (string, error) {
-	return s.Real.Lock(info)
+	if s, ok := s.Real.(Locker); ok {
+		return s.Lock(info)
+	}
+	return "", nil
 }
 
 func (s *BackupState) Unlock(id string) error {
-	return s.Real.Unlock(id)
+	if s, ok := s.Real.(Locker); ok {
+		return s.Unlock(id)
+	}
+	return nil
 }
 
 func (s *BackupState) backup() error {

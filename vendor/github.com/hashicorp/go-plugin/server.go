@@ -1,8 +1,6 @@
 package plugin
 
 import (
-	"crypto/tls"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"io/ioutil"
@@ -13,10 +11,6 @@ import (
 	"runtime"
 	"strconv"
 	"sync/atomic"
-
-	"github.com/hashicorp/go-hclog"
-
-	"google.golang.org/grpc"
 )
 
 // CoreProtocolVersion is the ProtocolVersion of the plugin system itself.
@@ -51,37 +45,14 @@ type ServeConfig struct {
 	// HandshakeConfig is the configuration that must match clients.
 	HandshakeConfig
 
-	// TLSProvider is a function that returns a configured tls.Config.
-	TLSProvider func() (*tls.Config, error)
-
 	// Plugins are the plugins that are served.
 	Plugins map[string]Plugin
-
-	// GRPCServer should be non-nil to enable serving the plugins over
-	// gRPC. This is a function to create the server when needed with the
-	// given server options. The server options populated by go-plugin will
-	// be for TLS if set. You may modify the input slice.
-	//
-	// Note that the grpc.Server will automatically be registered with
-	// the gRPC health checking service. This is not optional since go-plugin
-	// relies on this to implement Ping().
-	GRPCServer func([]grpc.ServerOption) *grpc.Server
-}
-
-// Protocol returns the protocol that this server should speak.
-func (c *ServeConfig) Protocol() Protocol {
-	result := ProtocolNetRPC
-	if c.GRPCServer != nil {
-		result = ProtocolGRPC
-	}
-
-	return result
 }
 
 // Serve serves the plugins given by ServeConfig.
 //
 // Serve doesn't return until the plugin is done being executed. Any
-// errors will be outputted to os.Stderr.
+// errors will be outputted to the log.
 //
 // This is the method that plugins should call in their main() functions.
 func Serve(opts *ServeConfig) {
@@ -106,13 +77,6 @@ func Serve(opts *ServeConfig) {
 	// Logging goes to the original stderr
 	log.SetOutput(os.Stderr)
 
-	// internal logger to os.Stderr
-	logger := hclog.New(&hclog.LoggerOptions{
-		Level:      hclog.Trace,
-		Output:     os.Stderr,
-		JSONFormat: true,
-	})
-
 	// Create our new stdout, stderr files. These will override our built-in
 	// stdout/stderr so that it works across the stream boundary.
 	stdout_r, stdout_w, err := os.Pipe()
@@ -129,86 +93,26 @@ func Serve(opts *ServeConfig) {
 	// Register a listener so we can accept a connection
 	listener, err := serverListener()
 	if err != nil {
-		logger.Error("plugin init error", "error", err)
+		log.Printf("[ERR] plugin: plugin init: %s", err)
 		return
 	}
+	defer listener.Close()
 
-	// Close the listener on return. We wrap this in a func() on purpose
-	// because the "listener" reference may change to TLS.
-	defer func() {
-		listener.Close()
-	}()
-
-	var tlsConfig *tls.Config
-	if opts.TLSProvider != nil {
-		tlsConfig, err = opts.TLSProvider()
-		if err != nil {
-			logger.Error("plugin tls init", "error", err)
-			return
-		}
+	// Create the RPC server to dispense
+	server := &RPCServer{
+		Plugins: opts.Plugins,
+		Stdout:  stdout_r,
+		Stderr:  stderr_r,
 	}
-
-	// Create the channel to tell us when we're done
-	doneCh := make(chan struct{})
-
-	// Build the server type
-	var server ServerProtocol
-	switch opts.Protocol() {
-	case ProtocolNetRPC:
-		// If we have a TLS configuration then we wrap the listener
-		// ourselves and do it at that level.
-		if tlsConfig != nil {
-			listener = tls.NewListener(listener, tlsConfig)
-		}
-
-		// Create the RPC server to dispense
-		server = &RPCServer{
-			Plugins: opts.Plugins,
-			Stdout:  stdout_r,
-			Stderr:  stderr_r,
-			DoneCh:  doneCh,
-		}
-
-	case ProtocolGRPC:
-		// Create the gRPC server
-		server = &GRPCServer{
-			Plugins: opts.Plugins,
-			Server:  opts.GRPCServer,
-			TLS:     tlsConfig,
-			Stdout:  stdout_r,
-			Stderr:  stderr_r,
-			DoneCh:  doneCh,
-		}
-
-	default:
-		panic("unknown server protocol: " + opts.Protocol())
-	}
-
-	// Initialize the servers
-	if err := server.Init(); err != nil {
-		logger.Error("protocol init", "error", err)
-		return
-	}
-
-	// Build the extra configuration
-	extra := ""
-	if v := server.Config(); v != "" {
-		extra = base64.StdEncoding.EncodeToString([]byte(v))
-	}
-	if extra != "" {
-		extra = "|" + extra
-	}
-
-	logger.Debug("plugin address", "network", listener.Addr().Network(), "address", listener.Addr().String())
 
 	// Output the address and service name to stdout so that core can bring it up.
-	fmt.Printf("%d|%d|%s|%s|%s%s\n",
+	log.Printf("[DEBUG] plugin: plugin address: %s %s\n",
+		listener.Addr().Network(), listener.Addr().String())
+	fmt.Printf("%d|%d|%s|%s\n",
 		CoreProtocolVersion,
 		opts.ProtocolVersion,
 		listener.Addr().Network(),
-		listener.Addr().String(),
-		opts.Protocol(),
-		extra)
+		listener.Addr().String())
 	os.Stdout.Sync()
 
 	// Eat the interrupts
@@ -219,7 +123,9 @@ func Serve(opts *ServeConfig) {
 		for {
 			<-ch
 			newCount := atomic.AddInt32(&count, 1)
-			logger.Debug("plugin received interrupt signal, ignoring", "count", newCount)
+			log.Printf(
+				"[DEBUG] plugin: received interrupt signal (count: %d). Ignoring.",
+				newCount)
 		}
 	}()
 
@@ -227,9 +133,8 @@ func Serve(opts *ServeConfig) {
 	os.Stdout = stdout_w
 	os.Stderr = stderr_w
 
-	// Accept connections and wait for completion
-	go server.Serve(listener)
-	<-doneCh
+	// Serve
+	server.Accept(listener)
 }
 
 func serverListener() (net.Listener, error) {
@@ -278,33 +183,5 @@ func serverListener_unix() (net.Listener, error) {
 		return nil, err
 	}
 
-	l, err := net.Listen("unix", path)
-	if err != nil {
-		return nil, err
-	}
-
-	// Wrap the listener in rmListener so that the Unix domain socket file
-	// is removed on close.
-	return &rmListener{
-		Listener: l,
-		Path:     path,
-	}, nil
-}
-
-// rmListener is an implementation of net.Listener that forwards most
-// calls to the listener but also removes a file as part of the close. We
-// use this to cleanup the unix domain socket on close.
-type rmListener struct {
-	net.Listener
-	Path string
-}
-
-func (l *rmListener) Close() error {
-	// Close the listener itself
-	if err := l.Listener.Close(); err != nil {
-		return err
-	}
-
-	// Remove the file
-	return os.Remove(l.Path)
+	return net.Listen("unix", path)
 }

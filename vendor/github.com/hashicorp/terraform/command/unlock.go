@@ -16,10 +16,7 @@ type UnlockCommand struct {
 }
 
 func (c *UnlockCommand) Run(args []string) int {
-	args, err := c.Meta.process(args, false)
-	if err != nil {
-		return 1
-	}
+	args = c.Meta.process(args, false)
 
 	force := false
 	cmdFlags := c.Meta.flagSet("force-unlock")
@@ -46,25 +43,26 @@ func (c *UnlockCommand) Run(args []string) int {
 		return 1
 	}
 
-	conf, err := c.Config(configPath)
-	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Failed to load root config module: %s", err))
-		return 1
-	}
-
 	// Load the backend
 	b, err := c.Backend(&BackendOpts{
-		Config: conf,
+		ConfigPath: configPath,
 	})
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf("Failed to load backend: %s", err))
 		return 1
 	}
 
-	env := c.Workspace()
+	env := c.Env()
 	st, err := b.State(env)
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf("Failed to load state: %s", err))
+		return 1
+	}
+
+	s, ok := st.(state.Locker)
+	if !ok {
+		c.Ui.Error("The remote state backend in use does not support locking, and therefor\n" +
+			"cannot be unlocked.")
 		return 1
 	}
 
@@ -105,7 +103,7 @@ func (c *UnlockCommand) Run(args []string) int {
 		}
 	}
 
-	if err := st.Unlock(lockID); err != nil {
+	if err := s.Unlock(lockID); err != nil {
 		c.Ui.Error(fmt.Sprintf("Failed to unlock state: %s", err))
 		return 1
 	}

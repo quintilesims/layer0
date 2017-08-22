@@ -2,15 +2,9 @@
 
 Notable changes between releases.
 
-## Latest
+## latest
 
-## v1.1.0 (2016-12-19)
-
-* Allow JSON decoding, regardless of response Content-Type (#26)
-* Add `BodyProvider` interface and setter so request Body encoding can be customized (#23)
-* Add `Doer` interface and setter so request sending behavior can be customized (#21)
-* Add `SetBasicAuth` setter for Authorization headers (#16)
-* Add Sling `Body` setter to set an `io.Reader` on the Request (#9)
+* Added Sling `Body` setter to set an `io.Reader` on the Request
 
 ## v1.0.0 (2015-05-23)
 
