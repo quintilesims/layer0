@@ -1,14 +1,18 @@
 package tftest
 
+import (
+	"testing"
+)
+
 type Logger interface {
 	Printf(string, ...interface{})
 }
 
 type TestLogger struct {
-	t Tester
+	t *testing.T
 }
 
-func NewTestLogger(t Tester) *TestLogger {
+func NewTestLogger(t *testing.T) *TestLogger {
 	return &TestLogger{t: t}
 }
 

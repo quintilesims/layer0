@@ -123,10 +123,6 @@ func (b *ApplyGraphBuilder) Steps() []GraphTransformer {
 		// Target
 		&TargetsTransformer{Targets: b.Targets},
 
-		// Close opened plugin connections
-		&CloseProviderTransformer{},
-		&CloseProvisionerTransformer{},
-
 		// Single root
 		&RootTransformer{},
 	}

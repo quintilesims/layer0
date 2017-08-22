@@ -31,7 +31,7 @@ func CleanPatterns(patterns []string) ([]string, [][]string, bool, error) {
 	// Loop over exclusion patterns and:
 	// 1. Clean them up.
 	// 2. Indicate whether we are dealing with any exception rules.
-	// 3. Error if we see a single exclusion marker on its own (!).
+	// 3. Error if we see a single exclusion marker on it's own (!).
 	cleanedPatterns := []string{}
 	patternDirs := [][]string{}
 	exceptions := false
@@ -180,7 +180,7 @@ func regexpMatch(pattern, path string) (bool, error) {
 		} else if ch == '?' {
 			// "?" is any char except "/"
 			regStr += "[^" + escSL + "]"
-		} else if ch == '.' || ch == '$' {
+		} else if strings.Index(".$", string(ch)) != -1 {
 			// Escape some regexp special chars that have no meaning
 			// in golang's filepath.Match
 			regStr += `\` + string(ch)

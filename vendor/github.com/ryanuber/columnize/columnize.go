@@ -14,9 +14,6 @@ type Config struct {
 
 	// The string by which columns of output will be prefixed.
 	Prefix string
-
-	// A replacement string to replace empty fields
-	Empty string
 }
 
 // Returns a Config with default values.
@@ -30,25 +27,21 @@ func DefaultConfig() *Config {
 
 // Returns a list of elements, each representing a single item which will
 // belong to a column of output.
-func getElementsFromLine(config *Config, line string) []interface{} {
+func getElementsFromLine(line string, delim string) []interface{} {
 	elements := make([]interface{}, 0)
-	for _, field := range strings.Split(line, config.Delim) {
-		value := strings.TrimSpace(field)
-		if value == "" && config.Empty != "" {
-			value = config.Empty
-		}
-		elements = append(elements, value)
+	for _, field := range strings.Split(line, delim) {
+		elements = append(elements, strings.TrimSpace(field))
 	}
 	return elements
 }
 
 // Examines a list of strings and determines how wide each column should be
 // considering all of the elements that need to be printed within it.
-func getWidthsFromLines(config *Config, lines []string) []int {
+func getWidthsFromLines(lines []string, delim string) []int {
 	var widths []int
 
 	for _, line := range lines {
-		elems := getElementsFromLine(config, line)
+		elems := getElementsFromLine(line, delim)
 		for i := 0; i < len(elems); i++ {
 			l := len(elems[i].(string))
 			if len(widths) <= i {
@@ -98,9 +91,6 @@ func MergeConfig(a, b *Config) *Config {
 	if b.Prefix != "" {
 		result.Prefix = b.Prefix
 	}
-	if b.Empty != "" {
-		result.Empty = b.Empty
-	}
 
 	return &result
 }
@@ -111,11 +101,11 @@ func Format(lines []string, config *Config) string {
 	var result string
 
 	conf := MergeConfig(DefaultConfig(), config)
-	widths := getWidthsFromLines(conf, lines)
+	widths := getWidthsFromLines(lines, conf.Delim)
 
 	// Create the formatted output using the format string
 	for _, line := range lines {
-		elems := getElementsFromLine(conf, line)
+		elems := getElementsFromLine(line, conf.Delim)
 		stringfmt := conf.getStringFormat(widths, len(elems))
 		result += fmt.Sprintf(stringfmt, elems...)
 	}

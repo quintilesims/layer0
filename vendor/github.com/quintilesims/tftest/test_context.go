@@ -1,18 +1,15 @@
 package tftest
 
-type Tester interface {
-	Log(args ...interface{})
-	Logf(format string, args ...interface{})
-	Fatal(args ...interface{})
-	Fatalf(format string, args ...interface{})
-}
+import (
+	"testing"
+)
 
 type TestContext struct {
 	*Context
-	t Tester
+	t *testing.T
 }
 
-func NewTestContext(t Tester, options ...ContextOption) *TestContext {
+func NewTestContext(t *testing.T, options ...ContextOption) *TestContext {
 	options = append([]ContextOption{Log(NewTestLogger(t))}, options...)
 	return &TestContext{
 		Context: NewContext(options...),

@@ -1,13 +1,15 @@
 package main
 
 import (
-	"github.com/emicklei/go-restful"
-	"github.com/emicklei/go-restful/swagger"
-	"google.golang.com/appengine"
-	"google.golang.com/appengine/datastore"
-	"google.golang.com/appengine/user"
 	"net/http"
 	"time"
+
+	"github.com/emicklei/go-restful"
+	"github.com/emicklei/go-restful/swagger"
+
+	"appengine"
+	"appengine/datastore"
+	"appengine/user"
 )
 
 // This example demonstrates a reasonably complete suite of RESTful operations backed

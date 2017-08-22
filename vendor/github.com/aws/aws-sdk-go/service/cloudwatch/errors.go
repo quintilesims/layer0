@@ -4,18 +4,6 @@ package cloudwatch
 
 const (
 
-	// ErrCodeDashboardInvalidInputError for service response error code
-	// "InvalidParameterInput".
-	//
-	// Some part of the dashboard data is invalid.
-	ErrCodeDashboardInvalidInputError = "InvalidParameterInput"
-
-	// ErrCodeDashboardNotFoundError for service response error code
-	// "ResourceNotFound".
-	//
-	// The specified dashboard does not exist.
-	ErrCodeDashboardNotFoundError = "ResourceNotFound"
-
 	// ErrCodeInternalServiceFault for service response error code
 	// "InternalServiceError".
 	//
@@ -37,7 +25,7 @@ const (
 	// ErrCodeInvalidParameterCombinationException for service response error code
 	// "InvalidParameterCombination".
 	//
-	// Parameters were used together that cannot be used together.
+	// Parameters that cannot be used together were used together.
 	ErrCodeInvalidParameterCombinationException = "InvalidParameterCombination"
 
 	// ErrCodeInvalidParameterValueException for service response error code

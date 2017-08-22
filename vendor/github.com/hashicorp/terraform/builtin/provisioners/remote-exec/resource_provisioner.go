@@ -81,11 +81,7 @@ func applyFn(ctx context.Context) error {
 func generateScripts(d *schema.ResourceData) ([]string, error) {
 	var lines []string
 	for _, l := range d.Get("inline").([]interface{}) {
-		line, ok := l.(string)
-		if !ok {
-			return nil, fmt.Errorf("Error parsing %v as a string", l)
-		}
-		lines = append(lines, line)
+		lines = append(lines, l.(string))
 	}
 	lines = append(lines, "")
 
@@ -113,20 +109,12 @@ func collectScripts(d *schema.ResourceData) ([]io.ReadCloser, error) {
 	// Collect scripts
 	var scripts []string
 	if script, ok := d.GetOk("script"); ok {
-		scr, ok := script.(string)
-		if !ok {
-			return nil, fmt.Errorf("Error parsing script %v as string", script)
-		}
-		scripts = append(scripts, scr)
+		scripts = append(scripts, script.(string))
 	}
 
 	if scriptList, ok := d.GetOk("scripts"); ok {
 		for _, script := range scriptList.([]interface{}) {
-			scr, ok := script.(string)
-			if !ok {
-				return nil, fmt.Errorf("Error parsing script %v as string", script)
-			}
-			scripts = append(scripts, scr)
+			scripts = append(scripts, script.(string))
 		}
 	}
 

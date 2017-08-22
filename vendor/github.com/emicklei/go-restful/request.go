@@ -6,9 +6,12 @@ package restful
 
 import (
 	"bytes"
-	"compress/zlib"
+	"encoding/json"
+	"encoding/xml"
+	"io"
 	"io/ioutil"
 	"net/http"
+	"strings"
 )
 
 var defaultRequestContentType string
@@ -76,43 +79,44 @@ func (r *Request) HeaderParameter(name string) string {
 	return r.Request.Header.Get(name)
 }
 
-// ReadEntity checks the Accept header and reads the content into the entityPointer.
+// ReadEntity checks the Accept header and reads the content into the entityPointer
+// May be called multiple times in the request-response flow
 func (r *Request) ReadEntity(entityPointer interface{}) (err error) {
 	contentType := r.Request.Header.Get(HEADER_ContentType)
-	contentEncoding := r.Request.Header.Get(HEADER_ContentEncoding)
-
-	// OLD feature, cache the body for reads
 	if doCacheReadEntityBytes {
-		if r.bodyContent == nil {
-			data, err := ioutil.ReadAll(r.Request.Body)
-			if err != nil {
-				return err
-			}
-			r.bodyContent = &data
-		}
-		r.Request.Body = ioutil.NopCloser(bytes.NewReader(*r.bodyContent))
+		return r.cachingReadEntity(contentType, entityPointer)
 	}
+	// unmarshall directly from request Body
+	return r.decodeEntity(r.Request.Body, contentType, entityPointer)
+}
 
-	// check if the request body needs decompression
-	if ENCODING_GZIP == contentEncoding {
-		gzipReader := currentCompressorProvider.AcquireGzipReader()
-		defer currentCompressorProvider.ReleaseGzipReader(gzipReader)
-		gzipReader.Reset(r.Request.Body)
-		r.Request.Body = gzipReader
-	} else if ENCODING_DEFLATE == contentEncoding {
-		zlibReader, err := zlib.NewReader(r.Request.Body)
+func (r *Request) cachingReadEntity(contentType string, entityPointer interface{}) (err error) {
+	var buffer []byte
+	if r.bodyContent != nil {
+		buffer = *r.bodyContent
+	} else {
+		buffer, err = ioutil.ReadAll(r.Request.Body)
 		if err != nil {
 			return err
 		}
-		r.Request.Body = zlibReader
+		r.bodyContent = &buffer
 	}
+	return r.decodeEntity(bytes.NewReader(buffer), contentType, entityPointer)
+}
 
-	// lookup the EntityReader
-	entityReader, ok := entityAccessRegistry.AccessorAt(contentType)
-	if !ok {
-		return NewError(http.StatusBadRequest, "Unable to unmarshal content of type:"+contentType)
+func (r *Request) decodeEntity(reader io.Reader, contentType string, entityPointer interface{}) (err error) {
+	if strings.Contains(contentType, MIME_XML) {
+		return xml.NewDecoder(reader).Decode(entityPointer)
 	}
-	return entityReader.Read(r, entityPointer)
+	if strings.Contains(contentType, MIME_JSON) || MIME_JSON == defaultRequestContentType {
+		decoder := json.NewDecoder(reader)
+		decoder.UseNumber()
+		return decoder.Decode(entityPointer)
+	}
+	if MIME_XML == defaultRequestContentType {
+		return xml.NewDecoder(reader).Decode(entityPointer)
+	}
+	return NewError(400, "Unable to unmarshal content of type:"+contentType)
 }
 
 // SetAttribute adds or replaces the attribute with the given value.

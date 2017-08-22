@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/hashicorp/terraform/backend"
-	"github.com/hashicorp/terraform/config"
 	"github.com/hashicorp/terraform/config/module"
 )
 
@@ -21,10 +20,7 @@ func (c *PlanCommand) Run(args []string) int {
 	var outPath string
 	var moduleDepth int
 
-	args, err := c.Meta.process(args, true)
-	if err != nil {
-		return 1
-	}
+	args = c.Meta.process(args, true)
 
 	cmdFlags := c.Meta.flagSet("plan")
 	cmdFlags.BoolVar(&destroy, "destroy", false, "destroy")
@@ -36,7 +32,6 @@ func (c *PlanCommand) Run(args []string) int {
 	cmdFlags.StringVar(&c.Meta.statePath, "state", "", "path")
 	cmdFlags.BoolVar(&detailed, "detailed-exitcode", false, "detailed-exitcode")
 	cmdFlags.BoolVar(&c.Meta.stateLock, "lock", true, "lock state")
-	cmdFlags.DurationVar(&c.Meta.stateLockTimeout, "lock-timeout", 0, "lock timeout")
 	cmdFlags.Usage = func() { c.Ui.Error(c.Help()) }
 	if err := cmdFlags.Parse(args); err != nil {
 		return 1
@@ -45,12 +40,6 @@ func (c *PlanCommand) Run(args []string) int {
 	configPath, err := ModulePath(cmdFlags.Args())
 	if err != nil {
 		c.Ui.Error(err.Error())
-		return 1
-	}
-
-	// Check for user-supplied plugin path
-	if c.pluginPath, err = c.loadPluginPath(); err != nil {
-		c.Ui.Error(fmt.Sprintf("Error loading plugin path: %s", err))
 		return 1
 	}
 
@@ -78,14 +67,10 @@ func (c *PlanCommand) Run(args []string) int {
 		}
 	}
 
-	var conf *config.Config
-	if mod != nil {
-		conf = mod.Config()
-	}
 	// Load the backend
 	b, err := c.Backend(&BackendOpts{
-		Config: conf,
-		Plan:   plan,
+		ConfigPath: configPath,
+		Plan:       plan,
 	})
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf("Failed to load backend: %s", err))
@@ -100,6 +85,7 @@ func (c *PlanCommand) Run(args []string) int {
 	opReq.PlanRefresh = refresh
 	opReq.PlanOutPath = outPath
 	opReq.Type = backend.OperationTypePlan
+	opReq.LockState = c.Meta.stateLock
 
 	// Perform the operation
 	op, err := b.Operation(context.Background(), opReq)
@@ -159,8 +145,6 @@ Options:
 
   -lock=true          Lock the state file when locking is supported.
 
-  -lock-timeout=0s    Duration to retry a state lock.
-
   -module-depth=n     Specifies the depth of modules to show in the output.
                       This does not affect the plan itself, only the output
                       shown. By default, this is -1, which will expand all.
@@ -186,8 +170,8 @@ Options:
                       flag can be set multiple times.
 
   -var-file=foo       Set variables in the Terraform configuration from
-                      a file. If "terraform.tfvars" or any ".auto.tfvars"
-                      files are present, they will be automatically loaded.
+                      a file. If "terraform.tfvars" is present, it will be
+                      automatically loaded if this flag is not specified.
 `
 	return strings.TrimSpace(helpText)
 }

@@ -1,7 +1,6 @@
 package dynamo
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
@@ -37,15 +36,9 @@ func (table Table) DeleteTable() *DeleteTable {
 
 // Run executes this request and deletes the table.
 func (dt *DeleteTable) Run() error {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return dt.RunWithContext(ctx)
-}
-
-func (dt *DeleteTable) RunWithContext(ctx aws.Context) error {
 	input := dt.input()
-	return retry(ctx, func() error {
-		_, err := dt.table.db.client.DeleteTableWithContext(ctx, input)
+	return retry(func() error {
+		_, err := dt.table.db.client.DeleteTable(input)
 		return err
 	})
 }

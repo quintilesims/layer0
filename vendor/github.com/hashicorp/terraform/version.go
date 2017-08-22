@@ -6,5 +6,4 @@ import "github.com/hashicorp/terraform/terraform"
 var GitCommit string
 
 const Version = terraform.Version
-
-var VersionPrerelease = terraform.VersionPrerelease
+const VersionPrerelease = terraform.VersionPrerelease
