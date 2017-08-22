@@ -30,18 +30,21 @@ func (e *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 }
 
 func (e *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
-	output, err := e.AWS.ELB.DescribeLoadBalancers(&elb.DescribeLoadBalancersInput{})
-	if err != nil {
-		return nil, err
+	loadBalancerNames := []string{}
+	fn := func(output *DescribeLoadBalancersOutput, lastPage bool) bool {
+		for _, description := range output.LoadBalancerDescriptions {
+			loadBalancerName := aws.StringValue(description.LoadBalancerName)
+
+			if hasLayer0Prefix(e.Config.Instance(), loadBalancerName) {
+				loadBalancerNames = append(loadBalancerNames, loadBalancerName)
+			}
+		}
+		
+		return !lastPage
 	}
 
-	loadBalancerNames := []string{}
-	for _, description := range output.LoadBalancerDescriptions {
-		loadBalancerName := aws.StringValue(description.LoadBalancerName)
-
-		if hasLayer0Prefix(e.Config.Instance(), loadBalancerName) {
-			loadBalancerNames = append(loadBalancerNames, loadBalancerName)
-		}
+	if err := e.AWS.ELB.DescribeLoadBalancersPages(&elb.DescribeLoadBalancersInput{}, fn); err != nil {
+		return nil, err
 	}
 
 	return loadBalancerNames, nil
