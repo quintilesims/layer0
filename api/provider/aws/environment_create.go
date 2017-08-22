@@ -51,7 +51,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 		return nil, err
 	}
 
-	securityGroupName := fmt.Sprintf("%s-env", fqEnvironmentID)
+	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
 	if err := createSG(
 		e.AWS.EC2,
 		securityGroupName,

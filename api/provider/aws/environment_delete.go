@@ -1,7 +1,6 @@
 package aws
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -23,7 +22,7 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 		return err
 	}
 
-	securityGroupName := fmt.Sprintf("%s-env", fqEnvironmentID)
+	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
 	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
 	if err != nil && !strings.Contains(err.Error(), "does not exist") {
 		return err

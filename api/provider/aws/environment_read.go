@@ -12,7 +12,7 @@ import (
 func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, error) {
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	securityGroupName := fmt.Sprintf("%s-env", fqEnvironmentID)
+	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
 	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
 	if err != nil {
 		return nil, err

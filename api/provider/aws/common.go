@@ -9,6 +9,18 @@ import (
 	"github.com/quintilesims/layer0/common/db/tag_store"
 )
 
+func getEnvironmentSGName(environmentID string) string {
+	return fmt.Sprintf("%s-env", environmentID)
+}
+
+func getLoadBalancerSGName(loadBalancerID string) string {
+	return fmt.Sprintf("%s-lb", loadBalancerID)
+}
+
+func getLoadBalancerRoleName(loadBalancerID string) string {
+	return fmt.Sprintf("%s-lb", loadBalancerID)
+}
+
 func createSG(ec2api ec2iface.EC2API, groupName, description, vpcID string) error {
 	input := &ec2.CreateSecurityGroupInput{}
 	input.SetGroupName(groupName)

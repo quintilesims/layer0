@@ -18,7 +18,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	fqEnvironmentID := addLayer0Prefix(l.Config.Instance(), req.EnvironmentID)
 
-	environmentSGName := fmt.Sprintf("%s-env", fqEnvironmentID)
+	environmentSGName := getEnvironmentSGName(fqEnvironmentID)
 	environmentSG, err := readSG(l.AWS.EC2, environmentSGName)
 	if err != nil {
 		return nil, err
@@ -32,7 +32,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 		scheme = "internet-facing"
 		subnets = l.Config.PublicSubnets()
 
-		loadBalancerSGName := fmt.Sprintf("%s-lb", fqLoadBalancerID)
+		loadBalancerSGName := getLoadBalancerSGName(fqLoadBalancerID)
 		if err := createSG(
 			l.AWS.EC2,
 			loadBalancerSGName,
@@ -56,7 +56,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 		securityGroupIDs = append(securityGroupIDs, aws.StringValue(loadBalancerSG.GroupId))
 	}
 
-	roleName := fmt.Sprintf("%s-lb", fqLoadBalancerID)
+	roleName := getLoadBalancerRoleName(fqLoadBalancerID)
 	if _, err := l.createRole(roleName, DEFAULT_ASSUME_ROLE_POLICY); err != nil {
 		return nil, err
 	}
