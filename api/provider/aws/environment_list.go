@@ -24,7 +24,7 @@ func (e *EnvironmentProvider) List() ([]models.EnvironmentSummary, error) {
 		summaries[i] = summary
 	}
 
-	if err := e.listTags(summaries); err != nil {
+	if err := e.populateSummariesTags(summaries); err != nil {
 		return nil, err
 	}
 
@@ -50,7 +50,7 @@ func (e *EnvironmentProvider) listClusterNames() ([]string, error) {
 	return clusterNames, nil
 }
 
-func (e *EnvironmentProvider) listTags(summaries []models.EnvironmentSummary) error {
+func (e *EnvironmentProvider) populateSummariesTags(summaries []models.EnvironmentSummary) error {
 	tags, err := e.TagStore.SelectByType("environment")
 	if err != nil {
 		return err

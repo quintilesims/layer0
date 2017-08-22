@@ -14,6 +14,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// todo: ensure envirnment name is unique
 func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*models.Environment, error) {
 	environmentID := generateEntityID(req.EnvironmentName)
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
@@ -50,15 +51,16 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 		return nil, err
 	}
 
-	securityGroupName := fmt.Sprintf("%s-env", fqEnvironmentID)
-	if err := e.createSG(
+	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
+	if err := createSG(
+		e.AWS.EC2,
 		securityGroupName,
 		fmt.Sprintf("SG for Layer0 environment %s", environmentID),
 		e.Config.VPC()); err != nil {
 		return nil, err
 	}
 
-	securityGroup, err := e.readSG(securityGroupName)
+	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
 	if err != nil {
 		return nil, err
 	}
@@ -98,23 +100,6 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 	}
 
 	return e.Read(environmentID)
-}
-
-func (e *EnvironmentProvider) createSG(groupName, description, vpcID string) error {
-	input := &ec2.CreateSecurityGroupInput{}
-	input.SetGroupName(groupName)
-	input.SetDescription(description)
-	input.SetVpcId(vpcID)
-
-	if err := input.Validate(); err != nil {
-		return err
-	}
-
-	if _, err := e.AWS.EC2.CreateSecurityGroup(input); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (e *EnvironmentProvider) authorizeSGIngress(groupID string) error {

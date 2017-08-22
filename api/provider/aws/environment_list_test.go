@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEnvironment_listTags(t *testing.T) {
+func TestEnvironment_populateSummariesTags(t *testing.T) {
 	tagStore := tag_store.NewMemoryTagStore()
 	environment := NewEnvironmentProvider(nil, tagStore, nil)
 
@@ -62,7 +62,7 @@ func TestEnvironment_listTags(t *testing.T) {
 		{EnvironmentID: "eid2"},
 	}
 
-	if err := environment.listTags(results); err != nil {
+	if err := environment.populateSummariesTags(results); err != nil {
 		t.Fatal(err)
 	}
 

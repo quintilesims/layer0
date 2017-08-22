@@ -5,15 +5,15 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
-	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// todo: catch 'EntityDoesNotExist' errors
 func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, error) {
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	securityGroupName := fmt.Sprintf("%s-env", fqEnvironmentID)
-	securityGroup, err := e.readSG(securityGroupName)
+	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
+	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
 	if err != nil {
 		return nil, err
 	}
@@ -38,34 +38,11 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 		AMIID:           aws.StringValue(launchConfig.ImageId),
 	}
 
-	if err := e.readTags(environmentID, model); err != nil {
+	if err := e.populateModelTagss(environmentID, model); err != nil {
 		return nil, err
 	}
 
 	return model, nil
-}
-
-func (e *EnvironmentProvider) readSG(groupName string) (*ec2.SecurityGroup, error) {
-	filter := &ec2.Filter{}
-	filter.SetName("group-name")
-	filter.SetValues([]*string{aws.String(groupName)})
-
-	input := &ec2.DescribeSecurityGroupsInput{}
-	input.SetFilters([]*ec2.Filter{filter})
-
-	output, err := e.AWS.EC2.DescribeSecurityGroups(input)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, group := range output.SecurityGroups {
-		if aws.StringValue(group.GroupName) == groupName {
-			return group, nil
-		}
-	}
-
-	// todo: this should be a wrapped error: 'errors.MissingResource' or something
-	return nil, fmt.Errorf("Security group '%s' does not exist", groupName)
 }
 
 func (e *EnvironmentProvider) readLC(launchConfigName string) (*autoscaling.LaunchConfiguration, error) {
@@ -104,7 +81,7 @@ func (e *EnvironmentProvider) readASG(autoScalingGroupName string) (*autoscaling
 	return nil, fmt.Errorf("AutoScaling Group '%s' does not exist", autoScalingGroupName)
 }
 
-func (e *EnvironmentProvider) readTags(environmentID string, model *models.Environment) error {
+func (e *EnvironmentProvider) populateModelTagss(environmentID string, model *models.Environment) error {
 	tags, err := e.TagStore.SelectByTypeAndID("environment", environmentID)
 	if err != nil {
 		return err
