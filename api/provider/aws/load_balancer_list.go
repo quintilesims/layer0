@@ -31,7 +31,7 @@ func (e *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 
 func (e *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 	loadBalancerNames := []string{}
-	fn := func(output *DescribeLoadBalancersOutput, lastPage bool) bool {
+	fn := func(output *elb.DescribeLoadBalancersOutput, lastPage bool) bool {
 		for _, description := range output.LoadBalancerDescriptions {
 			loadBalancerName := aws.StringValue(description.LoadBalancerName)
 
@@ -39,7 +39,7 @@ func (e *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 				loadBalancerNames = append(loadBalancerNames, loadBalancerName)
 			}
 		}
-		
+
 		return !lastPage
 	}
 
