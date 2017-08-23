@@ -9,59 +9,32 @@ const (
 	deployCommand = "while true ; do echo LONG RUNNING SERVICE ; sleep 5 ; done"
 )
 
-func BenchmarkStress5Environments0Deploys0Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(5, 0, 0, 0, deployCommand, b)
-}
-func BenchmarkStress10Environments0Deploys0Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(10, 0, 0, 0, deployCommand, b)
-}
-func BenchmarkStress15Environments0Deploys0Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(15, 0, 0, 0, deployCommand, b)
-}
-func BenchmarkStress5Environments5Deploys0Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(5, 5, 0, 0, deployCommand, b)
+func BenchmarkStress25Environments0Deploys0Services0LoadBalancers(b *testing.B) {
+	benchmarkStress(25, 0, 0, 0, deployCommand, b)
 }
 func BenchmarkStress10Environments10Deploys0Services0LoadBalancers(b *testing.B) {
 	benchmarkStress(10, 10, 0, 0, deployCommand, b)
 }
-func BenchmarkStress15Environments15Deploys0Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(15, 15, 0, 0, deployCommand, b)
+func BenchmarkStress20Environments20Deploys0Services0LoadBalancers(b *testing.B) {
+	benchmarkStress(20, 20, 0, 0, deployCommand, b)
+}
+func BenchmarkStress5Environments50Deploys0Services0LoadBalancers(b *testing.B) {
+	benchmarkStress(5, 50, 0, 0, deployCommand, b)
+}
+func BenchmarkStress5Environments100Deploys0Services0LoadBalancers(b *testing.B) {
+	benchmarkStress(5, 100, 0, 0, deployCommand, b)
 }
 func BenchmarkStress10Environments10Deploys10Services0LoadBalancers(b *testing.B) {
 	benchmarkStress(10, 10, 10, 0, deployCommand, b)
 }
-func BenchmarkStress10Environments10Deploys20Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(10, 10, 20, 0, deployCommand, b)
-}
-func BenchmarkStress15Environments15Deploys15Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(15, 15, 15, 0, deployCommand, b)
-}
-func BenchmarkStress15Environments15Deploys30Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(15, 15, 30, 0, deployCommand, b)
-}
-func BenchmarkStress15Environments15Deploys15Services5LoadBalancers(b *testing.B) {
-	benchmarkStress(15, 15, 15, 5, deployCommand, b)
-}
-func BenchmarkStress15Environments15Deploys15Services10LoadBalancers(b *testing.B) {
-	benchmarkStress(15, 15, 15, 10, deployCommand, b)
+func BenchmarkStress5Environments5Deploys50Services0LoadBalancers(b *testing.B) {
+	benchmarkStress(5, 5, 50, 0, deployCommand, b)
 }
 func BenchmarkStress15Environments15Deploys15Services15LoadBalancers(b *testing.B) {
 	benchmarkStress(15, 15, 15, 15, deployCommand, b)
 }
-func BenchmarkStress20Environments20Deploys20Services20LoadBalancers(b *testing.B) {
-	benchmarkStress(20, 20, 20, 20, deployCommand, b)
-}
 func BenchmarkStress25Environments25Deploys25Services25LoadBalancers(b *testing.B) {
 	benchmarkStress(25, 25, 25, 25, deployCommand, b)
-}
-func BenchmarkStress5Environments5Deploys30Services10LoadBalancers(b *testing.B) {
-	benchmarkStress(5, 5, 30, 10, deployCommand, b)
-}
-func BenchmarkStress2Environments2Deploys40Services2LoadBalancers(b *testing.B) {
-	benchmarkStress(2, 2, 40, 2, deployCommand, b)
-}
-func BenchmarkStress1Environment1Deploy70Services1LoadBalancer(b *testing.B) {
-	benchmarkStress(1, 1, 70, 1, deployCommand, b)
 }
 
 func benchmark(b *testing.B, methods map[string]func()) {
