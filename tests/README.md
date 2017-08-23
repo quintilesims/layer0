@@ -73,16 +73,39 @@ The default is `10m`, which typically isn't long enough to complete all of the s
 
 ### WARNING: Stress Tests and Service Limits
 The stress tests intentionally create and destroy a lot of AWS resources, so you should be aware of the AWS service limits on the account in which these tests will be run.
-If the tests exceed service limits, they will be unable to automatically destroy the resources that they have created.
-Layer0 commands will fail with the following error:
+Stress tests will create configurations of different combinations of Environments, Deploys, Services and Load Balancers.
+
+Currently, the known limits per resource are as follows:
+
+* Environments
+
+Cannot exceed 100 clusters per AWS region.
+
+* Deploys 
+
+If you try to create more than 100 Deploys at a time, you will encounter EOF error messages
+
+* Services
+
+The number of Services you can create will be dependent on the number of Environments and Deploys. The higher the number of Environments and Deploys, the fewer the number of Services.
+Generally, you want to create no more than 25 Services at a time.
+
+* Load Balancers
+
+The default limit for AWS Elastic Load Balancing is set to 20 per AWS region.
+
+It is recommended that you use [flow](https://github.com/quintilesims/layer0/blob/develop/scripts/flow.sh) to clean out your layer0 instance prior to running the stress tests.
+
+If you enounter an error running the Stress tests, and you have exceeded the number of allowed Environments, you will see the following error message:
+
 ```
 AWS Error: clusters cannot have more than 100 elements (code 'InvalidParameterException')
 ```
-In such an event, you will have to manually enter the AWS console and terminate resources by hand until you're back under the limits.
-You could then programatically use Layer0 to destroy the remainder.
+
+If an error like this occurs, you will have to manually enter the AWS console and terminate resources by hand until you're back under the limits.
+You may then programatically use Layer0 to destroy the remainder (using [flow](https://github.com/quintilesims/layer0/blob/develop/scripts/flow.sh))
 
 To avoid such a scenario, before you run the stress tests, comment out specific functions that will exceed your service limits, or modify the parameters of some of the stress test functions.
-It is also recommended that you use [flow](https://github.com/quintilesims/layer0/blob/develop/scripts/flow.sh) to clean out your layer0 instance prior to running the stress tests.
 
 Some references:
 * [Viewing account-specific EC2-related service limits](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-resource-limits.html)
