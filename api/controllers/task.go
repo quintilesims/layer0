@@ -6,6 +6,7 @@ import (
 	"github.com/quintilesims/layer0/api/provider"
 	"github.com/quintilesims/layer0/api/scheduler"
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
 )
@@ -46,12 +47,21 @@ func (t *TaskController) CreateTask(c *fireball.Context) (fireball.Response, err
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	model, err := t.TaskProvider.Create(req)
+	if err := req.Validate(); err != nil {
+		return nil, err
+	}
+
+	job := models.CreateJobRequest{
+		JobType: job.CreateTaskJob,
+		Request: req,
+	}
+
+	jobID, err := t.JobScheduler.ScheduleJob(job)
 	if err != nil {
 		return nil, err
 	}
 
-	return fireball.NewJSONResponse(202, model)
+	return newJobResponse(jobID), nil
 }
 
 func (t *TaskController) DeleteTask(c *fireball.Context) (fireball.Response, error) {

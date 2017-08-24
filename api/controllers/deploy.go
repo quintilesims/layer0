@@ -6,6 +6,7 @@ import (
 	"github.com/quintilesims/layer0/api/provider"
 	"github.com/quintilesims/layer0/api/scheduler"
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
 )
@@ -50,21 +51,32 @@ func (d *DeployController) CreateDeploy(c *fireball.Context) (fireball.Response,
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	model, err := d.DeployProvider.Create(req)
+	job := models.CreateJobRequest{
+		JobType: job.CreateDeployJob,
+		Request: req,
+	}
+
+	jobID, err := d.JobScheduler.ScheduleJob(job)
 	if err != nil {
 		return nil, err
 	}
 
-	return fireball.NewJSONResponse(202, model)
+	return newJobResponse(jobID), nil
 }
 
 func (d *DeployController) DeleteDeploy(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	if err := d.DeployProvider.Delete(id); err != nil {
+	job := models.CreateJobRequest{
+		JobType: job.DeleteDeployJob,
+		Request: id,
+	}
+
+	jobID, err := d.JobScheduler.ScheduleJob(job)
+	if err != nil {
 		return nil, err
 	}
 
-	return fireball.NewJSONResponse(200, nil)
+	return newJobResponse(jobID), nil
 }
 
 func (d *DeployController) GetDeploy(c *fireball.Context) (fireball.Response, error) {

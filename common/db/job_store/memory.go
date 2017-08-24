@@ -3,7 +3,7 @@ package job_store
 import (
 	"fmt"
 
-	"github.com/quintilesims/layer0/common/job"
+	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -57,7 +57,7 @@ func (m *MemoryJobStore) UpdateJobStatus(jobID string, status job.JobStatus) err
 		return err
 	}
 
-	job.JobStatus = status
+	job.JobStatus = string(status)
 	return nil
 }
 

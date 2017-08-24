@@ -52,12 +52,17 @@ func (l *LoadBalancerController) CreateLoadBalancer(c *fireball.Context) (fireba
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	model, err := l.LoadBalancerProvider.Create(req)
+	job := models.CreateJobRequest{
+		JobType: job.CreateLoadBalancerJob,
+		Request: req,
+	}
+
+	jobID, err := l.JobScheduler.ScheduleJob(job)
 	if err != nil {
 		return nil, err
 	}
 
-	return fireball.NewJSONResponse(202, model)
+	return newJobResponse(jobID), nil
 }
 
 func (l *LoadBalancerController) DeleteLoadBalancer(c *fireball.Context) (fireball.Response, error) {
