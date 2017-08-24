@@ -6,19 +6,12 @@ import (
 	"github.com/quintilesims/tftest"
 )
 
-type Tester interface {
-	Log(args ...interface{})
-	Logf(format string, args ...interface{})
-	Fatal(args ...interface{})
-	Fatalf(format string, args ...interface{})
-}
-
 type StressTest struct {
 	Terraform *tftest.TestContext
 	Layer0    *clients.Layer0TestClient
 }
 
-func NewStressTest(t Tester, dir string, vars map[string]string) *StressTest {
+func NewStressTest(t tftest.Tester, dir string, vars map[string]string) *StressTest {
 	if vars == nil {
 		vars = map[string]string{}
 	}
@@ -30,7 +23,7 @@ func NewStressTest(t Tester, dir string, vars map[string]string) *StressTest {
 		tftest.Dir(dir),
 		tftest.Vars(vars),
 		tftest.DryRun(*dry),
-		tftest.Log(log))
+		tftest.Log(t.(tftest.Logger)))
 
 	layer0 := clients.NewLayer0TestClient(t, vars["endpoint"], vars["token"])
 
