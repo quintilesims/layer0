@@ -1,7 +1,7 @@
 package job_store
 
 import (
-	"github.com/quintilesims/layer0/common/job"
+	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/models"
 )
 

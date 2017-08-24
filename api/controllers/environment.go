@@ -52,12 +52,17 @@ func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	model, err := e.EnvironmentProvider.Create(req)
+	job := models.CreateJobRequest{
+		JobType: job.CreateEnvironmentJob,
+		Request: req,
+	}
+
+	jobID, err := e.JobScheduler.ScheduleJob(job)
 	if err != nil {
 		return nil, err
 	}
 
-	return fireball.NewJSONResponse(202, model)
+	return newJobResponse(jobID), nil
 }
 
 func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball.Response, error) {

@@ -48,12 +48,21 @@ func (s *ServiceController) CreateService(c *fireball.Context) (fireball.Respons
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	model, err := s.ServiceProvider.Create(req)
+	if err := req.Validate(); err != nil {
+		return nil, err
+	}
+
+	job := models.CreateJobRequest{
+		JobType: job.CreateServiceJob,
+		Request: req,
+	}
+
+	jobID, err := s.JobScheduler.ScheduleJob(job)
 	if err != nil {
 		return nil, err
 	}
 
-	return fireball.NewJSONResponse(202, model)
+	return newJobResponse(jobID), nil
 }
 
 func (s *ServiceController) DeleteService(c *fireball.Context) (fireball.Response, error) {
