@@ -19,17 +19,6 @@ type StandardFormatter struct {
 	Name string
 }
 
-func NewStandardLogger(name string) *logrus.Logger {
-	logger := &logrus.Logger{
-		Out:       os.Stderr,
-		Formatter: &StandardFormatter{Name: name},
-		Hooks:     make(logrus.LevelHooks),
-		Level:     logrus.GetLevel(),
-	}
-
-	return logger
-}
-
 func (this *StandardFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 	time := entry.Time.Format(TIME_FORMAT)
 	level := strings.ToUpper(entry.Level.String())
@@ -39,6 +28,29 @@ func (this *StandardFormatter) Format(entry *logrus.Entry) ([]byte, error) {
 
 	content := fmt.Sprintf("%v [%s] %-5s: %s\n", time, this.Name, level, entry.Message)
 	return []byte(content), nil
+}
+
+type StandardLogger struct {
+	*logrus.Logger
+}
+
+func NewStandardLogger(name string) *StandardLogger {
+	return &StandardLogger{
+		&logrus.Logger{
+			Out:       os.Stderr,
+			Formatter: &StandardFormatter{Name: name},
+			Hooks:     make(logrus.LevelHooks),
+			Level:     logrus.GetLevel(),
+		},
+	}
+}
+
+func (s *StandardLogger) Log(tokens ...interface{}) {
+	s.Logger.Info(tokens...)
+}
+
+func (s *StandardLogger) Logf(format string, tokens ...interface{}) {
+	s.Logger.Infof(format, tokens...)
 }
 
 type CLIFormatter struct{}
@@ -57,7 +69,7 @@ func NewStackTraceLogger(name string) *logrus.Logger {
 	logger := NewStandardLogger(name)
 	logger.Formatter = &StackTraceFormatter{logger.Formatter.(*StandardFormatter)}
 
-	return logger
+	return logger.Logger
 }
 
 func (this *StackTraceFormatter) Format(entry *logrus.Entry) ([]byte, error) {
