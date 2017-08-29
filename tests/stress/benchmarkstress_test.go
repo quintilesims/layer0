@@ -9,82 +9,82 @@ const (
 	deployCommand = "while true ; do echo LONG RUNNING SERVICE ; sleep 5 ; done"
 )
 
-func BenchmarkStress25Environments0Deploys0Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(25, 0, 0, 0, deployCommand, b)
+func Benchmark25Environments(b *testing.B) {
+	benchmarkStress(b, 25, 0, 0, 0)
 }
-func BenchmarkStress10Environments10Deploys0Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(10, 10, 0, 0, deployCommand, b)
+func Benchmark10Environments10Deploys(b *testing.B) {
+	benchmarkStress(b, 10, 10, 0, 0)
 }
-func BenchmarkStress20Environments20Deploys0Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(20, 20, 0, 0, deployCommand, b)
+func Benchmark20Environments20Deploys(b *testing.B) {
+	benchmarkStress(b, 20, 20, 0, 0)
 }
-func BenchmarkStress5Environments50Deploys0Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(5, 50, 0, 0, deployCommand, b)
+func Benchmark5Environments50Deploys(b *testing.B) {
+	benchmarkStress(b, 5, 50, 0, 0)
 }
-func BenchmarkStress5Environments100Deploys0Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(5, 100, 0, 0, deployCommand, b)
+func Benchmark5Environments100Deploys(b *testing.B) {
+	benchmarkStress(b, 5, 100, 0, 0)
 }
-func BenchmarkStress10Environments10Deploys10Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(10, 10, 10, 0, deployCommand, b)
+func Benchmark10Environments10Deploys10Services(b *testing.B) {
+	benchmarkStress(b, 10, 10, 10, 0)
 }
-func BenchmarkStress5Environments5Deploys50Services0LoadBalancers(b *testing.B) {
-	benchmarkStress(5, 5, 50, 0, deployCommand, b)
+func Benchmark5Environments5Deploys50Services(b *testing.B) {
+	benchmarkStress(b, 5, 5, 50, 0)
 }
-func BenchmarkStress15Environments15Deploys15Services15LoadBalancers(b *testing.B) {
-	benchmarkStress(15, 15, 15, 15, deployCommand, b)
+func Benchmark15Environments15Deploys15Services15LoadBalancers(b *testing.B) {
+	benchmarkStress(b, 15, 15, 15, 15)
 }
-func BenchmarkStress25Environments25Deploys25Services25LoadBalancers(b *testing.B) {
-	benchmarkStress(25, 25, 25, 25, deployCommand, b)
+func Benchmark25Environments25Deploys25Services25LoadBalancers(b *testing.B) {
+	benchmarkStress(b, 25, 25, 25, 25)
 }
 
-func benchmarkStress(envs, deps, servs, lbs int, deploycomm string, b *testing.B) {
+func benchmarkStress(b *testing.B, envs, deps, servs, lbs int) {
 	tfvars := map[string]string{
 		"num_environments":  strconv.Itoa(envs),
 		"num_deploys":       strconv.Itoa(deps),
 		"num_services":      strconv.Itoa(servs),
 		"num_loadbalancers": strconv.Itoa(lbs),
-		"deploy_command":    deploycomm,
+		"deploy_command":    deployCommand,
 	}
 
-	log.Debugf("Testing with Environments: %v, Deploys: %v, Services: %v, Load Balancers: %v, Command: %v", envs, deps, servs, lbs, deploycomm)
+	log.Debugf("Testing with params: %v", tfvars)
 
-	s := NewStressTest(b, "cases/modules", tfvars)
-	s.Terraform.Apply()
-	defer s.Terraform.Destroy()
+	terraform, layer0 := NewStressTest(b, "cases/modules", tfvars)
+	terraform.Apply()
+	defer terraform.Destroy()
 
 	b.Run("ListEnvironments", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			s.Layer0.ListEnvironments()
+			layer0.ListEnvironments()
 		}
 	})
 
 	b.Run("ListLoadBalancers", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			s.Layer0.ListLoadBalancers()
+			layer0.ListLoadBalancers()
 		}
 	})
 
 	b.Run("ListDeploys", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			s.Layer0.ListDeploys()
+			layer0.ListDeploys()
 		}
 	})
 
 	b.Run("ListServices", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			s.Layer0.ListServices()
+			layer0.ListServices()
 		}
 	})
 
 	b.Run("ListTasks", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			s.Layer0.ListTasks()
+			layer0.ListTasks()
 		}
 	})
 
 	b.Run("ListJobs", func(b *testing.B) {
 		for n := 0; n < b.N; n++ {
-			s.Layer0.ListJobs()
+			layer0.ListJobs()
 		}
 	})
 }
