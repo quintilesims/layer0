@@ -8,12 +8,7 @@ import (
 	"github.com/quintilesims/tftest"
 )
 
-type StressTest struct {
-	Terraform *tftest.TestContext
-	Layer0    *clients.Layer0TestClient
-}
-
-func NewStressTest(t *testing.B, dir string, vars map[string]string) *StressTest {
+func NewStressTest(b *testing.B, dir string, vars map[string]string) (*tftest.TestContext, *clients.Layer0TestClient) {
 	if vars == nil {
 		vars = map[string]string{}
 	}
@@ -22,20 +17,17 @@ func NewStressTest(t *testing.B, dir string, vars map[string]string) *StressTest
 	vars["token"] = config.AuthToken()
 
 	tfContext := tftest.NewTestContext(
-		t,
+		b,
 		tftest.Dir(dir),
 		tftest.Vars(vars),
 		tftest.DryRun(*dry),
-		tftest.Log(t),
+		tftest.Log(log),
 	)
 
-	layer0 := clients.NewLayer0TestClient(t, vars["endpoint"], vars["token"])
+	layer0 := clients.NewLayer0TestClient(b, vars["endpoint"], vars["token"])
 
 	// download modules using terraform get
 	tfContext.Terraformf("get")
 
-	return &StressTest{
-		Terraform: tfContext,
-		Layer0:    layer0,
-	}
+	return tfContext, layer0
 }
