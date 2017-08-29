@@ -24,7 +24,7 @@ func NewECSResourceManager(e ecs.Provider, a autoscaling.Provider) *ECSResourceM
 	return &ECSResourceManager{
 		ECS:         e,
 		Autoscaling: a,
-		logger:      logutils.NewStandardLogger("ECS Resource Manager"),
+		logger:      logutils.NewStandardLogger("ECS Resource Manager").Logger,
 	}
 }
 
