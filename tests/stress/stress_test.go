@@ -48,11 +48,25 @@ func runTest(b *testing.B, c StressTestCase) {
 	tfContext.Apply()
 	defer tfContext.Destroy()
 
-	b.Run("ListEnvironments", func(b *testing.B) {
-		for n := 0; n < b.N; n++ {
-			layer0.ListEnvironments()
-		}
-	})
+	methodsToBenchmark := map[string]func(){
+		"ListEnvironments":  func() { layer0.ListEnvironments() },
+		"ListLoadBalancers": func() { layer0.ListLoadBalancers() },
+		"ListDeploys":       func() { layer0.ListDeploys() },
+		"ListServices":      func() { layer0.ListServices() },
+		"ListTasks":         func() { layer0.ListTasks() },
+	}
+
+	benchmark(b, methodsToBenchmark)
+}
+
+func benchmark(b *testing.B, methods map[string]func()) {
+	for name, fn := range methods {
+		b.Run(name, func(b *testing.B) {
+			for n := 0; n < b.N; n++ {
+				fn()
+			}
+		})
+	}
 }
 
 func Benchmark5Services(b *testing.B) {
