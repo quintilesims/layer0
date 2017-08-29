@@ -28,7 +28,7 @@ func NewL0EnvironmentScaler(c resource.ConsumerGetter, p resource.ProviderManage
 		consumerGetter:  c,
 		providerManager: p,
 		scheduledRuns:   map[string]chan time.Duration{},
-		logger:          logutils.NewStandardLogger("Environment Scaler"),
+		logger:          logutils.NewStandardLogger("Environment Scaler").Logger,
 	}
 }
 
