@@ -1,4 +1,4 @@
-package tag_store
+package tag
 
 import (
 	"fmt"
