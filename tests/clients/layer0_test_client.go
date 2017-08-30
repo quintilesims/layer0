@@ -80,6 +80,33 @@ func (l *Layer0TestClient) CreateService(name, environmentID, deployID, loadBala
 	return service
 }
 
+func (l *Layer0TestClient) GetEnvironment(id string) *models.Environment {
+	environment, err := l.Client.GetEnvironment(id)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return environment
+}
+
+func (l *Layer0TestClient) GetLoadBalancer(id string) *models.LoadBalancer {
+	loadBalancer, err := l.Client.GetLoadBalancer(id)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return loadBalancer
+}
+
+func (l *Layer0TestClient) GetDeploy(id string) *models.Deploy {
+	deploy, err := l.Client.GetDeploy(id)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return deploy
+}
+
 func (l *Layer0TestClient) GetService(id string) *models.Service {
 	service, err := l.Client.GetService(id)
 	if err != nil {
@@ -96,15 +123,6 @@ func (l *Layer0TestClient) GetTask(id string) *models.Task {
 	}
 
 	return task
-}
-
-func (l *Layer0TestClient) GetEnvironment(id string) *models.Environment {
-	environment, err := l.Client.GetEnvironment(id)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	return environment
 }
 
 func (l *Layer0TestClient) ListEnvironments() []*models.EnvironmentSummary {
