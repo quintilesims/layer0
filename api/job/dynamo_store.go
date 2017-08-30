@@ -1,9 +1,8 @@
-package job_store
+package job
 
 import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -47,7 +46,7 @@ func (d *DynamoJobStore) Delete(jobID string) error {
 	return d.table.Delete("JobID", jobID).Run()
 }
 
-func (d *DynamoJobStore) UpdateJobStatus(jobID string, status job.JobStatus) error {
+func (d *DynamoJobStore) UpdateJobStatus(jobID string, status JobStatus) error {
 	if err := d.table.Update("JobID", jobID).Set("JobStatus", status).Run(); err != nil {
 		return err
 	}

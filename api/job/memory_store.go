@@ -1,9 +1,8 @@
-package job_store
+package job
 
 import (
 	"fmt"
 
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -51,7 +50,7 @@ func (m *MemoryJobStore) SelectByID(jobID string) (*models.Job, error) {
 	return nil, fmt.Errorf("Job with id '%d' does not exist", jobID)
 }
 
-func (m *MemoryJobStore) UpdateJobStatus(jobID string, status job.JobStatus) error {
+func (m *MemoryJobStore) UpdateJobStatus(jobID string, status JobStatus) error {
 	job, err := m.SelectByID(jobID)
 	if err != nil {
 		return err
