@@ -56,6 +56,22 @@ func runTest(b *testing.B, c StressTestCase) {
 		"ListTasks":         func() { layer0.ListTasks() },
 	}
 
+	if c.NumEnvironments > 0 {
+		methodsToBenchmark["GetEnvironment"] = func() { layer0.GetEnvironment(tfContext.Output("random_environment")) }
+	}
+
+	if c.NumLoadBalancers > 0 {
+		methodsToBenchmark["GetLoadBalancer"] = func() { layer0.GetLoadBalancer(tfContext.Output("random_load_balancer")) }
+	}
+
+	if c.NumDeploys > 0 {
+		methodsToBenchmark["GetDeploy"] = func() { layer0.GetDeploy(tfContext.Output("random_deploy")) }
+	}
+
+	if c.NumServices > 0 {
+		methodsToBenchmark["GetService"] = func() { layer0.GetService(tfContext.Output("random_service")) }
+	}
+
 	benchmark(b, methodsToBenchmark)
 }
 
