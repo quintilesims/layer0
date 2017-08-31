@@ -54,8 +54,8 @@ func (d *Dispatcher) Run() {
 }
 
 func (d *Dispatcher) runJob(job *models.Job) error {
-	 // todo: use config timeout
-        timeout := time.Minute * 1
+	// todo: use config timeout
+	timeout := time.Minute * 1
 
 	c, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()

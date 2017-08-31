@@ -1,17 +1,17 @@
 package aws
 
 import (
+	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 type TaskProvider struct {
 	AWS      *awsc.Client
-	TagStore tag_store.TagStore
+	TagStore tag.Store
 }
 
-func NewTaskProvider(a *awsc.Client, t tag_store.TagStore) *TaskProvider {
+func NewTaskProvider(a *awsc.Client, t tag.Store) *TaskProvider {
 	return &TaskProvider{
 		AWS:      a,
 		TagStore: t,

@@ -6,7 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
-	"github.com/quintilesims/layer0/common/db/tag_store"
+	"github.com/quintilesims/layer0/api/tag"
 )
 
 func getEnvironmentSGName(environmentID string) string {
@@ -72,7 +72,7 @@ func deleteSG(ec2api ec2iface.EC2API, securityGroupID string) error {
 	return nil
 }
 
-func deleteEntityTags(tagStore tag_store.TagStore, entityType, entityID string) error {
+func deleteEntityTags(tagStore tag.Store, entityType, entityID string) error {
 	tags, err := tagStore.SelectByTypeAndID(entityType, entityID)
 	if err != nil {
 		return err

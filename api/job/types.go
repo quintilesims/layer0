@@ -3,7 +3,7 @@ package job
 type JobType string
 
 func (j JobType) String() string {
-        return string(j)
+	return string(j)
 }
 
 const (
@@ -22,7 +22,7 @@ const (
 type JobStatus string
 
 func (j JobStatus) String() string {
-        return string(j)
+	return string(j)
 }
 
 const (
