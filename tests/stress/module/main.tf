@@ -37,17 +37,9 @@ resource "random_pet" "deploy_families" {
   count  = "${var.num_deploy_families == 0 ? 1 : var.num_deploy_families}"
 }
 
-data "template_file" "deploy" {
-  template = "${file("${path.module}/Dockerrun.aws.json")}"
-
-  vars {
-    deploy_command = "${var.deploy_command}"
-  }
-}
-
 resource "layer0_deploy" "td" {
   name    = "${element(random_pet.deploy_families.*.id, count.index)}"
-  content = "${data.template_file.deploy.rendered}"
+  content = "${file("${path.module}/Dockerrun.aws.json")}"
   count   = "${var.num_deploys}"
 }
 

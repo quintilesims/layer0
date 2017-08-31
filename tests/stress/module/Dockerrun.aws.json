@@ -7,7 +7,7 @@
             "entrypoint": [ "/bin/sh", "-c" ],
             "essential": true,
             "memory": 100,
-            "command": [ "${deploy_command}" ]
+            "command": [ "while true ; do echo LONG RUNNING SERVICE ; sleep 5 ; done" ]
         }
     ]
 }
