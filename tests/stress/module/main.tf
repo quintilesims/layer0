@@ -15,11 +15,6 @@ resource "layer0_environment" "te" {
   count = "${var.num_environments}"
 }
 
-resource "random_shuffle" "environments" {
-  input = ["${layer0_environment.te.*.id}"]
-  count = "${var.num_environments == 0 ? 0 : 1}"
-}
-
 resource "random_pet" "load_balancer_names" {
   length = 1
   count  = "${var.num_load_balancers}"
@@ -27,7 +22,7 @@ resource "random_pet" "load_balancer_names" {
 
 resource "layer0_load_balancer" "tlb" {
   name        = "${element(random_pet.load_balancer_names.*.id, count.index)}"
-  environment = "${element(random_shuffle.environments.result, count.index)}"
+  environment = "${element(layer0_environment.te.*.id, count.index)}"
   count       = "${var.num_load_balancers}"
 
   port {
@@ -37,18 +32,9 @@ resource "layer0_load_balancer" "tlb" {
   }
 }
 
-resource "random_shuffle" "load_balancers" {
-  input = ["${layer0_load_balancer.tlb.*.id}"]
-  count = "${var.num_load_balancers == 0 ? 0 : 1}"
-}
-
 resource "random_pet" "deploy_families" {
   length = 1
   count  = "${var.num_deploy_families == 0 ? 1 : var.num_deploy_families}"
-}
-
-resource "random_shuffle" "deploy_families" {
-  input = ["${random_pet.deploy_families.*.id}"]
 }
 
 data "template_file" "deploy" {
@@ -60,14 +46,9 @@ data "template_file" "deploy" {
 }
 
 resource "layer0_deploy" "td" {
-  name    = "${element(random_shuffle.deploy_families.result, count.index)}"
+  name    = "${element(random_pet.deploy_families.*.id, count.index)}"
   content = "${data.template_file.deploy.rendered}"
   count   = "${var.num_deploys}"
-}
-
-resource "random_shuffle" "deploys" {
-  input = ["${layer0_deploy.td.*.id}"]
-  count = "${var.num_deploys == 0 ? 0 : 1}"
 }
 
 resource "random_pet" "service_names" {
@@ -77,13 +58,8 @@ resource "random_pet" "service_names" {
 
 resource "layer0_service" "ts" {
   name        = "${element(random_pet.service_names.*.id, count.index)}"
-  environment = "${element(random_shuffle.environments.result, count.index)}"
-  deploy      = "${element(random_shuffle.deploys.result, count.index)}"
+  environment = "${element(layer0_environment.te.*.id, count.index)}"
+  deploy      = "${element(layer0_deploy.td.*.id, count.index)}"
   scale       = 1
   count       = "${var.num_services}"
-}
-
-resource "random_shuffle" "services" {
-  input = ["${layer0_service.ts.*.id}"]
-  count = "${var.num_services == 0 ? 0 : 1}"
 }
