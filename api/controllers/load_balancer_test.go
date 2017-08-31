@@ -4,10 +4,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
-	"github.com/quintilesims/layer0/api/scheduler"
-	"github.com/quintilesims/layer0/api/scheduler/mock_scheduler"
-	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,6 +14,10 @@ import (
 func TestCreateLoadBalancer(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobScheduler)
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb1",
@@ -30,32 +33,14 @@ func TestCreateLoadBalancer(t *testing.T) {
 		},
 	}
 
-	LoadBalancerModel := models.LoadBalancer{
-		EnvironmentID:   "e1",
-		EnvironmentName: "environment1",
-		HealthCheck: models.HealthCheck{
-			Target:             "80",
-			Interval:           60,
-			Timeout:            60,
-			HealthyThreshold:   3,
-			UnhealthyThreshold: 3,
-		},
-		IsPublic:         true,
-		LoadBalancerID:   "lb1",
-		LoadBalancerName: "loadbalancer1",
-		Ports:            []models.Port{},
-		ServiceID:        "s1",
-		ServiceName:      "service1",
-		URL:              "http://some-url.com",
+	sjr := models.ScheduleJobRequest{
+		JobType: job.CreateLoadBalancerJob.String(),
+		Request: req,
 	}
 
-	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
-	mockLoadBalancer := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancer, mockJobScheduler)
-
-	mockLoadBalancer.EXPECT().
-		Create(req).
-		Return(&LoadBalancerModel, nil)
+	mockJobScheduler.EXPECT().
+		Schedule(sjr).
+		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
 	resp, err := controller.CreateLoadBalancer(c)
@@ -63,44 +48,52 @@ func TestCreateLoadBalancer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var response models.LoadBalancer
+	var response models.Job
 	recorder := unmarshalBody(t, resp, &response)
 
-	assert.Equal(t, 202, recorder.Code)
-	assert.Equal(t, LoadBalancerModel, response)
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, "jid", response.JobID)
 }
 
 func TestDeleteLoadBalancer(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockJobScheduler := scheduler.ScheduleJobFunc(func(req models.CreateJobRequest) (string, error) {
-		assert.Equal(t, job.DeleteLoadBalancerJob, req.JobType)
-		assert.Equal(t, "lb1", req.Request)
+	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobScheduler)
 
-		return "j1", nil
-	})
+	sjr := models.ScheduleJobRequest{
+		JobType: job.DeleteLoadBalancerJob.String(),
+		Request: "lid",
+	}
 
-	mockLoadBalancer := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancer, mockJobScheduler)
+	mockJobScheduler.EXPECT().
+		Schedule(sjr).
+		Return("jid", nil)
 
-	c := newFireballContext(t, nil, map[string]string{"id": "lb1"})
+	c := newFireballContext(t, nil, map[string]string{"id": "lid"})
 	resp, err := controller.DeleteLoadBalancer(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	recorder := unmarshalBody(t, resp, nil)
-	assert.Equal(t, 202, recorder.Code)
-	assert.Equal(t, "j1", recorder.HeaderMap.Get("X-JobID"))
-	assert.Equal(t, "/job/j1", recorder.HeaderMap.Get("Location"))
+	var response models.Job
+	recorder := unmarshalBody(t, resp, &response)
+
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, "jid", response.JobID)
 }
 
 func TestGetLoadBalancer(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	LoadBalancerModel := models.LoadBalancer{
+	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobScheduler)
+
+	loadBalancerModel := models.LoadBalancer{
 		EnvironmentID:    "e1",
 		EnvironmentName:  "environment1",
 		HealthCheck:      models.HealthCheck{},
@@ -113,13 +106,9 @@ func TestGetLoadBalancer(t *testing.T) {
 		URL:              "http://some-url.com",
 	}
 
-	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
-	mockLoadBalancer := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancer, mockJobScheduler)
-
-	mockLoadBalancer.EXPECT().
+	mockLoadBalancerProvider.EXPECT().
 		Read("lb1").
-		Return(&LoadBalancerModel, nil)
+		Return(&loadBalancerModel, nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "lb1"})
 	resp, err := controller.GetLoadBalancer(c)
@@ -131,14 +120,18 @@ func TestGetLoadBalancer(t *testing.T) {
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, LoadBalancerModel, response)
+	assert.Equal(t, loadBalancerModel, response)
 }
 
 func TestListLoadBalancers(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	LoadBalancerSummaries := []models.LoadBalancerSummary{
+	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobScheduler)
+
+	loadBalancerSummaries := []models.LoadBalancerSummary{
 		{
 			LoadBalancerID:   "lb1",
 			LoadBalancerName: "LoadBalancer1",
@@ -153,13 +146,9 @@ func TestListLoadBalancers(t *testing.T) {
 		},
 	}
 
-	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
-	mockLoadBalancer := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancer, mockJobScheduler)
-
-	mockLoadBalancer.EXPECT().
+	mockLoadBalancerProvider.EXPECT().
 		List().
-		Return(LoadBalancerSummaries, nil)
+		Return(loadBalancerSummaries, nil)
 
 	c := newFireballContext(t, nil, nil)
 	resp, err := controller.ListLoadBalancers(c)
@@ -171,5 +160,5 @@ func TestListLoadBalancers(t *testing.T) {
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, LoadBalancerSummaries, response)
+	assert.Equal(t, loadBalancerSummaries, response)
 }

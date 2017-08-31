@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -13,24 +15,23 @@ func TestCreateDeploy(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewDeployController(mockDeployProvider, mockJobScheduler)
+
 	req := models.CreateDeployRequest{
 		DeployName: "deploy1",
 		Dockerrun:  ([]byte("content")),
 	}
 
-	DeployModel := models.Deploy{
-		DeployID:   "d1",
-		DeployName: "deploy1",
-		Dockerrun:  ([]byte("content")),
-		Version:    "1",
+	sjr := models.ScheduleJobRequest{
+		JobType: job.CreateDeployJob.String(),
+		Request: req,
 	}
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
-
-	mockDeploy.EXPECT().
-		Create(req).
-		Return(&DeployModel, nil)
+	mockJobScheduler.EXPECT().
+		Schedule(sjr).
+		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
 	resp, err := controller.CreateDeploy(c)
@@ -38,34 +39,41 @@ func TestCreateDeploy(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var response models.Deploy
+	var response models.Job
 	recorder := unmarshalBody(t, resp, &response)
 
-	assert.Equal(t, 202, recorder.Code)
-	assert.Equal(t, DeployModel, response)
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, "jid", response.JobID)
 }
 
 func TestDeleteDeploy(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
+	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewDeployController(mockDeployProvider, mockJobScheduler)
 
-	mockDeploy.EXPECT().
-		Delete("d1").
-		Return(nil)
+	sjr := models.ScheduleJobRequest{
+		JobType: job.DeleteDeployJob.String(),
+		Request: "did",
+	}
 
-	c := newFireballContext(t, nil, map[string]string{"id": "d1"})
+	mockJobScheduler.EXPECT().
+		Schedule(sjr).
+		Return("jid", nil)
+
+	c := newFireballContext(t, nil, map[string]string{"id": "did"})
 	resp, err := controller.DeleteDeploy(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Deploy
+	var response models.Job
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, "jid", response.JobID)
 }
 
 func TestGetDeploy(t *testing.T) {
@@ -79,10 +87,11 @@ func TestGetDeploy(t *testing.T) {
 		Version:    "1",
 	}
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
+	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewDeployController(mockDeployProvider, mockJobScheduler)
 
-	mockDeploy.EXPECT().
+	mockDeployProvider.EXPECT().
 		Read("d1").
 		Return(&DeployModel, nil)
 
@@ -103,7 +112,11 @@ func TestListDeploys(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	DeploySummaries := []models.DeploySummary{
+	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewDeployController(mockDeployProvider, mockJobScheduler)
+
+	deploySummaries := []models.DeploySummary{
 		{
 			DeployID:   "d1",
 			DeployName: "deploy1",
@@ -116,12 +129,9 @@ func TestListDeploys(t *testing.T) {
 		},
 	}
 
-	mockDeploy := mock_provider.NewMockDeployProvider(ctrl)
-	controller := NewDeployController(mockDeploy)
-
-	mockDeploy.EXPECT().
+	mockDeployProvider.EXPECT().
 		List().
-		Return(DeploySummaries, nil)
+		Return(deploySummaries, nil)
 
 	c := newFireballContext(t, nil, nil)
 	resp, err := controller.ListDeploys(c)
@@ -133,5 +143,5 @@ func TestListDeploys(t *testing.T) {
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, DeploySummaries, response)
+	assert.Equal(t, deploySummaries, response)
 }

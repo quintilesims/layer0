@@ -1,17 +1,25 @@
 package controllers
 
 import (
-	"fmt"
-	"net/http"
-
+	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
 )
 
-func newJobResponse(jobID string) fireball.ResponseFunc {
-	return fireball.ResponseFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Location", fmt.Sprintf("/job/%s", jobID))
-		w.Header().Set("X-JobID", jobID)
-		w.WriteHeader(http.StatusAccepted)
-		w.Write(nil)
-	})
+func scheduleJob(scheduler job.Scheduler, jobType job.JobType, req interface{}) (fireball.Response, error) {
+	job := models.ScheduleJobRequest{
+		JobType: jobType.String(),
+		Request: req,
+	}
+
+	jobID, err := scheduler.Schedule(job)
+	if err != nil {
+		return nil, err
+	}
+
+	resp := models.ScheduleJobResponse{
+		JobID: jobID,
+	}
+
+	return fireball.NewJSONResponse(200, resp)
 }

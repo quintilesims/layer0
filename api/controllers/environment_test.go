@@ -4,10 +4,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
-	"github.com/quintilesims/layer0/api/scheduler"
-	"github.com/quintilesims/layer0/api/scheduler/mock_scheduler"
-	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,6 +14,10 @@ import (
 func TestCreateEnvironment(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobScheduler)
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName: "env",
@@ -24,24 +27,14 @@ func TestCreateEnvironment(t *testing.T) {
 		AMIID:           "ami123",
 	}
 
-	environmentModel := models.Environment{
-		EnvironmentID:   "e1",
-		EnvironmentName: "env",
-		InstanceSize:    "m3.medium",
-		ClusterCount:    1,
-		SecurityGroupID: "sg1",
-		OperatingSystem: "linux",
-		AMIID:           "ami123",
-		Links:           []string{"e2"},
+	sjr := models.ScheduleJobRequest{
+		JobType: job.CreateEnvironmentJob.String(),
+		Request: req,
 	}
 
-	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
-	mockEnvironment := mock_provider.NewMockEnvironmentProvider(ctrl)
-	controller := NewEnvironmentController(mockEnvironment, mockJobScheduler)
-
-	mockEnvironment.EXPECT().
-		Create(req).
-		Return(&environmentModel, nil)
+	mockJobScheduler.EXPECT().
+		Schedule(sjr).
+		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
 	resp, err := controller.CreateEnvironment(c)
@@ -49,42 +42,50 @@ func TestCreateEnvironment(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var response models.Environment
+	var response models.Job
 	recorder := unmarshalBody(t, resp, &response)
 
-	assert.Equal(t, 202, recorder.Code)
-	assert.Equal(t, environmentModel, response)
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, "jid", response.JobID)
 }
 
 func TestDeleteEnvironment(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockJobScheduler := scheduler.ScheduleJobFunc(func(req models.CreateJobRequest) (string, error) {
-		assert.Equal(t, job.DeleteEnvironmentJob, req.JobType)
-		assert.Equal(t, "e1", req.Request)
+	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobScheduler)
 
-		return "j1", nil
-	})
+	sjr := models.ScheduleJobRequest{
+		JobType: job.DeleteEnvironmentJob.String(),
+		Request: "eid",
+	}
 
-	mockEnvironment := mock_provider.NewMockEnvironmentProvider(ctrl)
-	controller := NewEnvironmentController(mockEnvironment, mockJobScheduler)
+	mockJobScheduler.EXPECT().
+		Schedule(sjr).
+		Return("jid", nil)
 
-	c := newFireballContext(t, nil, map[string]string{"id": "e1"})
+	c := newFireballContext(t, nil, map[string]string{"id": "eid"})
 	resp, err := controller.DeleteEnvironment(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	recorder := unmarshalBody(t, resp, nil)
-	assert.Equal(t, 202, recorder.Code)
-	assert.Equal(t, "j1", recorder.HeaderMap.Get("X-JobID"))
-	assert.Equal(t, "/job/j1", recorder.HeaderMap.Get("Location"))
+	var response models.Job
+	recorder := unmarshalBody(t, resp, &response)
+
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, "jid", response.JobID)
 }
 
 func TestGetEnvironment(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobScheduler)
 
 	environmentModel := models.Environment{
 		EnvironmentID:   "e1",
@@ -97,11 +98,7 @@ func TestGetEnvironment(t *testing.T) {
 		Links:           []string{"e2"},
 	}
 
-	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
-	mockEnvironment := mock_provider.NewMockEnvironmentProvider(ctrl)
-	controller := NewEnvironmentController(mockEnvironment, mockJobScheduler)
-
-	mockEnvironment.EXPECT().
+	mockEnvironmentProvider.EXPECT().
 		Read("e1").
 		Return(&environmentModel, nil)
 
@@ -122,6 +119,10 @@ func TestListEnvironments(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobScheduler)
+
 	environmentSummaries := []models.EnvironmentSummary{
 		{
 			EnvironmentID:   "e1",
@@ -135,11 +136,7 @@ func TestListEnvironments(t *testing.T) {
 		},
 	}
 
-	mockJobScheduler := mock_scheduler.NewMockJobScheduler(ctrl)
-	mockEnvironment := mock_provider.NewMockEnvironmentProvider(ctrl)
-	controller := NewEnvironmentController(mockEnvironment, mockJobScheduler)
-
-	mockEnvironment.EXPECT().
+	mockEnvironmentProvider.EXPECT().
 		List().
 		Return(environmentSummaries, nil)
 
