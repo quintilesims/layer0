@@ -10,9 +10,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws/defaults"
 	"github.com/quintilesims/layer0/api/controllers"
 	"github.com/quintilesims/layer0/api/provider/aws"
+	"github.com/quintilesims/layer0/api/tag"
 	awsclient "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/logging"
 	"github.com/urfave/cli"
 	"github.com/zpatrick/fireball"
@@ -55,7 +55,7 @@ func main() {
 		awsConfig.WithRegion(cfg.Region())
 
 		client := awsclient.NewClient(awsConfig)
-		tagStore := tag_store.NewDynamoTagStore(awsConfig, cfg.DynamoTagTable())
+		tagStore := tag.NewDynamoTagStore(awsConfig, cfg.DynamoTagTable())
 
 		// todo: inject job_store.JobStore
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
@@ -68,9 +68,9 @@ func main() {
 		routes := controllers.NewSwaggerController(Version).Routes()
 		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, nil).Routes()...)
 		routes = append(routes, controllers.NewServiceController(serviceProvider, nil).Routes()...)
-		routes = append(routes, controllers.NewDeployController(deployProvider).Routes()...)
+		routes = append(routes, controllers.NewDeployController(deployProvider, nil).Routes()...)
 		routes = append(routes, controllers.NewLoadBalancerController(loadbalancerProvider, nil).Routes()...)
-		routes = append(routes, controllers.NewTaskController(taskProvider).Routes()...)
+		routes = append(routes, controllers.NewTaskController(taskProvider, nil).Routes()...)
 
 		// todo: add decorators to routes
 		server := fireball.NewApp(routes)

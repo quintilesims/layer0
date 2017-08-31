@@ -4,7 +4,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-type TagStore interface {
+type Store interface {
 	Init() error
 	Delete(entityType, entityID, key string) error
 	Insert(tag models.Tag) error
