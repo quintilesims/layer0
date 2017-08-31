@@ -98,3 +98,79 @@ func Benchmark5Services(b *testing.B) {
 		NumServices:     5,
 	})
 }
+
+func Benchmark25Environments(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumEnvironments: 25,
+	})
+}
+
+func Benchmark10Environments10Deploys(b *testing.B) {
+	runTest(b, StressTestCase{
+		DeployCommand:   serviceDeployCommand,
+		NumDeploys:      10,
+		NumEnvironments: 10,
+	})
+}
+
+func Benchmark20Environments20Deploys(b *testing.B) {
+	runTest(b, StressTestCase{
+		DeployCommand:   serviceDeployCommand,
+		NumDeploys:      20,
+		NumEnvironments: 20,
+	})
+}
+
+func Benchmark5Environments50Deploys(b *testing.B) {
+	runTest(b, StressTestCase{
+		DeployCommand:   serviceDeployCommand,
+		NumDeploys:      50,
+		NumEnvironments: 5,
+	})
+}
+
+func Benchmark5Environments100Deploys(b *testing.B) {
+	runTest(b, StressTestCase{
+		DeployCommand:   serviceDeployCommand,
+		NumDeploys:      100,
+		NumEnvironments: 5,
+	})
+}
+
+func Benchmark10Environments10Deploys10Services(b *testing.B) {
+	runTest(b, StressTestCase{
+		DeployCommand:   serviceDeployCommand,
+		NumDeploys:      10,
+		NumEnvironments: 10,
+		NumServices:     10,
+	})
+}
+
+func Benchmark5Environments5Deploys50Services(b *testing.B) {
+	runTest(b, StressTestCase{
+		DeployCommand:   serviceDeployCommand,
+		NumDeploys:      5,
+		NumEnvironments: 5,
+		NumServices:     50,
+	})
+}
+
+func Benchmark15Environments15Deploys15Services15LoadBalancers(b *testing.B) {
+	runTest(b, StressTestCase{
+		DeployCommand:    serviceDeployCommand,
+		NumDeploys:       15,
+		NumEnvironments:  15,
+		NumLoadBalancers: 15,
+		NumServices:      15,
+	})
+}
+
+func Benchmark25Environments25Deploys25Services25LoadBalancers(b *testing.B) {
+	runTest(b, StressTestCase{
+		DeployCommand:    serviceDeployCommand,
+		NumDeploys:       25,
+		NumEnvironments:  25,
+		NumLoadBalancers: 25,
+		NumServices:      25,
+	})
+}
