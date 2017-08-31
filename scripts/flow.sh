@@ -19,18 +19,6 @@ update_api() {
     popd
 }
 
-update_runner() {
-    echo "Updating Runner"
-
-    pushd $LAYER0_PATH/runner
-	make release
-    popd
-
-    pushd $LAYER0_PATH/setup
-        go run main.go set "$LAYER0_PREFIX" --input version="$GIT_HASH"
-    popd
-}
-
 apply() {
     echo "Applying Changes"
 
@@ -67,26 +55,6 @@ delete() {
     done
 }
 
-run_jobs() {
-    declare -A jobs
-
-    pushd $LAYER0_PATH/runner > /dev/null
-        # job_status 3 means job was completed
-        job_ids=$(l0 -o json job list | jq -r '.[] | select(.job_status!=3) | .job_id')
-        for id in $job_ids; do
-            echo Running $id
-            go run main.go -j $id > /dev/null &
-            jobs[$!]=$id
-        done
-
-        for pid in ${!jobs[@]}; do
-            wait $pid
-            echo -e $BULLET ${jobs[$pid]}
-        done
-    popd > /dev/null
-}
-
-
 usage() {
     echo "Usage: flow [OPTIONS...] ARGUMENTS...
 Build and push Docker images from your current Layer0 code.
@@ -98,9 +66,7 @@ Options:
 
 Arguments:
     api             Build and update docker image for the Layer0 API
-    runner          Build and update docker image for the Layer0 Runner
     delete          Delete all entities in a Layer0
-    runjobs         Run jobs locally
 "
 }
 
@@ -135,15 +101,8 @@ do
             update_api
             should_apply=true
             ;;
-        runner)
-            update_runner
-            should_apply=true
-            ;;
         delete)
             delete
-            ;;
-        runjobs)
-            run_jobs
             ;;
         *)
             echo "Incorrect Usage. Unknown argument '"$i"'"

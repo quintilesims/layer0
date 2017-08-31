@@ -31,7 +31,7 @@ undesired consequences (the double slash is intentional).
 
 const INPUT_VERSION_DESCRIPTION = `
 Version: The version input variable specifies the tag to use for the Layer0 
-Docker images 'quintilesims/l0-api' and 'quintilesims/l0-runner'. This value
+Docker images 'quintilesims/l0-api'. This value
 should match the version specified in the 'source' input variable. For example,
 if the source is 'github.com/quintilesims/layer0/setup?ref=v1.2.3', the 
 version should be 'v1.2.3'.
