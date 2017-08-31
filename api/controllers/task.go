@@ -3,22 +3,22 @@ package controllers
 import (
 	"encoding/json"
 
+	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
-	"github.com/quintilesims/layer0/api/scheduler"
 	"github.com/quintilesims/layer0/common/errors"
-	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
 )
 
 type TaskController struct {
 	TaskProvider provider.TaskProvider
-	JobScheduler scheduler.JobScheduler
+	JobScheduler job.Scheduler
 }
 
-func NewTaskController(t provider.TaskProvider) *TaskController {
+func NewTaskController(t provider.TaskProvider, j job.Scheduler) *TaskController {
 	return &TaskController{
 		TaskProvider: t,
+		JobScheduler: j,
 	}
 }
 
@@ -48,29 +48,15 @@ func (t *TaskController) CreateTask(c *fireball.Context) (fireball.Response, err
 	}
 
 	if err := req.Validate(); err != nil {
-		return nil, err
+		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	job := models.CreateJobRequest{
-		JobType: job.CreateTaskJob,
-		Request: req,
-	}
-
-	jobID, err := t.JobScheduler.ScheduleJob(job)
-	if err != nil {
-		return nil, err
-	}
-
-	return newJobResponse(jobID), nil
+	return scheduleJob(t.JobScheduler, job.CreateTaskJob, req)
 }
 
 func (t *TaskController) DeleteTask(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	if err := t.TaskProvider.Delete(id); err != nil {
-		return nil, err
-	}
-
-	return fireball.NewJSONResponse(200, nil)
+	return scheduleJob(t.JobScheduler, job.DeleteTaskJob, id)
 }
 
 func (t *TaskController) GetTask(c *fireball.Context) (fireball.Response, error) {

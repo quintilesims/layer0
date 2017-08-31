@@ -3,20 +3,19 @@ package controllers
 import (
 	"encoding/json"
 
+	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
-	"github.com/quintilesims/layer0/api/scheduler"
 	"github.com/quintilesims/layer0/common/errors"
-	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
 )
 
 type EnvironmentController struct {
 	EnvironmentProvider provider.EnvironmentProvider
-	JobScheduler        scheduler.JobScheduler
+	JobScheduler        job.Scheduler
 }
 
-func NewEnvironmentController(e provider.EnvironmentProvider, j scheduler.JobScheduler) *EnvironmentController {
+func NewEnvironmentController(e provider.EnvironmentProvider, j job.Scheduler) *EnvironmentController {
 	return &EnvironmentController{
 		EnvironmentProvider: e,
 		JobScheduler:        j,
@@ -52,32 +51,12 @@ func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	job := models.CreateJobRequest{
-		JobType: job.CreateEnvironmentJob,
-		Request: req,
-	}
-
-	jobID, err := e.JobScheduler.ScheduleJob(job)
-	if err != nil {
-		return nil, err
-	}
-
-	return newJobResponse(jobID), nil
+	return scheduleJob(e.JobScheduler, job.CreateEnvironmentJob, req)
 }
 
 func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	job := models.CreateJobRequest{
-		JobType: job.DeleteEnvironmentJob,
-		Request: id,
-	}
-
-	jobID, err := e.JobScheduler.ScheduleJob(job)
-	if err != nil {
-		return nil, err
-	}
-
-	return newJobResponse(jobID), nil
+	return scheduleJob(e.JobScheduler, job.DeleteEnvironmentJob, id)
 }
 
 func (e *EnvironmentController) GetEnvironment(c *fireball.Context) (fireball.Response, error) {

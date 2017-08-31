@@ -2,6 +2,10 @@ package job
 
 type JobType string
 
+func (j JobType) String() string {
+        return string(j)
+}
+
 const (
 	CreateDeployJob       JobType = "CreateDeploy"
 	CreateEnvironmentJob  JobType = "CreateEnvironment"
@@ -16,6 +20,10 @@ const (
 )
 
 type JobStatus string
+
+func (j JobStatus) String() string {
+        return string(j)
+}
 
 const (
 	Pending    JobStatus = "Pending"

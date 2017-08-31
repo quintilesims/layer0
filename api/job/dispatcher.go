@@ -37,9 +37,6 @@ func (d *Dispatcher) Run() {
 	// get jobs from the store where job.Status == Pending
 	var jobs []*models.Job
 
-	// todo: use config timeout
-	timeout = time.Minute * 1
-
 	for _, job := range jobs {
 		// use a semver so we don't run > max jobs
 		// attempt to acquire a lock on the job
@@ -54,16 +51,17 @@ func (d *Dispatcher) Run() {
 			}
 		}()
 	}
-
-	return nil
 }
 
 func (d *Dispatcher) runJob(job *models.Job) error {
+	 // todo: use config timeout
+        timeout := time.Minute * 1
+
 	c, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
-	
-	d.runner(c, job)
+
+	d.runner(c, nil, job)
 	// todo: how to determine errors?
 	// do we always retry until timeout and have the runner log errors along the way?
-	return nil 
+	return nil
 }

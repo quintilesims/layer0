@@ -3,20 +3,19 @@ package controllers
 import (
 	"encoding/json"
 
+	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
-	"github.com/quintilesims/layer0/api/scheduler"
 	"github.com/quintilesims/layer0/common/errors"
-	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
 )
 
 type LoadBalancerController struct {
 	LoadBalancerProvider provider.LoadBalancerProvider
-	JobScheduler         scheduler.JobScheduler
+	JobScheduler         job.Scheduler
 }
 
-func NewLoadBalancerController(l provider.LoadBalancerProvider, j scheduler.JobScheduler) *LoadBalancerController {
+func NewLoadBalancerController(l provider.LoadBalancerProvider, j job.Scheduler) *LoadBalancerController {
 	return &LoadBalancerController{
 		LoadBalancerProvider: l,
 		JobScheduler:         j,
@@ -52,32 +51,12 @@ func (l *LoadBalancerController) CreateLoadBalancer(c *fireball.Context) (fireba
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	job := models.CreateJobRequest{
-		JobType: job.CreateLoadBalancerJob,
-		Request: req,
-	}
-
-	jobID, err := l.JobScheduler.ScheduleJob(job)
-	if err != nil {
-		return nil, err
-	}
-
-	return newJobResponse(jobID), nil
+	return scheduleJob(l.JobScheduler, job.CreateLoadBalancerJob, req)
 }
 
 func (l *LoadBalancerController) DeleteLoadBalancer(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	job := models.CreateJobRequest{
-		JobType: job.DeleteLoadBalancerJob,
-		Request: id,
-	}
-
-	jobID, err := l.JobScheduler.ScheduleJob(job)
-	if err != nil {
-		return nil, err
-	}
-
-	return newJobResponse(jobID), nil
+	return scheduleJob(l.JobScheduler, job.DeleteLoadBalancerJob, id)
 }
 
 func (l *LoadBalancerController) GetLoadBalancer(c *fireball.Context) (fireball.Response, error) {
