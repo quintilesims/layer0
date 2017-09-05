@@ -91,10 +91,10 @@ func runTest(b *testing.B, c StressTestCase) {
 		tasksCreated := 0
 		for copies := c.NumTasks / 2; tasksCreated < c.NumTasks; copies = copies / 2 {
 			taskName := fmt.Sprintf("Task%v", copies)
-			go func(taskName string, copies int) {
+			go func() {
 				log.Debugf("Creating task %v", taskName)
 				layer0.CreateTask(taskName, environmentIDs[0], deployIDs[0], copies, nil)
-			}(taskName, copies)
+			}()
 
 			tasksCreated += copies
 			if copies <= 1 {
