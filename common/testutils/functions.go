@@ -2,11 +2,10 @@ package testutils
 
 import (
 	"reflect"
-	"testing"
 	"time"
 )
 
-func AssertEqual(t *testing.T, result, expected interface{}) {
+func AssertEqual(t Tester, result, expected interface{}) {
 	if !reflect.DeepEqual(result, expected) {
 		t.Fatalf(
 			"\n\tObserved: %#v (%v) \n\tExpected: %#v (%v)",
@@ -17,11 +16,11 @@ func AssertEqual(t *testing.T, result, expected interface{}) {
 	}
 }
 
-func AssertAny(t *testing.T, result interface{}, expected ...interface{}) {
+func AssertAny(t Tester, result interface{}, expected ...interface{}) {
 	AssertInSlice(t, result, expected)
 }
 
-func AssertInSlice(t *testing.T, expected, slice interface{}) {
+func AssertInSlice(t Tester, expected, slice interface{}) {
 	if reflect.TypeOf(slice).Kind() != reflect.Slice {
 		t.Fatalf("\n\t%v (%v) is not a slice", slice, reflect.TypeOf(slice))
 		return
@@ -43,7 +42,7 @@ func AssertInSlice(t *testing.T, expected, slice interface{}) {
 		reflect.TypeOf(slice))
 }
 
-func WaitFor(t *testing.T, interval, timeout time.Duration, conditionSatisfied func() bool) {
+func WaitFor(t Tester, interval, timeout time.Duration, conditionSatisfied func() bool) {
 	for start := time.Now(); time.Since(start) < timeout; time.Sleep(interval) {
 		if conditionSatisfied() {
 			return
