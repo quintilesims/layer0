@@ -3,19 +3,15 @@ package clients
 import (
 	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 )
 
-type Tester interface {
-	Fatal(args ...interface{})
-	Fatalf(format string, args ...interface{})
-}
-
 type Layer0TestClient struct {
-	T      Tester
+	T      testutils.Tester
 	Client *client.APIClient
 }
 
-func NewLayer0TestClient(t Tester, endpoint, token string) *Layer0TestClient {
+func NewLayer0TestClient(t testutils.Tester, endpoint, token string) *Layer0TestClient {
 	return &Layer0TestClient{
 		T: t,
 		Client: client.NewAPIClient(client.Config{
