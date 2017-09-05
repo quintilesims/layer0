@@ -1,11 +1,14 @@
 package system
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/tests/clients"
 	"github.com/quintilesims/tftest"
 )
@@ -16,6 +19,7 @@ type StressTestCase struct {
 	NumEnvironments   int
 	NumLoadBalancers  int
 	NumServices       int
+	NumTasks          int
 }
 
 func runTest(b *testing.B, c StressTestCase) {
@@ -42,32 +46,65 @@ func runTest(b *testing.B, c StressTestCase) {
 	terraform.Apply()
 	defer terraform.Destroy()
 
-	methodsToBenchmark := map[string]func(){
-		"ListDeploys":       func() { layer0.ListDeploys() },
-		"ListEnvironments":  func() { layer0.ListEnvironments() },
-		"ListLoadBalancers": func() { layer0.ListLoadBalancers() },
-		"ListServices":      func() { layer0.ListServices() },
-		"ListTasks":         func() { layer0.ListTasks() },
-	}
+	methodsToBenchmark := map[string]func(){}
 
 	if c.NumDeploys > 0 {
 		deployIDs := strings.Split(terraform.Output("deploy_ids"), ",\n")
 		methodsToBenchmark["GetDeploy"] = func() { layer0.GetDeploy(deployIDs[0]) }
+		methodsToBenchmark["ListDeploys"] = func() { layer0.ListDeploys() }
 	}
 
 	if c.NumEnvironments > 0 {
 		environmentIDs := strings.Split(terraform.Output("environment_ids"), ",\n")
 		methodsToBenchmark["GetEnvironment"] = func() { layer0.GetEnvironment(environmentIDs[0]) }
+		methodsToBenchmark["ListEnvironments"] = func() { layer0.ListEnvironments() }
 	}
 
 	if c.NumLoadBalancers > 0 {
 		loadBalancerIDs := strings.Split(terraform.Output("load_balancer_ids"), ",\n")
 		methodsToBenchmark["GetLoadBalancer"] = func() { layer0.GetLoadBalancer(loadBalancerIDs[0]) }
+		methodsToBenchmark["ListLoadBalancers"] = func() { layer0.ListLoadBalancers() }
 	}
 
 	if c.NumServices > 0 {
 		serviceIDs := strings.Split(terraform.Output("service_ids"), ",\n")
 		methodsToBenchmark["GetService"] = func() { layer0.GetService(serviceIDs[0]) }
+		methodsToBenchmark["ListServices"] = func() { layer0.ListServices() }
+	}
+
+	if c.NumTasks > 0 {
+		methodsToBenchmark["ListTasks"] = func() { layer0.ListTasks() }
+
+		deployIDs := strings.Split(terraform.Output("deploy_ids"), ",\n")
+		environmentIDs := strings.Split(terraform.Output("environment_ids"), ",\n")
+
+		tasksCreated := 0
+		for copies := c.NumTasks / 2; tasksCreated < c.NumTasks; copies = copies / 2 {
+			taskName := fmt.Sprintf("Task%v", copies)
+			go func(taskName string, copies int) {
+				log.Debugf("Creating task %v", taskName)
+				layer0.CreateTask(taskName, environmentIDs[0], deployIDs[0], copies, nil)
+			}(taskName, copies)
+
+			tasksCreated += copies
+			if copies <= 1 {
+				copies++
+			}
+		}
+
+		testutils.WaitFor(b, time.Second*30, time.Minute*10, func() bool {
+			log.Debug("Waiting for all tasks to run")
+
+			var numTasks int
+			for _, taskSummary := range layer0.ListTasks() {
+				if taskSummary.EnvironmentID == environmentIDs[0] {
+					numTasks++
+				}
+			}
+
+			log.Debugf("%d/%d tasks have run", numTasks, c.NumTasks)
+			return numTasks >= c.NumTasks
+		})
 	}
 
 	benchmark(b, methodsToBenchmark)
@@ -111,13 +148,6 @@ func Benchmark20Environments20Deploys(b *testing.B) {
 	})
 }
 
-func Benchmark5Environments50Deploys(b *testing.B) {
-	runTest(b, StressTestCase{
-		NumDeploys:      50,
-		NumEnvironments: 5,
-	})
-}
-
 func Benchmark5Environments100Deploys(b *testing.B) {
 	runTest(b, StressTestCase{
 		NumDeploys:      100,
@@ -156,5 +186,13 @@ func Benchmark25Environments25Deploys25Services25LoadBalancers(b *testing.B) {
 		NumEnvironments:  25,
 		NumLoadBalancers: 25,
 		NumServices:      25,
+	})
+}
+
+func Benchmark100Tasks(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumDeploys:      1,
+		NumEnvironments: 1,
+		NumTasks:        100,
 	})
 }
