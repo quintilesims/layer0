@@ -23,6 +23,16 @@ type StressTestCase struct {
 }
 
 func runTest(b *testing.B, c StressTestCase) {
+	if c.NumTasks > 0 || c.NumServices > 0 {
+		if c.NumEnvironments <= 0 {
+			b.Fatalf("Cannot have Tasks and/or Services without Environments.")
+		}
+
+		if c.NumDeploys <= 0 {
+			b.Fatalf("Cannot have Tasks and/or Services without Deploys.")
+		}
+	}
+
 	vars := map[string]string{
 		"endpoint":            config.APIEndpoint(),
 		"token":               config.AuthToken(),
