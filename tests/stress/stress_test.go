@@ -5,10 +5,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
-	"time"
 
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/tests/clients"
 	"github.com/quintilesims/tftest"
 )
@@ -101,20 +99,6 @@ func runTest(b *testing.B, c StressTestCase) {
 				copies++
 			}
 		}
-
-		testutils.WaitFor(b, time.Second*30, time.Minute*10, func() bool {
-			log.Debug("Waiting for all tasks to run")
-
-			var numTasks int
-			for _, taskSummary := range layer0.ListTasks() {
-				if taskSummary.EnvironmentID == environmentIDs[0] {
-					numTasks++
-				}
-			}
-
-			log.Debugf("%d/%d tasks have run", numTasks, c.NumTasks)
-			return numTasks >= c.NumTasks
-		})
 	}
 
 	benchmark(b, methodsToBenchmark)
