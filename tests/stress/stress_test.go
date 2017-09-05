@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 	"testing"
@@ -8,6 +9,27 @@ import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/tests/clients"
 	"github.com/quintilesims/tftest"
+)
+
+const (
+	DEPLOY_SCALE_MIN        = 1
+	DEPLOY_SCALE_MED        = 50
+	DEPLOY_SCALE_MAX        = 100
+	DEPLOY_FAMILY_SCALE_MIN = 1
+	DEPLOY_FAMILY_SCALE_MED = 15
+	DEPLOY_FAMILY_SCALE_MAX = 30
+	ENVIRONMENT_SCALE_MIN   = 1
+	ENVIRONMENT_SCALE_MED   = 15
+	ENVIRONMENT_SCALE_MAX   = 30
+	LOAD_BALANCER_SCALE_MIN = 1
+	LOAD_BALANCER_SCALE_MED = 25
+	LOAD_BALANCER_SCALE_MAX = 50
+	SERVICE_SCALE_MIN       = 1
+	SERVICE_SCALE_MED       = 25
+	SERVICE_SCALE_MAX       = 50
+	TASK_SCALE_MIN          = 1
+	TASK_SCALE_MED          = 50
+	TASK_SCALE_MAX          = 100
 )
 
 type StressTestCase struct {
@@ -21,13 +43,17 @@ type StressTestCase struct {
 
 func runTest(b *testing.B, c StressTestCase) {
 	if c.NumTasks > 0 || c.NumServices > 0 {
-		if c.NumEnvironments <= 0 {
-			b.Fatalf("Cannot have Tasks and/or Services without Environments.")
+		if c.NumEnvironments == 0 {
+			c.NumEnvironments = ENVIRONMENT_SCALE_MIN
 		}
 
-		if c.NumDeploys <= 0 {
-			b.Fatalf("Cannot have Tasks and/or Services without Deploys.")
+		if c.NumDeploys == 0 {
+			c.NumDeploys = DEPLOY_SCALE_MIN
 		}
+	}
+
+	if c.NumLoadBalancers > 0 && c.NumEnvironments == 0 {
+		c.NumEnvironments = ENVIRONMENT_SCALE_MIN
 	}
 
 	vars := map[string]string{
@@ -84,7 +110,13 @@ func runTest(b *testing.B, c StressTestCase) {
 
 		deployIDs := strings.Split(terraform.Output("deploy_ids"), ",\n")
 		environmentIDs := strings.Split(terraform.Output("environment_ids"), ",\n")
-		layer0.CreateTask("tt", environmentIDs[0], deployIDs[0], c.NumTasks, nil)
+
+		for i := 0; i < c.NumTasks; i++ {
+			environmentID := environmentIDs[i%len(environmentIDs)]
+			deployID := deployIDs[i%len(deployIDs)]
+			taskName := fmt.Sprintf("tt%v", i)
+			layer0.CreateTask(taskName, environmentID, deployID, 1, nil)
+		}
 	}
 
 	benchmark(b, methodsToBenchmark)
@@ -100,79 +132,167 @@ func benchmark(b *testing.B, methods map[string]func()) {
 	}
 }
 
-func Benchmark5Services(b *testing.B) {
+func BenchmarkMinFamiliesMinDeploys(b *testing.B) {
 	runTest(b, StressTestCase{
-		NumDeploys:      1,
-		NumEnvironments: 2,
-		NumServices:     5,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MIN,
+		NumDeploys:        DEPLOY_SCALE_MIN,
 	})
 }
 
-func Benchmark25Environments(b *testing.B) {
+func BenchmarkMinFamiliesMedDeploys(b *testing.B) {
 	runTest(b, StressTestCase{
-		NumEnvironments: 25,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MIN,
+		NumDeploys:        DEPLOY_SCALE_MED,
 	})
 }
 
-func Benchmark10Environments10Deploys(b *testing.B) {
+func BenchmarkMinFamiliesMaxDeploys(b *testing.B) {
 	runTest(b, StressTestCase{
-		NumDeploys:      10,
-		NumEnvironments: 10,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MIN,
+		NumDeploys:        DEPLOY_SCALE_MAX,
 	})
 }
 
-func Benchmark20Environments20Deploys(b *testing.B) {
+func BenchmarkMedFamiliesMinDeploys(b *testing.B) {
 	runTest(b, StressTestCase{
-		NumDeploys:      20,
-		NumEnvironments: 20,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MED,
+		NumDeploys:        DEPLOY_SCALE_MIN,
 	})
 }
 
-func Benchmark5Environments100Deploys(b *testing.B) {
+func BenchmarkMedFamiliesMedDeploys(b *testing.B) {
 	runTest(b, StressTestCase{
-		NumDeploys:      100,
-		NumEnvironments: 5,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MED,
+		NumDeploys:        DEPLOY_SCALE_MED,
 	})
 }
 
-func Benchmark10Environments10Deploys10Services(b *testing.B) {
+func BenchmarkMedFamiliesMaxDeploys(b *testing.B) {
 	runTest(b, StressTestCase{
-		NumDeploys:      10,
-		NumEnvironments: 10,
-		NumServices:     10,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MED,
+		NumDeploys:        DEPLOY_SCALE_MAX,
 	})
 }
 
-func Benchmark5Environments5Deploys50Services(b *testing.B) {
+func BenchmarkMaxFamiliesMinDeploys(b *testing.B) {
 	runTest(b, StressTestCase{
-		NumDeploys:      5,
-		NumEnvironments: 5,
-		NumServices:     50,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MAX,
+		NumDeploys:        DEPLOY_SCALE_MIN,
 	})
 }
 
-func Benchmark15Environments15Deploys15Services15LoadBalancers(b *testing.B) {
+func BenchmarkMaxFamiliesMedDeploys(b *testing.B) {
 	runTest(b, StressTestCase{
-		NumDeploys:       15,
-		NumEnvironments:  15,
-		NumLoadBalancers: 15,
-		NumServices:      15,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MAX,
+		NumDeploys:        DEPLOY_SCALE_MED,
 	})
 }
 
-func Benchmark25Environments25Deploys25Services25LoadBalancers(b *testing.B) {
+func BenchmarkMaxFamiliesMaxDeploys(b *testing.B) {
 	runTest(b, StressTestCase{
-		NumDeploys:       25,
-		NumEnvironments:  25,
-		NumLoadBalancers: 25,
-		NumServices:      25,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MAX,
+		NumDeploys:        DEPLOY_SCALE_MAX,
 	})
 }
 
-func Benchmark100Tasks(b *testing.B) {
+func BenchmarkMinEnvironments(b *testing.B) {
 	runTest(b, StressTestCase{
-		NumDeploys:      1,
-		NumEnvironments: 1,
-		NumTasks:        100,
+		NumEnvironments: ENVIRONMENT_SCALE_MIN,
+	})
+}
+
+func BenchmarkMedEnvironments(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumEnvironments: ENVIRONMENT_SCALE_MED,
+	})
+}
+
+func BenchmarkMaxEnvironments(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumEnvironments: ENVIRONMENT_SCALE_MAX,
+	})
+}
+
+func BenchmarkMinServices(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumServices: SERVICE_SCALE_MIN,
+	})
+}
+
+func BenchmarkMedServices(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumServices: SERVICE_SCALE_MED,
+	})
+}
+
+func BenchmarkMaxServices(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumServices: SERVICE_SCALE_MAX,
+	})
+}
+
+func BenchmarkMinLoadBalancers(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumLoadBalancers: LOAD_BALANCER_SCALE_MIN,
+	})
+}
+
+func BenchmarkMedLoadBalancers(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumLoadBalancers: LOAD_BALANCER_SCALE_MED,
+	})
+}
+
+func BenchmarkMaxLoadBalancers(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumLoadBalancers: LOAD_BALANCER_SCALE_MAX,
+	})
+}
+
+func BenchmarkMinTasks(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumTasks: TASK_SCALE_MIN,
+	})
+}
+
+func BenchmarkMedTasks(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumTasks: TASK_SCALE_MED,
+	})
+}
+
+func BenchmarkMaxTasks(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumTasks: TASK_SCALE_MAX,
+	})
+}
+
+func BenchmarkAggregateMin(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumDeploys:        DEPLOY_SCALE_MIN,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MIN,
+		NumEnvironments:   ENVIRONMENT_SCALE_MIN,
+		NumLoadBalancers:  LOAD_BALANCER_SCALE_MIN,
+		NumServices:       SERVICE_SCALE_MIN,
+	})
+}
+
+func BenchmarkAggregateMed(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumDeploys:        DEPLOY_SCALE_MED,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MED,
+		NumEnvironments:   ENVIRONMENT_SCALE_MED,
+		NumLoadBalancers:  LOAD_BALANCER_SCALE_MED,
+		NumServices:       SERVICE_SCALE_MED,
+	})
+}
+
+func BenchmarkAggregateMax(b *testing.B) {
+	runTest(b, StressTestCase{
+		NumDeploys:        DEPLOY_SCALE_MAX,
+		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MAX,
+		NumEnvironments:   ENVIRONMENT_SCALE_MAX,
+		NumLoadBalancers:  LOAD_BALANCER_SCALE_MAX,
+		NumServices:       SERVICE_SCALE_MAX,
 	})
 }
