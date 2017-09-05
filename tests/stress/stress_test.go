@@ -1,7 +1,6 @@
 package system
 
 import (
-	"fmt"
 	"strconv"
 	"strings"
 	"testing"
@@ -85,20 +84,7 @@ func runTest(b *testing.B, c StressTestCase) {
 
 		deployIDs := strings.Split(terraform.Output("deploy_ids"), ",\n")
 		environmentIDs := strings.Split(terraform.Output("environment_ids"), ",\n")
-
-		tasksCreated := 0
-		for copies := c.NumTasks / 2; tasksCreated < c.NumTasks; copies = copies / 2 {
-			taskName := fmt.Sprintf("Task%v", copies)
-			go func() {
-				log.Debugf("Creating task %v", taskName)
-				layer0.CreateTask(taskName, environmentIDs[0], deployIDs[0], copies, nil)
-			}()
-
-			tasksCreated += copies
-			if copies <= 1 {
-				copies++
-			}
-		}
+		layer0.CreateTask("tt", environmentIDs[0], deployIDs[0], c.NumTasks, nil)
 	}
 
 	benchmark(b, methodsToBenchmark)
