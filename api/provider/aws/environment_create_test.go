@@ -4,13 +4,13 @@ import (
 	"encoding/base64"
 	"testing"
 
-	"github.com/quintilesims/layer0/common/db/tag_store"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestEnvironment_createTags(t *testing.T) {
-	tagStore := tag_store.NewMemoryTagStore()
+	tagStore := tag.NewMemoryTagStore()
 	environment := NewEnvironmentProvider(nil, tagStore, nil)
 
 	if err := environment.createTags("env_id", "env_name", "env_os"); err != nil {

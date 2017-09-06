@@ -1,7 +1,6 @@
-package job_store
+package job
 
 import (
-	"github.com/quintilesims/layer0/common/job"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -11,6 +10,6 @@ type JobStore interface {
 	Insert(*models.Job) error
 	SelectAll() ([]*models.Job, error)
 	SelectByID(string) (*models.Job, error)
-	UpdateJobStatus(string, job.JobStatus) error
+	UpdateJobStatus(string, JobStatus) error
 	SetJobMeta(string, map[string]string) error
 }
