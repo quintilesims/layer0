@@ -139,51 +139,9 @@ func BenchmarkMinFamiliesMinDeploys(b *testing.B) {
 	})
 }
 
-func BenchmarkMinFamiliesMedDeploys(b *testing.B) {
-	runTest(b, StressTestCase{
-		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MIN,
-		NumDeploys:        DEPLOY_SCALE_MED,
-	})
-}
-
-func BenchmarkMinFamiliesMaxDeploys(b *testing.B) {
-	runTest(b, StressTestCase{
-		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MIN,
-		NumDeploys:        DEPLOY_SCALE_MAX,
-	})
-}
-
-func BenchmarkMedFamiliesMinDeploys(b *testing.B) {
-	runTest(b, StressTestCase{
-		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MED,
-		NumDeploys:        DEPLOY_SCALE_MIN,
-	})
-}
-
 func BenchmarkMedFamiliesMedDeploys(b *testing.B) {
 	runTest(b, StressTestCase{
 		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MED,
-		NumDeploys:        DEPLOY_SCALE_MED,
-	})
-}
-
-func BenchmarkMedFamiliesMaxDeploys(b *testing.B) {
-	runTest(b, StressTestCase{
-		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MED,
-		NumDeploys:        DEPLOY_SCALE_MAX,
-	})
-}
-
-func BenchmarkMaxFamiliesMinDeploys(b *testing.B) {
-	runTest(b, StressTestCase{
-		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MAX,
-		NumDeploys:        DEPLOY_SCALE_MIN,
-	})
-}
-
-func BenchmarkMaxFamiliesMedDeploys(b *testing.B) {
-	runTest(b, StressTestCase{
-		NumDeployFamilies: DEPLOY_FAMILY_SCALE_MAX,
 		NumDeploys:        DEPLOY_SCALE_MED,
 	})
 }
