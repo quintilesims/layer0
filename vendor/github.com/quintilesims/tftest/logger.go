@@ -1,21 +1,27 @@
 package tftest
 
 import (
-	"testing"
+	"fmt"
+	"io"
 )
 
 type Logger interface {
-	Printf(string, ...interface{})
+	Log(args ...interface{})
+	Logf(format string, args ...interface{})
 }
 
-type TestLogger struct {
-	t *testing.T
+type IOLogger struct {
+	writer io.Writer
 }
 
-func NewTestLogger(t *testing.T) *TestLogger {
-	return &TestLogger{t: t}
+func NewIOLogger(w io.Writer) *IOLogger {
+	return &IOLogger{writer: w}
 }
 
-func (l *TestLogger) Printf(format string, tokens ...interface{}) {
-	l.t.Logf(format, tokens...)
+func (i *IOLogger) Log(args ...interface{}) {
+	fmt.Fprint(i.writer, args...)
+}
+
+func (i *IOLogger) Logf(format string, args ...interface{}) {
+	fmt.Fprintf(i.writer, format, args...)
 }
