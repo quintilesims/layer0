@@ -1,14 +1,13 @@
 package job
 
 import (
-	"context"
 	"log"
 	"time"
 
 	"github.com/quintilesims/layer0/common/models"
 )
 
-type JobRunner func(c context.Context, store JobStore, job *models.Job) error
+type JobRunner func(job models.Job) error
 
 type Dispatcher struct {
 	runner JobRunner
@@ -34,34 +33,20 @@ func (d *Dispatcher) RunEvery(period time.Duration) *time.Ticker {
 }
 
 func (d *Dispatcher) Run() {
-	// get jobs from the store where job.Status == Pending
-	var jobs []*models.Job
+	// todo: get jobs from the store where job.Status == Pending
+	var jobs []models.Job
 
+	// todo: use a worker queue to limit the number of jobs
+	// running at one time
 	for _, job := range jobs {
-		// use a semver so we don't run > max jobs
-		// attempt to acquire a lock on the job
-
-		go func() {
-			// set job.Status = InProgress
-
-			if err := d.runJob(job); err != nil {
-				log.Printf("[ERROR] [Job Dispatcher] %v", err)
-				// set job.Status = Error
-				// set job.Error = Error
-			}
-		}()
+		go d.runJob(job)
 	}
 }
 
-func (d *Dispatcher) runJob(job *models.Job) error {
-	// todo: use config timeout
-	timeout := time.Minute * 1
-
-	c, cancel := context.WithTimeout(context.Background(), timeout)
-	defer cancel()
-
-	d.runner(c, nil, job)
-	// todo: how to determine errors?
-	// do we always retry until timeout and have the runner log errors along the way?
-	return nil
+func (d *Dispatcher) runJob(job models.Job) {
+	if err := d.runner(job); err != nil {
+		// todo: set JobStatus to Error
+		// todo: set JobError to err
+		log.Printf("[ERROR] [JobRunner] Failed to run job %s: %v", job.JobID, err)
+	}
 }
