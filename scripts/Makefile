@@ -15,6 +15,7 @@ provider:
 
 job:
 	mockgen github.com/quintilesims/layer0/api/job Scheduler > ../api/job/mock_job/mock_scheduler.go &
+	mockgen github.com/quintilesims/layer0/api/job Store > ../api/job/mock_job/mock_store.go 
 
 aws:
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/autoscaling/autoscalingiface AutoScalingAPI > ../common/aws/mock_aws/mock_autoscaling.go &

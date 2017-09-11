@@ -19,15 +19,15 @@ const (
 	DeleteTaskJob         JobType = "DeleteTask"
 )
 
-type JobStatus string
+type Status string
 
-func (j JobStatus) String() string {
+func (j Status) String() string {
 	return string(j)
 }
 
 const (
-	Pending    JobStatus = "Pending"
-	InProgress JobStatus = "InProgress"
-	Completed  JobStatus = "Completed"
-	Error      JobStatus = "Error"
+	Pending    Status = "Pending"
+	InProgress Status = "InProgress"
+	Completed  Status = "Completed"
+	Error      Status = "Error"
 )
