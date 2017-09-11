@@ -11,7 +11,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func NewTestJobStore(t *testing.T) *DynamoJobStore {
+func NewTestStore(t *testing.T) *DynamoStore {
 	table := config.TestDynamoJobTableName()
 	if table == "" {
 		t.Skipf("Skipping test: %s not set", config.TEST_AWS_JOB_DYNAMO_TABLE)
@@ -24,7 +24,7 @@ func NewTestJobStore(t *testing.T) *DynamoJobStore {
 	}
 
 	session := session.New(awsConfig)
-	store := NewDynamoJobStore(session, table)
+	store := NewDynamoStore(session, table)
 
 	if err := store.Clear(); err != nil {
 		t.Fatal(err)
@@ -33,8 +33,8 @@ func NewTestJobStore(t *testing.T) *DynamoJobStore {
 	return store
 }
 
-func TestDynamoJobStoreInsert(t *testing.T) {
-	store := NewTestJobStore(t)
+func TestDynamoStoreInsert(t *testing.T) {
+	store := NewTestStore(t)
 
 	job := &models.Job{JobID: "1", JobType: string(DeleteEnvironmentJob)}
 	if err := store.Insert(job); err != nil {
@@ -42,8 +42,8 @@ func TestDynamoJobStoreInsert(t *testing.T) {
 	}
 }
 
-func TestDynamoJobStoreDelete(t *testing.T) {
-	store := NewTestJobStore(t)
+func TestDynamoStoreDelete(t *testing.T) {
+	store := NewTestStore(t)
 
 	job := &models.Job{JobID: "1", JobType: string(DeleteEnvironmentJob)}
 	if err := store.Insert(job); err != nil {
@@ -55,8 +55,8 @@ func TestDynamoJobStoreDelete(t *testing.T) {
 	}
 }
 
-func TestDynamoJobStoreSelectAll(t *testing.T) {
-	store := NewTestJobStore(t)
+func TestDynamoStoreSelectAll(t *testing.T) {
+	store := NewTestStore(t)
 
 	jobs := []*models.Job{
 		{JobID: "1", JobType: string(DeleteEnvironmentJob)},
@@ -82,8 +82,8 @@ func TestDynamoJobStoreSelectAll(t *testing.T) {
 	}
 }
 
-func TestDynamoJobStoreSelectByID(t *testing.T) {
-	store := NewTestJobStore(t)
+func TestDynamoStoreSelectByID(t *testing.T) {
+	store := NewTestStore(t)
 
 	jobs := []*models.Job{
 		{JobID: "1", JobType: string(DeleteEnvironmentJob)},
@@ -109,15 +109,15 @@ func TestDynamoJobStoreSelectByID(t *testing.T) {
 	}
 }
 
-func TestDynamoJobStoreUpdateStatus(t *testing.T) {
-	store := NewTestJobStore(t)
+func TestDynamoStoreUpdateStatus(t *testing.T) {
+	store := NewTestStore(t)
 
-	job := &models.Job{JobID: "1", JobStatus: string(Pending)}
+	job := &models.Job{JobID: "1", Status: string(Pending)}
 	if err := store.Insert(job); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := store.UpdateJobStatus(job.JobID, InProgress); err != nil {
+	if err := store.UpdateStatus(job.JobID, InProgress); err != nil {
 		t.Fatal(err)
 	}
 
@@ -126,13 +126,13 @@ func TestDynamoJobStoreUpdateStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if r, e := JobStatus(result.JobStatus), InProgress; r != e {
+	if r, e := Status(result.Status), InProgress; r != e {
 		t.Fatalf("Status was '%s', expected '%s'", r, e)
 	}
 }
 
-func TestDynamoJobStoreSetMeta(t *testing.T) {
-	store := NewTestJobStore(t)
+func TestDynamoStoreSetMeta(t *testing.T) {
+	store := NewTestStore(t)
 
 	job := &models.Job{JobID: "1", Meta: map[string]string{"alpha": "1"}}
 	if err := store.Insert(job); err != nil {

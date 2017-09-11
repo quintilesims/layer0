@@ -1,52 +1,45 @@
 package job
 
 import (
-	"log"
-	"time"
-
 	"github.com/quintilesims/layer0/common/models"
 )
 
-type JobRunner func(job models.Job) error
+// todo: better name
+func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner) *Dispatcher {
+	queue := make(chan models.Job)
+	for i := 0; i < numWorkers; i++ {
+		worker := NewWorker(i+1, queue, runner)
+		worker.Start()
+	}
+
+	return NewDispatcher(store, queue)
+}
 
 type Dispatcher struct {
-	runner JobRunner
-	store  JobStore
+	store Store
+	queue chan<- models.Job
 }
 
-func NewDispatcher(runner JobRunner, store JobStore) *Dispatcher {
+func NewDispatcher(store Store, queue chan<- models.Job) *Dispatcher {
 	return &Dispatcher{
-		runner: runner,
-		store:  store,
+		store: store,
+		queue: queue,
 	}
 }
 
-func (d *Dispatcher) RunEvery(period time.Duration) *time.Ticker {
-	ticker := time.NewTicker(period)
-	go func() {
-		for range ticker.C {
-			d.Run()
-		}
-	}()
+func (d *Dispatcher) Run() error {
+	jobs, err := d.store.SelectAll()
+	if err != nil {
+		return err
+	}
 
-	return ticker
-}
-
-func (d *Dispatcher) Run() {
-	// todo: get jobs from the store where job.Status == Pending
-	var jobs []models.Job
-
-	// todo: use a worker queue to limit the number of jobs
-	// running at one time
 	for _, job := range jobs {
-		go d.runJob(job)
+		if Status(job.JobStatus) == Pending {
+			// todo: a lot of time could pass while waiting for the queue to open up
+			// the worker should attempt to acquire a lock before running the job
+			d.queue <- *job
+		}
 	}
-}
 
-func (d *Dispatcher) runJob(job models.Job) {
-	if err := d.runner(job); err != nil {
-		// todo: set JobStatus to Error
-		// todo: set JobError to err
-		log.Printf("[ERROR] [JobRunner] Failed to run job %s: %v", job.JobID, err)
-	}
+	return nil
 }

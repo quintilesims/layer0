@@ -2,6 +2,7 @@ package aws
 
 import (
 	"fmt"
+
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/models"
 )
