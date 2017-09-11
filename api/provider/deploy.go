@@ -7,4 +7,5 @@ type DeployProvider interface {
 	Read(deployID string) (*models.Deploy, error)
 	List() ([]models.DeploySummary, error)
 	Delete(deployID string) error
+	Update(deployID string) error
 }

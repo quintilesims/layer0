@@ -7,4 +7,5 @@ type TaskProvider interface {
 	Read(taskID string) (*models.Task, error)
 	List() ([]models.TaskSummary, error)
 	Delete(taskID string) error
+	Update(taskID string) error
 }

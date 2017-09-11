@@ -33,3 +33,7 @@ func (d *DeployProvider) List() ([]models.DeploySummary, error) {
 func (d *DeployProvider) Delete(deployID string) error {
 	return nil
 }
+
+func (d *DeployProvider) Update(deployID string) error {
+	return nil
+}
