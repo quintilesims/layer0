@@ -29,12 +29,12 @@ func (w *Worker) Start() func() {
 		for {
 			select {
 			case job := <-w.Queue:
-				log.Printf("[INFO] [JobWorker %d]: starting job %s", w.ID, job.JobID)
+				log.Printf("[INFO] [JobWorker %d]: starting job %s\n", w.ID, job.JobID)
 				if err := w.Runner(job); err != nil {
-					log.Printf("[ERROR] [JobWorker %d]: Failed to run job %s: %v", w.ID, job.JobID, err)
+					log.Printf("[ERROR] [JobWorker %d]: Failed to run job %s: %v\n", w.ID, job.JobID, err)
 				}
 			case <-quit:
-				log.Printf("[DEBUG] [JobWorker %d]: quit signalled", w.ID)
+				log.Printf("[DEBUG] [JobWorker %d]: quit signalled\n", w.ID)
 				return
 			}
 		}
