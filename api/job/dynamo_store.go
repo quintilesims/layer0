@@ -2,6 +2,7 @@ package job
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -52,6 +53,21 @@ func (d *DynamoStore) Insert(jobType JobType, req string) (string, error) {
 	}
 
 	return job.JobID, nil
+}
+
+func (d *DynamoStore) AcquireJob(jobID string) (bool, error) {
+	if err := d.table.Update("JobID", jobID).
+		Set("Status", InProgress).
+		If("'Status' = ?", Pending).
+		Run(); err != nil {
+		if strings.Contains(err.Error(), "ConditionalCheckFailedException") {
+			return false, nil
+		}
+
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (d *DynamoStore) Delete(jobID string) error {

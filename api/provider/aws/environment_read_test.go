@@ -9,7 +9,7 @@ import (
 )
 
 func TestEnvironment_populateModelTagss(t *testing.T) {
-	tagStore := tag.NewMemoryTagStore()
+	tagStore := tag.NewMemoryStore()
 	environment := NewEnvironmentProvider(nil, tagStore, nil)
 
 	tags := models.Tags{

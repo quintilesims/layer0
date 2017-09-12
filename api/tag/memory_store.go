@@ -14,10 +14,6 @@ func NewMemoryStore() *MemoryStore {
 	}
 }
 
-func (m *MemoryStore) Init() error {
-	return nil
-}
-
 func (m *MemoryStore) Tags() models.Tags {
 	return m.tags
 }

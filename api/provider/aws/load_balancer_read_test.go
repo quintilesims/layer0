@@ -9,7 +9,7 @@ import (
 )
 
 func TestLoadBalancer_populateModelTagss(t *testing.T) {
-	tagStore := tag.NewMemoryTagStore()
+	tagStore := tag.NewMemoryStore()
 	loadBalancer := NewLoadBalancerProvider(nil, tagStore, nil)
 
 	tags := models.Tags{
