@@ -12,10 +12,10 @@ import (
 
 type ServiceController struct {
 	ServiceProvider provider.ServiceProvider
-	JobScheduler    job.Scheduler
+	JobScheduler    job.Store
 }
 
-func NewServiceController(s provider.ServiceProvider, j job.Scheduler) *ServiceController {
+func NewServiceController(s provider.ServiceProvider, j job.Store) *ServiceController {
 	return &ServiceController{
 		ServiceProvider: s,
 		JobScheduler:    j,

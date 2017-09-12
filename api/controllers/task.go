@@ -12,10 +12,10 @@ import (
 
 type TaskController struct {
 	TaskProvider provider.TaskProvider
-	JobScheduler job.Scheduler
+	JobScheduler job.Store
 }
 
-func NewTaskController(t provider.TaskProvider, j job.Scheduler) *TaskController {
+func NewTaskController(t provider.TaskProvider, j job.Store) *TaskController {
 	return &TaskController{
 		TaskProvider: t,
 		JobScheduler: j,
