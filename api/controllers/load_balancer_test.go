@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -15,8 +16,8 @@ func TestCreateLoadBalancer(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore)
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb1",
@@ -32,13 +33,8 @@ func TestCreateLoadBalancer(t *testing.T) {
 		},
 	}
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.CreateLoadBalancerJob.String(),
-		Request: req,
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.CreateLoadBalancerJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
@@ -59,16 +55,11 @@ func TestDeleteLoadBalancer(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore)
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.DeleteLoadBalancerJob.String(),
-		Request: "lid",
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.DeleteLoadBalancerJob, "lid").
 		Return("jid", nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "lid"})
@@ -89,8 +80,8 @@ func TestGetLoadBalancer(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore)
 
 	loadBalancerModel := models.LoadBalancer{
 		EnvironmentID:    "e1",
@@ -127,8 +118,8 @@ func TestListLoadBalancers(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore)
 
 	loadBalancerSummaries := []models.LoadBalancerSummary{
 		{

@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -15,8 +16,8 @@ func TestCreateEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName: "env",
@@ -26,13 +27,8 @@ func TestCreateEnvironment(t *testing.T) {
 		AMIID:           "ami123",
 	}
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.CreateEnvironmentJob.String(),
-		Request: req,
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.CreateEnvironmentJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
@@ -53,16 +49,11 @@ func TestDeleteEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.DeleteEnvironmentJob.String(),
-		Request: "eid",
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.DeleteEnvironmentJob, "eid").
 		Return("jid", nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "eid"})
@@ -83,8 +74,8 @@ func TestGetEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
 
 	environmentModel := models.Environment{
 		EnvironmentID:   "e1",
@@ -119,8 +110,8 @@ func TestListEnvironments(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
 
 	environmentSummaries := []models.EnvironmentSummary{
 		{

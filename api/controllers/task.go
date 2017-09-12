@@ -12,13 +12,13 @@ import (
 
 type TaskController struct {
 	TaskProvider provider.TaskProvider
-	JobScheduler job.Store
+	JobStore     job.Store
 }
 
 func NewTaskController(t provider.TaskProvider, j job.Store) *TaskController {
 	return &TaskController{
 		TaskProvider: t,
-		JobScheduler: j,
+		JobStore:     j,
 	}
 }
 
@@ -51,12 +51,12 @@ func (t *TaskController) CreateTask(c *fireball.Context) (fireball.Response, err
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(t.JobScheduler, job.CreateTaskJob, req)
+	return createJob(t.JobStore, job.CreateTaskJob, req)
 }
 
 func (t *TaskController) DeleteTask(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(t.JobScheduler, job.DeleteTaskJob, id)
+	return createJob(t.JobStore, job.DeleteTaskJob, id)
 }
 
 func (t *TaskController) GetTask(c *fireball.Context) (fireball.Response, error) {
