@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -15,8 +16,8 @@ func TestCreateService(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockServiceProvider := mock_provider.NewMockServiceProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewServiceController(mockServiceProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewServiceController(mockServiceProvider, mockJobStore)
 
 	req := models.CreateServiceRequest{
 		DeployID:       "deploy_id",
@@ -25,13 +26,8 @@ func TestCreateService(t *testing.T) {
 		ServiceName:    "service_name",
 	}
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.CreateServiceJob.String(),
-		Request: req,
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.CreateServiceJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
@@ -52,16 +48,11 @@ func TestDeleteService(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockServiceProvider := mock_provider.NewMockServiceProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewServiceController(mockServiceProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewServiceController(mockServiceProvider, mockJobStore)
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.DeleteServiceJob.String(),
-		Request: "sid",
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.DeleteServiceJob, "sid").
 		Return("jid", nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "sid"})
@@ -82,8 +73,8 @@ func TestGetService(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockServiceProvider := mock_provider.NewMockServiceProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewServiceController(mockServiceProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewServiceController(mockServiceProvider, mockJobStore)
 
 	serviceModel := models.Service{
 		Deployments:      ([]models.Deployment(nil)),
@@ -120,8 +111,8 @@ func TestListServices(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockServiceProvider := mock_provider.NewMockServiceProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewServiceController(mockServiceProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewServiceController(mockServiceProvider, mockJobStore)
 
 	serviceSummaries := []models.ServiceSummary{
 		{

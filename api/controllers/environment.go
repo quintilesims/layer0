@@ -12,13 +12,13 @@ import (
 
 type EnvironmentController struct {
 	EnvironmentProvider provider.EnvironmentProvider
-	JobScheduler        job.Store
+	JobStore            job.Store
 }
 
 func NewEnvironmentController(e provider.EnvironmentProvider, j job.Store) *EnvironmentController {
 	return &EnvironmentController{
 		EnvironmentProvider: e,
-		JobScheduler:        j,
+		JobStore:            j,
 	}
 }
 
@@ -51,12 +51,12 @@ func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(e.JobScheduler, job.CreateEnvironmentJob, req)
+	return createJob(e.JobStore, job.CreateEnvironmentJob, req)
 }
 
 func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(e.JobScheduler, job.DeleteEnvironmentJob, id)
+	return createJob(e.JobStore, job.DeleteEnvironmentJob, id)
 }
 
 func (e *EnvironmentController) GetEnvironment(c *fireball.Context) (fireball.Response, error) {

@@ -18,7 +18,7 @@ type DeployController struct {
 func NewDeployController(d provider.DeployProvider, j job.Store) *DeployController {
 	return &DeployController{
 		DeployProvider: d,
-		JobScheduler:   j,
+		JobStore:       j,
 	}
 }
 
@@ -51,12 +51,12 @@ func (d *DeployController) CreateDeploy(c *fireball.Context) (fireball.Response,
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(d.JobScheduler, job.CreateDeployJob, req)
+	return createJob(d.JobStore, job.CreateDeployJob, req)
 }
 
 func (d *DeployController) DeleteDeploy(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(d.JobScheduler, job.DeleteDeployJob, id)
+	return createJob(d.JobStore, job.DeleteDeployJob, id)
 }
 
 func (d *DeployController) GetDeploy(c *fireball.Context) (fireball.Response, error) {

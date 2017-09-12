@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -15,21 +16,16 @@ func TestCreateDeploy(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewDeployController(mockDeployProvider, mockJobStore)
 
 	req := models.CreateDeployRequest{
 		DeployName: "deploy1",
 		Dockerrun:  ([]byte("content")),
 	}
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.CreateDeployJob.String(),
-		Request: req,
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.CreateDeployJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
@@ -50,16 +46,11 @@ func TestDeleteDeploy(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewDeployController(mockDeployProvider, mockJobStore)
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.DeleteDeployJob.String(),
-		Request: "did",
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.DeleteDeployJob, "did").
 		Return("jid", nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "did"})
@@ -87,8 +78,8 @@ func TestGetDeploy(t *testing.T) {
 	}
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewDeployController(mockDeployProvider, mockJobStore)
 
 	mockDeployProvider.EXPECT().
 		Read("d1").
@@ -112,8 +103,8 @@ func TestListDeploys(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewDeployController(mockDeployProvider, mockJobStore)
 
 	deploySummaries := []models.DeploySummary{
 		{

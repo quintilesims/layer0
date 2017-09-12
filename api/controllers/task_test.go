@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -15,8 +16,8 @@ func TestCreateTask(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewTaskController(mockTaskProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewTaskController(mockTaskProvider, mockJobStore)
 
 	req := models.CreateTaskRequest{
 		ContainerOverrides: []models.ContainerOverride{},
@@ -26,13 +27,8 @@ func TestCreateTask(t *testing.T) {
 		TaskName:           "task_name",
 	}
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.CreateTaskJob.String(),
-		Request: req,
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.CreateTaskJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
@@ -53,16 +49,11 @@ func TestDeleteTask(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewTaskController(mockTaskProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewTaskController(mockTaskProvider, mockJobStore)
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.DeleteTaskJob.String(),
-		Request: "tid",
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.DeleteTaskJob, "tid").
 		Return("jid", nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "tid"})
@@ -83,8 +74,8 @@ func TestGetTask(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewTaskController(mockTaskProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewTaskController(mockTaskProvider, mockJobStore)
 
 	taskModel := models.Task{
 		Copies:          []models.TaskCopy{},
@@ -122,8 +113,8 @@ func TestListTasks(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewTaskController(mockTaskProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewTaskController(mockTaskProvider, mockJobStore)
 
 	taskSummaries := []models.TaskSummary{
 		{

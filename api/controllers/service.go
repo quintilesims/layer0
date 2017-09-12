@@ -12,13 +12,13 @@ import (
 
 type ServiceController struct {
 	ServiceProvider provider.ServiceProvider
-	JobScheduler    job.Store
+	JobStore        job.Store
 }
 
 func NewServiceController(s provider.ServiceProvider, j job.Store) *ServiceController {
 	return &ServiceController{
 		ServiceProvider: s,
-		JobScheduler:    j,
+		JobStore:        j,
 	}
 }
 
@@ -51,12 +51,12 @@ func (s *ServiceController) CreateService(c *fireball.Context) (fireball.Respons
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(s.JobScheduler, job.CreateServiceJob, req)
+	return createJob(s.JobStore, job.CreateServiceJob, req)
 }
 
 func (s *ServiceController) DeleteService(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(s.JobScheduler, job.DeleteServiceJob, id)
+	return createJob(s.JobStore, job.DeleteServiceJob, id)
 }
 
 func (s *ServiceController) GetService(c *fireball.Context) (fireball.Response, error) {
