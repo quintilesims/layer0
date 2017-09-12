@@ -6,7 +6,10 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func (e *EnvironmentProvider) Update(environmentID string, minSize int64) (*models.Environment, error) {
+func (e *EnvironmentProvider) Update(req models.UpdateEnvironmentRequest) (*models.Environment, error) {
+	environmentID := req.EnvironmentID
+	minSize := req.MinClusterCount
+
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	autoScalingGroupName := fqEnvironmentID

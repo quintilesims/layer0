@@ -142,3 +142,42 @@ func TestListEnvironments(t *testing.T) {
 	assert.Equal(t, 200, recorder.Code)
 	assert.Equal(t, environmentSummaries, response)
 }
+
+func TestUpdateEnvironment(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
+	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobScheduler)
+
+	httpReq := models.UpdateEnvironmentRequest{
+		MinClusterCount: 2,
+	}
+
+	jobReq := models.UpdateEnvironmentRequest{
+		EnvironmentID:   "e1",
+		MinClusterCount: 2,
+	}
+
+	sjr := models.ScheduleJobRequest{
+		JobType: job.UpdateEnvironmentJob.String(),
+		Request: jobReq,
+	}
+
+	mockJobScheduler.EXPECT().
+		Schedule(sjr).
+		Return("jid", nil)
+
+	c := newFireballContext(t, httpReq, map[string]string{"id": "e1"})
+	resp, err := controller.UpdateEnvironment(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var response models.Job
+	recorder := unmarshalBody(t, resp, &response)
+
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, "jid", response.JobID)
+}

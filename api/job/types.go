@@ -12,6 +12,7 @@ const (
 	CreateLoadBalancerJob JobType = "CreateLoadBalancer"
 	CreateServiceJob      JobType = "CreateService"
 	CreateTaskJob         JobType = "CreateTask"
+	UpdateEnvironmentJob  JobType = "UpdateEnvironment"
 	DeleteDeployJob       JobType = "DeleteDeploy"
 	DeleteEnvironmentJob  JobType = "DeleteEnvironment"
 	DeleteLoadBalancerJob JobType = "DeleteLoadBalancer"

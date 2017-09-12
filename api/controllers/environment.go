@@ -35,6 +35,7 @@ func (e *EnvironmentController) Routes() []*fireball.Route {
 			Path: "/environment/:id",
 			Handlers: fireball.Handlers{
 				"GET":    e.GetEnvironment,
+				"PUT":    e.UpdateEnvironment,
 				"DELETE": e.DeleteEnvironment,
 			},
 		},
@@ -77,4 +78,20 @@ func (e *EnvironmentController) ListEnvironments(c *fireball.Context) (fireball.
 
 	return fireball.NewJSONResponse(200, summaries)
 
+}
+
+func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball.Response, error) {
+	id := c.PathVariables["id"]
+	var req models.UpdateEnvironmentRequest
+	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
+
+	req.EnvironmentID = id
+	if err := req.Validate(); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+
+	}
+
+	return scheduleJob(e.JobScheduler, job.UpdateEnvironmentJob, req)
 }
