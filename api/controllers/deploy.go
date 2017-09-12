@@ -12,7 +12,7 @@ import (
 
 type DeployController struct {
 	DeployProvider provider.DeployProvider
-	JobStore   job.Store
+	JobStore       job.Store
 }
 
 func NewDeployController(d provider.DeployProvider, j job.Store) *DeployController {
@@ -51,12 +51,12 @@ func (d *DeployController) CreateDeploy(c *fireball.Context) (fireball.Response,
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return scheduleJob(d.JobScheduler, job.CreateDeployJob, req)
+	return createJob(d.JobScheduler, job.CreateDeployJob, req)
 }
 
 func (d *DeployController) DeleteDeploy(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return scheduleJob(d.JobScheduler, job.DeleteDeployJob, id)
+	return createJob(d.JobScheduler, job.DeleteDeployJob, id)
 }
 
 func (d *DeployController) GetDeploy(c *fireball.Context) (fireball.Response, error) {

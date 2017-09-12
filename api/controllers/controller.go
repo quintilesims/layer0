@@ -6,8 +6,8 @@ import (
 	"github.com/zpatrick/fireball"
 )
 
-func scheduleJob(store job.Store, jobType job.JobType, request interface{}) (fireball.Response, error) {
-	req := models.ScheduleJobRequest{
+func createJob(store job.Store, jobType job.JobType, request interface{}) (fireball.Response, error) {
+	req := models.CreateJobRequest{
 		JobType: jobType.String(),
 		Request: request,
 	}
@@ -17,7 +17,7 @@ func scheduleJob(store job.Store, jobType job.JobType, request interface{}) (fir
 		return nil, err
 	}
 
-	resp := models.ScheduleJobResponse{
+	resp := models.CreateJobResponse{
 		JobID: jobID,
 	}
 

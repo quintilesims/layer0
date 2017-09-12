@@ -2,6 +2,7 @@ package job
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -20,9 +21,18 @@ func (m *MemoryStore) Init() error {
 	return nil
 }
 
-func (m *MemoryStore) Insert(job models.Job) error {
-	m.jobs = append(m.jobs, &job)
-	return nil
+func (m *MemoryStore) Insert(jobType JobType, req string) (string, error) {
+	job := &models.Job{
+		JobID:   fmt.Sprintf("%v", time.Now().UnixNano()),
+		Type:    string(jobType),
+		Request: req,
+		Status:  string(Pending),
+		Created: time.Now(),
+		Meta:    map[string]string{},
+	}
+
+	m.jobs = append(m.jobs, job)
+	return job.JobID, nil
 }
 
 func (m *MemoryStore) Delete(jobID string) error {
@@ -50,13 +60,13 @@ func (m *MemoryStore) SelectByID(jobID string) (*models.Job, error) {
 	return nil, fmt.Errorf("Job with id '%d' does not exist", jobID)
 }
 
-func (m *MemoryStore) UpdateStatus(jobID string, status Status) error {
+func (m *MemoryStore) SetJobStatus(jobID string, status Status) error {
 	job, err := m.SelectByID(jobID)
 	if err != nil {
 		return err
 	}
 
-	job.JobStatus = string(status)
+	job.Status = string(status)
 	return nil
 }
 
@@ -67,5 +77,15 @@ func (m *MemoryStore) SetJobMeta(jobID string, meta map[string]string) error {
 	}
 
 	job.Meta = meta
+	return nil
+}
+
+func (m *MemoryStore) SetJobError(jobID string, err error) error {
+	job, err := m.SelectByID(jobID)
+	if err != nil {
+		return err
+	}
+
+	job.Error = err.Error()
 	return nil
 }

@@ -32,24 +32,24 @@ func (s DynamoTagSchema) ToTags() models.Tags {
 	return tags
 }
 
-type DynamoTagStore struct {
+type DynamoStore struct {
 	table dynamo.Table
 }
 
-func NewDynamoTagStore(config *aws.Config, table string) *DynamoTagStore {
+func NewDynamoStore(config *aws.Config, table string) *DynamoStore {
 	session := session.New(config)
 	db := dynamo.New(session)
 
-	return &DynamoTagStore{
+	return &DynamoStore{
 		table: db.Table(table),
 	}
 }
 
-func (d *DynamoTagStore) Init() error {
+func (d *DynamoStore) Init() error {
 	return nil
 }
 
-func (d *DynamoTagStore) Clear() error {
+func (d *DynamoStore) Clear() error {
 	var schemas []DynamoTagSchema
 	if err := d.table.Scan().All(&schemas); err != nil {
 		return err
@@ -70,7 +70,7 @@ func (d *DynamoTagStore) Clear() error {
 	return nil
 }
 
-func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
+func (d *DynamoStore) Delete(entityType, entityID, key string) error {
 	schema, err := d.selectByTypeAndID(entityType, entityID)
 	if err != nil {
 		return err
@@ -97,7 +97,7 @@ func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
 		Run()
 }
 
-func (d *DynamoTagStore) Insert(tag models.Tag) error {
+func (d *DynamoStore) Insert(tag models.Tag) error {
 	schema := DynamoTagSchema{
 		EntityType: tag.EntityType,
 		EntityID:   tag.EntityID,
@@ -115,7 +115,7 @@ func (d *DynamoTagStore) Insert(tag models.Tag) error {
 	return nil
 }
 
-func (d *DynamoTagStore) insertKey(tag models.Tag) error {
+func (d *DynamoStore) insertKey(tag models.Tag) error {
 	schema, err := d.selectByTypeAndID(tag.EntityType, tag.EntityID)
 	if err != nil {
 		return err
@@ -128,7 +128,7 @@ func (d *DynamoTagStore) insertKey(tag models.Tag) error {
 		Run()
 }
 
-func (d *DynamoTagStore) SelectByTypeAndID(entityType, entityID string) (models.Tags, error) {
+func (d *DynamoStore) SelectByTypeAndID(entityType, entityID string) (models.Tags, error) {
 	schema, err := d.selectByTypeAndID(entityType, entityID)
 	if err != nil {
 		if err.Error() == "dynamo: no item found" {
@@ -141,7 +141,7 @@ func (d *DynamoTagStore) SelectByTypeAndID(entityType, entityID string) (models.
 	return schema.ToTags(), nil
 }
 
-func (d *DynamoTagStore) selectByTypeAndID(entityType, entityID string) (*DynamoTagSchema, error) {
+func (d *DynamoStore) selectByTypeAndID(entityType, entityID string) (*DynamoTagSchema, error) {
 	if entityType == "" {
 		return nil, fmt.Errorf("EntityType is required")
 	}
@@ -165,7 +165,7 @@ func (d *DynamoTagStore) selectByTypeAndID(entityType, entityID string) (*Dynamo
 	return schema, nil
 }
 
-func (d *DynamoTagStore) SelectByType(entityType string) (models.Tags, error) {
+func (d *DynamoStore) SelectByType(entityType string) (models.Tags, error) {
 	schemas, err := d.selectByType(entityType)
 	if err != nil {
 		if err.Error() == "dynamo: no item found" {
@@ -183,7 +183,7 @@ func (d *DynamoTagStore) SelectByType(entityType string) (models.Tags, error) {
 	return tags, nil
 }
 
-func (d *DynamoTagStore) selectByType(entityType string) ([]*DynamoTagSchema, error) {
+func (d *DynamoStore) selectByType(entityType string) ([]*DynamoTagSchema, error) {
 	var schemas []*DynamoTagSchema
 
 	if err := d.table.Get("EntityType", entityType).

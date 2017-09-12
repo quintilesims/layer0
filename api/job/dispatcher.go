@@ -34,7 +34,7 @@ func (d *Dispatcher) Run() error {
 	}
 
 	for _, job := range jobs {
-		if Status(job.JobStatus) == Pending {
+		if Status(job.Status) == Pending {
 			// todo: a lot of time could pass while waiting for the queue to open up
 			// the worker should attempt to acquire a lock before running the job
 			d.queue <- *job

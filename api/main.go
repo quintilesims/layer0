@@ -55,8 +55,8 @@ func main() {
 		awsConfig.WithRegion(cfg.Region())
 
 		client := awsclient.NewClient(awsConfig)
-		tagStore := tag.NewDynamoTagStore(awsConfig, cfg.DynamoTagTable())
-		jobScheduler := job.Ne
+		tagStore := tag.NewDynamoStore(awsConfig, cfg.DynamoTagTable())
+		jobStore := job.NewDynamoStore(awsConfig, cfg.DynamoJobTable())
 
 
 		// todo: inject job_store.JobStore

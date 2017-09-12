@@ -1,6 +1,9 @@
 package job
 
 import (
+	"fmt"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
 	"github.com/quintilesims/layer0/common/errors"
@@ -19,10 +22,6 @@ func NewDynamoStore(session *session.Session, table string) *DynamoStore {
 	}
 }
 
-func (d *DynamoStore) Init() error {
-	return nil
-}
-
 func (d *DynamoStore) Clear() error {
 	var jobs []models.Job
 	if err := d.table.Scan().All(&jobs); err != nil {
@@ -38,16 +37,31 @@ func (d *DynamoStore) Clear() error {
 	return nil
 }
 
-func (d *DynamoStore) Insert(job models.Job) error {
-	return d.table.Put(job).Run()
+func (d *DynamoStore) Insert(jobType JobType, req string) (string, error) {
+	job := models.Job{
+		JobID:   fmt.Sprintf("%v", time.Now().UnixNano()),
+		Type:    string(jobType),
+		Request: req,
+		Status:  string(Pending),
+		Created: time.Now(),
+		Meta:    map[string]string{},
+	}
+
+	if err := d.table.Put(job).Run(); err != nil {
+		return "", err
+	}
+
+	return job.JobID, nil
 }
 
 func (d *DynamoStore) Delete(jobID string) error {
 	return d.table.Delete("JobID", jobID).Run()
 }
 
-func (d *DynamoStore) UpdateStatus(jobID string, status Status) error {
-	if err := d.table.Update("JobID", jobID).Set("Status", status).Run(); err != nil {
+func (d *DynamoStore) SetJobStatus(jobID string, status Status) error {
+	if err := d.table.Update("JobID", jobID).
+		Set("Status", status).
+		Run(); err != nil {
 		return err
 	}
 
@@ -55,7 +69,20 @@ func (d *DynamoStore) UpdateStatus(jobID string, status Status) error {
 }
 
 func (d *DynamoStore) SetJobMeta(jobID string, meta map[string]string) error {
-	if err := d.table.Update("JobID", jobID).Set("Meta", meta).Run(); err != nil {
+	if err := d.table.Update("JobID", jobID).
+		Set("Meta", meta).
+		Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (d *DynamoStore) SetJobError(jobID string, err error) error {
+	if err := d.table.Update("JobID", jobID).
+		Set("Error", err.Error()).
+		Set("Status", Error).
+		Run(); err != nil {
 		return err
 	}
 

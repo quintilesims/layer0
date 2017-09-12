@@ -5,11 +5,11 @@ import (
 )
 
 type Job struct {
-	JobID       string            `json:"job_id"`
-	TaskID      string            `json:"task_id"`
-	JobStatus   string            `json:"job_status"`
-	JobType     string            `json:"job_type"`
-	Request     string            `json:"request"`
-	TimeCreated time.Time         `json:"time_created"`
-	Meta        map[string]string `json:"meta"`
+	JobID   string            `json:"job_id"`
+	Type    string            `json:"type"`
+	Request string            `json:"request"`
+	Status  string            `json:"status"`
+	Created time.Time         `json:"created"`
+	Error   string            `json:"error"`
+	Meta    map[string]string `json:"meta"`
 }

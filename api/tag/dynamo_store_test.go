@@ -36,7 +36,7 @@ var TestTags = models.Tags{
 	{EntityID: "t2", EntityType: "task", Key: "environment_id", Value: "e2"},
 }
 
-func NewTestTagStore(t *testing.T) *DynamoTagStore {
+func NewTestTagStore(t *testing.T) *DynamoStore {
 	table := config.TestDynamoTagTableName()
 	if table == "" {
 		t.Skipf("Skipping test: %s not set", config.TEST_AWS_TAG_DYNAMO_TABLE)
@@ -49,7 +49,7 @@ func NewTestTagStore(t *testing.T) *DynamoTagStore {
 	}
 
 	session := session.New(awsConfig)
-	store := NewDynamoTagStore(session, table)
+	store := NewDynamoStore(session, table)
 
 	if err := store.Clear(); err != nil {
 		t.Fatalf("Error clearing table: %v", err)
@@ -58,7 +58,7 @@ func NewTestTagStore(t *testing.T) *DynamoTagStore {
 	return store
 }
 
-func TestDynamoTagStoreInsert(t *testing.T) {
+func TestDynamoStoreInsert(t *testing.T) {
 	store := NewTestTagStore(t)
 
 	tags := []models.Tag{
@@ -76,7 +76,7 @@ func TestDynamoTagStoreInsert(t *testing.T) {
 	}
 }
 
-func TestDynamoTagStoreDelete(t *testing.T) {
+func TestDynamoStoreDelete(t *testing.T) {
 	store := NewTestTagStore(t)
 
 	tags := []models.Tag{
@@ -102,7 +102,7 @@ func TestDynamoTagStoreDelete(t *testing.T) {
 	assert.Equal(t, result[0], tags[1])
 }
 
-func TestDynamoTagStoreSelectByTypeAndID(t *testing.T) {
+func TestDynamoStoreSelectByTypeAndID(t *testing.T) {
 	store := NewTestTagStore(t)
 
 	for _, tag := range TestTags {
@@ -161,7 +161,7 @@ func TestDynamoTagStoreSelectByTypeAndID(t *testing.T) {
 	}
 }
 
-func TestDynamoTagStoreSelectByType(t *testing.T) {
+func TestDynamoStoreSelectByType(t *testing.T) {
 	store := NewTestTagStore(t)
 
 	for _, tag := range TestTags {

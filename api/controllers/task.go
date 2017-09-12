@@ -51,12 +51,12 @@ func (t *TaskController) CreateTask(c *fireball.Context) (fireball.Response, err
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return scheduleJob(t.JobScheduler, job.CreateTaskJob, req)
+	return createJob(t.JobScheduler, job.CreateTaskJob, req)
 }
 
 func (t *TaskController) DeleteTask(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return scheduleJob(t.JobScheduler, job.DeleteTaskJob, id)
+	return createJob(t.JobScheduler, job.DeleteTaskJob, id)
 }
 
 func (t *TaskController) GetTask(c *fireball.Context) (fireball.Response, error) {
