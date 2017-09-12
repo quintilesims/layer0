@@ -9,17 +9,23 @@ import (
 
 func TestWorkerRunsJob(t *testing.T) {
 	var called bool
-	runner := func(j models.Job) error {
+	runner := RunnerFunc(func(j models.Job) error {
 		called = true
 		return nil
+	})
+
+	store := NewMemoryStore()
+	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	if err != nil {
+		t.Fatal(err)
 	}
 
 	queue := make(chan models.Job)
-	worker := NewWorker(0, queue, runner)
+	worker := NewWorker(0, store, queue, runner)
 
 	quit := worker.Start()
 	defer quit()
 
-	queue <- models.Job{}
+	queue <- models.Job{JobID: jobID}
 	assert.True(t, called)
 }

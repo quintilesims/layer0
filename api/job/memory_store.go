@@ -17,10 +17,6 @@ func NewMemoryStore() *MemoryStore {
 	}
 }
 
-func (m *MemoryStore) Init() error {
-	return nil
-}
-
 func (m *MemoryStore) Insert(jobType JobType, req string) (string, error) {
 	job := &models.Job{
 		JobID:   fmt.Sprintf("%v", time.Now().UnixNano()),
@@ -33,6 +29,20 @@ func (m *MemoryStore) Insert(jobType JobType, req string) (string, error) {
 
 	m.jobs = append(m.jobs, job)
 	return job.JobID, nil
+}
+
+func (m *MemoryStore) AcquireJob(jobID string) (bool, error) {
+	job, err := m.SelectByID(jobID)
+	if err != nil {
+		return false, err
+	}
+
+	if Status(job.Status) != Pending {
+		return false, nil
+	}
+
+	job.Status = string(InProgress)
+	return true, nil
 }
 
 func (m *MemoryStore) Delete(jobID string) error {
@@ -57,7 +67,7 @@ func (m *MemoryStore) SelectByID(jobID string) (*models.Job, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("Job with id '%d' does not exist", jobID)
+	return nil, fmt.Errorf("Job with id '%s' does not exist", jobID)
 }
 
 func (m *MemoryStore) SetJobStatus(jobID string, status Status) error {

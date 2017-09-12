@@ -33,6 +33,42 @@ func TestDynamoStoreInsert(t *testing.T) {
 	}
 }
 
+func TestAcquireJobSuccess(t *testing.T) {
+	store := newTestStore(t)
+
+	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	ok, err := store.AcquireJob(jobID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.True(t, ok)
+}
+
+func TestAcquireJobFailure(t *testing.T) {
+	store := newTestStore(t)
+
+	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if err := store.SetJobStatus(jobID, InProgress); err != nil {
+		t.Fatal(err)
+	}
+
+	ok, err := store.AcquireJob(jobID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.False(t, ok)
+}
+
 func TestDynamoStoreDelete(t *testing.T) {
 	store := newTestStore(t)
 

@@ -30,6 +30,17 @@ func (_m *MockStore) EXPECT() *_MockStoreRecorder {
 	return _m.recorder
 }
 
+func (_m *MockStore) AcquireJob(_param0 string) (bool, error) {
+	ret := _m.ctrl.Call(_m, "AcquireJob", _param0)
+	ret0, _ := ret[0].(bool)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+func (_mr *_MockStoreRecorder) AcquireJob(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "AcquireJob", arg0)
+}
+
 func (_m *MockStore) Delete(_param0 string) error {
 	ret := _m.ctrl.Call(_m, "Delete", _param0)
 	ret0, _ := ret[0].(error)

@@ -3,7 +3,6 @@ package tag
 import (
 	"fmt"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
@@ -36,17 +35,12 @@ type DynamoStore struct {
 	table dynamo.Table
 }
 
-func NewDynamoStore(config *aws.Config, table string) *DynamoStore {
-	session := session.New(config)
+func NewDynamoStore(session *session.Session, table string) *DynamoStore {
 	db := dynamo.New(session)
 
 	return &DynamoStore{
 		table: db.Table(table),
 	}
-}
-
-func (d *DynamoStore) Init() error {
-	return nil
 }
 
 func (d *DynamoStore) Clear() error {

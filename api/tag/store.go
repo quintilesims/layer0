@@ -5,7 +5,6 @@ import (
 )
 
 type Store interface {
-	Init() error
 	Delete(entityType, entityID, key string) error
 	Insert(tag models.Tag) error
 	SelectByType(entityType string) (models.Tags, error)

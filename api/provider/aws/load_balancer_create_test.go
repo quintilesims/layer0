@@ -9,7 +9,7 @@ import (
 )
 
 func TestLoadBalancer_createTags(t *testing.T) {
-	tagStore := tag.NewMemoryTagStore()
+	tagStore := tag.NewMemoryStore()
 	loadBalancer := NewLoadBalancerProvider(nil, tagStore, nil)
 
 	if err := loadBalancer.createTags("lb_id", "lb_name", "env_id"); err != nil {
