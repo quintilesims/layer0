@@ -59,7 +59,7 @@ func main() {
 
 		// todo: inject job_store.JobStore
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
-		serviceProvider := aws.NewServiceProvider(client, nil)
+		serviceProvider := aws.NewServiceProvider(client, tagStore, cfg)
 		deployProvider := aws.NewDeployProvider(client, nil)
 		loadbalancerProvider := aws.NewLoadBalancerProvider(client, nil)
 		taskProvider := aws.NewTaskProvider(client, nil)
