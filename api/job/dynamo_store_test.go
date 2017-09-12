@@ -1,31 +1,23 @@
 package job
 
-/*
 import (
-	"reflect"
+	"fmt"
+	"os"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/stretchr/testify/assert"
 )
 
-func NewTestStore(t *testing.T) *DynamoStore {
-	table := config.TestDynamoJobTableName()
+func newTestStore(t *testing.T) *DynamoStore {
+	session := config.GetTestAWSSession()
+	table := os.Getenv(config.ENVVAR_TEST_AWS_DYNAMO_JOB_TABLE)
 	if table == "" {
-		t.Skipf("Skipping test: %s not set", config.TEST_AWS_JOB_DYNAMO_TABLE)
+		t.Skipf("Test table not set (envvar: %s)", config.ENVVAR_TEST_AWS_DYNAMO_JOB_TABLE)
 	}
 
-	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
-	awsConfig := &aws.Config{
-		Credentials: creds,
-		Region:      aws.String(config.AWSRegion()),
-	}
-
-	session := session.New(awsConfig)
 	store := NewDynamoStore(session, table)
-
 	if err := store.Clear(); err != nil {
 		t.Fatal(err)
 	}
@@ -34,124 +26,127 @@ func NewTestStore(t *testing.T) *DynamoStore {
 }
 
 func TestDynamoStoreInsert(t *testing.T) {
-	store := NewTestStore(t)
+	store := newTestStore(t)
 
-	job := &models.Job{JobID: "1", JobType: string(DeleteEnvironmentJob)}
-	if err := store.Insert(job); err != nil {
+	if _, err := store.Insert(DeleteEnvironmentJob, "1"); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestDynamoStoreDelete(t *testing.T) {
-	store := NewTestStore(t)
+	store := newTestStore(t)
 
-	job := &models.Job{JobID: "1", JobType: string(DeleteEnvironmentJob)}
-	if err := store.Insert(job); err != nil {
+	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := store.Delete(job.JobID); err != nil {
+	if err := store.Delete(jobID); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestDynamoStoreSelectAll(t *testing.T) {
-	store := NewTestStore(t)
+	store := newTestStore(t)
 
-	jobs := []*models.Job{
-		{JobID: "1", JobType: string(DeleteEnvironmentJob)},
-		{JobID: "2", JobType: string(DeleteEnvironmentJob)},
-		{JobID: "3", JobType: string(DeleteServiceJob)},
-		{JobID: "4", JobType: string(DeleteLoadBalancerJob)},
-		{JobID: "5", JobType: string(DeleteTaskJob)},
-	}
-
-	for _, job := range jobs {
-		if err := store.Insert(job); err != nil {
+	for i := 0; i < 5; i++ {
+		if _, err := store.Insert(DeleteEnvironmentJob, "1"); err != nil {
 			t.Fatal(err)
 		}
 	}
 
-	result, err := store.SelectAll()
+	jobs, err := store.SelectAll()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if r, e := len(result), len(jobs); r != e {
-		t.Fatalf("Result had %d jobs, expected %d", r, e)
-	}
+	assert.Len(t, jobs, 5)
 }
 
 func TestDynamoStoreSelectByID(t *testing.T) {
-	store := NewTestStore(t)
+	store := newTestStore(t)
 
 	jobs := []*models.Job{
-		{JobID: "1", JobType: string(DeleteEnvironmentJob)},
-		{JobID: "2", JobType: string(DeleteEnvironmentJob)},
-		{JobID: "3", JobType: string(DeleteServiceJob)},
-		{JobID: "4", JobType: string(DeleteLoadBalancerJob)},
-		{JobID: "5", JobType: string(DeleteTaskJob)},
+		{Type: string(DeleteEnvironmentJob), Request: "0"},
+		{Type: string(DeleteEnvironmentJob), Request: "1"},
+		{Type: string(DeleteServiceJob), Request: "2"},
+		{Type: string(DeleteLoadBalancerJob), Request: "3"},
+		{Type: string(DeleteTaskJob), Request: "4"},
 	}
 
 	for _, job := range jobs {
-		if err := store.Insert(job); err != nil {
+		jobID, err := store.Insert(JobType(job.Type), job.Request)
+		if err != nil {
 			t.Fatal(err)
 		}
-	}
 
-	result, err := store.SelectByID(jobs[2].JobID)
-	if err != nil {
-		t.Fatal(err)
-	}
+		result, err := store.SelectByID(jobID)
+		if err != nil {
+			t.Fatal(err)
+		}
 
-	if r, e := result.JobID, jobs[2].JobID; r != e {
-		t.Fatalf("Result was %#v, expected %#v", r, e)
+		assert.Equal(t, job.Request, result.Request)
 	}
 }
 
-func TestDynamoStoreUpdateStatus(t *testing.T) {
-	store := NewTestStore(t)
+func TestDynamoStoreSetJobStatus(t *testing.T) {
+	store := newTestStore(t)
 
-	job := &models.Job{JobID: "1", Status: string(Pending)}
-	if err := store.Insert(job); err != nil {
-		t.Fatal(err)
-	}
-
-	if err := store.UpdateStatus(job.JobID, InProgress); err != nil {
-		t.Fatal(err)
-	}
-
-	result, err := store.SelectByID(job.JobID)
+	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if r, e := Status(result.Status), InProgress; r != e {
-		t.Fatalf("Status was '%s', expected '%s'", r, e)
+	if err := store.SetJobStatus(jobID, Error); err != nil {
+		t.Fatal(err)
 	}
+
+	job, err := store.SelectByID(jobID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, Error, Status(job.Status))
 }
 
 func TestDynamoStoreSetMeta(t *testing.T) {
-	store := NewTestStore(t)
+	store := newTestStore(t)
 
-	job := &models.Job{JobID: "1", Meta: map[string]string{"alpha": "1"}}
-	if err := store.Insert(job); err != nil {
-		t.Fatal(err)
-	}
-
-	meta := map[string]string{"beta": "2"}
-	if err := store.SetJobMeta(job.JobID, meta); err != nil {
-		t.Fatal(err)
-	}
-
-	result, err := store.SelectByID(job.JobID)
+	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if r, e := result.Meta, meta; !reflect.DeepEqual(r, e) {
-		t.Fatalf("Status was '%s', expected '%s'", r, e)
+	meta := map[string]string{"one": "two"}
+	if err := store.SetJobMeta(jobID, meta); err != nil {
+		t.Fatal(err)
 	}
 
+	job, err := store.SelectByID(jobID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, meta, job.Meta)
 }
-*/
+
+func TestDynamoStoreSetJobError(t *testing.T) {
+	store := newTestStore(t)
+
+	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testError := fmt.Errorf("some error")
+	if err := store.SetJobError(jobID, testError); err != nil {
+		t.Fatal(err)
+	}
+
+	job, err := store.SelectByID(jobID)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, testError.Error(), job.Error)
+}

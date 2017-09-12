@@ -3,8 +3,8 @@ deps:
 	go install github.com/golang/mock/mockgen
 
 all: api common
-api: provider job
-common: aws db
+api: provider
+common: aws
 
 provider:
 	mockgen github.com/quintilesims/layer0/api/provider EnvironmentProvider > ../api/provider/mock_provider/mock_environment.go &
@@ -12,10 +12,6 @@ provider:
 	mockgen github.com/quintilesims/layer0/api/provider LoadBalancerProvider > ../api/provider/mock_provider/mock_loadbalancer.go &
 	mockgen github.com/quintilesims/layer0/api/provider ServiceProvider > ../api/provider/mock_provider/mock_service.go &
 	mockgen github.com/quintilesims/layer0/api/provider TaskProvider > ../api/provider/mock_provider/mock_task.go &
-
-job:
-	mockgen github.com/quintilesims/layer0/api/job Scheduler > ../api/job/mock_job/mock_scheduler.go &
-	mockgen github.com/quintilesims/layer0/api/job Store > ../api/job/mock_job/mock_store.go 
 
 aws:
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/autoscaling/autoscalingiface AutoScalingAPI > ../common/aws/mock_aws/mock_autoscaling.go &
@@ -25,7 +21,4 @@ aws:
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/iam/iamiface IAMAPI > ../common/aws/mock_aws/mock_iam.go &
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/s3/s3iface S3API > ../common/aws/mock_aws/mock_s3.go &
 
-db:
-	mockgen github.com/quintilesims/layer0/common/db/job_store JobStore > ../common/db/job_store/mock_job_store/mock_job_store.go &
-
-.PHONY: deps all api common provider scheduler aws db
+.PHONY: deps all api common provider aws

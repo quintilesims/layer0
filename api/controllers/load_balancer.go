@@ -51,12 +51,12 @@ func (l *LoadBalancerController) CreateLoadBalancer(c *fireball.Context) (fireba
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return scheduleJob(l.JobScheduler, job.CreateLoadBalancerJob, req)
+	return createJob(l.JobScheduler, job.CreateLoadBalancerJob, req)
 }
 
 func (l *LoadBalancerController) DeleteLoadBalancer(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return scheduleJob(l.JobScheduler, job.DeleteLoadBalancerJob, id)
+	return createJob(l.JobScheduler, job.DeleteLoadBalancerJob, id)
 }
 
 func (l *LoadBalancerController) GetLoadBalancer(c *fireball.Context) (fireball.Response, error) {

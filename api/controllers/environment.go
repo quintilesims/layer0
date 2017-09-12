@@ -51,12 +51,12 @@ func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return scheduleJob(e.JobScheduler, job.CreateEnvironmentJob, req)
+	return createJob(e.JobScheduler, job.CreateEnvironmentJob, req)
 }
 
 func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return scheduleJob(e.JobScheduler, job.DeleteEnvironmentJob, id)
+	return createJob(e.JobScheduler, job.DeleteEnvironmentJob, id)
 }
 
 func (e *EnvironmentController) GetEnvironment(c *fireball.Context) (fireball.Response, error) {

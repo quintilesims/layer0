@@ -5,11 +5,11 @@ import (
 )
 
 type Store interface {
-	Init() error
-	Delete(string) error
-	Insert(models.Job) error
+	Delete(jobID string) error
+	Insert(jobType JobType, req string) (string, error)
 	SelectAll() ([]*models.Job, error)
-	SelectByID(string) (*models.Job, error)
-	UpdateStatus(string, Status) error
-	SetJobMeta(string, map[string]string) error
+	SelectByID(jobID string) (*models.Job, error)
+	SetJobStatus(jobID string, status Status) error
+	SetJobMeta(jobID string, meta map[string]string) error
+	SetJobError(jobID string, err error) error
 }
