@@ -36,7 +36,6 @@ func (d *DeployController) Routes() []*fireball.Route {
 			Handlers: fireball.Handlers{
 				"GET":    d.GetDeploy,
 				"DELETE": d.DeleteDeploy,
-				"PUT":    d.UpdateDeploy,
 			},
 		},
 	}
@@ -78,9 +77,4 @@ func (d *DeployController) ListDeploys(c *fireball.Context) (fireball.Response, 
 
 	return fireball.NewJSONResponse(200, summaries)
 
-}
-
-func (d *DeployController) UpdateDeploy(c *fireball.Context) (fireball.Response, error) {
-	id := c.PathVariables["id"]
-	return scheduleJob(d.JobScheduler, job.UpdateDeployJob, id)
 }

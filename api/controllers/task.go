@@ -36,7 +36,6 @@ func (t *TaskController) Routes() []*fireball.Route {
 			Handlers: fireball.Handlers{
 				"GET":    t.GetTask,
 				"DELETE": t.DeleteTask,
-				"PUT":    t.UpdateTask,
 			},
 		},
 	}
@@ -78,9 +77,4 @@ func (t *TaskController) ListTasks(c *fireball.Context) (fireball.Response, erro
 
 	return fireball.NewJSONResponse(200, summaries)
 
-}
-
-func (t *TaskController) UpdateTask(c *fireball.Context) (fireball.Response, error) {
-	id := c.PathVariables["id"]
-	return scheduleJob(t.JobScheduler, job.UpdateTaskJob, id)
 }
