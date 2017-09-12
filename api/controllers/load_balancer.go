@@ -36,6 +36,7 @@ func (l *LoadBalancerController) Routes() []*fireball.Route {
 			Handlers: fireball.Handlers{
 				"GET":    l.GetLoadBalancer,
 				"DELETE": l.DeleteLoadBalancer,
+				"PUT":    l.UpdateLoadBalancer,
 			},
 		},
 	}
@@ -77,4 +78,20 @@ func (l *LoadBalancerController) ListLoadBalancers(c *fireball.Context) (firebal
 
 	return fireball.NewJSONResponse(200, summaries)
 
+}
+
+func (l *LoadBalancerController) UpdateLoadBalancer(c *fireball.Context) (fireball.Response, error) {
+	id := c.PathVariables["id"]
+
+	var req models.UpdateLoadBalancerRequest
+	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
+
+	req.LoadBalancerID = id
+	if err := req.Validate(); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
+
+	return scheduleJob(l.JobScheduler, job.UpdateLoadBalancerJob, req)
 }
