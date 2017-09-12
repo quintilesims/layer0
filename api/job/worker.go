@@ -25,7 +25,7 @@ func NewWorker(id int, queue chan models.Job, runner Runner) *Worker {
 func (w *Worker) Start() func() {
 	quit := make(chan bool)
 	go func() {
-		log.Printf("[DEBUG] [JobWorker %d]: start signalled", w.ID)
+		log.Printf("[DEBUG] [JobWorker %d]: start signalled\n", w.ID)
 		for {
 			select {
 			case job := <-w.Queue:

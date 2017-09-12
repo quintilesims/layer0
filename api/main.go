@@ -56,6 +56,8 @@ func main() {
 
 		client := awsclient.NewClient(awsConfig)
 		tagStore := tag.NewDynamoTagStore(awsConfig, cfg.DynamoTagTable())
+		jobScheduler := job.Ne
+
 
 		// todo: inject job_store.JobStore
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
@@ -66,7 +68,7 @@ func main() {
 
 		// todo: inject job scheduler
 		routes := controllers.NewSwaggerController(Version).Routes()
-		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, nil).Routes()...)
+		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobScheduler).Routes()...)
 		routes = append(routes, controllers.NewServiceController(serviceProvider, nil).Routes()...)
 		routes = append(routes, controllers.NewDeployController(deployProvider, nil).Routes()...)
 		routes = append(routes, controllers.NewLoadBalancerController(loadbalancerProvider, nil).Routes()...)

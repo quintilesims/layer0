@@ -12,10 +12,10 @@ import (
 
 type LoadBalancerController struct {
 	LoadBalancerProvider provider.LoadBalancerProvider
-	JobScheduler         job.Scheduler
+	JobScheduler         job.Store
 }
 
-func NewLoadBalancerController(l provider.LoadBalancerProvider, j job.Scheduler) *LoadBalancerController {
+func NewLoadBalancerController(l provider.LoadBalancerProvider, j job.Store) *LoadBalancerController {
 	return &LoadBalancerController{
 		LoadBalancerProvider: l,
 		JobScheduler:         j,

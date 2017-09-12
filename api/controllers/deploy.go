@@ -12,10 +12,10 @@ import (
 
 type DeployController struct {
 	DeployProvider provider.DeployProvider
-	JobScheduler   job.Scheduler
+	JobStore   job.Store
 }
 
-func NewDeployController(d provider.DeployProvider, j job.Scheduler) *DeployController {
+func NewDeployController(d provider.DeployProvider, j job.Store) *DeployController {
 	return &DeployController{
 		DeployProvider: d,
 		JobScheduler:   j,

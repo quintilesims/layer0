@@ -8,10 +8,10 @@ import (
 )
 
 type JobRunner struct {
-	store job.JobStore
+	store job.Store
 }
 
-func NewJobRunner(s job.JobStore) *JobRunner {
+func NewJobRunner(s job.Store) *JobRunner {
 	return &JobRunner{
 		store: s,
 	}

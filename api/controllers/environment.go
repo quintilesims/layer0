@@ -12,10 +12,10 @@ import (
 
 type EnvironmentController struct {
 	EnvironmentProvider provider.EnvironmentProvider
-	JobScheduler        job.Scheduler
+	JobScheduler        job.Store
 }
 
-func NewEnvironmentController(e provider.EnvironmentProvider, j job.Scheduler) *EnvironmentController {
+func NewEnvironmentController(e provider.EnvironmentProvider, j job.Store) *EnvironmentController {
 	return &EnvironmentController{
 		EnvironmentProvider: e,
 		JobScheduler:        j,
