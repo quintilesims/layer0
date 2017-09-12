@@ -33,3 +33,7 @@ func (t *TaskProvider) List() ([]models.TaskSummary, error) {
 func (t *TaskProvider) Delete(TaskID string) error {
 	return nil
 }
+
+func (t *TaskProvider) Update(TaskID string) error {
+	return nil
+}
