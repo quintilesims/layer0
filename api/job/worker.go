@@ -2,18 +2,16 @@ package job
 
 import (
 	"log"
-
-	"github.com/quintilesims/layer0/common/models"
 )
 
 type Worker struct {
 	ID     int
 	Store  Store
-	Queue  chan models.Job
+	Queue  chan string
 	Runner Runner
 }
 
-func NewWorker(id int, store Store, queue chan models.Job, runner Runner) *Worker {
+func NewWorker(id int, store Store, queue chan string, runner Runner) *Worker {
 	return &Worker{
 		ID:     id,
 		Store:  store,
@@ -28,27 +26,33 @@ func (w *Worker) Start() func() {
 		log.Printf("[DEBUG] [JobWorker %d]: Start signalled\n", w.ID)
 		for {
 			select {
-			case job := <-w.Queue:
-				ok, err := w.Store.AcquireJob(job.JobID)
+			case jobID := <-w.Queue:
+				ok, err := w.Store.AcquireJob(jobID)
 				if err != nil {
-					log.Printf("[ERROR] [JobWorker %d]: Unexpected error when acquiring job %s: %v", w.ID, job.JobID, err)
+					log.Printf("[ERROR] [JobWorker %d]: Unexpected error when acquiring job %s: %v", w.ID, jobID, err)
 					continue
 				}
 
 				if !ok {
-					log.Printf("[DEBUG] [JobWorker %d]: Job %s is already acquired", w.ID, job.JobID)
+					log.Printf("[DEBUG] [JobWorker %d]: Job %s is already acquired", w.ID, jobID)
 					continue
 				}
 
-				log.Printf("[INFO] [JobWorker %d]: Starting job %s", w.ID, job.JobID)
-				if err := w.Runner.Run(job); err != nil {
-					log.Printf("[ERROR] [JobWorker %d]: Failed to run job %s: %v", w.ID, job.JobID, err)
-					w.Store.SetJobError(job.JobID, err)
+				job, err := w.Store.SelectByID(jobID)
+				if err != nil {
+					log.Printf("[ERROR] [JobWorker %d]: Failed to select job %s: %v", w.ID, jobID, err)
 					continue
 				}
 
-				log.Printf("[INFO] [JobWorker %d]: Finished job %s", w.ID, job.JobID)
-                                w.Store.SetJobStatus(job.JobID, Completed)
+				log.Printf("[INFO] [JobWorker %d]: Starting job %s", w.ID, jobID)
+				if err := w.Runner.Run(*job); err != nil {
+					log.Printf("[ERROR] [JobWorker %d]: Failed to run job %s: %v", w.ID, jobID, err)
+					w.Store.SetJobError(jobID, err)
+					continue
+				}
+
+				log.Printf("[INFO] [JobWorker %d]: Finished job %s", w.ID, jobID)
+				w.Store.SetJobStatus(jobID, Completed)
 			case <-quit:
 				log.Printf("[DEBUG] [JobWorker %d]: Quit signalled", w.ID)
 				return

@@ -3,8 +3,6 @@ package job
 import (
 	"log"
 	"time"
-
-	"github.com/quintilesims/layer0/common/models"
 )
 
 const (
@@ -12,7 +10,7 @@ const (
 )
 
 func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner) *time.Ticker {
-	queue := make(chan models.Job)
+	queue := make(chan string)
 	for i := 0; i < numWorkers; i++ {
 		worker := NewWorker(i+1, store, queue, runner)
 		worker.Start()
@@ -34,10 +32,10 @@ func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner) *time.T
 
 type Dispatcher struct {
 	store Store
-	queue chan<- models.Job
+	queue chan<- string
 }
 
-func NewDispatcher(store Store, queue chan<- models.Job) *Dispatcher {
+func NewDispatcher(store Store, queue chan<- string) *Dispatcher {
 	return &Dispatcher{
 		store: store,
 		queue: queue,
@@ -52,9 +50,7 @@ func (d *Dispatcher) Run() error {
 
 	for _, job := range jobs {
 		if Status(job.Status) == Pending {
-			// todo: a lot of time could pass while waiting for the queue to open up
-			// the worker should attempt to acquire a lock before running the job
-			d.queue <- *job
+			d.queue <- job.JobID
 		}
 	}
 
