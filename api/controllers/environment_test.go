@@ -148,28 +148,19 @@ func TestUpdateEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
 
-	httpReq := models.UpdateEnvironmentRequest{
-		MinClusterCount: 2,
-	}
-
-	jobReq := models.UpdateEnvironmentRequest{
+	req := models.UpdateEnvironmentRequest{
 		EnvironmentID:   "e1",
 		MinClusterCount: 2,
 	}
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.UpdateEnvironmentJob.String(),
-		Request: jobReq,
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.UpdateEnvironmentJob, gomock.Any()).
 		Return("jid", nil)
 
-	c := newFireballContext(t, httpReq, map[string]string{"id": "e1"})
+	c := newFireballContext(t, req, nil)
 	resp, err := controller.UpdateEnvironment(c)
 	if err != nil {
 		t.Fatal(err)
