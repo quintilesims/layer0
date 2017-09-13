@@ -7,7 +7,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func (l *LoadBalancerProvider) Update(req models.UpdateLoadBalancerRequest) (*models.LoadBalancer, error) {
+func (l *LoadBalancerProvider) Update(req models.UpdateLoadBalancerRequest) error {
 	ports := req.Ports
 	healthCheck := req.HealthCheck
 
@@ -15,7 +15,7 @@ func (l *LoadBalancerProvider) Update(req models.UpdateLoadBalancerRequest) (*mo
 
 	loadBalancer, err := l.describeLoadBalancer(fqLoadBalancerID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	for i, description := range loadBalancer.ListenerDescriptions {
@@ -43,9 +43,9 @@ func (l *LoadBalancerProvider) Update(req models.UpdateLoadBalancerRequest) (*mo
 		HealthCheck:    healthCheck,
 	}
 
-	if err := l.populateModelTagss(req.LoadBalancerID, model); err != nil {
-		return nil, err
+	if err := l.populateModelTags(req.LoadBalancerID, model); err != nil {
+		return err
 	}
 
-	return model, nil
+	return nil
 }
