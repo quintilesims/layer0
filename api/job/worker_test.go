@@ -20,12 +20,12 @@ func TestWorkerRunsJob(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	queue := make(chan models.Job)
+	queue := make(chan string)
 	worker := NewWorker(0, store, queue, runner)
 
 	quit := worker.Start()
 	defer quit()
 
-	queue <- models.Job{JobID: jobID}
+	queue <- jobID
 	assert.True(t, called)
 }

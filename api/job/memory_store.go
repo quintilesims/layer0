@@ -24,7 +24,7 @@ func (m *MemoryStore) Insert(jobType JobType, req string) (string, error) {
 		Request: req,
 		Status:  string(Pending),
 		Created: time.Now(),
-		Meta:    map[string]string{},
+		Result:    "",
 	}
 
 	m.jobs = append(m.jobs, job)
@@ -80,13 +80,13 @@ func (m *MemoryStore) SetJobStatus(jobID string, status Status) error {
 	return nil
 }
 
-func (m *MemoryStore) SetJobMeta(jobID string, meta map[string]string) error {
+func (m *MemoryStore) SetJobResult(jobID, result string) error {
 	job, err := m.SelectByID(jobID)
 	if err != nil {
 		return err
 	}
 
-	job.Meta = meta
+	job.Result = result
 	return nil
 }
 

@@ -11,6 +11,6 @@ type Store interface {
 	SelectAll() ([]*models.Job, error)
 	SelectByID(jobID string) (*models.Job, error)
 	SetJobStatus(jobID string, status Status) error
-	SetJobMeta(jobID string, meta map[string]string) error
+	SetJobResult(jobID, result string) error
 	SetJobError(jobID string, err error) error
 }

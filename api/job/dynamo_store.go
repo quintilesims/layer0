@@ -45,7 +45,7 @@ func (d *DynamoStore) Insert(jobType JobType, req string) (string, error) {
 		Request: req,
 		Status:  string(Pending),
 		Created: time.Now(),
-		Meta:    map[string]string{},
+		Result:  "",
 	}
 
 	if err := d.table.Put(job).Run(); err != nil {
@@ -84,9 +84,9 @@ func (d *DynamoStore) SetJobStatus(jobID string, status Status) error {
 	return nil
 }
 
-func (d *DynamoStore) SetJobMeta(jobID string, meta map[string]string) error {
+func (d *DynamoStore) SetJobResult(jobID, result string) error {
 	if err := d.table.Update("JobID", jobID).
-		Set("Meta", meta).
+		Set("Result", result).
 		Run(); err != nil {
 		return err
 	}

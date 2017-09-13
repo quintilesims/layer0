@@ -145,7 +145,7 @@ func TestDynamoStoreSetJobStatus(t *testing.T) {
 	assert.Equal(t, Error, Status(job.Status))
 }
 
-func TestDynamoStoreSetMeta(t *testing.T) {
+func TestDynamoStoreSetResult(t *testing.T) {
 	store := newTestStore(t)
 
 	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
@@ -153,8 +153,7 @@ func TestDynamoStoreSetMeta(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	meta := map[string]string{"one": "two"}
-	if err := store.SetJobMeta(jobID, meta); err != nil {
+	if err := store.SetJobResult(jobID, "result"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -163,7 +162,7 @@ func TestDynamoStoreSetMeta(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, meta, job.Meta)
+	assert.Equal(t, "result", job.Result)
 }
 
 func TestDynamoStoreSetJobError(t *testing.T) {
