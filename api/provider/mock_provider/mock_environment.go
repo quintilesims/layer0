@@ -83,3 +83,15 @@ func (m *MockEnvironmentProvider) Read(arg0 string) (*models.Environment, error)
 func (mr *MockEnvironmentProviderMockRecorder) Read(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockEnvironmentProvider)(nil).Read), arg0)
 }
+
+// Update mocks base method
+func (m *MockEnvironmentProvider) Update(arg0 models.UpdateEnvironmentRequest) error {
+	ret := m.ctrl.Call(m, "Update", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update
+func (mr *MockEnvironmentProviderMockRecorder) Update(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockEnvironmentProvider)(nil).Update), arg0)
+}
