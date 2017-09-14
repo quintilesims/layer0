@@ -5,11 +5,10 @@
 package mock_job
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	job "github.com/quintilesims/layer0/api/job"
 	models "github.com/quintilesims/layer0/common/models"
+	reflect "reflect"
 )
 
 // MockStore is a mock of Store interface
@@ -97,6 +96,16 @@ func (m *MockStore) SelectByID(arg0 string) (*models.Job, error) {
 // SelectByID indicates an expected call of SelectByID
 func (mr *MockStoreMockRecorder) SelectByID(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectByID", reflect.TypeOf((*MockStore)(nil).SelectByID), arg0)
+}
+
+// SetInsertHook mocks base method
+func (m *MockStore) SetInsertHook(arg0 func(string)) {
+	m.ctrl.Call(m, "SetInsertHook", arg0)
+}
+
+// SetInsertHook indicates an expected call of SetInsertHook
+func (mr *MockStoreMockRecorder) SetInsertHook(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetInsertHook", reflect.TypeOf((*MockStore)(nil).SetInsertHook), arg0)
 }
 
 // SetJobError mocks base method

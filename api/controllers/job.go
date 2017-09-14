@@ -5,7 +5,6 @@ import (
 	"github.com/zpatrick/fireball"
 )
 
-// todo: job test
 type JobController struct {
 	JobStore job.Store
 }

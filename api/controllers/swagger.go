@@ -46,6 +46,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"Job":                       models.Job{}.Definition(),
 			"LoadBalancer":              models.LoadBalancer{}.Definition(),
 			"Port":                      models.Port{}.Definition(),
+			"UpdateLoadBalancerRequest": models.UpdateLoadBalancerRequest{}.Definition(),
 		},
 		Tags: []swagger.Tag{
 			{
@@ -173,6 +174,19 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Responses: map[string]swagger.Response{
 						"200": {
 							Description: "The added load balancer",
+							Schema:      swagger.NewObjectSchema("LoadBalancer"),
+						},
+					},
+				},
+				"put": {
+					Summary: "Update a LoadBalancer",
+					Tags:    []string{"LoadBalancer"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("UpdateLoadBalancerRequest", "LoadBalancer to update", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The updated load balancer",
 							Schema:      swagger.NewObjectSchema("LoadBalancer"),
 						},
 					},

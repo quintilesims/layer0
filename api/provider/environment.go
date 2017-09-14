@@ -6,6 +6,6 @@ type EnvironmentProvider interface {
 	Create(req models.CreateEnvironmentRequest) (*models.Environment, error)
 	Read(environmentID string) (*models.Environment, error)
 	List() ([]models.EnvironmentSummary, error)
-	Delete(environmentID string) error
 	Update(req models.UpdateEnvironmentRequest) error
+	Delete(environmentID string) error
 }

@@ -5,10 +5,9 @@
 package mock_provider
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
+	reflect "reflect"
 )
 
 // MockLoadBalancerProvider is a mock of LoadBalancerProvider interface
@@ -83,4 +82,16 @@ func (m *MockLoadBalancerProvider) Read(arg0 string) (*models.LoadBalancer, erro
 // Read indicates an expected call of Read
 func (mr *MockLoadBalancerProviderMockRecorder) Read(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockLoadBalancerProvider)(nil).Read), arg0)
+}
+
+// Update mocks base method
+func (m *MockLoadBalancerProvider) Update(arg0 models.UpdateLoadBalancerRequest) error {
+	ret := m.ctrl.Call(m, "Update", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update
+func (mr *MockLoadBalancerProviderMockRecorder) Update(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockLoadBalancerProvider)(nil).Update), arg0)
 }
