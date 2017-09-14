@@ -111,15 +111,15 @@ func (mr *MockStoreMockRecorder) SetJobError(arg0, arg1 interface{}) *gomock.Cal
 }
 
 // SetJobResult mocks base method
-func (_m *MockStore) SetJobResult(_param0 string, _param1 string) error {
-	ret := _m.ctrl.Call(_m, "SetJobResult", _param0, _param1)
+func (m *MockStore) SetJobResult(arg0, arg1 string) error {
+	ret := m.ctrl.Call(m, "SetJobResult", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
 // SetJobResult indicates an expected call of SetJobResult
-func (_mr *_MockStoreRecorder) SetJobResult(arg0, arg1 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "SetJobResult", arg0, arg1)
+func (mr *MockStoreMockRecorder) SetJobResult(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetJobResult", reflect.TypeOf((*MockStore)(nil).SetJobResult), arg0, arg1)
 }
 
 // SetJobStatus mocks base method

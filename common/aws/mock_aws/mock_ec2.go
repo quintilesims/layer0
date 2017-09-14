@@ -1399,50 +1399,6 @@ func (mr *MockEC2APIMockRecorder) CreateCustomerGatewayWithContext(arg0, arg1 in
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCustomerGatewayWithContext", reflect.TypeOf((*MockEC2API)(nil).CreateCustomerGatewayWithContext), varargs...)
 }
 
-// CreateDefaultVpc mocks base method
-func (m *MockEC2API) CreateDefaultVpc(arg0 *ec2.CreateDefaultVpcInput) (*ec2.CreateDefaultVpcOutput, error) {
-	ret := m.ctrl.Call(m, "CreateDefaultVpc", arg0)
-	ret0, _ := ret[0].(*ec2.CreateDefaultVpcOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateDefaultVpc indicates an expected call of CreateDefaultVpc
-func (mr *MockEC2APIMockRecorder) CreateDefaultVpc(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDefaultVpc", reflect.TypeOf((*MockEC2API)(nil).CreateDefaultVpc), arg0)
-}
-
-// CreateDefaultVpcRequest mocks base method
-func (m *MockEC2API) CreateDefaultVpcRequest(arg0 *ec2.CreateDefaultVpcInput) (*request.Request, *ec2.CreateDefaultVpcOutput) {
-	ret := m.ctrl.Call(m, "CreateDefaultVpcRequest", arg0)
-	ret0, _ := ret[0].(*request.Request)
-	ret1, _ := ret[1].(*ec2.CreateDefaultVpcOutput)
-	return ret0, ret1
-}
-
-// CreateDefaultVpcRequest indicates an expected call of CreateDefaultVpcRequest
-func (mr *MockEC2APIMockRecorder) CreateDefaultVpcRequest(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDefaultVpcRequest", reflect.TypeOf((*MockEC2API)(nil).CreateDefaultVpcRequest), arg0)
-}
-
-// CreateDefaultVpcWithContext mocks base method
-func (m *MockEC2API) CreateDefaultVpcWithContext(arg0 aws.Context, arg1 *ec2.CreateDefaultVpcInput, arg2 ...request.Option) (*ec2.CreateDefaultVpcOutput, error) {
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "CreateDefaultVpcWithContext", varargs...)
-	ret0, _ := ret[0].(*ec2.CreateDefaultVpcOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateDefaultVpcWithContext indicates an expected call of CreateDefaultVpcWithContext
-func (mr *MockEC2APIMockRecorder) CreateDefaultVpcWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDefaultVpcWithContext", reflect.TypeOf((*MockEC2API)(nil).CreateDefaultVpcWithContext), varargs...)
-}
-
 // CreateDhcpOptions mocks base method
 func (m *MockEC2API) CreateDhcpOptions(arg0 *ec2.CreateDhcpOptionsInput) (*ec2.CreateDhcpOptionsOutput, error) {
 	ret := m.ctrl.Call(m, "CreateDhcpOptions", arg0)
@@ -1938,50 +1894,6 @@ func (m *MockEC2API) CreateNetworkInterface(arg0 *ec2.CreateNetworkInterfaceInpu
 // CreateNetworkInterface indicates an expected call of CreateNetworkInterface
 func (mr *MockEC2APIMockRecorder) CreateNetworkInterface(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNetworkInterface", reflect.TypeOf((*MockEC2API)(nil).CreateNetworkInterface), arg0)
-}
-
-// CreateNetworkInterfacePermission mocks base method
-func (m *MockEC2API) CreateNetworkInterfacePermission(arg0 *ec2.CreateNetworkInterfacePermissionInput) (*ec2.CreateNetworkInterfacePermissionOutput, error) {
-	ret := m.ctrl.Call(m, "CreateNetworkInterfacePermission", arg0)
-	ret0, _ := ret[0].(*ec2.CreateNetworkInterfacePermissionOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateNetworkInterfacePermission indicates an expected call of CreateNetworkInterfacePermission
-func (mr *MockEC2APIMockRecorder) CreateNetworkInterfacePermission(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNetworkInterfacePermission", reflect.TypeOf((*MockEC2API)(nil).CreateNetworkInterfacePermission), arg0)
-}
-
-// CreateNetworkInterfacePermissionRequest mocks base method
-func (m *MockEC2API) CreateNetworkInterfacePermissionRequest(arg0 *ec2.CreateNetworkInterfacePermissionInput) (*request.Request, *ec2.CreateNetworkInterfacePermissionOutput) {
-	ret := m.ctrl.Call(m, "CreateNetworkInterfacePermissionRequest", arg0)
-	ret0, _ := ret[0].(*request.Request)
-	ret1, _ := ret[1].(*ec2.CreateNetworkInterfacePermissionOutput)
-	return ret0, ret1
-}
-
-// CreateNetworkInterfacePermissionRequest indicates an expected call of CreateNetworkInterfacePermissionRequest
-func (mr *MockEC2APIMockRecorder) CreateNetworkInterfacePermissionRequest(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNetworkInterfacePermissionRequest", reflect.TypeOf((*MockEC2API)(nil).CreateNetworkInterfacePermissionRequest), arg0)
-}
-
-// CreateNetworkInterfacePermissionWithContext mocks base method
-func (m *MockEC2API) CreateNetworkInterfacePermissionWithContext(arg0 aws.Context, arg1 *ec2.CreateNetworkInterfacePermissionInput, arg2 ...request.Option) (*ec2.CreateNetworkInterfacePermissionOutput, error) {
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "CreateNetworkInterfacePermissionWithContext", varargs...)
-	ret0, _ := ret[0].(*ec2.CreateNetworkInterfacePermissionOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// CreateNetworkInterfacePermissionWithContext indicates an expected call of CreateNetworkInterfacePermissionWithContext
-func (mr *MockEC2APIMockRecorder) CreateNetworkInterfacePermissionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateNetworkInterfacePermissionWithContext", reflect.TypeOf((*MockEC2API)(nil).CreateNetworkInterfacePermissionWithContext), varargs...)
 }
 
 // CreateNetworkInterfaceRequest mocks base method
@@ -3128,50 +3040,6 @@ func (mr *MockEC2APIMockRecorder) DeleteNetworkInterface(arg0 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteNetworkInterface", reflect.TypeOf((*MockEC2API)(nil).DeleteNetworkInterface), arg0)
 }
 
-// DeleteNetworkInterfacePermission mocks base method
-func (m *MockEC2API) DeleteNetworkInterfacePermission(arg0 *ec2.DeleteNetworkInterfacePermissionInput) (*ec2.DeleteNetworkInterfacePermissionOutput, error) {
-	ret := m.ctrl.Call(m, "DeleteNetworkInterfacePermission", arg0)
-	ret0, _ := ret[0].(*ec2.DeleteNetworkInterfacePermissionOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DeleteNetworkInterfacePermission indicates an expected call of DeleteNetworkInterfacePermission
-func (mr *MockEC2APIMockRecorder) DeleteNetworkInterfacePermission(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteNetworkInterfacePermission", reflect.TypeOf((*MockEC2API)(nil).DeleteNetworkInterfacePermission), arg0)
-}
-
-// DeleteNetworkInterfacePermissionRequest mocks base method
-func (m *MockEC2API) DeleteNetworkInterfacePermissionRequest(arg0 *ec2.DeleteNetworkInterfacePermissionInput) (*request.Request, *ec2.DeleteNetworkInterfacePermissionOutput) {
-	ret := m.ctrl.Call(m, "DeleteNetworkInterfacePermissionRequest", arg0)
-	ret0, _ := ret[0].(*request.Request)
-	ret1, _ := ret[1].(*ec2.DeleteNetworkInterfacePermissionOutput)
-	return ret0, ret1
-}
-
-// DeleteNetworkInterfacePermissionRequest indicates an expected call of DeleteNetworkInterfacePermissionRequest
-func (mr *MockEC2APIMockRecorder) DeleteNetworkInterfacePermissionRequest(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteNetworkInterfacePermissionRequest", reflect.TypeOf((*MockEC2API)(nil).DeleteNetworkInterfacePermissionRequest), arg0)
-}
-
-// DeleteNetworkInterfacePermissionWithContext mocks base method
-func (m *MockEC2API) DeleteNetworkInterfacePermissionWithContext(arg0 aws.Context, arg1 *ec2.DeleteNetworkInterfacePermissionInput, arg2 ...request.Option) (*ec2.DeleteNetworkInterfacePermissionOutput, error) {
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "DeleteNetworkInterfacePermissionWithContext", varargs...)
-	ret0, _ := ret[0].(*ec2.DeleteNetworkInterfacePermissionOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DeleteNetworkInterfacePermissionWithContext indicates an expected call of DeleteNetworkInterfacePermissionWithContext
-func (mr *MockEC2APIMockRecorder) DeleteNetworkInterfacePermissionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteNetworkInterfacePermissionWithContext", reflect.TypeOf((*MockEC2API)(nil).DeleteNetworkInterfacePermissionWithContext), varargs...)
-}
-
 // DeleteNetworkInterfaceRequest mocks base method
 func (m *MockEC2API) DeleteNetworkInterfaceRequest(arg0 *ec2.DeleteNetworkInterfaceInput) (*request.Request, *ec2.DeleteNetworkInterfaceOutput) {
 	ret := m.ctrl.Call(m, "DeleteNetworkInterfaceRequest", arg0)
@@ -4303,50 +4171,6 @@ func (mr *MockEC2APIMockRecorder) DescribeEgressOnlyInternetGatewaysWithContext(
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEgressOnlyInternetGatewaysWithContext", reflect.TypeOf((*MockEC2API)(nil).DescribeEgressOnlyInternetGatewaysWithContext), varargs...)
 }
 
-// DescribeElasticGpus mocks base method
-func (m *MockEC2API) DescribeElasticGpus(arg0 *ec2.DescribeElasticGpusInput) (*ec2.DescribeElasticGpusOutput, error) {
-	ret := m.ctrl.Call(m, "DescribeElasticGpus", arg0)
-	ret0, _ := ret[0].(*ec2.DescribeElasticGpusOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DescribeElasticGpus indicates an expected call of DescribeElasticGpus
-func (mr *MockEC2APIMockRecorder) DescribeElasticGpus(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeElasticGpus", reflect.TypeOf((*MockEC2API)(nil).DescribeElasticGpus), arg0)
-}
-
-// DescribeElasticGpusRequest mocks base method
-func (m *MockEC2API) DescribeElasticGpusRequest(arg0 *ec2.DescribeElasticGpusInput) (*request.Request, *ec2.DescribeElasticGpusOutput) {
-	ret := m.ctrl.Call(m, "DescribeElasticGpusRequest", arg0)
-	ret0, _ := ret[0].(*request.Request)
-	ret1, _ := ret[1].(*ec2.DescribeElasticGpusOutput)
-	return ret0, ret1
-}
-
-// DescribeElasticGpusRequest indicates an expected call of DescribeElasticGpusRequest
-func (mr *MockEC2APIMockRecorder) DescribeElasticGpusRequest(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeElasticGpusRequest", reflect.TypeOf((*MockEC2API)(nil).DescribeElasticGpusRequest), arg0)
-}
-
-// DescribeElasticGpusWithContext mocks base method
-func (m *MockEC2API) DescribeElasticGpusWithContext(arg0 aws.Context, arg1 *ec2.DescribeElasticGpusInput, arg2 ...request.Option) (*ec2.DescribeElasticGpusOutput, error) {
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "DescribeElasticGpusWithContext", varargs...)
-	ret0, _ := ret[0].(*ec2.DescribeElasticGpusOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DescribeElasticGpusWithContext indicates an expected call of DescribeElasticGpusWithContext
-func (mr *MockEC2APIMockRecorder) DescribeElasticGpusWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeElasticGpusWithContext", reflect.TypeOf((*MockEC2API)(nil).DescribeElasticGpusWithContext), varargs...)
-}
-
 // DescribeExportTasks mocks base method
 func (m *MockEC2API) DescribeExportTasks(arg0 *ec2.DescribeExportTasksInput) (*ec2.DescribeExportTasksOutput, error) {
 	ret := m.ctrl.Call(m, "DescribeExportTasks", arg0)
@@ -5400,50 +5224,6 @@ func (m *MockEC2API) DescribeNetworkInterfaceAttributeWithContext(arg0 aws.Conte
 func (mr *MockEC2APIMockRecorder) DescribeNetworkInterfaceAttributeWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeNetworkInterfaceAttributeWithContext", reflect.TypeOf((*MockEC2API)(nil).DescribeNetworkInterfaceAttributeWithContext), varargs...)
-}
-
-// DescribeNetworkInterfacePermissions mocks base method
-func (m *MockEC2API) DescribeNetworkInterfacePermissions(arg0 *ec2.DescribeNetworkInterfacePermissionsInput) (*ec2.DescribeNetworkInterfacePermissionsOutput, error) {
-	ret := m.ctrl.Call(m, "DescribeNetworkInterfacePermissions", arg0)
-	ret0, _ := ret[0].(*ec2.DescribeNetworkInterfacePermissionsOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DescribeNetworkInterfacePermissions indicates an expected call of DescribeNetworkInterfacePermissions
-func (mr *MockEC2APIMockRecorder) DescribeNetworkInterfacePermissions(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeNetworkInterfacePermissions", reflect.TypeOf((*MockEC2API)(nil).DescribeNetworkInterfacePermissions), arg0)
-}
-
-// DescribeNetworkInterfacePermissionsRequest mocks base method
-func (m *MockEC2API) DescribeNetworkInterfacePermissionsRequest(arg0 *ec2.DescribeNetworkInterfacePermissionsInput) (*request.Request, *ec2.DescribeNetworkInterfacePermissionsOutput) {
-	ret := m.ctrl.Call(m, "DescribeNetworkInterfacePermissionsRequest", arg0)
-	ret0, _ := ret[0].(*request.Request)
-	ret1, _ := ret[1].(*ec2.DescribeNetworkInterfacePermissionsOutput)
-	return ret0, ret1
-}
-
-// DescribeNetworkInterfacePermissionsRequest indicates an expected call of DescribeNetworkInterfacePermissionsRequest
-func (mr *MockEC2APIMockRecorder) DescribeNetworkInterfacePermissionsRequest(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeNetworkInterfacePermissionsRequest", reflect.TypeOf((*MockEC2API)(nil).DescribeNetworkInterfacePermissionsRequest), arg0)
-}
-
-// DescribeNetworkInterfacePermissionsWithContext mocks base method
-func (m *MockEC2API) DescribeNetworkInterfacePermissionsWithContext(arg0 aws.Context, arg1 *ec2.DescribeNetworkInterfacePermissionsInput, arg2 ...request.Option) (*ec2.DescribeNetworkInterfacePermissionsOutput, error) {
-	varargs := []interface{}{arg0, arg1}
-	for _, a := range arg2 {
-		varargs = append(varargs, a)
-	}
-	ret := m.ctrl.Call(m, "DescribeNetworkInterfacePermissionsWithContext", varargs...)
-	ret0, _ := ret[0].(*ec2.DescribeNetworkInterfacePermissionsOutput)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// DescribeNetworkInterfacePermissionsWithContext indicates an expected call of DescribeNetworkInterfacePermissionsWithContext
-func (mr *MockEC2APIMockRecorder) DescribeNetworkInterfacePermissionsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
-	varargs := append([]interface{}{arg0, arg1}, arg2...)
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeNetworkInterfacePermissionsWithContext", reflect.TypeOf((*MockEC2API)(nil).DescribeNetworkInterfacePermissionsWithContext), varargs...)
 }
 
 // DescribeNetworkInterfaces mocks base method
