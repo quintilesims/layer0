@@ -5,14 +5,14 @@ import (
 )
 
 type UpdateLoadBalancerRequest struct {
-	LoadBalancerID string       `json:""`
+	LoadBalancerID string       `json:"load_balancer_id"`
 	Ports          *[]Port      `json:"ports"`
 	HealthCheck    *HealthCheck `json:"health_check"`
 }
 
 func (u UpdateLoadBalancerRequest) Validate() error {
 	if u.Ports != nil {
-		for _, port := range *(u.Ports) {
+		for _, port := range *u.Ports {
 			if err := port.Validate(); err != nil {
 				return err
 			}
