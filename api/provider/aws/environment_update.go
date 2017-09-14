@@ -8,23 +8,25 @@ import (
 
 func (e *EnvironmentProvider) Update(req models.UpdateEnvironmentRequest) error {
 	environmentID := req.EnvironmentID
-	minSize := int64(*req.MinClusterCount)
-
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	autoScalingGroupName := fqEnvironmentID
-	asg, err := e.readASG(autoScalingGroupName)
-	if err != nil {
-		return err
-	}
+	if req.MinClusterCount != nil {
+		minSize := int64(*req.MinClusterCount)
 
-	maxSize := aws.Int64Value(asg.MaxSize)
-	if maxSize < minSize {
-		maxSize = minSize
-	}
+		autoScalingGroupName := fqEnvironmentID
+		asg, err := e.readASG(autoScalingGroupName)
+		if err != nil {
+			return err
+		}
 
-	if err := e.updateASGSize(autoScalingGroupName, minSize, maxSize); err != nil {
-		return err
+		maxSize := aws.Int64Value(asg.MaxSize)
+		if maxSize < minSize {
+			maxSize = minSize
+		}
+
+		if err := e.updateASGSize(autoScalingGroupName, minSize, maxSize); err != nil {
+			return err
+		}
 	}
 
 	return nil
