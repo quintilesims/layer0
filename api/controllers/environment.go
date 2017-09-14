@@ -28,6 +28,7 @@ func (e *EnvironmentController) Routes() []*fireball.Route {
 			Path: "/environment",
 			Handlers: fireball.Handlers{
 				"GET":  e.ListEnvironments,
+				"PUT":  e.UpdateEnvironment,
 				"POST": e.CreateEnvironment,
 			},
 		},
@@ -77,4 +78,18 @@ func (e *EnvironmentController) ListEnvironments(c *fireball.Context) (fireball.
 
 	return fireball.NewJSONResponse(200, summaries)
 
+}
+
+func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball.Response, error) {
+	var req models.UpdateEnvironmentRequest
+	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
+
+	if err := req.Validate(); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+
+	}
+
+	return createJob(e.JobStore, job.UpdateEnvironmentJob, req)
 }
