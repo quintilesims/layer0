@@ -40,12 +40,11 @@ func (l *LoadBalancerProvider) Update(req models.UpdateLoadBalancerRequest) erro
 		IsPublic:       aws.StringValue(loadBalancer.Scheme) == "internet-facing",
 		URL:            aws.StringValue(loadBalancer.DNSName),
 		Ports:          (*ports),
-		HealthCheck:    healthCheck,
+		HealthCheck:    (*healthCheck),
 	}
 
 	if err := l.populateModelTags(req.LoadBalancerID, model); err != nil {
 		return err
 	}
-
 	return nil
 }

@@ -158,13 +158,13 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	mockJobScheduler := mock_job.NewMockScheduler(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobScheduler)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore)
 
 	req := models.UpdateLoadBalancerRequest{
-		LoadBalancerID: "lb1",
+		LoadBalancerID: "lid",
 		Ports:          &[]models.Port{},
-		HealthCheck: models.HealthCheck{
+		HealthCheck: &models.HealthCheck{
 			Target:             "80",
 			Interval:           60,
 			Timeout:            60,
@@ -173,18 +173,12 @@ func TestUpdateLoadBalancer(t *testing.T) {
 		},
 	}
 
-	sjr := models.ScheduleJobRequest{
-		JobType: job.UpdateLoadBalancerJob.String(),
-		Request: req,
-	}
-
-	mockJobScheduler.EXPECT().
-		Schedule(sjr).
+	mockJobStore.EXPECT().
+		Insert(job.UpdateLoadBalancerJob, gomock.Any()).
 		Return("jid", nil)
 
-	c := newFireballContext(t, req, map[string]string{"id": "lb1"})
+	c := newFireballContext(t, req, nil)
 	resp, err := controller.UpdateLoadBalancer(c)
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -194,5 +188,4 @@ func TestUpdateLoadBalancer(t *testing.T) {
 
 	assert.Equal(t, 200, recorder.Code)
 	assert.Equal(t, "jid", response.JobID)
-
 }

@@ -72,11 +72,10 @@ func (_mr *_MockLoadBalancerProviderRecorder) Read(arg0 interface{}) *gomock.Cal
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "Read", arg0)
 }
 
-func (_m *MockLoadBalancerProvider) Update(_param0 models.UpdateLoadBalancerRequest) (*models.LoadBalancer, error) {
+func (_m *MockLoadBalancerProvider) Update(_param0 models.UpdateLoadBalancerRequest) error {
 	ret := _m.ctrl.Call(_m, "Update", _param0)
-	ret0, _ := ret[0].(*models.LoadBalancer)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 func (_mr *_MockLoadBalancerProviderRecorder) Update(arg0 interface{}) *gomock.Call {
