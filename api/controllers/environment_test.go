@@ -151,9 +151,11 @@ func TestUpdateEnvironment(t *testing.T) {
 	mockJobStore := mock_job.NewMockStore(ctrl)
 	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
 
+	minClusterCount := 2
+
 	req := models.UpdateEnvironmentRequest{
 		EnvironmentID:   "e1",
-		MinClusterCount: 2,
+		MinClusterCount: &minClusterCount,
 	}
 
 	mockJobStore.EXPECT().

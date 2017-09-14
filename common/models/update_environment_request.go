@@ -8,22 +8,24 @@ import (
 
 type UpdateEnvironmentRequest struct {
 	EnvironmentID   string `json:"environment_id"`
-	MinClusterCount int64  `json:"min_cluster_count"`
+	MinClusterCount *int   `json:"min_cluster_count"`
 }
 
-func (r UpdateEnvironmentRequest) Validate() error {
-	if r.EnvironmentID == "" {
+func (u UpdateEnvironmentRequest) Validate() error {
+	if u.EnvironmentID == "" {
 		return fmt.Errorf("EnvironmentID must be specified")
 	}
 
-	if r.MinClusterCount < 0 {
-		return fmt.Errorf("MinClusterCount must be a positive integer")
+	if u.MinClusterCount != nil {
+		if *u.MinClusterCount < 0 {
+			return fmt.Errorf("MinClusterCount must be a positive integer")
+		}
 	}
 
 	return nil
 }
 
-func (e UpdateEnvironmentRequest) Definition() swagger.Definition {
+func (u UpdateEnvironmentRequest) Definition() swagger.Definition {
 	return swagger.Definition{
 		Type: "object",
 		Properties: map[string]swagger.Property{

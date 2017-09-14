@@ -6,16 +6,16 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func (e *EnvironmentProvider) Update(req models.UpdateEnvironmentRequest) (*models.Environment, error) {
+func (e *EnvironmentProvider) Update(req models.UpdateEnvironmentRequest) error {
 	environmentID := req.EnvironmentID
-	minSize := req.MinClusterCount
+	minSize := int64(*req.MinClusterCount)
 
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	autoScalingGroupName := fqEnvironmentID
 	asg, err := e.readASG(autoScalingGroupName)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	maxSize := aws.Int64Value(asg.MaxSize)
@@ -24,10 +24,10 @@ func (e *EnvironmentProvider) Update(req models.UpdateEnvironmentRequest) (*mode
 	}
 
 	if err := e.updateASGSize(autoScalingGroupName, minSize, maxSize); err != nil {
-		return nil, err
+		return err
 	}
 
-	return e.Read(environmentID)
+	return nil
 }
 
 func (e *EnvironmentProvider) updateASGSize(autoScalingGroupName string, minSize, maxSize int64) error {
