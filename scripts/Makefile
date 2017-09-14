@@ -1,5 +1,5 @@
 deps:
-	go get github.com/golang/mock/mockgen/model
+	go get -u github.com/golang/mock/mockgen
 	go install github.com/golang/mock/mockgen
 
 all: api common
