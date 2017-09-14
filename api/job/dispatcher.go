@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	DISPATCHER_PERIOD = time.Second * 5
+	DISPATCHER_PERIOD = time.Minute * 5
 )
 
 func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner) *time.Ticker {
@@ -26,6 +26,10 @@ func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner) *time.T
 			}
 		}
 	}()
+
+	store.SetInsertHook(func(jobID string) {
+		go func() { queue <- jobID }()
+	})
 
 	return ticker
 }

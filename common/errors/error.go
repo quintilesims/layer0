@@ -22,13 +22,13 @@ func New(code ErrorCode, err error) *ServerError {
 	}
 }
 
-func (this *ServerError) Error() string {
-	return fmt.Sprintf("ServerError (code=%d) %s", this.Code, this.Err.Error())
+func (s *ServerError) Error() string {
+	return fmt.Sprintf("ServerError (code='%s'): %s", s.Code, s.Err.Error())
 }
 
-func (this *ServerError) Model() models.ServerError {
+func (s *ServerError) Model() models.ServerError {
 	return models.ServerError{
-		ErrorCode: int64(this.Code),
-		Message:   this.Err.Error(),
+		ErrorCode: s.Code.String(),
+		Message:   s.Err.Error(),
 	}
 }

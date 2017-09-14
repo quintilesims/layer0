@@ -1,14 +1,18 @@
 package errors
 
-type ErrorCode int64
+type ErrorCode string
+
+func (e ErrorCode) String() string {
+	return string(e)
+}
 
 const (
-	InvalidRequest ErrorCode = 1 + iota
-	DeployDoesNotExist
-	EnvironmentDoesNotExist
-	JobDoesNotExist
-	LoadBalancerDoesNotExist
-	ServiceDoesNotExist
-	TaskDoesNotExist
-	UnexpectedError
+	InvalidRequest           ErrorCode = "InvalidReqest"
+	DeployDoesNotExist       ErrorCode = "DeployDoesNotExist"
+	EnvironmentDoesNotExist  ErrorCode = "EnvironmentDoesNotExist"
+	JobDoesNotExist          ErrorCode = "JobDoesNotExist"
+	LoadBalancerDoesNotExist           = "LoadBalancerDoesNotExist"
+	ServiceDoesNotExist                = "ServiceDoesNotExist"
+	TaskDoesNotExist                   = "TaskDoesNotExist"
+	UnexpectedError                    = "UnexpectedError"
 )

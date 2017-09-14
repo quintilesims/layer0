@@ -43,6 +43,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
 			"Environment":               models.Environment{}.Definition(),
 			"HealthCheck":               models.HealthCheck{}.Definition(),
+			"Job":                       models.Job{}.Definition(),
 			"LoadBalancer":              models.LoadBalancer{}.Definition(),
 			"Port":                      models.Port{}.Definition(),
 		},
@@ -50,6 +51,10 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			{
 				Name:        "Environment",
 				Description: "Methods related to environments",
+			},
+			{
+				Name:        "Job",
+				Description: "Methods related to jobs",
 			},
 			{
 				Name:        "LoadBalancer",
@@ -101,6 +106,45 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Tags:    []string{"Environment"},
 					Parameters: []swagger.Parameter{
 						swagger.NewStringPathParam("id", "ID of the environment to delete", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "Success",
+						},
+					},
+				},
+			},
+			"/job": map[string]swagger.Method{
+				"get": {
+					Summary: "List all Jobs",
+					Tags:    []string{"Job"},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "An array of jobs",
+							Schema:      swagger.NewObjectSliceSchema("Job"),
+						},
+					},
+				},
+			},
+			"/job/{id}": map[string]swagger.Method{
+				"get": {
+					Summary: "Describe a Job",
+					Tags:    []string{"Job"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the job to describe", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The desired job",
+							Schema:      swagger.NewObjectSchema("Job"),
+						},
+					},
+				},
+				"delete": {
+					Summary: "Delete a Job",
+					Tags:    []string{"Job"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the job to delete", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {

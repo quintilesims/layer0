@@ -5,9 +5,10 @@
 package mock_provider
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockLoadBalancerProvider is a mock of LoadBalancerProvider interface

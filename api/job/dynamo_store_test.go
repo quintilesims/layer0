@@ -33,6 +33,21 @@ func TestDynamoStoreInsert(t *testing.T) {
 	}
 }
 
+func TestDynamoStoreInsertHook(t *testing.T) {
+	store := newTestStore(t)
+
+	var called bool
+	store.SetInsertHook(func(jobID string) {
+		called = true
+	})
+
+	if _, err := store.Insert(DeleteEnvironmentJob, "1"); err != nil {
+		t.Fatal(err)
+	}
+
+	assert.True(t, called)
+}
+
 func TestAcquireJobSuccess(t *testing.T) {
 	store := newTestStore(t)
 
