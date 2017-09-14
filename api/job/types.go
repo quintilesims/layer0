@@ -18,6 +18,7 @@ const (
 	DeleteServiceJob      JobType = "DeleteService"
 	DeleteTaskJob         JobType = "DeleteTask"
 	UpdateEnvironmentJob  JobType = "UpdateEnvironment"
+  UpdateLoadBalancerJob JobType = "UpdateLoadBalancer"
 )
 
 type Status string
