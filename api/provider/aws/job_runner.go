@@ -11,12 +11,12 @@ import (
 )
 
 type JobRunner struct {
-	deploy       provider.DeployProvider
-	environment  provider.EnvironmentProvider
-	loadBalancer provider.LoadBalancerProvider
-	service      provider.ServiceProvider
-	task         provider.TaskProvider
-	jobStore     job.Store
+	deployProvider       provider.DeployProvider
+	environmentProvider  provider.EnvironmentProvider
+	loadBalancerProvider provider.LoadBalancerProvider
+	serviceProvider      provider.ServiceProvider
+	taskProvider         provider.TaskProvider
+	jobStore             job.Store
 }
 
 func NewJobRunner(
@@ -28,48 +28,200 @@ func NewJobRunner(
 	store job.Store,
 ) *JobRunner {
 	return &JobRunner{
-		deploy:       d,
-		environment:  e,
-		loadBalancer: l,
-		service:      s,
-		task:         t,
-		jobStore:     store,
+		deployProvider:       d,
+		environmentProvider:  e,
+		loadBalancerProvider: l,
+		serviceProvider:      s,
+		taskProvider:         t,
+		jobStore:             store,
 	}
 }
 
 func (r *JobRunner) Run(j models.Job) error {
 	switch job.JobType(j.Type) {
+	case job.CreateDeployJob:
+		return r.createDeploy(j.JobID, j.Request)
 	case job.CreateEnvironmentJob:
-		return r.createEnvironment(j)
+		return r.createEnvironment(j.JobID, j.Request)
+	case job.CreateLoadBalancerJob:
+		return r.createLoadBalancer(j.JobID, j.Request)
+	case job.CreateServiceJob:
+		return r.createService(j.JobID, j.Request)
+	case job.CreateTaskJob:
+		return r.createTask(j.JobID, j.Request)
+	case job.DeleteDeployJob:
+		return r.deleteDeploy(j.JobID, j.Request)
 	case job.DeleteEnvironmentJob:
-		return r.deleteEnvironment(j)
+		return r.deleteEnvironment(j.JobID, j.Request)
+	case job.DeleteLoadBalancerJob:
+		return r.deleteLoadBalancer(j.JobID, j.Request)
+	case job.DeleteServiceJob:
+		return r.deleteService(j.JobID, j.Request)
+	case job.DeleteTaskJob:
+		return r.deleteTask(j.JobID, j.Request)
+	case job.UpdateEnvironmentJob:
+		return r.updateEnvironment(j.JobID, j.Request)
+	case job.UpdateLoadBalancerJob:
+		return r.updateLoadBalancer(j.JobID, j.Request)
+	case job.UpdateServiceJob:
+		return r.updateService(j.JobID, j.Request)
 	default:
 		return fmt.Errorf("Unrecognized JobType '%s'", j.Type)
 	}
 }
 
-/* Things to consider:
-* When to retry
-* When to fail
-* Timeout
-* Dependencies
- */
-
-func (r *JobRunner) createEnvironment(j models.Job) error {
-	var req models.CreateEnvironmentRequest
-	if err := json.Unmarshal([]byte(j.Request), &req); err != nil {
+func (r *JobRunner) createDeploy(jobID, request string) error {
+	var req models.CreateDeployRequest
+	if err := json.Unmarshal([]byte(request), &req); err != nil {
 		return errors.New(errors.InvalidRequest, err)
 	}
 
-	environment, err := r.environment.Create(req)
+	deploy, err := r.deployProvider.Create(req)
 	if err != nil {
 		return err
 	}
 
-	return r.jobStore.SetJobResult(j.JobID, environment.EnvironmentID)
+	return r.jobStore.SetJobResult(jobID, deploy.DeployID)
 }
 
-func (r *JobRunner) deleteEnvironment(j models.Job) error {
-	// todo: deps
-	return r.environment.Delete(j.Request)
+func (r *JobRunner) createEnvironment(jobID, request string) error {
+	var req models.CreateEnvironmentRequest
+	if err := json.Unmarshal([]byte(request), &req); err != nil {
+		return errors.New(errors.InvalidRequest, err)
+	}
+
+	environment, err := r.environmentProvider.Create(req)
+	if err != nil {
+		return err
+	}
+
+	return r.jobStore.SetJobResult(jobID, environment.EnvironmentID)
+}
+
+func (r *JobRunner) createLoadBalancer(jobID, request string) error {
+	var req models.CreateLoadBalancerRequest
+	if err := json.Unmarshal([]byte(request), &req); err != nil {
+		return errors.New(errors.InvalidRequest, err)
+	}
+
+	loadBalancer, err := r.loadBalancerProvider.Create(req)
+	if err != nil {
+		return err
+	}
+
+	return r.jobStore.SetJobResult(jobID, loadBalancer.LoadBalancerID)
+}
+
+func (r *JobRunner) createService(jobID, request string) error {
+	var req models.CreateServiceRequest
+	if err := json.Unmarshal([]byte(request), &req); err != nil {
+		return errors.New(errors.InvalidRequest, err)
+	}
+
+	service, err := r.serviceProvider.Create(req)
+	if err != nil {
+		return err
+	}
+
+	return r.jobStore.SetJobResult(jobID, service.ServiceID)
+}
+
+func (r *JobRunner) createTask(jobID, request string) error {
+	var req models.CreateTaskRequest
+	if err := json.Unmarshal([]byte(request), &req); err != nil {
+		return errors.New(errors.InvalidRequest, err)
+	}
+
+	task, err := r.taskProvider.Create(req)
+	if err != nil {
+		return err
+	}
+
+	return r.jobStore.SetJobResult(jobID, task.TaskID)
+}
+
+func (r *JobRunner) deleteDeploy(jobID, deployID string) error {
+	return r.deployProvider.Delete(deployID)
+}
+
+func (r *JobRunner) deleteEnvironment(jobID, environmentID string) error {
+	loadBalancers, err := r.loadBalancerProvider.List()
+	if err != nil {
+		return err
+	}
+
+	for _, loadBalancer := range loadBalancers {
+		if loadBalancer.EnvironmentID == environmentID {
+			if err := r.deleteLoadBalancer(jobID, loadBalancer.LoadBalancerID); err != nil {
+				return err
+			}
+		}
+	}
+
+	services, err := r.serviceProvider.List()
+	if err != nil {
+		return err
+	}
+
+	for _, service := range services {
+		if service.EnvironmentID == environmentID {
+			if err := r.deleteService(jobID, service.ServiceID); err != nil {
+				return err
+			}
+		}
+	}
+
+	tasks, err := r.taskProvider.List()
+	if err != nil {
+		return err
+	}
+
+	for _, task := range tasks {
+		if task.EnvironmentID == environmentID {
+			if err := r.deleteTask(jobID, task.TaskID); err != nil {
+				return err
+			}
+		}
+	}
+
+	return r.environmentProvider.Delete(environmentID)
+}
+
+func (r *JobRunner) deleteLoadBalancer(jobID, loadBalancerID string) error {
+	return r.loadBalancerProvider.Delete(loadBalancerID)
+}
+
+func (r *JobRunner) deleteService(jobID, serviceID string) error {
+	return r.serviceProvider.Delete(serviceID)
+}
+
+func (r *JobRunner) deleteTask(jobID, taskID string) error {
+	return r.taskProvider.Delete(taskID)
+}
+
+func (r *JobRunner) updateEnvironment(jobID, request string) error {
+	var req models.UpdateEnvironmentRequest
+	if err := json.Unmarshal([]byte(request), &req); err != nil {
+		return errors.New(errors.InvalidRequest, err)
+	}
+
+	return r.environmentProvider.Update(req)
+}
+
+func (r *JobRunner) updateLoadBalancer(jobID, request string) error {
+	var req models.UpdateLoadBalancerRequest
+	if err := json.Unmarshal([]byte(request), &req); err != nil {
+		return errors.New(errors.InvalidRequest, err)
+	}
+
+	return r.loadBalancerProvider.Update(req)
+}
+
+func (r *JobRunner) updateService(jobID, request string) error {
+	var req models.UpdateServiceRequest
+	if err := json.Unmarshal([]byte(request), &req); err != nil {
+		return errors.New(errors.InvalidRequest, err)
+	}
+
+	return r.serviceProvider.Update(req)
 }
