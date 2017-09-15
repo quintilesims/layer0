@@ -1,5 +1,7 @@
 package models
 
+import swagger "github.com/zpatrick/go-plugin-swagger"
+
 type Service struct {
 	Deployments      []Deployment `json:"deployments"`
 	DesiredCount     int64        `json:"desired_count"`
@@ -11,4 +13,22 @@ type Service struct {
 	RunningCount     int64        `json:"running_count"`
 	ServiceID        string       `json:"service_id"`
 	ServiceName      string       `json:"service_name"`
+}
+
+func (s Service) Definition() swagger.Definition {
+	return swagger.Definition{
+		Type: "object",
+		Properties: map[string]swagger.Property{
+			"deployments":        swagger.NewObjectSliceProperty("deployments"),
+			"desired_count":      swagger.NewIntProperty(),
+			"environment_id":     swagger.NewStringProperty(),
+			"environment_name":   swagger.NewStringProperty(),
+			"load_balancer_id":   swagger.NewStringProperty(),
+			"load_balancer_name": swagger.NewStringProperty(),
+			"pending_count":      swagger.NewIntProperty(),
+			"running_count":      swagger.NewIntProperty(),
+			"service_id":         swagger.NewStringProperty(),
+			"service_name":       swagger.NewStringProperty(),
+		},
+	}
 }
