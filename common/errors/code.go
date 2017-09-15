@@ -11,8 +11,8 @@ const (
 	DeployDoesNotExist       ErrorCode = "DeployDoesNotExist"
 	EnvironmentDoesNotExist  ErrorCode = "EnvironmentDoesNotExist"
 	JobDoesNotExist          ErrorCode = "JobDoesNotExist"
-	LoadBalancerDoesNotExist           = "LoadBalancerDoesNotExist"
-	ServiceDoesNotExist                = "ServiceDoesNotExist"
-	TaskDoesNotExist                   = "TaskDoesNotExist"
-	UnexpectedError                    = "UnexpectedError"
+	LoadBalancerDoesNotExist ErrorCode = "LoadBalancerDoesNotExist"
+	ServiceDoesNotExist      ErrorCode = "ServiceDoesNotExist"
+	TaskDoesNotExist         ErrorCode = "TaskDoesNotExist"
+	UnexpectedError          ErrorCode = "UnexpectedError"
 )
