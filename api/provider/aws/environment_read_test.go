@@ -3,13 +3,13 @@ package aws
 import (
 	"testing"
 
-	"github.com/quintilesims/layer0/common/db/tag_store"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEnvironment_populateModelTagss(t *testing.T) {
-	tagStore := tag_store.NewMemoryTagStore()
+func TestEnvironment_populateModelTags(t *testing.T) {
+	tagStore := tag.NewMemoryStore()
 	environment := NewEnvironmentProvider(nil, tagStore, nil)
 
 	tags := models.Tags{
@@ -58,7 +58,7 @@ func TestEnvironment_populateModelTagss(t *testing.T) {
 	}
 
 	result := &models.Environment{}
-	if err := environment.populateModelTagss("env_id", result); err != nil {
+	if err := environment.populateModelTags("env_id", result); err != nil {
 		t.Fatal(err)
 	}
 

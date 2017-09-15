@@ -23,7 +23,7 @@ This is used to include private Docker Registry authentication for this Layer0 i
 By default, this points to the Layer0 github repository. 
 Using values other than the default may result in undesired consequences.
 * `--version` - The version input variable specifies the tag to use for the Layer0
-Docker images: `quintilesims/l0-api` and `quintilesims/l0-runner`.
+Docker images: `quintilesims/l0-api`.
 * `--aws-access-key` - The access_key input variable is used to provision the AWS resources
 required for Layer0. 
 This corresponds to the Access Key ID portion of an AWS Access Key.

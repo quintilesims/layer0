@@ -4,6 +4,8 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -13,6 +15,10 @@ func TestCreateTask(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewTaskController(mockTaskProvider, mockJobStore)
+
 	req := models.CreateTaskRequest{
 		ContainerOverrides: []models.ContainerOverride{},
 		Copies:             1,
@@ -21,26 +27,9 @@ func TestCreateTask(t *testing.T) {
 		TaskName:           "task_name",
 	}
 
-	taskModel := models.Task{
-		Copies:          []models.TaskCopy{},
-		DeployID:        "deploy_id",
-		DeployName:      "deploy_name",
-		DeployVersion:   "deploy_version",
-		DesiredCount:    2,
-		EnvironmentID:   "env_id",
-		EnvironmentName: "env_name",
-		PendingCount:    2,
-		RunningCount:    1,
-		TaskID:          "task_id",
-		TaskName:        "task_name",
-	}
-
-	mockTask := mock_provider.NewMockTaskProvider(ctrl)
-	controller := NewTaskController(mockTask)
-
-	mockTask.EXPECT().
-		Create(req).
-		Return(&taskModel, nil)
+	mockJobStore.EXPECT().
+		Insert(job.CreateTaskJob, gomock.Any()).
+		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
 	resp, err := controller.CreateTask(c)
@@ -48,39 +37,45 @@ func TestCreateTask(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var response models.Task
+	var response models.Job
 	recorder := unmarshalBody(t, resp, &response)
 
-	assert.Equal(t, 202, recorder.Code)
-	assert.Equal(t, taskModel, response)
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, "jid", response.JobID)
 }
 
 func TestDeleteTask(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockTask := mock_provider.NewMockTaskProvider(ctrl)
-	controller := NewTaskController(mockTask)
+	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewTaskController(mockTaskProvider, mockJobStore)
 
-	mockTask.EXPECT().
-		Delete("d1").
-		Return(nil)
+	mockJobStore.EXPECT().
+		Insert(job.DeleteTaskJob, "tid").
+		Return("jid", nil)
 
-	c := newFireballContext(t, nil, map[string]string{"id": "d1"})
+	c := newFireballContext(t, nil, map[string]string{"id": "tid"})
 	resp, err := controller.DeleteTask(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Task
+	var response models.Job
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, "jid", response.JobID)
 }
 
 func TestGetTask(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
+
+	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewTaskController(mockTaskProvider, mockJobStore)
 
 	taskModel := models.Task{
 		Copies:          []models.TaskCopy{},
@@ -96,10 +91,7 @@ func TestGetTask(t *testing.T) {
 		TaskName:        "task_name",
 	}
 
-	mockTask := mock_provider.NewMockTaskProvider(ctrl)
-	controller := NewTaskController(mockTask)
-
-	mockTask.EXPECT().
+	mockTaskProvider.EXPECT().
 		Read("task_id").
 		Return(&taskModel, nil)
 
@@ -120,6 +112,10 @@ func TestListTasks(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
+	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewTaskController(mockTaskProvider, mockJobStore)
+
 	taskSummaries := []models.TaskSummary{
 		{
 			TaskID:          "task_id",
@@ -135,10 +131,7 @@ func TestListTasks(t *testing.T) {
 		},
 	}
 
-	mockTask := mock_provider.NewMockTaskProvider(ctrl)
-	controller := NewTaskController(mockTask)
-
-	mockTask.EXPECT().
+	mockTaskProvider.EXPECT().
 		List().
 		Return(taskSummaries, nil)
 

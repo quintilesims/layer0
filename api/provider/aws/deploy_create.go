@@ -1,22 +1,16 @@
 package aws
 
 import (
-	"bytes"
-	"encoding/base64"
 	"fmt"
-	"html/template"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/autoscaling"
-	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy, error) {
 	if req.DeployName == "" {
-		return nil, errors.Newf(errors.MissingParameter, "DeployName is required")
+		return nil, fmt.Errorf("DeployName is required")
 	}
 
 	deploy, err := d.CreateDeploy(req.DeployName, req.Dockerrun)
@@ -32,17 +26,13 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy,
 		return deploy, err
 	}
 
-	if err := d.populateModel(deploy); err != nil {
-		return deploy, err
-	}
-
 	return deploy, nil
 }
 
 func (d *DeployProvider) CreateDeploy(deployName string, body []byte) (*models.Deploy, error) {
 	// since we use '.' as our ID-Version delimiter, we don't allow it in deploy names
 	if strings.Contains(deployName, ".") {
-		return nil, errors.Newf(errors.InvalidDeployID, "Deploy names cannot contain '.'")
+		return nil, fmt.Errorf("Deploy names cannot contain '.'")
 	}
 
 	dockerrun, err := CreateRenderedDockerrun(body)
@@ -50,32 +40,56 @@ func (d *DeployProvider) CreateDeploy(deployName string, body []byte) (*models.D
 		return nil, err
 	}
 
-	// deploys for jobs will have the deploy.Family field, but they will match familyName
-	familyName := id.L0DeployID(deployName).ECSDeployID().String()
+	// TODO: not convinced we need helper functions like these
+	familyName := L0DeployID(deployName)
 	if dockerrun.Family != "" && dockerrun.Family != familyName {
 		return nil, fmt.Errorf("Custom family names are currently unsupported in Layer0")
 	}
 
-	taskDef, err := ecs.RegisterTaskDefinitionInput(
-		familyName,
-		dockerrun.TaskRoleARN,
-		dockerrun.NetworkMode,
-		dockerrun.ContainerDefinitions,
-		dockerrun.Volumes,
-		dockerrun.PlacementConstraints)
-	if err != nil {
-		return nil, err
-	}
+	taskDef := &ecs.RegisterTaskDefinitionInput{}
+	taskDef.SetFamily(familyName)
+	taskDef.SetTaskRoleArn(dockerrun.TaskRoleARN)
+	taskDef.SetNetworkMode(dockerrun.NetworkMode)
+	taskDef.SetContainerDefinitions(dockerrun.ContainerDefinitions)
+	taskDef.SetVolumes(dockerrun.Volumes)
+	// TODO: Understand why our model had to be updated to use ecs.TaskDefinitionPlacementConstraint
+	// rather than ecs.PlacementConstraint
+	taskDef.SetPlacementConstraints(dockerrun.PlacementConstraints)
 
-	return this.populateModel(taskDef)
+	return d.populateModel(taskDef)
 }
 
-func (d *DeployProvider) populateModel(taskDef *ecs.TaskDefinition) (*models.Deploy, error) {
-	ecsDeployID := id.TaskDefinitionARNToECSDeployID(*taskDef.TaskDefinitionArn)
+func (d *DeployProvider) populateModel(taskDef *ecs.RegisterTaskDefinitionInput) (*models.Deploy, error) {
+	ecsDeployID := TaskDefinitionARNToECSDeployID(*taskDef.TaskRoleArn)
 
-	dockerrun, err := extractDockerrun(taskDef)
+	containers := make([]*ecs.ContainerDefinition, len(taskDef.ContainerDefinitions))
+	for i, c := range taskDef.ContainerDefinitions {
+		containers[i] = &ecs.ContainerDefinition{c}
+	}
+
+	volumes := make([]*ecs.Volume, len(taskDef.Volumes))
+	for i, v := range taskDef.Volumes {
+		volumes[i] = &ecs.Volume{v}
+	}
+
+	placementConstraints := make([]*ecs.PlacementConstraint, len(taskDef.PlacementConstraints))
+	for i, p := range taskDef.PlacementConstraints {
+		placementConstraints[i] = &ecs.PlacementConstraint{p}
+	}
+
+	tmp := models.Dockerrun{
+		ContainerDefinitions: containers,
+		Volumes:              volumes,
+		Family:               pstring(taskDef.Family),
+		NetworkMode:          pstring(taskDef.NetworkMode),
+		TaskRoleARN:          pstring(taskDef.TaskRoleArn),
+		PlacementConstraints: placementConstraints,
+	}
+
+	dockerrun, err := json.Marshal(tmp)
 	if err != nil {
-		return nil, err
+		err := fmt.Errorf("Failed to extract dockerrun: %s", err.Error())
+		return nil, errors.New(errors.InvalidJSON, err)
 	}
 
 	deploy := &models.Deploy{

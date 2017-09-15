@@ -3,13 +3,13 @@ package aws
 import (
 	"testing"
 
-	"github.com/quintilesims/layer0/common/db/tag_store"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestEnvironment_populateSummariesTags(t *testing.T) {
-	tagStore := tag_store.NewMemoryTagStore()
+	tagStore := tag.NewMemoryStore()
 	environment := NewEnvironmentProvider(nil, tagStore, nil)
 
 	tags := models.Tags{

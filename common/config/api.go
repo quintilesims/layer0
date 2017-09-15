@@ -60,6 +60,10 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_INSTANCE_PROFILE,
 			EnvVar: ENVVAR_AWS_INSTANCE_PROFILE,
 		},
+		 cli.StringFlag{
+                        Name:   FLAG_AWS_DYNAMO_JOB_TABLE,
+                        EnvVar: ENVVAR_AWS_DYNAMO_JOB_TABLE,
+                },
 		cli.StringFlag{
 			Name:   FLAG_AWS_DYNAMO_TAG_TABLE,
 			EnvVar: ENVVAR_AWS_DYNAMO_TAG_TABLE,
@@ -89,6 +93,7 @@ type APIConfig interface {
 	InstanceProfile() string
 	PublicSubnets() []string
 	PrivateSubnets() []string
+	DynamoJobTable() string
 	DynamoTagTable() string
 }
 
@@ -114,6 +119,7 @@ func (c *ContextAPIConfig) Validate() error {
 		FLAG_AWS_WINDOWS_AMI:      fmt.Errorf("AWS Windows AMI not set! (EnvVar: %s)", ENVVAR_AWS_WINDOWS_AMI),
 		FLAG_AWS_S3_BUCKET:        fmt.Errorf("AWS S3 Bucket not set! (EnvVar: %s)", ENVVAR_AWS_S3_BUCKET),
 		FLAG_AWS_INSTANCE_PROFILE: fmt.Errorf("AWS Instance Profile not set! (EnvVar: %s)", ENVVAR_AWS_INSTANCE_PROFILE),
+		FLAG_AWS_DYNAMO_JOB_TABLE: fmt.Errorf("AWS Dynamo Job Table not set! (EnvVar: %s)", ENVVAR_AWS_DYNAMO_JOB_TABLE),
 		FLAG_AWS_DYNAMO_TAG_TABLE: fmt.Errorf("AWS Dynamo Tag Table not set! (EnvVar: %s)", ENVVAR_AWS_DYNAMO_TAG_TABLE),
 	}
 
@@ -124,8 +130,8 @@ func (c *ContextAPIConfig) Validate() error {
 	}
 
 	stringSliceVars := map[string]error{
-		FLAG_AWS_PUBLIC_SUBNETS:  fmt.Errorf("Layer0 Public Subnets not set! (EnvVar: %s)", ENVVAR_AWS_PUBLIC_SUBNETS),
-		FLAG_AWS_PRIVATE_SUBNETS: fmt.Errorf("Layer0 Private Subnets not set! (EnvVar: %s)", ENVVAR_AWS_PRIVATE_SUBNETS),
+		FLAG_AWS_PUBLIC_SUBNETS:  fmt.Errorf("AWS Public Subnets not set! (EnvVar: %s)", ENVVAR_AWS_PUBLIC_SUBNETS),
+		FLAG_AWS_PRIVATE_SUBNETS: fmt.Errorf("AWS Private Subnets not set! (EnvVar: %s)", ENVVAR_AWS_PRIVATE_SUBNETS),
 	}
 
 	for name, err := range stringSliceVars {
@@ -179,6 +185,10 @@ func (c *ContextAPIConfig) S3Bucket() string {
 
 func (c *ContextAPIConfig) InstanceProfile() string {
 	return c.C.String(FLAG_AWS_INSTANCE_PROFILE)
+}
+
+func (c *ContextAPIConfig) DynamoJobTable() string {
+        return c.C.String(FLAG_AWS_DYNAMO_JOB_TABLE)
 }
 
 func (c *ContextAPIConfig) DynamoTagTable() string {

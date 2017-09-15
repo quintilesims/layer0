@@ -64,3 +64,13 @@ func hashNow() string {
 	salt := time.Now().Format(time.StampNano)
 	return fmt.Sprintf("%x", md5.Sum([]byte(salt)))
 }
+
+func TaskDefinitionARNToECSDeployID(arn string) string {
+	taskDefinitionID := strings.SplitN(arn, "/", 2)[1]
+	taskDefinitionID = strings.Replace(taskDefinitionID, ":", ".", -1)
+	return taskDefinitionID
+}
+
+func L0DeployID(id string) string {
+	return removePrefix(id.String())
+}

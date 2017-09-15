@@ -1,11 +1,9 @@
-package tag_store
+package tag
 
 import (
+	"os"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -36,30 +34,23 @@ var TestTags = models.Tags{
 	{EntityID: "t2", EntityType: "task", Key: "environment_id", Value: "e2"},
 }
 
-func NewTestTagStore(t *testing.T) *DynamoTagStore {
-	table := config.TestDynamoTagTableName()
+func newTestStore(t *testing.T) *DynamoStore {
+	session := config.GetTestAWSSession()
+	table := os.Getenv(config.ENVVAR_TEST_AWS_DYNAMO_TAG_TABLE)
 	if table == "" {
-		t.Skipf("Skipping test: %s not set", config.TEST_AWS_TAG_DYNAMO_TABLE)
+		t.Skipf("Test table not set (envvar: %s)", config.ENVVAR_TEST_AWS_DYNAMO_TAG_TABLE)
 	}
 
-	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
-	awsConfig := &aws.Config{
-		Credentials: creds,
-		Region:      aws.String(config.AWSRegion()),
-	}
-
-	session := session.New(awsConfig)
-	store := NewDynamoTagStore(session, table)
-
+	store := NewDynamoStore(session, table)
 	if err := store.Clear(); err != nil {
-		t.Fatalf("Error clearing table: %v", err)
+		t.Fatal(err)
 	}
 
 	return store
 }
 
-func TestDynamoTagStoreInsert(t *testing.T) {
-	store := NewTestTagStore(t)
+func TestDynamoStoreInsert(t *testing.T) {
+	store := newTestStore(t)
 
 	tags := []models.Tag{
 		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env1"},
@@ -76,8 +67,8 @@ func TestDynamoTagStoreInsert(t *testing.T) {
 	}
 }
 
-func TestDynamoTagStoreDelete(t *testing.T) {
-	store := NewTestTagStore(t)
+func TestDynamoStoreDelete(t *testing.T) {
+	store := newTestStore(t)
 
 	tags := []models.Tag{
 		{EntityID: "d1", EntityType: "deploy", Key: "name", Value: "dpl1"},
@@ -102,8 +93,8 @@ func TestDynamoTagStoreDelete(t *testing.T) {
 	assert.Equal(t, result[0], tags[1])
 }
 
-func TestDynamoTagStoreSelectByTypeAndID(t *testing.T) {
-	store := NewTestTagStore(t)
+func TestDynamoStoreSelectByTypeAndID(t *testing.T) {
+	store := newTestStore(t)
 
 	for _, tag := range TestTags {
 		if err := store.Insert(tag); err != nil {
@@ -161,8 +152,8 @@ func TestDynamoTagStoreSelectByTypeAndID(t *testing.T) {
 	}
 }
 
-func TestDynamoTagStoreSelectByType(t *testing.T) {
-	store := NewTestTagStore(t)
+func TestDynamoStoreSelectByType(t *testing.T) {
+	store := newTestStore(t)
 
 	for _, tag := range TestTags {
 		if err := store.Insert(tag); err != nil {

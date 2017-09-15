@@ -51,7 +51,7 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		HealthCheck:    healthCheck,
 	}
 
-	if err := l.populateModelTagss(loadBalancerID, model); err != nil {
+	if err := l.populateModelTags(loadBalancerID, model); err != nil {
 		return nil, err
 	}
 
@@ -75,7 +75,7 @@ func (l *LoadBalancerProvider) describeLoadBalancer(loadBalancerName string) (*e
 	return output.LoadBalancerDescriptions[0], nil
 }
 
-func (l *LoadBalancerProvider) populateModelTagss(loadBalancerID string, model *models.LoadBalancer) error {
+func (l *LoadBalancerProvider) populateModelTags(loadBalancerID string, model *models.LoadBalancer) error {
 	tags, err := l.TagStore.SelectByTypeAndID("load_balancer", loadBalancerID)
 	if err != nil {
 		return err
