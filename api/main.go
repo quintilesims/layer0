@@ -63,7 +63,7 @@ func main() {
 
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
 		serviceProvider := aws.NewServiceProvider(client, tagStore)
-		deployProvider := aws.NewDeployProvider(client, tagStore)
+		deployProvider := aws.NewDeployProvider(client, tagStore, cfg)
 		loadbalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
 		taskProvider := aws.NewTaskProvider(client, tagStore)
 		jobRunner := aws.NewJobRunner(jobStore)

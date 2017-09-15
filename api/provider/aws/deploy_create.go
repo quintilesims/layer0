@@ -1,9 +1,11 @@
 package aws
 
 import (
+	"encoding/json"
 	"fmt"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -13,7 +15,7 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy,
 		return nil, fmt.Errorf("DeployName is required")
 	}
 
-	deploy, err := d.CreateDeploy(req.DeployName, req.Dockerrun)
+	deploy, err := d.createDeploy(req.DeployName, req.Dockerrun)
 	if err != nil {
 		return deploy, err
 	}
@@ -29,19 +31,18 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy,
 	return deploy, nil
 }
 
-func (d *DeployProvider) CreateDeploy(deployName string, body []byte) (*models.Deploy, error) {
+func (d *DeployProvider) createDeploy(deployName string, body []byte) (*models.Deploy, error) {
 	// since we use '.' as our ID-Version delimiter, we don't allow it in deploy names
 	if strings.Contains(deployName, ".") {
 		return nil, fmt.Errorf("Deploy names cannot contain '.'")
 	}
 
-	dockerrun, err := CreateRenderedDockerrun(body)
+	dockerrun, err := d.createRenderedDockerrun(body)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: not convinced we need helper functions like these
-	familyName := L0DeployID(deployName)
+	familyName := L0DeployID(d.Config.Instance(), deployName)
 	if dockerrun.Family != "" && dockerrun.Family != familyName {
 		return nil, fmt.Errorf("Custom family names are currently unsupported in Layer0")
 	}
@@ -64,57 +65,63 @@ func (d *DeployProvider) populateModel(taskDef *ecs.RegisterTaskDefinitionInput)
 
 	containers := make([]*ecs.ContainerDefinition, len(taskDef.ContainerDefinitions))
 	for i, c := range taskDef.ContainerDefinitions {
-		containers[i] = &ecs.ContainerDefinition{c}
+		containers[i] = &ecs.ContainerDefinition{}
+		containers[i] = c
 	}
 
 	volumes := make([]*ecs.Volume, len(taskDef.Volumes))
 	for i, v := range taskDef.Volumes {
-		volumes[i] = &ecs.Volume{v}
+		volumes[i] = &ecs.Volume{}
+		volumes[i] = v
 	}
 
-	placementConstraints := make([]*ecs.PlacementConstraint, len(taskDef.PlacementConstraints))
+	placementConstraints := make([]*ecs.TaskDefinitionPlacementConstraint, len(taskDef.PlacementConstraints))
 	for i, p := range taskDef.PlacementConstraints {
-		placementConstraints[i] = &ecs.PlacementConstraint{p}
+		placementConstraints[i] = &ecs.TaskDefinitionPlacementConstraint{}
+		placementConstraints[i] = p
 	}
 
-	tmp := models.Dockerrun{
+	model := models.Dockerrun{
 		ContainerDefinitions: containers,
 		Volumes:              volumes,
-		Family:               pstring(taskDef.Family),
-		NetworkMode:          pstring(taskDef.NetworkMode),
-		TaskRoleARN:          pstring(taskDef.TaskRoleArn),
+		Family:               aws.StringValue(taskDef.Family),
+		NetworkMode:          aws.StringValue(taskDef.NetworkMode),
+		TaskRoleARN:          aws.StringValue(taskDef.TaskRoleArn),
 		PlacementConstraints: placementConstraints,
 	}
 
-	dockerrun, err := json.Marshal(tmp)
+	dockerrun, err := json.Marshal(model)
 	if err != nil {
-		err := fmt.Errorf("Failed to extract dockerrun: %s", err.Error())
-		return nil, errors.New(errors.InvalidJSON, err)
+		return nil, fmt.Errorf("Failed to extract dockerrun: %s", err.Error())
 	}
 
 	deploy := &models.Deploy{
-		DeployID:  ecsDeployID.L0DeployID(),
-		Version:   ecsDeployID.Revision(),
+		DeployID:  L0DeployID(d.Config.Instance(), ecsDeployID),
+		Version:   GetRevision(d.Config.Instance(), ecsDeployID),
 		Dockerrun: dockerrun,
 	}
 
 	return deploy, nil
 }
 
-var CreateRenderedDockerrun = func(body []byte) (*models.Dockerrun, error) {
-	dockerrun, err := MarshalDockerrun(body)
-	if err != nil {
-		return nil, err
+func (d *DeployProvider) createRenderedDockerrun(body []byte) (*models.Dockerrun, error) {
+	var dockerrun *models.Dockerrun
+	if err := json.Unmarshal(body, &dockerrun); err != nil {
+		return nil, fmt.Errorf("Failed to decode deploy: %s", err.Error())
+	}
+
+	if len(dockerrun.ContainerDefinitions) == 0 {
+		return nil, fmt.Errorf("Deploy must have at least one container definition")
 	}
 
 	for _, container := range dockerrun.ContainerDefinitions {
 		if container.LogConfiguration == nil {
-			container.LogConfiguration = &awsecs.LogConfiguration{
-				LogDriver: stringp("awslogs"),
+			container.LogConfiguration = &ecs.LogConfiguration{
+				LogDriver: aws.String("awslogs"),
 				Options: map[string]*string{
-					"awslogs-group":         stringp(config.AWSLogGroupID()),
-					"awslogs-region":        stringp(config.AWSRegion()),
-					"awslogs-stream-prefix": stringp("l0"),
+					"awslogs-group":         aws.String(fmt.Sprintf("l0-%s", d.Config.Instance())),
+					"awslogs-region":        aws.String(d.Config.Region()),
+					"awslogs-stream-prefix": aws.String("l0"),
 				},
 			}
 		}

@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -71,6 +72,19 @@ func TaskDefinitionARNToECSDeployID(arn string) string {
 	return taskDefinitionID
 }
 
-func L0DeployID(id string) string {
-	return removePrefix(id.String())
+func removePrefix(instance, id string) string {
+	return strings.TrimPrefix(id, instance)
+}
+
+func L0DeployID(instance, id string) string {
+	id, _ = strconv.Unquote(id)
+	return removePrefix(instance, id)
+}
+
+func GetRevision(instance, id string) string {
+	if split := strings.Split(L0DeployID(instance, id), "."); len(split) > 1 {
+		return split[1]
+	}
+
+	return "1"
 }
