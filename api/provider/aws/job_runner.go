@@ -3,7 +3,9 @@ package aws
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
 	"github.com/quintilesims/layer0/common/errors"
@@ -184,7 +186,18 @@ func (r *JobRunner) deleteEnvironment(jobID, environmentID string) error {
 		}
 	}
 
-	return r.environmentProvider.Delete(environmentID)
+	return catchAndRetry(15, func() (shouldRetry bool, err error) {
+		if err := r.environmentProvider.Delete(environmentID); err != nil {
+			switch err := err.(type) {
+			case awserr.Error:
+				return err.Code() == "DependencyViolation", err
+			default:
+				return false, err
+			}
+		}
+
+		return false, nil
+	})
 }
 
 func (r *JobRunner) deleteLoadBalancer(jobID, loadBalancerID string) error {
@@ -224,4 +237,20 @@ func (r *JobRunner) updateService(jobID, request string) error {
 	}
 
 	return r.serviceProvider.Update(req)
+}
+
+func catchAndRetry(max int, fn func() (shouldRetry bool, err error)) error {
+	var shouldRetry bool
+	var err error
+
+	for i := 0; i < max; i++ {
+		shouldRetry, err = fn()
+		if !shouldRetry {
+			break
+		}
+
+		time.Sleep(time.Second * 5)
+	}
+
+	return err
 }
