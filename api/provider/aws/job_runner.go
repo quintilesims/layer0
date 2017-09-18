@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
+	"github.com/quintilesims/layer0/api/scaler"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -18,6 +19,7 @@ type JobRunner struct {
 	loadBalancerProvider provider.LoadBalancerProvider
 	serviceProvider      provider.ServiceProvider
 	taskProvider         provider.TaskProvider
+	scaler               *scaler.Dispatcher
 	jobStore             job.Store
 }
 
@@ -27,6 +29,7 @@ func NewJobRunner(
 	l provider.LoadBalancerProvider,
 	s provider.ServiceProvider,
 	t provider.TaskProvider,
+	scaler *scaler.Dispatcher,
 	store job.Store,
 ) *JobRunner {
 	return &JobRunner{
@@ -35,6 +38,7 @@ func NewJobRunner(
 		loadBalancerProvider: l,
 		serviceProvider:      s,
 		taskProvider:         t,
+		scaler:               scaler,
 		jobStore:             store,
 	}
 }
@@ -120,6 +124,8 @@ func (r *JobRunner) createService(jobID, request string) error {
 		return errors.New(errors.InvalidRequest, err)
 	}
 
+	r.scaler.ScheduleRun(req.EnvironmentID)
+
 	service, err := r.serviceProvider.Create(req)
 	if err != nil {
 		return err
@@ -133,6 +139,8 @@ func (r *JobRunner) createTask(jobID, request string) error {
 	if err := json.Unmarshal([]byte(request), &req); err != nil {
 		return errors.New(errors.InvalidRequest, err)
 	}
+
+	r.scaler.ScheduleRun(req.EnvironmentID)
 
 	task, err := r.taskProvider.Create(req)
 	if err != nil {

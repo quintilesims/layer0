@@ -1,6 +1,8 @@
 package aws
 
 import (
+	"fmt"
+
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/models"
@@ -19,7 +21,7 @@ func NewTaskProvider(a *awsc.Client, t tag.Store) *TaskProvider {
 }
 
 func (t *TaskProvider) Create(req models.CreateTaskRequest) (*models.Task, error) {
-	return nil, nil
+	return nil, fmt.Errorf("CreateTask not implemented")
 }
 
 func (t *TaskProvider) Read(TaskID string) (*models.Task, error) {
