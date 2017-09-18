@@ -39,7 +39,7 @@ func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
 			service := &models.Service{
 				ServiceID: ecsServiceID,
 			}
-			s.updateWithTagInfo(service)
+			s.updateWithTagInfo(service, ecsServiceID)
 
 			summary := models.ServiceSummary{
 				ServiceID:       service.ServiceID,
