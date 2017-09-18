@@ -124,13 +124,13 @@ func (r *JobRunner) createService(jobID, request string) error {
 		return errors.New(errors.InvalidRequest, err)
 	}
 
-	r.scaler.ScheduleRun(req.EnvironmentID)
-
 	service, err := r.serviceProvider.Create(req)
 	if err != nil {
 		return err
 	}
 
+	// scale up after the service has been added into the ecs service scheduler
+	r.scaler.ScheduleRun(req.EnvironmentID)
 	return r.jobStore.SetJobResult(jobID, service.ServiceID)
 }
 
@@ -140,14 +140,17 @@ func (r *JobRunner) createTask(jobID, request string) error {
 		return errors.New(errors.InvalidRequest, err)
 	}
 
+	// scale up prior to creating the task so we have room in the cluster
 	r.scaler.ScheduleRun(req.EnvironmentID)
 
-	task, err := r.taskProvider.Create(req)
-	if err != nil {
-		return err
-	}
+	return catchAndRetry(time.Hour*24, func() (shouldRetry bool, err error) {
+		task, err := r.taskProvider.Create(req)
+		if err != nil {
+			return true, err
+		}
 
-	return r.jobStore.SetJobResult(jobID, task.TaskID)
+		return false, r.jobStore.SetJobResult(jobID, task.TaskID)
+	})
 }
 
 func (r *JobRunner) deleteDeploy(jobID, deployID string) error {
@@ -194,7 +197,7 @@ func (r *JobRunner) deleteEnvironment(jobID, environmentID string) error {
 		}
 	}
 
-	return catchAndRetry(15, func() (shouldRetry bool, err error) {
+	return catchAndRetry(time.Minute*15, func() (shouldRetry bool, err error) {
 		if err := r.environmentProvider.Delete(environmentID); err != nil {
 			switch err := err.(type) {
 			case awserr.Error:
@@ -247,11 +250,11 @@ func (r *JobRunner) updateService(jobID, request string) error {
 	return r.serviceProvider.Update(req)
 }
 
-func catchAndRetry(max int, fn func() (shouldRetry bool, err error)) error {
+func catchAndRetry(timeout time.Duration, fn func() (shouldRetry bool, err error)) error {
 	var shouldRetry bool
 	var err error
 
-	for i := 0; i < max; i++ {
+	for start := time.Now(); time.Since(start) < timeout; {
 		shouldRetry, err = fn()
 		if !shouldRetry {
 			break
