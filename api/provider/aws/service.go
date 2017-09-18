@@ -33,3 +33,7 @@ func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
 func (s *ServiceProvider) Delete(ServiceID string) error {
 	return nil
 }
+
+func (s *ServiceProvider) Update(req models.UpdateServiceRequest) error {
+	return nil
+}

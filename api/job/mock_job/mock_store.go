@@ -98,6 +98,16 @@ func (mr *MockStoreMockRecorder) SelectByID(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectByID", reflect.TypeOf((*MockStore)(nil).SelectByID), arg0)
 }
 
+// SetInsertHook mocks base method
+func (m *MockStore) SetInsertHook(arg0 func(string)) {
+	m.ctrl.Call(m, "SetInsertHook", arg0)
+}
+
+// SetInsertHook indicates an expected call of SetInsertHook
+func (mr *MockStoreMockRecorder) SetInsertHook(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetInsertHook", reflect.TypeOf((*MockStore)(nil).SetInsertHook), arg0)
+}
+
 // SetJobError mocks base method
 func (m *MockStore) SetJobError(arg0 string, arg1 error) error {
 	ret := m.ctrl.Call(m, "SetJobError", arg0, arg1)

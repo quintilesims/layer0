@@ -61,18 +61,25 @@ func main() {
 		tagStore := tag.NewDynamoStore(session, cfg.DynamoTagTable())
 		jobStore := job.NewDynamoStore(session, cfg.DynamoJobTable())
 
+		deployProvider := aws.NewDeployProvider(client, tagStore)
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
+		loadBalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
 		serviceProvider := aws.NewServiceProvider(client, tagStore)
-		deployProvider := aws.NewDeployProvider(client, tagStore, cfg)
-		loadbalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
 		taskProvider := aws.NewTaskProvider(client, tagStore)
-		jobRunner := aws.NewJobRunner(jobStore)
+		jobRunner := aws.NewJobRunner(
+			deployProvider,
+			environmentProvider,
+			loadBalancerProvider,
+			serviceProvider,
+			taskProvider,
+			jobStore)
 
 		routes := controllers.NewSwaggerController(Version).Routes()
-		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore).Routes()...)
-		routes = append(routes, controllers.NewServiceController(serviceProvider, jobStore).Routes()...)
 		routes = append(routes, controllers.NewDeployController(deployProvider, jobStore).Routes()...)
-		routes = append(routes, controllers.NewLoadBalancerController(loadbalancerProvider, jobStore).Routes()...)
+		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore).Routes()...)
+		routes = append(routes, controllers.NewJobController(jobStore).Routes()...)
+		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider, jobStore).Routes()...)
+		routes = append(routes, controllers.NewServiceController(serviceProvider, jobStore).Routes()...)
 		routes = append(routes, controllers.NewTaskController(taskProvider, jobStore).Routes()...)
 
 		// todo: add decorators to routes
