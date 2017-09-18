@@ -95,3 +95,15 @@ func (m *MockServiceProvider) Update(arg0 models.UpdateServiceRequest) error {
 func (mr *MockServiceProviderMockRecorder) Update(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockServiceProvider)(nil).Update), arg0)
 }
+
+// Update mocks base method
+func (m *MockServiceProvider) Update(arg0 models.UpdateServiceRequest) error {
+	ret := m.ctrl.Call(m, "Update", arg0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// Update indicates an expected call of Update
+func (mr *MockServiceProviderMockRecorder) Update(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockServiceProvider)(nil).Update), arg0)
+}

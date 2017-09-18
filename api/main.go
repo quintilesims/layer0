@@ -62,18 +62,11 @@ func main() {
 		jobStore := job.NewDynamoStore(session, cfg.DynamoJobTable())
 
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
-<<<<<<< 0f6b259f78b9a344646eca80c79aa47cb44bc13e
-		serviceProvider := aws.NewServiceProvider(client, tagStore)
 		deployProvider := aws.NewDeployProvider(client, tagStore)
 		loadbalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
 		taskProvider := aws.NewTaskProvider(client, tagStore)
 		jobRunner := aws.NewJobRunner(jobStore)
-=======
 		serviceProvider := aws.NewServiceProvider(client, tagStore, cfg)
-		deployProvider := aws.NewDeployProvider(client, nil)
-		loadbalancerProvider := aws.NewLoadBalancerProvider(client, nil)
-		taskProvider := aws.NewTaskProvider(client, nil)
->>>>>>> initial change
 
 		routes := controllers.NewSwaggerController(Version).Routes()
 		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore).Routes()...)
