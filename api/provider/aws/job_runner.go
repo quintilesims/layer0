@@ -3,9 +3,9 @@ package aws
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
 	"github.com/quintilesims/layer0/api/scaler"
@@ -144,8 +144,10 @@ func (r *JobRunner) createTask(jobID, request string) error {
 	r.scaler.ScheduleRun(req.EnvironmentID)
 
 	return catchAndRetry(time.Hour*24, func() (shouldRetry bool, err error) {
+		log.Printf("[DEBUG] [JobRunner] Creating task %s", req.TaskName)
 		task, err := r.taskProvider.Create(req)
 		if err != nil {
+			log.Printf("[DEBUG] [JobRunner] Failed to create task %s: %v", req.TaskName, err)
 			return true, err
 		}
 
@@ -198,13 +200,10 @@ func (r *JobRunner) deleteEnvironment(jobID, environmentID string) error {
 	}
 
 	return catchAndRetry(time.Minute*15, func() (shouldRetry bool, err error) {
+		log.Printf("[DEBUG] [JobRunner] Deleting environment %s", environmentID)
 		if err := r.environmentProvider.Delete(environmentID); err != nil {
-			switch err := err.(type) {
-			case awserr.Error:
-				return err.Code() == "DependencyViolation", err
-			default:
-				return false, err
-			}
+			log.Printf("[DEBUG] [JobRunner] Failed to delete environment %s: %v", environmentID, err)
+			return true, err
 		}
 
 		return false, nil
