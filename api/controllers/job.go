@@ -15,36 +15,36 @@ func NewJobController(j job.Store) *JobController {
 	}
 }
 
-func (e *JobController) Routes() []*fireball.Route {
+func (j *JobController) Routes() []*fireball.Route {
 	return []*fireball.Route{
 		{
 			Path: "/job",
 			Handlers: fireball.Handlers{
-				"GET": e.ListJobs,
+				"GET": j.ListJobs,
 			},
 		},
 		{
 			Path: "/job/:id",
 			Handlers: fireball.Handlers{
-				"GET":    e.GetJob,
-				"DELETE": e.DeleteJob,
+				"GET":    j.GetJob,
+				"DELETE": j.DeleteJob,
 			},
 		},
 	}
 }
 
-func (e *JobController) DeleteJob(c *fireball.Context) (fireball.Response, error) {
+func (j *JobController) DeleteJob(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	if err := e.JobStore.Delete(id); err != nil {
+	if err := j.JobStore.Delete(id); err != nil {
 		return nil, err
 	}
 
 	return fireball.NewJSONResponse(200, nil)
 }
 
-func (e *JobController) GetJob(c *fireball.Context) (fireball.Response, error) {
+func (j *JobController) GetJob(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	job, err := e.JobStore.SelectByID(id)
+	job, err := j.JobStore.SelectByID(id)
 	if err != nil {
 		return nil, err
 	}
@@ -52,8 +52,8 @@ func (e *JobController) GetJob(c *fireball.Context) (fireball.Response, error) {
 	return fireball.NewJSONResponse(200, job)
 }
 
-func (e *JobController) ListJobs(c *fireball.Context) (fireball.Response, error) {
-	jobs, err := e.JobStore.SelectAll()
+func (j *JobController) ListJobs(c *fireball.Context) (fireball.Response, error) {
+	jobs, err := j.JobStore.SelectAll()
 	if err != nil {
 		return nil, err
 	}
