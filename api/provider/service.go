@@ -7,4 +7,5 @@ type ServiceProvider interface {
 	Read(serviceID string) (*models.Service, error)
 	List() ([]models.ServiceSummary, error)
 	Delete(serviceID string) error
+	Update(req models.UpdateServiceRequest) error
 }

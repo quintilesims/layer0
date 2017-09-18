@@ -1,9 +1,5 @@
 package models
 
-import (
-	"fmt"
-)
-
 type Tags []Tag
 
 type filter func(Tag) bool
@@ -62,30 +58,4 @@ func (t Tags) Any(f filter) bool {
 	}
 
 	return false
-}
-
-func (t Tags) GroupByEntity() EntitiesWithTags {
-	catalog := map[string]Tags{}
-
-	for i, tag := range t {
-		key := fmt.Sprintf("%s%s", tag.EntityID, tag.EntityType)
-		if _, ok := catalog[key]; !ok {
-			catalog[key] = Tags{}
-		}
-
-		catalog[key] = append(catalog[key], t[i])
-	}
-
-	ewts := EntitiesWithTags{}
-	for key, tags := range catalog {
-		ewt := &EntityWithTags{
-			EntityID:   tags[0].EntityID,
-			EntityType: tags[0].EntityType,
-			Tags:       catalog[key],
-		}
-
-		ewts = append(ewts, ewt)
-	}
-
-	return ewts
 }

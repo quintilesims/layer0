@@ -17,11 +17,14 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	}
 
 	roleName := getLoadBalancerRoleName(fqLoadBalancerID)
-	if err := l.deleteRole(roleName); err != nil {
+	policyName := roleName
+	if err := l.deleteRolePolicy(roleName, policyName); err != nil {
 		return err
 	}
 
-	// todo: do we need to delete role policy? Or does that happen in deleteRole?
+	if err := l.deleteRole(roleName); err != nil {
+		return err
+	}
 
 	securityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
 	securityGroup, err := readSG(l.AWS.EC2, securityGroupName)
@@ -48,6 +51,26 @@ func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error
 	input.SetLoadBalancerName(loadBalancerName)
 
 	if _, err := l.AWS.ELB.DeleteLoadBalancer(input); err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
+			return nil
+		}
+
+		return err
+	}
+
+	return nil
+}
+
+func (l *LoadBalancerProvider) deleteRolePolicy(roleName, policyName string) error {
+	input := &iam.DeleteRolePolicyInput{}
+	input.SetRoleName(roleName)
+	input.SetPolicyName(policyName)
+
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	if _, err := l.AWS.IAM.DeleteRolePolicy(input); err != nil {
 		if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
 			return nil
 		}
