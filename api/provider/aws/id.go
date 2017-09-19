@@ -4,7 +4,6 @@ import (
 	"crypto/md5"
 	"fmt"
 	"regexp"
-	"strconv"
 	"strings"
 	"time"
 )
@@ -64,27 +63,4 @@ func filterUsableID(name string) string {
 func hashNow() string {
 	salt := time.Now().Format(time.StampNano)
 	return fmt.Sprintf("%x", md5.Sum([]byte(salt)))
-}
-
-func TaskDefinitionARNToECSDeployID(arn string) string {
-	taskDefinitionID := strings.SplitN(arn, "/", 2)[1]
-	taskDefinitionID = strings.Replace(taskDefinitionID, ":", ".", -1)
-	return taskDefinitionID
-}
-
-func removePrefix(instance, id string) string {
-	return strings.TrimPrefix(id, instance)
-}
-
-func L0DeployID(instance, id string) string {
-	id, _ = strconv.Unquote(id)
-	return removePrefix(instance, id)
-}
-
-func GetRevision(instance, id string) string {
-	if split := strings.Split(L0DeployID(instance, id), "."); len(split) > 1 {
-		return split[1]
-	}
-
-	return "1"
 }

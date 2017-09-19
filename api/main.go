@@ -61,7 +61,7 @@ func main() {
 		tagStore := tag.NewDynamoStore(session, cfg.DynamoTagTable())
 		jobStore := job.NewDynamoStore(session, cfg.DynamoJobTable())
 
-		deployProvider := aws.NewDeployProvider(client, tagStore)
+		deployProvider := aws.NewDeployProvider(client, tagStore, cfg)
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
 		loadBalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
 		serviceProvider := aws.NewServiceProvider(client, tagStore)

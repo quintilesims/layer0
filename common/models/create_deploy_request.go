@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-	"strings"
 )
 
 type CreateDeployRequest struct {
@@ -13,10 +12,6 @@ type CreateDeployRequest struct {
 func (c CreateDeployRequest) Validate() error {
 	if c.DeployName == "" {
 		return fmt.Errorf("Deploy Name is required")
-	}
-
-	if strings.Contains(c.DeployName, ".") {
-		return fmt.Errorf("Deploy names cannot contain '.'")
 	}
 
 	if c.DeployFile == nil {
