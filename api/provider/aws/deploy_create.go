@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
-	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -106,4 +105,6 @@ func (d *DeployProvider) createTags(model *models.Deploy) error {
 	if err := d.TagStore.Insert(models.Tag{EntityID: model.DeployID, EntityType: "deploy", Key: "version", Value: model.Version}); err != nil {
 		return err
 	}
+
+	return nil
 }
