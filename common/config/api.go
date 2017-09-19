@@ -60,10 +60,10 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_INSTANCE_PROFILE,
 			EnvVar: ENVVAR_AWS_INSTANCE_PROFILE,
 		},
-		 cli.StringFlag{
-                        Name:   FLAG_AWS_DYNAMO_JOB_TABLE,
-                        EnvVar: ENVVAR_AWS_DYNAMO_JOB_TABLE,
-                },
+		cli.StringFlag{
+			Name:   FLAG_AWS_DYNAMO_JOB_TABLE,
+			EnvVar: ENVVAR_AWS_DYNAMO_JOB_TABLE,
+		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_DYNAMO_TAG_TABLE,
 			EnvVar: ENVVAR_AWS_DYNAMO_TAG_TABLE,
@@ -188,7 +188,7 @@ func (c *ContextAPIConfig) InstanceProfile() string {
 }
 
 func (c *ContextAPIConfig) DynamoJobTable() string {
-        return c.C.String(FLAG_AWS_DYNAMO_JOB_TABLE)
+	return c.C.String(FLAG_AWS_DYNAMO_JOB_TABLE)
 }
 
 func (c *ContextAPIConfig) DynamoTagTable() string {
