@@ -1,62 +1,63 @@
 package aws
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 func (s *ServiceProvider) Update(req models.UpdateServiceRequest) error {
 	serviceID := req.ServiceID
-	deployID := req.DeployID
+
+	environmentID, err := lookupEntityEnvironmentID(s.TagStore, "service", serviceID)
+	if err != nil {
+		return err
+	}
+
+	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), environmentID)
+	clusterName := fqEnvironmentID
+
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
+	serviceName := fqServiceID
 
-	serviceTags, err := s.TagStore.SelectByTypeAndID("service", serviceID)
-	if err != nil {
+	if req.DeployID != nil {
+		taskDefinitionID := *req.DeployID
+		if err := s.updateServiceTaskDefinition(clusterName, serviceName, taskDefinitionID); err != nil {
+			return err
+		}
+	}
+
+	if req.Scale != nil {
+		desiredCount := *req.Scale
+		if err := s.updateServiceDesiredCount(clusterName, serviceName, desiredCount); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (s *ServiceProvider) updateServiceDesiredCount(clusterName, serviceName string, desiredCount int) error {
+	input := &ecs.UpdateServiceInput{}
+	input.SetCluster(clusterName)
+	input.SetService(serviceName)
+	input.SetDesiredCount(int64(desiredCount))
+
+	if err := input.Validate(); err != nil {
 		return err
 	}
 
-	tag, ok := serviceTags.WithKey("environment_id").First()
-	if !ok {
-		// is this canonical error handling?
-		return fmt.Errorf("Cannot resolve environment_id for service %s", serviceID)
-	}
-
-	environmentID := tag.Value
-	clusterName := addLayer0Prefix(s.Config.Instance(), environmentID)
-
-	service, err := s.readService(clusterName, serviceID)
-	if err != nil {
-		return err
-	}
-
-	var serviceScaleCount *int64
-	if req.ServiceScaleCount == nil {
-		serviceScaleCount = service.DesiredCount
-	} else {
-		s := int64(*req.ServiceScaleCount)
-		serviceScaleCount = &s
-	}
-
-	if err := s.updateService(clusterName, fqServiceID, deployID, serviceScaleCount); err != nil {
+	if _, err := s.AWS.ECS.UpdateService(input); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (s *ServiceProvider) updateService(cluster, service string, taskDefinition *string, desiredCount *int64) error {
+func (s *ServiceProvider) updateServiceTaskDefinition(clusterName, serviceName, taskDefinitionID string) error {
 	input := &ecs.UpdateServiceInput{}
-	input.SetCluster(cluster)
-	input.SetService(service)
-	if taskDefinition != nil {
-		input.SetTaskDefinition(*taskDefinition)
-	}
-
-	if desiredCount != nil {
-		input.SetDesiredCount(*desiredCount)
-	}
+	input.SetCluster(clusterName)
+	input.SetService(serviceName)
+	input.SetTaskDefinition(taskDefinitionID)
 
 	if err := input.Validate(); err != nil {
 		return err
