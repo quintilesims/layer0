@@ -9,7 +9,7 @@ import (
 type UpdateServiceRequest struct {
 	ServiceID string  `json:"service_id"`
 	DeployID  *string `json:"deploy_id"`
-	Scale     *int    `json:"service_scale_count"`
+	Scale     *int    `json:"scale"`
 }
 
 func (u UpdateServiceRequest) Validate() error {
