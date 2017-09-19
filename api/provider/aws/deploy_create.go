@@ -3,44 +3,26 @@ package aws
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Create takes a request from the Controller layer, formats the request,
-// and calls the AWS ECS API with it. In order to do this, we must:
-//
-// - Generate a unique deployID and fqDeployID
-// - Render a AWS TaskDefinition from the Request
-// - Create an ecs.TaskDefinition object for the Task Definition data
-// - Call the AWS' ECS RegisterTaskDefinition API with the previous steps' object
-// - If the AWS API call is successful, Marshal the request into a []byte
-//   - Instantiate Layer0 models.Deploy object with the marshaled data
-// - Insert entity tags into Layer0 tags database
-// - Return entity object back to Controller layer
-//
 func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy, error) {
 	deployID := generateEntityID(req.DeployName)
 	fqDeployID := addLayer0Prefix(d.Config.Instance(), deployID)
 	familyName := fqDeployID
 
-	taskDefinition, err := d.renderTaskDefinition(req.DeployFile, fqDeployID)
+	taskDefinition, err := d.renderTaskDefinition(req.DeployFile, familyName)
 	if err != nil {
 		return nil, err
 	}
 
-	input := &ecs.TaskDefinition{}
-	input.SetFamily(familyName)
-	input.SetTaskRoleArn(aws.StringValue(taskDefinition.TaskRoleArn))
-	input.SetNetworkMode(aws.StringValue(taskDefinition.NetworkMode))
-	input.SetContainerDefinitions(taskDefinition.ContainerDefinitions)
-	input.SetVolumes(taskDefinition.Volumes)
-	input.SetPlacementConstraints(taskDefinition.PlacementConstraints)
-
-	taskDefinitionOutput, err := d.createTaskDefinition(input)
+	taskDefinitionOutput, err := d.createTaskDefinition(taskDefinition)
 	if err != nil {
 		return nil, err
 	}
@@ -51,21 +33,12 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy,
 	}
 
 	deploy := &models.Deploy{
-		// TODO: we previously removed prefix from deployID ala below. Is this
-		// no longer needed?
-		// func removePrefix(id string) string {
-		// 	return strings.TrimPrefix(id, PREFIX)
-		// }
 		DeployID:   deployID,
-		Version:    d.getDeployRevision(deployID),
+		Version:    strconv.FormatInt(aws.Int64Value(taskDefinitionOutput.Revision), 10),
 		DeployFile: bytes,
 	}
 
-	if err := d.TagStore.Insert(models.Tag{EntityID: deploy.DeployID, EntityType: "deploy", Key: "name", Value: req.DeployName}); err != nil {
-		return deploy, err
-	}
-
-	if err := d.TagStore.Insert(models.Tag{EntityID: deploy.DeployID, EntityType: "deploy", Key: "version", Value: deploy.Version}); err != nil {
+	if err := d.createTags(deploy); err != nil {
 		return deploy, err
 	}
 
@@ -86,13 +59,12 @@ func (d *DeployProvider) createTaskDefinition(taskDefinitionRequest *ecs.TaskDef
 		return nil, err
 	}
 
-	_, err := d.AWS.ECS.RegisterTaskDefinition(input)
+	output, err := d.AWS.ECS.RegisterTaskDefinition(input)
 	if err != nil {
 		return nil, err
 	}
 
-	// TODO: return original request or RegisterTaskDefinition() input?
-	return taskDefinitionRequest, nil
+	return output.TaskDefinition, nil
 }
 
 func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*ecs.TaskDefinition, error) {
@@ -107,7 +79,7 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 	}
 
 	if taskDefinition.Family != nil && taskDefinition.Family != aws.String(familyName) {
-		return nil, fmt.Errorf("Custom family names are currently unsupported in Layer0")
+		return nil, errors.Newf(errors.InvalidRequest, "Custom family names are unsupported in Layer0")
 	}
 
 	for _, container := range taskDefinition.ContainerDefinitions {
@@ -126,11 +98,12 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 	return taskDefinition, nil
 }
 
-// TODO: remove this if possible
-func (d *DeployProvider) getDeployRevision(id string) string {
-	if split := strings.Split(id, "."); len(split) > 1 {
-		return split[1]
+func (d *DeployProvider) createTags(model *models.Deploy) error {
+	if err := d.TagStore.Insert(models.Tag{EntityID: model.DeployID, EntityType: "deploy", Key: "name", Value: model.DeployName}); err != nil {
+		return err
 	}
 
-	return "1"
+	if err := d.TagStore.Insert(models.Tag{EntityID: model.DeployID, EntityType: "deploy", Key: "version", Value: model.Version}); err != nil {
+		return err
+	}
 }

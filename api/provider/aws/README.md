@@ -20,6 +20,10 @@ For example:
 * Helper functions should not call other  functions
 * Follow existing patterns/conventions of other entities. Consistency is key!
 * Delete operations must be idempotent
+* Use a Layer0 error type when assigning a meaningful code to it (anything that isn't an unexpected error): 
+```
+errors.Newf(errors.InvalidRequest, "Example operation is not supported in Layer0")
+```
 
 ## Skeletons
 The following sections provide skeletons for each entity action. 
