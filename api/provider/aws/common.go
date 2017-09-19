@@ -9,6 +9,21 @@ import (
 	"github.com/quintilesims/layer0/api/tag"
 )
 
+func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (string, error) {
+	tags, err := store.SelectByTypeAndID(entityType, entityID)
+	if err != nil {
+		return "", err
+	}
+
+	tag, ok := tags.WithKey("environment_id").First()
+	if !ok {
+		// is this canonical error handling?
+		return "", fmt.Errorf("Cannot resolve environment_id for %s '%s'", entityType, entityID)
+	}
+
+	return tag.Value, nil
+}
+
 func getEnvironmentSGName(environmentID string) string {
 	return fmt.Sprintf("%s-env", environmentID)
 }
