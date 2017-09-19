@@ -26,7 +26,9 @@ The following sections provide skeletons for each entity action.
 
 ### Create 
 ```
-type (e *EntityProvider) Create(req models.CreateEntityRequest) (*models.Entity, error) {
+package main
+
+func (e *EntityProvider) Create(req models.CreateEntityRequest) (*models.Entity, error) {
 	entityID := createEntityID(req.EntityName)
 	fqEntityID := addLayer0Prefix(entityID)
 
@@ -48,17 +50,16 @@ type (e *EntityProvider) Create(req models.CreateEntityRequest) (*models.Entity,
 		return nil, err
 	}
 
-    // create the tags for the entity
+	// create the tags for the entity
 	if err := e.createTags(entityID, resourceB.FieldA); err != nil {
 		return nil, err
 	}
 
-    // return Read() after a create
-	return e.Read(entityID)		
+	// return Read() after a create
+	return e.Read(entityID)
 }
 
-
-func (e *EntityProvider) createResourceA(args...) error {
+func (e *EntityProvider) createResourceA(args) error {
 	input := &aws.Input{}
 	input.FieldA(args)
 
@@ -73,7 +74,7 @@ func (e *EntityProvider) createResourceA(args...) error {
 	return nil
 }
 
-func (e *EntityProvider) createResourceB(args...) (*aws.ResourceB, error) {
+func (e *EntityProvider) createResourceB(args) (*aws.ResourceB, error) {
 	input := &aws.Input{}
 	input.FieldA(args)
 
@@ -89,7 +90,7 @@ func (e *EntityProvider) createResourceB(args...) (*aws.ResourceB, error) {
 	return output.ResourceB, nil
 }
 
-func (e *EntityProvider) createTags(entityID, args... string) error {
+func (e *EntityProvider) createTags(entityID, args ...string) error {
 	tags := []models.Tag{
 		{
 			EntityID:   entityID,
@@ -97,7 +98,12 @@ func (e *EntityProvider) createTags(entityID, args... string) error {
 			Key:        "name",
 			Value:      arg,
 		},
-		...
+		{
+			EntityID:   entityID,
+			EntityType: "entity_type",
+			Key:        "other",
+			Value:      arg,
+		},
 	}
 
 	for _, tag := range tags {
@@ -112,27 +118,28 @@ func (e *EntityProvider) createTags(entityID, args... string) error {
 
 ### Delete
 ```
-type (e *EntityProvider) Delete(entityID string) (error) {
+package main
+
+func (e *EntityProvider) Delete(entityID string) error {
 	fqEntityID := addLayer0Prefix(entityID)
 
-    if err := e.deleteResourceA(args...); err != nil {
-        return err
-    }
-    
-    if err := e.deleteResourceB(args...); err != nil {
-        return err
-    }
-    
-    // use the common helper function to delete tags
-    if err := deleteEntityTags(e.TagStore, "entity_type", entityID); err != nil {
+	if err := e.deleteResourceA(args...); err != nil {
 		return err
 	}
-	
-    return nil
+
+	if err := e.deleteResourceB(args...); err != nil {
+		return err
+	}
+
+	// use the common helper function to delete tags
+	if err := deleteEntityTags(e.TagStore, "entity_type", entityID); err != nil {
+		return err
+	}
+
+	return nil
 }
 
-
-func (e *EntityProvider) DeleteResourceA(args...) error {
+func (e *EntityProvider) DeleteResourceA(args) error {
 	input := &aws.Input{}
 	input.FieldA(args)
 
@@ -140,9 +147,9 @@ func (e *EntityProvider) DeleteResourceA(args...) error {
 		return err
 	}
 
-    // catch idempotent errors
+	// catch idempotent errors
 	if err := e.AWS.ECS.Delete(input); err != nil {
-        if err, ok := err.(awserr.Error); ok && err.Code() == "ResourceNotFoundException" {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "ResourceNotFoundException" {
 			return nil
 		}
 	}
@@ -150,7 +157,7 @@ func (e *EntityProvider) DeleteResourceA(args...) error {
 	return nil
 }
 
-func (e *EntityProvider) DeleteResourceB(args...) error {
+func (e *EntityProvider) DeleteResourceB(args) error {
 	input := &aws.Input{}
 	input.FieldA(args)
 
@@ -158,9 +165,9 @@ func (e *EntityProvider) DeleteResourceB(args...) error {
 		return err
 	}
 
-    // catch idempotent errors
+	// catch idempotent errors
 	if err := e.AWS.ECS.Delete(input); err != nil {
-        if err, ok := err.(awserr.Error); ok && err.Code() == "ResourceNotFoundException" {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "ResourceNotFoundException" {
 			return nil
 		}
 	}
@@ -171,45 +178,47 @@ func (e *EntityProvider) DeleteResourceB(args...) error {
 
 ### Read
 ```
-type (e *EntityProvider) Read(entityID string) (*models.Entity, error) {
+package main
+
+func (e *EntityProvider) Read(entityID string) (*models.Entity, error) {
 	fqEntityID := addLayer0Prefix(entityID)
 
-    // lookup dependent identifiers if necessary
-    environmentID, err := lookupEnvironmentID(e.TagStore, "entity_type", entityID)
-    if err != nil {
-        return nil, err
-    }
-    fqEnvironmentID := addLayer0Prefix(environmentID)
+	// lookup dependent identifiers if necessary
+	environmentID, err := lookupEnvironmentID(e.TagStore, "entity_type", entityID)
+	if err != nil {
+		return nil, err
+	}
+	fqEnvironmentID := addLayer0Prefix(environmentID)
 
-    // setup args for readResourceA
-    resourceAName := fqEnvironmentID
-    resourceA, err := e.readResourceA(resourceAName, fqEntityID)
-    if err != nil {
-        return nil, err
-    }
-    
-    resourceB, err := e.readResourceB(args...)
-    if err != nil {
-        return nil, err
-    }
-    
-    // make sure to use un-qualifed entity ids in the model
-    // safely de-reference pointers using aws-sdk-go helper functions
-    model := &models.Entity{
-        EntityID: entityID,
-        EnvironmentID: environmentID, 
-        FieldA: aws.IntValue(resourceA.Field),
-        FieldB: aws.StringValue(resourceB.Field),
-    }
-    
-    if err := e.populateModelTags(entityID, model); err != nil {
+	// setup args for readResourceA
+	resourceAName := fqEnvironmentID
+	resourceA, err := e.readResourceA(resourceAName, fqEntityID)
+	if err != nil {
+		return nil, err
+	}
+
+	resourceB, err := e.readResourceB(args...)
+	if err != nil {
+		return nil, err
+	}
+
+	// make sure to use un-qualifed entity ids in the model
+	// safely de-reference pointers using aws-sdk-go helper functions
+	model := &models.Entity{
+		EntityID:      entityID,
+		EnvironmentID: environmentID,
+		FieldA:        aws.IntValue(resourceA.Field),
+		FieldB:        aws.StringValue(resourceB.Field),
+	}
+
+	if err := e.populateModelTags(entityID, model); err != nil {
 		return nil, err
 	}
 
 	return model, nil
 }
 
-func (e *EntityProvider) readResourceA(args...) (*aws.ResourceA, error) {
+func (e *EntityProvider) readResourceA(args) (*aws.ResourceA, error) {
 	input := &aws.Input{}
 	input.FieldA(args)
 
@@ -225,7 +234,7 @@ func (e *EntityProvider) readResourceA(args...) (*aws.ResourceA, error) {
 	return output.ResourceA, nil
 }
 
-func (e *EntityProvider) readResourceB(args...) (*aws.ResourceB, error) {
+func (e *EntityProvider) readResourceB(args) (*aws.ResourceB, error) {
 	input := &aws.Input{}
 	input.FieldA(args)
 
@@ -257,48 +266,50 @@ func (e *EntityProvider) populateModelTags(entityID string, model *models.Entity
 
 ### List
 ```
-type (e *EntityProvider) List() ([]models.EntitySummary, error) {
-    resourceAIDs, err := e.listResourceAIDs()
-    if err != nil {
-        return nil, err
-    }
+package main
 
-    summaries := make([]models.EntitySummary, len(resourceAs))
+func (e *EntityProvider) List() ([]models.EntitySummary, error) {
+	resourceAIDs, err := e.listResourceAIDs()
+	if err != nil {
+		return nil, err
+	}
+
+	summaries := make([]models.EntitySummary, len(resourceAs))
 	for i, resourceA := range resourceAs {
-	    fqEntityID := resourceA.Name
+		fqEntityID := resourceA.Name
 		entityID := delLayer0Prefix(e.Config.Instance(), fqEntityID)
-		
+
 		summaries[i] = models.EntitySummary{
 			EntityID: entityID,
 		}
 	}
 
-    if err := e.populateSummariesTags(summaries); err != nil {
+	if err := e.populateSummariesTags(summaries); err != nil {
 		return nil, err
 	}
 
 	return summaries, nil
 }
 
-func (e *EntityProvider) listResourceIDs(args...) ([]string, error) {
-    resourceIDs = []string{}
+func (e *EntityProvider) listResourceIDs(args) ([]string, error) {
+	resourceIDs = []string{}
 	fn := func(output *ecs.Output, lastPage bool) bool {
-	    for _, resourceID := range output.ResourceIDs {
-	        // safely de-reference pointers
-	        resourceIDs = append(resourceIDs, aws.StringValue(resourceID))
-	        return !lastPage
-	    }
-	}
-	
-	if err := e.AWS.ECS.ListResourcePages(&input{}, fn); err != nil {
-	    return nil, err
+		for _, resourceID := range output.ResourceIDs {
+			// safely de-reference pointers
+			resourceIDs = append(resourceIDs, aws.StringValue(resourceID))
+			return !lastPage
+		}
 	}
 
-    return resourceIDs, nil
+	if err := e.AWS.ECS.ListResourcePages(&input{}, fn); err != nil {
+		return nil, err
+	}
+
+	return resourceIDs, nil
 }
 
 func (e *EntityProvider) populateSummariesTags(summaries []models.EntitySummary) error {
-	tags, err := e.TagStore.SelectByType("entity_type")
+	tags, err := e.TagStore.SelectByType("entity_func")
 	if err != nil {
 		return err
 	}
@@ -311,58 +322,59 @@ func (e *EntityProvider) populateSummariesTags(summaries []models.EntitySummary)
 
 	return nil
 }
-
 ```
 
 ### Update
 ```
-type (e *EntityProvider) Update(req models.UpdateEntityRequest) error {
+package main
+
+func (e *EntityProvider) Update(req models.UpdateEntityRequest) error {
 	entityID := createEntityID(req.EntityName)
 	fqEntityID := addLayer0Prefix(entityID)
 
-    // only run functions if the optional params are specified
-    if req.FieldA != nil {
-        if err := e.updateResourceA(args...); err != nil {
-            return err
-        }
-    }
-    
-      if req.FieldB != nil {
-        if err := e.updateResourceB(args...); err != nil {
-            return err
-        }
-    }
-    
-    return nil
-}
-
-type (e *EntityProvider) updateResourceA(args...) error {
-	input := &aws.Input{}
-	input.FieldA(args)
-
-	if err := input.Validate(); err != nil {
-		return  err
+	// only run functions if the optional params are specified
+	if req.FieldA != nil {
+		if err := e.updateResourceA(args); err != nil {
+			return err
+		}
 	}
 
-	output, err := e.AWS.ECS.Update(input)
-	if err != nil {
-		return  err
+	if req.FieldB != nil {
+		if err := e.updateResourceB(args); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-type (e *EntityProvider) updateResourceB(args...) error {
+func (e *EntityProvider) updateResourceA(args) error {
 	input := &aws.Input{}
-	input.FieldB(args)
+	input.FieldA(args)
 
 	if err := input.Validate(); err != nil {
-		return  err
+		return err
 	}
 
 	output, err := e.AWS.ECS.Update(input)
 	if err != nil {
-		return  err
+		return err
+	}
+
+	return nil
+}
+
+func (e *EntityProvider) updateResourceB(args) error {
+	input := &aws.Input{}
+	input.FieldB(args)
+
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	output, err := e.AWS.ECS.Update(input)
+	if err != nil {
+		return err
 	}
 
 	return nil
