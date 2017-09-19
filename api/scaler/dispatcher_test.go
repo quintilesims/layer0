@@ -10,9 +10,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func setTimeMultiplier(m int) func() {
+	timeMultiplier = time.Duration(m)
+	return func() { timeMultiplier = 1 }
+}
+
 func TestDispatcherScheduleRun(t *testing.T) {
-	timeMultiplier = 0
-	defer func() { timeMultiplier = 1 }()
+	defer setTimeMultiplier(0)()
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -37,8 +41,7 @@ func TestDispatcherScheduleRun(t *testing.T) {
 }
 
 func TestDispatcherRunAll(t *testing.T) {
-	timeMultiplier = 0
-	defer func() { timeMultiplier = 1 }()
+	defer setTimeMultiplier(0)()
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

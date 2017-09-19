@@ -37,6 +37,7 @@ func (d *Dispatcher) ScheduleRun(environmentID string) {
 
 	log.Printf("[DEBUG] [ScalerDispatcher] Scaling environment %s in %v", environmentID, SCALE_GRACE_PERIOD)
 	d.schedule[environmentID] = time.AfterFunc(SCALE_GRACE_PERIOD*timeMultiplier, func() {
+		// remove this run from the schedule
 		if _, ok := d.schedule[environmentID]; ok {
 			delete(d.schedule, environmentID)
 		}
@@ -67,7 +68,7 @@ func (d *Dispatcher) RunAll() {
 
 	environments, err := d.environmentProvider.List()
 	if err != nil {
-		log.Printf("[DEBUG] [ScalerDispatcher] Failed to list environments: %v", err)
+		log.Printf("[ERROR] [ScalerDispatcher] Failed to list environments: %v", err)
 		return
 	}
 
