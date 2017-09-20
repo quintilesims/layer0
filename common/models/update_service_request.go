@@ -18,11 +18,11 @@ func (u UpdateServiceRequest) Validate() error {
 	}
 
 	if u.DeployID != nil && *u.DeployID == "" {
-		return fmt.Errorf("DeployID must be specified")
+		return fmt.Errorf("DeployID must be omitted or non-empty string")
 	}
 
 	if u.Scale != nil && *u.Scale < 0 {
-		return fmt.Errorf("Scale must be a positive integer")
+		return fmt.Errorf("Scale must be omitted or a positive integer")
 	}
 
 	return nil
