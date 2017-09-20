@@ -181,7 +181,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Responses: map[string]swagger.Response{
 						"200": {
 							Description: "The added load balancer",
-							Schema:      swagger.NewObjectSchema("LoadBalancer"),
+							// todo: this actually returns a CreateJobResponse
+							Schema: swagger.NewObjectSchema("LoadBalancer"),
 						},
 					},
 				},

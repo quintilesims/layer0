@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	swagger "github.com/zpatrick/go-plugin-swagger"
 )
 
@@ -11,6 +13,10 @@ type UpdateLoadBalancerRequest struct {
 }
 
 func (u UpdateLoadBalancerRequest) Validate() error {
+	if u.LoadBalancerID == "" {
+		return fmt.Errorf("LoadBalancerID is required")
+	}
+
 	if u.Ports != nil {
 		for _, port := range *u.Ports {
 			if err := port.Validate(); err != nil {
