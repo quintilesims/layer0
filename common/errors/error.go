@@ -33,21 +33,21 @@ func (s *ServerError) Model() models.ServerError {
 	}
 }
 
-func ResolveErrorByEntityType(entityType string) (ErrorCode, error) {
+func NewEntityDoesNotExistError(entityType, entityID string) *ServerError {
 	switch entityType {
 	case "deploy":
-		return DeployDoesNotExist, nil
+		return Newf(DeployDoesNotExist, "Deploy '%s' does not exist", entityID)
 	case "environment":
-		return EnvironmentDoesNotExist, nil
+		return Newf(EnvironmentDoesNotExist, "Environment '%s' does not exist", entityID)
 	case "job":
-		return JobDoesNotExist, nil
+		return Newf(JobDoesNotExist, "Job '%s' does not exist", entityID)
 	case "load_balancer":
-		return LoadBalancerDoesNotExist, nil
+		return Newf(LoadBalancerDoesNotExist, "Load balancer '%s' does not exist", entityID)
 	case "service":
-		return ServiceDoesNotExist, nil
+		return Newf(ServiceDoesNotExist, "Service '%s' does not exist", entityID)
 	case "task":
-		return TaskDoesNotExist, nil
+		return Newf(TaskDoesNotExist, "Task '%s' does not exist", entityID)
 	default:
-		return "", Newf(InvalidRequest, "Entity type '%s' is invalid", entityType)
+		return Newf(UnexpectedError, "Entity (type='%s') '%s' does not exist", entityType, entityID)
 	}
 }

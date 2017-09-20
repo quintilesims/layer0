@@ -20,12 +20,7 @@ func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (st
 	}
 
 	if len(tags) == 0 {
-		doesNotExistError, err := errors.ResolveErrorByEntityType(entityType)
-		if err != nil {
-			return "", err
-		}
-
-		return "", errors.Newf(doesNotExistError, "%s '%s' does not exist", entityType, entityID)
+		return "", "", errors.NewEntityDoesNotExistError(entityType, entityID)
 	}
 
 	if tag, ok := tags.WithKey("environment_id").First(); ok {
@@ -42,7 +37,7 @@ func lookupDeployNameAndVersion(store tag.Store, deployID string) (string, strin
 	}
 
 	if len(tags) == 0 {
-		return "", "", errors.Newf(errors.DeployDoesNotExist, "Deploy '%s' does not exist", deployID)
+		return "", "", errors.NewEntityDoesNotExistError("deploy", deployID)
 	}
 
 	nameTag, ok := tags.WithKey("name").First()
