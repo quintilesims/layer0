@@ -12,14 +12,16 @@ import (
 )
 
 type DynamoStore struct {
-	table dynamo.Table
+	table      dynamo.Table
+	insertHook func(jobID string)
 }
 
 func NewDynamoStore(session *session.Session, table string) *DynamoStore {
 	db := dynamo.New(session)
 
 	return &DynamoStore{
-		table: db.Table(table),
+		table:      db.Table(table),
+		insertHook: func(string) {},
 	}
 }
 
@@ -52,7 +54,12 @@ func (d *DynamoStore) Insert(jobType JobType, req string) (string, error) {
 		return "", err
 	}
 
+	d.insertHook(job.JobID)
 	return job.JobID, nil
+}
+
+func (d *DynamoStore) SetInsertHook(hook func(jobID string)) {
+	d.insertHook = hook
 }
 
 func (d *DynamoStore) AcquireJob(jobID string) (bool, error) {

@@ -8,12 +8,14 @@ import (
 )
 
 type MemoryStore struct {
-	jobs []*models.Job
+	jobs       []*models.Job
+	insertHook func(jobID string)
 }
 
 func NewMemoryStore() *MemoryStore {
 	return &MemoryStore{
-		jobs: []*models.Job{},
+		jobs:       []*models.Job{},
+		insertHook: func(string) {},
 	}
 }
 
@@ -24,11 +26,16 @@ func (m *MemoryStore) Insert(jobType JobType, req string) (string, error) {
 		Request: req,
 		Status:  string(Pending),
 		Created: time.Now(),
-		Result:    "",
+		Result:  "",
 	}
 
 	m.jobs = append(m.jobs, job)
+	m.insertHook(job.JobID)
 	return job.JobID, nil
+}
+
+func (m *MemoryStore) SetInsertHook(hook func(jobID string)) {
+	m.insertHook = hook
 }
 
 func (m *MemoryStore) AcquireJob(jobID string) (bool, error) {

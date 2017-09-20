@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/defaults"
@@ -12,6 +13,7 @@ import (
 	"github.com/quintilesims/layer0/api/controllers"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider/aws"
+	"github.com/quintilesims/layer0/api/scaler"
 	"github.com/quintilesims/layer0/api/tag"
 	awsclient "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
@@ -61,26 +63,40 @@ func main() {
 		tagStore := tag.NewDynamoStore(session, cfg.DynamoTagTable())
 		jobStore := job.NewDynamoStore(session, cfg.DynamoJobTable())
 
-		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
 		deployProvider := aws.NewDeployProvider(client, tagStore)
-		loadbalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
-		taskProvider := aws.NewTaskProvider(client, tagStore)
-		jobRunner := aws.NewJobRunner(jobStore)
+		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
+		loadBalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
 		serviceProvider := aws.NewServiceProvider(client, tagStore, cfg)
+		taskProvider := aws.NewTaskProvider(client, tagStore, cfg)
+
+		environmentScaler := aws.NewEnvironmentScaler()
+		scalerDispatcher := scaler.NewDispatcher(environmentProvider, environmentScaler)
+
+		jobRunner := aws.NewJobRunner(
+			deployProvider,
+			environmentProvider,
+			loadBalancerProvider,
+			serviceProvider,
+			taskProvider,
+			scalerDispatcher)
 
 		routes := controllers.NewSwaggerController(Version).Routes()
-		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore).Routes()...)
-		routes = append(routes, controllers.NewServiceController(serviceProvider, jobStore).Routes()...)
 		routes = append(routes, controllers.NewDeployController(deployProvider, jobStore).Routes()...)
-		routes = append(routes, controllers.NewLoadBalancerController(loadbalancerProvider, jobStore).Routes()...)
+		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore).Routes()...)
+		routes = append(routes, controllers.NewJobController(jobStore).Routes()...)
+		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider, jobStore).Routes()...)
+		routes = append(routes, controllers.NewServiceController(serviceProvider, jobStore).Routes()...)
 		routes = append(routes, controllers.NewTaskController(taskProvider, jobStore).Routes()...)
 
 		// todo: add decorators to routes
 		server := fireball.NewApp(routes)
 
 		// todo: get num workers from config
-		ticker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner)
-		defer ticker.Stop()
+		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner)
+		defer jobTicker.Stop()
+
+		scalerTicker := scalerDispatcher.RunEvery(time.Minute * 5)
+		defer scalerTicker.Stop()
 
 		log.Printf("[INFO] Listening on port %d", cfg.Port())
 		http.Handle("/", server)

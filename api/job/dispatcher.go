@@ -6,7 +6,9 @@ import (
 )
 
 const (
-	DISPATCHER_PERIOD = time.Second * 5
+	// dynamodb allows a burst-read/write every 5 minutes
+	// matching that value here to try and avoid hitting that limit
+	DISPATCHER_PERIOD = time.Minute * 5
 )
 
 func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner) *time.Ticker {
@@ -26,6 +28,10 @@ func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner) *time.T
 			}
 		}
 	}()
+
+	store.SetInsertHook(func(jobID string) {
+		go func() { queue <- jobID }()
+	})
 
 	return ticker
 }

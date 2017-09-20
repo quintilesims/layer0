@@ -2,10 +2,13 @@ package aws
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
+	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 )
@@ -125,4 +128,26 @@ func deleteEntityTags(tagStore tag.Store, entityType, entityID string) error {
 	}
 
 	return nil
+}
+
+func listClusterNames(ecsapi ecsiface.ECSAPI, instance string) ([]string, error) {
+	clusterNames := []string{}
+	fn := func(output *ecs.ListClustersOutput, lastPage bool) bool {
+		for _, arn := range output.ClusterArns {
+			// cluster arn format: arn:aws:ecs:region:012345678910:cluster/name
+			clusterName := strings.Split(aws.StringValue(arn), "/")[1]
+
+			if hasLayer0Prefix(instance, clusterName) {
+				clusterNames = append(clusterNames, clusterName)
+			}
+		}
+
+		return !lastPage
+	}
+
+	if err := ecsapi.ListClustersPages(&ecs.ListClustersInput{}, fn); err != nil {
+		return nil, err
+	}
+
+	return clusterNames, nil
 }
