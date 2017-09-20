@@ -19,37 +19,46 @@ func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (st
 		return "", err
 	}
 
+	if len(tags) == 0 {
+		doesNotExistError, err := errors.ResolveErrorByEntityType(entityType)
+		if err != nil {
+			return "", err
+		}
+
+		return "", errors.Newf(doesNotExistError, "%s '%s' does not exist", entityType, entityID)
+	}
+
 	if tag, ok := tags.WithKey("environment_id").First(); ok {
 		return tag.Value, nil
 	}
 
-	return "", errors.Newf(errors.EnvironmentDoesNotExist, "Could not resolve environment ID for %s '%s'", entityType, entityID)
+	return "", fmt.Errorf("Could not resolve environment ID for %s '%s'", entityType, entityID)
 }
 
-func lookupTaskDefinitionFamily(store tag.Store, deployID string) (string, error) {
+func lookupDeployNameAndVersion(store tag.Store, deployID string) (string, string, error) {
 	tags, err := store.SelectByTypeAndID("deploy", deployID)
 	if err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	if tag, ok := tags.WithKey("name").First(); ok {
-		return tag.Value, nil
+	if len(tags) == 0 {
+		return "", "", errors.Newf(errors.DeployDoesNotExist, "Deploy '%s' does not exist", deployID)
 	}
 
-	return "", errors.Newf(errors.DeployDoesNotExist, "Could not resolve task definition family for deploy '%s'", deployID)
-}
-
-func lookupTaskDefinitionRevision(store tag.Store, deployID string) (string, error) {
-	tags, err := store.SelectByTypeAndID("deploy", deployID)
-	if err != nil {
-		return "", err
+	nameTag, ok := tags.WithKey("name").First()
+	if !ok {
+		return "", "", fmt.Errorf("Could not resolve name for deploy '%s'", deployID)
 	}
 
-	if tag, ok := tags.WithKey("version").First(); ok {
-		return tag.Value, err
+	versionTag, ok := tags.WithKey("version").First()
+	if !ok {
+		return "", "", fmt.Errorf("Could not resolve version for deploy '%s'", deployID)
 	}
 
-	return "", errors.Newf(errors.DeployDoesNotExist, "Could not resolve task definition revision for deploy '%s'", deployID)
+	deployName := nameTag.Value
+	deployVersion := versionTag.Value
+
+	return deployName, deployVersion, nil
 }
 
 func getEnvironmentSGName(environmentID string) string {

@@ -22,13 +22,32 @@ func New(code ErrorCode, err error) *ServerError {
 	}
 }
 
-func (s *ServerError) Error() string {
-	return fmt.Sprintf("ServerError (code='%s'): %s", s.Code, s.Err.Error())
+func (this *ServerError) Error() string {
+	return fmt.Sprintf("ServerError (code=%d) %s", this.Code, this.Err.Error())
 }
 
-func (s *ServerError) Model() models.ServerError {
+func (this *ServerError) Model() models.ServerError {
 	return models.ServerError{
-		ErrorCode: s.Code.String(),
-		Message:   s.Err.Error(),
+		ErrorCode: int64(this.Code),
+		Message:   this.Err.Error(),
+	}
+}
+
+func ResolveErrorByEntityType(entityType string) (ErrorCode, error) {
+	switch entityType {
+	case "deploy":
+		return DeployDoesNotExist, nil
+	case "environment":
+		return EnvironmentDoesNotExist, nil
+	case "job":
+		return JobDoesNotExist, nil
+	case "load_balancer":
+		return LoadBalancerDoesNotExist, nil
+	case "service":
+		return ServiceDoesNotExist, nil
+	case "task":
+		return TaskDoesNotExist, nil
+	default:
+		return "", Newf(InvalidRequest, "Entity type '%s' is invalid", entityType)
 	}
 }

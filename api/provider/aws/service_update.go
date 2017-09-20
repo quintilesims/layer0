@@ -23,15 +23,13 @@ func (s *ServiceProvider) Update(req models.UpdateServiceRequest) error {
 
 	if req.DeployID != nil {
 		deployID := *req.DeployID
-		taskDefinitionFamily, err := lookupTaskDefinitionFamily(s.TagStore, deployID)
+		deployName, deployVersion, err := lookupDeployNameAndVersion(s.TagStore, deployID)
 		if err != nil {
 			return err
 		}
 
-		taskDefinitionRevision, err := lookupTaskDefinitionRevision(s.TagStore, deployID)
-		if err != nil {
-			return err
-		}
+		taskDefinitionFamily := deployName
+		taskDefinitionRevision := deployVersion
 
 		if err := s.updateServiceTaskDefinition(clusterName, serviceName, taskDefinitionFamily, taskDefinitionRevision); err != nil {
 			return err
@@ -53,7 +51,7 @@ func (s *ServiceProvider) updateServiceTaskDefinition(clusterName, serviceName, 
 	input.SetCluster(clusterName)
 	input.SetService(serviceName)
 
-	taskDefinition := fmt.Sprintf("%s:%d", taskDefinitionFamily, taskDefinitionRevision)
+	taskDefinition := fmt.Sprintf("%s:%s", taskDefinitionFamily, taskDefinitionRevision)
 	input.SetTaskDefinition(taskDefinition)
 
 	if err := input.Validate(); err != nil {
