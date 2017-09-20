@@ -39,13 +39,16 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			Version: s.version,
 		},
 		Definitions: map[string]swagger.Definition{
+			"ContainerOverride":         models.ContainerOverride{}.Definition(),
 			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
+			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),
 			"Environment":               models.Environment{}.Definition(),
 			"HealthCheck":               models.HealthCheck{}.Definition(),
 			"Job":                       models.Job{}.Definition(),
 			"LoadBalancer":              models.LoadBalancer{}.Definition(),
 			"Port":                      models.Port{}.Definition(),
+			"Task":                      models.Task{}.Definition(),
 			"UpdateLoadBalancerRequest": models.UpdateLoadBalancerRequest{}.Definition(),
 		},
 		Tags: []swagger.Tag{
@@ -60,6 +63,10 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			{
 				Name:        "LoadBalancer",
 				Description: "Methods related to load balancers",
+			},
+			{
+				Name:        "Task",
+				Description: "Methods related to tasks",
 			},
 		},
 		Paths: map[string]swagger.Path{
@@ -215,6 +222,31 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Responses: map[string]swagger.Response{
 						"200": {
 							Description: "Success",
+						},
+					},
+				},
+			},
+			"/task": map[string]swagger.Method{
+				"get": {
+					Summary: "List all Tasks",
+					Tags:    []string{"Task"},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "An array of tasks",
+							Schema:      swagger.NewObjectSliceSchema("Task"),
+						},
+					},
+				},
+				"post": {
+					Summary: "Add a Task",
+					Tags:    []string{"Task"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("CreateTaskRequest", "Task to add", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The added task",
+							Schema:      swagger.NewObjectSchema("Task"),
 						},
 					},
 				},
