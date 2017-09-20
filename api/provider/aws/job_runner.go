@@ -201,7 +201,9 @@ func (r *JobRunner) deleteEnvironment(jobID, environmentID string) error {
 }
 
 func (r *JobRunner) deleteLoadBalancer(jobID, loadBalancerID string) error {
-	return r.loadBalancerProvider.Delete(loadBalancerID)
+	return catchAndRetry(15, func() (shouldRetry bool, err error) {
+		return true, r.loadBalancerProvider.Delete(loadBalancerID)
+	})
 }
 
 func (r *JobRunner) deleteService(jobID, serviceID string) error {
