@@ -16,13 +16,11 @@ func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (st
 		return "", err
 	}
 
-	tag, ok := tags.WithKey("environment_id").First()
-	if !ok {
-		// is this canonical error handling?
-		return "", fmt.Errorf("Cannot resolve environment_id for %s '%s'", entityType, entityID)
+	if tag, ok := tags.WithKey("environment_id").First(); ok {
+		return tag.Value, nil
 	}
 
-	return tag.Value, nil
+	return "", errors.Newf(errors.EnvironmentDoesNotExist, "Could not resolve environment ID for %s '%s'", entityType, entityID)
 }
 
 func lookupTaskDefinitionFamily(store tag.Store, deployID string) (string, error) {
