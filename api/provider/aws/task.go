@@ -1,37 +1,21 @@
 package aws
 
 import (
-	"fmt"
-
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 type TaskProvider struct {
 	AWS      *awsc.Client
 	TagStore tag.Store
+	Config   config.APIConfig
 }
 
-func NewTaskProvider(a *awsc.Client, t tag.Store) *TaskProvider {
+func NewTaskProvider(a *awsc.Client, t tag.Store, c config.APIConfig) *TaskProvider {
 	return &TaskProvider{
 		AWS:      a,
 		TagStore: t,
+		Config:   c,
 	}
-}
-
-func (t *TaskProvider) Create(req models.CreateTaskRequest) (*models.Task, error) {
-	return nil, fmt.Errorf("CreateTask not implemented")
-}
-
-func (t *TaskProvider) Read(TaskID string) (*models.Task, error) {
-	return nil, nil
-}
-
-func (t *TaskProvider) List() ([]models.TaskSummary, error) {
-	return nil, nil
-}
-
-func (t *TaskProvider) Delete(TaskID string) error {
-	return nil
 }
