@@ -1,13 +1,6 @@
 package aws
 
-import (
-	"testing"
-
-	"github.com/quintilesims/layer0/api/tag"
-	"github.com/quintilesims/layer0/common/models"
-	"github.com/stretchr/testify/assert"
-)
-
+/*
 func TestTask_populateTaskSummaries(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	task := NewTaskProvider(nil, tagStore, nil)
@@ -92,3 +85,4 @@ func TestTask_populateTaskSummaries(t *testing.T) {
 	assert.Equal(t, "e2", results[1].EnvironmentID)
 	assert.Equal(t, "ename2", results[1].EnvironmentName)
 }
+*/

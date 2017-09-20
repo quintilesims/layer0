@@ -52,10 +52,12 @@ func (w *Worker) Start() func() {
 					continue
 				}
 
-				if err := w.Store.SetJobResult(jobID, result); err != nil {
-					log.Printf("[ERROR] [JobWorker %d]: Failed to set job result for job %s: %v", w.ID, jobID, err)
-					w.Store.SetJobError(jobID, err)
-					continue
+				if result != "" {
+					if err := w.Store.SetJobResult(jobID, result); err != nil {
+						log.Printf("[ERROR] [JobWorker %d]: Failed to set job result for job %s: %v", w.ID, jobID, err)
+						w.Store.SetJobError(jobID, err)
+						continue
+					}
 				}
 
 				if err := w.Store.SetJobStatus(jobID, Completed); err != nil {

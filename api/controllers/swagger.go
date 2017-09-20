@@ -39,7 +39,6 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			Version: s.version,
 		},
 		Definitions: map[string]swagger.Definition{
-			"ContainerOverride":         models.ContainerOverride{}.Definition(),
 			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
 			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),
@@ -251,6 +250,33 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 				},
 			},
+			  "/task/{id}": map[string]swagger.Method{
+                                "get": {
+                                        Summary: "Describe a Task",
+                                        Tags:    []string{"Task"},
+                                        Parameters: []swagger.Parameter{
+                                                swagger.NewStringPathParam("id", "ID of the task to describe", true),
+                                        },
+                                        Responses: map[string]swagger.Response{
+                                                "200": {
+                                                        Description: "The desired task",
+                                                        Schema:      swagger.NewObjectSchema("Task"),
+                                                },
+                                        },
+                                },
+                                "delete": {
+                                        Summary: "Delete a Task",
+                                        Tags:    []string{"Task"},
+                                        Parameters: []swagger.Parameter{
+                                                swagger.NewStringPathParam("id", "ID of the task to delete", true),
+                                        },
+                                        Responses: map[string]swagger.Response{
+                                                "200": {
+                                                        Description: "Success",
+                                                },
+                                        },
+                                },
+                        },
 		},
 	}
 
