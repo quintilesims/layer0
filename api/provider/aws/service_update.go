@@ -1,6 +1,8 @@
 package aws
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -20,8 +22,18 @@ func (s *ServiceProvider) Update(req models.UpdateServiceRequest) error {
 	serviceName := fqServiceID
 
 	if req.DeployID != nil {
-		taskDefinitionID := *req.DeployID
-		if err := s.updateServiceTaskDefinition(clusterName, serviceName, taskDefinitionID); err != nil {
+		deployID := *req.DeployID
+		taskDefinitionFamily, err := lookupTaskDefinitionFamily(s.TagStore, deployID)
+		if err != nil {
+			return err
+		}
+
+		taskDefinitionRevision, err := lookupTaskDefinitionRevision(s.TagStore, deployID)
+		if err != nil {
+			return err
+		}
+
+		if err := s.updateServiceTaskDefinition(clusterName, serviceName, taskDefinitionFamily, taskDefinitionRevision); err != nil {
 			return err
 		}
 	}
@@ -36,11 +48,13 @@ func (s *ServiceProvider) Update(req models.UpdateServiceRequest) error {
 	return nil
 }
 
-func (s *ServiceProvider) updateServiceDesiredCount(clusterName, serviceName string, desiredCount int) error {
+func (s *ServiceProvider) updateServiceTaskDefinition(clusterName, serviceName, taskDefinitionFamily, taskDefinitionRevision string) error {
 	input := &ecs.UpdateServiceInput{}
 	input.SetCluster(clusterName)
 	input.SetService(serviceName)
-	input.SetDesiredCount(int64(desiredCount))
+
+	taskDefinition := fmt.Sprintf("%s:%d", taskDefinitionFamily, taskDefinitionRevision)
+	input.SetTaskDefinition(taskDefinition)
 
 	if err := input.Validate(); err != nil {
 		return err
@@ -53,11 +67,11 @@ func (s *ServiceProvider) updateServiceDesiredCount(clusterName, serviceName str
 	return nil
 }
 
-func (s *ServiceProvider) updateServiceTaskDefinition(clusterName, serviceName, taskDefinitionID string) error {
+func (s *ServiceProvider) updateServiceDesiredCount(clusterName, serviceName string, desiredCount int) error {
 	input := &ecs.UpdateServiceInput{}
 	input.SetCluster(clusterName)
 	input.SetService(serviceName)
-	input.SetTaskDefinition(taskDefinitionID)
+	input.SetDesiredCount(int64(desiredCount))
 
 	if err := input.Validate(); err != nil {
 		return err

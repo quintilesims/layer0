@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 	"github.com/quintilesims/layer0/api/tag"
+	"github.com/quintilesims/layer0/common/errors"
 )
 
 func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (string, error) {
@@ -22,6 +23,32 @@ func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (st
 	}
 
 	return tag.Value, nil
+}
+
+func lookupTaskDefinitionFamily(store tag.Store, deployID string) (string, error) {
+	tags, err := store.SelectByTypeAndID("deploy", deployID)
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("name").First(); ok {
+		return tag.Value, nil
+	}
+
+	return "", errors.Newf(errors.DeployDoesNotExist, "Could not resolve task definition family for deploy '%s'", deployID)
+}
+
+func lookupTaskDefinitionRevision(store tag.Store, deployID string) (string, error) {
+	tags, err := store.SelectByTypeAndID("deploy", deployID)
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("version").First(); ok {
+		return tag.Value, err
+	}
+
+	return "", errors.Newf(errors.DeployDoesNotExist, "Could not resolve task definition revision for deploy '%s'", deployID)
 }
 
 func getEnvironmentSGName(environmentID string) string {
