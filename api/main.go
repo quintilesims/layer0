@@ -66,8 +66,9 @@ func main() {
 		deployProvider := aws.NewDeployProvider(client, tagStore)
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
 		loadBalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
-		serviceProvider := aws.NewServiceProvider(client, tagStore)
+		serviceProvider := aws.NewServiceProvider(client, tagStore, cfg)
 		taskProvider := aws.NewTaskProvider(client, tagStore, cfg)
+
 		environmentScaler := aws.NewEnvironmentScaler()
 		scalerDispatcher := scaler.NewDispatcher(environmentProvider, environmentScaler)
 

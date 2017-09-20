@@ -44,12 +44,15 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
 			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),
 			"Environment":               models.Environment{}.Definition(),
+			"Deployment":                models.Deployment{}.Definition(),
 			"HealthCheck":               models.HealthCheck{}.Definition(),
 			"Job":                       models.Job{}.Definition(),
 			"LoadBalancer":              models.LoadBalancer{}.Definition(),
 			"Port":                      models.Port{}.Definition(),
+			"Service":                   models.Service{}.Definition(),
 			"Task":                      models.Task{}.Definition(),
 			"UpdateLoadBalancerRequest": models.UpdateLoadBalancerRequest{}.Definition(),
+			"UpdateServiceRequest":      models.UpdateServiceRequest{}.Definition(),
 		},
 		Tags: []swagger.Tag{
 			{
@@ -223,6 +226,21 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Responses: map[string]swagger.Response{
 						"200": {
 							Description: "Success",
+						},
+					},
+				},
+			},
+			"service": {
+				"put": {
+					Summary: "Update a Service",
+					Tags:    []string{"Service"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("UpdateServiceRequest", "Service to update", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The updated Service",
+							Schema:      swagger.NewObjectSchema("Service"),
 						},
 					},
 				},

@@ -29,6 +29,7 @@ func (s *ServiceController) Routes() []*fireball.Route {
 			Handlers: fireball.Handlers{
 				"GET":  s.ListServices,
 				"POST": s.CreateService,
+				"PUT":  s.UpdateService,
 			},
 		},
 		{
@@ -77,4 +78,17 @@ func (s *ServiceController) ListServices(c *fireball.Context) (fireball.Response
 
 	return fireball.NewJSONResponse(200, summaries)
 
+}
+
+func (s *ServiceController) UpdateService(c *fireball.Context) (fireball.Response, error) {
+	var req models.UpdateServiceRequest
+	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
+
+	if err := req.Validate(); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
+
+	return createJob(s.JobStore, job.UpdateServiceJob, req)
 }
