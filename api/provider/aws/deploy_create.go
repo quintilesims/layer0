@@ -32,6 +32,7 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy,
 	}
 
 	deploy := &models.Deploy{
+		DeployName: req.DeployName,
 		DeployID:   deployID,
 		Version:    strconv.FormatInt(aws.Int64Value(taskDefinitionOutput.Revision), 10),
 		DeployFile: bytes,
@@ -98,12 +99,25 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 }
 
 func (d *DeployProvider) createTags(model *models.Deploy) error {
-	if err := d.TagStore.Insert(models.Tag{EntityID: model.DeployID, EntityType: "deploy", Key: "name", Value: model.DeployName}); err != nil {
-		return err
+	tags := []models.Tag{
+		{
+			EntityID:   model.DeployID,
+			EntityType: "deploy",
+			Key:        "name",
+			Value:      model.DeployName,
+		},
+		{
+			EntityID:   model.DeployID,
+			EntityType: "deploy",
+			Key:        "version",
+			Value:      model.Version,
+		},
 	}
 
-	if err := d.TagStore.Insert(models.Tag{EntityID: model.DeployID, EntityType: "deploy", Key: "version", Value: model.Version}); err != nil {
-		return err
+	for _, tag := range tags {
+		if err := d.TagStore.Insert(tag); err != nil {
+			return err
+		}
 	}
 
 	return nil
