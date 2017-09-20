@@ -2,6 +2,8 @@ package models
 
 import (
 	"time"
+
+	swagger "github.com/zpatrick/go-plugin-swagger"
 )
 
 type Deployment struct {
@@ -15,4 +17,22 @@ type Deployment struct {
 	Status        string    `json:"status"`
 	Updated       time.Time `json:"updated"`
 	DeploymentID  string    `json:"deployment_id"`
+}
+
+func (u Deployment) Definition() swagger.Definition {
+	return swagger.Definition{
+		Type: "object",
+		Properties: map[string]swagger.Property{
+			"created":        swagger.NewStringProperty(),
+			"deploy_id":      swagger.NewStringProperty(),
+			"deploy_name":    swagger.NewStringProperty(),
+			"deploy_version": swagger.NewIntProperty(),
+			"desired_count":  swagger.NewIntProperty(),
+			"pending_count":  swagger.NewIntProperty(),
+			"running_count":  swagger.NewIntProperty(),
+			"status":         swagger.NewStringProperty(),
+			"updated":        swagger.NewStringProperty(),
+			"deployment_id":  swagger.NewStringProperty(),
+		},
+	}
 }

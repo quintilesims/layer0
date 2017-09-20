@@ -19,7 +19,7 @@ func (s Service) Definition() swagger.Definition {
 	return swagger.Definition{
 		Type: "object",
 		Properties: map[string]swagger.Property{
-			"deployments":        swagger.NewObjectSliceProperty("deployments"),
+			"deployments":        swagger.NewObjectSliceProperty("Deployment"),
 			"desired_count":      swagger.NewIntProperty(),
 			"environment_id":     swagger.NewStringProperty(),
 			"environment_name":   swagger.NewStringProperty(),
