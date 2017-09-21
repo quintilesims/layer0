@@ -1,9 +1,146 @@
 package aws
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 func (l *LoadBalancerProvider) Update(req models.UpdateLoadBalancerRequest) error {
+	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), req.LoadBalancerID)
+	loadBalancerName := fqLoadBalancerID
+
+	if req.HealthCheck != nil {
+		healthCheck := &elb.HealthCheck{
+			Target:             aws.String(req.HealthCheck.Target),
+			Interval:           aws.Int64(int64(req.HealthCheck.Interval)),
+			Timeout:            aws.Int64(int64(req.HealthCheck.Timeout)),
+			HealthyThreshold:   aws.Int64(int64(req.HealthCheck.HealthyThreshold)),
+			UnhealthyThreshold: aws.Int64(int64(req.HealthCheck.UnhealthyThreshold)),
+		}
+
+		if err := l.updateHealthCheck(loadBalancerName, healthCheck); err != nil {
+			return err
+		}
+	}
+
+	if req.Ports != nil {
+		listeners, err := l.portsToListeners(*req.Ports)
+		if err != nil {
+			return err
+		}
+
+		securityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
+		securityGroup, err := readSG(l.AWS.EC2, securityGroupName)
+		if err != nil {
+			return err
+		}
+
+		securityGroupID := aws.StringValue(securityGroup.GroupId)
+
+		loadBalancerDescription, err := l.describeLoadBalancer(loadBalancerName)
+		if err != nil {
+			return err
+		}
+
+		// remove all of the current listeners and security group ingress rules from the
+		// load balancer and its security group
+		portNumbers := make([]int64, len(loadBalancerDescription.ListenerDescriptions))
+		for i, listenerDescription := range loadBalancerDescription.ListenerDescriptions {
+			portNumber := aws.Int64Value(listenerDescription.Listener.LoadBalancerPort)
+			portNumbers[i] = portNumber
+
+			if err := l.revokeSGIngressFromPort(securityGroupID, portNumber); err != nil {
+				return err
+			}
+		}
+
+		if err := l.removeListeners(loadBalancerName, portNumbers); err != nil {
+			return err
+		}
+
+		// add all of the new listeners and security group ingress rules to the
+		// load balancer and its security group
+		if err := l.addListeners(loadBalancerName, listeners); err != nil {
+			return err
+		}
+
+		for _, listener := range listeners {
+			portNumber := aws.Int64Value(listener.LoadBalancerPort)
+			if err := l.authorizeSGIngressFromPort(securityGroupID, portNumber); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func (l *LoadBalancerProvider) updateHealthCheck(loadBalancerName string, healthCheck *elb.HealthCheck) error {
+	input := &elb.ConfigureHealthCheckInput{}
+	input.SetLoadBalancerName(loadBalancerName)
+	input.SetHealthCheck(healthCheck)
+
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	if _, err := l.AWS.ELB.ConfigureHealthCheck(input); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (l *LoadBalancerProvider) removeListeners(loadBalancerName string, portNumbers []int64) error {
+	input := &elb.DeleteLoadBalancerListenersInput{}
+	input.SetLoadBalancerName(loadBalancerName)
+
+	ports := make([]*int64, len(portNumbers))
+	for i, p := range portNumbers {
+		ports[i] = aws.Int64(p)
+	}
+	input.SetLoadBalancerPorts(ports)
+
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	if _, err := l.AWS.ELB.DeleteLoadBalancerListeners(input); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (l *LoadBalancerProvider) addListeners(loadBalancerName string, listeners []*elb.Listener) error {
+	input := &elb.CreateLoadBalancerListenersInput{}
+	input.SetLoadBalancerName(loadBalancerName)
+	input.SetListeners(listeners)
+
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	if _, err := l.AWS.ELB.CreateLoadBalancerListeners(input); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (l *LoadBalancerProvider) revokeSGIngressFromPort(groupID string, port int64) error {
+	input := &ec2.RevokeSecurityGroupIngressInput{}
+	input.SetGroupId(groupID)
+	input.SetCidrIp("0.0.0.0/0")
+	input.SetIpProtocol("TCP")
+	input.SetFromPort(port)
+	input.SetToPort(port)
+
+	if _, err := l.AWS.EC2.RevokeSecurityGroupIngress(input); err != nil {
+		return err
+	}
+
 	return nil
 }

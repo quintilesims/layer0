@@ -10,7 +10,51 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	"github.com/quintilesims/layer0/api/tag"
+	"github.com/quintilesims/layer0/common/errors"
 )
+
+func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (string, error) {
+	tags, err := store.SelectByTypeAndID(entityType, entityID)
+	if err != nil {
+		return "", err
+	}
+
+	if len(tags) == 0 {
+		return "", errors.NewEntityDoesNotExistError(entityType, entityID)
+	}
+
+	if tag, ok := tags.WithKey("environment_id").First(); ok {
+		return tag.Value, nil
+	}
+
+	return "", fmt.Errorf("Could not resolve environment ID for %s '%s'", entityType, entityID)
+}
+
+func lookupDeployNameAndVersion(store tag.Store, deployID string) (string, string, error) {
+	tags, err := store.SelectByTypeAndID("deploy", deployID)
+	if err != nil {
+		return "", "", err
+	}
+
+	if len(tags) == 0 {
+		return "", "", errors.Newf(errors.DeployDoesNotExist, "Deploy '%s' does not exist", deployID)
+	}
+
+	nameTag, ok := tags.WithKey("name").First()
+	if !ok {
+		return "", "", fmt.Errorf("Could not resolve name for deploy '%s'", deployID)
+	}
+
+	versionTag, ok := tags.WithKey("version").First()
+	if !ok {
+		return "", "", fmt.Errorf("Could not resolve version for deploy '%s'", deployID)
+	}
+
+	deployName := nameTag.Value
+	deployVersion := versionTag.Value
+
+	return deployName, deployVersion, nil
+}
 
 func getEnvironmentSGName(environmentID string) string {
 	return fmt.Sprintf("%s-env", environmentID)
@@ -22,6 +66,13 @@ func getLoadBalancerSGName(loadBalancerID string) string {
 
 func getLoadBalancerRoleName(loadBalancerID string) string {
 	return fmt.Sprintf("%s-lb", loadBalancerID)
+}
+
+func taskFamilyRevisionFromARN(taskARN string) (string, string) {
+	// task definition arn format: 'arn:aws:ecs:region:account:task-definition/family:version
+	familyRevision := strings.Split(taskARN, "/")[1]
+	split := strings.SplitN(familyRevision, ":", 2)
+	return split[0], split[1]
 }
 
 func createSG(ec2api ec2iface.EC2API, groupName, description, vpcID string) error {
@@ -60,7 +111,6 @@ func readSG(ec2api ec2iface.EC2API, groupName string) (*ec2.SecurityGroup, error
 		}
 	}
 
-	// todo: this should be a wrapped error: 'errors.MissingResource' or something
 	return nil, fmt.Errorf("Security group '%s' does not exist", groupName)
 }
 

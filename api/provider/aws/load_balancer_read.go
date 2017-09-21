@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
@@ -65,6 +66,10 @@ func (l *LoadBalancerProvider) describeLoadBalancer(loadBalancerName string) (*e
 
 	output, err := l.AWS.ELB.DescribeLoadBalancers(input)
 	if err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
+			return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
+		}
+
 		return nil, err
 	}
 

@@ -10,8 +10,7 @@ import (
 )
 
 func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
-	// todo: use tlake's
-	environmentID, err := t.lookupTaskEnvironmentID(taskID)
+	environmentID, err := lookupEntityEnvironmentID(t.TagStore, "task", taskID)
 	if err != nil {
 		return nil, err
 	}
@@ -23,30 +22,37 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 	}
 
 	clusterName := fqEnvironmentID
-	if _, err := t.readTask(clusterName, taskARN); err != nil {
+	task, err := t.readTask(clusterName, taskARN)
+	if err != nil {
 		return nil, err
+	}
+
+	taskFamily, _ := taskFamilyRevisionFromARN(aws.StringValue(task.TaskDefinitionArn))
+	deployID := delLayer0Prefix(t.Config.Instance(), taskFamily)
+
+	containers := make([]models.Container, len(task.Containers))
+	for i, c := range task.Containers {
+		containers[i] = models.Container{
+			ContainerName: aws.StringValue(c.Name),
+			Status:        aws.StringValue(c.LastStatus),
+			ExitCode:      int(aws.Int64Value(c.ExitCode)),
+			Meta:          aws.StringValue(c.Reason),
+		}
 	}
 
 	model := &models.Task{
 		TaskID:        taskID,
 		EnvironmentID: environmentID,
+		DeployID:      deployID,
+		Status:        aws.StringValue(task.LastStatus),
+		Containers:    containers,
+	}
+
+	if err := t.populateModelTags(taskID, environmentID, deployID, model); err != nil {
+		return nil, err
 	}
 
 	return model, nil
-}
-
-// todo remove
-func (t *TaskProvider) lookupTaskEnvironmentID(taskID string) (string, error) {
-	tags, err := t.TagStore.SelectByTypeAndID("task", taskID)
-	if err != nil {
-		return "", err
-	}
-
-	if tag, ok := tags.WithKey("environment_id").First(); ok {
-		return tag.Value, nil
-	}
-
-	return "", fmt.Errorf("Failed to find environment_id for task '%s'", taskID)
 }
 
 func (t *TaskProvider) readTask(clusterName, taskARN string) (*ecs.Task, error) {
@@ -87,4 +93,40 @@ func (t *TaskProvider) lookupTaskARN(taskID string) (string, error) {
 	}
 
 	return "", fmt.Errorf("Failed to find ARN for task '%s'", taskID)
+}
+
+// todo: we should standardize this pattern for tag lookups
+func (t *TaskProvider) populateModelTags(taskID, environmentID, deployID string, model *models.Task) error {
+	taskTags, err := t.TagStore.SelectByTypeAndID("task", taskID)
+	if err != nil {
+		return err
+	}
+
+	if tag, ok := taskTags.WithKey("name").First(); ok {
+		model.TaskName = tag.Value
+	}
+
+	environmentTags, err := t.TagStore.SelectByTypeAndID("environment", environmentID)
+	if err != nil {
+		return err
+	}
+
+	if tag, ok := environmentTags.WithKey("name").First(); ok {
+		model.EnvironmentName = tag.Value
+	}
+
+	deployTags, err := t.TagStore.SelectByTypeAndID("deploy", deployID)
+	if err != nil {
+		return err
+	}
+
+	if tag, ok := deployTags.WithKey("name").First(); ok {
+		model.DeployName = tag.Value
+	}
+
+	if tag, ok := deployTags.WithKey("version").First(); ok {
+		model.DeployVersion = tag.Value
+	}
+
+	return nil
 }
