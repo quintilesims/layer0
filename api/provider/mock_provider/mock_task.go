@@ -34,9 +34,9 @@ func (m *MockTaskProvider) EXPECT() *MockTaskProviderMockRecorder {
 }
 
 // Create mocks base method
-func (m *MockTaskProvider) Create(arg0 models.CreateTaskRequest) (*models.Task, error) {
+func (m *MockTaskProvider) Create(arg0 models.CreateTaskRequest) (string, error) {
 	ret := m.ctrl.Call(m, "Create", arg0)
-	ret0, _ := ret[0].(*models.Task)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

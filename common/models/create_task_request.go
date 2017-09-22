@@ -10,7 +10,6 @@ type CreateTaskRequest struct {
 	TaskName           string              `json:"task_name"`
 	EnvironmentID      string              `json:"environment_id"`
 	DeployID           string              `json:"deploy_id"`
-	ContainerOverrides []ContainerOverride `json:"container_overrides"`
 }
 
 func (c CreateTaskRequest) Validate() error {
@@ -26,12 +25,6 @@ func (c CreateTaskRequest) Validate() error {
 		return fmt.Errorf("DeployID is required")
 	}
 
-	for _, containerOverride := range c.ContainerOverrides {
-		if err := containerOverride.Validate(); err != nil {
-			return err
-		}
-	}
-
 	return nil
 }
 
@@ -42,7 +35,6 @@ func (c CreateTaskRequest) Definition() swagger.Definition {
 			"task_name":           swagger.NewStringProperty(),
 			"environment_id":      swagger.NewStringProperty(),
 			"deploy_id":           swagger.NewStringProperty(),
-			"container_overrides": swagger.NewObjectSliceProperty("ContainerOverride"),
 		},
 	}
 }

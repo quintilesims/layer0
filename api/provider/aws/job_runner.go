@@ -142,13 +142,13 @@ func (r *JobRunner) createTask(jobID, request string) (string, error) {
 
 	return catchAndRetry(time.Hour*24, func() (result string, err error, shouldRetry bool) {
 		log.Printf("[DEBUG] [JobRunner] Creating task %s", req.TaskName)
-		task, err := r.taskProvider.Create(req)
+		taskID, err := r.taskProvider.Create(req)
 		if err != nil {
 			log.Printf("[DEBUG] [JobRunner] Failed to create task %s: %v", req.TaskName, err)
 			return "", err, true
 		}
 
-		return task.TaskID, nil, false
+		return taskID, nil, false
 	})
 }
 

@@ -20,7 +20,7 @@ func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (st
 	}
 
 	if len(tags) == 0 {
-		return "", "", errors.NewEntityDoesNotExistError(entityType, entityID)
+		return "", errors.NewEntityDoesNotExistError(entityType, entityID)
 	}
 
 	if tag, ok := tags.WithKey("environment_id").First(); ok {
