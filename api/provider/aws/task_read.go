@@ -2,8 +2,10 @@ package aws
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
@@ -14,6 +16,7 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), environmentID)
 
 	taskARN, err := t.lookupTaskARN(taskID)
@@ -24,6 +27,10 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 	clusterName := fqEnvironmentID
 	task, err := t.readTask(clusterName, taskARN)
 	if err != nil {
+		if err, ok := err.(awserr.Error); ok && strings.Contains(err.Code(), "task was not found") {
+			return nil, errors.Newf(errors.TaskDoesNotExist, "Task %s does not exist", taskID)
+		}
+
 		return nil, err
 	}
 
@@ -64,14 +71,12 @@ func (t *TaskProvider) readTask(clusterName, taskARN string) (*ecs.Task, error) 
 		return nil, err
 	}
 
-	// todo: catch does ntoe xist error
 	output, err := t.AWS.ECS.DescribeTasks(input)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(output.Failures) > 0 {
-		// todo: catch does not exist eror rhere?
 		return nil, fmt.Errorf("Failed to describe task: %s", aws.StringValue(output.Failures[0].Reason))
 	}
 
@@ -129,4 +134,11 @@ func (t *TaskProvider) populateModelTags(taskID, environmentID, deployID string,
 	}
 
 	return nil
+}
+
+func taskFamilyRevisionFromARN(taskARN string) (string, string) {
+	// task definition arn format: 'arn:aws:ecs:region:account:task-definition/family:version
+	familyRevision := strings.Split(taskARN, "/")[1]
+	split := strings.SplitN(familyRevision, ":", 2)
+	return split[0], split[1]
 }

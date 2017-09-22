@@ -68,13 +68,6 @@ func getLoadBalancerRoleName(loadBalancerID string) string {
 	return fmt.Sprintf("%s-lb", loadBalancerID)
 }
 
-func taskFamilyRevisionFromARN(taskARN string) (string, string) {
-	// task definition arn format: 'arn:aws:ecs:region:account:task-definition/family:version
-	familyRevision := strings.Split(taskARN, "/")[1]
-	split := strings.SplitN(familyRevision, ":", 2)
-	return split[0], split[1]
-}
-
 func createSG(ec2api ec2iface.EC2API, groupName, description, vpcID string) error {
 	input := &ec2.CreateSecurityGroupInput{}
 	input.SetGroupName(groupName)
