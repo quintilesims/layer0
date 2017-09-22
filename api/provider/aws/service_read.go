@@ -9,17 +9,23 @@ import (
 )
 
 func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
-	model := &models.Service{}
+	environmentID, err := lookupEntityEnvironmentID(s.TagStore, "service", serviceID)
+	if err != nil {
+		return nil, err
+	}
 
-	clusterName := addLayer0Prefix(s.Config.Instance(), model.EnvironmentID)
+	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), environmentID)
+	clusterName := fqEnvironmentID
 	service, err := s.readService(clusterName, serviceID)
 	if err != nil {
 		return nil, err
 	}
 
-	model.DesiredCount = aws.Int64Value(service.DesiredCount)
-	model.RunningCount = aws.Int64Value(service.RunningCount)
-	model.PendingCount = aws.Int64Value(service.PendingCount)
+	model := &models.Service{
+		DesiredCount: aws.Int64Value(service.DesiredCount),
+		RunningCount: aws.Int64Value(service.RunningCount),
+		PendingCount: aws.Int64Value(service.PendingCount),
+	}
 
 	for _, deploy := range service.Deployments {
 		deployID := aws.StringValue(deploy.TaskDefinition)
@@ -58,9 +64,9 @@ func (s *ServiceProvider) readService(clusterName, serviceID string) (*ecs.Servi
 		return nil, err
 	}
 
-	for _, service := range output.Services {
-		return service, nil
+	if len(output.Services) == 0 {
+		return nil, fmt.Errorf("ECS service '%s' in cluster '%s' does not exist", serviceID, clusterName)
 	}
 
-	return nil, fmt.Errorf("ecs service '%s' in cluster '%s' does not exist", serviceID, clusterName)
+	return output.Services[0], nil
 }
