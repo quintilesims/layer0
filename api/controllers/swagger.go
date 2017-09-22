@@ -284,6 +284,16 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 						},
 					},
 				},
+				"get": {
+					Summary: "List all Services",
+					Tags:    []string{"Service"},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "An array of services",
+							Schema:      swagger.NewObjectSliceSchema("Service"),
+						},
+					},
+				},
 				"put": {
 					Summary: "Update a Service",
 					Tags:    []string{"Service"},
