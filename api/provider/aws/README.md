@@ -234,6 +234,9 @@ func (e *EntityProvider) readResourceA(args) (*aws.ResourceA, error) {
 	return output.ResourceA, nil
 }
 
+// if the helper function's AWS call returns a slice of objects,
+// and we expect `len(slice) == 0` or `len(slice) == 1`, standardize
+// on a pattern like this:
 func (e *EntityProvider) readResourceB(args) (*aws.ResourceB, error) {
 	input := &aws.Input{}
 	input.FieldA(args)
@@ -242,12 +245,18 @@ func (e *EntityProvider) readResourceB(args) (*aws.ResourceB, error) {
 		return nil, err
 	}
 
+    // assuming `Describe()` returns `(ECSOutput, err)`
+    // and `ECSOutput.ResourceBs` is `[]*ResourceB`
 	output, err := e.AWS.ECS.Describe(input)
 	if err != nil {
 		return nil, err
 	}
 
-	return output.ResourceB, nil
+    if len(output.ResourceBs) == 0 {
+        return nil, fmt.Errorf("ResourceB not found")
+    }
+
+	return output.ResourceBs[0], nil
 }
 
 func (e *EntityProvider) populateModelTags(entityID string, model *models.Entity) error {
