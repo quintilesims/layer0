@@ -11,12 +11,11 @@ type Deployment struct {
 	DeployID      string    `json:"deploy_id"`
 	DeployName    string    `json:"deploy_name"`
 	DeployVersion string    `json:"deploy_version"`
-	DesiredCount  int64     `json:"desired_count"`
-	PendingCount  int64     `json:"pending_count"`
-	RunningCount  int64     `json:"running_count"`
+	DesiredCount  int       `json:"desired_count"`
+	PendingCount  int       `json:"pending_count"`
+	RunningCount  int       `json:"running_count"`
 	Status        string    `json:"status"`
 	Updated       time.Time `json:"updated"`
-	DeploymentID  string    `json:"deployment_id"`
 }
 
 func (u Deployment) Definition() swagger.Definition {
@@ -32,7 +31,6 @@ func (u Deployment) Definition() swagger.Definition {
 			"running_count":  swagger.NewIntProperty(),
 			"status":         swagger.NewStringProperty(),
 			"updated":        swagger.NewStringProperty(),
-			"deployment_id":  swagger.NewStringProperty(),
 		},
 	}
 }
