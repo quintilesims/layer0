@@ -76,16 +76,22 @@ func TestGetTask(t *testing.T) {
 	controller := NewTaskController(mockTaskProvider, mockJobStore)
 
 	taskModel := models.Task{
-		DeployID:        "deploy_id",
-		DeployName:      "deploy_name",
-		DeployVersion:   5,
-		DesiredCount:    2,
-		EnvironmentID:   "env_id",
-		EnvironmentName: "env_name",
-		PendingCount:    2,
-		RunningCount:    1,
 		TaskID:          "task_id",
 		TaskName:        "task_name",
+		EnvironmentID:   "env_id",
+		EnvironmentName: "env_name",
+		DeployID:        "deploy_id",
+		DeployName:      "deploy_name",
+		DeployVersion:   "5",
+		Status:          "RUNNING",
+		Containers: []models.Container{
+			{
+				ContainerName: "name",
+				Status:        "RUNNING",
+				ExitCode:      0,
+				Meta:          "",
+			},
+		},
 	}
 
 	mockTaskProvider.EXPECT().
