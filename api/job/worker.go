@@ -45,14 +45,27 @@ func (w *Worker) Start() func() {
 				}
 
 				log.Printf("[INFO] [JobWorker %d]: Starting job %s", w.ID, jobID)
-				if err := w.Runner.Run(*job); err != nil {
+				result, err := w.Runner.Run(*job)
+				if err != nil {
 					log.Printf("[ERROR] [JobWorker %d]: Failed to run job %s: %v", w.ID, jobID, err)
 					w.Store.SetJobError(jobID, err)
 					continue
 				}
 
+				if result != "" {
+					if err := w.Store.SetJobResult(jobID, result); err != nil {
+						log.Printf("[ERROR] [JobWorker %d]: Failed to set job result for job %s: %v", w.ID, jobID, err)
+						w.Store.SetJobError(jobID, err)
+						continue
+					}
+				}
+
+				if err := w.Store.SetJobStatus(jobID, Completed); err != nil {
+					log.Printf("[ERROR] [JobWorker %d]: Failed to set job status for job %s: %v", w.ID, jobID, err)
+					continue
+				}
+
 				log.Printf("[INFO] [JobWorker %d]: Finished job %s", w.ID, jobID)
-				w.Store.SetJobStatus(jobID, Completed)
 			case <-quit:
 				log.Printf("[DEBUG] [JobWorker %d]: Quit signalled", w.ID)
 				return

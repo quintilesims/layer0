@@ -2,12 +2,59 @@ package aws
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
+	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	"github.com/quintilesims/layer0/api/tag"
+	"github.com/quintilesims/layer0/common/errors"
 )
+
+func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (string, error) {
+	tags, err := store.SelectByTypeAndID(entityType, entityID)
+	if err != nil {
+		return "", err
+	}
+
+	if len(tags) == 0 {
+		return "", errors.NewEntityDoesNotExistError(entityType, entityID)
+	}
+
+	if tag, ok := tags.WithKey("environment_id").First(); ok {
+		return tag.Value, nil
+	}
+
+	return "", fmt.Errorf("Could not resolve environment ID for %s '%s'", entityType, entityID)
+}
+
+func lookupDeployNameAndVersion(store tag.Store, deployID string) (string, string, error) {
+	tags, err := store.SelectByTypeAndID("deploy", deployID)
+	if err != nil {
+		return "", "", err
+	}
+
+	if len(tags) == 0 {
+		return "", "", errors.NewEntityDoesNotExistError("deploy", deployID)
+	}
+
+	nameTag, ok := tags.WithKey("name").First()
+	if !ok {
+		return "", "", fmt.Errorf("Could not resolve name for deploy '%s'", deployID)
+	}
+
+	versionTag, ok := tags.WithKey("version").First()
+	if !ok {
+		return "", "", fmt.Errorf("Could not resolve version for deploy '%s'", deployID)
+	}
+
+	deployName := nameTag.Value
+	deployVersion := versionTag.Value
+
+	return deployName, deployVersion, nil
+}
 
 func getEnvironmentSGName(environmentID string) string {
 	return fmt.Sprintf("%s-env", environmentID)
@@ -85,4 +132,26 @@ func deleteEntityTags(tagStore tag.Store, entityType, entityID string) error {
 	}
 
 	return nil
+}
+
+func listClusterNames(ecsapi ecsiface.ECSAPI, instance string) ([]string, error) {
+	clusterNames := []string{}
+	fn := func(output *ecs.ListClustersOutput, lastPage bool) bool {
+		for _, arn := range output.ClusterArns {
+			// cluster arn format: arn:aws:ecs:region:012345678910:cluster/name
+			clusterName := strings.Split(aws.StringValue(arn), "/")[1]
+
+			if hasLayer0Prefix(instance, clusterName) {
+				clusterNames = append(clusterNames, clusterName)
+			}
+		}
+
+		return !lastPage
+	}
+
+	if err := ecsapi.ListClustersPages(&ecs.ListClustersInput{}, fn); err != nil {
+		return nil, err
+	}
+
+	return clusterNames, nil
 }

@@ -6,6 +6,8 @@ import (
 )
 
 const (
+	// dynamodb allows a burst-read/write every 5 minutes
+	// matching that value here to try and avoid hitting that limit
 	DISPATCHER_PERIOD = time.Minute * 5
 )
 

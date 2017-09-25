@@ -66,7 +66,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 	}
 
 	groupID := aws.StringValue(securityGroup.GroupId)
-	if err := e.authorizeSGIngress(groupID); err != nil {
+	if err := e.authorizeSGSelfIngress(groupID); err != nil {
 		return nil, err
 	}
 
@@ -102,7 +102,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 	return e.Read(environmentID)
 }
 
-func (e *EnvironmentProvider) authorizeSGIngress(groupID string) error {
+func (e *EnvironmentProvider) authorizeSGSelfIngress(groupID string) error {
 	groupPair := &ec2.UserIdGroupPair{}
 	groupPair.SetGroupId(groupID)
 

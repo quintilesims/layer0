@@ -89,6 +89,18 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 		return nil, err
 	}
 
+	healthCheck := &elb.HealthCheck{
+		Target:             aws.String(req.HealthCheck.Target),
+		Interval:           aws.Int64(int64(req.HealthCheck.Interval)),
+		Timeout:            aws.Int64(int64(req.HealthCheck.Timeout)),
+		HealthyThreshold:   aws.Int64(int64(req.HealthCheck.HealthyThreshold)),
+		UnhealthyThreshold: aws.Int64(int64(req.HealthCheck.UnhealthyThreshold)),
+	}
+
+	if err := l.updateHealthCheck(fqLoadBalancerID, healthCheck); err != nil {
+		return nil, err
+	}
+
 	if err := l.createTags(loadBalancerID, req.LoadBalancerName, req.EnvironmentID); err != nil {
 		return nil, err
 	}

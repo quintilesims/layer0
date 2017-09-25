@@ -20,11 +20,9 @@ func TestCreateTask(t *testing.T) {
 	controller := NewTaskController(mockTaskProvider, mockJobStore)
 
 	req := models.CreateTaskRequest{
-		ContainerOverrides: []models.ContainerOverride{},
-		Copies:             1,
-		DeployID:           "deploy_id",
-		EnvironmentID:      "env_id",
-		TaskName:           "task_name",
+		DeployID:      "deploy_id",
+		EnvironmentID: "env_id",
+		TaskName:      "task_name",
 	}
 
 	mockJobStore.EXPECT().
@@ -78,10 +76,9 @@ func TestGetTask(t *testing.T) {
 	controller := NewTaskController(mockTaskProvider, mockJobStore)
 
 	taskModel := models.Task{
-		Copies:          []models.TaskCopy{},
 		DeployID:        "deploy_id",
 		DeployName:      "deploy_name",
-		DeployVersion:   "deploy_version",
+		DeployVersion:   5,
 		DesiredCount:    2,
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",

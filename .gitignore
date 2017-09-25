@@ -7,6 +7,7 @@ api/l0-api
 runner/runner
 runner/l0-runner
 *.swp
+*.swo
 l0
 l0.json
 *.test

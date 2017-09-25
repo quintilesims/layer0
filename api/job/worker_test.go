@@ -9,9 +9,9 @@ import (
 
 func TestWorkerRunsJob(t *testing.T) {
 	var called bool
-	runner := RunnerFunc(func(j models.Job) error {
+	runner := RunnerFunc(func(j models.Job) (string, error) {
 		called = true
-		return nil
+		return "", nil
 	})
 
 	store := NewMemoryStore()
