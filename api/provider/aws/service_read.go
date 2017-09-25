@@ -2,6 +2,7 @@ package aws
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
@@ -21,24 +22,26 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 	}
 
 	var deployments []models.Deployment
-	for _, deploy := range ecsService.Deployments {
-		deployID := aws.StringValue(deploy.TaskDefinition)
+	for _, d := range ecsService.Deployments {
+		taskDefinitionARN := aws.StringValue(d.TaskDefinition)
+		deployID, err := s.lookupDeployIDFromTaskDefinitionARN(taskDefinitionARN)
+		if err != nil {
+			return nil, err
+		}
 
-		//todo: convert deployid to layer0 deploy id
-
-		d := models.Deployment{
-			Created:       aws.TimeValue(deploy.CreatedAt),
+		deployment := models.Deployment{
+			Created:       aws.TimeValue(d.CreatedAt),
 			DeployID:      deployID,
 			DeployName:    "", // tag
 			DeployVersion: "", // tag
-			DesiredCount:  int(aws.Int64Value(deploy.DesiredCount)),
-			PendingCount:  int(aws.Int64Value(deploy.PendingCount)),
-			RunningCount:  int(aws.Int64Value(deploy.RunningCount)),
-			Status:        aws.StringValue(deploy.Status),
-			Updated:       aws.TimeValue(deploy.UpdatedAt),
+			DesiredCount:  int(aws.Int64Value(d.DesiredCount)),
+			PendingCount:  int(aws.Int64Value(d.PendingCount)),
+			RunningCount:  int(aws.Int64Value(d.RunningCount)),
+			Status:        aws.StringValue(d.Status),
+			Updated:       aws.TimeValue(d.UpdatedAt),
 		}
 
-		deployments = append(deployments, d)
+		deployments = append(deployments, deployment)
 	}
 
 	var loadBalancerID string
@@ -77,11 +80,36 @@ func (s *ServiceProvider) readService(clusterName, serviceID string) (*ecs.Servi
 	})
 
 	output, err := s.AWS.ECS.DescribeServices(input)
-	if err != nil || len(output.Services) == 0 {
-		return nil, errors.Newf(errors.ServiceDoesNotExist, "Service '%s' does not exist")
+	if err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "ServiceNotFoundException" {
+			return nil, errors.Newf(errors.ServiceDoesNotExist, "Service '%s' does not exist", serviceID)
+		}
+
+		return nil, err
+	}
+
+	if len(output.Services) == 0 {
+		return nil, errors.Newf(errors.ServiceDoesNotExist, "Service '%s' does not exist", serviceID)
 	}
 
 	return output.Services[0], nil
+}
+
+func (s *ServiceProvider) lookupDeployIDFromTaskDefinitionARN(taskDefinitionARN string) (string, error) {
+	tags, err := s.TagStore.SelectByType("deploy")
+	if err != nil {
+		return "", err
+	}
+
+	if len(tags) == 0 {
+		return "", errors.Newf(errors.DeployDoesNotExist, "No deploys exist")
+	}
+
+	if tag, ok := tags.WithValue(taskDefinitionARN).First(); ok {
+		return tag.EntityID, nil
+	}
+
+	return "", errors.Newf(errors.DeployDoesNotExist, "Failed to find deploy with ARN '%s'", taskDefinitionARN)
 }
 
 func (s *ServiceProvider) populateModelTags(serviceID string, model *models.Service) error {
@@ -124,25 +152,20 @@ func (s *ServiceProvider) populateModelTags(serviceID string, model *models.Serv
 		}
 	}
 
-	deployments := []models.Deployment{}
-	for _, deploy := range model.Deployments {
-		tags, err := s.TagStore.SelectByTypeAndID("deploy", deploy.DeployID)
+	for _, d := range model.Deployments {
+		tags, err := s.TagStore.SelectByTypeAndID("deploy", d.DeployID)
 		if err != nil {
 			return err
 		}
 
-		if tag, ok := tags.WithKey("name").First(); ok {
-			deploy.DeployName = tag.Value
+		if tag, ok := tags.WithKey("deploy_name").First(); ok {
+			d.DeployName = tag.Value
 		}
 
 		if tag, ok := tags.WithKey("version").First(); ok {
-			deploy.DeployVersion = tag.Value
+			d.DeployVersion = tag.Value
 		}
-
-		deployments = append(deployments, deploy)
 	}
-
-	model.Deployments = deployments
 
 	return nil
 }
