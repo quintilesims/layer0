@@ -14,6 +14,7 @@ import (
 func TestDeploy_createTags(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	deploy := NewDeployProvider(nil, tagStore, nil)
+	arn := "deploy_arn"
 
 	model := &models.Deploy{
 		DeployID:   "deploy_id",
@@ -21,7 +22,7 @@ func TestDeploy_createTags(t *testing.T) {
 		DeployName: "deploy_name",
 	}
 
-	if err := deploy.createTags(model); err != nil {
+	if err := deploy.createTags(model, arn); err != nil {
 		t.Fatal(err)
 	}
 
@@ -37,6 +38,12 @@ func TestDeploy_createTags(t *testing.T) {
 			EntityType: "deploy",
 			Key:        "version",
 			Value:      "deploy_version",
+		},
+		{
+			EntityID:   "deploy_id",
+			EntityType: "deploy",
+			Key:        "arn",
+			Value:      "deploy_arn",
 		},
 	}
 
