@@ -41,12 +41,17 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 		Definitions: map[string]swagger.Definition{
 			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
+			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),
 			"Environment":               models.Environment{}.Definition(),
+			"Deployment":                models.Deployment{}.Definition(),
 			"HealthCheck":               models.HealthCheck{}.Definition(),
 			"Job":                       models.Job{}.Definition(),
 			"LoadBalancer":              models.LoadBalancer{}.Definition(),
 			"Port":                      models.Port{}.Definition(),
+			"Service":                   models.Service{}.Definition(),
+			"Task":                      models.Task{}.Definition(),
 			"UpdateLoadBalancerRequest": models.UpdateLoadBalancerRequest{}.Definition(),
+			"UpdateServiceRequest":      models.UpdateServiceRequest{}.Definition(),
 		},
 		Tags: []swagger.Tag{
 			{
@@ -60,6 +65,10 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			{
 				Name:        "LoadBalancer",
 				Description: "Methods related to load balancers",
+			},
+			{
+				Name:        "Task",
+				Description: "Methods related to tasks",
 			},
 		},
 		Paths: map[string]swagger.Path{
@@ -174,7 +183,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Responses: map[string]swagger.Response{
 						"200": {
 							Description: "The added load balancer",
-							Schema:      swagger.NewObjectSchema("LoadBalancer"),
+							// todo: this actually returns a CreateJobResponse
+							Schema: swagger.NewObjectSchema("LoadBalancer"),
 						},
 					},
 				},
@@ -211,6 +221,73 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Tags:    []string{"LoadBalancer"},
 					Parameters: []swagger.Parameter{
 						swagger.NewStringPathParam("id", "ID of the load balancer to delete", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "Success",
+						},
+					},
+				},
+			},
+			"service": {
+				"put": {
+					Summary: "Update a Service",
+					Tags:    []string{"Service"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("UpdateServiceRequest", "Service to update", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The updated Service",
+							Schema:      swagger.NewObjectSchema("Service"),
+						},
+					},
+				},
+			},
+			"/task": map[string]swagger.Method{
+				"get": {
+					Summary: "List all Tasks",
+					Tags:    []string{"Task"},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "An array of tasks",
+							Schema:      swagger.NewObjectSliceSchema("Task"),
+						},
+					},
+				},
+				"post": {
+					Summary: "Add a Task",
+					Tags:    []string{"Task"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("CreateTaskRequest", "Task to add", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The added task",
+							Schema:      swagger.NewObjectSchema("Task"),
+						},
+					},
+				},
+			},
+			"/task/{id}": map[string]swagger.Method{
+				"get": {
+					Summary: "Describe a Task",
+					Tags:    []string{"Task"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the task to describe", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The desired task",
+							Schema:      swagger.NewObjectSchema("Task"),
+						},
+					},
+				},
+				"delete": {
+					Summary: "Delete a Task",
+					Tags:    []string{"Task"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the task to delete", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {

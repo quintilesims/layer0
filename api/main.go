@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/defaults"
@@ -12,6 +13,7 @@ import (
 	"github.com/quintilesims/layer0/api/controllers"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider/aws"
+	"github.com/quintilesims/layer0/api/scaler"
 	"github.com/quintilesims/layer0/api/tag"
 	awsclient "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
@@ -64,15 +66,19 @@ func main() {
 		deployProvider := aws.NewDeployProvider(client, tagStore, cfg)
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
 		loadBalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
-		serviceProvider := aws.NewServiceProvider(client, tagStore)
-		taskProvider := aws.NewTaskProvider(client, tagStore)
+		serviceProvider := aws.NewServiceProvider(client, tagStore, cfg)
+		taskProvider := aws.NewTaskProvider(client, tagStore, cfg)
+
+		environmentScaler := aws.NewEnvironmentScaler()
+		scalerDispatcher := scaler.NewDispatcher(environmentProvider, environmentScaler)
+
 		jobRunner := aws.NewJobRunner(
 			deployProvider,
 			environmentProvider,
 			loadBalancerProvider,
 			serviceProvider,
 			taskProvider,
-			jobStore)
+			scalerDispatcher)
 
 		routes := controllers.NewSwaggerController(Version).Routes()
 		routes = append(routes, controllers.NewDeployController(deployProvider, jobStore).Routes()...)
@@ -86,8 +92,11 @@ func main() {
 		server := fireball.NewApp(routes)
 
 		// todo: get num workers from config
-		ticker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner)
-		defer ticker.Stop()
+		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner)
+		defer jobTicker.Stop()
+
+		scalerTicker := scalerDispatcher.RunEvery(time.Minute * 5)
+		defer scalerTicker.Stop()
 
 		log.Printf("[INFO] Listening on port %d", cfg.Port())
 		http.Handle("/", server)
