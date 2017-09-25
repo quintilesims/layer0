@@ -17,20 +17,15 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 		return nil, err
 	}
 
-	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), environmentID)
-
 	taskARN, err := t.lookupTaskARN(taskID)
 	if err != nil {
 		return nil, err
 	}
 
+	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), environmentID)
 	clusterName := fqEnvironmentID
 	task, err := t.readTask(clusterName, taskARN)
 	if err != nil {
-		if err, ok := err.(awserr.Error); ok && strings.Contains(err.Code(), "task was not found") {
-			return nil, errors.Newf(errors.TaskDoesNotExist, "Task %s does not exist", taskID)
-		}
-
 		return nil, err
 	}
 
@@ -73,6 +68,10 @@ func (t *TaskProvider) readTask(clusterName, taskARN string) (*ecs.Task, error) 
 
 	output, err := t.AWS.ECS.DescribeTasks(input)
 	if err != nil {
+		if err, ok := err.(awserr.Error); ok && strings.Contains(err.Message(), "task was not found") {
+			return nil, errors.Newf(errors.TaskDoesNotExist, "The specified task does not exist")
+		}
+
 		return nil, err
 	}
 
