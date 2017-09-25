@@ -84,7 +84,7 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 
 	for _, container := range taskDefinition.ContainerDefinitions {
 		if container.LogConfiguration == nil {
-			container.LogConfiguration = &ecs.LogConfiguration{
+			logConfig := &ecs.LogConfiguration{
 				LogDriver: aws.String("awslogs"),
 				Options: map[string]*string{
 					"awslogs-group":         aws.String(fmt.Sprintf("l0-%s", d.Config.Instance())),
@@ -92,6 +92,7 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 					"awslogs-stream-prefix": aws.String("l0"),
 				},
 			}
+			container.SetLogConfiguration(logConfig)
 		}
 	}
 

@@ -45,11 +45,25 @@ func TestDeploy_createTags(t *testing.T) {
 	}
 }
 
-func TestDeploy_renderTaskDefinition_errorOnInvalidRequest(t *testing.T) {
+func TestDeploy_renderTaskDefinition_InvalidRequest(t *testing.T) {
 	deploy := NewDeployProvider(nil, nil, nil)
 	model := &ecs.TaskDefinition{
-		Family: aws.String("familyName"),
+		Family: aws.String("customName"),
 	}
+
+	bytes, err := json.Marshal(model)
+	if err != nil {
+		t.Fatal("Failed to extract deploy file")
+	}
+
+	if _, err := deploy.renderTaskDefinition(bytes, "customName"); err == nil {
+		t.Fatal("Expected error was nil")
+	}
+}
+
+func TestDeploy_renderTaskDefinition_NoContainerDefinitions(t *testing.T) {
+	deploy := NewDeployProvider(nil, nil, nil)
+	model := &ecs.TaskDefinition{}
 
 	bytes, err := json.Marshal(model)
 	if err != nil {
@@ -58,5 +72,36 @@ func TestDeploy_renderTaskDefinition_errorOnInvalidRequest(t *testing.T) {
 
 	if _, err := deploy.renderTaskDefinition(bytes, "familyName"); err == nil {
 		t.Fatal("Expected error was nil")
+	}
+}
+
+func TestDeploy_renderTaskDefinition(t *testing.T) {
+	deploy := NewDeployProvider(nil, nil, nil)
+
+	container := &ecs.ContainerDefinition{}
+	container.SetName("test_name")
+	logConfig := &ecs.LogConfiguration{
+		LogDriver: aws.String("awslogs"),
+		Options: map[string]*string{
+			"awslogs-group":         aws.String("test_group"),
+			"awslogs-region":        aws.String("test_region"),
+			"awslogs-stream-prefix": aws.String("test_prefix"),
+		},
+	}
+	container.SetLogConfiguration(logConfig)
+
+	containers := []*ecs.ContainerDefinition{}
+	containers = append(containers, container)
+
+	taskDef := &ecs.TaskDefinition{}
+	taskDef.SetContainerDefinitions(containers)
+
+	bytes, err := json.Marshal(taskDef)
+	if err != nil {
+		t.Fatal("Failed to extract deploy file")
+	}
+
+	if _, err := deploy.renderTaskDefinition(bytes, "familyName"); err != nil {
+		t.Fatal(err)
 	}
 }
