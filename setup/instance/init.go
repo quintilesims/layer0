@@ -45,6 +45,11 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 		return err
 	}
 
+	// run `terraform init` to initialize terraform
+	if err := l.Terraform.Init(l.Dir); err != nil {
+		return err
+	}
+
 	// validate the terraform configuration
 	if err := l.Terraform.Validate(l.Dir); err != nil {
 		return err
