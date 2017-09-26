@@ -101,11 +101,7 @@ func (s *ServiceProvider) lookupDeployIDFromTaskDefinitionARN(taskDefinitionARN 
 		return "", err
 	}
 
-	if len(tags) == 0 {
-		return "", errors.Newf(errors.DeployDoesNotExist, "No deploys exist")
-	}
-
-	if tag, ok := tags.WithValue(taskDefinitionARN).First(); ok {
+	if tag, ok := tags.WithKey("arn").WithValue(taskDefinitionARN).First(); ok {
 		return tag.EntityID, nil
 	}
 
@@ -118,16 +114,12 @@ func (s *ServiceProvider) populateModelTags(serviceID string, model *models.Serv
 		return err
 	}
 
-	if tag, ok := tags.WithKey("environment_id").First(); ok {
-		model.EnvironmentID = tag.Value
-	}
-
-	if tag, ok := tags.WithKey("load_balancer_id").First(); ok {
-		model.LoadBalancerID = tag.Value
-	}
-
 	if tag, ok := tags.WithKey("name").First(); ok {
 		model.ServiceName = tag.Value
+	}
+
+	if tag, ok := tags.WithKey("environment_id").First(); ok {
+		model.EnvironmentID = tag.Value
 	}
 
 	if model.EnvironmentID != "" {
@@ -139,6 +131,10 @@ func (s *ServiceProvider) populateModelTags(serviceID string, model *models.Serv
 		if tag, ok := tags.WithKey("name").First(); ok {
 			model.EnvironmentName = tag.Value
 		}
+	}
+
+	if tag, ok := tags.WithKey("load_balancer_id").First(); ok {
+		model.LoadBalancerID = tag.Value
 	}
 
 	if model.LoadBalancerID != "" {
@@ -158,7 +154,7 @@ func (s *ServiceProvider) populateModelTags(serviceID string, model *models.Serv
 			return err
 		}
 
-		if tag, ok := tags.WithKey("deploy_name").First(); ok {
+		if tag, ok := tags.WithKey("name").First(); ok {
 			d.DeployName = tag.Value
 		}
 
