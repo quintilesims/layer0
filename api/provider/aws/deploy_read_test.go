@@ -51,11 +51,12 @@ func TestDeploy_populateModelTags(t *testing.T) {
 		}
 	}
 
-	result := &models.Deploy{}
-	if err := deploy.populateModelTags("deploy_id_1", result); err != nil {
+	deployID := "deploy_id_1"
+	deployModel, err := deploy.newDeployModel(deployID)
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, "deploy_name_1", result.DeployName)
-	assert.Equal(t, "deploy_version_1", result.Version)
+	assert.Equal(t, "deploy_name_1", deployModel.DeployName)
+	assert.Equal(t, "deploy_version_1", deployModel.Version)
 }
