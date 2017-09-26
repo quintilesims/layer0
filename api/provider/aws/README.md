@@ -248,8 +248,16 @@ func (e *EntityProvider) readResourceB(args) (*aws.ResourceB, error) {
     // assuming `Describe()` returns `(ECSOutput, err)`
     // and `ECSOutput.ResourceBs` is `[]*ResourceB`
 	output, err := e.AWS.ECS.Describe(input)
-	if err != nil || len(output.ResourceBs) == 0 {
-        return nil, errors.Newf(errors.<Entity>DoesNotExist, "<Entity> '%s' does not exist")
+	if err != nil {
+        if err, ok := err.(awserr.Error); ok && err.Code() == "<Entity>NotFoundException" {
+            return nil, errors.Newf(errors.<Entity>DoesNotExist, "<Entity> '%s' does not exist", <entity>ID)
+        }
+
+        return nil, err
+    }
+
+    if len(output.ResourceBs) == 0 {
+        return nil, errors.Newf(errors.<Entity>DoesNotExist, "<Entity> '%s' does not exist", <entity>ID)
     }
 
 	return output.ResourceBs[0], nil
