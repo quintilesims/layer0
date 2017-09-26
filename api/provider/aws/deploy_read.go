@@ -5,14 +5,17 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
-	fqDeployID := addLayer0Prefix(d.Config.Instance(), deployID)
-	familyName := fqDeployID
+	taskDefinitionARN, err := d.lookupTaskDefinitionARN(deployID)
+	if err != nil {
+		return nil, err
+	}
 
-	taskDefinitionOutput, err := d.describeTaskDefinition(familyName)
+	taskDefinitionOutput, err := d.describeTaskDefinition(taskDefinitionARN)
 	if err != nil {
 		return nil, err
 	}
@@ -34,9 +37,9 @@ func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
 	return model, nil
 }
 
-func (d *DeployProvider) describeTaskDefinition(familyName string) (*ecs.TaskDefinition, error) {
+func (d *DeployProvider) describeTaskDefinition(taskDefinitionARN string) (*ecs.TaskDefinition, error) {
 	input := &ecs.DescribeTaskDefinitionInput{}
-	input.SetTaskDefinition(familyName)
+	input.SetTaskDefinition(taskDefinitionARN)
 
 	output, err := d.AWS.ECS.DescribeTaskDefinition(input)
 	if err != nil {
@@ -44,6 +47,23 @@ func (d *DeployProvider) describeTaskDefinition(familyName string) (*ecs.TaskDef
 	}
 
 	return output.TaskDefinition, nil
+}
+
+func (d *DeployProvider) lookupTaskDefinitionARN(deployID string) (string, error) {
+	tags, err := d.TagStore.SelectByTypeAndID("deploy", deployID)
+	if err != nil {
+		return "", err
+	}
+
+	if len(tags) == 0 {
+		return "", errors.Newf(errors.DeployDoesNotExist, "Deploy '%s' does not exist", deployID)
+	}
+
+	if tag, ok := tags.WithKey("arn").First(); ok {
+		return tag.Value, nil
+	}
+
+	return "", fmt.Errorf("Failed to find ARN for deploy '%s'", deployID)
 }
 
 func (d *DeployProvider) populateModelTags(deployID string, model *models.Deploy) error {
