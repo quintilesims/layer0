@@ -29,19 +29,19 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 			return nil, err
 		}
 
-		deployment := models.Deployment{
-			Created:       aws.TimeValue(d.CreatedAt),
-			DeployID:      deployID,
-			DeployName:    "", // tag
-			DeployVersion: "", // tag
-			DesiredCount:  int(aws.Int64Value(d.DesiredCount)),
-			PendingCount:  int(aws.Int64Value(d.PendingCount)),
-			RunningCount:  int(aws.Int64Value(d.RunningCount)),
-			Status:        aws.StringValue(d.Status),
-			Updated:       aws.TimeValue(d.UpdatedAt),
+		deployment, err := s.newDeploymentModel(deployID)
+		if err != nil {
+			return nil, err
 		}
 
-		deployments = append(deployments, deployment)
+		deployment.Created = aws.TimeValue(d.CreatedAt)
+		deployment.DesiredCount = int(aws.Int64Value(d.DesiredCount))
+		deployment.PendingCount = int(aws.Int64Value(d.PendingCount))
+		deployment.RunningCount = int(aws.Int64Value(d.RunningCount))
+		deployment.Status = aws.StringValue(d.Status)
+		deployment.Updated = aws.TimeValue(d.UpdatedAt)
+
+		deployments = append(deployments, *deployment)
 	}
 
 	var loadBalancerID string
@@ -52,22 +52,15 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 		loadBalancerID = delLayer0Prefix(s.Config.Instance(), fqLoadBalancerID)
 	}
 
-	model := &models.Service{
-		Deployments:      deployments,
-		DesiredCount:     int(aws.Int64Value(ecsService.DesiredCount)),
-		EnvironmentID:    environmentID,
-		EnvironmentName:  "", // tag
-		LoadBalancerID:   loadBalancerID,
-		LoadBalancerName: "", // tag
-		PendingCount:     int(aws.Int64Value(ecsService.PendingCount)),
-		RunningCount:     int(aws.Int64Value(ecsService.RunningCount)),
-		ServiceID:        serviceID,
-		ServiceName:      "", // tag
-	}
-
-	if err := s.populateModelTags(serviceID, model); err != nil {
+	model, err := s.newServiceModel(environmentID, loadBalancerID, serviceID)
+	if err != nil {
 		return nil, err
 	}
+
+	model.Deployments = deployments
+	model.DesiredCount = int(aws.Int64Value(ecsService.DesiredCount))
+	model.PendingCount = int(aws.Int64Value(ecsService.PendingCount))
+	model.RunningCount = int(aws.Int64Value(ecsService.RunningCount))
 
 	return model, nil
 }
@@ -108,24 +101,47 @@ func (s *ServiceProvider) lookupDeployIDFromTaskDefinitionARN(taskDefinitionARN 
 	return "", errors.Newf(errors.DeployDoesNotExist, "Failed to find deploy with ARN '%s'", taskDefinitionARN)
 }
 
-func (s *ServiceProvider) populateModelTags(serviceID string, model *models.Service) error {
+func (s *ServiceProvider) newDeploymentModel(deployID string) (*models.Deployment, error) {
+	model := &models.Deployment{
+		DeployID: deployID,
+	}
+
+	tags, err := s.TagStore.SelectByTypeAndID("deploy", deployID)
+	if err != nil {
+		return nil, err
+	}
+
+	if tag, ok := tags.WithKey("name").First(); ok {
+		model.DeployName = tag.Value
+	}
+
+	if tag, ok := tags.WithKey("version").First(); ok {
+		model.DeployVersion = tag.Value
+	}
+
+	return model, nil
+}
+
+func (s *ServiceProvider) newServiceModel(environmentID, loadBalancerID, serviceID string) (*models.Service, error) {
+	model := &models.Service{
+		EnvironmentID:  environmentID,
+		LoadBalancerID: loadBalancerID,
+		ServiceID:      serviceID,
+	}
+
 	tags, err := s.TagStore.SelectByTypeAndID("service", serviceID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if tag, ok := tags.WithKey("name").First(); ok {
 		model.ServiceName = tag.Value
 	}
 
-	if tag, ok := tags.WithKey("environment_id").First(); ok {
-		model.EnvironmentID = tag.Value
-	}
-
-	if model.EnvironmentID != "" {
-		tags, err := s.TagStore.SelectByTypeAndID("environment", model.EnvironmentID)
+	if environmentID != "" {
+		tags, err := s.TagStore.SelectByTypeAndID("environment", environmentID)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if tag, ok := tags.WithKey("name").First(); ok {
@@ -133,14 +149,10 @@ func (s *ServiceProvider) populateModelTags(serviceID string, model *models.Serv
 		}
 	}
 
-	if tag, ok := tags.WithKey("load_balancer_id").First(); ok {
-		model.LoadBalancerID = tag.Value
-	}
-
-	if model.LoadBalancerID != "" {
-		tags, err := s.TagStore.SelectByTypeAndID("load_balancer", model.LoadBalancerID)
+	if loadBalancerID != "" {
+		tags, err := s.TagStore.SelectByTypeAndID("load_balancer", loadBalancerID)
 		if err != nil {
-			return err
+			return nil, err
 		}
 
 		if tag, ok := tags.WithKey("name").First(); ok {
@@ -148,20 +160,5 @@ func (s *ServiceProvider) populateModelTags(serviceID string, model *models.Serv
 		}
 	}
 
-	for _, d := range model.Deployments {
-		tags, err := s.TagStore.SelectByTypeAndID("deploy", d.DeployID)
-		if err != nil {
-			return err
-		}
-
-		if tag, ok := tags.WithKey("name").First(); ok {
-			d.DeployName = tag.Value
-		}
-
-		if tag, ok := tags.WithKey("version").First(); ok {
-			d.DeployVersion = tag.Value
-		}
-	}
-
-	return nil
+	return model, nil
 }
