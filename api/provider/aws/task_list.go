@@ -61,18 +61,14 @@ func (t *TaskProvider) newSummaryModels(taskARNs []string) ([]models.TaskSummary
 		return nil, err
 	}
 
+	taskARNMatches := map[string]bool{}
+	for _, taskARN := range taskARNs {
+		taskARNMatches[taskARN] = true
+	}
+
 	taskModels := make([]models.TaskSummary, 0, len(taskARNs))
 	for _, tag := range taskTags.WithKey("arn") {
-		// todo: use a map to validate
-		var match bool
-		for _, taskARN := range taskARNs {
-			if taskARN == tag.Value {
-				match = true
-				break
-			}
-		}
-
-		if match {
+		if taskARNMatches[tag.Value] {
 			model := models.TaskSummary{
 				TaskID: tag.EntityID,
 			}
