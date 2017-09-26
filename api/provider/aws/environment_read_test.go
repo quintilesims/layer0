@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEnvironment_populateModelTags(t *testing.T) {
+func TestEnvironment_makeEnvironmentModels(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	environment := NewEnvironmentProvider(nil, tagStore, nil)
 
@@ -57,8 +57,8 @@ func TestEnvironment_populateModelTags(t *testing.T) {
 		}
 	}
 
-	result := &models.Environment{}
-	if err := environment.populateModelTags("env_id", result); err != nil {
+	result, err := environment.makeEnvironmentModel("env_id")
+	if err != nil {
 		t.Fatal(err)
 	}
 

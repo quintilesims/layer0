@@ -10,7 +10,6 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// todo: catch 'EntityDoesNotExist' errors
 func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer, error) {
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	loadBalancer, err := l.describeLoadBalancer(fqLoadBalancerID)
@@ -18,7 +17,7 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		return nil, err
 	}
 
-	model, err := l.newModel(loadBalancerID)
+	model, err := l.makeLoadBalancerModel(loadBalancerID)
 	if err != nil {
 		return nil, err
 	}
@@ -76,7 +75,7 @@ func (l *LoadBalancerProvider) describeLoadBalancer(loadBalancerName string) (*e
 	return output.LoadBalancerDescriptions[0], nil
 }
 
-func (l *LoadBalancerProvider) newModel(loadBalancerID string) (*models.LoadBalancer, error) {
+func (l *LoadBalancerProvider) makeLoadBalancerModel(loadBalancerID string) (*models.LoadBalancer, error) {
 	model := &models.LoadBalancer{
 		LoadBalancerID: loadBalancerID,
 	}

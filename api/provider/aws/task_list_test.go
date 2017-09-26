@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTask_populateSummariesFromTaskARNs(t *testing.T) {
+func TestTask_makeTaskSummaryModels(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	task := NewTaskProvider(nil, tagStore, nil)
 
@@ -70,7 +70,7 @@ func TestTask_populateSummariesFromTaskARNs(t *testing.T) {
 	}
 
 	arns := []string{"arn1", "arn2"}
-	result, err := task.populateSummariesFromTaskARNs(arns)
+	result, err := task.makeTaskSummaryModels(arns)
 	if err != nil {
 		t.Fatal(err)
 	}

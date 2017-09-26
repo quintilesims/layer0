@@ -23,7 +23,7 @@ func (t *TaskProvider) List() ([]models.TaskSummary, error) {
 		taskARNs = append(taskARNs, clusterTaskARNs...)
 	}
 
-	return t.newSummaryModels(taskARNs)
+	return t.makeTaskSummaryModels(taskARNs)
 }
 
 func (t *TaskProvider) listClusterTaskARNs(clusterName, startedBy string) ([]string, error) {
@@ -50,7 +50,7 @@ func (t *TaskProvider) listClusterTaskARNs(clusterName, startedBy string) ([]str
 	return taskARNs, nil
 }
 
-func (t *TaskProvider) newSummaryModels(taskARNs []string) ([]models.TaskSummary, error) {
+func (t *TaskProvider) makeTaskSummaryModels(taskARNs []string) ([]models.TaskSummary, error) {
 	environmentTags, err := t.TagStore.SelectByType("environment")
 	if err != nil {
 		return nil, err

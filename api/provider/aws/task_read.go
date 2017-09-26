@@ -32,7 +32,7 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 	taskFamily, _ := taskFamilyRevisionFromARN(aws.StringValue(task.TaskDefinitionArn))
 	deployID := delLayer0Prefix(t.Config.Instance(), taskFamily)
 
-	model, err := t.newModel(taskID, environmentID, deployID)
+	model, err := t.makeTaskModel(taskID, environmentID, deployID)
 	if err != nil {
 		return nil, err
 	}
@@ -98,7 +98,7 @@ func (t *TaskProvider) lookupTaskARN(taskID string) (string, error) {
 	return "", fmt.Errorf("Failed to find ARN for task '%s'", taskID)
 }
 
-func (t *TaskProvider) newModel(taskID, environmentID, deployID string) (*models.Task, error) {
+func (t *TaskProvider) makeTaskModel(taskID, environmentID, deployID string) (*models.Task, error) {
 	model := &models.Task{
 		TaskID:        taskID,
 		EnvironmentID: environmentID,

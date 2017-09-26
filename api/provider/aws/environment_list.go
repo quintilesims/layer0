@@ -16,10 +16,10 @@ func (e *EnvironmentProvider) List() ([]models.EnvironmentSummary, error) {
 		environmentIDs[i] = environmentID
 	}
 
-	return e.newSummaryModels(environmentIDs)
+	return e.makeEnvironmentSummaryModels(environmentIDs)
 }
 
-func (e *EnvironmentProvider) newSummaryModels(environmentIDs []string) ([]models.EnvironmentSummary, error) {
+func (e *EnvironmentProvider) makeEnvironmentSummaryModels(environmentIDs []string) ([]models.EnvironmentSummary, error) {
 	tags, err := e.TagStore.SelectByType("environment")
 	if err != nil {
 		return nil, err

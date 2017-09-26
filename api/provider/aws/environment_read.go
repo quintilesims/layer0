@@ -29,7 +29,7 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 		return nil, err
 	}
 
-	model, err := e.newModel(environmentID)
+	model, err := e.makeEnvironmentModel(environmentID)
 	if err != nil {
 		return nil, err
 	}
@@ -78,7 +78,7 @@ func (e *EnvironmentProvider) readASG(autoScalingGroupName string) (*autoscaling
 	return nil, fmt.Errorf("AutoScaling Group '%s' does not exist", autoScalingGroupName)
 }
 
-func (e *EnvironmentProvider) newModel(environmentID string) (*models.Environment, error) {
+func (e *EnvironmentProvider) makeEnvironmentModel(environmentID string) (*models.Environment, error) {
 	model := &models.Environment{
 		EnvironmentID: environmentID,
 	}
