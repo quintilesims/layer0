@@ -88,19 +88,6 @@ func (s *ServiceProvider) readService(clusterName, serviceID string) (*ecs.Servi
 	return output.Services[0], nil
 }
 
-func (s *ServiceProvider) lookupDeployIDFromTaskDefinitionARN(taskDefinitionARN string) (string, error) {
-	tags, err := s.TagStore.SelectByType("deploy")
-	if err != nil {
-		return "", err
-	}
-
-	if tag, ok := tags.WithKey("arn").WithValue(taskDefinitionARN).First(); ok {
-		return tag.EntityID, nil
-	}
-
-	return "", errors.Newf(errors.DeployDoesNotExist, "Failed to find deploy with ARN '%s'", taskDefinitionARN)
-}
-
 func (s *ServiceProvider) makeDeploymentModel(deployID string) (*models.Deployment, error) {
 	model := &models.Deployment{
 		DeployID: deployID,
