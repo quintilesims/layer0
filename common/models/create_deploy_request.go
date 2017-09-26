@@ -14,7 +14,7 @@ func (c CreateDeployRequest) Validate() error {
 		return fmt.Errorf("Deploy Name is required")
 	}
 
-	if c.DeployFile == nil {
+	if len(c.DeployFile) == 0 {
 		return fmt.Errorf("Deploy file is required")
 	}
 

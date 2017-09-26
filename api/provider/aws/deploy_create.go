@@ -80,7 +80,7 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 		return nil, fmt.Errorf("Deploy must have at least one container definition")
 	}
 
-	if taskDefinition.Family != nil && taskDefinition.Family != aws.String(familyName) {
+	if taskDefinition.Family != nil && aws.StringValue(taskDefinition.Family) != familyName {
 		return nil, errors.Newf(errors.InvalidRequest, "Custom family names are unsupported in Layer0")
 	}
 
