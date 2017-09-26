@@ -39,6 +39,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			Version: s.version,
 		},
 		Definitions: map[string]swagger.Definition{
+			"Container":                 models.Container{}.Definition(),
 			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
 			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),

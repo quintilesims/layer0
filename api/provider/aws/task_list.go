@@ -68,16 +68,11 @@ func (t *TaskProvider) populateSummariesFromTaskARNs(taskARNs []string) ([]model
 
 	summaries := make([]models.TaskSummary, 0, len(taskARNs))
 	for _, tag := range taskTags.WithKey("arn") {
-
 		summary := models.TaskSummary{
 			TaskID: tag.EntityID,
 		}
 
 		if tag, ok := taskTags.WithID(summary.TaskID).WithKey("name").First(); ok {
-			summary.TaskName = tag.Value
-		}
-
-		if tag, ok := taskTags.WithID(summary.TaskID).WithKey("arn").First(); ok {
 			summary.TaskName = tag.Value
 		}
 

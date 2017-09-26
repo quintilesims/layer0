@@ -37,7 +37,7 @@ func lookupDeployNameAndVersion(store tag.Store, deployID string) (string, strin
 	}
 
 	if len(tags) == 0 {
-		return "", "", errors.NewEntityDoesNotExistError("deploy", deployID)
+		return "", "", errors.Newf(errors.DeployDoesNotExist, "Deploy '%s' does not exist", deployID)
 	}
 
 	nameTag, ok := tags.WithKey("name").First()
@@ -104,7 +104,6 @@ func readSG(ec2api ec2iface.EC2API, groupName string) (*ec2.SecurityGroup, error
 		}
 	}
 
-	// todo: this should be a wrapped error: 'errors.MissingResource' or something
 	return nil, fmt.Errorf("Security group '%s' does not exist", groupName)
 }
 

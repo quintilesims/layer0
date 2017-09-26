@@ -1,7 +1,14 @@
 package aws
 
-/*
-func TestTask_populateTaskSummaries(t *testing.T) {
+import (
+	"testing"
+
+	"github.com/quintilesims/layer0/api/tag"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestTask_populateSummariesFromTaskARNs(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	task := NewTaskProvider(nil, tagStore, nil)
 
@@ -10,7 +17,13 @@ func TestTask_populateTaskSummaries(t *testing.T) {
 			EntityID:   "t1",
 			EntityType: "task",
 			Key:        "name",
-			Value:      "tsk1",
+			Value:      "tname1",
+		},
+		{
+			EntityID:   "t1",
+			EntityType: "task",
+			Key:        "arn",
+			Value:      "arn1",
 		},
 		{
 			EntityID:   "t1",
@@ -19,16 +32,16 @@ func TestTask_populateTaskSummaries(t *testing.T) {
 			Value:      "e1",
 		},
 		{
-			EntityID:   "e1",
-			EntityType: "environment",
+			EntityID:   "t2",
+			EntityType: "task",
 			Key:        "name",
-			Value:      "ename1",
+			Value:      "tname2",
 		},
 		{
 			EntityID:   "t2",
 			EntityType: "task",
-			Key:        "name",
-			Value:      "tsk2",
+			Key:        "arn",
+			Value:      "arn2",
 		},
 		{
 			EntityID:   "t2",
@@ -37,28 +50,16 @@ func TestTask_populateTaskSummaries(t *testing.T) {
 			Value:      "e2",
 		},
 		{
+			EntityID:   "e1",
+			EntityType: "environment",
+			Key:        "name",
+			Value:      "ename1",
+		},
+		{
 			EntityID:   "e2",
 			EntityType: "environment",
 			Key:        "name",
 			Value:      "ename2",
-		},
-		{
-			EntityID:   "someid",
-			EntityType: "task",
-			Key:        "name",
-			Value:      "badname",
-		},
-		{
-			EntityID:   "someid",
-			EntityType: "task",
-			Key:        "bad_env_key",
-			Value:      "env1",
-		},
-		{
-			EntityID:   "env1",
-			EntityType: "service",
-			Key:        "name",
-			Value:      "servicename",
 		},
 	}
 
@@ -68,21 +69,26 @@ func TestTask_populateTaskSummaries(t *testing.T) {
 		}
 	}
 
-	results := []models.TaskSummary{
-		{TaskID: "t1"},
-		{TaskID: "t2"},
-	}
-
-	if err := task.populateTaskSummaries(results); err != nil {
+	arns := []string{"arn1", "arn2"}
+	result, err := task.populateSummariesFromTaskARNs(arns)
+	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Len(t, results, 2)
-	assert.Equal(t, "tsk1", results[0].TaskName)
-	assert.Equal(t, "e1", results[0].EnvironmentID)
-	assert.Equal(t, "ename1", results[0].EnvironmentName)
-	assert.Equal(t, "tsk2", results[1].TaskName)
-	assert.Equal(t, "e2", results[1].EnvironmentID)
-	assert.Equal(t, "ename2", results[1].EnvironmentName)
+	expected := []models.TaskSummary{
+		{
+			TaskID:          "t1",
+			TaskName:        "tname1",
+			EnvironmentID:   "e1",
+			EnvironmentName: "ename1",
+		},
+		{
+			TaskID:          "t2",
+			TaskName:        "tname2",
+			EnvironmentID:   "e2",
+			EnvironmentName: "ename2",
+		},
+	}
+
+	assert.Equal(t, expected, result)
 }
-*/
