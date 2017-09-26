@@ -57,13 +57,13 @@ func TestDeploy_populateSummariesFromTaskDefinitionARNs(t *testing.T) {
 		},
 		{
 			EntityID:   "d3",
-			EntityType: "deploy",
+			EntityType: "environment",
 			Key:        "version",
 			Value:      "5",
 		},
 		{
 			EntityID:   "d3",
-			EntityType: "deploy",
+			EntityType: "environment",
 			Key:        "arn",
 			Value:      "arn3",
 		},
@@ -78,6 +78,7 @@ func TestDeploy_populateSummariesFromTaskDefinitionARNs(t *testing.T) {
 	taskDefinitionARNs := []string{
 		"arn1",
 		"arn2",
+		"arn3",
 	}
 
 	summaries, err := deploy.populateSummariesFromTaskDefinitionARNs(taskDefinitionARNs)
