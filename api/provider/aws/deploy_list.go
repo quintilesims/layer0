@@ -43,27 +43,30 @@ func (d *DeployProvider) populateSummariesFromTaskDefinitionARNs(taskDefinitionA
 		return nil, err
 	}
 
-	summaries := make([]models.DeploySummary, 0, len(taskDefinitionARNs))
+	taskDefinitionARNMatches := map[string]bool{}
 	for _, taskDefinitionARN := range taskDefinitionARNs {
-		for _, tag := range deployTags.WithKey("arn") {
-			// Populate only if there is a matching ARN in tags db
-			if tag.Value == taskDefinitionARN {
-				summary := models.DeploySummary{
-					DeployID: tag.EntityID,
-				}
+		taskDefinitionARNMatches[taskDefinitionARN] = true
+	}
 
-				if tag, ok := deployTags.WithID(summary.DeployID).WithKey("name").First(); ok {
-					summary.DeployName = tag.Value
-				}
-
-				if tag, ok := deployTags.WithID(summary.DeployID).WithKey("version").First(); ok {
-					summary.Version = tag.Value
-				}
-
-				summaries = append(summaries, summary)
+	deploySummaries := make([]models.DeploySummary, 0, len(taskDefinitionARNs))
+	for _, tag := range deployTags.WithKey("arn") {
+		// Populate only if there is a matching ARN in tags db
+		if taskDefinitionARNMatches[tag.Value] {
+			deploySummary := models.DeploySummary{
+				DeployID: tag.EntityID,
 			}
+
+			if tag, ok := deployTags.WithID(deploySummary.DeployID).WithKey("name").First(); ok {
+				deploySummary.DeployName = tag.Value
+			}
+
+			if tag, ok := deployTags.WithID(deploySummary.DeployID).WithKey("version").First(); ok {
+				deploySummary.Version = tag.Value
+			}
+
+			deploySummaries = append(deploySummaries, deploySummary)
 		}
 	}
 
-	return summaries, nil
+	return deploySummaries, nil
 }
