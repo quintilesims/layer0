@@ -38,9 +38,9 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy,
 		DeployFile: bytes,
 	}
 
-	arn := aws.StringValue(taskDefinitionOutput.TaskDefinitionArn)
+	taskDefinitionArn := aws.StringValue(taskDefinitionOutput.TaskDefinitionArn)
 
-	if err := d.createTags(deploy, arn); err != nil {
+	if err := d.createTags(deploy.DeployName, deploy.DeployID, deploy.Version, taskDefinitionArn); err != nil {
 		return deploy, err
 	}
 
@@ -101,25 +101,25 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 	return taskDefinition, nil
 }
 
-func (d *DeployProvider) createTags(model *models.Deploy, arn string) error {
+func (d *DeployProvider) createTags(deployName, deployID, deployVersion, taskDefinitionArn string) error {
 	tags := []models.Tag{
 		{
-			EntityID:   model.DeployID,
+			EntityID:   deployID,
 			EntityType: "deploy",
 			Key:        "name",
-			Value:      model.DeployName,
+			Value:      deployName,
 		},
 		{
-			EntityID:   model.DeployID,
+			EntityID:   deployID,
 			EntityType: "deploy",
 			Key:        "version",
-			Value:      model.Version,
+			Value:      deployVersion,
 		},
 		{
-			EntityID:   model.DeployID,
+			EntityID:   deployID,
 			EntityType: "deploy",
 			Key:        "arn",
-			Value:      arn,
+			Value:      taskDefinitionArn,
 		},
 	}
 

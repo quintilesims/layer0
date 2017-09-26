@@ -14,15 +14,13 @@ import (
 func TestDeploy_createTags(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	deploy := NewDeployProvider(nil, tagStore, nil)
+
+	name := "deploy_name"
+	id := "deploy_id"
+	version := "deploy_version"
 	arn := "deploy_arn"
 
-	model := &models.Deploy{
-		DeployID:   "deploy_id",
-		Version:    "deploy_version",
-		DeployName: "deploy_name",
-	}
-
-	if err := deploy.createTags(model, arn); err != nil {
+	if err := deploy.createTags(name, id, version, arn); err != nil {
 		t.Fatal(err)
 	}
 
@@ -49,36 +47,6 @@ func TestDeploy_createTags(t *testing.T) {
 
 	for _, tag := range expectedTags {
 		assert.Contains(t, tagStore.Tags(), tag)
-	}
-}
-
-func TestDeploy_renderTaskDefinition_InvalidRequest(t *testing.T) {
-	deploy := NewDeployProvider(nil, nil, nil)
-	model := &ecs.TaskDefinition{
-		Family: aws.String("customName"),
-	}
-
-	bytes, err := json.Marshal(model)
-	if err != nil {
-		t.Fatal("Failed to extract deploy file")
-	}
-
-	if _, err := deploy.renderTaskDefinition(bytes, "customName"); err == nil {
-		t.Fatal("Expected error was nil")
-	}
-}
-
-func TestDeploy_renderTaskDefinition_NoContainerDefinitions(t *testing.T) {
-	deploy := NewDeployProvider(nil, nil, nil)
-	model := &ecs.TaskDefinition{}
-
-	bytes, err := json.Marshal(model)
-	if err != nil {
-		t.Fatal("Failed to extract deploy file")
-	}
-
-	if _, err := deploy.renderTaskDefinition(bytes, "familyName"); err == nil {
-		t.Fatal("Expected error was nil")
 	}
 }
 
@@ -110,5 +78,28 @@ func TestDeploy_renderTaskDefinition(t *testing.T) {
 
 	if _, err := deploy.renderTaskDefinition(bytes, "familyName"); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestDeploy_renderTaskDefinition_Errors(t *testing.T) {
+	deploy := NewDeployProvider(nil, nil, nil)
+	model := &ecs.TaskDefinition{}
+
+	testCases := map[string]*ecs.TaskDefinition{
+		"Custom Family Name": &ecs.TaskDefinition{
+			Family: aws.String("customName"),
+		},
+		"No Container Definitions": &ecs.TaskDefinition{},
+	}
+
+	bytes, err := json.Marshal(model)
+	if err != nil {
+		t.Fatal("Failed to extract deploy file")
+	}
+
+	for _, test := range testCases {
+		if _, err := deploy.renderTaskDefinition(bytes, aws.StringValue(test.Family)); err == nil {
+			t.Fatal("Expected error was nil")
+		}
 	}
 }
