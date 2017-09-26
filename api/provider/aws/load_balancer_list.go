@@ -12,21 +12,13 @@ func (e *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 		return nil, err
 	}
 
-	summaries := make([]models.LoadBalancerSummary, len(loadBalancerNames))
+	loadBalancerIDs := make([]string, len(loadBalancerNames))
 	for i, loadBalancerName := range loadBalancerNames {
 		loadBalancerID := delLayer0Prefix(e.Config.Instance(), loadBalancerName)
-		summary := models.LoadBalancerSummary{
-			LoadBalancerID: loadBalancerID,
-		}
-
-		summaries[i] = summary
+		loadBalancerIDs[i] = loadBalancerID
 	}
 
-	if err := e.populateSummariesTags(summaries); err != nil {
-		return nil, err
-	}
-
-	return summaries, nil
+	return e.newSummaryModels(loadBalancerIDs)
 }
 
 func (e *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
@@ -50,30 +42,33 @@ func (e *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 	return loadBalancerNames, nil
 }
 
-func (e *LoadBalancerProvider) populateSummariesTags(summaries []models.LoadBalancerSummary) error {
+func (e *LoadBalancerProvider) newSummaryModels(loadBalancerIDs []string) ([]models.LoadBalancerSummary, error) {
 	environmentTags, err := e.TagStore.SelectByType("environment")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	loadBalancerTags, err := e.TagStore.SelectByType("load_balancer")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	for i, summary := range summaries {
-		if tag, ok := loadBalancerTags.WithID(summary.LoadBalancerID).WithKey("name").First(); ok {
-			summaries[i].LoadBalancerName = tag.Value
+	models := make([]models.LoadBalancerSummary, len(loadBalancerIDs))
+	for i, loadBalancerID := range loadBalancerIDs {
+		models[i].LoadBalancerID = loadBalancerID
+
+		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("name").First(); ok {
+			models[i].LoadBalancerName = tag.Value
 		}
 
-		if tag, ok := loadBalancerTags.WithID(summary.LoadBalancerID).WithKey("environment_id").First(); ok {
-			summaries[i].EnvironmentID = tag.Value
+		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("environment_id").First(); ok {
+			models[i].EnvironmentID = tag.Value
 
 			if t, ok := environmentTags.WithID(tag.Value).WithKey("name").First(); ok {
-				summaries[i].EnvironmentName = t.Value
+				models[i].EnvironmentName = t.Value
 			}
 		}
 	}
 
-	return nil
+	return models, nil
 }
