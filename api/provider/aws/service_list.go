@@ -39,7 +39,7 @@ func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
 			service := &models.Service{
 				ServiceID: ecsServiceID,
 			}
-			s.updateWithTagInfo(service, ecsServiceID)
+			s.populateSummariesTags(service, ecsServiceID)
 
 			summary := models.ServiceSummary{
 				ServiceID:       service.ServiceID,
@@ -99,67 +99,7 @@ func (s *ServiceProvider) listClusters() ([]*string, error) {
 	return clusterArns, nil
 }
 
-func (s *ServiceProvider) updateWithTagInfo(service *models.Service, serviceID string) error {
-	tags, err := s.TagStore.SelectByTypeAndID("service", serviceID)
-	if err != nil {
-		return err
-	}
-	service.ServiceID = serviceID
-
-	if tag, ok := tags.WithKey("environment_id").First(); ok {
-		service.EnvironmentID = tag.Value
-	}
-
-	if tag, ok := tags.WithKey("load_balancer_id").First(); ok {
-		service.LoadBalancerID = tag.Value
-	}
-
-	if tag, ok := tags.WithKey("name").First(); ok {
-		service.ServiceName = tag.Value
-	}
-
-	if service.EnvironmentID != "" {
-		tags, err := s.TagStore.SelectByTypeAndID("environment", service.EnvironmentID)
-		if err != nil {
-			return err
-		}
-
-		if tag, ok := tags.WithKey("name").First(); ok {
-			service.EnvironmentName = tag.Value
-		}
-	}
-
-	if service.LoadBalancerID != "" {
-		tags, err := s.TagStore.SelectByTypeAndID("load_balancer", service.LoadBalancerID)
-		if err != nil {
-			return err
-		}
-
-		if tag, ok := tags.WithKey("name").First(); ok {
-			service.LoadBalancerName = tag.Value
-		}
-	}
-
-	deployments := []models.Deployment{}
-	for _, deploy := range service.Deployments {
-		tags, err := s.TagStore.SelectByTypeAndID("deploy", deploy.DeployID)
-		if err != nil {
-			return err
-		}
-
-		if tag, ok := tags.WithKey("name").First(); ok {
-			deploy.DeployName = tag.Value
-		}
-
-		if tag, ok := tags.WithKey("version").First(); ok {
-			deploy.DeployVersion = tag.Value
-		}
-
-		deployments = append(deployments, deploy)
-	}
-
-	service.Deployments = deployments
-
+func (s *ServiceProvider) populateSummariesTags(service *models.Service, serviceID string) error {
 	return nil
 }
 
