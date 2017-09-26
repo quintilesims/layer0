@@ -125,15 +125,13 @@ func (s *ServiceProvider) makeServiceModel(environmentID, loadBalancerID, servic
 		model.ServiceName = tag.Value
 	}
 
-	if environmentID != "" {
-		tags, err := s.TagStore.SelectByTypeAndID("environment", environmentID)
-		if err != nil {
-			return nil, err
-		}
+	tags, err = s.TagStore.SelectByTypeAndID("environment", environmentID)
+	if err != nil {
+		return nil, err
+	}
 
-		if tag, ok := tags.WithKey("name").First(); ok {
-			model.EnvironmentName = tag.Value
-		}
+	if tag, ok := tags.WithKey("name").First(); ok {
+		model.EnvironmentName = tag.Value
 	}
 
 	if loadBalancerID != "" {
