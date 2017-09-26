@@ -8,7 +8,32 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestService_lookupDeployIDFromTaskDefinition(t *testing.T) {}
+func TestService_lookupDeployIDFromTaskDefinitionARN(t *testing.T) {
+	tagStore := tag.NewMemoryStore()
+	service := NewServiceProvider(nil, tagStore, nil)
+
+	tags := models.Tags{
+		{
+			EntityID:   "dpl_id",
+			EntityType: "deploy",
+			Key:        "arn",
+			Value:      "task_definition_arn",
+		},
+	}
+
+	for _, tag := range tags {
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	result, err := service.lookupDeployIDFromTaskDefinitionARN("task_definition_arn")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, "dpl_id", result)
+}
 
 func TestService_makeDeploymentModel(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
