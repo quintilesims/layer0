@@ -47,7 +47,7 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 		}
 	}
 
-	model.Status =   aws.StringValue(task.LastStatus)
+	model.Status = aws.StringValue(task.LastStatus)
 	return model, nil
 }
 
@@ -59,9 +59,6 @@ func (t *TaskProvider) readTask(clusterName, taskARN string) (*ecs.Task, error) 
 	if err := input.Validate(); err != nil {
 		return nil, err
 	}
-
-	print(clusterName)
-	print(taskARN)
 
 	output, err := t.AWS.ECS.DescribeTasks(input)
 	if err != nil {
@@ -101,11 +98,11 @@ func (t *TaskProvider) lookupTaskARN(taskID string) (string, error) {
 	return "", fmt.Errorf("Failed to find ARN for task '%s'", taskID)
 }
 
-func (t *TaskProvider) newModel(taskID, environmentID, deployID string)(*models.Task, error) {
+func (t *TaskProvider) newModel(taskID, environmentID, deployID string) (*models.Task, error) {
 	model := &models.Task{
-		TaskID: taskID,
+		TaskID:        taskID,
 		EnvironmentID: environmentID,
-		DeployID: deployID,
+		DeployID:      deployID,
 	}
 
 	taskTags, err := t.TagStore.SelectByTypeAndID("task", taskID)

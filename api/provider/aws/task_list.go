@@ -63,23 +63,34 @@ func (t *TaskProvider) newSummaryModels(taskARNs []string) ([]models.TaskSummary
 
 	taskModels := make([]models.TaskSummary, 0, len(taskARNs))
 	for _, tag := range taskTags.WithKey("arn") {
-		model := models.TaskSummary{
-			TaskID: tag.EntityID,
-		}
-
-		if tag, ok := taskTags.WithID(model.TaskID).WithKey("name").First(); ok {
-			model.TaskName = tag.Value
-		}
-
-		if tag, ok := taskTags.WithID(model.TaskID).WithKey("environment_id").First(); ok {
-			model.EnvironmentID = tag.Value
-
-			if t, ok := environmentTags.WithID(tag.Value).WithKey("name").First(); ok {
-				model.EnvironmentName = t.Value
+		// todo: use a map to validate
+		var match bool
+		for _, taskARN := range taskARNs {
+			if taskARN == tag.Value {
+				match = true
+				break
 			}
 		}
 
-		taskModels = append(taskModels, model)
+		if match {
+			model := models.TaskSummary{
+				TaskID: tag.EntityID,
+			}
+
+			if tag, ok := taskTags.WithID(model.TaskID).WithKey("name").First(); ok {
+				model.TaskName = tag.Value
+			}
+
+			if tag, ok := taskTags.WithID(model.TaskID).WithKey("environment_id").First(); ok {
+				model.EnvironmentID = tag.Value
+
+				if t, ok := environmentTags.WithID(tag.Value).WithKey("name").First(); ok {
+					model.EnvironmentName = t.Value
+				}
+			}
+
+			taskModels = append(taskModels, model)
+		}
 	}
 
 	return taskModels, nil
