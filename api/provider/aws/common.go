@@ -13,8 +13,8 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 )
 
-func (s *ServiceProvider) lookupDeployIDFromTaskDefinitionARN(taskDefinitionARN string) (string, error) {
-	tags, err := s.TagStore.SelectByType("deploy")
+func lookupDeployIDFromTaskDefinitionARN(store tag.Store, taskDefinitionARN string) (string, error) {
+	tags, err := store.SelectByType("deploy")
 	if err != nil {
 		return "", err
 	}

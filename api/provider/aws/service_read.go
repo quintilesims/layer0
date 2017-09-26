@@ -24,7 +24,7 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 	var deployments []models.Deployment
 	for _, d := range ecsService.Deployments {
 		taskDefinitionARN := aws.StringValue(d.TaskDefinition)
-		deployID, err := s.lookupDeployIDFromTaskDefinitionARN(taskDefinitionARN)
+		deployID, err := lookupDeployIDFromTaskDefinitionARN(s.TagStore, taskDefinitionARN)
 		if err != nil {
 			return nil, err
 		}
