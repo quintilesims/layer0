@@ -10,6 +10,11 @@ import (
 )
 
 func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
+	deployModel, err := d.newDeployModel(deployID)
+	if err != nil {
+		return nil, err
+	}
+
 	taskDefinitionARN, err := d.lookupTaskDefinitionARN(deployID)
 	if err != nil {
 		return nil, err
@@ -25,16 +30,9 @@ func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
 		return nil, fmt.Errorf("Failed to extract deploy file: %s", err.Error())
 	}
 
-	model := &models.Deploy{
-		DeployID:   deployID,
-		DeployFile: deployFile,
-	}
+	deployModel.DeployFile = deployFile
 
-	if err := d.populateModelTags(deployID, model); err != nil {
-		return nil, err
-	}
-
-	return model, nil
+	return deployModel, nil
 }
 
 func (d *DeployProvider) describeTaskDefinition(taskDefinitionARN string) (*ecs.TaskDefinition, error) {
@@ -66,10 +64,14 @@ func (d *DeployProvider) lookupTaskDefinitionARN(deployID string) (string, error
 	return "", fmt.Errorf("Failed to find ARN for deploy '%s'", deployID)
 }
 
-func (d *DeployProvider) populateModelTags(deployID string, model *models.Deploy) error {
+func (d *DeployProvider) newDeployModel(deployID string) (*models.Deploy, error) {
+	model := &models.Deploy{
+		DeployID: deployID,
+	}
+
 	tags, err := d.TagStore.SelectByTypeAndID("deploy", deployID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if tag, ok := tags.WithKey("name").First(); ok {
@@ -80,5 +82,5 @@ func (d *DeployProvider) populateModelTags(deployID string, model *models.Deploy
 		model.Version = tag.Value
 	}
 
-	return nil
+	return model, nil
 }
