@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestEnvironment_populateSummariesTags(t *testing.T) {
+func TestEnvironment_makeEnvironmentSummaryModels(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	environment := NewEnvironmentProvider(nil, tagStore, nil)
 
@@ -57,12 +57,9 @@ func TestEnvironment_populateSummariesTags(t *testing.T) {
 		}
 	}
 
-	results := []models.EnvironmentSummary{
-		{EnvironmentID: "eid1"},
-		{EnvironmentID: "eid2"},
-	}
-
-	if err := environment.populateSummariesTags(results); err != nil {
+	environmentIDs := []string{"eid1", "eid2"}
+	results, err := environment.makeEnvironmentSummaryModels(environmentIDs)
+	if err != nil {
 		t.Fatal(err)
 	}
 

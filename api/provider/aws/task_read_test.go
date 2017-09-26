@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTask_populateModelTags(t *testing.T) {
+func TestTask_makeTaskModel(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	task := NewTaskProvider(nil, tagStore, nil)
 
@@ -51,8 +51,8 @@ func TestTask_populateModelTags(t *testing.T) {
 		}
 	}
 
-	result := &models.Task{}
-	if err := task.populateModelTags("tsk_id", "env_id", "dpl_id", result); err != nil {
+	result, err := task.makeTaskModel("tsk_id", "env_id", "dpl_id")
+	if err != nil {
 		t.Fatal(err)
 	}
 

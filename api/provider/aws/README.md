@@ -202,18 +202,15 @@ func (e *EntityProvider) Read(entityID string) (*models.Entity, error) {
 		return nil, err
 	}
 
+	model, err := e.makeNewEntityModel(args...)
+	if err != nil {
+                return nil, err
+        }
+
 	// make sure to use un-qualifed entity ids in the model
 	// safely de-reference pointers using aws-sdk-go helper functions
-	model := &models.Entity{
-		EntityID:      entityID,
-		EnvironmentID: environmentID,
-		FieldA:        aws.IntValue(resourceA.Field),
-		FieldB:        aws.StringValue(resourceB.Field),
-	}
-
-	if err := e.populateModelTags(entityID, model); err != nil {
-		return nil, err
-	}
+	model.FieldA = aws.IntValue(resourceA.Field)
+	modelFieldB = aws.StringValue(resourceB.Field)
 
 	return model, nil
 }
@@ -250,17 +247,21 @@ func (e *EntityProvider) readResourceB(args) (*aws.ResourceB, error) {
 	return output.ResourceB, nil
 }
 
-func (e *EntityProvider) populateModelTags(entityID string, model *models.Entity) error {
+func (e *EntityProvider) makeEntityModel(entityID string) (*models.Entity, error) {
+	model := &models.Entity{
+		EntityID: entityID,
+	}
+
 	tags, err := e.TagStore.SelectByTypeAndID("entity_type", entityID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if tag, ok := tags.WithKey("name").First(); ok {
 		model.EntityName = tag.Value
 	}
 
-	return nil
+	return model, nil
 }
 ```
 
@@ -274,21 +275,13 @@ func (e *EntityProvider) List() ([]models.EntitySummary, error) {
 		return nil, err
 	}
 
-	summaries := make([]models.EntitySummary, len(resourceAs))
-	for i, resourceA := range resourceAs {
-		fqEntityID := resourceA.Name
-		entityID := delLayer0Prefix(e.Config.Instance(), fqEntityID)
+        entityIDs := make([]string, len(clusterNames))
+        for i, clusterName := range clusterNames {
+                entityID := delLayer0Prefix(e.Config.Instance(), clusterName)
+                entityIDs[i] = entityID
+        }
 
-		summaries[i] = models.EntitySummary{
-			EntityID: entityID,
-		}
-	}
-
-	if err := e.populateSummariesTags(summaries); err != nil {
-		return nil, err
-	}
-
-	return summaries, nil
+        return e.makeEntitySummaryModels(entityIDs)
 }
 
 func (e *EntityProvider) listResourceIDs(args) ([]string, error) {
@@ -308,19 +301,22 @@ func (e *EntityProvider) listResourceIDs(args) ([]string, error) {
 	return resourceIDs, nil
 }
 
-func (e *EntityProvider) populateSummariesTags(summaries []models.EntitySummary) error {
-	tags, err := e.TagStore.SelectByType("entity_func")
-	if err != nil {
-		return err
-	}
+func (e *EntityProvider) makeEntitySummaryModels(entityIDs []string) ([]models.EntitySummary, error) {
+        tags, err := e.TagStore.SelectByType("entity")
+        if err != nil {
+                return nil, err
+        }
 
-	for i, summary := range summaries {
-		if tag, ok := tags.WithID(summary.EntityID).WithKey("name").First(); ok {
-			summaries[i].EntityName = tag.Value
-		}
-	}
+        models := make([]models.EntitySummary, len(entityIDs))
+        for i, entityID := range entityIDs {
+                models[i].EntityID = entityID
 
-	return nil
+                if tag, ok := tags.WithID(entityID).WithKey("name").First(); ok {
+                        models[i].EntityName = tag.Value
+                }
+        }
+
+        return models, nil
 }
 ```
 

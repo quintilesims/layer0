@@ -32,9 +32,14 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 	taskFamily, _ := taskFamilyRevisionFromARN(aws.StringValue(task.TaskDefinitionArn))
 	deployID := delLayer0Prefix(t.Config.Instance(), taskFamily)
 
-	containers := make([]models.Container, len(task.Containers))
+	model, err := t.makeTaskModel(taskID, environmentID, deployID)
+	if err != nil {
+		return nil, err
+	}
+
+	model.Containers = make([]models.Container, len(task.Containers))
 	for i, c := range task.Containers {
-		containers[i] = models.Container{
+		model.Containers[i] = models.Container{
 			ContainerName: aws.StringValue(c.Name),
 			Status:        aws.StringValue(c.LastStatus),
 			ExitCode:      int(aws.Int64Value(c.ExitCode)),
@@ -42,18 +47,7 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 		}
 	}
 
-	model := &models.Task{
-		TaskID:        taskID,
-		EnvironmentID: environmentID,
-		DeployID:      deployID,
-		Status:        aws.StringValue(task.LastStatus),
-		Containers:    containers,
-	}
-
-	if err := t.populateModelTags(taskID, environmentID, deployID, model); err != nil {
-		return nil, err
-	}
-
+	model.Status = aws.StringValue(task.LastStatus)
 	return model, nil
 }
 
@@ -76,7 +70,12 @@ func (t *TaskProvider) readTask(clusterName, taskARN string) (*ecs.Task, error) 
 	}
 
 	if len(output.Failures) > 0 {
-		return nil, fmt.Errorf("Failed to describe task: %s", aws.StringValue(output.Failures[0].Reason))
+		reason := aws.StringValue(output.Failures[0].Reason)
+		if strings.Contains(reason, "MISSING") {
+			return nil, errors.Newf(errors.TaskDoesNotExist, "The specified task does not exist")
+		}
+
+		return nil, fmt.Errorf("Failed to describe task: %s", reason)
 	}
 
 	return output.Tasks[0], nil
@@ -99,11 +98,16 @@ func (t *TaskProvider) lookupTaskARN(taskID string) (string, error) {
 	return "", fmt.Errorf("Failed to find ARN for task '%s'", taskID)
 }
 
-// todo: we should standardize this pattern for tag lookups
-func (t *TaskProvider) populateModelTags(taskID, environmentID, deployID string, model *models.Task) error {
+func (t *TaskProvider) makeTaskModel(taskID, environmentID, deployID string) (*models.Task, error) {
+	model := &models.Task{
+		TaskID:        taskID,
+		EnvironmentID: environmentID,
+		DeployID:      deployID,
+	}
+
 	taskTags, err := t.TagStore.SelectByTypeAndID("task", taskID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if tag, ok := taskTags.WithKey("name").First(); ok {
@@ -112,7 +116,7 @@ func (t *TaskProvider) populateModelTags(taskID, environmentID, deployID string,
 
 	environmentTags, err := t.TagStore.SelectByTypeAndID("environment", environmentID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if tag, ok := environmentTags.WithKey("name").First(); ok {
@@ -121,7 +125,7 @@ func (t *TaskProvider) populateModelTags(taskID, environmentID, deployID string,
 
 	deployTags, err := t.TagStore.SelectByTypeAndID("deploy", deployID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if tag, ok := deployTags.WithKey("name").First(); ok {
@@ -132,7 +136,7 @@ func (t *TaskProvider) populateModelTags(taskID, environmentID, deployID string,
 		model.DeployVersion = tag.Value
 	}
 
-	return nil
+	return model, nil
 }
 
 func taskFamilyRevisionFromARN(taskARN string) (string, string) {
