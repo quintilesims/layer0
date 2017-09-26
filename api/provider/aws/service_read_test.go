@@ -10,7 +10,7 @@ import (
 
 func TestService_lookupDeployIDFromTaskDefinition(t *testing.T) {}
 
-func TestService_newDeploymentModel(t *testing.T) {
+func TestService_makeDeploymentModel(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	service := NewServiceProvider(nil, tagStore, nil)
 
@@ -35,7 +35,7 @@ func TestService_newDeploymentModel(t *testing.T) {
 		}
 	}
 
-	result, err := service.newDeploymentModel("dpl_id")
+	result, err := service.makeDeploymentModel("dpl_id")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -45,7 +45,7 @@ func TestService_newDeploymentModel(t *testing.T) {
 	assert.Equal(t, "0", result.DeployVersion)
 }
 
-func TestService_newServiceModel(t *testing.T) {
+func TestService_makeServiceModel(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	service := NewServiceProvider(nil, tagStore, nil)
 
@@ -76,7 +76,7 @@ func TestService_newServiceModel(t *testing.T) {
 		}
 	}
 
-	result, err := service.newServiceModel("env_id", "lb_id", "svc_id")
+	result, err := service.makeServiceModel("env_id", "lb_id", "svc_id")
 	if err != nil {
 		t.Fatal(err)
 	}

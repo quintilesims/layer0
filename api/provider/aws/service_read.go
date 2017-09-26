@@ -29,7 +29,7 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 			return nil, err
 		}
 
-		deployment, err := s.newDeploymentModel(deployID)
+		deployment, err := s.makeDeploymentModel(deployID)
 		if err != nil {
 			return nil, err
 		}
@@ -52,7 +52,7 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 		loadBalancerID = delLayer0Prefix(s.Config.Instance(), fqLoadBalancerID)
 	}
 
-	model, err := s.newServiceModel(environmentID, loadBalancerID, serviceID)
+	model, err := s.makeServiceModel(environmentID, loadBalancerID, serviceID)
 	if err != nil {
 		return nil, err
 	}
@@ -101,7 +101,7 @@ func (s *ServiceProvider) lookupDeployIDFromTaskDefinitionARN(taskDefinitionARN 
 	return "", errors.Newf(errors.DeployDoesNotExist, "Failed to find deploy with ARN '%s'", taskDefinitionARN)
 }
 
-func (s *ServiceProvider) newDeploymentModel(deployID string) (*models.Deployment, error) {
+func (s *ServiceProvider) makeDeploymentModel(deployID string) (*models.Deployment, error) {
 	model := &models.Deployment{
 		DeployID: deployID,
 	}
@@ -122,7 +122,7 @@ func (s *ServiceProvider) newDeploymentModel(deployID string) (*models.Deploymen
 	return model, nil
 }
 
-func (s *ServiceProvider) newServiceModel(environmentID, loadBalancerID, serviceID string) (*models.Service, error) {
+func (s *ServiceProvider) makeServiceModel(environmentID, loadBalancerID, serviceID string) (*models.Service, error) {
 	model := &models.Service{
 		EnvironmentID:  environmentID,
 		LoadBalancerID: loadBalancerID,
