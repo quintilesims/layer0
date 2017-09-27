@@ -9,8 +9,8 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Read returns a Task based on the provided Task ID. The user's active cluster (Environment) is used as a filter
-// when the Task is retrieved from ECS.
+// Read returns a models.Task based on the provided Task ID. The user's active cluster
+// (Environment) is used as a filter when the Task is retrieved from ECS.
 func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 	// todo: use tlake's
 	environmentID, err := t.lookupTaskEnvironmentID(taskID)
