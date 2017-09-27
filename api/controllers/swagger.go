@@ -33,7 +33,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 	spec := swagger.Spec{
 		SwaggerVersion: "2.0",
 		Host:           c.Request.Host,
-		Schemes:        []string{"https"},
+		Schemes:        []string{"http", "https"},
 		Info: &swagger.Info{
 			Title:   "Layer0",
 			Version: s.version,

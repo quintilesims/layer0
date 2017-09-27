@@ -7,9 +7,7 @@ import (
 )
 
 func (d *DeployProvider) Delete(deployID string) error {
-	fqDeployID := addLayer0Prefix(d.Config.Instance(), deployID)
-
-	taskArn, err := d.lookupTaskDefinitionARN(fqDeployID)
+	taskArn, err := d.lookupTaskDefinitionARN(deployID)
 	if err != nil {
 		return err
 	}
