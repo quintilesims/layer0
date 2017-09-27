@@ -76,9 +76,12 @@ func TestDeploy_renderTaskDefinition(t *testing.T) {
 		t.Fatal("Failed to extract deploy file")
 	}
 
-	if _, err := deploy.renderTaskDefinition(bytes, "familyName"); err != nil {
+	renderedTaskDef, err := deploy.renderTaskDefinition(bytes, "familyName")
+	if err != nil {
 		t.Fatal(err)
 	}
+
+	assert.Equal(t, taskDef, renderedTaskDef)
 }
 
 func TestDeploy_renderTaskDefinition_Errors(t *testing.T) {
