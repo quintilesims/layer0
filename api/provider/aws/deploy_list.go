@@ -6,6 +6,8 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// List retrieves a list of Task Definition ARNs from ECS and returns a list of Deploy summaries.
+// A Deploy summary consists of the Deploy ID, Deploy name, and Version.
 func (d *DeployProvider) List() ([]models.DeploySummary, error) {
 	taskDefinitionARNs, err := d.listTaskDefinitionARNs()
 	if err != nil {

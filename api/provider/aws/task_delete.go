@@ -7,6 +7,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
+// Delete stops a Task using the specified Task ID. The user's active cluster (Environment) is used as a filter
+// when the request to stop the Task is made.
 func (t *TaskProvider) Delete(taskID string) error {
 	environmentID, err := t.lookupTaskEnvironmentID(taskID)
 	if err != nil {

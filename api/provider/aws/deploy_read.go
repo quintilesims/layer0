@@ -9,6 +9,9 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// Read returns a Deploy based on the provided Deploy ID. The Deploy ID is used to look up
+// a Task Definition ARN and then subsequently used as a filter when the Task Definition
+// is retrieved from ECS.
 func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
 	deployModel, err := d.newDeployModel(deployID)
 	if err != nil {
