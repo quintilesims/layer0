@@ -27,8 +27,7 @@ func (c CreateDeployRequest) Definition() swagger.Definition {
 		Type: "object",
 		Properties: map[string]swagger.Property{
 			"deploy_name": swagger.NewStringProperty(),
-			// TODO: it doesn't appear that byte slices exist?
-			// "deploy_file": swagger.NewByteSliceProperty(),
+			"deploy_file": swagger.NewStringProperty(),
 		},
 	}
 }
