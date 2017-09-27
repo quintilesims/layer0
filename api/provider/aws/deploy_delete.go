@@ -9,20 +9,25 @@ import (
 func (d *DeployProvider) Delete(deployID string) error {
 	fqDeployID := addLayer0Prefix(d.Config.Instance(), deployID)
 
-	if err := d.deleteDeploy(fqDeployID); err != nil {
+	taskArn, err := d.lookupTaskDefinitionARN(fqDeployID)
+	if err != nil {
 		return err
 	}
 
-	if err := d.deleteDeployTags(fqDeployID); err != nil {
+	if err := d.deleteDeploy(taskArn); err != nil {
+		return err
+	}
+
+	if err := d.deleteDeployTags(deployID); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (d *DeployProvider) deleteDeploy(taskName string) error {
+func (d *DeployProvider) deleteDeploy(taskArn string) error {
 	input := &ecs.DeregisterTaskDefinitionInput{}
-	input.SetTaskDefinition(taskName)
+	input.SetTaskDefinition(taskArn)
 
 	if err := input.Validate(); err != nil {
 		return err

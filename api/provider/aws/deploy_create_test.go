@@ -26,22 +26,22 @@ func TestDeploy_createTags(t *testing.T) {
 
 	expectedTags := models.Tags{
 		{
-			EntityID:   "deploy_id",
+			EntityID:   id,
 			EntityType: "deploy",
 			Key:        "name",
-			Value:      "deploy_name",
+			Value:      name,
 		},
 		{
-			EntityID:   "deploy_id",
+			EntityID:   id,
 			EntityType: "deploy",
 			Key:        "version",
-			Value:      "deploy_version",
+			Value:      version,
 		},
 		{
-			EntityID:   "deploy_id",
+			EntityID:   id,
 			EntityType: "deploy",
 			Key:        "arn",
-			Value:      "deploy_arn",
+			Value:      arn,
 		},
 	}
 
@@ -85,9 +85,13 @@ func TestDeploy_renderTaskDefinition_Errors(t *testing.T) {
 	deploy := NewDeployProvider(nil, nil, nil)
 	model := &ecs.TaskDefinition{}
 
+	container := &ecs.ContainerDefinition{}
+	container.SetName("container_name")
+
 	testCases := map[string]*ecs.TaskDefinition{
 		"Custom Family Name": &ecs.TaskDefinition{
-			Family: aws.String("customName"),
+			Family:               aws.String("customName"),
+			ContainerDefinitions: []*ecs.ContainerDefinition{container},
 		},
 		"No Container Definitions": &ecs.TaskDefinition{},
 	}
