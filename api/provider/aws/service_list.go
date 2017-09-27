@@ -1,10 +1,9 @@
 package aws
 
 import (
-	"strings"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -12,102 +11,74 @@ import (
 // A Service Summary consists of the Service ID, Service name, Environment ID, and
 // Environment name.
 func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
-	clusterArns, err := s.listClusters()
+	serviceARNs, err := s.listServiceARNs()
 	if err != nil {
 		return nil, err
 	}
 
-	clusterServices := map[*string][]*string{}
-
-	for _, clusterArn := range clusterArns {
-		clusterName := strings.Split(aws.StringValue(clusterArn), ":")[5]
-		clusterName = strings.Replace(clusterName, "cluster/", "", -1)
-
-		if !strings.HasPrefix(clusterName, s.Config.Instance()) {
-			continue
-		}
-
-		serviceArns, err := s.listServices(clusterArn)
+	serviceIDs := make([]string, len(serviceARNs))
+	for i, serviceARN := range serviceARNs {
+		serviceID, err := lookupServiceIDFromServiceARN(s.TagStore, serviceARN)
 		if err != nil {
 			return nil, err
 		}
 
-		clusterServices[clusterArn] = serviceArns
+		serviceIDs[i] = serviceID
 	}
 
-	serviceSummaries := []models.ServiceSummary{}
-	for _, serviceArns := range clusterServices {
-		for _, serviceArn := range serviceArns {
-			ecsServiceID := s.serviceARNToECSServiceID(aws.StringValue(serviceArn))
-			service := &models.Service{
-				ServiceID: ecsServiceID,
-			}
-			s.populateSummariesTags(service, ecsServiceID)
-
-			summary := models.ServiceSummary{
-				ServiceID:       service.ServiceID,
-				ServiceName:     service.ServiceName,
-				EnvironmentID:   service.EnvironmentID,
-				EnvironmentName: service.EnvironmentName,
-			}
-
-			serviceSummaries = append(serviceSummaries, summary)
-		}
-	}
-
-	return serviceSummaries, nil
+	return s.makeServiceSummaryModels(serviceIDs)
 }
 
-func (s *ServiceProvider) listServices(clusterArn *string) ([]*string, error) {
-	serviceArns := []*string{}
-	input := &ecs.ListServicesInput{
-		Cluster: clusterArn,
+func (s *ServiceProvider) listServiceARNs() ([]string, error) {
+	var serviceARNs []string
+	fn := func(output *ecs.ListServicesOutput, lastPage bool) bool {
+		for _, serviceARN := range output.ServiceArns {
+			serviceARNs = append(serviceARNs, aws.StringValue(serviceARN))
+		}
+
+		return !lastPage
 	}
 
-	for {
-		output, err := s.AWS.ECS.ListServices(input)
+	if err := s.AWS.ECS.ListServicesPages(&ecs.ListServicesInput{}, fn); err != nil {
+		return nil, err
+	}
+
+	return serviceARNs, nil
+}
+
+func (s *ServiceProvider) makeServiceSummaryModels(serviceIDs []string) ([]models.ServiceSummary, error) {
+	serviceTags, err := s.TagStore.SelectByType("service")
+	if err != nil {
+		return nil, err
+	}
+
+	models := make([]models.ServiceSummary, len(serviceIDs))
+	for i, serviceID := range serviceIDs {
+		models[i].ServiceID = serviceID
+
+		if tag, ok := serviceTags.WithID(serviceID).WithKey("name").First(); ok {
+			models[i].ServiceName = tag.Value
+		}
+
+		environmentID, err := lookupEntityEnvironmentID(s.TagStore, "service", serviceID)
 		if err != nil {
 			return nil, err
 		}
 
-		serviceArns = append(serviceArns, output.ServiceArns...)
-		input.NextToken = output.NextToken
+		models[i].EnvironmentID = environmentID
 
-		if output.NextToken == nil {
-			break
-		}
-	}
-
-	return serviceArns, nil
-}
-
-func (s *ServiceProvider) listClusters() ([]*string, error) {
-	input := &ecs.ListClustersInput{}
-	clusterArns := []*string{}
-
-	for {
-		output, err := s.AWS.ECS.ListClusters(input)
+		environmentTags, err := s.TagStore.SelectByTypeAndID("environment", environmentID)
 		if err != nil {
 			return nil, err
 		}
 
-		clusterArns = append(clusterArns, output.ClusterArns...)
-		input.NextToken = output.NextToken
-
-		if output.NextToken == nil {
-			break
+		tag, ok := environmentTags.WithKey("name").First()
+		if !ok {
+			return nil, errors.Newf(errors.EnvironmentDoesNotExist, "Could not resolve name for environment with id '%s'", environmentID)
 		}
+
+		models[i].EnvironmentName = tag.Value
 	}
 
-	return clusterArns, nil
-}
-
-func (s *ServiceProvider) populateSummariesTags(service *models.Service, serviceID string) error {
-	return nil
-}
-
-func (s *ServiceProvider) serviceARNToECSServiceID(arn string) string {
-	split := strings.SplitN(arn, "/", -1)
-	serviceName := split[len(split)-1]
-	return serviceName
+	return models, nil
 }
