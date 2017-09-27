@@ -59,3 +59,29 @@ func Test_lookupTaskDefinitionARNFromDeployID(t *testing.T) {
 
 	assert.Equal(t, "task_definition_arn", result)
 }
+
+func Test_lookupServiceIDFromServiceARN(t *testing.T) {
+	tagStore := tag.NewMemoryStore()
+
+	tags := models.Tags{
+		{
+			EntityID:   "svc_id",
+			EntityType: "service",
+			Key:        "arn",
+			Value:      "service_arn",
+		},
+	}
+
+	for _, tag := range tags {
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	result, err := lookupServiceIDFromServiceARN(tagStore, "service_arn")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, "svc_id", result)
+}
