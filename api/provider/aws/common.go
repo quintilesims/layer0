@@ -122,6 +122,19 @@ func lookupDeployNameAndVersion(store tag.Store, deployID string) (string, strin
 	return deployName, deployVersion, nil
 }
 
+func lookupServiceIDFromServiceARN(store tag.Store, serviceARN string) (string, error) {
+	tags, err := store.SelectByType("service")
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("arn").WithValue(serviceARN).First(); ok {
+		return tag.EntityID, nil
+	}
+
+	return "", errors.Newf(errors.ServiceDoesNotExist, "Failed to find service with ARN '%s'", serviceARN)
+}
+
 func getEnvironmentSGName(environmentID string) string {
 	return fmt.Sprintf("%s-env", environmentID)
 }
