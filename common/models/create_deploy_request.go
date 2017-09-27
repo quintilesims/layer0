@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	swagger "github.com/zpatrick/go-plugin-swagger"
 )
 
 type CreateDeployRequest struct {
@@ -19,4 +20,15 @@ func (c CreateDeployRequest) Validate() error {
 	}
 
 	return nil
+}
+
+func (c CreateDeployRequest) Definition() swagger.Definition {
+	return swagger.Definition{
+		Type: "object",
+		Properties: map[string]swagger.Property{
+			"deploy_name": swagger.NewStringProperty(),
+			// TODO: it doesn't appear that byte slices exist?
+			// "deploy_file": swagger.NewByteSliceProperty(),
+		},
+	}
 }
