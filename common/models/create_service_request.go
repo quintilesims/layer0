@@ -1,6 +1,10 @@
 package models
 
-import "fmt"
+import (
+	"fmt"
+
+	swagger "github.com/zpatrick/go-plugin-swagger"
+)
 
 type CreateServiceRequest struct {
 	DeployID       string `json:"deploy_id"`
@@ -23,4 +27,16 @@ func (c CreateServiceRequest) Validate() error {
 	}
 
 	return nil
+}
+
+func (s CreateServiceRequest) Definition() swagger.Definition {
+	return swagger.Definition{
+		Type: "object",
+		Properties: map[string]swagger.Property{
+			"deploy_id":        swagger.NewStringProperty(),
+			"environment_id":   swagger.NewStringProperty(),
+			"load_balancer_id": swagger.NewStringProperty(),
+			"service_name":     swagger.NewStringProperty(),
+		},
+	}
 }

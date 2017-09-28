@@ -42,6 +42,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"Container":                 models.Container{}.Definition(),
 			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
+			"CreateServiceRequest":      models.CreateServiceRequest{}.Definition(),
 			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),
 			"CreateDeployRequest":       models.CreateDeployRequest{}.Definition(),
 			"Deployment":                models.Deployment{}.Definition(),
@@ -242,6 +243,19 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 				},
 			},
 			"/service": {
+				"post": {
+					Summary: "Add a Service",
+					Tags:    []string{"Service"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("CreateServiceRequest", "Service to add", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The added service",
+							Schema:      swagger.NewObjectSchema("Service"),
+						},
+					},
+				},
 				"put": {
 					Summary: "Update a Service",
 					Tags:    []string{"Service"},
