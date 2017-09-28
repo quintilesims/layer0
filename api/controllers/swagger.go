@@ -43,11 +43,12 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
 			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),
-			"Environment":               models.Environment{}.Definition(),
 			"Deployment":                models.Deployment{}.Definition(),
+			"Environment":               models.Environment{}.Definition(),
 			"HealthCheck":               models.HealthCheck{}.Definition(),
 			"Job":                       models.Job{}.Definition(),
 			"LoadBalancer":              models.LoadBalancer{}.Definition(),
+			"LogFile":                   models.LogFile{}.Definition(),
 			"Port":                      models.Port{}.Definition(),
 			"Service":                   models.Service{}.Definition(),
 			"Task":                      models.Task{}.Definition(),
@@ -312,6 +313,24 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Responses: map[string]swagger.Response{
 						"200": {
 							Description: "Success",
+						},
+					},
+				},
+			},
+			"/task/{id}/logs": map[string]swagger.Method{
+				"get": {
+					Summary: "Get task logs",
+					Tags:    []string{"Task"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the task to describe", true),
+						swagger.NewIntQueryParam("tail", "The number of lines from the end to return", false),
+						swagger.NewStringQueryParam("start", "The start of the time range to fetch logs (format YYYY-MM-DD HH:MM)", false),
+						swagger.NewStringQueryParam("end", "The end of the time range to fetch logs (format YYYY-MM-DD HH:MM)", false),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The task's logs",
+							Schema:      swagger.NewObjectSliceSchema("LogFile"),
 						},
 					},
 				},

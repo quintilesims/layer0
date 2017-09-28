@@ -1,7 +1,9 @@
 package controllers
 
 import (
+	"fmt"
 	"testing"
+	"time"
 
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job"
@@ -109,6 +111,54 @@ func TestGetTask(t *testing.T) {
 
 	assert.Equal(t, 200, recorder.Code)
 	assert.Equal(t, taskModel, response)
+}
+
+func TestGetTaskLogs(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	controller := NewTaskController(mockTaskProvider, mockJobStore)
+
+	logFiles := []models.LogFile{
+		{
+			ContainerName: "apline",
+			Lines:         []string{"hello", "world"},
+		},
+	}
+
+	tail := "100"
+	start, err := time.Parse(TIME_LAYOUT, "2001-01-02 10:00")
+	if err != nil {
+		t.Fatalf("Failed to parse start: %v", err)
+	}
+
+	end, err := time.Parse(TIME_LAYOUT, "2001-01-02 12:00")
+	if err != nil {
+		t.Fatalf("Failed to parse end: %v", err)
+	}
+
+	mockTaskProvider.EXPECT().
+		Logs("task_id", 100, gomock.Any(), gomock.Any()).
+		Return(logFiles, nil)
+
+	c := newFireballContext(t, nil, map[string]string{"id": "task_id"})
+	c.Request.URL.RawQuery = fmt.Sprintf("tail=%s&start=%s&end=%s",
+		tail,
+		start.Format(TIME_LAYOUT),
+		end.Format(TIME_LAYOUT))
+
+	resp, err := controller.GetTaskLogs(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var response []models.LogFile
+	recorder := unmarshalBody(t, resp, &response)
+
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, logFiles, response)
 }
 
 func TestListTasks(t *testing.T) {

@@ -660,6 +660,12 @@
 			"revisionTime": "2017-04-25T16:20:50Z"
 		},
 		{
+			"checksumSHA1": "6zk4CABKeEdSNUek0nWnKpS009o=",
+			"path": "github.com/aws/aws-sdk-go/service/cloudwatchlogs/cloudwatchlogsiface",
+			"revision": "2063d937ea693f6f5c8b213906785ff9e36ba0b6",
+			"revisionTime": "2017-08-16T18:14:22Z"
+		},
+		{
 			"checksumSHA1": "uTt6pA8eB+udA7tC8ElLbr2eeK4=",
 			"path": "github.com/aws/aws-sdk-go/service/codebuild",
 			"revision": "fe4c33d5e201f595b450d08d9d7e36fedb2cbcf8",
@@ -3636,10 +3642,10 @@
 			"revisionTime": "2017-02-14T18:21:26Z"
 		},
 		{
-			"checksumSHA1": "ToPsFeShbYoBMN3uHimpRb536GE=",
+			"checksumSHA1": "STPcM2QrlzawVYjcBrh+0BkoM50=",
 			"path": "github.com/zpatrick/go-plugin-swagger",
-			"revision": "ea77d1b6075b4f9538063cff63754cacf1f23c90",
-			"revisionTime": "2017-07-31T22:58:06Z"
+			"revision": "c7ab932171be90d64e8c9f4486ea0095f0ee8793",
+			"revisionTime": "2017-09-28T19:37:37Z"
 		},
 		{
 			"checksumSHA1": "lSs6q2hG5QbGMl1fAMSNHz8nRzA=",

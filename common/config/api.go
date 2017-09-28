@@ -76,6 +76,10 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_PRIVATE_SUBNETS,
 			EnvVar: ENVVAR_AWS_PRIVATE_SUBNETS,
 		},
+		cli.StringFlag{
+			Name:   FLAG_AWS_LOG_GROUP_NAME,
+			EnvVar: ENVVAR_AWS_LOG_GROUP_NAME,
+		},
 	}
 }
 
@@ -95,6 +99,7 @@ type APIConfig interface {
 	PrivateSubnets() []string
 	DynamoJobTable() string
 	DynamoTagTable() string
+	LogGroupName() string
 }
 
 type ContextAPIConfig struct {
@@ -108,35 +113,26 @@ func NewContextAPIConfig(c *cli.Context) *ContextAPIConfig {
 }
 
 func (c *ContextAPIConfig) Validate() error {
-	stringVars := map[string]error{
-		FLAG_INSTANCE:             fmt.Errorf("Layer0 Instance not set! (EnvVar: %s)", ENVVAR_INSTANCE),
-		FLAG_AWS_ACCOUNT_ID:       fmt.Errorf("AWS Account ID not set! (EnvVar: %s)", ENVVAR_AWS_ACCOUNT_ID),
-		FLAG_AWS_ACCESS_KEY:       fmt.Errorf("AWS Access Key not set! (EnvVar: %s)", ENVVAR_AWS_ACCESS_KEY),
-		FLAG_AWS_SECRET_KEY:       fmt.Errorf("AWS Secret Key not set! (EnvVar: %s)", ENVVAR_AWS_SECRET_KEY),
-		FLAG_AWS_REGION:           fmt.Errorf("AWS Region not set! (EnvVar: %s)", ENVVAR_AWS_REGION),
-		FLAG_AWS_VPC:              fmt.Errorf("AWS VPC not set! (EnvVar: %s)", ENVVAR_AWS_VPC),
-		FLAG_AWS_LINUX_AMI:        fmt.Errorf("AWS Linux AMI not set! (EnvVar: %s)", ENVVAR_AWS_LINUX_AMI),
-		FLAG_AWS_WINDOWS_AMI:      fmt.Errorf("AWS Windows AMI not set! (EnvVar: %s)", ENVVAR_AWS_WINDOWS_AMI),
-		FLAG_AWS_S3_BUCKET:        fmt.Errorf("AWS S3 Bucket not set! (EnvVar: %s)", ENVVAR_AWS_S3_BUCKET),
-		FLAG_AWS_INSTANCE_PROFILE: fmt.Errorf("AWS Instance Profile not set! (EnvVar: %s)", ENVVAR_AWS_INSTANCE_PROFILE),
-		FLAG_AWS_DYNAMO_JOB_TABLE: fmt.Errorf("AWS Dynamo Job Table not set! (EnvVar: %s)", ENVVAR_AWS_DYNAMO_JOB_TABLE),
-		FLAG_AWS_DYNAMO_TAG_TABLE: fmt.Errorf("AWS Dynamo Tag Table not set! (EnvVar: %s)", ENVVAR_AWS_DYNAMO_TAG_TABLE),
+	requiredVars := []string{
+		FLAG_INSTANCE,
+		FLAG_AWS_ACCOUNT_ID,
+		FLAG_AWS_ACCESS_KEY,
+		FLAG_AWS_SECRET_KEY,
+		FLAG_AWS_VPC,
+		FLAG_AWS_LINUX_AMI,
+		FLAG_AWS_WINDOWS_AMI,
+		FLAG_AWS_S3_BUCKET,
+		FLAG_AWS_INSTANCE_PROFILE,
+		FLAG_AWS_DYNAMO_JOB_TABLE,
+		FLAG_AWS_DYNAMO_TAG_TABLE,
+		FLAG_AWS_PUBLIC_SUBNETS,
+		FLAG_AWS_PRIVATE_SUBNETS,
+		FLAG_AWS_LOG_GROUP_NAME,
 	}
 
-	for name, err := range stringVars {
-		if c.C.String(name) == "" {
-			return err
-		}
-	}
-
-	stringSliceVars := map[string]error{
-		FLAG_AWS_PUBLIC_SUBNETS:  fmt.Errorf("AWS Public Subnets not set! (EnvVar: %s)", ENVVAR_AWS_PUBLIC_SUBNETS),
-		FLAG_AWS_PRIVATE_SUBNETS: fmt.Errorf("AWS Private Subnets not set! (EnvVar: %s)", ENVVAR_AWS_PRIVATE_SUBNETS),
-	}
-
-	for name, err := range stringSliceVars {
-		if len(c.C.StringSlice(name)) == 0 {
-			return err
+	for _, name := range requiredVars {
+		if !c.C.IsSet(name) {
+			return fmt.Errorf("Required Variable %s is not set!", name)
 		}
 	}
 
@@ -201,4 +197,8 @@ func (c *ContextAPIConfig) PublicSubnets() []string {
 
 func (c *ContextAPIConfig) PrivateSubnets() []string {
 	return c.C.StringSlice(FLAG_AWS_PRIVATE_SUBNETS)
+}
+
+func (c *ContextAPIConfig) LogGroupName() string {
+	return c.C.String(FLAG_AWS_LOG_GROUP_NAME)
 }
