@@ -70,13 +70,15 @@ func TestDeploy_renderTaskDefinition(t *testing.T) {
 
 	taskDef := &ecs.TaskDefinition{}
 	taskDef.SetContainerDefinitions(containers)
+	taskDef.SetFamily("test_family")
+	taskDef.SetNetworkMode("bridge")
 
 	bytes, err := json.Marshal(taskDef)
 	if err != nil {
 		t.Fatal("Failed to extract deploy file")
 	}
 
-	renderedTaskDef, err := deploy.renderTaskDefinition(bytes, "familyName")
+	renderedTaskDef, err := deploy.renderTaskDefinition(bytes, "test_family")
 	if err != nil {
 		t.Fatal(err)
 	}

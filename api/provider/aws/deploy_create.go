@@ -13,8 +13,7 @@ import (
 
 func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy, error) {
 	deployID := generateEntityID(req.DeployName)
-	fqDeployID := addLayer0Prefix(d.Config.Instance(), deployID)
-	familyName := fqDeployID
+	familyName := addLayer0Prefix(d.Config.Instance(), req.DeployName)
 
 	taskDefinition, err := d.renderTaskDefinition(req.DeployFile, familyName)
 	if err != nil {
@@ -76,12 +75,20 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 		return nil, fmt.Errorf("Failed to decode deploy: %s", err.Error())
 	}
 
+	taskDefinition.SetFamily(familyName)
+
 	if len(taskDefinition.ContainerDefinitions) == 0 {
 		return nil, fmt.Errorf("Deploy must have at least one container definition")
 	}
 
 	if taskDefinition.Family != nil && aws.StringValue(taskDefinition.Family) != familyName {
 		return nil, errors.Newf(errors.InvalidRequest, "Custom family names are unsupported in Layer0")
+	}
+
+	// TODO: this is a strange bit of behavior... the network mode is being dropped from Unmarshaling.
+	// Valid options are [bridge, host, none], "bridge" is most common so defaulting to that for now.
+	if taskDefinition.NetworkMode == nil {
+		taskDefinition.SetNetworkMode("bridge")
 	}
 
 	for _, container := range taskDefinition.ContainerDefinitions {
@@ -97,6 +104,7 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 			container.SetLogConfiguration(logConfig)
 		}
 	}
+	fmt.Printf("%v", taskDefinition)
 
 	return taskDefinition, nil
 }
