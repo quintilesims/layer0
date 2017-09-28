@@ -6,8 +6,8 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// List retrieves a list of Task ARNs from the user's active cluster (Environment) from ECS
-// and returns a list of Task summaries. A Task summary consists of the Task ID,
+// List retrieves a list of all Task ARNs from all of the user's clusters (Environments)
+// from ECS and returns a list of Task summaries. A Task summary consists of the Task ID,
 // Task name, Environment ID, and Environment name.
 func (t *TaskProvider) List() ([]models.TaskSummary, error) {
 	clusterNames, err := listClusterNames(t.AWS.ECS, t.Config.Instance())
