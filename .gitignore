@@ -34,3 +34,8 @@ terraform-provider-layer0
 *terraform.tfstate*
 .vscode/
 crash.log
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
