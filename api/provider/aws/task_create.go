@@ -8,9 +8,9 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Create runs a Task using the specified Create Task Request. The Create Task Request
-// contains the name of the Task, the Environment ID, and the Deploy ID. The ECS Task Definition
-// family and version are derived from the Deploy ID.
+// Create runs a Task using the specified Create Task Request. The Create Task
+// Request contains the name of the Task, the Environment ID, and the Deploy ID.
+// The ECS Task Definition family and version are looked up using the Deploy ID.
 func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskID := generateEntityID(req.TaskName)
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
