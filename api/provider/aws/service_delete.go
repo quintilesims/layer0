@@ -1,6 +1,8 @@
 package aws
 
 import (
+	"strings"
+
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
@@ -10,13 +12,26 @@ func (s *ServiceProvider) Delete(serviceID string) error {
 
 	environmentID, err := lookupEntityEnvironmentID(s.TagStore, "service", serviceID)
 	if err != nil {
+		if strings.Contains(err.Error(), "ServiceDoesNotExist") {
+			return nil
+		}
 		return err
 	}
 
 	clusterName := addLayer0Prefix(s.Config.Instance(), environmentID)
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
 
-	if err := s.stopARNTasks(clusterName, fqServiceID); err != nil {
+	service, err := s.readService(clusterName, serviceID)
+	if err != nil {
+		return err
+	}
+
+	taskARNs, err := s.getARNTasks(clusterName, serviceID, service.Deployments)
+	if err != nil {
+		return err
+	}
+
+	if err := s.stopARNTasks(clusterName, fqServiceID, taskARNs); err != nil {
 		return err
 	}
 
@@ -66,17 +81,7 @@ func (s *ServiceProvider) getARNTasks(clusterName, serviceID string,
 	return taskARNs, nil
 }
 
-func (s *ServiceProvider) stopARNTasks(clusterName, serviceID string) error {
-	service, err := s.readService(clusterName, serviceID)
-	if err != nil {
-		return err
-	}
-
-	taskARNs, err := s.getARNTasks(clusterName, serviceID, service.Deployments)
-	if err != nil {
-		return err
-	}
-
+func (s *ServiceProvider) stopARNTasks(clusterName, serviceID string, taskARNs []*string) error {
 	for i := range taskARNs {
 		taskARN := taskARNs[i]
 		inputTask := &ecs.StopTaskInput{}
