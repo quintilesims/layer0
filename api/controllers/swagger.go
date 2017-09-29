@@ -330,7 +330,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"/deploy/{id}": map[string]swagger.Method{
 				"get": {
 					Summary: "Describe a Deploy",
-					Tags:    []string{"Task"},
+					Tags:    []string{"Deploy"},
 					Parameters: []swagger.Parameter{
 						swagger.NewStringPathParam("id", "ID of the deploy to describe", true),
 					},
