@@ -317,12 +317,12 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Summary: "Add a Deploy",
 					Tags:    []string{"Deploy"},
 					Parameters: []swagger.Parameter{
-						swagger.NewBodyParam("CreateDeployRequest", "Task to add", true),
+						swagger.NewBodyParam("CreateDeployRequest", "Deploy to add (base64 encoded)", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The added task",
-							Schema:      swagger.NewObjectSchema("Task"),
+							Description: "The added Deploy",
+							Schema:      swagger.NewObjectSchema("Deploy"),
 						},
 					},
 				},
