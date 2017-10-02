@@ -6,6 +6,8 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// List retrieves a list of Task Definition ARNs from ECS and returns a list of Deploy summaries.
+// A Deploy summary consists of the Deploy ID, Deploy name, and Version.
 func (d *DeployProvider) List() ([]models.DeploySummary, error) {
 	taskDefinitionARNs, err := d.listTaskDefinitionARNs()
 	if err != nil {
@@ -21,17 +23,39 @@ func (d *DeployProvider) List() ([]models.DeploySummary, error) {
 }
 
 func (d *DeployProvider) listTaskDefinitionARNs() ([]string, error) {
+	taskDefinitionFamilies := []string{}
+	listTaskDefinitionFamiliesPagesfn := func(output *ecs.ListTaskDefinitionFamiliesOutput, lastPage bool) bool {
+		for _, taskDefinitionFamily := range output.Families {
+			taskDefinitionFamilies = append(taskDefinitionFamilies, aws.StringValue(taskDefinitionFamily))
+		}
+		return !lastPage
+	}
+
+	familyPrefix := addLayer0Prefix(d.Config.Instance(), "")
+	input := &ecs.ListTaskDefinitionFamiliesInput{}
+	input.SetFamilyPrefix(familyPrefix)
+	// TODO: Revisit how Inactive and Active Task Definitions might want to be returned to the client
+	input.SetStatus(ecs.TaskDefinitionFamilyStatusActive)
+	if err := d.AWS.ECS.ListTaskDefinitionFamiliesPages(input, listTaskDefinitionFamiliesPagesfn); err != nil {
+		return nil, err
+	}
+
 	taskDefinitionARNs := []string{}
-	fn := func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool {
+	listTaskDefinitionPagesfn := func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool {
 		for _, taskDefinitionARN := range output.TaskDefinitionArns {
 			taskDefinitionARNs = append(taskDefinitionARNs, aws.StringValue(taskDefinitionARN))
 		}
 		return !lastPage
 	}
 
-	input := &ecs.ListTaskDefinitionsInput{}
-	if err := d.AWS.ECS.ListTaskDefinitionsPages(input, fn); err != nil {
-		return nil, err
+	for _, taskDefinitionFamily := range taskDefinitionFamilies {
+		input := &ecs.ListTaskDefinitionsInput{}
+		input.SetFamilyPrefix(taskDefinitionFamily)
+		// TODO: Revisit how Inactive and Active Task Definitions might want to be returned to the client
+		input.SetStatus(ecs.TaskDefinitionFamilyStatusActive)
+		if err := d.AWS.ECS.ListTaskDefinitionsPages(input, listTaskDefinitionPagesfn); err != nil {
+			return nil, err
+		}
 	}
 
 	return taskDefinitionARNs, nil
