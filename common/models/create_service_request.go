@@ -14,16 +14,16 @@ type CreateServiceRequest struct {
 }
 
 func (c CreateServiceRequest) Validate() error {
-	if c.ServiceName == "" {
-		return fmt.Errorf("ServiceName is required")
+	if c.DeployID == "" {
+		return fmt.Errorf("DeployID is required")
 	}
 
 	if c.EnvironmentID == "" {
 		return fmt.Errorf("EnvironmmentID is required")
 	}
 
-	if c.DeployID == "" {
-		return fmt.Errorf("DeployID is required")
+	if c.ServiceName == "" {
+		return fmt.Errorf("ServiceName is required")
 	}
 
 	return nil
