@@ -642,6 +642,12 @@
 			"revisionTime": "2017-04-25T16:20:50Z"
 		},
 		{
+			"checksumSHA1": "+o2j2k9Btkh3S5lbcrWBItWVD5E=",
+			"path": "github.com/aws/aws-sdk-go/service/cloudtrail/cloudtrailiface",
+			"revision": "2063d937ea693f6f5c8b213906785ff9e36ba0b6",
+			"revisionTime": "2017-08-16T18:14:22Z"
+		},
+		{
 			"checksumSHA1": "aGx2atOHEXSowjXUQ3UoJ/t2LSI=",
 			"path": "github.com/aws/aws-sdk-go/service/cloudwatch",
 			"revision": "fe4c33d5e201f595b450d08d9d7e36fedb2cbcf8",

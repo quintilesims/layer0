@@ -7,6 +7,7 @@ import (
 
 type MockClient struct {
 	AutoScaling    *MockAutoScalingAPI
+	CloudTrail     *MockCloudTrailAPI
 	CloudWatchLogs *MockCloudWatchLogsAPI
 	EC2            *MockEC2API
 	ECS            *MockECSAPI
@@ -18,6 +19,7 @@ type MockClient struct {
 func NewMockClient(ctrl *gomock.Controller) *MockClient {
 	return &MockClient{
 		AutoScaling:    NewMockAutoScalingAPI(ctrl),
+		CloudTail:      NewMockCloudTrailAPI(ctrl),
 		CloudWatchLogs: NewMockCloudWatchLogsAPI(ctrl),
 		EC2:            NewMockEC2API(ctrl),
 		ECS:            NewMockECSAPI(ctrl),
@@ -30,6 +32,7 @@ func NewMockClient(ctrl *gomock.Controller) *MockClient {
 func (m *MockClient) Client() *aws.Client {
 	return &aws.Client{
 		AutoScaling:    m.AutoScaling,
+		CloudTrail:     m.CloudTrail,
 		CloudWatchLogs: m.CloudWatchLogs,
 		EC2:            m.EC2,
 		ECS:            m.ECS,
