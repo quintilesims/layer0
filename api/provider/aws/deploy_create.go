@@ -85,8 +85,7 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 		return nil, errors.Newf(errors.InvalidRequest, "Custom family names are unsupported in Layer0")
 	}
 
-	// TODO: this is a strange bit of behavior... the network mode is being dropped from Unmarshaling.
-	// Valid options are [bridge, host, none], "bridge" is most common so defaulting to that for now.
+	// Valid NetworkMode options are [bridge, host, none], "bridge" is most common so defaulting to that.
 	if taskDefinition.NetworkMode == nil {
 		taskDefinition.SetNetworkMode("bridge")
 	}
@@ -104,7 +103,6 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 			container.SetLogConfiguration(logConfig)
 		}
 	}
-	fmt.Printf("%v", taskDefinition)
 
 	return taskDefinition, nil
 }
