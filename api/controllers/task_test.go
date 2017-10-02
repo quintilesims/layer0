@@ -140,7 +140,7 @@ func TestGetTaskLogs(t *testing.T) {
 	}
 
 	mockTaskProvider.EXPECT().
-		Logs("task_id", 100, gomock.Any(), gomock.Any()).
+		Logs("task_id", 100, start, end).
 		Return(logFiles, nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "task_id"})
