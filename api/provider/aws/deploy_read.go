@@ -3,36 +3,31 @@ package aws
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
-	deployModel, err := d.newDeployModel(deployID)
-	if err != nil {
-		return nil, err
-	}
-
 	taskDefinitionARN, err := d.lookupTaskDefinitionARN(deployID)
 	if err != nil {
 		return nil, err
 	}
 
-	taskDefinitionOutput, err := d.describeTaskDefinition(taskDefinitionARN)
+	taskDefinition, err := d.describeTaskDefinition(taskDefinitionARN)
 	if err != nil {
 		return nil, err
 	}
 
-	deployFile, err := json.Marshal(taskDefinitionOutput)
+	deployFile, err := json.Marshal(taskDefinition)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to extract deploy file: %s", err.Error())
 	}
 
-	deployModel.DeployFile = deployFile
-
-	return deployModel, nil
+	return d.makeDeployModel(deployID, deployFile)
 }
 
 func (d *DeployProvider) describeTaskDefinition(taskDefinitionARN string) (*ecs.TaskDefinition, error) {
@@ -41,6 +36,10 @@ func (d *DeployProvider) describeTaskDefinition(taskDefinitionARN string) (*ecs.
 
 	output, err := d.AWS.ECS.DescribeTaskDefinition(input)
 	if err != nil {
+		if err, ok := err.(awserr.Error); ok && strings.Contains(err.Message(), "Unable to describe task definition") {
+			return nil, errors.Newf(errors.DeployDoesNotExist, "Deploy '%s' does not exist", taskDefinitionARN)
+		}
+
 		return nil, err
 	}
 
@@ -64,7 +63,7 @@ func (d *DeployProvider) lookupTaskDefinitionARN(deployID string) (string, error
 	return "", fmt.Errorf("Failed to find ARN for deploy '%s'", deployID)
 }
 
-func (d *DeployProvider) newDeployModel(deployID string) (*models.Deploy, error) {
+func (d *DeployProvider) makeDeployModel(deployID string, deployFile []byte) (*models.Deploy, error) {
 	model := &models.Deploy{
 		DeployID: deployID,
 	}
@@ -81,6 +80,8 @@ func (d *DeployProvider) newDeployModel(deployID string) (*models.Deploy, error)
 	if tag, ok := tags.WithKey("version").First(); ok {
 		model.Version = tag.Value
 	}
+
+	model.DeployFile = deployFile
 
 	return model, nil
 }
