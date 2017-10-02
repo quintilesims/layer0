@@ -7,7 +7,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -37,9 +36,9 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy,
 		DeployFile: bytes,
 	}
 
-	taskDefinitionArn := aws.StringValue(taskDefinitionOutput.TaskDefinitionArn)
+	taskDefinitionARN := aws.StringValue(taskDefinitionOutput.TaskDefinitionArn)
 
-	if err := d.createTags(deploy.DeployName, deploy.DeployID, deploy.Version, taskDefinitionArn); err != nil {
+	if err := d.createTags(deploy.DeployName, deploy.DeployID, deploy.Version, taskDefinitionARN); err != nil {
 		return deploy, err
 	}
 
@@ -79,10 +78,6 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 
 	if len(taskDefinition.ContainerDefinitions) == 0 {
 		return nil, fmt.Errorf("Deploy must have at least one container definition")
-	}
-
-	if taskDefinition.Family != nil && aws.StringValue(taskDefinition.Family) != familyName {
-		return nil, errors.Newf(errors.InvalidRequest, "Custom family names are unsupported in Layer0")
 	}
 
 	// Valid NetworkMode options are [bridge, host, none], "bridge" is most common so defaulting to that.

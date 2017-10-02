@@ -39,10 +39,8 @@ func TestDeploy_deleteDeployTags(t *testing.T) {
 		}
 	}
 
-	for _, tag := range tags {
-		if err := deploy.deleteDeployTags(tag.EntityID); err != nil {
-			t.Fatal(err)
-		}
+	if err := deploy.deleteDeployTags("deploy_id"); err != nil {
+		t.Fatal(err)
 	}
 
 	assert.Len(t, tagStore.Tags(), 0)

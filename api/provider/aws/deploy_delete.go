@@ -7,12 +7,12 @@ import (
 )
 
 func (d *DeployProvider) Delete(deployID string) error {
-	taskArn, err := d.lookupTaskDefinitionARN(deployID)
+	taskARN, err := d.lookupTaskDefinitionARN(deployID)
 	if err != nil {
 		return err
 	}
 
-	if err := d.deleteDeploy(taskArn); err != nil {
+	if err := d.deleteDeploy(taskARN); err != nil {
 		return err
 	}
 
@@ -23,9 +23,9 @@ func (d *DeployProvider) Delete(deployID string) error {
 	return nil
 }
 
-func (d *DeployProvider) deleteDeploy(taskArn string) error {
+func (d *DeployProvider) deleteDeploy(taskARN string) error {
 	input := &ecs.DeregisterTaskDefinitionInput{}
-	input.SetTaskDefinition(taskArn)
+	input.SetTaskDefinition(taskARN)
 
 	if err := input.Validate(); err != nil {
 		return err

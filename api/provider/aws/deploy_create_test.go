@@ -94,10 +94,6 @@ func TestDeploy_renderTaskDefinition_Errors(t *testing.T) {
 	container.SetName("container_name")
 
 	testCases := map[string]*ecs.TaskDefinition{
-		"Custom Family Name": &ecs.TaskDefinition{
-			Family:               aws.String("customName"),
-			ContainerDefinitions: []*ecs.ContainerDefinition{container},
-		},
 		"No Container Definitions": &ecs.TaskDefinition{},
 	}
 
