@@ -6,9 +6,9 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// List retrieves a list of Task Definition ARNs from ECS and returns a list of
-// Deploy summaries. A Deploy summary consists of the Deploy ID, Deploy name,
-// and Version.
+// List retrieves a list of Task Definition ARNs from ECS and returns a list of Deploy Summaries.
+// A Deploy Summary consists of the Deploy ID, Deploy name, and Version. Only active
+// Task Definitions will be listed.
 func (d *DeployProvider) List() ([]models.DeploySummary, error) {
 	taskDefinitionARNs, err := d.listTaskDefinitionARNs()
 	if err != nil {
@@ -35,8 +35,8 @@ func (d *DeployProvider) listTaskDefinitionARNs() ([]string, error) {
 	familyPrefix := addLayer0Prefix(d.Config.Instance(), "")
 	input := &ecs.ListTaskDefinitionFamiliesInput{}
 	input.SetFamilyPrefix(familyPrefix)
-	// TODO: Revisit how Inactive and Active Task Definitions might want to be returned to the client
 	input.SetStatus(ecs.TaskDefinitionFamilyStatusActive)
+
 	if err := d.AWS.ECS.ListTaskDefinitionFamiliesPages(input, listTaskDefinitionFamiliesPagesfn); err != nil {
 		return nil, err
 	}
@@ -52,8 +52,8 @@ func (d *DeployProvider) listTaskDefinitionARNs() ([]string, error) {
 	for _, taskDefinitionFamily := range taskDefinitionFamilies {
 		input := &ecs.ListTaskDefinitionsInput{}
 		input.SetFamilyPrefix(taskDefinitionFamily)
-		// TODO: Revisit how Inactive and Active Task Definitions might want to be returned to the client
-		input.SetStatus(ecs.TaskDefinitionFamilyStatusActive)
+		input.SetStatus(ecs.TaskDefinitionStatusActive)
+
 		if err := d.AWS.ECS.ListTaskDefinitionsPages(input, listTaskDefinitionPagesfn); err != nil {
 			return nil, err
 		}
@@ -75,7 +75,6 @@ func (d *DeployProvider) populateSummariesFromTaskDefinitionARNs(taskDefinitionA
 
 	deploySummaries := make([]models.DeploySummary, 0, len(taskDefinitionARNs))
 	for _, tag := range deployTags.WithKey("arn") {
-		// Populate only if there is a matching ARN in tags db
 		if taskDefinitionARNMatches[tag.Value] {
 			deploySummary := models.DeploySummary{
 				DeployID: tag.EntityID,
