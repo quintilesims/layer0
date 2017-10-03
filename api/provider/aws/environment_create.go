@@ -18,8 +18,8 @@ import (
 // returns a models.Environment. The Create Environment Request contains the name of the
 // Environment, the instance type and user data for the Launch Configuration, the minimum
 // size of the Cluster's Auto Scaling Group, and the Operating System and AMI ID used
-// in the Launch Configuration. The EC2 Launch Configuration and Auto Scaling Group are
-// created before the Cluster is created.
+// in the Launch Configuration. The EC2 Launch Configuration, Auto Scaling Group,
+// and Security Group are created before the Cluster is created.
 func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*models.Environment, error) {
 	// TODO: Ensure environment name is unique
 	environmentID := generateEntityID(req.EnvironmentName)

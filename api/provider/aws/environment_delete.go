@@ -10,7 +10,8 @@ import (
 )
 
 // Delete deletes an ECS Cluster using the specified Environment ID. The associated
-// EC2 Launch Configuration and Auto Scaling Group are also removed as part of the process.
+// EC2 Launch Configuration, Auto Scaling Group, and Security Group are also removed
+// as part of the process.
 func (e *EnvironmentProvider) Delete(environmentID string) error {
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
