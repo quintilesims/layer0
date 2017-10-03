@@ -28,12 +28,12 @@ func (s *ServiceProvider) Delete(serviceID string) error {
 		return err
 	}
 
-	taskARNs, err := s.getServieTasks(clusterName, service.Deployments)
+	taskARNs, err := s.getServiceActiveTasks(clusterName, service.Deployments)
 	if err != nil {
 		return err
 	}
 
-	if err := s.stopServiceTasks(clusterName, fqServiceID, taskARNs); err != nil {
+	if err := s.stopServiceTasks(clusterName, taskARNs); err != nil {
 		return err
 	}
 
@@ -52,7 +52,7 @@ func (s *ServiceProvider) Delete(serviceID string) error {
 	return nil
 }
 
-func (s *ServiceProvider) getServieTasks(clusterName string, deployments []*ecs.Deployment) ([]string, error) {
+func (s *ServiceProvider) getServiceActiveTasks(clusterName string, deployments []*ecs.Deployment) ([]string, error) {
 	taskARNs := []string{}
 
 	for _, deployment := range deployments {
@@ -73,11 +73,11 @@ func (s *ServiceProvider) getServieTasks(clusterName string, deployments []*ecs.
 	return taskARNs, nil
 }
 
-func (s *ServiceProvider) stopServiceTasks(clusterName, serviceID string, taskARNs []string) error {
+func (s *ServiceProvider) stopServiceTasks(clusterName string, taskARNs []string) error {
 	for _, taskARN := range taskARNs {
 		input := &ecs.StopTaskInput{}
 		input.SetCluster(clusterName)
-		input.SetTask(aws.StringValue(&taskARN))
+		input.SetTask(taskARN)
 
 		if err := input.Validate(); err != nil {
 			return err
@@ -119,7 +119,7 @@ func (s *ServiceProvider) deleteService(clusterName, serviceID string) error {
 	}
 
 	if _, err := s.AWS.ECS.DeleteService(input); err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == errors.ServiceDoesNotExist.String() {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "ServiceNotFoundException" {
 			return nil
 		}
 
