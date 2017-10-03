@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -17,26 +18,39 @@ func (t *TaskProvider) List() ([]models.TaskSummary, error) {
 	taskARNs := []string{}
 	for _, clusterName := range clusterNames {
 		startedBy := t.Config.Instance()
-		clusterTaskARNsStopped, err := listClusterTaskARNs(t.AWS.ECS, clusterName, startedBy, ecs.DesiredStatusStopped)
+		clusterTaskARNs, err := t.listClusterTaskARNs(clusterName, startedBy)
 		if err != nil {
 			return nil, err
 		}
 
-		clusterTaskARNsRunning, err := listClusterTaskARNs(t.AWS.ECS, clusterName, startedBy, ecs.DesiredStatusRunning)
-		if err != nil {
-			return nil, err
+		taskARNs = append(taskARNs, clusterTaskARNs...)
+	}
+
+	return t.makeTaskSummaryModels(taskARNs)
+}
+
+func (t *TaskProvider) listClusterTaskARNs(clusterName, startedBy string) ([]string, error) {
+	taskARNs := []string{}
+	fn := func(output *ecs.ListTasksOutput, lastPage bool) bool {
+		for _, taskARN := range output.TaskArns {
+			taskARNs = append(taskARNs, aws.StringValue(taskARN))
 		}
 
-		taskARNs = append(taskARNs, clusterTaskARNsStopped...)
-		taskARNs = append(taskARNs, clusterTaskARNsRunning...)
+		return !lastPage
 	}
 
-	summaries, err := t.makeTaskSummaryModels(taskARNs)
-	if err != nil {
-		return nil, err
+	for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
+		input := &ecs.ListTasksInput{}
+		input.SetCluster(clusterName)
+		input.SetDesiredStatus(status)
+		input.SetStartedBy(startedBy)
+
+		if err := t.AWS.ECS.ListTasksPages(input, fn); err != nil {
+			return nil, err
+		}
 	}
 
-	return summaries, nil
+	return taskARNs, nil
 }
 
 func (t *TaskProvider) makeTaskSummaryModels(taskARNs []string) ([]models.TaskSummary, error) {

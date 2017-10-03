@@ -113,6 +113,11 @@ func TestListDeploys(t *testing.T) {
 			Version:    "1",
 		},
 		{
+			DeployID:   "d1",
+			DeployName: "deploy1",
+			Version:    "2",
+		},
+		{
 			DeployID:   "d2",
 			DeployName: "deploy2",
 			Version:    "1",
