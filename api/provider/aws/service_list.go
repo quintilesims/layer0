@@ -24,6 +24,8 @@ func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
 
 	serviceIDs := make([]string, len(serviceARNs))
 	for i, serviceARN := range serviceARNs {
+		// sample service ARN:
+		// arn:aws:ecs:us-west-2:856306994068:task-definition/l0-tlakedev-guestbook-dpl:84
 		fqServiceID := strings.Split(serviceARN, "/")[1]
 		serviceID := delLayer0Prefix(s.Config.Instance(), fqServiceID)
 		serviceIDs[i] = serviceID
@@ -33,16 +35,16 @@ func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
 }
 
 func (s *ServiceProvider) listServiceARNsForClusterNames(clusterNames []string) ([]string, error) {
-	var serviceARNs []string
-	for _, clusterName := range clusterNames {
-		fn := func(output *ecs.ListServicesOutput, lastPage bool) bool {
-			for _, serviceARN := range output.ServiceArns {
-				serviceARNs = append(serviceARNs, aws.StringValue(serviceARN))
-			}
-
-			return !lastPage
+	fn := func(output *ecs.ListServicesOutput, lastPage bool) bool {
+		for _, serviceARN := range output.ServiceArns {
+			serviceARNs = append(serviceARNs, aws.StringValue(serviceARN))
 		}
 
+		return !lastPage
+	}
+
+	var serviceARNs []string
+	for _, clusterName := range clusterNames {
 		input := &ecs.ListServicesInput{}
 		input.SetCluster(clusterName)
 		if err := s.AWS.ECS.ListServicesPages(input, fn); err != nil {
