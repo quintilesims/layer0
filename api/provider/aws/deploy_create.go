@@ -50,10 +50,12 @@ func (d *DeployProvider) createTaskDefinition(taskDefinitionRequest *ecs.TaskDef
 	input := &ecs.RegisterTaskDefinitionInput{}
 	input.SetFamily(aws.StringValue(taskDefinitionRequest.Family))
 	input.SetTaskRoleArn(aws.StringValue(taskDefinitionRequest.TaskRoleArn))
-	input.SetNetworkMode(aws.StringValue(taskDefinitionRequest.NetworkMode))
 	input.SetContainerDefinitions(taskDefinitionRequest.ContainerDefinitions)
 	input.SetVolumes(taskDefinitionRequest.Volumes)
 	input.SetPlacementConstraints(taskDefinitionRequest.PlacementConstraints)
+	if nm := aws.StringValue(taskDefinitionRequest.NetworkMode); nm != "" {
+		input.SetNetworkMode(nm)
+	}
 
 	if err := input.Validate(); err != nil {
 		return nil, err

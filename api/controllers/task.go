@@ -2,6 +2,8 @@ package controllers
 
 import (
 	"encoding/json"
+	"strconv"
+	"time"
 
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
@@ -82,6 +84,7 @@ func (t *TaskController) GetTask(c *fireball.Context) (fireball.Response, error)
 
 func (t *TaskController) GetTaskLogs(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
+
 	tail, start, end, err := parseLoggingQuery(c.Request.URL.Query())
 	if err != nil {
 		return nil, err
