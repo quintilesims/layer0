@@ -35,6 +35,27 @@ func NewStringPathParam(name, description string, required bool) Parameter {
 	}
 }
 
+func NewIntQueryParam(name, description string, required bool) Parameter {
+	return Parameter{
+		Name:        name,
+		Description: description,
+		Required:    required,
+		In:          "query",
+		Type:        "integer",
+		Format:      "int",
+	}
+}
+
+func NewStringQueryParam(name, description string, required bool) Parameter {
+	return Parameter{
+		Name:        name,
+		Description: description,
+		Required:    required,
+		In:          "query",
+		Type:        "string",
+	}
+}
+
 func NewBodyParam(name, description string, required bool) Parameter {
 	return Parameter{
 		Name:        name,

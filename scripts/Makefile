@@ -18,6 +18,7 @@ job:
 
 aws:
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/autoscaling/autoscalingiface AutoScalingAPI > ../common/aws/mock_aws/mock_autoscaling.go &
+	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/cloudwatchlogs/cloudwatchlogsiface CloudWatchLogsAPI > ../common/aws/mock_aws/mock_cloudwatchlogs.go &
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/ec2/ec2iface EC2API > ../common/aws/mock_aws/mock_ec2.go &
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/ecs/ecsiface ECSAPI > ../common/aws/mock_aws/mock_ecs.go &
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/elb/elbiface ELBAPI > ../common/aws/mock_aws/mock_elb.go &

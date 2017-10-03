@@ -1,10 +1,11 @@
 package aws
 
 import (
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/errors"
-	"strings"
 )
 
 func (d *DeployProvider) Delete(deployID string) error {
