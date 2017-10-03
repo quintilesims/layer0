@@ -85,4 +85,6 @@ func (d *DeployProvider) makeDeployModel(deployID string, deployFile []byte) (*m
 	}
 
 	model.DeployFile = deployFile
+
+	return model, nil
 }

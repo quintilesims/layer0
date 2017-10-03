@@ -2,7 +2,6 @@ package models
 
 import (
 	"fmt"
-
 	swagger "github.com/zpatrick/go-plugin-swagger"
 )
 

@@ -48,9 +48,14 @@ func (d *DeployProvider) listTaskDefinitionARNs() ([]string, error) {
 		return !lastPage
 	}
 
-	input := &ecs.ListTaskDefinitionsInput{}
-	if err := d.AWS.ECS.ListTaskDefinitionsPages(input, fn); err != nil {
-		return nil, err
+	for _, taskDefinitionFamily := range taskDefinitionFamilies {
+		input := &ecs.ListTaskDefinitionsInput{}
+		input.SetFamilyPrefix(taskDefinitionFamily)
+		// TODO: Revisit how Inactive and Active Task Definitions might want to be returned to the client
+		input.SetStatus(ecs.TaskDefinitionFamilyStatusActive)
+		if err := d.AWS.ECS.ListTaskDefinitionsPages(input, listTaskDefinitionPagesfn); err != nil {
+			return nil, err
+		}
 	}
 
 	return taskDefinitionARNs, nil
