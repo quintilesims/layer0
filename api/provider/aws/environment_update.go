@@ -6,10 +6,10 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Update updates an ECS Cluster using the specified Update Environment Request, and
-// returns an error. The Update Environment Request contains the Environment ID
-// and the minimum size of the Cluster's Auto Scaling Group. The Cluster's Auto Scaling
-// Group Size is updated by making an UpdateAutoScalingGroup request to AWS.
+// Update updates an ECS Cluster using the specified Update Environment Request.
+// The Update Environment Request contains the Environment ID and the minimum size
+// of the Cluster's Auto Scaling Group. The Cluster's Auto Scaling Group size is
+// updated by making an UpdateAutoScalingGroup request to AWS.
 func (e *EnvironmentProvider) Update(req models.UpdateEnvironmentRequest) error {
 	environmentID := req.EnvironmentID
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)

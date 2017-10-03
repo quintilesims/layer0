@@ -8,12 +8,12 @@ import (
 )
 
 // Update updates an Elastic Load Balancer using the specified Update Load Balancer
-// Request, and returns an error. The Update Load Balancer Request contains the Load
-// Balancer ID, a list of ports to configure as the listeners, and a Health Check to
-// determine if attached EC2 instances are in service or not. If ports are included
-// in the Update Load Balancer Request, all existing listeners and EC2 Security Group
-// ingress rules are removed first and then new listeners and Security Group ingress
-// rules are created based on the provided list of ports
+// Request. The Update Load Balancer Request contains the Load Balancer ID, a list
+// of ports to configure as the listeners, and a Health Check to determine if attached
+// EC2 instances are in service or not. If ports are included in the Update Load
+// Balancer Request, all existing listeners and EC2 Security Group ingress rules are
+// removed first and then new listeners and Security Group ingress rules are created
+// based on the provided list of ports.
 func (l *LoadBalancerProvider) Update(req models.UpdateLoadBalancerRequest) error {
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), req.LoadBalancerID)
 	loadBalancerName := fqLoadBalancerID

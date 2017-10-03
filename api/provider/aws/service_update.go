@@ -7,7 +7,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Update updates an ECS Service using the specified Update Service Request and returns an error.
+// Update updates an ECS Service using the specified Update Service Request.
 // The Update Service Request contains the Service ID, the Deploy ID and the scale of the DesiredCount
 // of the Service. The Service's Task Definition and DesiredCount are updated with two separate UpdateService
 // requests to AWS.
