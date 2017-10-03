@@ -13,6 +13,17 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// Create creates an Elastic Load Balancer using the specified Create
+// Load Balancer Request, and returns a models.LoadBalancer. The Create Load Balancer
+// Request contains the name of the Load Balancer, the Environment ID in which to
+// create the Load Balancer, a flag to determine if the Load Balancer will be
+// Internet-facing or internal, a list of ports to configure as the listeners,
+// and a Health Check to determine if attached EC2 instances are in service or not.
+// An IAM Role is created and an inline policy is attached to the Role
+// that allows ECS to interact with the created Load Balancer. An EC2 Security
+// Group is created and ingress rules are added based on the list of ports in the
+// Create Load Balancer Request. The Security Group is then attached to the
+// created Load Balancer.
 func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*models.LoadBalancer, error) {
 	loadBalancerID := generateEntityID(req.LoadBalancerName)
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)

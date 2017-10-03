@@ -6,6 +6,9 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// List retrieves a list of Load Balancers from ELB and returns a list of Load
+// Balancer Summaries. A Load Balancer Summary consists of the Load Balancer ID,
+// Load Balancer name, Environment ID and Environment name.
 func (e *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 	loadBalancerNames, err := e.listLoadBalancerNames()
 	if err != nil {
