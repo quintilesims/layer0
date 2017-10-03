@@ -10,7 +10,7 @@ import (
 func (s *ServiceProvider) Logs(serviceID string, tail int, start, end time.Time) ([]models.LogFile, error) {
 	environmentID, err := lookupEntityEnvironmentID(s.TagStore, "service", serviceID)
 	if err != nil {
-			return nil, err
+		return nil, err
 	}
 
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), environmentID)

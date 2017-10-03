@@ -53,7 +53,7 @@ func GetLogsFromTaskARNs(
 
 		logFile := models.LogFile{
 			ContainerName: containerName,
-			Lines:        make([]string, len(logEvents)),
+			Lines:         make([]string, len(logEvents)),
 		}
 
 		for i, event := range logEvents {

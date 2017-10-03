@@ -16,7 +16,10 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), environmentID)
 	clusterName := fqEnvironmentID
-	ecsService, err := s.readService(clusterName, serviceID)
+
+	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
+
+	ecsService, err := s.readService(clusterName, fqServiceID)
 	if err != nil {
 		return nil, err
 	}
