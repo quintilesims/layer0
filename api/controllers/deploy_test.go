@@ -21,7 +21,7 @@ func TestCreateDeploy(t *testing.T) {
 
 	req := models.CreateDeployRequest{
 		DeployName: "deploy1",
-		DeployFile: ([]byte("content")),
+		DeployFile: []byte("content"),
 	}
 
 	mockJobStore.EXPECT().
@@ -71,7 +71,7 @@ func TestGetDeploy(t *testing.T) {
 	defer ctrl.Finish()
 
 	DeployModel := models.Deploy{
-		DeployFile: ([]byte("content")),
+		DeployFile: []byte("content"),
 		DeployID:   "d1",
 		DeployName: "deploy1",
 		Version:    "1",

@@ -2,6 +2,7 @@ package scaler
 
 import (
 	"log"
+	"sync"
 	"time"
 
 	"github.com/quintilesims/layer0/api/provider"
@@ -19,6 +20,7 @@ type Dispatcher struct {
 	environmentProvider provider.EnvironmentProvider
 	scaler              Scaler
 	schedule            map[string]*time.Timer
+	lock                *sync.Mutex
 }
 
 func NewDispatcher(e provider.EnvironmentProvider, s Scaler) *Dispatcher {
@@ -26,10 +28,14 @@ func NewDispatcher(e provider.EnvironmentProvider, s Scaler) *Dispatcher {
 		environmentProvider: e,
 		scaler:              s,
 		schedule:            map[string]*time.Timer{},
+		lock:                &sync.Mutex{},
 	}
 }
 
 func (d *Dispatcher) ScheduleRun(environmentID string) {
+	d.lock.Lock()
+	defer d.lock.Unlock()
+
 	if timer, ok := d.schedule[environmentID]; ok {
 		log.Printf("[DEBUG] [ScalerDispatcher] Pushing back scheduled run for environment %s", environmentID)
 		timer.Stop()
@@ -38,9 +44,11 @@ func (d *Dispatcher) ScheduleRun(environmentID string) {
 	log.Printf("[DEBUG] [ScalerDispatcher] Scaling environment %s in %v", environmentID, SCALE_GRACE_PERIOD)
 	d.schedule[environmentID] = time.AfterFunc(SCALE_GRACE_PERIOD*timeMultiplier, func() {
 		// remove this run from the schedule
+		d.lock.Lock()
 		if _, ok := d.schedule[environmentID]; ok {
 			delete(d.schedule, environmentID)
 		}
+		d.lock.Unlock()
 
 		log.Printf("[DEBUG] [ScalerDispatcher] Scaling environment %s", environmentID)
 		if err := d.scaler.Scale(environmentID); err != nil {

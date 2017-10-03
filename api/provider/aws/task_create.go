@@ -15,13 +15,15 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskID := generateEntityID(req.TaskName)
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
 
+	deployName, deployVersion, err := lookupDeployNameAndVersion(t.TagStore, req.DeployID)
+	if err != nil {
+		return "", err
+	}
+
 	clusterName := fqEnvironmentID
 	startedBy := t.Config.Instance()
-	// todo: deployName, deployVersion, err := lookupDeployNameAndVersion(...)
-
-	taskDefinitionFamily := "l0-zpatrick-test"
-	taskDefinitionVersion := "5"
-
+	taskDefinitionFamily := addLayer0Prefix(t.Config.Instance(), deployName)
+	taskDefinitionVersion := deployVersion
 	task, err := t.runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionVersion)
 	if err != nil {
 		return "", err

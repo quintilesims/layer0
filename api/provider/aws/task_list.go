@@ -26,12 +26,7 @@ func (t *TaskProvider) List() ([]models.TaskSummary, error) {
 		taskARNs = append(taskARNs, clusterTaskARNs...)
 	}
 
-	summaries, err := t.populateSummariesFromTaskARNs(taskARNs)
-	if err != nil {
-		return nil, err
-	}
-
-	return summaries, nil
+	return t.makeTaskSummaryModels(taskARNs)
 }
 
 func (t *TaskProvider) listClusterTaskARNs(clusterName, startedBy string) ([]string, error) {
@@ -58,7 +53,7 @@ func (t *TaskProvider) listClusterTaskARNs(clusterName, startedBy string) ([]str
 	return taskARNs, nil
 }
 
-func (t *TaskProvider) populateSummariesFromTaskARNs(taskARNs []string) ([]models.TaskSummary, error) {
+func (t *TaskProvider) makeTaskSummaryModels(taskARNs []string) ([]models.TaskSummary, error) {
 	environmentTags, err := t.TagStore.SelectByType("environment")
 	if err != nil {
 		return nil, err
@@ -69,31 +64,33 @@ func (t *TaskProvider) populateSummariesFromTaskARNs(taskARNs []string) ([]model
 		return nil, err
 	}
 
-	summaries := make([]models.TaskSummary, 0, len(taskARNs))
-	for _, tag := range taskTags.WithKey("arn") {
-
-		summary := models.TaskSummary{
-			TaskID: tag.EntityID,
-		}
-
-		if tag, ok := taskTags.WithID(summary.TaskID).WithKey("name").First(); ok {
-			summary.TaskName = tag.Value
-		}
-
-		if tag, ok := taskTags.WithID(summary.TaskID).WithKey("arn").First(); ok {
-			summary.TaskName = tag.Value
-		}
-
-		if tag, ok := taskTags.WithID(summary.TaskID).WithKey("environment_id").First(); ok {
-			summary.EnvironmentID = tag.Value
-
-			if t, ok := environmentTags.WithID(tag.Value).WithKey("name").First(); ok {
-				summary.EnvironmentName = t.Value
-			}
-		}
-
-		summaries = append(summaries, summary)
+	taskARNMatches := map[string]bool{}
+	for _, taskARN := range taskARNs {
+		taskARNMatches[taskARN] = true
 	}
 
-	return summaries, nil
+	taskModels := make([]models.TaskSummary, 0, len(taskARNs))
+	for _, tag := range taskTags.WithKey("arn") {
+		if taskARNMatches[tag.Value] {
+			model := models.TaskSummary{
+				TaskID: tag.EntityID,
+			}
+
+			if tag, ok := taskTags.WithID(model.TaskID).WithKey("name").First(); ok {
+				model.TaskName = tag.Value
+			}
+
+			if tag, ok := taskTags.WithID(model.TaskID).WithKey("environment_id").First(); ok {
+				model.EnvironmentID = tag.Value
+
+				if t, ok := environmentTags.WithID(tag.Value).WithKey("name").First(); ok {
+					model.EnvironmentName = t.Value
+				}
+			}
+
+			taskModels = append(taskModels, model)
+		}
+	}
+
+	return taskModels, nil
 }

@@ -52,7 +52,8 @@ func TestDeploy_populateModelTags(t *testing.T) {
 	}
 
 	deployID := "deploy_id_1"
-	deployModel, err := deploy.newDeployModel(deployID)
+	deployFile := []byte("taskDefinition")
+	deployModel, err := deploy.makeDeployModel(deployID, deployFile)
 	if err != nil {
 		t.Fatal(err)
 	}

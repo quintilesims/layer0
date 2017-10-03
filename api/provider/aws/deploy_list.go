@@ -23,8 +23,25 @@ func (d *DeployProvider) List() ([]models.DeploySummary, error) {
 }
 
 func (d *DeployProvider) listTaskDefinitionARNs() ([]string, error) {
+	taskDefinitionFamilies := []string{}
+	listTaskDefinitionFamiliesPagesfn := func(output *ecs.ListTaskDefinitionFamiliesOutput, lastPage bool) bool {
+		for _, taskDefinitionFamily := range output.Families {
+			taskDefinitionFamilies = append(taskDefinitionFamilies, aws.StringValue(taskDefinitionFamily))
+		}
+		return !lastPage
+	}
+
+	familyPrefix := addLayer0Prefix(d.Config.Instance(), "")
+	input := &ecs.ListTaskDefinitionFamiliesInput{}
+	input.SetFamilyPrefix(familyPrefix)
+	// TODO: Revisit how Inactive and Active Task Definitions might want to be returned to the client
+	input.SetStatus(ecs.TaskDefinitionFamilyStatusActive)
+	if err := d.AWS.ECS.ListTaskDefinitionFamiliesPages(input, listTaskDefinitionFamiliesPagesfn); err != nil {
+		return nil, err
+	}
+
 	taskDefinitionARNs := []string{}
-	fn := func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool {
+	listTaskDefinitionPagesfn := func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool {
 		for _, taskDefinitionARN := range output.TaskDefinitionArns {
 			taskDefinitionARNs = append(taskDefinitionARNs, aws.StringValue(taskDefinitionARN))
 		}

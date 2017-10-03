@@ -9,8 +9,8 @@ import (
 // List retrieves a list of Load Balancers from ELB and returns a list of Load
 // Balancer Summaries. A Load Balancer Summary consists of the Load Balancer ID,
 // Load Balancer name, Environment ID, and Environment name.
-func (e *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
-	loadBalancerNames, err := e.listLoadBalancerNames()
+func (l *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
+	loadBalancerNames, err := l.listLoadBalancerNames()
 	if err != nil {
 		return nil, err
 	}
@@ -32,13 +32,13 @@ func (e *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 	return summaries, nil
 }
 
-func (e *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
+func (l *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 	loadBalancerNames := []string{}
 	fn := func(output *elb.DescribeLoadBalancersOutput, lastPage bool) bool {
 		for _, description := range output.LoadBalancerDescriptions {
 			loadBalancerName := aws.StringValue(description.LoadBalancerName)
 
-			if hasLayer0Prefix(e.Config.Instance(), loadBalancerName) {
+			if hasLayer0Prefix(l.Config.Instance(), loadBalancerName) {
 				loadBalancerNames = append(loadBalancerNames, loadBalancerName)
 			}
 		}
@@ -46,37 +46,40 @@ func (e *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 		return !lastPage
 	}
 
-	if err := e.AWS.ELB.DescribeLoadBalancersPages(&elb.DescribeLoadBalancersInput{}, fn); err != nil {
+	if err := l.AWS.ELB.DescribeLoadBalancersPages(&elb.DescribeLoadBalancersInput{}, fn); err != nil {
 		return nil, err
 	}
 
 	return loadBalancerNames, nil
 }
 
-func (e *LoadBalancerProvider) populateSummariesTags(summaries []models.LoadBalancerSummary) error {
-	environmentTags, err := e.TagStore.SelectByType("environment")
+func (l *LoadBalancerProvider) makeLoadBalancerSummaryModels(loadBalancerIDs []string) ([]models.LoadBalancerSummary, error) {
+	environmentTags, err := l.TagStore.SelectByType("environment")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	loadBalancerTags, err := e.TagStore.SelectByType("load_balancer")
+	loadBalancerTags, err := l.TagStore.SelectByType("load_balancer")
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	for i, summary := range summaries {
-		if tag, ok := loadBalancerTags.WithID(summary.LoadBalancerID).WithKey("name").First(); ok {
-			summaries[i].LoadBalancerName = tag.Value
+	models := make([]models.LoadBalancerSummary, len(loadBalancerIDs))
+	for i, loadBalancerID := range loadBalancerIDs {
+		models[i].LoadBalancerID = loadBalancerID
+
+		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("name").First(); ok {
+			models[i].LoadBalancerName = tag.Value
 		}
 
-		if tag, ok := loadBalancerTags.WithID(summary.LoadBalancerID).WithKey("environment_id").First(); ok {
-			summaries[i].EnvironmentID = tag.Value
+		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("environment_id").First(); ok {
+			models[i].EnvironmentID = tag.Value
 
 			if t, ok := environmentTags.WithID(tag.Value).WithKey("name").First(); ok {
-				summaries[i].EnvironmentName = t.Value
+				models[i].EnvironmentName = t.Value
 			}
 		}
 	}
 
-	return nil
+	return models, nil
 }
