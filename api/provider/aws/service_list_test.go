@@ -63,13 +63,10 @@ func TestServiceList_makeServiceSummaryModels(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Len(t, results, 2)
-	assert.Equal(t, "svc_id_0", results[0].ServiceID)
-	assert.Equal(t, "svc_name_0", results[0].ServiceName)
-	assert.Equal(t, "env_id_0", results[0].EnvironmentID)
-	assert.Equal(t, "env_name_0", results[0].EnvironmentName)
-	assert.Equal(t, "svc_id_1", results[1].ServiceID)
-	assert.Equal(t, "svc_name_1", results[1].ServiceName)
-	assert.Equal(t, "env_id_1", results[1].EnvironmentID)
-	assert.Equal(t, "env_name_1", results[1].EnvironmentName)
+	expected := []models.ServiceSummary{
+		{ServiceID: "svc_id_0", ServiceName: "svc_name_0", EnvironmentID: "env_id_0", EnvironmentName: "env_name_0"},
+		{ServiceID: "svc_id_1", ServiceName: "svc_name_1", EnvironmentID: "env_id_1", EnvironmentName: "env_name_1"},
+	}
+
+	assert.Equal(t, expected, results)
 }
