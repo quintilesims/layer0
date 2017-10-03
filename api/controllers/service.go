@@ -39,12 +39,12 @@ func (s *ServiceController) Routes() []*fireball.Route {
 				"DELETE": s.DeleteService,
 			},
 		},
-		 {
-                        Path: "/service/:id/logs",
-                        Handlers: fireball.Handlers{
-                                "GET":    s.GetServiceLogs,
-                        },
-                },
+		{
+			Path: "/service/:id/logs",
+			Handlers: fireball.Handlers{
+				"GET": s.GetServiceLogs,
+			},
+		},
 	}
 }
 
