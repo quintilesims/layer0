@@ -80,11 +80,6 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 		return nil, fmt.Errorf("Deploy must have at least one container definition")
 	}
 
-	// Valid NetworkMode options are [bridge, host, none], "bridge" is most common so defaulting to that.
-	if taskDefinition.NetworkMode == nil {
-		taskDefinition.SetNetworkMode("bridge")
-	}
-
 	for _, container := range taskDefinition.ContainerDefinitions {
 		if container.LogConfiguration == nil {
 			logConfig := &ecs.LogConfiguration{

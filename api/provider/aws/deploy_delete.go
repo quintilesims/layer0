@@ -4,6 +4,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/errors"
+	"strings"
 )
 
 func (d *DeployProvider) Delete(deployID string) error {
@@ -32,7 +33,7 @@ func (d *DeployProvider) deleteDeploy(taskARN string) error {
 	}
 
 	if _, err := d.AWS.ECS.DeregisterTaskDefinition(input); err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "does not exist" {
+		if err, ok := err.(awserr.Error); ok && strings.Contains(err.Message(), "does not exist") {
 			return errors.Newf(errors.DeployDoesNotExist, "Deploy does not exist")
 		}
 	}
