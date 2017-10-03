@@ -15,7 +15,7 @@ func (t *TaskProvider) List() ([]models.TaskSummary, error) {
 	taskARNs := []string{}
 	for _, clusterName := range clusterNames {
 		startedBy := t.Config.Instance()
-		clusterTaskARNs, err := t.listClusterTaskARNs(clusterName, startedBy)
+		clusterTaskARNs, err := listClusterTaskARNs(t.AWS.ECS, clusterName, startedBy)
 		if err != nil {
 			return nil, err
 		}
