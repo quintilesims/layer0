@@ -10,38 +10,33 @@ func (e *EnvironmentProvider) List() ([]models.EnvironmentSummary, error) {
 		return nil, err
 	}
 
-	summaries := make([]models.EnvironmentSummary, len(clusterNames))
+	environmentIDs := make([]string, len(clusterNames))
 	for i, clusterName := range clusterNames {
 		environmentID := delLayer0Prefix(e.Config.Instance(), clusterName)
-		summary := models.EnvironmentSummary{
-			EnvironmentID: environmentID,
-		}
-
-		summaries[i] = summary
+		environmentIDs[i] = environmentID
 	}
 
-	if err := e.populateSummariesTags(summaries); err != nil {
+	return e.makeEnvironmentSummaryModels(environmentIDs)
+}
+
+func (e *EnvironmentProvider) makeEnvironmentSummaryModels(environmentIDs []string) ([]models.EnvironmentSummary, error) {
+	tags, err := e.TagStore.SelectByType("environment")
+	if err != nil {
 		return nil, err
 	}
 
-	return summaries, nil
-}
+	models := make([]models.EnvironmentSummary, len(environmentIDs))
+	for i, environmentID := range environmentIDs {
+		models[i].EnvironmentID = environmentID
 
-func (e *EnvironmentProvider) populateSummariesTags(summaries []models.EnvironmentSummary) error {
-	tags, err := e.TagStore.SelectByType("environment")
-	if err != nil {
-		return err
-	}
-
-	for i, summary := range summaries {
-		if tag, ok := tags.WithID(summary.EnvironmentID).WithKey("name").First(); ok {
-			summaries[i].EnvironmentName = tag.Value
+		if tag, ok := tags.WithID(environmentID).WithKey("name").First(); ok {
+			models[i].EnvironmentName = tag.Value
 		}
 
-		if tag, ok := tags.WithID(summary.EnvironmentID).WithKey("os").First(); ok {
-			summaries[i].OperatingSystem = tag.Value
+		if tag, ok := tags.WithID(environmentID).WithKey("os").First(); ok {
+			models[i].OperatingSystem = tag.Value
 		}
 	}
 
-	return nil
+	return models, nil
 }

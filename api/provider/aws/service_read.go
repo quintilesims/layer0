@@ -1,47 +1,69 @@
 package aws
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
-	model := &models.Service{}
-
-	clusterName := addLayer0Prefix(s.Config.Instance(), model.EnvironmentID)
-	service, err := s.readService(clusterName, serviceID)
+	environmentID, err := lookupEntityEnvironmentID(s.TagStore, "service", serviceID)
 	if err != nil {
 		return nil, err
 	}
 
-	model.DesiredCount = aws.Int64Value(service.DesiredCount)
-	model.RunningCount = aws.Int64Value(service.RunningCount)
-	model.PendingCount = aws.Int64Value(service.PendingCount)
+	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), environmentID)
+	clusterName := fqEnvironmentID
 
-	for _, deploy := range service.Deployments {
-		deployID := aws.StringValue(deploy.TaskDefinition)
-		//todo: convert deployid to layer0 deploy id
+	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
 
-		deploy := models.Deployment{
-			DeploymentID: aws.StringValue(deploy.Id),
-			Created:      aws.TimeValue(deploy.CreatedAt),
-			Updated:      aws.TimeValue(deploy.UpdatedAt),
-			Status:       aws.StringValue(deploy.Status),
-			PendingCount: aws.Int64Value(deploy.PendingCount),
-			RunningCount: aws.Int64Value(deploy.RunningCount),
-			DesiredCount: aws.Int64Value(deploy.DesiredCount),
-			DeployID:     deployID,
-		}
-
-		model.Deployments = append(model.Deployments, deploy)
-	}
-
-	if err := s.updateWithTagInfo(model, serviceID); err != nil {
+	ecsService, err := s.readService(clusterName, fqServiceID)
+	if err != nil {
 		return nil, err
 	}
+
+	var deployments []models.Deployment
+	for _, d := range ecsService.Deployments {
+		taskDefinitionARN := aws.StringValue(d.TaskDefinition)
+		deployID, err := lookupDeployIDFromTaskDefinitionARN(s.TagStore, taskDefinitionARN)
+		if err != nil {
+			return nil, err
+		}
+
+		deployment, err := s.makeDeploymentModel(deployID)
+		if err != nil {
+			return nil, err
+		}
+
+		deployment.Created = aws.TimeValue(d.CreatedAt)
+		deployment.DesiredCount = int(aws.Int64Value(d.DesiredCount))
+		deployment.PendingCount = int(aws.Int64Value(d.PendingCount))
+		deployment.RunningCount = int(aws.Int64Value(d.RunningCount))
+		deployment.Status = aws.StringValue(d.Status)
+		deployment.Updated = aws.TimeValue(d.UpdatedAt)
+
+		deployments = append(deployments, *deployment)
+	}
+
+	var loadBalancerID string
+	if len(ecsService.LoadBalancers) != 0 {
+		loadBalancer := ecsService.LoadBalancers[0]
+		loadBalancerName := aws.StringValue(loadBalancer.LoadBalancerName)
+		fqLoadBalancerID := loadBalancerName
+		loadBalancerID = delLayer0Prefix(s.Config.Instance(), fqLoadBalancerID)
+	}
+
+	model, err := s.makeServiceModel(environmentID, loadBalancerID, serviceID)
+	if err != nil {
+		return nil, err
+	}
+
+	model.Deployments = deployments
+	model.DesiredCount = int(aws.Int64Value(ecsService.DesiredCount))
+	model.PendingCount = int(aws.Int64Value(ecsService.PendingCount))
+	model.RunningCount = int(aws.Int64Value(ecsService.RunningCount))
 
 	return model, nil
 }
@@ -55,12 +77,76 @@ func (s *ServiceProvider) readService(clusterName, serviceID string) (*ecs.Servi
 
 	output, err := s.AWS.ECS.DescribeServices(input)
 	if err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "ServiceNotFoundException" {
+			return nil, errors.Newf(errors.ServiceDoesNotExist, "Service '%s' does not exist", serviceID)
+		}
+
 		return nil, err
 	}
 
-	for _, service := range output.Services {
-		return service, nil
+	if len(output.Services) == 0 {
+		return nil, errors.Newf(errors.ServiceDoesNotExist, "Service '%s' does not exist", serviceID)
 	}
 
-	return nil, fmt.Errorf("ecs service '%s' in cluster '%s' does not exist", serviceID, clusterName)
+	return output.Services[0], nil
+}
+
+func (s *ServiceProvider) makeDeploymentModel(deployID string) (*models.Deployment, error) {
+	model := &models.Deployment{
+		DeployID: deployID,
+	}
+
+	tags, err := s.TagStore.SelectByTypeAndID("deploy", deployID)
+	if err != nil {
+		return nil, err
+	}
+
+	if tag, ok := tags.WithKey("name").First(); ok {
+		model.DeployName = tag.Value
+	}
+
+	if tag, ok := tags.WithKey("version").First(); ok {
+		model.DeployVersion = tag.Value
+	}
+
+	return model, nil
+}
+
+func (s *ServiceProvider) makeServiceModel(environmentID, loadBalancerID, serviceID string) (*models.Service, error) {
+	model := &models.Service{
+		EnvironmentID:  environmentID,
+		LoadBalancerID: loadBalancerID,
+		ServiceID:      serviceID,
+	}
+
+	tags, err := s.TagStore.SelectByTypeAndID("service", serviceID)
+	if err != nil {
+		return nil, err
+	}
+
+	if tag, ok := tags.WithKey("name").First(); ok {
+		model.ServiceName = tag.Value
+	}
+
+	tags, err = s.TagStore.SelectByTypeAndID("environment", environmentID)
+	if err != nil {
+		return nil, err
+	}
+
+	if tag, ok := tags.WithKey("name").First(); ok {
+		model.EnvironmentName = tag.Value
+	}
+
+	if loadBalancerID != "" {
+		tags, err := s.TagStore.SelectByTypeAndID("load_balancer", loadBalancerID)
+		if err != nil {
+			return nil, err
+		}
+
+		if tag, ok := tags.WithKey("name").First(); ok {
+			model.LoadBalancerName = tag.Value
+		}
+	}
+
+	return model, nil
 }

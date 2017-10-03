@@ -8,17 +8,17 @@ import (
 )
 
 func (t *TaskProvider) Delete(taskID string) error {
-	environmentID, err := t.lookupTaskEnvironmentID(taskID)
+	environmentID, err := lookupEntityEnvironmentID(t.TagStore, "task", taskID)
 	if err != nil {
 		return err
 	}
-	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), environmentID)
 
 	taskARN, err := t.lookupTaskARN(taskID)
 	if err != nil {
 		return err
 	}
 
+	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), environmentID)
 	clusterName := fqEnvironmentID
 	if err := t.stopTask(clusterName, taskARN); err != nil {
 		return err

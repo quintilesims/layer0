@@ -39,6 +39,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			Version: s.version,
 		},
 		Definitions: map[string]swagger.Definition{
+			"Container":                 models.Container{}.Definition(),
 			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
 			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),
@@ -67,6 +68,10 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			{
 				Name:        "LoadBalancer",
 				Description: "Methods related to load balancers",
+			},
+			{
+				Name:        "Service",
+				Description: "Methods related to services",
 			},
 			{
 				Name:        "Task",
@@ -235,7 +240,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 				},
 			},
-			"service": {
+			"/service": {
 				"put": {
 					Summary: "Update a Service",
 					Tags:    []string{"Service"},
@@ -245,6 +250,21 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Responses: map[string]swagger.Response{
 						"200": {
 							Description: "The updated Service",
+							Schema:      swagger.NewObjectSchema("Service"),
+						},
+					},
+				},
+			},
+			"/service/{id}": {
+				"get": {
+					Summary: "Describe a Service",
+					Tags:    []string{"Service"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the service to describe", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The desired service",
 							Schema:      swagger.NewObjectSchema("Service"),
 						},
 					},

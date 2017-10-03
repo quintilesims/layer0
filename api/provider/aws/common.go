@@ -13,6 +13,19 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 )
 
+func lookupDeployIDFromTaskDefinitionARN(store tag.Store, taskDefinitionARN string) (string, error) {
+	tags, err := store.SelectByType("deploy")
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("arn").WithValue(taskDefinitionARN).First(); ok {
+		return tag.EntityID, nil
+	}
+
+	return "", errors.Newf(errors.DeployDoesNotExist, "Failed to find deploy with ARN '%s'", taskDefinitionARN)
+}
+
 func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (string, error) {
 	tags, err := store.SelectByTypeAndID(entityType, entityID)
 	if err != nil {
@@ -37,7 +50,7 @@ func lookupDeployNameAndVersion(store tag.Store, deployID string) (string, strin
 	}
 
 	if len(tags) == 0 {
-		return "", "", errors.NewEntityDoesNotExistError("deploy", deployID)
+		return "", "", errors.Newf(errors.DeployDoesNotExist, "Deploy '%s' does not exist", deployID)
 	}
 
 	nameTag, ok := tags.WithKey("name").First()
@@ -104,7 +117,6 @@ func readSG(ec2api ec2iface.EC2API, groupName string) (*ec2.SecurityGroup, error
 		}
 	}
 
-	// todo: this should be a wrapped error: 'errors.MissingResource' or something
 	return nil, fmt.Errorf("Security group '%s' does not exist", groupName)
 }
 
