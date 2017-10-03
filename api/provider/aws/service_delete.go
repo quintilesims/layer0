@@ -1,9 +1,10 @@
 package aws
 
 import (
-	"strings"
-
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/errors"
 )
 
 // Delete a specified service within a cluster.
@@ -12,26 +13,27 @@ func (s *ServiceProvider) Delete(serviceID string) error {
 
 	environmentID, err := lookupEntityEnvironmentID(s.TagStore, "service", serviceID)
 	if err != nil {
-		if strings.Contains(err.Error(), "ServiceDoesNotExist") {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.ServiceDoesNotExist {
 			return nil
 		}
+
 		return err
 	}
 
 	clusterName := addLayer0Prefix(s.Config.Instance(), environmentID)
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
 
-	service, err := s.readService(clusterName, serviceID)
+	service, err := s.readService(clusterName, fqServiceID)
 	if err != nil {
 		return err
 	}
 
-	taskARNs, err := s.getARNTasks(clusterName, serviceID, service.Deployments)
+	taskARNs, err := s.getServieTasks(clusterName, service.Deployments)
 	if err != nil {
 		return err
 	}
 
-	if err := s.stopARNTasks(clusterName, fqServiceID, taskARNs); err != nil {
+	if err := s.stopServiceTasks(clusterName, fqServiceID, taskARNs); err != nil {
 		return err
 	}
 
@@ -50,50 +52,38 @@ func (s *ServiceProvider) Delete(serviceID string) error {
 	return nil
 }
 
-func (s *ServiceProvider) getARNTasks(clusterName, serviceID string,
-	deployments []*ecs.Deployment) ([]*string, error) {
-	taskARNs := []*string{}
+func (s *ServiceProvider) getServieTasks(clusterName string, deployments []*ecs.Deployment) ([]string, error) {
+	taskARNs := []string{}
 
 	for _, deployment := range deployments {
-		running := "RUNNING"
-		stopped := "STOPPED"
-
-		input := &ecs.ListTasksInput{}
-		input.SetCluster(clusterName)
-		input.SetDesiredStatus(running)
-		input.SetStartedBy(*deployment.Id)
-
-		tasks, err := s.AWS.ECS.ListTasks(input)
+		clusterTaskARNsStopped, err := listClusterTaskARNs(s.AWS.ECS, clusterName, aws.StringValue(deployment.Id), ecs.DesiredStatusStopped)
 		if err != nil {
 			return nil, err
 		}
 
-		taskARNs = append(taskARNs, tasks.TaskArns...)
-
-		input.SetDesiredStatus(stopped)
-		tasks, err = s.AWS.ECS.ListTasks(input)
+		clusterTaskARNsRunning, err := listClusterTaskARNs(s.AWS.ECS, clusterName, aws.StringValue(deployment.Id), ecs.DesiredStatusRunning)
 		if err != nil {
 			return nil, err
 		}
 
-		taskARNs = append(taskARNs, tasks.TaskArns...)
+		taskARNs = append(taskARNs, clusterTaskARNsStopped...)
+		taskARNs = append(taskARNs, clusterTaskARNsRunning...)
 	}
+
 	return taskARNs, nil
 }
 
-func (s *ServiceProvider) stopARNTasks(clusterName, serviceID string, taskARNs []*string) error {
-	for i := range taskARNs {
-		taskARN := taskARNs[i]
-		inputTask := &ecs.StopTaskInput{}
-		inputTask.SetCluster(clusterName)
-		inputTask.SetTask(*taskARN)
+func (s *ServiceProvider) stopServiceTasks(clusterName, serviceID string, taskARNs []string) error {
+	for _, taskARN := range taskARNs {
+		input := &ecs.StopTaskInput{}
+		input.SetCluster(clusterName)
+		input.SetTask(aws.StringValue(&taskARN))
 
-		if err := inputTask.Validate(); err != nil {
+		if err := input.Validate(); err != nil {
 			return err
 		}
 
-		_, err := s.AWS.ECS.StopTask(inputTask)
-		if err != nil {
+		if _, err := s.AWS.ECS.StopTask(input); err != nil {
 			return err
 		}
 	}
@@ -103,9 +93,8 @@ func (s *ServiceProvider) stopARNTasks(clusterName, serviceID string, taskARNs [
 
 func (s *ServiceProvider) scaleService(clusterName, serviceID string, desiredCount int) error {
 	input := &ecs.UpdateServiceInput{}
-	awsDesiredCount := int64(desiredCount)
 
-	input.DesiredCount = &awsDesiredCount
+	input.SetDesiredCount(int64(desiredCount))
 	input.SetCluster(clusterName)
 	input.SetService(serviceID)
 
@@ -116,6 +105,7 @@ func (s *ServiceProvider) scaleService(clusterName, serviceID string, desiredCou
 	if _, err := s.AWS.ECS.UpdateService(input); err != nil {
 		return err
 	}
+
 	return nil
 }
 
@@ -129,6 +119,10 @@ func (s *ServiceProvider) deleteService(clusterName, serviceID string) error {
 	}
 
 	if _, err := s.AWS.ECS.DeleteService(input); err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == errors.ServiceDoesNotExist.String() {
+			return nil
+		}
+
 		return err
 	}
 
