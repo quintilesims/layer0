@@ -17,7 +17,7 @@ func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
 		return nil, err
 	}
 
-	serviceARNs, err := s.listServiceARNsForClusterNames(clusterNames)
+	serviceARNs, err := s.listClusterServiceARNs(clusterNames)
 	if err != nil {
 		return nil, err
 	}
@@ -34,7 +34,9 @@ func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
 	return s.makeServiceSummaryModels(serviceIDs)
 }
 
-func (s *ServiceProvider) listServiceARNsForClusterNames(clusterNames []string) ([]string, error) {
+func (s *ServiceProvider) listClusterServiceARNs(clusterNames []string) ([]string, error) {
+	var serviceARNs []string
+
 	fn := func(output *ecs.ListServicesOutput, lastPage bool) bool {
 		for _, serviceARN := range output.ServiceArns {
 			serviceARNs = append(serviceARNs, aws.StringValue(serviceARN))
@@ -43,7 +45,6 @@ func (s *ServiceProvider) listServiceARNsForClusterNames(clusterNames []string) 
 		return !lastPage
 	}
 
-	var serviceARNs []string
 	for _, clusterName := range clusterNames {
 		input := &ecs.ListServicesInput{}
 		input.SetCluster(clusterName)
