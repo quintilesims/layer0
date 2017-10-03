@@ -25,7 +25,7 @@ func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
 	serviceIDs := make([]string, len(serviceARNs))
 	for i, serviceARN := range serviceARNs {
 		// sample service ARN:
-		// arn:aws:ecs:us-west-2:856306994068:task-definition/l0-tlakedev-guestbook-dpl:84
+		// arn:aws:ecs:us-west-2:856306994068:service/l0-tlakedev-guestbo80d9d
 		fqServiceID := strings.Split(serviceARN, "/")[1]
 		serviceID := delLayer0Prefix(s.Config.Instance(), fqServiceID)
 		serviceIDs[i] = serviceID
