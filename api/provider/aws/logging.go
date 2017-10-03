@@ -24,69 +24,15 @@ func GetLogsFromTaskARNs(
 	start,
 	end time.Time,
 ) ([]models.LogFile, error) {
-	logFiles := []models.LogFile{}
-	fn := func(containerName string, events []*cloudwatchlogs.OutputLogEvent) {
-		logFile := models.LogFile{
-			ContainerName: containerName,
-		}
-
-		logFile.Lines = make([]string, len(events))
-		for i, event := range events {
-			logFile.Lines[i] = aws.StringValue(event.Message)
-		}
-
-		logFiles = append(logFiles, logFile)
-	}
-
-	if err := iterateLogEvents(
-		cloudWatchLogsAPI,
-		logGroupName,
-		taskARNs,
-		tail,
-		start,
-		end,
-		fn); err != nil {
+	taskIDMatch := generateTaskIDMap(taskARNs)
+	logStreams, err := describeLogStreams(cloudWatchLogsAPI, logGroupName)
+	if err != nil {
 		return nil, err
 	}
 
-	return logFiles, nil
-}
-
-func iterateLogEvents(
-	cloudWatchLogsAPI cloudwatchlogsiface.CloudWatchLogsAPI,
-	logGroupName string,
-	taskARNs []string,
-	tail int,
-	start time.Time,
-	end time.Time,
-	fn func(logStreamName string, events []*cloudwatchlogs.OutputLogEvent),
-) error {
-	taskIDMatch := generateTaskIDMap(taskARNs)
-
-	logStreams, err := describeLogStreams(cloudWatchLogsAPI, logGroupName)
-	if err != nil {
-		return err
-	}
-
-	input := &cloudwatchlogs.GetLogEventsInput{}
-	input.SetLogGroupName(logGroupName)
-
-	if tail != 0 {
-		input.SetLimit(int64(tail))
-	}
-
-	if !start.IsZero() {
-		startMS := timeToMilliseconds(start)
-		input.SetStartTime(startMS)
-	}
-
-	if !end.IsZero() {
-		endMS := timeToMilliseconds(end)
-		input.SetEndTime(endMS)
-	}
-
+	logFiles := []models.LogFile{}
 	for _, logStream := range logStreams {
-		// ecs log streams have format '<prefix>/<container name>/<task id>'
+		// ecs task log streams have format '<prefix>/<container name>/<task id>'
 		streamNameSplit := strings.Split(aws.StringValue(logStream.LogStreamName), "/")
 		if len(streamNameSplit) != 3 {
 			continue
@@ -99,27 +45,25 @@ func iterateLogEvents(
 			continue
 		}
 
-		input.SetLogStreamName(aws.StringValue(logStream.LogStreamName))
-
-		var previousToken string
-		eventsFN := func(output *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
-			fn(containerName, output.Events)
-
-			// GetLogEvents re-uses the same NextToken when it is finished instead of returning nil
-			if previousToken == aws.StringValue(output.NextForwardToken) {
-				return false
-			}
-
-			previousToken = aws.StringValue(output.NextForwardToken)
-			return true
+		logStreamName := aws.StringValue(logStream.LogStreamName)
+		logEvents, err := getLogEvents(cloudWatchLogsAPI, logGroupName, logStreamName, tail, start, end)
+		if err != nil {
+			return nil, err
 		}
 
-		if err := cloudWatchLogsAPI.GetLogEventsPages(input, eventsFN); err != nil {
-			return err
+		logFile := models.LogFile{
+			ContainerName: containerName,
+			Lines:        make([]string, len(logEvents)),
 		}
+
+		for i, event := range logEvents {
+			logFile.Lines[i] = aws.StringValue(event.Message)
+		}
+
+		logFiles = append(logFiles, logFile)
 	}
 
-	return nil
+	return logFiles, nil
 }
 
 func describeLogStreams(cloudWatchLogsAPI cloudwatchlogsiface.CloudWatchLogsAPI, logGroupName string) ([]*cloudwatchlogs.LogStream, error) {
@@ -147,6 +91,49 @@ func describeLogStreams(cloudWatchLogsAPI cloudwatchlogsiface.CloudWatchLogsAPI,
 	return logStreams, nil
 }
 
+func getLogEvents(
+	cloudWatchLogsAPI cloudwatchlogsiface.CloudWatchLogsAPI,
+	logGroupName string,
+	logStreamName string,
+	tail int,
+	start time.Time,
+	end time.Time,
+) ([]*cloudwatchlogs.OutputLogEvent, error) {
+	input := &cloudwatchlogs.GetLogEventsInput{}
+	input.SetLogGroupName(logGroupName)
+	input.SetLogStreamName(logStreamName)
+
+	if tail != 0 {
+		input.SetLimit(int64(tail))
+	}
+
+	if !start.IsZero() {
+		startMS := timeToMilliseconds(start)
+		input.SetStartTime(startMS)
+	}
+
+	if !end.IsZero() {
+		endMS := timeToMilliseconds(end)
+		input.SetEndTime(endMS)
+	}
+
+	var previousToken string
+	events := []*cloudwatchlogs.OutputLogEvent{}
+	eventsFN := func(output *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool {
+		defer func() { previousToken = aws.StringValue(output.NextForwardToken) }()
+		events = append(events, output.Events...)
+
+		// GetLogEvents re-uses the same NextToken when it is finished instead of returning nil
+		return previousToken != aws.StringValue(output.NextForwardToken)
+	}
+
+	if err := cloudWatchLogsAPI.GetLogEventsPages(input, eventsFN); err != nil {
+		return nil, err
+	}
+
+	return events, nil
+}
+
 func generateTaskIDMap(taskARNs []string) map[string]bool {
 	catalog := map[string]bool{}
 	for _, taskARN := range taskARNs {
@@ -156,7 +143,6 @@ func generateTaskIDMap(taskARNs []string) map[string]bool {
 	}
 
 	return catalog
-
 }
 
 func timeToMilliseconds(t time.Time) int64 {
