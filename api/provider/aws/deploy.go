@@ -3,33 +3,19 @@ package aws
 import (
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 type DeployProvider struct {
 	AWS      *awsc.Client
 	TagStore tag.Store
+	Config   config.APIConfig
 }
 
-func NewDeployProvider(a *awsc.Client, t tag.Store) *DeployProvider {
+func NewDeployProvider(a *awsc.Client, t tag.Store, c config.APIConfig) *DeployProvider {
 	return &DeployProvider{
 		AWS:      a,
 		TagStore: t,
+		Config:   c,
 	}
-}
-
-func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy, error) {
-	return nil, nil
-}
-
-func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
-	return nil, nil
-}
-
-func (d *DeployProvider) List() ([]models.DeploySummary, error) {
-	return nil, nil
-}
-
-func (d *DeployProvider) Delete(deployID string) error {
-	return nil
 }

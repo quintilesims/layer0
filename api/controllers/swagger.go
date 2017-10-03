@@ -33,7 +33,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 	spec := swagger.Spec{
 		SwaggerVersion: "2.0",
 		Host:           c.Request.Host,
-		Schemes:        []string{"https"},
+		Schemes:        []string{"http", "https"},
 		Info: &swagger.Info{
 			Title:   "Layer0",
 			Version: s.version,
@@ -43,6 +43,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
 			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),
+			"CreateDeployRequest":       models.CreateDeployRequest{}.Definition(),
 			"Environment":               models.Environment{}.Definition(),
 			"Deployment":                models.Deployment{}.Definition(),
 			"HealthCheck":               models.HealthCheck{}.Definition(),
@@ -51,6 +52,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"Port":                      models.Port{}.Definition(),
 			"Service":                   models.Service{}.Definition(),
 			"Task":                      models.Task{}.Definition(),
+			"Deploy":                    models.Deploy{}.Definition(),
 			"UpdateLoadBalancerRequest": models.UpdateLoadBalancerRequest{}.Definition(),
 			"UpdateServiceRequest":      models.UpdateServiceRequest{}.Definition(),
 		},
@@ -74,6 +76,10 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			{
 				Name:        "Task",
 				Description: "Methods related to tasks",
+			},
+			{
+				Name:        "Deploy",
+				Description: "Methods related to deploys",
 			},
 		},
 		Paths: map[string]swagger.Path{
@@ -308,6 +314,58 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Tags:    []string{"Task"},
 					Parameters: []swagger.Parameter{
 						swagger.NewStringPathParam("id", "ID of the task to delete", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "Success",
+						},
+					},
+				},
+			},
+			"/deploy": map[string]swagger.Method{
+				"get": {
+					Summary: "List all Deploys",
+					Tags:    []string{"Deploy"},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "An array of deploys",
+							Schema:      swagger.NewObjectSliceSchema("Deploy"),
+						},
+					},
+				},
+				"post": {
+					Summary: "Add a Deploy",
+					Tags:    []string{"Deploy"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("CreateDeployRequest", "Deploy to add (base64 encoded)", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The added Deploy",
+							Schema:      swagger.NewObjectSchema("Deploy"),
+						},
+					},
+				},
+			},
+			"/deploy/{id}": map[string]swagger.Method{
+				"get": {
+					Summary: "Describe a Deploy",
+					Tags:    []string{"Deploy"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the deploy to describe", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The desired deploy",
+							Schema:      swagger.NewObjectSchema("Deploy"),
+						},
+					},
+				},
+				"delete": {
+					Summary: "Delete a Deploy",
+					Tags:    []string{"Deploy"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the deploy to delete", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
