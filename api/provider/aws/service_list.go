@@ -8,6 +8,9 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// List retrieves a list of ECS Services and returns a list of Service Summaries.
+// A Service Summary consists of the Service ID, Service name, Environment ID, and
+// Environment name.
 func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
 	clusterArns, err := s.listClusters()
 	if err != nil {

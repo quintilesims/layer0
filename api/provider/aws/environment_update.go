@@ -9,7 +9,7 @@ import (
 // Update updates an ECS Cluster using the specified Update Environment Request, and
 // returns an error. The Update Environment Request contains the Environment ID
 // and the minimum size of the Cluster's Auto Scaling Group. The Cluster's Auto Scaling
-// Group Size is updated by making an UpdateAutoScalingGroup to AWS.
+// Group Size is updated by making an UpdateAutoScalingGroup request to AWS.
 func (e *EnvironmentProvider) Update(req models.UpdateEnvironmentRequest) error {
 	environmentID := req.EnvironmentID
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)

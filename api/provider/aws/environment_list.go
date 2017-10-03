@@ -6,7 +6,7 @@ import (
 
 // List retrieves a list of ECS Cluster names and returns a list of Environment
 // Summaries. An Environment Summary consists of the Environment ID, Environment name,
-// and Operating System
+// and Operating System.
 func (e *EnvironmentProvider) List() ([]models.EnvironmentSummary, error) {
 	clusterNames, err := listClusterNames(e.AWS.ECS, e.Config.Instance())
 	if err != nil {
