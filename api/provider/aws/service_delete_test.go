@@ -12,31 +12,19 @@ func TestService_deleteEntityTags(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	task := NewServiceProvider(nil, tagStore, nil)
 
-	tags := models.Tags{
-		{
-			EntityID:   "s1",
-			EntityType: "service",
-			Key:        "name",
-			Value:      "svc1",
-		},
-		{
-			EntityID:   "s2",
-			EntityType: "service",
-			Key:        "name",
-			Value:      "svc2",
-		},
+	tag := models.Tag{
+		EntityID:   "s1",
+		EntityType: "service",
+		Key:        "name",
+		Value:      "svc1",
 	}
 
-	for _, tag := range tags {
-		if err := tagStore.Insert(tag); err != nil {
-			t.Fatal(err)
-		}
+	if err := tagStore.Insert(tag); err != nil {
+		t.Fatal(err)
 	}
 
-	for _, tag := range tags {
-		if err := deleteEntityTags(task.TagStore, "service", tag.EntityID); err != nil {
-			t.Fatal(err)
-		}
+	if err := deleteEntityTags(task.TagStore, "service", tag.EntityID); err != nil {
+		t.Fatal(err)
 	}
 
 	assert.Len(t, tagStore.Tags(), 0)
