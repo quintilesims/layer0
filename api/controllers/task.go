@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"strconv"
-	"time"
 
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
@@ -84,34 +82,9 @@ func (t *TaskController) GetTask(c *fireball.Context) (fireball.Response, error)
 
 func (t *TaskController) GetTaskLogs(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	query := c.Request.URL.Query()
-
-	var tail int
-	if v := query.Get("tail"); v != "" {
-		t, err := strconv.Atoi(v)
-		if err != nil {
-			return nil, errors.Newf(errors.InvalidRequest, "Tail must be an integer")
-		}
-
-		tail = t
-	}
-
-	parseTime := func(v string) (time.Time, error) {
-		if v == "" {
-			return time.Time{}, nil
-		}
-
-		return time.Parse(TIME_LAYOUT, v)
-	}
-
-	start, err := parseTime(query.Get("start"))
+	tail, start, end, err := parseLoggingQuery(c.Request.URL.Query())
 	if err != nil {
-		return nil, errors.Newf(errors.InvalidRequest, "Invalid time: start must be in format YYYY-MM-DD HH:MM")
-	}
-
-	end, err := parseTime(query.Get("end"))
-	if err != nil {
-		return nil, errors.Newf(errors.InvalidRequest, "Invalid time: end must be in format YYYY-MM-DD HH:MM")
+		return nil, err
 	}
 
 	logs, err := t.TaskProvider.Logs(id, tail, start, end)

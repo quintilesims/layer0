@@ -167,3 +167,27 @@ func listClusterNames(ecsapi ecsiface.ECSAPI, instance string) ([]string, error)
 
 	return clusterNames, nil
 }
+
+func listClusterTaskARNs(ecsapi ecsiface.ECSAPI, clusterName, startedBy string) ([]string, error) {
+	taskARNs := []string{}
+	fn := func(output *ecs.ListTasksOutput, lastPage bool) bool {
+		for _, taskARN := range output.TaskArns {
+			taskARNs = append(taskARNs, aws.StringValue(taskARN))
+		}
+
+		return !lastPage
+	}
+
+	for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
+		input := &ecs.ListTasksInput{}
+		input.SetCluster(clusterName)
+		input.SetDesiredStatus(status)
+		input.SetStartedBy(startedBy)
+
+		if err := ecsapi.ListTasksPages(input, fn); err != nil {
+			return nil, err
+		}
+	}
+
+	return taskARNs, nil
+}

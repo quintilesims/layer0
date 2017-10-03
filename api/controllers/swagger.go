@@ -265,6 +265,24 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 				},
 			},
+			"/service/{id}/logs": map[string]swagger.Method{
+				"get": {
+					Summary: "Get service logs",
+					Tags:    []string{"Service"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the service to describe", true),
+						swagger.NewIntQueryParam("tail", "The number of lines from the end to return", false),
+						swagger.NewStringQueryParam("start", "The start of the time range to fetch logs (format YYYY-MM-DD HH:MM)", false),
+						swagger.NewStringQueryParam("end", "The end of the time range to fetch logs (format YYYY-MM-DD HH:MM)", false),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The service's logs",
+							Schema:      swagger.NewObjectSliceSchema("LogFile"),
+						},
+					},
+				},
+			},
 			"/task": map[string]swagger.Method{
 				"get": {
 					Summary: "List all Tasks",

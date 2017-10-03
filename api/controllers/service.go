@@ -39,6 +39,12 @@ func (s *ServiceController) Routes() []*fireball.Route {
 				"DELETE": s.DeleteService,
 			},
 		},
+		 {
+                        Path: "/service/:id/logs",
+                        Handlers: fireball.Handlers{
+                                "GET":    s.GetServiceLogs,
+                        },
+                },
 	}
 }
 
@@ -68,6 +74,21 @@ func (s *ServiceController) GetService(c *fireball.Context) (fireball.Response, 
 	}
 
 	return fireball.NewJSONResponse(200, model)
+}
+
+func (s *ServiceController) GetServiceLogs(c *fireball.Context) (fireball.Response, error) {
+	id := c.PathVariables["id"]
+	tail, start, end, err := parseLoggingQuery(c.Request.URL.Query())
+	if err != nil {
+		return nil, err
+	}
+
+	logs, err := s.ServiceProvider.Logs(id, tail, start, end)
+	if err != nil {
+		return nil, err
+	}
+
+	return fireball.NewJSONResponse(200, logs)
 }
 
 func (s *ServiceController) ListServices(c *fireball.Context) (fireball.Response, error) {
