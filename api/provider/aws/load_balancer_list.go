@@ -15,21 +15,13 @@ func (l *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 		return nil, err
 	}
 
-	summaries := make([]models.LoadBalancerSummary, len(loadBalancerNames))
+	loadBalancerIDs := make([]string, len(loadBalancerNames))
 	for i, loadBalancerName := range loadBalancerNames {
-		loadBalancerID := delLayer0Prefix(e.Config.Instance(), loadBalancerName)
-		summary := models.LoadBalancerSummary{
-			LoadBalancerID: loadBalancerID,
-		}
-
-		summaries[i] = summary
+		loadBalancerID := delLayer0Prefix(l.Config.Instance(), loadBalancerName)
+		loadBalancerIDs[i] = loadBalancerID
 	}
 
-	if err := e.populateSummariesTags(summaries); err != nil {
-		return nil, err
-	}
-
-	return summaries, nil
+	return l.makeLoadBalancerSummaryModels(loadBalancerIDs)
 }
 
 func (l *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {

@@ -34,17 +34,15 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 		return nil, err
 	}
 
-	model := &models.Environment{
-		EnvironmentID:   environmentID,
-		ClusterCount:    len(autoScalingGroup.Instances),
-		InstanceSize:    aws.StringValue(launchConfig.InstanceType),
-		SecurityGroupID: aws.StringValue(securityGroup.GroupId),
-		AMIID:           aws.StringValue(launchConfig.ImageId),
-	}
-
-	if err := e.populateModelTags(environmentID, model); err != nil {
+	model, err := e.makeEnvironmentModel(environmentID)
+	if err != nil {
 		return nil, err
 	}
+
+	model.ClusterCount = len(autoScalingGroup.Instances)
+	model.InstanceSize = aws.StringValue(launchConfig.InstanceType)
+	model.SecurityGroupID = aws.StringValue(securityGroup.GroupId)
+	model.AMIID = aws.StringValue(launchConfig.ImageId)
 
 	return model, nil
 }
@@ -85,10 +83,14 @@ func (e *EnvironmentProvider) readASG(autoScalingGroupName string) (*autoscaling
 	return nil, fmt.Errorf("AutoScaling Group '%s' does not exist", autoScalingGroupName)
 }
 
-func (e *EnvironmentProvider) populateModelTags(environmentID string, model *models.Environment) error {
+func (e *EnvironmentProvider) makeEnvironmentModel(environmentID string) (*models.Environment, error) {
+	model := &models.Environment{
+		EnvironmentID: environmentID,
+	}
+
 	tags, err := e.TagStore.SelectByTypeAndID("environment", environmentID)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	if tag, ok := tags.WithKey("name").First(); ok {
@@ -104,5 +106,5 @@ func (e *EnvironmentProvider) populateModelTags(environmentID string, model *mod
 		model.Links = append(model.Links, tag.Value)
 	}
 
-	return nil
+	return model, nil
 }
