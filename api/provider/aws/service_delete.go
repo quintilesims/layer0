@@ -56,17 +56,11 @@ func (s *ServiceProvider) getServiceActiveTasks(clusterName string, deployments 
 	taskARNs := []string{}
 
 	for _, deployment := range deployments {
-		clusterTaskARNsStopped, err := listClusterTaskARNs(s.AWS.ECS, clusterName, aws.StringValue(deployment.Id), ecs.DesiredStatusStopped)
-		if err != nil {
-			return nil, err
-		}
-
 		clusterTaskARNsRunning, err := listClusterTaskARNs(s.AWS.ECS, clusterName, aws.StringValue(deployment.Id), ecs.DesiredStatusRunning)
 		if err != nil {
 			return nil, err
 		}
 
-		taskARNs = append(taskARNs, clusterTaskARNsStopped...)
 		taskARNs = append(taskARNs, clusterTaskARNsRunning...)
 	}
 
