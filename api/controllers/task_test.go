@@ -123,7 +123,7 @@ func TestGetTaskLogs(t *testing.T) {
 
 	logFiles := []models.LogFile{
 		{
-			ContainerName: "apline",
+			ContainerName: "alpine",
 			Lines:         []string{"hello", "world"},
 		},
 	}
