@@ -5,13 +5,37 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
+	"github.com/aws/aws-sdk-go/service/elb"
+	"github.com/aws/aws-sdk-go/service/elb/elbiface"
 	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 )
+
+func describeLoadBalancer(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerDescription, error) {
+	input := &elb.DescribeLoadBalancersInput{}
+	input.SetLoadBalancerNames([]*string{aws.String(loadBalancerName)})
+	input.SetPageSize(1)
+
+	output, err := elbapi.DescribeLoadBalancers(input)
+	if err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
+			return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
+		}
+
+		return nil, err
+	}
+
+	if len(output.LoadBalancerDescriptions) != 1 {
+		return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
+	}
+
+	return output.LoadBalancerDescriptions[0], nil
+}
 
 func lookupDeployIDFromTaskDefinitionARN(store tag.Store, taskDefinitionARN string) (string, error) {
 	tags, err := store.SelectByType("deploy")

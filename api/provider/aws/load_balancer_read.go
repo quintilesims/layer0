@@ -4,9 +4,6 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/elb"
-	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -14,7 +11,7 @@ import (
 // is used when the DescribeLoadBalancers request is made to AWS.
 func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer, error) {
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
-	loadBalancer, err := l.describeLoadBalancer(fqLoadBalancerID)
+	loadBalancer, err := describeLoadBalancer(l.AWS.ELB, fqLoadBalancerID)
 	if err != nil {
 		return nil, err
 	}
@@ -54,27 +51,6 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 	model.URL = aws.StringValue(loadBalancer.DNSName)
 
 	return model, nil
-}
-
-func (l *LoadBalancerProvider) describeLoadBalancer(loadBalancerName string) (*elb.LoadBalancerDescription, error) {
-	input := &elb.DescribeLoadBalancersInput{}
-	input.SetLoadBalancerNames([]*string{aws.String(loadBalancerName)})
-	input.SetPageSize(1)
-
-	output, err := l.AWS.ELB.DescribeLoadBalancers(input)
-	if err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
-			return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
-		}
-
-		return nil, err
-	}
-
-	if len(output.LoadBalancerDescriptions) != 1 {
-		return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
-	}
-
-	return output.LoadBalancerDescriptions[0], nil
 }
 
 func (l *LoadBalancerProvider) makeLoadBalancerModel(loadBalancerID string) (*models.LoadBalancer, error) {

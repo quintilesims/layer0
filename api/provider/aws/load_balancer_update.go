@@ -46,7 +46,7 @@ func (l *LoadBalancerProvider) Update(req models.UpdateLoadBalancerRequest) erro
 
 		securityGroupID := aws.StringValue(securityGroup.GroupId)
 
-		loadBalancerDescription, err := l.describeLoadBalancer(loadBalancerName)
+		loadBalancerDescription, err := describeLoadBalancer(l.AWS.ELB, loadBalancerName)
 		if err != nil {
 			return err
 		}
