@@ -270,6 +270,18 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 						},
 					},
 				},
+				"delete": {
+					Summary: "Delete a Service",
+					Tags:    []string{"Service"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the service to delete", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "Success",
+						},
+					},
+				},
 			},
 			"/service/{id}/logs": map[string]swagger.Method{
 				"get": {
