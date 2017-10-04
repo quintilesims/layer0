@@ -1,48 +1,87 @@
 package aws
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 func (s *ServiceProvider) Create(req models.CreateServiceRequest) (*models.Service, error) {
-	serviceID := generateEntityID(req.ServiceName)
-
-	fqDeployID := addLayer0Prefix(s.Config.Instance(), req.DeployID)
-	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
-	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
-	desiredCount := 1
-
 	var (
-		loadBalancerContainers []ecs.LoadBalancer
-		loadBalancerRole       string
+		cluster          string
+		desiredCount     int
+		loadBalancer     *ecs.LoadBalancer
+		loadBalancerRole string
+		serviceName      string
+		taskDefinition   string
 	)
 
+	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
+	cluster = fqEnvironmentID
+
+	desiredCount = 1
+
+	serviceID := generateEntityID(req.ServiceName)
+	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
+	serviceName = fqServiceID
+
+	taskDefinitionARN, err := s.lookupTaskDefinitionARNFromDeployID(req.DeployID)
+	if err != nil {
+		return nil, err
+	}
+
+	taskDefinition = taskDefinitionARN
+
 	if req.LoadBalancerID != "" {
-		fqLoadbalancerID := addLayer0Prefix(s.Config.Instance(), req.LoadBalancerID)
-		loadBalancerContainer, err := s.getLoadBalancerContainer(fqLoadBalancerID, fqDeployID)
+		fqLoadBalancerID := addLayer0Prefix(s.Config.Instance(), req.LoadBalancerID)
+		loadBalancerDescription, err := describeLoadBalancer(s.AWS.ELB, fqLoadBalancerID)
 		if err != nil {
 			return nil, err
 		}
 
-		loadBalancerContainers = []ecs.LoadBalancer{loadBalancerContainer}
+		taskDefinitionDescription, err := describeTaskDefinition(s.AWS.ECS, taskDefinitionARN)
+		if err != nil {
+			return nil, err
+		}
+
+		var loadBalancerContainer ecs.LoadBalancer
+		for _, containerDefinition := range taskDefinitionDescription.ContainerDefinitions {
+			for _, portMapping := range containerDefinition.PortMappings {
+				for _, listenerDescription := range loadBalancerDescription.ListenerDescriptions {
+					listener := listenerDescription.Listener
+					if *listener.InstancePort == *portMapping.ContainerPort {
+						loadBalancerContainer = ecs.LoadBalancer{
+							ContainerName:    containerDefinition.Name,
+							ContainerPort:    portMapping.ContainerPort,
+							LoadBalancerName: loadBalancerDescription.LoadBalancerName,
+						}
+					}
+				}
+			}
+		}
+
+		loadBalancer = &loadBalancerContainer
 		loadBalancerRole = fmt.Sprintf("%s-lb", fqLoadBalancerID)
 	}
 
-	if err := s.createService(); err != nil {
+	if err := s.createService(desiredCount, cluster, serviceName, taskDefinition, loadBalancerRole, loadBalancer); err != nil {
 		return nil, err
 	}
 
 	return s.Read(serviceID)
 }
 
-func (s *ServiceProvider) createService(cluster, serviceName, taskDefinition, loadBalancerRole string, loadBalancers []ecs.LoadBalancer) error {
+func (s *ServiceProvider) createService(desiredCount int, cluster, serviceName, taskDefinition, loadBalancerRole string, loadBalancer *ecs.LoadBalancer) error {
 	input := &ecs.CreateServiceInput{}
 	input.SetCluster(cluster)
-	input.SetDesiredCount(aws.Int64(desiredCount))
+	input.SetDesiredCount(int64(desiredCount))
 	input.SetServiceName(serviceName)
-	if len(loadbalancers) > 0 {
-		input.SetLoadBalancers
+	input.SetTaskDefinition(taskDefinition)
+	if loadBalancer != nil && loadBalancerRole != "" {
+		input.SetLoadBalancers([]*ecs.LoadBalancer{loadBalancer})
+		input.SetRole(loadBalancerRole)
+	}
 
 	if err := input.Validate(); err != nil {
 		return err
@@ -53,4 +92,17 @@ func (s *ServiceProvider) createService(cluster, serviceName, taskDefinition, lo
 	}
 
 	return nil
+}
+
+func (s *ServiceProvider) lookupTaskDefinitionARNFromDeployID(deployID string) (string, error) {
+	tags, err := s.TagStore.SelectByTypeAndID("deploy", deployID)
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("arn").First(); ok {
+		return tag.Value, nil
+	}
+
+	return "", fmt.Errorf("Could not resolve task definition ARN for deploy '%s'", deployID)
 }
