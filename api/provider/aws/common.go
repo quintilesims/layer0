@@ -37,6 +37,22 @@ func describeLoadBalancer(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb
 	return output.LoadBalancerDescriptions[0], nil
 }
 
+func describeTaskDefinition(ecsapi ecsiface.ECSAPI, taskDefinitionARN string) (*ecs.TaskDefinition, error) {
+	input := &ecs.DescribeTaskDefinitionInput{}
+	input.SetTaskDefinition(taskDefinitionARN)
+
+	output, err := ecsapi.DescribeTaskDefinition(input)
+	if err != nil {
+		if err, ok := err.(awserr.Error); ok && strings.Contains(err.Message(), "Unable to describe task definition") {
+			return nil, errors.Newf(errors.DeployDoesNotExist, "Deploy '%s' does not exist", taskDefinitionARN)
+		}
+
+		return nil, err
+	}
+
+	return output.TaskDefinition, nil
+}
+
 func lookupDeployIDFromTaskDefinitionARN(store tag.Store, taskDefinitionARN string) (string, error) {
 	tags, err := store.SelectByType("deploy")
 	if err != nil {

@@ -3,10 +3,7 @@ package aws
 import (
 	"encoding/json"
 	"fmt"
-	"strings"
 
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -20,7 +17,7 @@ func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
 		return nil, err
 	}
 
-	taskDefinition, err := d.describeTaskDefinition(taskDefinitionARN)
+	taskDefinition, err := describeTaskDefinition(d.AWS.ECS, taskDefinitionARN)
 	if err != nil {
 		return nil, err
 	}
@@ -31,22 +28,6 @@ func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
 	}
 
 	return d.makeDeployModel(deployID, deployFile)
-}
-
-func (d *DeployProvider) describeTaskDefinition(taskDefinitionARN string) (*ecs.TaskDefinition, error) {
-	input := &ecs.DescribeTaskDefinitionInput{}
-	input.SetTaskDefinition(taskDefinitionARN)
-
-	output, err := d.AWS.ECS.DescribeTaskDefinition(input)
-	if err != nil {
-		if err, ok := err.(awserr.Error); ok && strings.Contains(err.Message(), "Unable to describe task definition") {
-			return nil, errors.Newf(errors.DeployDoesNotExist, "Deploy '%s' does not exist", taskDefinitionARN)
-		}
-
-		return nil, err
-	}
-
-	return output.TaskDefinition, nil
 }
 
 func (d *DeployProvider) lookupTaskDefinitionARN(deployID string) (string, error) {
