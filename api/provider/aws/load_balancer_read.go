@@ -10,6 +10,8 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// Read returns a *models.LoadBalancer based on the provided loadBalancerID. The loadBalancerID
+// is used when the DescribeLoadBalancers request is made to AWS.
 func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer, error) {
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	loadBalancer, err := l.describeLoadBalancer(fqLoadBalancerID)

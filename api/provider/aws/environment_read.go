@@ -8,7 +8,12 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// Read returns a *models.Environment based on the provided environmentID. The environmentID
+// is used to look up the Environment's Security Group, Auto Scaling Group, and
+// Launch Configuration when DescribeSecurityGroups, DescribeAutoScalingGroups, and
+// DescribeLaunchConfigurations requests respectively are made to AWS.
 func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, error) {
+	// todo: catch 'EntityDoesNotExist' errors
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	securityGroupName := getEnvironmentSGName(fqEnvironmentID)

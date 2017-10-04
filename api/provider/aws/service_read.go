@@ -8,6 +8,9 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// Read returns a *models.Service based on the provided serviceID. The
+// serviceID is used to look up the Service's Environment ID. The Environment
+// ID and serviceID are used when the DescribeServices request is made to AWS.
 func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 	environmentID, err := lookupEntityEnvironmentID(s.TagStore, "service", serviceID)
 	if err != nil {

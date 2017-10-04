@@ -11,6 +11,9 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// Read returns a *models.Deploy based on the provided deployID. The deployID
+// is used to look up the associated Task Definition ARN. The Task Definition
+// ARN is subsequently used when the DescribeTaskDefinition request is made to AWS.
 func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
 	taskDefinitionARN, err := d.lookupTaskDefinitionARN(deployID)
 	if err != nil {

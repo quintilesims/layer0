@@ -10,6 +10,9 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// Create registers an ECS Task Definition using the specified Create Deploy Request.
+// The Create Deploy Request contains the name of the Deploy and the JSON
+// representation of the Task Definition to create.
 func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy, error) {
 	deployID := generateEntityID(req.DeployName)
 	familyName := addLayer0Prefix(d.Config.Instance(), req.DeployName)

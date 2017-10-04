@@ -8,6 +8,9 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 )
 
+// Delete deregisters an ECS Task Definition using the specified deployID. The deployID is used
+// to look up the associated Task Definition ARN. The Task Definition ARN is subsequently used
+// when the DeregisterTaskDefinition request is made to AWS.
 func (d *DeployProvider) Delete(deployID string) error {
 	taskARN, err := d.lookupTaskDefinitionARN(deployID)
 	if err != nil {

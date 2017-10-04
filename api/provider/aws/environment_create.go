@@ -14,8 +14,14 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// todo: ensure envirnment name is unique
+// Create is used to create an ECS Cluster using the specified Create Environment
+// Request. The Create Environment Request contains the name of the Environment,
+// the instance type and user data for the Launch Configuration, the minimum size
+// of the Cluster's Auto Scaling Group, and the Operating System and EC2 AMI ID
+// used in the Launch Configuration. The EC2 Launch Configuration, Auto Scaling
+// Group, and Security Group are created before the Cluster is created.
 func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*models.Environment, error) {
+	// TODO: Ensure environment name is unique
 	environmentID := generateEntityID(req.EnvironmentName)
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 

@@ -7,6 +7,10 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+// Update is used to update an ECS Service using the specified Update Service Request.
+// The Update Service Request contains the Service ID, the Deploy ID and the scale of the DesiredCount
+// of the Service. The Service's Task Definition and Desired Count are updated with two separate UpdateService
+// requests to AWS.
 func (s *ServiceProvider) Update(req models.UpdateServiceRequest) error {
 	serviceID := req.ServiceID
 
