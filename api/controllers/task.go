@@ -2,8 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"strconv"
-	"time"
 
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
