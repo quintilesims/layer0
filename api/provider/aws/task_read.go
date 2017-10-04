@@ -11,9 +11,9 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Read returns a models.Task based on the provided Task ID. The Task ID is used to look up the name of
-// the cluster (Environment) the Task resides in. The cluster name is used as a filter when
-// the DescribeTasks request is made to AWS.
+// Read returns a *models.Task based on the provided taskID. The taskID is used to look up the name of
+// the cluster (Environment) the Task resides in. The Cluster name is used when the DescribeTasks request
+// is made to AWS.
 func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 	environmentID, err := lookupEntityEnvironmentID(t.TagStore, "task", taskID)
 	if err != nil {

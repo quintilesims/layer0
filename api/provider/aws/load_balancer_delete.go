@@ -9,9 +9,11 @@ import (
 	"github.com/aws/aws-sdk-go/service/iam"
 )
 
-// Delete deletes an Elastic Load Balancer using the specified Load Balancer ID. The
-// associated IAM Role, IAM Role inline policy, and Security Group
-// are also removed as part of the process.
+// Delete is used to delete an Elastic Load Balancer using the specified loadBalancerID.
+// The associated IAM Role, IAM Role inline policy, and Security Group are also
+// removed as part of the process by making DeleteRole, DeleteRolePolicy and
+// DeleteSecurityGroup requests to AWS, respectively. The Load Balancer is deleted
+// by making a DeleteLoadBalancer request to AWS.
 func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 

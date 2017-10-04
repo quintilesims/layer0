@@ -9,9 +9,12 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs"
 )
 
-// Delete deletes an ECS Cluster using the specified Environment ID. The associated
-// EC2 Launch Configuration, Auto Scaling Group, and Security Group are also removed
-// as part of the process.
+// Delete is used to delete an ECS Cluster using the specified environmentID. The environmentID
+// is used as the Environment's Auto Scaling Group, and Launch Configuration names when
+// DeleteAutoScalingGroup and DeleteLaunchConfiguration requests are made to AWS, respectively.
+// The environmentID is also used to look up the Environment's Security Group and the Security Group name
+// is subsequently used when the DeleteSecurityGroup request is made to AWS. The ECS Cluster is deleted
+// by making a DeleteCluster request to AWS.
 func (e *EnvironmentProvider) Delete(environmentID string) error {
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 

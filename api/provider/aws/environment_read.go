@@ -8,8 +8,8 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Read returns a models.Environment based on the provided Environment ID. The Environment
-// ID is used to look up the Environment's Security Group, Auto Scaling Group, and
+// Read returns a *models.Environment based on the provided environmentID. The environmentID
+// is used to look up the Environment's Security Group, Auto Scaling Group, and
 // Launch Configuration when DescribeSecurityGroups, DescribeAutoScalingGroups, and
 // DescribeLaunchConfigurations requests respectively are made to AWS.
 func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, error) {
