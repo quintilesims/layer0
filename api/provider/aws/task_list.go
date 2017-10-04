@@ -28,7 +28,12 @@ func (t *TaskProvider) List() ([]models.TaskSummary, error) {
 		taskARNs = append(taskARNs, clusterTaskARNsRunning...)
 	}
 
-	return t.makeTaskSummaryModels(taskARNs)
+	summaries, err := t.populateSummariesFromTaskARNs(taskARNs)
+	if err != nil {
+		return nil, err
+	}
+
+	return summaries, nil
 }
 
 func (t *TaskProvider) populateSummariesFromTaskARNs(taskARNs []string) ([]models.TaskSummary, error) {
