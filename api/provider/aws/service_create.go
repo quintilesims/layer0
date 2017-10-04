@@ -69,6 +69,10 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (*models.Servi
 		return nil, err
 	}
 
+	if err := s.createTags(serviceID, req.ServiceName, req.EnvironmentID); err != nil {
+		return nil, err
+	}
+
 	return s.Read(serviceID)
 }
 
@@ -89,6 +93,31 @@ func (s *ServiceProvider) createService(desiredCount int, cluster, serviceName, 
 
 	if _, err := s.AWS.ECS.CreateService(input); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (s *ServiceProvider) createTags(serviceID, serviceName, environmentID string) error {
+	tags := []models.Tag{
+		{
+			EntityID:   serviceID,
+			EntityType: "service",
+			Key:        "name",
+			Value:      serviceName,
+		},
+		{
+			EntityID:   serviceID,
+			EntityType: "service",
+			Key:        "environment_id",
+			Value:      environmentID,
+		},
+	}
+
+	for _, tag := range tags {
+		if err := s.TagStore.Insert(tag); err != nil {
+			return err
+		}
 	}
 
 	return nil
