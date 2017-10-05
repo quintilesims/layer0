@@ -8,7 +8,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func (s *ServiceProvider) Create(req models.CreateServiceRequest) (*models.Service, error) {
+func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error) {
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
 	cluster := fqEnvironmentID
 
@@ -20,7 +20,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (*models.Servi
 
 	taskDefinitionARN, err := lookupTaskDefinitionARNFromDeployID(s.TagStore, req.DeployID)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	var loadBalancer *ecs.LoadBalancer
@@ -29,12 +29,12 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (*models.Servi
 		fqLoadBalancerID := addLayer0Prefix(s.Config.Instance(), req.LoadBalancerID)
 		loadBalancerDescription, err := describeLoadBalancer(s.AWS.ELB, fqLoadBalancerID)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
 		taskDefinition, err := describeTaskDefinition(s.AWS.ECS, taskDefinitionARN)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
 		for _, containerDefinition := range taskDefinition.ContainerDefinitions {
@@ -57,14 +57,14 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (*models.Servi
 	}
 
 	if err := s.createService(cluster, serviceName, taskDefinitionARN, desiredCount, loadBalancerRole, loadBalancer); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	if err := s.createTags(serviceID, req.ServiceName, req.EnvironmentID, req.LoadBalancerID); err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return s.Read(serviceID)
+	return serviceID, nil
 }
 
 func (s *ServiceProvider) createService(cluster, serviceName, taskDefinition string, desiredCount int, loadBalancerRole string, loadBalancer *ecs.LoadBalancer) error {
