@@ -37,7 +37,7 @@ func (a *AdminController) Routes() []*fireball.Route {
 
 func (a *AdminController) GetConfig(c *fireball.Context) (fireball.Response, error) {
 	model := models.APIConfig{
-		Prefix:         a.Config.Prefix(),
+		Instance:       a.Config.Instance(),
 		VPCID:          a.Config.VPC(),
 		Version:        a.Version,
 		PublicSubnets:  a.Config.PublicSubnets(),
