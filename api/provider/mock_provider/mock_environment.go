@@ -5,9 +5,10 @@
 package mock_provider
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockEnvironmentProvider is a mock of EnvironmentProvider interface
@@ -34,9 +35,9 @@ func (m *MockEnvironmentProvider) EXPECT() *MockEnvironmentProviderMockRecorder 
 }
 
 // Create mocks base method
-func (m *MockEnvironmentProvider) Create(arg0 models.CreateEnvironmentRequest) (*models.Environment, error) {
+func (m *MockEnvironmentProvider) Create(arg0 models.CreateEnvironmentRequest) (string, error) {
 	ret := m.ctrl.Call(m, "Create", arg0)
-	ret0, _ := ret[0].(*models.Environment)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

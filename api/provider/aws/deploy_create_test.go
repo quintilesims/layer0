@@ -20,7 +20,7 @@ func TestDeploy_createTags(t *testing.T) {
 	version := "deploy_version"
 	arn := "deploy_arn"
 
-	if err := deploy.createTags(name, id, version, arn); err != nil {
+	if err := deploy.createTags(id, name, version, arn); err != nil {
 		t.Fatal(err)
 	}
 

@@ -5,9 +5,10 @@
 package mock_provider
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockLoadBalancerProvider is a mock of LoadBalancerProvider interface
@@ -34,9 +35,9 @@ func (m *MockLoadBalancerProvider) EXPECT() *MockLoadBalancerProviderMockRecorde
 }
 
 // Create mocks base method
-func (m *MockLoadBalancerProvider) Create(arg0 models.CreateLoadBalancerRequest) (*models.LoadBalancer, error) {
+func (m *MockLoadBalancerProvider) Create(arg0 models.CreateLoadBalancerRequest) (string, error) {
 	ret := m.ctrl.Call(m, "Create", arg0)
-	ret0, _ := ret[0].(*models.LoadBalancer)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

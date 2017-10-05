@@ -79,12 +79,12 @@ func (r *JobRunner) createDeploy(jobID, request string) (string, error) {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	deploy, err := r.deployProvider.Create(req)
+	deployID, err := r.deployProvider.Create(req)
 	if err != nil {
 		return "", err
 	}
 
-	return deploy.DeployID, nil
+	return deployID, nil
 }
 
 func (r *JobRunner) createEnvironment(jobID, request string) (string, error) {
@@ -93,12 +93,12 @@ func (r *JobRunner) createEnvironment(jobID, request string) (string, error) {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	environment, err := r.environmentProvider.Create(req)
+	environmentID, err := r.environmentProvider.Create(req)
 	if err != nil {
 		return "", err
 	}
 
-	return environment.EnvironmentID, nil
+	return environmentID, nil
 }
 
 func (r *JobRunner) createLoadBalancer(jobID, request string) (string, error) {
@@ -107,12 +107,12 @@ func (r *JobRunner) createLoadBalancer(jobID, request string) (string, error) {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	loadBalancer, err := r.loadBalancerProvider.Create(req)
+	loadBalancerID, err := r.loadBalancerProvider.Create(req)
 	if err != nil {
 		return "", err
 	}
 
-	return loadBalancer.LoadBalancerID, nil
+	return loadBalancerID, nil
 }
 
 func (r *JobRunner) createService(jobID, request string) (string, error) {
@@ -121,14 +121,14 @@ func (r *JobRunner) createService(jobID, request string) (string, error) {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	service, err := r.serviceProvider.Create(req)
+	serviceID, err := r.serviceProvider.Create(req)
 	if err != nil {
 		return "", err
 	}
 
 	// scale up after the service has been added into the ecs service scheduler
 	r.scaler.ScheduleRun(req.EnvironmentID)
-	return service.ServiceID, nil
+	return serviceID, nil
 }
 
 func (r *JobRunner) createTask(jobID, request string) (string, error) {
