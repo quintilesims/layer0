@@ -31,7 +31,7 @@ func (t *TaskProvider) List() ([]models.TaskSummary, error) {
 		taskARNs = append(taskARNs, clusterTaskARNsRunning...)
 	}
 
-	summaries, err := t.populateSummariesFromTaskARNs(taskARNs)
+	summaries, err := t.makeTaskSummaryModels(taskARNs)
 	if err != nil {
 		return nil, err
 	}
@@ -39,7 +39,7 @@ func (t *TaskProvider) List() ([]models.TaskSummary, error) {
 	return summaries, nil
 }
 
-func (t *TaskProvider) populateSummariesFromTaskARNs(taskARNs []string) ([]models.TaskSummary, error) {
+func (t *TaskProvider) makeTaskSummaryModels(taskARNs []string) ([]models.TaskSummary, error) {
 	environmentTags, err := t.TagStore.SelectByType("environment")
 	if err != nil {
 		return nil, err
