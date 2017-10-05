@@ -5,10 +5,11 @@
 package mock_provider
 
 import (
-	gomock "github.com/golang/mock/gomock"
-	models "github.com/quintilesims/layer0/common/models"
 	reflect "reflect"
 	time "time"
+
+	gomock "github.com/golang/mock/gomock"
+	models "github.com/quintilesims/layer0/common/models"
 )
 
 // MockTaskProvider is a mock of TaskProvider interface
