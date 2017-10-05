@@ -5,10 +5,10 @@
 package mock_provider
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
+	reflect "reflect"
+	time "time"
 )
 
 // MockServiceProvider is a mock of ServiceProvider interface
@@ -70,6 +70,19 @@ func (m *MockServiceProvider) List() ([]models.ServiceSummary, error) {
 // List indicates an expected call of List
 func (mr *MockServiceProviderMockRecorder) List() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockServiceProvider)(nil).List))
+}
+
+// Logs mocks base method
+func (m *MockServiceProvider) Logs(arg0 string, arg1 int, arg2, arg3 time.Time) ([]models.LogFile, error) {
+	ret := m.ctrl.Call(m, "Logs", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].([]models.LogFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// Logs indicates an expected call of Logs
+func (mr *MockServiceProviderMockRecorder) Logs(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Logs", reflect.TypeOf((*MockServiceProvider)(nil).Logs), arg0, arg1, arg2, arg3)
 }
 
 // Read mocks base method
