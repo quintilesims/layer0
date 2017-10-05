@@ -23,7 +23,7 @@ import (
 // created Load Balancer. An EC2 Security Group is created and ingress rules are
 // added based on the list of ports in the Create Load Balancer Request. The
 // Security Group is then attached to the created Load Balancer.
-func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*models.LoadBalancer, error) {
+func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (string, error) {
 	loadBalancerID := generateEntityID(req.LoadBalancerName)
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	fqEnvironmentID := addLayer0Prefix(l.Config.Instance(), req.EnvironmentID)
@@ -31,7 +31,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 	environmentSGName := getEnvironmentSGName(fqEnvironmentID)
 	environmentSG, err := readSG(l.AWS.EC2, environmentSGName)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	scheme := "internal"
@@ -48,18 +48,18 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 			loadBalancerSGName,
 			fmt.Sprintf("SG for Layer0 load balancer %s", loadBalancerID),
 			l.Config.VPC()); err != nil {
-			return nil, err
+			return "", err
 		}
 
 		loadBalancerSG, err := readSG(l.AWS.EC2, loadBalancerSGName)
 		if err != nil {
-			return nil, err
+			return "", err
 		}
 
 		loadBalancerSGID := aws.StringValue(loadBalancerSG.GroupId)
 		for _, port := range req.Ports {
 			if err := l.authorizeSGIngressFromPort(loadBalancerSGID, int64(port.HostPort)); err != nil {
-				return nil, err
+				return "", err
 			}
 		}
 
@@ -68,7 +68,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 
 	roleName := getLoadBalancerRoleName(fqLoadBalancerID)
 	if _, err := l.createRole(roleName, DEFAULT_ASSUME_ROLE_POLICY); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	policy, err := renderLoadBalancerRolePolicy(
@@ -77,17 +77,17 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 		fqLoadBalancerID,
 		DEFAULT_LB_ROLE_POLICY_TEMPLATE)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	policyName := roleName
 	if err := l.putRolePolicy(policyName, roleName, policy); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	listeners, err := l.portsToListeners(req.Ports)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	if err := l.createLoadBalancer(
@@ -96,7 +96,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 		securityGroupIDs,
 		subnets,
 		listeners); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	healthCheck := &elb.HealthCheck{
@@ -108,14 +108,14 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (*mo
 	}
 
 	if err := l.updateHealthCheck(fqLoadBalancerID, healthCheck); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	if err := l.createTags(loadBalancerID, req.LoadBalancerName, req.EnvironmentID); err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return l.Read(loadBalancerID)
+	return loadBalancerID, nil
 }
 
 func (l *LoadBalancerProvider) createRole(roleName, policy string) (*iam.Role, error) {

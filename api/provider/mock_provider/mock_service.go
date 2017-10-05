@@ -5,10 +5,11 @@
 package mock_provider
 
 import (
-	gomock "github.com/golang/mock/gomock"
-	models "github.com/quintilesims/layer0/common/models"
 	reflect "reflect"
 	time "time"
+
+	gomock "github.com/golang/mock/gomock"
+	models "github.com/quintilesims/layer0/common/models"
 )
 
 // MockServiceProvider is a mock of ServiceProvider interface
@@ -35,9 +36,9 @@ func (m *MockServiceProvider) EXPECT() *MockServiceProviderMockRecorder {
 }
 
 // Create mocks base method
-func (m *MockServiceProvider) Create(arg0 models.CreateServiceRequest) (*models.Service, error) {
+func (m *MockServiceProvider) Create(arg0 models.CreateServiceRequest) (string, error) {
 	ret := m.ctrl.Call(m, "Create", arg0)
-	ret0, _ := ret[0].(*models.Service)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

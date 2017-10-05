@@ -5,9 +5,10 @@
 package mock_provider
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockDeployProvider is a mock of DeployProvider interface
@@ -34,9 +35,9 @@ func (m *MockDeployProvider) EXPECT() *MockDeployProviderMockRecorder {
 }
 
 // Create mocks base method
-func (m *MockDeployProvider) Create(arg0 models.CreateDeployRequest) (*models.Deploy, error) {
+func (m *MockDeployProvider) Create(arg0 models.CreateDeployRequest) (string, error) {
 	ret := m.ctrl.Call(m, "Create", arg0)
-	ret0, _ := ret[0].(*models.Deploy)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

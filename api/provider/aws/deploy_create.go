@@ -13,50 +13,37 @@ import (
 // Create registers an ECS Task Definition using the specified Create Deploy Request.
 // The Create Deploy Request contains the name of the Deploy and the JSON
 // representation of the Task Definition to create.
-func (d *DeployProvider) Create(req models.CreateDeployRequest) (*models.Deploy, error) {
+func (d *DeployProvider) Create(req models.CreateDeployRequest) (string, error) {
 	deployID := generateEntityID(req.DeployName)
 	familyName := addLayer0Prefix(d.Config.Instance(), req.DeployName)
 
-	taskDefinition, err := d.renderTaskDefinition(req.DeployFile, familyName)
+	renderedTaskDefinition, err := d.renderTaskDefinition(req.DeployFile, familyName)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	taskDefinitionOutput, err := d.createTaskDefinition(taskDefinition)
+	taskDefinition, err := d.createTaskDefinition(renderedTaskDefinition)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	bytes, err := json.Marshal(taskDefinitionOutput)
-	if err != nil {
-		return nil, fmt.Errorf("Failed to extract deploy file: %s", err.Error())
+	version := int(aws.Int64Value(taskDefinition.Revision))
+	taskDefinitionARN := aws.StringValue(taskDefinition.TaskDefinitionArn)
+	if err := d.createTags(deployID, req.DeployName, strconv.Itoa(version), taskDefinitionARN); err != nil {
+		return "", err
 	}
 
-	deploy := &models.Deploy{
-		DeployName: req.DeployName,
-		DeployID:   deployID,
-		Version:    strconv.FormatInt(aws.Int64Value(taskDefinitionOutput.Revision), 10),
-		DeployFile: bytes,
-	}
-
-	taskDefinitionARN := aws.StringValue(taskDefinitionOutput.TaskDefinitionArn)
-
-	if err := d.createTags(deploy.DeployName, deploy.DeployID, deploy.Version, taskDefinitionARN); err != nil {
-		return deploy, err
-	}
-
-	return deploy, nil
+	return deployID, nil
 }
 
-func (d *DeployProvider) createTaskDefinition(taskDefinitionRequest *ecs.TaskDefinition) (*ecs.TaskDefinition, error) {
-
+func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition) (*ecs.TaskDefinition, error) {
 	input := &ecs.RegisterTaskDefinitionInput{}
-	input.SetFamily(aws.StringValue(taskDefinitionRequest.Family))
-	input.SetTaskRoleArn(aws.StringValue(taskDefinitionRequest.TaskRoleArn))
-	input.SetContainerDefinitions(taskDefinitionRequest.ContainerDefinitions)
-	input.SetVolumes(taskDefinitionRequest.Volumes)
-	input.SetPlacementConstraints(taskDefinitionRequest.PlacementConstraints)
-	if nm := aws.StringValue(taskDefinitionRequest.NetworkMode); nm != "" {
+	input.SetFamily(aws.StringValue(taskDefinition.Family))
+	input.SetTaskRoleArn(aws.StringValue(taskDefinition.TaskRoleArn))
+	input.SetContainerDefinitions(taskDefinition.ContainerDefinitions)
+	input.SetVolumes(taskDefinition.Volumes)
+	input.SetPlacementConstraints(taskDefinition.PlacementConstraints)
+	if nm := aws.StringValue(taskDefinition.NetworkMode); nm != "" {
 		input.SetNetworkMode(nm)
 	}
 
@@ -79,22 +66,21 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 		return nil, fmt.Errorf("Failed to decode deploy: %s", err.Error())
 	}
 
-	taskDefinition.SetFamily(familyName)
-
 	if len(taskDefinition.ContainerDefinitions) == 0 {
 		return nil, fmt.Errorf("Deploy must have at least one container definition")
 	}
 
+	taskDefinition.SetFamily(familyName)
 	for _, container := range taskDefinition.ContainerDefinitions {
 		if container.LogConfiguration == nil {
-			logConfig := &ecs.LogConfiguration{
-				LogDriver: aws.String("awslogs"),
-				Options: map[string]*string{
-					"awslogs-group":         aws.String(fmt.Sprintf("l0-%s", d.Config.Instance())),
-					"awslogs-region":        aws.String(d.Config.Region()),
-					"awslogs-stream-prefix": aws.String("l0"),
-				},
-			}
+			logConfig := &ecs.LogConfiguration{}
+			logConfig.SetLogDriver("awslogs")
+			logConfig.SetOptions(map[string]*string{
+				"awslogs-group":         aws.String(d.Config.LogGroupName()),
+				"awslogs-region":        aws.String(d.Config.Region()),
+				"awslogs-stream-prefix": aws.String("l0"),
+			})
+
 			container.SetLogConfiguration(logConfig)
 		}
 	}
@@ -102,7 +88,7 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 	return taskDefinition, nil
 }
 
-func (d *DeployProvider) createTags(deployName, deployID, deployVersion, taskDefinitionArn string) error {
+func (d *DeployProvider) createTags(deployID, deployName, deployVersion, taskDefinitionARN string) error {
 	tags := []models.Tag{
 		{
 			EntityID:   deployID,
@@ -120,7 +106,7 @@ func (d *DeployProvider) createTags(deployName, deployID, deployVersion, taskDef
 			EntityID:   deployID,
 			EntityType: "deploy",
 			Key:        "arn",
-			Value:      taskDefinitionArn,
+			Value:      taskDefinitionARN,
 		},
 	}
 

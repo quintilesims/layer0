@@ -20,7 +20,7 @@ import (
 // of the Cluster's Auto Scaling Group, and the Operating System and EC2 AMI ID
 // used in the Launch Configuration. The EC2 Launch Configuration, Auto Scaling
 // Group, and Security Group are created before the Cluster is created.
-func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*models.Environment, error) {
+func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (string, error) {
 	// TODO: Ensure environment name is unique
 	environmentID := generateEntityID(req.EnvironmentName)
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
@@ -41,7 +41,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 		userDataTemplate = []byte(DEFAULT_WINDOWS_USERDATA_TEMPLATE)
 		amiID = e.Config.WindowsAMI()
 	default:
-		return nil, fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)
+		return "", fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)
 	}
 
 	if req.AMIID != "" {
@@ -54,7 +54,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 
 	userData, err := renderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
@@ -63,17 +63,17 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 		securityGroupName,
 		fmt.Sprintf("SG for Layer0 environment %s", environmentID),
 		e.Config.VPC()); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	groupID := aws.StringValue(securityGroup.GroupId)
 	if err := e.authorizeSGSelfIngress(groupID); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	launchConfigName := fqEnvironmentID
@@ -84,7 +84,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 		e.Config.InstanceProfile(),
 		amiID,
 		userData); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	autoScalingGroupName := fqEnvironmentID
@@ -93,19 +93,19 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (*mode
 		launchConfigName,
 		int64(req.MinClusterCount),
 		e.Config.PrivateSubnets()); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	clusterName := fqEnvironmentID
 	if err := e.createCluster(clusterName); err != nil {
-		return nil, err
+		return "", err
 	}
 
 	if err := e.createTags(environmentID, req.EnvironmentName, req.OperatingSystem); err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return e.Read(environmentID)
+	return environmentID, nil
 }
 
 func (e *EnvironmentProvider) authorizeSGSelfIngress(groupID string) error {
