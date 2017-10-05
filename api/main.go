@@ -25,6 +25,7 @@ import (
 const (
 	SWAGGER_URL     = "/api/"
 	SWAGGER_UI_PATH = "static/swagger-ui/dist"
+	MAX_AWS_RETRIES = 15
 )
 
 func serveSwaggerUI(w http.ResponseWriter, r *http.Request) {
@@ -57,6 +58,7 @@ func main() {
 		staticCreds := credentials.NewStaticCredentials(cfg.AccessKey(), cfg.SecretKey(), "")
 		awsConfig.WithCredentials(staticCreds)
 		awsConfig.WithRegion(cfg.Region())
+		awsConfig.WithMaxRetries(MAX_AWS_RETRIES)
 		session := session.New(awsConfig)
 
 		client := awsclient.NewClient(awsConfig)
