@@ -17,29 +17,28 @@ func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
 		return nil, err
 	}
 
-	serviceARNs, err := s.listClusterServiceARNs(clusterNames)
+	serviceNames, err := s.listClusterServiceNames(clusterNames)
 	if err != nil {
 		return nil, err
 	}
 
-	serviceIDs := make([]string, len(serviceARNs))
-	for i, serviceARN := range serviceARNs {
-		// sample service ARN:
-		// arn:aws:ecs:us-west-2:856306994068:service/l0-tlakedev-guestbo80d9d
-		fqServiceID := strings.Split(serviceARN, "/")[1]
-		serviceID := delLayer0Prefix(s.Config.Instance(), fqServiceID)
+	serviceIDs := make([]string, len(serviceNames))
+	for i, serviceName := range serviceNames {
+		serviceID := delLayer0Prefix(s.Config.Instance(), serviceName)
 		serviceIDs[i] = serviceID
 	}
 
 	return s.makeServiceSummaryModels(serviceIDs)
 }
 
-func (s *ServiceProvider) listClusterServiceARNs(clusterNames []string) ([]string, error) {
-	var serviceARNs []string
-
+func (s *ServiceProvider) listClusterServiceNames(clusterNames []string) ([]string, error) {
+	var serviceNames []string
 	fn := func(output *ecs.ListServicesOutput, lastPage bool) bool {
 		for _, serviceARN := range output.ServiceArns {
-			serviceARNs = append(serviceARNs, aws.StringValue(serviceARN))
+			// sample service ARN:
+			// arn:aws:ecs:us-west-2:856306994068:service/l0-tlakedev-guestbo80d9d
+			serviceName := strings.Split(aws.StringValue(serviceARN), "/")[1]
+			serviceNames = append(serviceNames, serviceName)
 		}
 
 		return !lastPage
@@ -53,7 +52,7 @@ func (s *ServiceProvider) listClusterServiceARNs(clusterNames []string) ([]strin
 		}
 	}
 
-	return serviceARNs, nil
+	return serviceNames, nil
 }
 
 func (s *ServiceProvider) makeServiceSummaryModels(serviceIDs []string) ([]models.ServiceSummary, error) {
