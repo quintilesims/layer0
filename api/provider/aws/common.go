@@ -66,6 +66,19 @@ func lookupDeployIDFromTaskDefinitionARN(store tag.Store, taskDefinitionARN stri
 	return "", errors.Newf(errors.DeployDoesNotExist, "Failed to find deploy with ARN '%s'", taskDefinitionARN)
 }
 
+func lookupTaskDefinitionARNFromDeployID(store tag.Store, deployID string) (string, error) {
+	tags, err := store.SelectByTypeAndID("deploy", deployID)
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("arn").First(); ok {
+		return tag.Value, nil
+	}
+
+	return "", fmt.Errorf("Could not resolve task definition ARN for deploy '%s'", deployID)
+}
+
 func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (string, error) {
 	tags, err := store.SelectByTypeAndID(entityType, entityID)
 	if err != nil {

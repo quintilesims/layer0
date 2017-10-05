@@ -3,36 +3,28 @@ package aws
 import (
 	"fmt"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 func (s *ServiceProvider) Create(req models.CreateServiceRequest) (*models.Service, error) {
-	var (
-		cluster          string
-		desiredCount     int
-		loadBalancer     *ecs.LoadBalancer
-		loadBalancerRole string
-		serviceName      string
-		taskDefinition   string
-	)
-
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
-	cluster = fqEnvironmentID
+	cluster := fqEnvironmentID
 
-	desiredCount = 1
+	desiredCount := 1
 
 	serviceID := generateEntityID(req.ServiceName)
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
-	serviceName = fqServiceID
+	serviceName := fqServiceID
 
-	taskDefinitionARN, err := s.lookupTaskDefinitionARNFromDeployID(req.DeployID)
+	taskDefinitionARN, err := lookupTaskDefinitionARNFromDeployID(s.TagStore, req.DeployID)
 	if err != nil {
 		return nil, err
 	}
 
-	taskDefinition = taskDefinitionARN
-
+	var loadBalancer *ecs.LoadBalancer
+	var loadBalancerRole string
 	if req.LoadBalancerID != "" {
 		fqLoadBalancerID := addLayer0Prefix(s.Config.Instance(), req.LoadBalancerID)
 		loadBalancerDescription, err := describeLoadBalancer(s.AWS.ELB, fqLoadBalancerID)
@@ -40,49 +32,48 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (*models.Servi
 			return nil, err
 		}
 
-		taskDefinitionDescription, err := describeTaskDefinition(s.AWS.ECS, taskDefinitionARN)
+		taskDefinition, err := describeTaskDefinition(s.AWS.ECS, taskDefinitionARN)
 		if err != nil {
 			return nil, err
 		}
 
-		var loadBalancerContainer ecs.LoadBalancer
-		for _, containerDefinition := range taskDefinitionDescription.ContainerDefinitions {
+		for _, containerDefinition := range taskDefinition.ContainerDefinitions {
 			for _, portMapping := range containerDefinition.PortMappings {
 				for _, listenerDescription := range loadBalancerDescription.ListenerDescriptions {
 					listener := listenerDescription.Listener
-					if *listener.InstancePort == *portMapping.ContainerPort {
-						loadBalancerContainer = ecs.LoadBalancer{
+					if aws.Int64Value(listener.InstancePort) == aws.Int64Value(portMapping.ContainerPort) {
+						loadBalancer = &ecs.LoadBalancer{
 							ContainerName:    containerDefinition.Name,
 							ContainerPort:    portMapping.ContainerPort,
 							LoadBalancerName: loadBalancerDescription.LoadBalancerName,
 						}
+
+						loadBalancerRole = fmt.Sprintf("%s-lb", fqLoadBalancerID)
 					}
 				}
 			}
 		}
 
-		loadBalancer = &loadBalancerContainer
-		loadBalancerRole = fmt.Sprintf("%s-lb", fqLoadBalancerID)
 	}
 
-	if err := s.createService(desiredCount, cluster, serviceName, taskDefinition, loadBalancerRole, loadBalancer); err != nil {
+	if err := s.createService(cluster, serviceName, taskDefinitionARN, desiredCount, loadBalancerRole, loadBalancer); err != nil {
 		return nil, err
 	}
 
-	if err := s.createTags(serviceID, req.ServiceName, req.EnvironmentID); err != nil {
+	if err := s.createTags(serviceID, req.ServiceName, req.EnvironmentID, req.LoadBalancerID); err != nil {
 		return nil, err
 	}
 
 	return s.Read(serviceID)
 }
 
-func (s *ServiceProvider) createService(desiredCount int, cluster, serviceName, taskDefinition, loadBalancerRole string, loadBalancer *ecs.LoadBalancer) error {
+func (s *ServiceProvider) createService(cluster, serviceName, taskDefinition string, desiredCount int, loadBalancerRole string, loadBalancer *ecs.LoadBalancer) error {
 	input := &ecs.CreateServiceInput{}
 	input.SetCluster(cluster)
 	input.SetDesiredCount(int64(desiredCount))
 	input.SetServiceName(serviceName)
 	input.SetTaskDefinition(taskDefinition)
-	if loadBalancer != nil && loadBalancerRole != "" {
+	if loadBalancer != nil {
 		input.SetLoadBalancers([]*ecs.LoadBalancer{loadBalancer})
 		input.SetRole(loadBalancerRole)
 	}
@@ -98,7 +89,7 @@ func (s *ServiceProvider) createService(desiredCount int, cluster, serviceName, 
 	return nil
 }
 
-func (s *ServiceProvider) createTags(serviceID, serviceName, environmentID string) error {
+func (s *ServiceProvider) createTags(serviceID, serviceName, environmentID, loadBalancerID string) error {
 	tags := []models.Tag{
 		{
 			EntityID:   serviceID,
@@ -114,6 +105,17 @@ func (s *ServiceProvider) createTags(serviceID, serviceName, environmentID strin
 		},
 	}
 
+	if loadBalancerID != "" {
+		tag := models.Tag{
+			EntityID:   serviceID,
+			EntityType: "service",
+			Key:        "load_balancer_id",
+			Value:      loadBalancerID,
+		}
+
+		tags = append(tags, tag)
+	}
+
 	for _, tag := range tags {
 		if err := s.TagStore.Insert(tag); err != nil {
 			return err
@@ -121,17 +123,4 @@ func (s *ServiceProvider) createTags(serviceID, serviceName, environmentID strin
 	}
 
 	return nil
-}
-
-func (s *ServiceProvider) lookupTaskDefinitionARNFromDeployID(deployID string) (string, error) {
-	tags, err := s.TagStore.SelectByTypeAndID("deploy", deployID)
-	if err != nil {
-		return "", err
-	}
-
-	if tag, ok := tags.WithKey("arn").First(); ok {
-		return tag.Value, nil
-	}
-
-	return "", fmt.Errorf("Could not resolve task definition ARN for deploy '%s'", deployID)
 }
