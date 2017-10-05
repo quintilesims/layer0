@@ -1,22 +1,20 @@
 package controllers
 
 import (
-	"os"
-	"strings"
-
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
 )
 
 type AdminController struct {
-	JobStore job.Store
+	Config  config.APIConfig
+	Version string
 }
 
-func NewAdminController(j job.Store) *AdminController {
+func NewAdminController(c config.APIConfig, version string) *AdminController {
 	return &AdminController{
-		JobStore: j,
+		Config:  c,
+		Version: version,
 	}
 }
 
@@ -38,27 +36,12 @@ func (a *AdminController) Routes() []*fireball.Route {
 }
 
 func (a *AdminController) GetConfig(c *fireball.Context) (fireball.Response, error) {
-	publicSubnets := []string{}
-	privateSubnets := []string{}
-
-	VPCID := os.Getenv(config.ENVVAR_AWS_VPC)
-	prefix := os.Getenv("LAYER0_PREFIX")
-
-	subnet := os.Getenv(config.ENVVAR_AWS_PRIVATE_SUBNETS)
-	for _, subnet := range strings.Split(subnet, ",") {
-		publicSubnets = append(privateSubnets, subnet)
-	}
-
-	subnet = os.Getenv(config.ENVVAR_AWS_PUBLIC_SUBNETS)
-	for _, subnet := range strings.Split(subnet, ",") {
-		publicSubnets = append(publicSubnets, subnet)
-	}
-
 	model := models.APIConfig{
-		Prefix:         prefix,
-		VPCID:          VPCID,
-		PublicSubnets:  publicSubnets,
-		PrivateSubnets: publicSubnets,
+		Prefix:         a.Config.Prefix(),
+		VPCID:          a.Config.VPC(),
+		Version:        a.Version,
+		PublicSubnets:  a.Config.PublicSubnets(),
+		PrivateSubnets: a.Config.PrivateSubnets(),
 	}
 
 	return fireball.NewJSONResponse(200, model)

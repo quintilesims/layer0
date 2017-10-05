@@ -5,6 +5,7 @@ import swagger "github.com/zpatrick/go-plugin-swagger"
 type APIConfig struct {
 	Prefix         string   `json:"prefix"`
 	VPCID          string   `json:"vpc_id"`
+	Version        string   `json:"version"`
 	PublicSubnets  []string `json:"public_subnets"`
 	PrivateSubnets []string `json:"private_subnets"`
 }

@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/urfave/cli"
 )
@@ -100,6 +101,7 @@ type APIConfig interface {
 	DynamoJobTable() string
 	DynamoTagTable() string
 	LogGroupName() string
+	Prefix() string
 }
 
 type ContextAPIConfig struct {
@@ -201,4 +203,8 @@ func (c *ContextAPIConfig) PrivateSubnets() []string {
 
 func (c *ContextAPIConfig) LogGroupName() string {
 	return c.C.String(FLAG_AWS_LOG_GROUP_NAME)
+}
+
+func (c *ContextAPIConfig) Prefix() string {
+	return os.Getenv("LAYER0_PREFIX")
 }
