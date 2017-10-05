@@ -5,13 +5,53 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
+	"github.com/aws/aws-sdk-go/service/elb"
+	"github.com/aws/aws-sdk-go/service/elb/elbiface"
 	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 )
+
+func describeLoadBalancer(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerDescription, error) {
+	input := &elb.DescribeLoadBalancersInput{}
+	input.SetLoadBalancerNames([]*string{aws.String(loadBalancerName)})
+	input.SetPageSize(1)
+
+	output, err := elbapi.DescribeLoadBalancers(input)
+	if err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
+			return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
+		}
+
+		return nil, err
+	}
+
+	if len(output.LoadBalancerDescriptions) != 1 {
+		return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
+	}
+
+	return output.LoadBalancerDescriptions[0], nil
+}
+
+func describeTaskDefinition(ecsapi ecsiface.ECSAPI, taskDefinitionARN string) (*ecs.TaskDefinition, error) {
+	input := &ecs.DescribeTaskDefinitionInput{}
+	input.SetTaskDefinition(taskDefinitionARN)
+
+	output, err := ecsapi.DescribeTaskDefinition(input)
+	if err != nil {
+		if err, ok := err.(awserr.Error); ok && strings.Contains(err.Message(), "Unable to describe task definition") {
+			return nil, errors.Newf(errors.DeployDoesNotExist, "Deploy '%s' does not exist", taskDefinitionARN)
+		}
+
+		return nil, err
+	}
+
+	return output.TaskDefinition, nil
+}
 
 func lookupDeployIDFromTaskDefinitionARN(store tag.Store, taskDefinitionARN string) (string, error) {
 	tags, err := store.SelectByType("deploy")
@@ -24,6 +64,19 @@ func lookupDeployIDFromTaskDefinitionARN(store tag.Store, taskDefinitionARN stri
 	}
 
 	return "", errors.Newf(errors.DeployDoesNotExist, "Failed to find deploy with ARN '%s'", taskDefinitionARN)
+}
+
+func lookupTaskDefinitionARNFromDeployID(store tag.Store, deployID string) (string, error) {
+	tags, err := store.SelectByTypeAndID("deploy", deployID)
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("arn").First(); ok {
+		return tag.Value, nil
+	}
+
+	return "", fmt.Errorf("Could not resolve task definition ARN for deploy '%s'", deployID)
 }
 
 func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (string, error) {
