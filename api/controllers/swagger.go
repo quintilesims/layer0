@@ -39,6 +39,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			Version: s.version,
 		},
 		Definitions: map[string]swagger.Definition{
+			"Admin":                     models.APIConfig{}.Definition(),
 			"Container":                 models.Container{}.Definition(),
 			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
@@ -59,6 +60,10 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"UpdateServiceRequest":      models.UpdateServiceRequest{}.Definition(),
 		},
 		Tags: []swagger.Tag{
+			{
+				Name:        "Admin",
+				Description: "Methods related to admin",
+			},
 			{
 				Name:        "Environment",
 				Description: "Methods related to environments",
@@ -85,6 +90,29 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			},
 		},
 		Paths: map[string]swagger.Path{
+			"/admin/config": map[string]swagger.Method{
+				"get": {
+					Summary: "Get Config",
+					Tags:    []string{"Admin"},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "Config of API",
+							Schema:      swagger.NewObjectSliceSchema("Admin"),
+						},
+					},
+				},
+			},
+			"/admin/health": map[string]swagger.Method{
+				"get": {
+					Summary: "Get Health",
+					Tags:    []string{"Admin"},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "Health of API",
+						},
+					},
+				},
+			},
 			"/environment": map[string]swagger.Method{
 				"get": {
 					Summary: "List all Environments",
