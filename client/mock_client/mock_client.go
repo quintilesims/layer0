@@ -34,6 +34,19 @@ func (m *MockClient) EXPECT() *MockClientMockRecorder {
 	return m.recorder
 }
 
+// CreateDeploy mocks base method
+func (m *MockClient) CreateDeploy(arg0 models.CreateDeployRequest) (string, error) {
+	ret := m.ctrl.Call(m, "CreateDeploy", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateDeploy indicates an expected call of CreateDeploy
+func (mr *MockClientMockRecorder) CreateDeploy(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateDeploy", reflect.TypeOf((*MockClient)(nil).CreateDeploy), arg0)
+}
+
 // CreateEnvironment mocks base method
 func (m *MockClient) CreateEnvironment(arg0 models.CreateEnvironmentRequest) (string, error) {
 	ret := m.ctrl.Call(m, "CreateEnvironment", arg0)
@@ -47,6 +60,19 @@ func (mr *MockClientMockRecorder) CreateEnvironment(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateEnvironment", reflect.TypeOf((*MockClient)(nil).CreateEnvironment), arg0)
 }
 
+// CreateLoadBalancer mocks base method
+func (m *MockClient) CreateLoadBalancer(arg0 models.CreateLoadBalancerRequest) (string, error) {
+	ret := m.ctrl.Call(m, "CreateLoadBalancer", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateLoadBalancer indicates an expected call of CreateLoadBalancer
+func (mr *MockClientMockRecorder) CreateLoadBalancer(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLoadBalancer", reflect.TypeOf((*MockClient)(nil).CreateLoadBalancer), arg0)
+}
+
 // CreateService mocks base method
 func (m *MockClient) CreateService(arg0 models.CreateServiceRequest) (string, error) {
 	ret := m.ctrl.Call(m, "CreateService", arg0)
@@ -58,6 +84,19 @@ func (m *MockClient) CreateService(arg0 models.CreateServiceRequest) (string, er
 // CreateService indicates an expected call of CreateService
 func (mr *MockClientMockRecorder) CreateService(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateService", reflect.TypeOf((*MockClient)(nil).CreateService), arg0)
+}
+
+// DeleteDeploy mocks base method
+func (m *MockClient) DeleteDeploy(arg0 string) (string, error) {
+	ret := m.ctrl.Call(m, "DeleteDeploy", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteDeploy indicates an expected call of DeleteDeploy
+func (mr *MockClientMockRecorder) DeleteDeploy(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteDeploy", reflect.TypeOf((*MockClient)(nil).DeleteDeploy), arg0)
 }
 
 // DeleteEnvironment mocks base method
@@ -85,6 +124,19 @@ func (mr *MockClientMockRecorder) DeleteJob(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteJob", reflect.TypeOf((*MockClient)(nil).DeleteJob), arg0)
 }
 
+// DeleteLoadBalancer mocks base method
+func (m *MockClient) DeleteLoadBalancer(arg0 string) (string, error) {
+	ret := m.ctrl.Call(m, "DeleteLoadBalancer", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteLoadBalancer indicates an expected call of DeleteLoadBalancer
+func (mr *MockClientMockRecorder) DeleteLoadBalancer(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteLoadBalancer", reflect.TypeOf((*MockClient)(nil).DeleteLoadBalancer), arg0)
+}
+
 // DeleteService mocks base method
 func (m *MockClient) DeleteService(arg0 string) (string, error) {
 	ret := m.ctrl.Call(m, "DeleteService", arg0)
@@ -96,6 +148,19 @@ func (m *MockClient) DeleteService(arg0 string) (string, error) {
 // DeleteService indicates an expected call of DeleteService
 func (mr *MockClientMockRecorder) DeleteService(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteService", reflect.TypeOf((*MockClient)(nil).DeleteService), arg0)
+}
+
+// ListDeploys mocks base method
+func (m *MockClient) ListDeploys() ([]*models.DeploySummary, error) {
+	ret := m.ctrl.Call(m, "ListDeploys")
+	ret0, _ := ret[0].([]*models.DeploySummary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListDeploys indicates an expected call of ListDeploys
+func (mr *MockClientMockRecorder) ListDeploys() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListDeploys", reflect.TypeOf((*MockClient)(nil).ListDeploys))
 }
 
 // ListEnvironments mocks base method
@@ -124,6 +189,19 @@ func (mr *MockClientMockRecorder) ListJobs() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListJobs", reflect.TypeOf((*MockClient)(nil).ListJobs))
 }
 
+// ListLoadBalancers mocks base method
+func (m *MockClient) ListLoadBalancers() ([]*models.LoadBalancerSummary, error) {
+	ret := m.ctrl.Call(m, "ListLoadBalancers")
+	ret0, _ := ret[0].([]*models.LoadBalancerSummary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListLoadBalancers indicates an expected call of ListLoadBalancers
+func (mr *MockClientMockRecorder) ListLoadBalancers() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListLoadBalancers", reflect.TypeOf((*MockClient)(nil).ListLoadBalancers))
+}
+
 // ListServices mocks base method
 func (m *MockClient) ListServices() ([]*models.ServiceSummary, error) {
 	ret := m.ctrl.Call(m, "ListServices")
@@ -135,6 +213,19 @@ func (m *MockClient) ListServices() ([]*models.ServiceSummary, error) {
 // ListServices indicates an expected call of ListServices
 func (mr *MockClientMockRecorder) ListServices() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListServices", reflect.TypeOf((*MockClient)(nil).ListServices))
+}
+
+// ReadDeploy mocks base method
+func (m *MockClient) ReadDeploy(arg0 string) (*models.Deploy, error) {
+	ret := m.ctrl.Call(m, "ReadDeploy", arg0)
+	ret0, _ := ret[0].(*models.Deploy)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadDeploy indicates an expected call of ReadDeploy
+func (mr *MockClientMockRecorder) ReadDeploy(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadDeploy", reflect.TypeOf((*MockClient)(nil).ReadDeploy), arg0)
 }
 
 // ReadEnvironment mocks base method
@@ -163,6 +254,19 @@ func (mr *MockClientMockRecorder) ReadJob(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadJob", reflect.TypeOf((*MockClient)(nil).ReadJob), arg0)
 }
 
+// ReadLoadBalancer mocks base method
+func (m *MockClient) ReadLoadBalancer(arg0 string) (*models.LoadBalancer, error) {
+	ret := m.ctrl.Call(m, "ReadLoadBalancer", arg0)
+	ret0, _ := ret[0].(*models.LoadBalancer)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadLoadBalancer indicates an expected call of ReadLoadBalancer
+func (mr *MockClientMockRecorder) ReadLoadBalancer(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadLoadBalancer", reflect.TypeOf((*MockClient)(nil).ReadLoadBalancer), arg0)
+}
+
 // ReadService mocks base method
 func (m *MockClient) ReadService(arg0 string) (*models.Service, error) {
 	ret := m.ctrl.Call(m, "ReadService", arg0)
@@ -187,6 +291,19 @@ func (m *MockClient) UpdateEnvironment(arg0 models.UpdateEnvironmentRequest) (st
 // UpdateEnvironment indicates an expected call of UpdateEnvironment
 func (mr *MockClientMockRecorder) UpdateEnvironment(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateEnvironment", reflect.TypeOf((*MockClient)(nil).UpdateEnvironment), arg0)
+}
+
+// UpdateLoadBalancer mocks base method
+func (m *MockClient) UpdateLoadBalancer(arg0 models.UpdateLoadBalancerRequest) (string, error) {
+	ret := m.ctrl.Call(m, "UpdateLoadBalancer", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateLoadBalancer indicates an expected call of UpdateLoadBalancer
+func (mr *MockClientMockRecorder) UpdateLoadBalancer(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLoadBalancer", reflect.TypeOf((*MockClient)(nil).UpdateLoadBalancer), arg0)
 }
 
 // UpdateService mocks base method
