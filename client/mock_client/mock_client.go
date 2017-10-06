@@ -268,6 +268,19 @@ func (mr *MockClientMockRecorder) ListTasks() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTasks", reflect.TypeOf((*MockClient)(nil).ListTasks))
 }
 
+// ReadConfig mocks base method
+func (m *MockClient) ReadConfig() (*models.APIConfig, error) {
+	ret := m.ctrl.Call(m, "ReadConfig")
+	ret0, _ := ret[0].(*models.APIConfig)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadConfig indicates an expected call of ReadConfig
+func (mr *MockClientMockRecorder) ReadConfig() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadConfig", reflect.TypeOf((*MockClient)(nil).ReadConfig))
+}
+
 // ReadDeploy mocks base method
 func (m *MockClient) ReadDeploy(arg0 string) (*models.Deploy, error) {
 	ret := m.ctrl.Call(m, "ReadDeploy", arg0)
