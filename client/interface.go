@@ -42,4 +42,6 @@ type Client interface {
 	ReadTaskLogs(taskID string, query url.Values) ([]*models.LogFile, error)
 
 	ListTags(query url.Values) (models.Tags, error)
+
+	ReadConfig() (*models.APIConfig, error)
 }
