@@ -19,6 +19,9 @@ const (
 	LogQueryParamTail  = "tail"
 	LogQueryParamStart = "start"
 	LogQueryParamEnd   = "end"
+
+	TagQueryParamType = "type"
+	TagQueryParamID   = "id"
 )
 
 func WaitForJob(client Client, jobID string, timeout time.Duration) (*models.Job, error) {

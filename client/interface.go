@@ -1,6 +1,8 @@
 package client
 
 import (
+	"net/url"
+
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -30,5 +32,14 @@ type Client interface {
 	DeleteService(serviceID string) (string, error)
 	ListServices() ([]*models.ServiceSummary, error)
 	ReadService(serviceID string) (*models.Service, error)
+	ReadServiceLogs(serviceID string, query url.Values) ([]*models.LogFile, error)
 	UpdateService(req models.UpdateServiceRequest) (string, error)
+
+	CreateTask(req models.CreateTaskRequest) (string, error)
+	DeleteTask(taskID string) (string, error)
+	ListTasks() ([]*models.TaskSummary, error)
+	ReadTask(taskID string) (*models.Service, error)
+	ReadTaskLogs(taskID string, query url.Values) ([]*models.LogFile, error)
+
+	ListTags(query url.Values) (models.Tags, error)
 }

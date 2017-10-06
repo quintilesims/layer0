@@ -5,6 +5,7 @@
 package mock_client
 
 import (
+	url "net/url"
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
@@ -86,6 +87,19 @@ func (mr *MockClientMockRecorder) CreateService(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateService", reflect.TypeOf((*MockClient)(nil).CreateService), arg0)
 }
 
+// CreateTask mocks base method
+func (m *MockClient) CreateTask(arg0 models.CreateTaskRequest) (string, error) {
+	ret := m.ctrl.Call(m, "CreateTask", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// CreateTask indicates an expected call of CreateTask
+func (mr *MockClientMockRecorder) CreateTask(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockClient)(nil).CreateTask), arg0)
+}
+
 // DeleteDeploy mocks base method
 func (m *MockClient) DeleteDeploy(arg0 string) (string, error) {
 	ret := m.ctrl.Call(m, "DeleteDeploy", arg0)
@@ -148,6 +162,19 @@ func (m *MockClient) DeleteService(arg0 string) (string, error) {
 // DeleteService indicates an expected call of DeleteService
 func (mr *MockClientMockRecorder) DeleteService(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteService", reflect.TypeOf((*MockClient)(nil).DeleteService), arg0)
+}
+
+// DeleteTask mocks base method
+func (m *MockClient) DeleteTask(arg0 string) (string, error) {
+	ret := m.ctrl.Call(m, "DeleteTask", arg0)
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteTask indicates an expected call of DeleteTask
+func (mr *MockClientMockRecorder) DeleteTask(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTask", reflect.TypeOf((*MockClient)(nil).DeleteTask), arg0)
 }
 
 // ListDeploys mocks base method
@@ -215,6 +242,32 @@ func (mr *MockClientMockRecorder) ListServices() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListServices", reflect.TypeOf((*MockClient)(nil).ListServices))
 }
 
+// ListTags mocks base method
+func (m *MockClient) ListTags(arg0 url.Values) (models.Tags, error) {
+	ret := m.ctrl.Call(m, "ListTags", arg0)
+	ret0, _ := ret[0].(models.Tags)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListTags indicates an expected call of ListTags
+func (mr *MockClientMockRecorder) ListTags(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTags", reflect.TypeOf((*MockClient)(nil).ListTags), arg0)
+}
+
+// ListTasks mocks base method
+func (m *MockClient) ListTasks() ([]*models.TaskSummary, error) {
+	ret := m.ctrl.Call(m, "ListTasks")
+	ret0, _ := ret[0].([]*models.TaskSummary)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListTasks indicates an expected call of ListTasks
+func (mr *MockClientMockRecorder) ListTasks() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTasks", reflect.TypeOf((*MockClient)(nil).ListTasks))
+}
+
 // ReadDeploy mocks base method
 func (m *MockClient) ReadDeploy(arg0 string) (*models.Deploy, error) {
 	ret := m.ctrl.Call(m, "ReadDeploy", arg0)
@@ -278,6 +331,45 @@ func (m *MockClient) ReadService(arg0 string) (*models.Service, error) {
 // ReadService indicates an expected call of ReadService
 func (mr *MockClientMockRecorder) ReadService(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadService", reflect.TypeOf((*MockClient)(nil).ReadService), arg0)
+}
+
+// ReadServiceLogs mocks base method
+func (m *MockClient) ReadServiceLogs(arg0 string, arg1 url.Values) ([]*models.LogFile, error) {
+	ret := m.ctrl.Call(m, "ReadServiceLogs", arg0, arg1)
+	ret0, _ := ret[0].([]*models.LogFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadServiceLogs indicates an expected call of ReadServiceLogs
+func (mr *MockClientMockRecorder) ReadServiceLogs(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadServiceLogs", reflect.TypeOf((*MockClient)(nil).ReadServiceLogs), arg0, arg1)
+}
+
+// ReadTask mocks base method
+func (m *MockClient) ReadTask(arg0 string) (*models.Service, error) {
+	ret := m.ctrl.Call(m, "ReadTask", arg0)
+	ret0, _ := ret[0].(*models.Service)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadTask indicates an expected call of ReadTask
+func (mr *MockClientMockRecorder) ReadTask(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadTask", reflect.TypeOf((*MockClient)(nil).ReadTask), arg0)
+}
+
+// ReadTaskLogs mocks base method
+func (m *MockClient) ReadTaskLogs(arg0 string, arg1 url.Values) ([]*models.LogFile, error) {
+	ret := m.ctrl.Call(m, "ReadTaskLogs", arg0, arg1)
+	ret0, _ := ret[0].([]*models.LogFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadTaskLogs indicates an expected call of ReadTaskLogs
+func (mr *MockClientMockRecorder) ReadTaskLogs(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadTaskLogs", reflect.TypeOf((*MockClient)(nil).ReadTaskLogs), arg0, arg1)
 }
 
 // UpdateEnvironment mocks base method
