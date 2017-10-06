@@ -22,7 +22,8 @@ const (
 )
 
 func WaitForJob(client Client, jobID string, timeout time.Duration) (*models.Job, error) {
-	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 5 * timeMultiplier) {
+	sleep := newLinearBackoffSleeper(time.Second)
+	for start := time.Now(); time.Since(start) < timeout; sleep() {
 		j, err := client.ReadJob(jobID)
 		if err != nil {
 			return nil, err
@@ -43,4 +44,12 @@ func WaitForJob(client Client, jobID string, timeout time.Duration) (*models.Job
 	}
 
 	return nil, fmt.Errorf("Timeout: job has not completed after %v", timeout)
+}
+
+func newLinearBackoffSleeper(d time.Duration) func() {
+	var i int
+	return func() {
+		i++
+		time.Sleep(d * time.Duration(i) * timeMultiplier)
+	}
 }

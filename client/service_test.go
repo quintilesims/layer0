@@ -113,9 +113,9 @@ func TestReadServiceLogs(t *testing.T) {
 	}
 
 	query := url.Values{}
-	query.Set("tail", "100")
-	query.Set("start", "2000-01-01 00:00")
-	query.Set("end", "2000-01-01 12:12")
+	query.Set(LogQueryParamTail, "100")
+	query.Set(LogQueryParamStart, "2000-01-01 00:00")
+	query.Set(LogQueryParamEnd, "2000-01-01 12:12")
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
