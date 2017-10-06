@@ -1,8 +1,6 @@
 package aws
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -27,15 +25,12 @@ func (s *ServiceProvider) Update(req models.UpdateServiceRequest) error {
 
 	if req.DeployID != nil {
 		deployID := *req.DeployID
-		deployName, deployVersion, err := lookupDeployNameAndVersion(s.TagStore, deployID)
+		taskDefinitionARN, err := lookupTaskDefinitionARNFromDeployID(s.TagStore, deployID)
 		if err != nil {
 			return err
 		}
 
-		taskDefinitionFamily := deployName
-		taskDefinitionRevision := deployVersion
-
-		if err := s.updateServiceTaskDefinition(clusterName, serviceName, taskDefinitionFamily, taskDefinitionRevision); err != nil {
+		if err := s.updateServiceTaskDefinition(clusterName, serviceName, taskDefinitionARN); err != nil {
 			return err
 		}
 	}
@@ -50,13 +45,11 @@ func (s *ServiceProvider) Update(req models.UpdateServiceRequest) error {
 	return nil
 }
 
-func (s *ServiceProvider) updateServiceTaskDefinition(clusterName, serviceName, taskDefinitionFamily, taskDefinitionRevision string) error {
+func (s *ServiceProvider) updateServiceTaskDefinition(clusterName, serviceName, taskDefinitionARN string) error {
 	input := &ecs.UpdateServiceInput{}
 	input.SetCluster(clusterName)
 	input.SetService(serviceName)
-
-	taskDefinition := fmt.Sprintf("%s:%s", taskDefinitionFamily, taskDefinitionRevision)
-	input.SetTaskDefinition(taskDefinition)
+	input.SetTaskDefinition(taskDefinitionARN)
 
 	if err := input.Validate(); err != nil {
 		return err
