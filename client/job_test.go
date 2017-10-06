@@ -5,112 +5,70 @@ import (
 	"testing"
 
 	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/common/testutils"
-	"github.com/quintilesims/layer0/common/types"
+	"github.com/stretchr/testify/assert"
 )
 
-func TestDelete(t *testing.T) {
+func TestDeleteJob(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "DELETE")
-		testutils.AssertEqual(t, r.URL.Path, "/job/id")
+		assert.Equal(t, r.Method, "DELETE")
+		assert.Equal(t, r.URL.Path, "/job/jid")
 
-		MarshalAndWrite(t, w, "", 202)
+		MarshalAndWrite(t, w, nil, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	if err := client.Delete("id"); err != nil {
+	if err := client.DeleteJob("jid"); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestSelectByID(t *testing.T) {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "GET")
-		testutils.AssertEqual(t, r.URL.Path, "/job/id")
+func TestListJobs(t *testing.T) {
+	expected := []*models.Job{
+		{JobID: "jid1"},
+		{JobID: "jid2"},
+	}
 
-		MarshalAndWrite(t, w, models.Job{JobID: "id"}, 200)
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, r.Method, "GET")
+		assert.Equal(t, r.URL.Path, "/job")
+
+		MarshalAndWrite(t, w, expected, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	job, err := client.GetJob("id")
+	result, err := client.ListJobs()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, job.JobID, "id")
+	assert.Equal(t, expected, result)
 }
 
-func TestSelectAll(t *testing.T) {
+func TestReadJob(t *testing.T) {
+	expected := &models.Job{
+		JobID:  "jid",
+		Type:   "CreateEnvironmentJob",
+		Status: "InProgress",
+	}
+
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "GET")
-		testutils.AssertEqual(t, r.URL.Path, "/job/")
+		assert.Equal(t, r.Method, "GET")
+		assert.Equal(t, r.URL.Path, "/job/jid")
 
-		jobs := []models.Job{
-			{JobID: "id1"},
-			{JobID: "id2"},
-		}
-
-		MarshalAndWrite(t, w, jobs, 200)
+		MarshalAndWrite(t, w, expected, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobs, err := client.ListJobs()
+	result, err := client.ReadJob("jid")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, len(jobs), 2)
-	testutils.AssertEqual(t, jobs[0].JobID, "id1")
-	testutils.AssertEqual(t, jobs[1].JobID, "id2")
-}
-
-func TestWaitForJob(t *testing.T) {
-	count := 0
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "GET")
-		testutils.AssertEqual(t, r.URL.Path, "/job/id")
-
-		jobStatus := int64(types.InProgress)
-		if count > 0 {
-			jobStatus = int64(types.Completed)
-		}
-
-		job := models.Job{JobID: "id", JobStatus: jobStatus}
-
-		MarshalAndWrite(t, w, job, 200)
-		count++
-	}
-
-	client, server := newClientAndServer(handler)
-	defer server.Close()
-
-	if err := client.WaitForJob("id", 0); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestWaitForJobError(t *testing.T) {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "GET")
-		testutils.AssertEqual(t, r.URL.Path, "/job/id")
-
-		jobStatus := int64(types.Error)
-
-		job := models.Job{JobID: "id", JobStatus: jobStatus}
-
-		MarshalAndWrite(t, w, job, 200)
-	}
-
-	client, server := newClientAndServer(handler)
-	defer server.Close()
-
-	if err := client.WaitForJob("id", 0); err == nil {
-		t.Fatalf("Error was nil!")
-	}
+	assert.Equal(t, expected, result)
 }

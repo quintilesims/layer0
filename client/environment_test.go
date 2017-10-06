@@ -5,164 +5,133 @@ import (
 	"testing"
 
 	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/common/testutils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestCreateEnvironment(t *testing.T) {
+	req := models.CreateEnvironmentRequest{
+		EnvironmentName:  "name",
+		InstanceSize:     "size",
+		MinClusterCount:  1,
+		UserDataTemplate: []byte("user_data"),
+		OperatingSystem:  "os",
+		AMIID:            "ami",
+	}
+
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "POST")
-		testutils.AssertEqual(t, r.URL.Path, "/environment/")
+		assert.Equal(t, r.Method, "POST")
+		assert.Equal(t, r.URL.Path, "/environment")
 
-		var req models.CreateEnvironmentRequest
-		Unmarshal(t, r, &req)
+		var body models.CreateEnvironmentRequest
+		Unmarshal(t, r, &body)
 
-		testutils.AssertEqual(t, req.EnvironmentName, "name")
-		testutils.AssertEqual(t, req.InstanceSize, "m3.medium")
-		testutils.AssertEqual(t, req.MinClusterCount, 2)
-		testutils.AssertEqual(t, req.UserDataTemplate, []byte("user_data"))
-		testutils.AssertEqual(t, req.OperatingSystem, "linux")
-		testutils.AssertEqual(t, req.AMIID, "ami")
-
-		MarshalAndWrite(t, w, models.Environment{EnvironmentID: "id"}, 200)
+		assert.Equal(t, req, body)
+		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	environment, err := client.CreateEnvironment("name", "m3.medium", 2, []byte("user_data"), "linux", "ami")
+	jobID, err := client.CreateEnvironment(req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, environment.EnvironmentID, "id")
+	assert.Equal(t, "jid", jobID)
 }
 
 func TestDeleteEnvironment(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "DELETE")
-		testutils.AssertEqual(t, r.URL.Path, "/environment/id")
+		assert.Equal(t, r.Method, "DELETE")
+		assert.Equal(t, r.URL.Path, "/environment/eid")
 
-		headers := map[string]string{
-			"Location": "/job/jobid",
-			"X-JobID":  "jobid",
-		}
-
-		MarshalAndWriteHeader(t, w, "", headers, 202)
+		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.DeleteEnvironment("id")
+	jobID, err := client.DeleteEnvironment("eid")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, jobID, "jobid")
-}
-
-func TestGetEnvironment(t *testing.T) {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "GET")
-		testutils.AssertEqual(t, r.URL.Path, "/environment/id")
-
-		MarshalAndWrite(t, w, models.Environment{EnvironmentID: "id"}, 200)
-	}
-
-	client, server := newClientAndServer(handler)
-	defer server.Close()
-
-	environment, err := client.GetEnvironment("id")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	testutils.AssertEqual(t, environment.EnvironmentID, "id")
+	assert.Equal(t, jobID, "jid")
 }
 
 func TestListEnvironments(t *testing.T) {
+	expected := []*models.EnvironmentSummary{
+		{EnvironmentID: "eid1"},
+		{EnvironmentID: "eid2"},
+	}
+
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "GET")
-		testutils.AssertEqual(t, r.URL.Path, "/environment/")
+		assert.Equal(t, r.Method, "GET")
+		assert.Equal(t, r.URL.Path, "/environment")
 
-		environments := []models.EnvironmentSummary{
-			{EnvironmentID: "id1"},
-			{EnvironmentID: "id2"},
-		}
-
-		MarshalAndWrite(t, w, environments, 200)
+		MarshalAndWrite(t, w, expected, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	environments, err := client.ListEnvironments()
+	result, err := client.ListEnvironments()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, len(environments), 2)
-	testutils.AssertEqual(t, environments[0].EnvironmentID, "id1")
-	testutils.AssertEqual(t, environments[1].EnvironmentID, "id2")
+	assert.Equal(t, expected, result)
+}
+
+func TestReadEnvironment(t *testing.T) {
+	expected := &models.Environment{
+		EnvironmentID:   "eid",
+		EnvironmentName: "ename",
+	}
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, r.Method, "GET")
+		assert.Equal(t, r.URL.Path, "/environment/eid")
+
+		MarshalAndWrite(t, w, expected, 200)
+	}
+
+	client, server := newClientAndServer(handler)
+	defer server.Close()
+
+	result, err := client.ReadEnvironment("eid")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, expected, result)
 }
 
 func TestUpdateEnvironment(t *testing.T) {
+	count := 1
+	req := models.UpdateEnvironmentRequest{
+		EnvironmentID:   "eid",
+		MinClusterCount: &count,
+	}
+
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "PUT")
-		testutils.AssertEqual(t, r.URL.Path, "/environment/id")
+		assert.Equal(t, r.Method, "PUT")
+		assert.Equal(t, r.URL.Path, "/environment")
 
-		var req models.UpdateEnvironmentRequest
-		Unmarshal(t, r, &req)
+		var body models.UpdateEnvironmentRequest
+		Unmarshal(t, r, &body)
 
-		testutils.AssertEqual(t, req.MinClusterCount, 2)
-
-		MarshalAndWrite(t, w, models.Environment{EnvironmentID: "id"}, 200)
+		assert.Equal(t, req, body)
+		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	environment, err := client.UpdateEnvironment("id", 2)
+	jobID, err := client.UpdateEnvironment(req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, environment.EnvironmentID, "id")
-}
-
-func TestCreateLink(t *testing.T) {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "POST")
-		testutils.AssertEqual(t, r.URL.Path, "/environment/id1/link")
-
-		var req models.CreateEnvironmentLinkRequest
-		Unmarshal(t, r, &req)
-
-		testutils.AssertEqual(t, req.EnvironmentID, "id2")
-
-		MarshalAndWrite(t, w, "", 200)
-	}
-
-	client, server := newClientAndServer(handler)
-	defer server.Close()
-
-	if err := client.CreateLink("id1", "id2"); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestCreateUnlink(t *testing.T) {
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		testutils.AssertEqual(t, r.Method, "DELETE")
-		testutils.AssertEqual(t, r.URL.Path, "/environment/id1/link/id2")
-
-		MarshalAndWrite(t, w, "", 200)
-	}
-
-	client, server := newClientAndServer(handler)
-	defer server.Close()
-
-	if err := client.DeleteLink("id1", "id2"); err != nil {
-		t.Fatal(err)
-	}
+	assert.Equal(t, "jid", jobID)
 }
