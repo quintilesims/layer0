@@ -19,7 +19,9 @@ const (
 	LogQueryParamTail  = "tail"
 	LogQueryParamStart = "start"
 	LogQueryParamEnd   = "end"
+)
 
+const (
 	TagQueryParamType = "type"
 	TagQueryParamID   = "id"
 )
