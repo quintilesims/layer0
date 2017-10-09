@@ -14,41 +14,41 @@ func (f *CommandFactory) Environment() cli.Command {
 		Name:  "environment",
 		Usage: "manage layer0 environments",
 		Subcommands: []cli.Command{
-			// {
-			// Name:      "create",
-			// Usage:     "create a new environment",
-			// Action:    f.createEnvironment,
-			// ArgsUsage: "NAME",
-			// Flags: []cli.Flag{
-			// cli.StringFlag{
-			// Name:  "size",
-			// Value: "m3.medium",
-			// Usage: "size of the ec2 instances to use in the environment cluster",
-			// },
-			// cli.IntFlag{
-			// Name:  "min-count",
-			// Value: 0,
-			// Usage: "minimum number of instances allowed in the environment cluster",
-			// },
-			// cli.StringFlag{
-			// Name:  "user-data",
-			// Usage: "path to user data file",
-			// },
-			// cli.StringFlag{
-			// Name:  "os",
-			// Value: "linux",
-			// Usage: "specifies if the environment will run windows or linux containers",
-			// },
-			// cli.StringFlag{
-			// Name:  "ami",
-			// Usage: "specifies a custom AMI ID to use in the environment",
-			// },
-			// cli.BoolFlag{
-			// Name:  "nowait",
-			// Usage: "don't wait for the job to finish",
-			// },
-			// },
-			// },
+			{
+				Name:      "create",
+				Usage:     "create a new environment",
+				Action:    f.createEnvironment,
+				ArgsUsage: "NAME",
+				Flags: []cli.Flag{
+					cli.StringFlag{
+						Name:  "size",
+						Value: "m3.medium",
+						Usage: "size of the ec2 instances to use in the environment cluster",
+					},
+					cli.IntFlag{
+						Name:  "min-count",
+						Value: 0,
+						Usage: "minimum number of instances allowed in the environment cluster",
+					},
+					cli.StringFlag{
+						Name:  "user-data",
+						Usage: "path to user data file",
+					},
+					cli.StringFlag{
+						Name:  "os",
+						Value: "linux",
+						Usage: "specifies if the environment will run windows or linux containers",
+					},
+					cli.StringFlag{
+						Name:  "ami",
+						Usage: "specifies a custom AMI ID to use in the environment",
+					},
+					cli.BoolFlag{
+						Name:  "nowait",
+						Usage: "don't wait for the job to finish",
+					},
+				},
+			},
 			{
 				Name:      "delete",
 				Usage:     "delete an environment",
