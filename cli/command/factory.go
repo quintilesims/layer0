@@ -50,17 +50,16 @@ func (f *CommandFactory) deleteHelper(c *cli.Context, entityType string, deleteF
 		return err
 	}
 
-	if c.GlobalBool("no-wait") {
+	if c.GlobalBool(config.FLAG_NO_WAIT) {
 		// todo: use single 'running as job' helper printer
 		f.printer.Printf("Running as job '%s'", jobID)
 		return nil
 	}
 
-	f.printer.StartSpinner("Deleting")
+	f.printer.StartSpinner("deleting")
 	defer f.printer.StopSpinner()
 
-	timeout := c.GlobalDuration(config.FLAG_TIMEOUT)
-	if _, err := client.WaitForJob(f.client, jobID, timeout); err != nil {
+	if _, err := client.WaitForJob(f.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT)); err != nil {
 		return err
 	}
 

@@ -30,18 +30,27 @@ func CLIFlags() []cli.Flag {
 			Name:   FLAG_ENDPOINT,
 			EnvVar: ENVVAR_ENDPOINT,
 			Value:  "http://localhost:9090/",
+			Usage:  "todo",
 		},
 		cli.StringFlag{
 			Name:   FLAG_TOKEN,
 			EnvVar: ENVVAR_TOKEN,
+			Usage:  "todo",
 		},
 		cli.BoolFlag{
 			Name:   FLAG_SKIP_VERIFY_SSL,
 			EnvVar: ENVVAR_SKIP_VERIFY_SSL,
+			Usage:  "todo",
 		},
 		cli.BoolFlag{
 			Name:   FLAG_SKIP_VERIFY_VERSION,
 			EnvVar: ENVVAR_SKIP_VERIFY_VERSION,
+			Usage:  "todo",
+		},
+		cli.BoolFlag{
+			Name:   FLAG_NO_WAIT,
+			EnvVar: ENVVAR_NO_WAIT,
+			Usage:  "todo",
 		},
 	}
 }
