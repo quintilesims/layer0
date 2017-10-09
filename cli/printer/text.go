@@ -8,7 +8,6 @@ import (
 
 	"github.com/briandowns/spinner"
 	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/common/types"
 	"github.com/ryanuber/columnize"
 )
 
@@ -112,24 +111,13 @@ func (t *TextPrinter) PrintEnvironmentSummaries(environments ...*models.Environm
 }
 
 func (t *TextPrinter) PrintJobs(jobs ...*models.Job) error {
-	getType := func(j *models.Job) string {
-		jobType := types.JobType(j.JobType).String()
-		return strings.Title(jobType)
-	}
-
-	getStatus := func(j *models.Job) string {
-		jobStatus := types.JobStatus(j.JobStatus).String()
-		return strings.Title(jobStatus)
-	}
-
-	rows := []string{"JOB ID | TASK ID | TYPE | STATUS | CREATED"}
+	rows := []string{"JOB ID | TYPE | STATUS | CREATED"}
 	for _, j := range jobs {
 		row := fmt.Sprintf("%s | %s | %s | %s | %s",
 			j.JobID,
-			j.TaskID,
-			getType(j),
-			getStatus(j),
-			j.TimeCreated.Format(TIME_FORMAT))
+			j.Type,
+			j.Status,
+			j.Created.Format(TIME_FORMAT))
 
 		rows = append(rows, row)
 	}
@@ -239,8 +227,8 @@ func (t *TextPrinter) PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBala
 
 func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
 	for _, l := range logs {
-		fmt.Println(l.Name)
-		for i := 0; i < len(l.Name); i++ {
+		fmt.Println(l.ContainerName)
+		for i := 0; i < len(l.ContainerName); i++ {
 			fmt.Printf("-")
 		}
 
@@ -364,12 +352,8 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 	}
 
 	getScale := func(t *models.Task) string {
-		scale := fmt.Sprintf("%d/%d", t.RunningCount, t.DesiredCount)
-		if t.PendingCount != 0 {
-			scale = fmt.Sprintf("%s (%d)", scale, t.PendingCount)
-		}
-
-		return scale
+		// todo: use t.Containers
+		return ""
 	}
 
 	getDeploy := func(t *models.Task) string {
