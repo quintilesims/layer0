@@ -11,7 +11,6 @@ import (
 	"github.com/quintilesims/layer0/cli/command"
 	"github.com/quintilesims/layer0/cli/printer"
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/waitutils"
 	"github.com/urfave/cli"
 )
 
@@ -50,11 +49,9 @@ func RunApp() {
 	}
 
 	apiClient := client.NewAPIClient(client.Config{
-		Endpoint:      config.APIEndpoint(),
-		Token:         config.AuthToken(),
-		VerifySSL:     config.ShouldVerifySSL(),
-		VerifyVersion: config.ShouldVerifyVersion(),
-		Clock:         waitutils.RealClock{},
+		Endpoint:  config.APIEndpoint(),
+		Token:     config.AuthToken(),
+		VerifySSL: config.ShouldVerifySSL(),
 	})
 
 	commands := getCommands(apiClient)
@@ -95,6 +92,19 @@ func RunApp() {
 
 		if c.Bool("debug") {
 			log.SetLevel(log.DebugLevel)
+		}
+
+		if config.ShouldVerifyVersion() {
+			apiConfig, err := apiClient.ReadConfig()
+			if err != nil {
+				return err
+			}
+
+			if apiConfig.Version != Version {
+				text := fmt.Sprintf("API and CLI version mismatch (CLI: '%s', API: '%s')\n", Version, apiConfig.Version)
+				text += fmt.Sprintf("To disable this warning, set %s=\"1\"", config.SKIP_VERSION_VERIFY)
+				return fmt.Errorf(text)
+			}
 		}
 
 		return nil
