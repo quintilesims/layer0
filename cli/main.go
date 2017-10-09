@@ -36,19 +36,17 @@ func main() {
 	}
 
 	app.Before = func(c *cli.Context) error {
-		cfg := config.NewContextCLIConfig(c)
-		if err := cfg.Validate(); err != nil {
+		if err := config.ValidateCLIContext(c); err != nil {
 			return err
 		}
 
-		logger := logging.NewLogWriter(cfg.Debug())
+		logger := logging.NewLogWriter(c.GlobalBool(config.FLAG_DEBUG))
 		log.SetOutput(logger)
 
-		// inject the api client
 		apiClient := client.NewAPIClient(client.Config{
-			Endpoint:  cfg.Endpoint(),
-			Token:     cfg.Token(),
-			VerifySSL: cfg.VerifySSL(),
+			Endpoint:  c.GlobalString(config.FLAG_ENDPOINT),
+			Token:     c.GlobalString(config.FLAG_TOKEN),
+			VerifySSL: !c.GlobalBool(config.FLAG_SKIP_VERIFY_SSL),
 		})
 
 		commandFactory.SetClient(apiClient)
@@ -59,7 +57,7 @@ func main() {
 
 		// inject the printer
 		var p printer.Printer
-		switch format := cfg.Output(); format {
+		switch format := c.GlobalString(config.FLAG_OUTPUT); format {
 		case "text":
 			p = &printer.TextPrinter{}
 		case "json":
@@ -69,7 +67,7 @@ func main() {
 		}
 
 		commandFactory.SetPrinter(p)
-		
+
 		// todo: verify version
 
 		return nil

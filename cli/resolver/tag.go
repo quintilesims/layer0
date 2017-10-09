@@ -1,8 +1,6 @@
 package resolver
 
 import (
-	"fmt"
-
 	"github.com/quintilesims/layer0/client"
 )
 
@@ -17,5 +15,6 @@ func NewTagResolver(client client.Client) *TagResolver {
 }
 
 func (r *TagResolver) Resolve(entityType, target string) ([]string, error) {
-	return nil, fmt.Errorf("TagResolver.Resolve not implemented!")
+	// todo: implement
+	return []string{target}, nil
 }
