@@ -130,20 +130,9 @@ func (f *CommandFactory) createEnvironment(c *cli.Context) error {
 }
 
 func (f *CommandFactory) deleteEnvironment(c *cli.Context) error {
-	// hint: get timeout via c.GlobalDuration(config.FLAG_TIMEOUT)
-	// then pass to: client.WaitForJob(f.client, jobID, timeout)
-
-	// get args
-	//  - resolve
-	//  - entityType
-
-	f.deleteHelper(c, "environment", func(environmentID string) (string, error) {
+	return f.deleteHelper(c, "environment", func(environmentID string) (string, error) {
 		return f.client.DeleteEnvironment(environmentID)
 	})
-
-	job, err := client.WaitForJob(f.client, jobID, timeout)
-
-	return nil
 }
 
 func (f *CommandFactory) listEnvironments(c *cli.Context) error {
@@ -156,38 +145,5 @@ func (f *CommandFactory) listEnvironments(c *cli.Context) error {
 }
 
 func (f *CommandFactory) readEnvironment(c *cli.Context) error {
-	return nil
-}
-
-// put this somewhere better for common funcs
-func (f *CommandFactory) deleteHelper(c *cli.Context, entityType string, fn func(entityID string) (string, error)) error {
-	args, err := extractArgs(c.Args(), "NAME")
-	if err != nil {
-		return err
-	}
-
-	entityID, err := resolveSingleID(entityType, args["NAME"])
-	if err != nil {
-		return err
-	}
-
-	jobID, err := fn(entityID)
-	if err != nil {
-		return err
-	}
-
-	if c.Bool("nowait") {
-		f.printer.Printf("Running as job '%s'", jobID)
-		return nil
-	}
-
-	f.printer.StartSpinner("Deleting")
-	defer f.printer.StopSpinner()
-
-	timeout := c.GlobalDuration(config.FLAG_TIMEOUT)
-	if _, err := client.WaitForJob(f.client, jobID, timeout); err != nil {
-		return err
-	}
-
 	return nil
 }
