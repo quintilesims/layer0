@@ -22,7 +22,7 @@ func ReadJSONResponse(resp *http.Response, v interface{}) error {
 		if err := json.NewDecoder(resp.Body).Decode(v); err != nil {
 			return NewResponseError(resp, err.Error())
 		}
-			
+
 		resp.Body.Close()
 	}
 

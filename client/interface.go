@@ -7,16 +7,16 @@ import (
 )
 
 type Client interface {
+	CreateDeploy(req models.CreateDeployRequest) (string, error)
+	DeleteDeploy(deployID string) (string, error)
+	ListDeploys() ([]*models.DeploySummary, error)
+	ReadDeploy(deployID string) (*models.Deploy, error)
+
 	CreateEnvironment(req models.CreateEnvironmentRequest) (string, error)
 	DeleteEnvironment(environmentID string) (string, error)
 	ListEnvironments() ([]*models.EnvironmentSummary, error)
 	ReadEnvironment(environmentID string) (*models.Environment, error)
 	UpdateEnvironment(req models.UpdateEnvironmentRequest) (string, error)
-
-	CreateDeploy(req models.CreateDeployRequest) (string, error)
-	DeleteDeploy(deployID string) (string, error)
-	ListDeploys() ([]*models.DeploySummary, error)
-	ReadDeploy(deployID string) (*models.Deploy, error)
 
 	DeleteJob(jobID string) error
 	ReadJob(jobID string) (*models.Job, error)
@@ -38,7 +38,7 @@ type Client interface {
 	CreateTask(req models.CreateTaskRequest) (string, error)
 	DeleteTask(taskID string) (string, error)
 	ListTasks() ([]*models.TaskSummary, error)
-	ReadTask(taskID string) (*models.Service, error)
+	ReadTask(taskID string) (*models.Task, error)
 	ReadTaskLogs(taskID string, query url.Values) ([]*models.LogFile, error)
 
 	ListTags(query url.Values) (models.Tags, error)
