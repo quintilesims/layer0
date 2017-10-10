@@ -237,5 +237,39 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 }
 
 func (s *ServiceCommand) update(c *cli.Context) error {
-	return nil
+	args, err := extractArgs(c.Args(), "NAME", "DEPLOY")
+	if err != nil {
+		return err
+	}
+
+	serviceID, err := s.resolveSingleEntityIDHelper("service", args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	deployID, err := s.resolveSingleEntityIDHelper("deploy", args["DEPLOY"])
+	if err != nil {
+		return err
+	}
+
+	req := models.UpdateServiceRequest{
+		ServiceID: serviceID,
+		DeployID:  &deployID,
+	}
+
+	jobID, err := s.client.UpdateService(req)
+	if err != nil {
+		return err
+	}
+
+	onCompleteFn := func(serviceID string) error {
+		service, err := s.client.ReadService(serviceID)
+		if err != nil {
+			return err
+		}
+
+		return s.printer.PrintServices(service)
+	}
+
+	return s.waitOnJobHelper(c, jobID, "updating", onCompleteFn)
 }
