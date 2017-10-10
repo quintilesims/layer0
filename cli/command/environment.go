@@ -107,20 +107,21 @@ func (f *CommandFactory) createEnvironment(c *cli.Context) error {
 		return err
 	}
 
-	if c.Bool("nowait") {
+	if c.GlobalBool(config.FLAG_NO_WAIT) {
+		// todo: use common helper
 		f.printer.Printf("Running as job '%s'", jobID)
 		return nil
 	}
 
-	timeout := c.GlobalDuration(config.FLAG_TIMEOUT)
+	f.printer.StartSpinner("creating")
+	defer f.printer.StopSpinner()
 
-	job, err := client.WaitForJob(f.client, jobID, timeout)
+	job, err := client.WaitForJob(f.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT))
 	if err != nil {
 		return err
 	}
 
 	environmentID := job.Result
-
 	environment, err := f.client.ReadEnvironment(environmentID)
 	if err != nil {
 		return err
