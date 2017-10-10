@@ -57,3 +57,23 @@ func (m *CommandMediator) deleteHelper(c *cli.Context, entityType string, delete
 
 	return nil
 }
+
+func (m *CommandMediator) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFN func(entityID string) error) error {
+	waitFlag := c.GlobalBool(config.FLAG_NO_WAIT)
+	waitTimeout := c.GlobalDuration(config.FLAG_TIMEOUT)
+
+	if waitFlag {
+		m.printer.Printf("Running as job '%s'", jobID)
+		return nil
+	}
+
+	m.printer.StartSpinner(spinnerText)
+	defer m.printer.StopSpinner()
+
+	job, err := client.WaitForJob(m.client, jobID, waitTimeout)
+	if err != nil {
+		return err
+	}
+
+	return onCompleteFN(job.Result)
+}

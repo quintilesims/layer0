@@ -1,10 +1,10 @@
 package command
 
 import (
+	"fmt"
 	"io/ioutil"
+	"strconv"
 
-	"github.com/quintilesims/layer0/client"
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -83,6 +83,12 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				Action:    e.read,
 				ArgsUsage: "NAME",
 			},
+			{
+				Name:      "setmincount",
+				Usage:     "set the minimum instance count for an environment cluster",
+				Action:    e.update,
+				ArgsUsage: "NAME COUNT",
+			},
 		},
 	}
 }
@@ -117,27 +123,14 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	if c.GlobalBool(config.FLAG_NO_WAIT) {
-		// todo: use common helper
-		e.printer.Printf("Running as job '%s'", jobID)
-		return nil
-	}
+	return e.waitOnJobHelper(c, jobID, "creating", func(environmentID string) error {
+		environment, err := e.client.ReadEnvironment(environmentID)
+		if err != nil {
+			return err
+		}
 
-	e.printer.StartSpinner("creating")
-	defer e.printer.StopSpinner()
-
-	job, err := client.WaitForJob(e.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT))
-	if err != nil {
-		return err
-	}
-
-	environmentID := job.Result
-	environment, err := e.client.ReadEnvironment(environmentID)
-	if err != nil {
-		return err
-	}
-
-	return e.printer.PrintEnvironments(environment)
+		return e.printer.PrintEnvironments(environment)
+	})
 }
 
 func (e *EnvironmentCommand) delete(c *cli.Context) error {
@@ -167,4 +160,41 @@ func (e *EnvironmentCommand) read(c *cli.Context) error {
 	}
 
 	return e.printer.PrintEnvironments(environment)
+}
+
+func (e *EnvironmentCommand) update(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "NAME")
+	if err != nil {
+		return err
+	}
+
+	count, err := strconv.ParseInt(args["COUNT"], 10, 64)
+	if err != nil {
+		return fmt.Errorf("'%s' is not a valid integer", args["COUNT"])
+	}
+	minClusterCount := int(count)
+
+	id, err := resolveSingleEntityID(e.resolver, "environment", args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	req := models.UpdateEnvironmentRequest{
+		EnvironmentID:   id,
+		MinClusterCount: &minClusterCount,
+	}
+
+	jobID, err := e.client.UpdateEnvironment(req)
+	if err != nil {
+		return err
+	}
+
+	return e.waitOnJobHelper(c, jobID, "updating", func(environmentID string) error {
+		environment, err := e.client.ReadEnvironment(environmentID)
+		if err != nil {
+			return err
+		}
+
+		return e.printer.PrintEnvironments(environment)
+	})
 }
