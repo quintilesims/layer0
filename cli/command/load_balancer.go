@@ -5,8 +5,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/quintilesims/layer0/client"
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -28,50 +26,50 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 		Subcommands: []cli.Command{
 			{
 				Name:      "create",
-				Usage:     "create a new load balancer",
+				Usage:     "Create a new Elastic Load Balancer",
 				Action:    l.create,
-				ArgsUsage: "ENVIRONMENT NAME",
+				ArgsUsage: "ENVIRONMENT_NAME LOADBALANCER_NAME",
 				Flags: []cli.Flag{
 					cli.StringSliceFlag{
 						Name:  "port",
-						Usage: "port configuration in format 'HOST_PORT:CONTAINER_PORT/PROTOCOL' (default 80:80/tcp)",
+						Usage: "Port configuration in format 'HOST_PORT:CONTAINER_PORT/PROTOCOL' (default 80:80/tcp)",
 					},
 					cli.StringFlag{
 						Name:  "certificate",
-						Usage: "name of certificate to use for port configuration (only required for https)",
+						Usage: "Name of SSL certificate to use for port configuration (only required for https)",
 					},
 					cli.BoolFlag{
 						Name:  "private",
-						Usage: "if specified, creates a private load balancer (default is public)",
+						Usage: "If specified, creates a private load balancer (default is public)",
 					},
 					cli.StringFlag{
 						Name:  "healthcheck-target",
 						Value: "TCP:80",
-						Usage: "health check target in format 'PROTOCOL:PORT' or 'PROTOCOL:PORT/WITH/PATH'",
+						Usage: "Health check target in format 'PROTOCOL:PORT' or 'PROTOCOL:PORT/WITH/PATH' (default is TCP:80)",
 					},
 					cli.IntFlag{
 						Name:  "healthcheck-interval",
 						Value: 30,
-						Usage: "health check interval in seconds",
+						Usage: "Health check interval in seconds (default is 30)",
 					},
 					cli.IntFlag{
 						Name:  "healthcheck-timeout",
 						Value: 5,
-						Usage: "health check timeout in seconds",
+						Usage: "Health check timeout in seconds (default is 5)",
 					},
 					cli.IntFlag{
 						Name:  "healthcheck-healthy-threshold",
 						Value: 2,
-						Usage: "number of consecutive successes required to count as healthy",
+						Usage: "Number of consecutive successes required to count as healthy (default is 2)",
 					},
 					cli.IntFlag{
 						Name:  "healthcheck-unhealthy-threshold",
 						Value: 2,
-						Usage: "number of consecutive failures required to count as unhealthy",
+						Usage: "Number of consecutive failures required to count as unhealthy (default is 2)",
 					},
 					cli.BoolFlag{
 						Name:  "nowait",
-						Usage: "don't wait for the job to finish",
+						Usage: "Don't wait for the job to finish",
 					},
 				},
 			},
@@ -93,15 +91,28 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 				Action:    l.list,
 				ArgsUsage: " ",
 			},
+			{
+				Name:      "read",
+				Usage:     "describe a load balancer",
+				Action:    l.read,
+				ArgsUsage: "NAME",
+			},
 		},
 	}
 }
 
 func (l *LoadBalancerCommand) create(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "ENVIRONMENT", "NAME")
+	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME", "LOADBALANCER_NAME")
 	if err != nil {
 		return err
 	}
+
+	environmentID, err := resolveSingleEntityID(l.resolver, "environment", args["ENVIRONMENT_NAME"])
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("environmentID: %v\n", environmentID)
 
 	ports := []models.Port{}
 	for _, p := range c.StringSlice("port") {
@@ -113,6 +124,18 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		ports = append(ports, *port)
 	}
 
+	// TODO: Should we be defaulting load balancers to this configuration or
+	// require users to specify the listener ports?
+	if len(ports) == 0 {
+		port := models.Port{
+			HostPort:      80,
+			ContainerPort: 80,
+			Protocol:      "tcp",
+		}
+
+		ports = append(ports, port)
+	}
+
 	healthCheck := models.HealthCheck{
 		Target:             c.String("healthcheck-target"),
 		Interval:           c.Int("healthcheck-interval"),
@@ -122,12 +145,11 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 	}
 
 	req := models.CreateLoadBalancerRequest{
-		LoadBalancerName: args["NAME"],
-		// TODO: Retrieve the actual EnvironmentID
-		EnvironmentID: "jparson4db98",
-		IsPublic:      c.Bool("private"),
-		Ports:         ports,
-		HealthCheck:   healthCheck,
+		LoadBalancerName: args["LOADBALANCER_NAME"],
+		EnvironmentID:    environmentID,
+		IsPublic:         c.Bool("private"),
+		Ports:            ports,
+		HealthCheck:      healthCheck,
 	}
 
 	jobID, err := l.client.CreateLoadBalancer(req)
@@ -140,21 +162,15 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		return nil
 	}
 
-	l.printer.StartSpinner("creating")
-	defer l.printer.StopSpinner()
+	return l.waitOnJobHelper(c, jobID, "creating", func(loadBalancerID string) error {
+		loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
+		if err != nil {
+			return err
+		}
 
-	job, err := client.WaitForJob(l.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT))
-	if err != nil {
-		return err
-	}
-
-	loadBalancerID := job.Result
-	loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
-	if err != nil {
-		return err
-	}
-
-	return l.printer.PrintLoadBalancers(loadBalancer)
+		l.printer.StopSpinner()
+		return l.printer.PrintLoadBalancers(loadBalancer)
+	})
 }
 
 func (l *LoadBalancerCommand) delete(c *cli.Context) error {
@@ -170,6 +186,20 @@ func (l *LoadBalancerCommand) list(c *cli.Context) error {
 	}
 
 	return l.printer.PrintLoadBalancerSummaries(loadBalancerSummaries...)
+}
+
+func (l *LoadBalancerCommand) read(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "NAME")
+	if err != nil {
+		return err
+	}
+
+	loadBalancer, err := l.client.ReadLoadBalancer(args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	return l.printer.PrintLoadBalancers(loadBalancer)
 }
 
 func parsePort(port, certificateName string) (*models.Port, error) {

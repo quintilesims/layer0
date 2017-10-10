@@ -129,6 +129,7 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 			return err
 		}
 
+		e.printer.StopSpinner()
 		return e.printer.PrintEnvironments(environment)
 	})
 }
