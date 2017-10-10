@@ -157,7 +157,11 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 }
 
 func (s *ServiceCommand) delete(c *cli.Context) error {
-	return nil
+	deleteFn := func(serviceID string) (string, error) {
+		return s.client.DeleteService(serviceID)
+	}
+
+	return s.deleteHelper(c, "service", deleteFn)
 }
 
 func (s *ServiceCommand) list(c *cli.Context) error {
