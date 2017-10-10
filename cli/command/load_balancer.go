@@ -11,7 +11,17 @@ import (
 	"github.com/urfave/cli"
 )
 
-func (f *CommandFactory) LoadBalancer() cli.Command {
+type LoadBalancerCommand struct {
+	*CommandMediator
+}
+
+func NewLoadBalancerCommand(m *CommandMediator) *LoadBalancerCommand {
+	return &LoadBalancerCommand{
+		CommandMediator: m,
+	}
+}
+
+func (l *LoadBalancerCommand) Command() cli.Command {
 	return cli.Command{
 		Name:  "loadbalancer",
 		Usage: "manage layer0 load balancers",
@@ -19,7 +29,7 @@ func (f *CommandFactory) LoadBalancer() cli.Command {
 			{
 				Name:      "create",
 				Usage:     "create a new load balancer",
-				Action:    f.createLoadBalancer,
+				Action:    l.create,
 				ArgsUsage: "ENVIRONMENT NAME",
 				Flags: []cli.Flag{
 					cli.StringSliceFlag{
@@ -69,7 +79,7 @@ func (f *CommandFactory) LoadBalancer() cli.Command {
 				Name:      "delete",
 				Usage:     "delete a load balancer",
 				ArgsUsage: "NAME",
-				Action:    f.deleteLoadBalancer,
+				Action:    l.delete,
 				Flags: []cli.Flag{
 					cli.BoolTFlag{
 						Name:  "wait",
@@ -80,14 +90,14 @@ func (f *CommandFactory) LoadBalancer() cli.Command {
 			{
 				Name:      "list",
 				Usage:     "list all load balancers",
-				Action:    f.listLoadBalancers,
+				Action:    l.list,
 				ArgsUsage: " ",
 			},
 		},
 	}
 }
 
-func (f *CommandFactory) createLoadBalancer(c *cli.Context) error {
+func (l *LoadBalancerCommand) create(c *cli.Context) error {
 	args, err := extractArgs(c.Args(), "ENVIRONMENT", "NAME")
 	if err != nil {
 		return err
@@ -120,46 +130,46 @@ func (f *CommandFactory) createLoadBalancer(c *cli.Context) error {
 		HealthCheck:   healthCheck,
 	}
 
-	jobID, err := f.client.CreateLoadBalancer(req)
+	jobID, err := l.client.CreateLoadBalancer(req)
 	if err != nil {
 		return err
 	}
 
 	if c.GlobalBool("config.FLAG_NO_WAIT") {
-		f.printer.Printf("Running as job '%s'", jobID)
+		l.printer.Printf("Running as job '%s'", jobID)
 		return nil
 	}
 
-	f.printer.StartSpinner("creating")
-	defer f.printer.StopSpinner()
+	l.printer.StartSpinner("creating")
+	defer l.printer.StopSpinner()
 
-	job, err := client.WaitForJob(f.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT))
+	job, err := client.WaitForJob(l.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT))
 	if err != nil {
 		return err
 	}
 
 	loadBalancerID := job.Result
-	loadBalancer, err := f.client.ReadLoadBalancer(loadBalancerID)
+	loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
 	if err != nil {
 		return err
 	}
 
-	return f.printer.PrintLoadBalancers(loadBalancer)
+	return l.printer.PrintLoadBalancers(loadBalancer)
 }
 
-func (f *CommandFactory) deleteLoadBalancer(c *cli.Context) error {
-	return f.deleteHelper(c, "loadbalancer", func(loadBalancerID string) (string, error) {
-		return f.client.DeleteLoadBalancer(loadBalancerID)
+func (l *LoadBalancerCommand) delete(c *cli.Context) error {
+	return l.deleteHelper(c, "loadbalancer", func(loadBalancerID string) (string, error) {
+		return l.client.DeleteLoadBalancer(loadBalancerID)
 	})
 }
 
-func (f *CommandFactory) listLoadBalancers(c *cli.Context) error {
-	loadBalancerSummaries, err := f.client.ListLoadBalancers()
+func (l *LoadBalancerCommand) list(c *cli.Context) error {
+	loadBalancerSummaries, err := l.client.ListLoadBalancers()
 	if err != nil {
 		return err
 	}
 
-	return f.printer.PrintLoadBalancerSummaries(loadBalancerSummaries...)
+	return l.printer.PrintLoadBalancerSummaries(loadBalancerSummaries...)
 }
 
 func parsePort(port, certificateName string) (*models.Port, error) {
