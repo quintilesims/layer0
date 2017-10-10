@@ -32,6 +32,7 @@ func main() {
 	app.Commands = []cli.Command{
 		command.NewDeployCommand(mediator).Command(),
 		command.NewEnvironmentCommand(mediator).Command(),
+		command.NewLoadBalancerCommand(mediator).Command(),
 		// todo: other entities
 	}
 
