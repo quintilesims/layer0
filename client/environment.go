@@ -52,3 +52,29 @@ func (c *APIClient) UpdateEnvironment(req models.UpdateEnvironmentRequest) (stri
 
 	return resp.JobID, nil
 }
+
+func (c *APIClient) Link(sourceID, destinationID string) error {
+	req := models.CreateEnvironmentLinkRequest{
+		EnvironmentID: destinationID,
+	}
+
+	path := fmt.Sprintf("/environment/%s/link", sourceID)
+	if err := c.client.Post(path, req, nil); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (c *APIClient) Unlink(sourceID, destinationID string) error {
+	req := models.CreateEnvironmentLinkRequest{
+		EnvironmentID: destinationID,
+	}
+
+	path := fmt.Sprintf("/environment/%s/link/%s", sourceID, destinationID)
+	if err := c.client.Post(path, req, nil); err != nil {
+		return err
+	}
+
+	return nil
+}
