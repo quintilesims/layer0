@@ -1,0 +1,82 @@
+package command
+
+import (
+	"fmt"
+
+	"github.com/quintilesims/layer0/cli/printer"
+	"github.com/quintilesims/layer0/cli/resolver"
+	"github.com/quintilesims/layer0/client"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/urfave/cli"
+)
+
+type CommandBase struct {
+	client   client.Client
+	printer  printer.Printer
+	resolver resolver.Resolver
+}
+
+func (b *CommandBase) SetClient(c client.Client) {
+	b.client = c
+}
+
+func (b *CommandBase) SetPrinter(p printer.Printer) {
+	b.printer = p
+}
+
+func (b *CommandBase) SetResolver(r resolver.Resolver) {
+	b.resolver = r
+}
+
+func (b *CommandBase) resolveSingleEntityIDHelper(entityType, target string) (string, error) {
+	entityIDs, err := b.resolver.Resolve(entityType, target)
+	if err != nil {
+		return "", err
+	}
+
+	switch len(entityIDs) {
+	case 0:
+		return "", fmt.Errorf("%s lookup using '%s' yielded no matches.", entityType, target)
+	case 1:
+		return entityIDs[0], nil
+	default:
+		text := fmt.Sprintf("%s lookup using '%s' yielded multiple matches: \n", entityType, target)
+		for _, entityID := range entityIDs {
+			text += fmt.Sprintf("%s \n", entityID)
+		}
+
+		return "", fmt.Errorf(text)
+	}
+}
+
+func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN func(entityID string) (string, error)) error {
+	args, err := extractArgs(c.Args(), "NAME")
+	if err != nil {
+		return err
+	}
+
+	entityID, err := b.resolveSingleEntityIDHelper(entityType, args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	jobID, err := deleteFN(entityID)
+	if err != nil {
+		return err
+	}
+
+	if c.GlobalBool(config.FLAG_NO_WAIT) {
+		// todo: use single 'running as job' helper printer
+		b.printer.Printf("Running as job '%s'", jobID)
+		return nil
+	}
+
+	b.printer.StartSpinner("deleting")
+	defer b.printer.StopSpinner()
+
+	if _, err := client.WaitForJob(b.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT)); err != nil {
+		return err
+	}
+
+	return nil
+}

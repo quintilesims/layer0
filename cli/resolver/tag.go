@@ -4,17 +4,8 @@ import (
 	"github.com/quintilesims/layer0/client"
 )
 
-type TagResolver struct {
-	client client.Client
-}
-
-func NewTagResolver(client client.Client) *TagResolver {
-	return &TagResolver{
-		client: client,
+func NewTagResolver(client client.Client) ResolverFunc {
+	return func(entityType, target string) ([]string, error) {
+		return []string{target}, nil
 	}
-}
-
-func (r *TagResolver) Resolve(entityType, target string) ([]string, error) {
-	// todo: implement
-	return []string{target}, nil
 }

@@ -28,11 +28,15 @@ func main() {
 	app.Version = Version
 	app.Flags = config.CLIFlags()
 
-	commandFactory := command.NewCommandFactory(nil, nil, nil)
+	base := &command.CommandBase{}
 	app.Commands = []cli.Command{
-		commandFactory.Deploy(),
-		commandFactory.Environment(),
-		// todo: other entities
+		command.NewAdminCommand(base).Command(),
+		command.NewDeployCommand(base).Command(),
+		command.NewEnvironmentCommand(base).Command(),
+		command.NewJobCommand(base).Command(),
+		command.NewLoadBalancerCommand(base).Command(),
+		command.NewServiceCommand(base).Command(),
+		command.NewTaskCommand(base).Command(),
 	}
 
 	app.Before = func(c *cli.Context) error {
@@ -49,13 +53,8 @@ func main() {
 			VerifySSL: !c.GlobalBool(config.FLAG_SKIP_VERIFY_SSL),
 		})
 
-		commandFactory.SetClient(apiClient)
-
-		// inject the resolver
 		tagResolver := resolver.NewTagResolver(apiClient)
-		commandFactory.SetResolver(tagResolver)
 
-		// inject the printer
 		var p printer.Printer
 		switch format := c.GlobalString(config.FLAG_OUTPUT); format {
 		case "text":
@@ -66,7 +65,9 @@ func main() {
 			return fmt.Errorf("Unrecognized output format '%s'", format)
 		}
 
-		commandFactory.SetPrinter(p)
+		base.SetClient(apiClient)
+		base.SetResolver(tagResolver)
+		base.SetPrinter(p)
 
 		// todo: verify version
 
