@@ -27,7 +27,11 @@ func (e *EnvironmentCommand) Command() cli.Command {
 			{
 				Name:      "create",
 				Usage:     "create a new environment",
+<<<<<<< HEAD
+				Action:    f.createEnvironment,
+=======
 				Action:    e.create,
+>>>>>>> environment-command
 				ArgsUsage: "NAME",
 				Flags: []cli.Flag{
 					cli.StringFlag{
