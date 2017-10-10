@@ -13,11 +13,13 @@ type EnvironmentCommand struct {
 	*CommandMediator
 }
 
-func NewEnvironment(m *CommandMediator) cli.Command {
-	e := &EnvironmentCommand{
+func NewEnvironmentCommand(m *CommandMediator) *EnvironmentCommand {
+	return &EnvironmentCommand{
 		CommandMediator: m,
 	}
+}
 
+func (e *EnvironmentCommand) Command() cli.Command {
 	return cli.Command{
 		Name:  "environment",
 		Usage: "manage layer0 environments",

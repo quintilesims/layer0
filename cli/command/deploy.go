@@ -6,12 +6,13 @@ type DeployCommand struct {
 	*CommandMediator
 }
 
-func NewDeploy(m *CommandMediator) cli.Command {
-	// a later reference d - commented out for now to avoid compile-time error
-	// d = &DeployCommand{
-	// 	CommandMediator: m,
-	// }
+func NewDeployCommand(m *CommandMediator) *DeployCommand {
+	return &DeployCommand{
+		CommandMediator: m,
+	}
+}
 
+func (d *DeployCommand) Command() cli.Command {
 	return cli.Command{
 		Name:        "deploy",
 		Usage:       "manage layer0 deploys",
