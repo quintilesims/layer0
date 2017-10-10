@@ -25,7 +25,7 @@ func NewEnvironment(m *CommandMediator) cli.Command {
 			{
 				Name:      "create",
 				Usage:     "create a new environment",
-				Action:    e.createEnvironment,
+				Action:    e.create,
 				ArgsUsage: "NAME",
 				Flags: []cli.Flag{
 					cli.StringFlag{
@@ -61,7 +61,7 @@ func NewEnvironment(m *CommandMediator) cli.Command {
 				Name:      "delete",
 				Usage:     "delete an environment",
 				ArgsUsage: "NAME",
-				Action:    e.deleteEnvironment,
+				Action:    e.delete,
 				Flags: []cli.Flag{
 					cli.BoolTFlag{
 						Name:  "wait",
@@ -72,20 +72,20 @@ func NewEnvironment(m *CommandMediator) cli.Command {
 			{
 				Name:      "list",
 				Usage:     "list all environments",
-				Action:    e.listEnvironments,
+				Action:    e.list,
 				ArgsUsage: " ",
 			},
 			{
 				Name:      "read",
 				Usage:     "describe an environment",
-				Action:    e.readEnvironment,
+				Action:    e.read,
 				ArgsUsage: "NAME",
 			},
 		},
 	}
 }
 
-func (e *EnvironmentCommand) createEnvironment(c *cli.Context) error {
+func (e *EnvironmentCommand) create(c *cli.Context) error {
 	args, err := extractArgs(c.Args(), "NAME")
 	if err != nil {
 		return err
@@ -138,13 +138,13 @@ func (e *EnvironmentCommand) createEnvironment(c *cli.Context) error {
 	return e.printer.PrintEnvironments(environment)
 }
 
-func (e *EnvironmentCommand) deleteEnvironment(c *cli.Context) error {
+func (e *EnvironmentCommand) delete(c *cli.Context) error {
 	return e.deleteHelper(c, "environment", func(environmentID string) (string, error) {
 		return e.client.DeleteEnvironment(environmentID)
 	})
 }
 
-func (e *EnvironmentCommand) listEnvironments(c *cli.Context) error {
+func (e *EnvironmentCommand) list(c *cli.Context) error {
 	environmentSummaries, err := e.client.ListEnvironments()
 	if err != nil {
 		return err
@@ -153,6 +153,16 @@ func (e *EnvironmentCommand) listEnvironments(c *cli.Context) error {
 	return e.printer.PrintEnvironmentSummaries(environmentSummaries...)
 }
 
-func (e *EnvironmentCommand) readEnvironment(c *cli.Context) error {
-	return nil
+func (e *EnvironmentCommand) read(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "NAME")
+	if err != nil {
+		return err
+	}
+
+	environment, err := e.client.ReadEnvironment(args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	return e.printer.PrintEnvironments(environment)
 }
