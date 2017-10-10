@@ -28,6 +28,7 @@ func main() {
 	app.Version = Version
 	app.Flags = config.CLIFlags()
 
+<<<<<<< 058026bb31c76f9af4c89a26f855677f76370c25
 	base := &command.CommandBase{}
 	app.Commands = []cli.Command{
 		command.NewAdminCommand(base).Command(),
@@ -37,6 +38,13 @@ func main() {
 		command.NewLoadBalancerCommand(base).Command(),
 		command.NewServiceCommand(base).Command(),
 		command.NewTaskCommand(base).Command(),
+=======
+	mediator := &command.CommandMediator{}
+	app.Commands = []cli.Command{
+		command.NewDeploy(mediator),
+		command.NewEnvironment(mediator),
+		// todo: other entities
+>>>>>>> CommandFactory to CommandMediator
 	}
 
 	app.Before = func(c *cli.Context) error {
@@ -53,7 +61,15 @@ func main() {
 			VerifySSL: !c.GlobalBool(config.FLAG_SKIP_VERIFY_SSL),
 		})
 
+<<<<<<< 058026bb31c76f9af4c89a26f855677f76370c25
 		tagResolver := resolver.NewTagResolver(apiClient)
+=======
+		mediator.SetClient(apiClient)
+
+		// inject the resolver
+		tagResolver := resolver.NewTagResolver(apiClient)
+		mediator.SetResolver(tagResolver)
+>>>>>>> CommandFactory to CommandMediator
 
 		var p printer.Printer
 		switch format := c.GlobalString(config.FLAG_OUTPUT); format {
@@ -65,9 +81,13 @@ func main() {
 			return fmt.Errorf("Unrecognized output format '%s'", format)
 		}
 
+<<<<<<< 058026bb31c76f9af4c89a26f855677f76370c25
 		base.SetClient(apiClient)
 		base.SetResolver(tagResolver)
 		base.SetPrinter(p)
+=======
+		mediator.SetPrinter(p)
+>>>>>>> CommandFactory to CommandMediator
 
 		// todo: verify version
 
