@@ -226,6 +226,7 @@ func (t *TextPrinter) PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBala
 }
 
 func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
+	t.StopSpinner()
 	for _, l := range logs {
 		fmt.Println(l.ContainerName)
 		for i := 0; i < len(l.ContainerName); i++ {
@@ -315,6 +316,7 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 		}
 	}
 
+	t.StopSpinner()
 	fmt.Println(columnize.SimpleFormat(rows))
 	return nil
 }
@@ -338,6 +340,7 @@ func (t *TextPrinter) PrintServiceSummaries(services ...*models.ServiceSummary) 
 		rows = append(rows, row)
 	}
 
+	t.StopSpinner()
 	fmt.Println(columnize.SimpleFormat(rows))
 	return nil
 }
