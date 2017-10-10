@@ -178,7 +178,22 @@ func (s *ServiceCommand) logs(c *cli.Context) error {
 }
 
 func (s *ServiceCommand) read(c *cli.Context) error {
-	return nil
+	args, err := extractArgs(c.Args(), "NAME")
+	if err != nil {
+		return err
+	}
+
+	serviceID, err := s.resolveSingleEntityIDHelper("service", args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	service, err := s.client.ReadService(serviceID)
+	if err != nil {
+		return err
+	}
+
+	return s.printer.PrintServices(service)
 }
 
 func (s *ServiceCommand) scale(c *cli.Context) error {
