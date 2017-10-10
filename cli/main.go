@@ -41,8 +41,8 @@ func main() {
 =======
 	mediator := &command.CommandMediator{}
 	app.Commands = []cli.Command{
-		command.NewDeploy(mediator),
-		command.NewEnvironment(mediator),
+		command.NewDeployCommand(mediator).Command(),
+		command.NewEnvironmentCommand(mediator).Command(),
 		// todo: other entities
 >>>>>>> CommandFactory to CommandMediator
 	}
