@@ -165,7 +165,12 @@ func (s *ServiceCommand) delete(c *cli.Context) error {
 }
 
 func (s *ServiceCommand) list(c *cli.Context) error {
-	return nil
+	serviceSummaries, err := s.client.ListServices()
+	if err != nil {
+		return err
+	}
+
+	return s.printer.PrintServiceSummaries(serviceSummaries...)
 }
 
 func (s *ServiceCommand) logs(c *cli.Context) error {
