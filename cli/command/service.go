@@ -1,6 +1,8 @@
 package command
 
 import (
+	"strconv"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -197,7 +199,41 @@ func (s *ServiceCommand) read(c *cli.Context) error {
 }
 
 func (s *ServiceCommand) scale(c *cli.Context) error {
-	return nil
+	args, err := extractArgs(c.Args(), "NAME", "COUNT")
+	if err != nil {
+		return err
+	}
+
+	serviceID, err := s.resolveSingleEntityIDHelper("service", args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	scale, err := strconv.Atoi(args["COUNT"])
+	if err != nil {
+		return err
+	}
+
+	req := models.UpdateServiceRequest{
+		ServiceID: serviceID,
+		Scale:     &scale,
+	}
+
+	jobID, err := s.client.UpdateService(req)
+	if err != nil {
+		return err
+	}
+
+	onCompleteFn := func(serviceID string) error {
+		service, err := s.client.ReadService(serviceID)
+		if err != nil {
+			return err
+		}
+
+		return s.printer.PrintServices(service)
+	}
+
+	return s.waitOnJobHelper(c, jobID, "scaling", onCompleteFn)
 }
 
 func (s *ServiceCommand) update(c *cli.Context) error {
