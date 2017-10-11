@@ -21,7 +21,7 @@ func TestListTags(t *testing.T) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
-		assert.Equal(t, r.URL.Path, "/tags")
+		assert.Equal(t, r.URL.Path, "/tag")
 		assert.Equal(t, query, r.URL.Query())
 
 		MarshalAndWrite(t, w, expected, 200)
