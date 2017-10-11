@@ -1,6 +1,7 @@
 package command
 
 import (
+	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -33,23 +34,13 @@ func (t *TaskCommand) Command() cli.Command {
 						Name:  "env",
 						Usage: "environment variable override in format 'CONTAINER:VAR=VAL' (can be specified multiple times)",
 					},
-					cli.BoolFlag{
-						Name:  "nowait",
-						Usage: "don't wait for the job to finish",
-					},
 				},
 			},
 			{
 				Name:      "delete",
-				Usage:     "delete an Task",
+				Usage:     "delete a Task",
 				ArgsUsage: "NAME",
 				Action:    t.delete,
-				Flags: []cli.Flag{
-					cli.BoolFlag{
-						Name:  "nowait",
-						Usage: "don't wait for the job to finish",
-					},
-				},
 			},
 			{
 				Name:      "list",
@@ -59,7 +50,7 @@ func (t *TaskCommand) Command() cli.Command {
 			},
 			{
 				Name:      "read",
-				Usage:     "describe an Task",
+				Usage:     "describe a Task",
 				Action:    t.read,
 				ArgsUsage: "NAME",
 			},
@@ -88,7 +79,7 @@ func (t *TaskCommand) Command() cli.Command {
 }
 
 func (t *TaskCommand) create(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "NAME")
+	args, err := extractArgs(c.Args(), "ENVIRONMENT", "DEPLOY", "NAME")
 	if err != nil {
 		return err
 	}
@@ -114,7 +105,7 @@ func (t *TaskCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	return t.waitOnJobHelper(c, jobID, "creating", func(taskID string) error {
+	return t.waitOnJobHelper(c, jobID, func(taskID string) error {
 		task, err := t.client.ReadTask(taskID)
 		if err != nil {
 			return err
@@ -125,18 +116,18 @@ func (t *TaskCommand) create(c *cli.Context) error {
 }
 
 func (t *TaskCommand) delete(c *cli.Context) error {
-	return t.deleteHelper(c, "Task", func(TaskID string) (string, error) {
-		return t.client.DeleteTask(TaskID)
+	return t.deleteHelper(c, "task", func(taskID string) (string, error) {
+		return t.client.DeleteTask(taskID)
 	})
 }
 
 func (t *TaskCommand) list(c *cli.Context) error {
-	TaskSummaries, err := t.client.ListTasks()
+	taskSummaries, err := t.client.ListTasks()
 	if err != nil {
 		return err
 	}
 
-	return t.printer.PrintTaskSummaries(TaskSummaries...)
+	return t.printer.PrintTaskSummaries(taskSummaries...)
 }
 
 func (t *TaskCommand) read(c *cli.Context) error {
@@ -145,7 +136,12 @@ func (t *TaskCommand) read(c *cli.Context) error {
 		return err
 	}
 
-	task, err := t.client.ReadTask(args["NAME"])
+	taskID, err := t.resolveSingleEntityIDHelper("task", args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	task, err := t.client.ReadTask(taskID)
 	if err != nil {
 		return err
 	}
@@ -164,7 +160,7 @@ func (t *TaskCommand) logs(c *cli.Context) error {
 		return err
 	}
 
-	query := buildQueryHelper(id, c.String("start"), c.String("end"), c.Int("tail"))
+	query := buildLogQueryHelper(id, c.String(client.LogQueryParamStart), c.String(client.LogQueryParamEnd), c.Int(client.LogQueryParamTail))
 	logs, err := t.client.ReadTaskLogs(id, query)
 	if err != nil {
 		return err
