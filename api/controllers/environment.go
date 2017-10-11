@@ -39,6 +39,18 @@ func (e *EnvironmentController) Routes() []*fireball.Route {
 				"DELETE": e.DeleteEnvironment,
 			},
 		},
+		{
+			Path: "/environment/:id/link",
+			Handlers: fireball.Handlers{
+				"POST": e.LinkEnvironment,
+			},
+		},
+		{
+			Path: "/environment/:id/link/:id2",
+			Handlers: fireball.Handlers{
+				"DELETE": e.UnlinkEnvironment,
+			},
+		},
 	}
 }
 
@@ -77,7 +89,6 @@ func (e *EnvironmentController) ListEnvironments(c *fireball.Context) (fireball.
 	}
 
 	return fireball.NewJSONResponse(200, summaries)
-
 }
 
 func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball.Response, error) {
@@ -88,8 +99,31 @@ func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball
 
 	if err := req.Validate(); err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
-
 	}
 
 	return createJob(e.JobStore, job.UpdateEnvironmentJob, req)
+}
+
+func (e *EnvironmentController) LinkEnvironment(c *fireball.Context) (fireball.Response, error) {
+	var req models.CreateEnvironmentLinkRequest
+	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
+
+	if err := e.EnvironmentProvider.Link(c.PathVariables["id"], req.EnvironmentID); err != nil {
+		return nil, errors.New(errors.UnexpectedError, err)
+	}
+
+	return fireball.NewJSONResponse(200, nil)
+}
+
+func (e *EnvironmentController) UnlinkEnvironment(c *fireball.Context) (fireball.Response, error) {
+	sourceID := c.PathVariables["id"]
+	destID := c.PathVariables["id2"]
+
+	if err := e.EnvironmentProvider.Unlink(sourceID, destID); err != nil {
+		return nil, errors.New(errors.UnexpectedError, err)
+	}
+
+	return fireball.NewJSONResponse(200, nil)
 }
