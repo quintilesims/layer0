@@ -22,8 +22,12 @@ const (
 )
 
 const (
-	TagQueryParamType = "type"
-	TagQueryParamID   = "id"
+	TagQueryParamEnvironmentID = "environment_id"
+	TagQueryParamFuzz          = "fuzz"
+	TagQueryParamID            = "id"
+	TagQueryParamName          = "name"
+	TagQueryParamType          = "type"
+	TagQueryParamVersion       = "version"
 )
 
 func WaitForJob(client Client, jobID string, timeout time.Duration) (*models.Job, error) {

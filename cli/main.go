@@ -30,10 +30,13 @@ func main() {
 
 	base := &command.CommandBase{}
 	app.Commands = []cli.Command{
+		command.NewAdminCommand(base).Command(),
 		command.NewDeployCommand(base).Command(),
 		command.NewEnvironmentCommand(base).Command(),
+		command.NewJobCommand(base).Command(),
 		command.NewLoadBalancerCommand(base).Command(),
-		// todo: other entities
+		command.NewServiceCommand(base).Command(),
+		command.NewTaskCommand(base).Command(),
 	}
 
 	app.Before = func(c *cli.Context) error {
