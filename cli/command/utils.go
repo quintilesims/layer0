@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"net/url"
 	"strconv"
+
+	"github.com/quintilesims/layer0/client"
 )
 
 func extractArgs(received []string, names ...string) (map[string]string, error) {
@@ -19,19 +21,19 @@ func extractArgs(received []string, names ...string) (map[string]string, error) 
 	return args, nil
 }
 
-func buildQueryHelper(id, start, end string, tail int) url.Values {
+func buildLogQueryHelper(id, start, end string, tail int) url.Values {
 	query := url.Values{}
 
 	if tail > 0 {
-		query.Set("tail", strconv.Itoa(tail))
+		query.Set(client.LogQueryParamTail, strconv.Itoa(tail))
 	}
 
 	if start != "" {
-		query.Set("start", start)
+		query.Set(client.LogQueryParamStart, start)
 	}
 
 	if end != "" {
-		query.Set("end", end)
+		query.Set(client.LogQueryParamEnd, end)
 	}
 
 	return query

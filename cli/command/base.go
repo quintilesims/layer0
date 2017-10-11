@@ -50,6 +50,9 @@ func (b *CommandBase) resolveSingleEntityIDHelper(entityType, target string) (st
 }
 
 func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN func(entityID string) (string, error)) error {
+	waitFlag := c.GlobalBool(config.FLAG_NO_WAIT)
+	waitTimeout := c.GlobalDuration(config.FLAG_TIMEOUT)
+
 	args, err := extractArgs(c.Args(), "NAME")
 	if err != nil {
 		return err
@@ -65,32 +68,31 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 		return err
 	}
 
-	if c.GlobalBool(config.FLAG_NO_WAIT) {
-		// todo: use single 'running as job' helper printer
-		b.printer.Printf("Running as job '%s'", jobID)
+	if waitFlag {
+		b.printJobHelper(jobID)
 		return nil
 	}
 
 	b.printer.StartSpinner("deleting")
 	defer b.printer.StopSpinner()
 
-	if _, err := client.WaitForJob(b.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT)); err != nil {
+	if _, err := client.WaitForJob(b.client, jobID, waitTimeout); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFN func(entityID string) error) error {
+func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID string, onCompleteFN func(entityID string) error) error {
 	waitFlag := c.GlobalBool(config.FLAG_NO_WAIT)
 	waitTimeout := c.GlobalDuration(config.FLAG_TIMEOUT)
 
 	if waitFlag {
-		b.printer.Printf("Running as job '%s'", jobID)
+		b.printJobHelper(jobID)
 		return nil
 	}
 
-	b.printer.StartSpinner(spinnerText)
+	b.printer.StartSpinner("creating")
 	defer b.printer.StopSpinner()
 
 	job, err := client.WaitForJob(b.client, jobID, waitTimeout)
@@ -99,4 +101,8 @@ func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string,
 	}
 
 	return onCompleteFN(job.Result)
+}
+
+func (b *CommandBase) printJobHelper(jobID string) {
+	b.printer.Printf("Running as job '%s'", jobID)
 }
