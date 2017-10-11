@@ -39,25 +39,27 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			Version: s.version,
 		},
 		Definitions: map[string]swagger.Definition{
-			"Admin":                     models.APIConfig{}.Definition(),
-			"Container":                 models.Container{}.Definition(),
-			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
-			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
-			"CreateServiceRequest":      models.CreateServiceRequest{}.Definition(),
-			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),
-			"CreateDeployRequest":       models.CreateDeployRequest{}.Definition(),
-			"Deployment":                models.Deployment{}.Definition(),
-			"Environment":               models.Environment{}.Definition(),
-			"HealthCheck":               models.HealthCheck{}.Definition(),
-			"Job":                       models.Job{}.Definition(),
-			"LoadBalancer":              models.LoadBalancer{}.Definition(),
-			"LogFile":                   models.LogFile{}.Definition(),
-			"Port":                      models.Port{}.Definition(),
-			"Service":                   models.Service{}.Definition(),
-			"Task":                      models.Task{}.Definition(),
-			"Deploy":                    models.Deploy{}.Definition(),
-			"UpdateLoadBalancerRequest": models.UpdateLoadBalancerRequest{}.Definition(),
-			"UpdateServiceRequest":      models.UpdateServiceRequest{}.Definition(),
+			"Admin":                        models.APIConfig{}.Definition(),
+			"Container":                    models.Container{}.Definition(),
+			"CreateEnvironmentRequest":     models.CreateEnvironmentRequest{}.Definition(),
+			"UpdateEnvironmentRequest":     models.UpdateEnvironmentRequest{}.Definition(),
+			"CreateEnvironmentLinkRequest": models.CreateEnvironmentLinkRequest{}.Definition(),
+			"CreateLoadBalancerRequest":    models.CreateLoadBalancerRequest{}.Definition(),
+			"CreateServiceRequest":         models.CreateServiceRequest{}.Definition(),
+			"CreateTaskRequest":            models.CreateTaskRequest{}.Definition(),
+			"CreateDeployRequest":          models.CreateDeployRequest{}.Definition(),
+			"Deployment":                   models.Deployment{}.Definition(),
+			"Environment":                  models.Environment{}.Definition(),
+			"HealthCheck":                  models.HealthCheck{}.Definition(),
+			"Job":                          models.Job{}.Definition(),
+			"LoadBalancer":                 models.LoadBalancer{}.Definition(),
+			"LogFile":                      models.LogFile{}.Definition(),
+			"Port":                         models.Port{}.Definition(),
+			"Service":                      models.Service{}.Definition(),
+			"Task":                         models.Task{}.Definition(),
+			"Deploy":                       models.Deploy{}.Definition(),
+			"UpdateLoadBalancerRequest":    models.UpdateLoadBalancerRequest{}.Definition(),
+			"UpdateServiceRequest":         models.UpdateServiceRequest{}.Definition(),
 		},
 		Tags: []swagger.Tag{
 			{
@@ -152,6 +154,20 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 						},
 					},
 				},
+				"put": {
+					Summary: "Update Environment",
+					Tags:    []string{"Environment"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the environment to describe", true),
+						swagger.NewBodyParam("UpdateEnvironmentRequest", "The updated environment", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The desired environment",
+							Schema:      swagger.NewObjectSchema("Environment"),
+						},
+					},
+				},
 				"delete": {
 					Summary: "Delete an Environment",
 					Tags:    []string{"Environment"},
@@ -161,6 +177,36 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Responses: map[string]swagger.Response{
 						"200": {
 							Description: "Success",
+						},
+					},
+				},
+			},
+			"/environment/{id}/link": map[string]swagger.Method{
+				"post": {
+					Summary: "Create an Environment Link",
+					Tags:    []string{"Environment"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("id", "ID of the source environment", true),
+						swagger.NewBodyParam("CreateEnvironmentLinkRequest", "ID of the destination environment", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "Created",
+						},
+					},
+				},
+			},
+			"/environment/{source_id}/link/{dest_id}": map[string]swagger.Method{
+				"delete": {
+					Summary: "Delete an Environment Link",
+					Tags:    []string{"Environment"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringPathParam("source_id", "ID of the source environment", true),
+						swagger.NewStringPathParam("dest_id", "ID of the destination environment", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "Deleted",
 						},
 					},
 				},
