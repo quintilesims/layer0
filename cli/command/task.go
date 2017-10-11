@@ -33,9 +33,9 @@ func (t *TaskCommand) Command() cli.Command {
 						Name:  "env",
 						Usage: "environment variable override in format 'CONTAINER:VAR=VAL' (can be specified multiple times)",
 					},
-					cli.BoolTFlag{
-						Name:  "wait",
-						Usage: "wait for the job to complete before returning",
+					cli.BoolFlag{
+						Name:  "nowait",
+						Usage: "don't wait for the job to finish",
 					},
 				},
 			},
@@ -45,9 +45,9 @@ func (t *TaskCommand) Command() cli.Command {
 				ArgsUsage: "NAME",
 				Action:    t.delete,
 				Flags: []cli.Flag{
-					cli.BoolTFlag{
-						Name:  "wait",
-						Usage: "wait for the job to complete before returning",
+					cli.BoolFlag{
+						Name:  "nowait",
+						Usage: "don't wait for the job to finish",
 					},
 				},
 			},
