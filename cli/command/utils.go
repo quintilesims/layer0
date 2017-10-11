@@ -2,6 +2,8 @@ package command
 
 import (
 	"fmt"
+	"net/url"
+	"strconv"
 )
 
 func extractArgs(received []string, names ...string) (map[string]string, error) {
@@ -15,4 +17,22 @@ func extractArgs(received []string, names ...string) (map[string]string, error) 
 	}
 
 	return args, nil
+}
+
+func buildQueryHelper(id, start, end string, tail int) url.Values {
+	query := url.Values{}
+
+	if tail > 0 {
+		query.Set("tail", strconv.Itoa(tail))
+	}
+
+	if start != "" {
+		query.Set("start", start)
+	}
+
+	if end != "" {
+		query.Set("end", end)
+	}
+
+	return query
 }
