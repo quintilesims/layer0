@@ -122,6 +122,22 @@ func (d *DynamoStore) insertKey(tag models.Tag) error {
 		Run()
 }
 
+func (d *DynamoStore) SelectAll() (models.Tags, error) {
+	var schemas []*DynamoTagSchema
+	if err := d.table.Scan().
+		Consistent(false).
+		All(&schemas); err != nil {
+		return nil, err
+	}
+
+	tags := models.Tags{}
+	for _, schema := range schemas {
+		tags = append(tags, schema.ToTags()...)
+	}
+
+	return tags, nil
+}
+
 func (d *DynamoStore) SelectByTypeAndID(entityType, entityID string) (models.Tags, error) {
 	schema, err := d.selectByTypeAndID(entityType, entityID)
 	if err != nil {

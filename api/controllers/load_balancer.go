@@ -35,7 +35,7 @@ func (l *LoadBalancerController) Routes() []*fireball.Route {
 		{
 			Path: "/loadbalancer/:id",
 			Handlers: fireball.Handlers{
-				"GET":    l.GetLoadBalancer,
+				"GET":    l.ReadLoadBalancer,
 				"DELETE": l.DeleteLoadBalancer,
 			},
 		},
@@ -60,7 +60,7 @@ func (l *LoadBalancerController) DeleteLoadBalancer(c *fireball.Context) (fireba
 	return createJob(l.JobStore, job.DeleteLoadBalancerJob, id)
 }
 
-func (l *LoadBalancerController) GetLoadBalancer(c *fireball.Context) (fireball.Response, error) {
+func (l *LoadBalancerController) ReadLoadBalancer(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
 	model, err := l.LoadBalancerProvider.Read(id)
 	if err != nil {
