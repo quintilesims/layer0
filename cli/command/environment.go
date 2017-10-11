@@ -87,6 +87,18 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				Action:    e.update,
 				ArgsUsage: "NAME COUNT",
 			},
+			{
+				Name:      "link",
+				Usage:     "links two environments together",
+				Action:    e.link,
+				ArgsUsage: "SOURCE DESTINATION",
+			},
+			{
+				Name:      "unlink",
+				Usage:     "unlinks two previously linked environments",
+				Action:    e.unlink,
+				ArgsUsage: "SOURCE DESTINATION",
+			},
 		},
 	}
 }
@@ -195,4 +207,62 @@ func (e *EnvironmentCommand) update(c *cli.Context) error {
 
 		return e.printer.PrintEnvironments(environment)
 	})
+}
+
+func (e *EnvironmentCommand) link(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "SOURCE", "DESTINATION")
+	if err != nil {
+		return err
+	}
+
+	id1, err := resolveSingleEntityID(e.resolver, "environment", args["SOURCE"])
+	if err != nil {
+		return err
+	}
+
+	id2, err := resolveSingleEntityID(e.resolver, "environment", args["DESTINATION"])
+	if err != nil {
+		return err
+	}
+
+	if id1 == id2 {
+		return fmt.Errorf("Cannot link an environment to itself")
+	}
+
+	if err := e.client.CreateLink(id1, id2); err != nil {
+		return err
+	}
+
+	e.printer.Printf("Environment successfully linked\n")
+
+	return nil
+}
+
+func (e *EnvironmentCommand) unlink(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "SOURCE", "DESTINATION")
+	if err != nil {
+		return err
+	}
+
+	id1, err := resolveSingleEntityID(e.resolver, "environment", args["SOURCE"])
+	if err != nil {
+		return err
+	}
+
+	id2, err := resolveSingleEntityID(e.resolver, "environment", args["DESTINATION"])
+	if err != nil {
+		return err
+	}
+
+	if id1 == id2 {
+		return fmt.Errorf("Cannot unlink an environment from itself")
+	}
+
+	if err := e.client.DeleteLink(id1, id2); err != nil {
+		return err
+	}
+
+	e.printer.Printf("Environment successfully unlinked\n")
+
+	return nil
 }

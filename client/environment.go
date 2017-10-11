@@ -53,7 +53,7 @@ func (c *APIClient) UpdateEnvironment(req models.UpdateEnvironmentRequest) (stri
 	return resp.JobID, nil
 }
 
-func (c *APIClient) Link(sourceID, destinationID string) error {
+func (c *APIClient) CreateLink(sourceID, destinationID string) error {
 	req := models.CreateEnvironmentLinkRequest{
 		EnvironmentID: destinationID,
 	}
@@ -66,7 +66,7 @@ func (c *APIClient) Link(sourceID, destinationID string) error {
 	return nil
 }
 
-func (c *APIClient) Unlink(sourceID, destinationID string) error {
+func (c *APIClient) DeleteLink(sourceID, destinationID string) error {
 	req := models.CreateEnvironmentLinkRequest{
 		EnvironmentID: destinationID,
 	}
