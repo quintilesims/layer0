@@ -360,9 +360,9 @@ func (mr *MockClientMockRecorder) ReadServiceLogs(arg0, arg1 interface{}) *gomoc
 }
 
 // ReadTask mocks base method
-func (m *MockClient) ReadTask(arg0 string) (*models.Service, error) {
+func (m *MockClient) ReadTask(arg0 string) (*models.Task, error) {
 	ret := m.ctrl.Call(m, "ReadTask", arg0)
-	ret0, _ := ret[0].(*models.Service)
+	ret0, _ := ret[0].(*models.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
