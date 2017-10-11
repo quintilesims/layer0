@@ -3,13 +3,11 @@ package command
 import "github.com/urfave/cli"
 
 type DeployCommand struct {
-	*CommandMediator
+	*CommandBase
 }
 
-func NewDeployCommand(m *CommandMediator) *DeployCommand {
-	return &DeployCommand{
-		CommandMediator: m,
-	}
+func NewDeployCommand(b *CommandBase) *DeployCommand {
+	return &DeployCommand{b}
 }
 
 func (d *DeployCommand) Command() cli.Command {

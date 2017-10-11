@@ -75,7 +75,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 	assert.Equal(t, "jid", response.JobID)
 }
 
-func TestGetLoadBalancer(t *testing.T) {
+func TestReadLoadBalancer(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -101,7 +101,7 @@ func TestGetLoadBalancer(t *testing.T) {
 		Return(&loadBalancerModel, nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "lb1"})
-	resp, err := controller.GetLoadBalancer(c)
+	resp, err := controller.ReadLoadBalancer(c)
 	if err != nil {
 		t.Fatal(err)
 	}

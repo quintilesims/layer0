@@ -10,13 +10,11 @@ import (
 )
 
 type EnvironmentCommand struct {
-	*CommandMediator
+	*CommandBase
 }
 
-func NewEnvironmentCommand(m *CommandMediator) *EnvironmentCommand {
-	return &EnvironmentCommand{
-		CommandMediator: m,
-	}
+func NewEnvironmentCommand(b *CommandBase) *EnvironmentCommand {
+	return &EnvironmentCommand{b}
 }
 
 func (e *EnvironmentCommand) Command() cli.Command {

@@ -28,11 +28,11 @@ func main() {
 	app.Version = Version
 	app.Flags = config.CLIFlags()
 
-	mediator := &command.CommandMediator{}
+	base := &command.CommandBase{}
 	app.Commands = []cli.Command{
-		command.NewDeployCommand(mediator).Command(),
-		command.NewEnvironmentCommand(mediator).Command(),
-		command.NewLoadBalancerCommand(mediator).Command(),
+		command.NewDeployCommand(base).Command(),
+		command.NewEnvironmentCommand(base).Command(),
+		command.NewLoadBalancerCommand(base).Command(),
 		// todo: other entities
 	}
 
@@ -50,13 +50,8 @@ func main() {
 			VerifySSL: !c.GlobalBool(config.FLAG_SKIP_VERIFY_SSL),
 		})
 
-		mediator.SetClient(apiClient)
-
-		// inject the resolver
 		tagResolver := resolver.NewTagResolver(apiClient)
-		mediator.SetResolver(tagResolver)
 
-		// inject the printer
 		var p printer.Printer
 		switch format := c.GlobalString(config.FLAG_OUTPUT); format {
 		case "text":
@@ -67,7 +62,9 @@ func main() {
 			return fmt.Errorf("Unrecognized output format '%s'", format)
 		}
 
-		mediator.SetPrinter(p)
+		base.SetClient(apiClient)
+		base.SetResolver(tagResolver)
+		base.SetPrinter(p)
 
 		// todo: verify version
 
