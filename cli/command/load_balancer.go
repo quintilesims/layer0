@@ -145,7 +145,7 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 				ArgsUsage: " ",
 			},
 			{
-				Name:      "read",
+				Name:      "get",
 				Usage:     "Describe Load Balancer LOADBALANCER_NAME",
 				Action:    l.read,
 				ArgsUsage: "LOADBALANCER_NAME",
@@ -165,7 +165,7 @@ func (l *LoadBalancerCommand) addport(c *cli.Context) error {
 		return err
 	}
 
-	loadBalancerID, err := resolveSingleEntityID(l.resolver, "loadbalancer", args["LOADBALANCER_NAME"])
+	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOADBALANCER_NAME"])
 	if err != nil {
 		return err
 	}
@@ -208,7 +208,7 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	environmentID, err := resolveSingleEntityID(l.resolver, "environment", args["ENVIRONMENT_NAME"])
+	environmentID, err := l.resolveSingleEntityIDHelper("environment", args["ENVIRONMENT_NAME"])
 	if err != nil {
 		return err
 	}
@@ -223,7 +223,7 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		ports = append(ports, *port)
 	}
 
-	// The default Port is filled here as opposed to the cli.Flag.Value
+	// The default port configuration is filled here as opposed to the cli.Flag.Value
 	if len(ports) == 0 {
 		port := models.Port{
 			HostPort:      80,
@@ -288,7 +288,7 @@ func (l *LoadBalancerCommand) dropport(c *cli.Context) error {
 		return fmt.Errorf("'%s' is not a valid integer", args["HOST_PORT"])
 	}
 
-	loadBalancerID, err := resolveSingleEntityID(l.resolver, "loadbalancer", args["LOADBALANCER_NAME"])
+	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOADBALANCER_NAME"])
 	if err != nil {
 		return err
 	}
@@ -390,7 +390,7 @@ func (l *LoadBalancerCommand) healthcheck(c *cli.Context) error {
 		healthCheck.UnhealthyThreshold = u
 	}
 
-	loadBalancerID, err := resolveSingleEntityID(l.resolver, "loadbalancer", args["LOADBALANCER_NAME"])
+	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOADBALANCER_NAME"])
 	if err != nil {
 		return err
 	}
