@@ -9,7 +9,7 @@ import (
 
 func (c *APIClient) ListTags(query url.Values) (models.Tags, error) {
 	var tags models.Tags
-	if err := c.client.Get("/tags", &tags, rclient.Query(query)); err != nil {
+	if err := c.client.Get("/tag", &tags, rclient.Query(query)); err != nil {
 		return nil, err
 	}
 
