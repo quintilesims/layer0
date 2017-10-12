@@ -4,6 +4,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 	"io/ioutil"
+	"strconv"
 )
 
 type DeployCommand struct {
@@ -36,7 +37,7 @@ func (d *DeployCommand) Command() cli.Command {
 			{
 				Name:      "get",
 				Usage:     "describe a deploy",
-				Action:    d.get,
+				Action:    d.read,
 				ArgsUsage: "NAME",
 			},
 			{
@@ -76,42 +77,38 @@ func (d *DeployCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	// return d.Printer.PrintDeploys(deploy)
 	return d.waitOnJobHelper(c, jobID, "creating", func(deployID string) error {
-		environment, err := d.client.ReadDeploy(deployID)
+		deploy, err := d.client.ReadDeploy(deployID)
 		if err != nil {
 			return err
 		}
 
-		return d.printer.PrintEnvironments(environment)
+		return d.printer.PrintDeploys(deploy)
 	})
 }
 
 func (d *DeployCommand) delete(c *cli.Context) error {
-	return d.delete(c, "deploy", d.Client.DeleteDeploy)
+	return d.deleteHelper(c, "deploy", func(deployID string) (string, error) {
+		return d.client.DeleteDeploy(deployID)
+	})
 }
 
-func (d *DeployCommand) get(c *cli.Context) error {
-	deploys := []*models.Deploy{}
-	getDeployf := func(id string) error {
-		deploy, err := d.client.GetDeploy(id)
-		if err != nil {
-			return err
-		}
-
-		deploys = append(deploys, deploy)
-		return nil
-	}
-
-	if err := d.get(c, "deploy", getDeployf); err != nil {
+func (d *DeployCommand) read(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "NAME")
+	if err != nil {
 		return err
 	}
 
-	return d.Printer.PrintDeploys(deploys...)
+	deploy, err := d.client.ReadDeploy(args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	return d.printer.PrintDeploys(deploy)
 }
 
 func (d *DeployCommand) list(c *cli.Context) error {
-	deploySummaries, err := d.Client.ListDeploys()
+	deploySummaries, err := d.client.ListDeploys()
 	if err != nil {
 		return err
 	}
@@ -123,7 +120,7 @@ func (d *DeployCommand) list(c *cli.Context) error {
 		}
 	}
 
-	return d.Printer.PrintDeploySummaries(deploySummaries...)
+	return d.printer.PrintDeploySummaries(deploySummaries...)
 }
 
 func filterDeploySummaries(deploys []*models.DeploySummary) ([]*models.DeploySummary, error) {
