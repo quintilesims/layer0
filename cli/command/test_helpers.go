@@ -3,13 +3,12 @@ package command
 import (
 	"flag"
 	"testing"
-	"time"
 
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/urfave/cli"
 )
 
-func GetCLIContext(t *testing.T, args []string, flags map[string]interface{}) *cli.Context {
+func getCLIContext(t *testing.T, args []string, flags map[string]interface{}) *cli.Context {
 	flagSet := &flag.FlagSet{}
 
 	for key, val := range flags {
@@ -29,7 +28,7 @@ func GetCLIContext(t *testing.T, args []string, flags map[string]interface{}) *c
 	}
 
 	// add default global flags
-	flagSet.String("output", "text", "")
+	flagSet.String(config.FLAG_OUTPUT, "text", "")
 	flagSet.String(config.FLAG_TIMEOUT, "15m", "")
 	flagSet.Parse(args)
 	return cli.NewContext(nil, flagSet, nil)
