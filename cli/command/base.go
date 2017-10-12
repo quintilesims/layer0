@@ -27,7 +27,7 @@ func (b *CommandBase) SetResolver(r resolver.Resolver) {
 	b.resolver = r
 }
 
-func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFn func(entityID string) error) error {
+func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFN func(entityID string) error) error {
 	waitFlag := c.GlobalBool(config.FLAG_NO_WAIT)
 	waitTimeout := c.GlobalDuration(config.FLAG_TIMEOUT)
 
@@ -44,7 +44,7 @@ func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string,
 		return nil
 	}
 
-	return onCompleteFn(job.Result)
+	return onCompleteFN(job.Result)
 }
 
 func (b *CommandBase) resolveSingleEntityIDHelper(entityType, target string) (string, error) {

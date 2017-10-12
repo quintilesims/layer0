@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/quintilesims/layer0/common/models"
@@ -30,10 +31,6 @@ func (s *ServiceCommand) Command() cli.Command {
 						Name:  "loadbalancer",
 						Usage: "attach the service to the specified load balancer",
 					},
-					cli.BoolFlag{
-						Name:  "nowait",
-						Usage: "don't wait for deployment to complete before returning",
-					},
 				},
 			},
 			{
@@ -41,12 +38,12 @@ func (s *ServiceCommand) Command() cli.Command {
 				Usage:     "delete a service",
 				Action:    s.delete,
 				ArgsUsage: "NAME",
-				Flags: []cli.Flag{
-					cli.BoolFlag{
-						Name:  "nowait",
-						Usage: "don't wait for the job to complete before returning",
-					},
-				},
+			},
+			{
+				Name:      "get",
+				Usage:     "describe a service",
+				Action:    s.read,
+				ArgsUsage: "NAME",
 			},
 			{
 				Name:   "list",
@@ -75,34 +72,16 @@ func (s *ServiceCommand) Command() cli.Command {
 				},
 			},
 			{
-				Name:      "read",
-				Usage:     "describe a service",
-				Action:    s.read,
-				ArgsUsage: "NAME",
-			},
-			{
 				Name:      "scale",
 				Usage:     "scale a service",
 				Action:    s.scale,
 				ArgsUsage: "NAME COUNT",
-				Flags: []cli.Flag{
-					cli.BoolFlag{
-						Name:  "nowait",
-						Usage: "don't wait for the job to complete before returning",
-					},
-				},
 			},
 			{
 				Name:      "update",
 				Usage:     "run a new dploy on a service",
 				Action:    s.update,
 				ArgsUsage: "NAME DEPLOY",
-				Flags: []cli.Flag{
-					cli.BoolFlag{
-						Name:  "nowait",
-						Usage: "don't wait for the job to complete before returning",
-					},
-				},
 			},
 		},
 	}
@@ -146,7 +125,7 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	onCompleteFn := func(serviceID string) error {
+	onCompleteFN := func(serviceID string) error {
 		service, err := s.client.ReadService(serviceID)
 		if err != nil {
 			return err
@@ -155,15 +134,15 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 		return s.printer.PrintServices(service)
 	}
 
-	return s.waitOnJobHelper(c, jobID, "creating", onCompleteFn)
+	return s.waitOnJobHelper(c, jobID, "creating", onCompleteFN)
 }
 
 func (s *ServiceCommand) delete(c *cli.Context) error {
-	deleteFn := func(serviceID string) (string, error) {
+	deleteFN := func(serviceID string) (string, error) {
 		return s.client.DeleteService(serviceID)
 	}
 
-	return s.deleteHelper(c, "service", deleteFn)
+	return s.deleteHelper(c, "service", deleteFN)
 }
 
 func (s *ServiceCommand) list(c *cli.Context) error {
@@ -211,7 +190,7 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 
 	scale, err := strconv.Atoi(args["COUNT"])
 	if err != nil {
-		return err
+		return fmt.Errorf("Failed to parse COUNT argument: %v", err)
 	}
 
 	req := models.UpdateServiceRequest{
@@ -224,7 +203,7 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 		return err
 	}
 
-	onCompleteFn := func(serviceID string) error {
+	onCompleteFN := func(serviceID string) error {
 		service, err := s.client.ReadService(serviceID)
 		if err != nil {
 			return err
@@ -233,7 +212,7 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 		return s.printer.PrintServices(service)
 	}
 
-	return s.waitOnJobHelper(c, jobID, "scaling", onCompleteFn)
+	return s.waitOnJobHelper(c, jobID, "scaling", onCompleteFN)
 }
 
 func (s *ServiceCommand) update(c *cli.Context) error {
@@ -262,7 +241,7 @@ func (s *ServiceCommand) update(c *cli.Context) error {
 		return err
 	}
 
-	onCompleteFn := func(serviceID string) error {
+	onCompleteFN := func(serviceID string) error {
 		service, err := s.client.ReadService(serviceID)
 		if err != nil {
 			return err
@@ -271,5 +250,5 @@ func (s *ServiceCommand) update(c *cli.Context) error {
 		return s.printer.PrintServices(service)
 	}
 
-	return s.waitOnJobHelper(c, jobID, "updating", onCompleteFn)
+	return s.waitOnJobHelper(c, jobID, "updating", onCompleteFN)
 }
