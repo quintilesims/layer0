@@ -154,7 +154,24 @@ func (s *ServiceCommand) list(c *cli.Context) error {
 }
 
 func (s *ServiceCommand) logs(c *cli.Context) error {
-	return nil
+	args, err := extractArgs(c.Args(), "NAME")
+	if err != nil {
+		return err
+	}
+
+	serviceID, err := s.resolveSingleEntityIDHelper("service", args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	query := buildLogQueryHelper(serviceID, c.String("start"), c.String("end"), c.Int("tail"))
+
+	logs, err := s.client.ReadServiceLogs(serviceID, query)
+	if err != nil {
+		return err
+	}
+
+	return s.printer.PrintLogs(logs...)
 }
 
 func (s *ServiceCommand) read(c *cli.Context) error {
