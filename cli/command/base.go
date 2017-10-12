@@ -60,8 +60,7 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 	}
 
 	if c.GlobalBool(config.FLAG_NO_WAIT) {
-		// todo: use single 'running as job' helper printer
-		b.printer.Printf("Running as job '%s'", jobID)
+		b.printJobResponse(jobID)
 		return nil
 	}
 
@@ -77,21 +76,22 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 }
 
 func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFn func(entityID string) error) error {
-	waitFlag := c.GlobalBool(config.FLAG_NO_WAIT)
-	waitTimeout := c.GlobalDuration(config.FLAG_TIMEOUT)
-
-	if waitFlag {
-		b.printer.Printf("Running as job '%s'", jobID)
+	if c.GlobalBool(config.FLAG_NO_WAIT) {
+		b.printJobResponse(jobID)
 		return nil
 	}
 
 	b.printer.StartSpinner(spinnerText)
 	defer b.printer.StopSpinner()
 
-	job, err := client.WaitForJob(b.client, jobID, waitTimeout)
+	job, err := client.WaitForJob(b.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT))
 	if err != nil {
-		return nil
+		return err
 	}
 
 	return onCompleteFn(job.Result)
+}
+
+func (b *CommandBase) printJobRespons(jobID string) {
+	b.printer.Printf("Operation is running as job '%s'", jobID)
 }

@@ -10,27 +10,27 @@ import (
 )
 
 type TestCommandBase struct {
-	client   *mock_client.MockClient
-	printer  *printer.TestPrinter
-	resolver *mock_resolver.MockResolver
+	Client   *mock_client.MockClient
+	Printer  *printer.TestPrinter
+	Resolver *mock_resolver.MockResolver
 }
 
 func newTestCommand(t *testing.T) (*TestCommandBase, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 
 	tc := &TestCommandBase{
-		client:   mock_client.NewMockClient(ctrl),
-		printer:  &printer.TestPrinter{},
-		resolver: mock_resolver.NewMockResolver(ctrl),
+		Client:   mock_client.NewMockClient(ctrl),
+		Printer:  &printer.TestPrinter{},
+		Resolver: mock_resolver.NewMockResolver(ctrl),
 	}
 
 	return tc, ctrl
 }
 
-func (tc *TestCommandBase) Command() *CommandBase {
+func (tc *TestCommandBase) Base() *CommandBase {
 	return &CommandBase{
-		client:   tc.client,
-		printer:  tc.printer,
-		resolver: tc.resolver,
+		client:   tc.Client,
+		printer:  tc.Printer,
+		resolver: tc.Resolver,
 	}
 }
