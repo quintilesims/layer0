@@ -99,12 +99,20 @@ func (d *DeployCommand) read(c *cli.Context) error {
 		return err
 	}
 
-	deploy, err := d.client.ReadDeploy(args["NAME"])
-	if err != nil {
-		return err
+	deployIDs, err := d.resolver.Resolve("deploy", args["NAME"])
+
+	deploys := make([]*models.Deploy, len(deployIDs))
+
+	for _, deployID := range deployIDs {
+		deploy, err := d.client.ReadDeploy(deployID)
+		if err != nil {
+			return err
+		}
+
+		deploys = append(deploys, deploy)
 	}
 
-	return d.printer.PrintDeploys(deploy)
+	return d.printer.PrintDeploys(deploys...)
 }
 
 func (d *DeployCommand) list(c *cli.Context) error {
