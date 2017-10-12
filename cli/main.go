@@ -38,7 +38,7 @@ func main() {
 		command.NewServiceCommand(base).Command(),
 		command.NewTaskCommand(base).Command(),
 	}
-
+	
 	app.Before = func(c *cli.Context) error {
 		if err := config.ValidateCLIContext(c); err != nil {
 			return err
@@ -69,7 +69,18 @@ func main() {
 		base.SetResolver(tagResolver)
 		base.SetPrinter(p)
 
-		// todo: verify version
+		if !c.GlobalBool(config.FLAG_SKIP_VERIFY_VERSION) {
+			apiConfig, err := apiClient.ReadConfig()
+			if err != nil {
+				return err
+			}
+
+			if apiConfig.Version != Version {
+				text := fmt.Sprintf("API and CLI version mismatch (CLI: '%s', API: '%s')\n", Version, apiConfig.Version)
+				text += fmt.Sprintf("To disable this warning, set %s=\"1\"", config.ENVVAR_SKIP_VERIFY_VERSION)
+				return fmt.Errorf(text)
+			}
+		}
 
 		return nil
 	}

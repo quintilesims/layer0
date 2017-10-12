@@ -30,27 +30,27 @@ func CLIFlags() []cli.Flag {
 			Name:   FLAG_ENDPOINT,
 			EnvVar: ENVVAR_ENDPOINT,
 			Value:  "http://localhost:9090/",
-			Usage:  "todo",
+			Usage:  "The endpoint of the Layer0 API",
 		},
 		cli.StringFlag{
 			Name:   FLAG_TOKEN,
 			EnvVar: ENVVAR_TOKEN,
-			Usage:  "todo",
+			Usage:  "The auth token of the Layer0 API",
 		},
 		cli.BoolFlag{
 			Name:   FLAG_SKIP_VERIFY_SSL,
 			EnvVar: ENVVAR_SKIP_VERIFY_SSL,
-			Usage:  "todo",
+			Usage:  "If set, will skip ssl verification",
 		},
 		cli.BoolFlag{
 			Name:   FLAG_SKIP_VERIFY_VERSION,
 			EnvVar: ENVVAR_SKIP_VERIFY_VERSION,
-			Usage:  "todo",
+			Usage:  "If set, will skip version verification",
 		},
 		cli.BoolFlag{
 			Name:   FLAG_NO_WAIT,
 			EnvVar: ENVVAR_NO_WAIT,
-			Usage:  "todo",
+			Usage:  "If set, will not wait for job operations to complete",
 		},
 	}
 }
