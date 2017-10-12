@@ -1,7 +1,5 @@
 package models
 
-import "sort"
-
 type Tags []Tag
 
 type filter func(Tag) bool
@@ -74,29 +72,4 @@ func (t Tags) GroupByID() map[string]Tags {
 	}
 
 	return entityTags
-}
-
-// sorting functions
-func (t Tags) Len() int {
-	return len(t)
-}
-
-func (t Tags) Swap(i, j int) {
-	t[i], t[j] = t[j], t[i]
-}
-
-func (t Tags) Less(i, j int) bool {
-	if t[i].EntityID != t[j].EntityID {
-		return t[i].EntityID < t[j].EntityID
-	}
-
-	if t[i].EntityType != t[j].EntityType {
-		return t[i].EntityType < t[j].EntityType
-	}
-
-	return t[i].Key < t[j].Key
-}
-
-func (t Tags) Sort() {
-	sort.Sort(t)
 }

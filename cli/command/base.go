@@ -75,7 +75,7 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 	return nil
 }
 
-func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFn func(entityID string) error) error {
+func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFN func(entityID string) error) error {
 	if c.GlobalBool(config.FLAG_NO_WAIT) {
 		b.printJobResponse(jobID)
 		return nil

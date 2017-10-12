@@ -187,7 +187,6 @@ func TestListTags(t *testing.T) {
 			var response models.Tags
 			recorder := unmarshalBody(t, resp, &response)
 
-			response.Sort()
 			assert.Equal(t, 200, recorder.Code)
 			testCase.CheckResult(t, response)
 		})

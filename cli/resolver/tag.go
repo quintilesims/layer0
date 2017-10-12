@@ -89,13 +89,9 @@ func findMatches(c client.Client, target string, query url.Values) ([]string, er
 		return []string{tag.EntityID}, nil
 	}
 
-	uniqueEntityIDs := map[string]bool{}
-	for _, tag := range tags {
-		uniqueEntityIDs[tag.EntityID] = true
-	}
-
-	entityIDs := make([]string, 0, len(uniqueEntityIDs))
-	for entityID := range uniqueEntityIDs {
+	entityTags := tags.GroupByID()
+	entityIDs := make([]string, 0, len(entityTags))
+	for entityID := range entityTags {
 		entityIDs = append(entityIDs, entityID)
 	}
 
