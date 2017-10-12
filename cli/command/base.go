@@ -80,3 +80,23 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 
 	return nil
 }
+
+func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFn func(entityID string) error) error {
+	waitFlag := c.GlobalBool(config.FLAG_NO_WAIT)
+	waitTimeout := c.GlobalDuration(config.FLAG_TIMEOUT)
+
+	if waitFlag {
+		b.printer.Printf("Running as job '%s'", jobID)
+		return nil
+	}
+
+	b.printer.StartSpinner(spinnerText)
+	defer b.printer.StopSpinner()
+
+	job, err := client.WaitForJob(b.client, jobID, waitTimeout)
+	if err != nil {
+		return nil
+	}
+
+	return onCompleteFn(job.Result)
+}

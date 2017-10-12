@@ -5,11 +5,10 @@
 package mock_client
 
 import (
-	url "net/url"
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
+	url "net/url"
+	reflect "reflect"
 )
 
 // MockClient is a mock of Client interface
@@ -360,9 +359,9 @@ func (mr *MockClientMockRecorder) ReadServiceLogs(arg0, arg1 interface{}) *gomoc
 }
 
 // ReadTask mocks base method
-func (m *MockClient) ReadTask(arg0 string) (*models.Service, error) {
+func (m *MockClient) ReadTask(arg0 string) (*models.Task, error) {
 	ret := m.ctrl.Call(m, "ReadTask", arg0)
-	ret0, _ := ret[0].(*models.Service)
+	ret0, _ := ret[0].(*models.Task)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
