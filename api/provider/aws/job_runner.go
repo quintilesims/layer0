@@ -233,7 +233,7 @@ func (r *JobRunner) updateEnvironment(jobID, request string) (string, error) {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	return "", r.environmentProvider.Update(req)
+	return req.EnvironmentID, r.environmentProvider.Update(req)
 }
 
 func (r *JobRunner) updateLoadBalancer(jobID, request string) (string, error) {
@@ -242,7 +242,7 @@ func (r *JobRunner) updateLoadBalancer(jobID, request string) (string, error) {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	return "", r.loadBalancerProvider.Update(req)
+	return req.LoadBalancerID, r.loadBalancerProvider.Update(req)
 }
 
 func (r *JobRunner) updateService(jobID, request string) (string, error) {
@@ -251,7 +251,7 @@ func (r *JobRunner) updateService(jobID, request string) (string, error) {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	return "", r.serviceProvider.Update(req)
+	return req.ServiceID, r.serviceProvider.Update(req)
 }
 
 func catchAndRetry(timeout time.Duration, fn func() (result string, err error, shouldRetry bool)) (string, error) {
