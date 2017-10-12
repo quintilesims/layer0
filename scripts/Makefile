@@ -2,8 +2,9 @@ deps:
 	go get -u github.com/golang/mock/mockgen
 	go install github.com/golang/mock/mockgen
 
-all: api client common
+all: api cli common
 api: provider job
+cli: command client
 common: aws
 
 provider:
@@ -18,6 +19,9 @@ job:
 
 client:
 	mockgen github.com/quintilesims/layer0/client Client > ../client/mock_client/mock_client.go &
+
+command:
+	mockgen github.com/quintilesims/layer0/cli/resolver Resolver > ../cli/resolver/mock_resolver/mock_resolver.go &
 
 aws:
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/autoscaling/autoscalingiface AutoScalingAPI > ../common/aws/mock_aws/mock_autoscaling.go &
