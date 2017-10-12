@@ -76,7 +76,7 @@ func TestListTags(t *testing.T) {
 			},
 		},
 		{
-			Name: "fuzz",
+			Name: "fuzz='e*'",
 			Query: url.Values{
 				client.TagQueryParamName: []string{"e*"},
 			},
@@ -86,6 +86,28 @@ func TestListTags(t *testing.T) {
 				}))
 			},
 		},
+		  {
+                        Name: "fuzz='*name*'",
+                        Query: url.Values{
+                                client.TagQueryParamName: []string{"*name*"},
+                        },
+                        CheckResult: func(t *testing.T, result models.Tags) {
+                                assert.False(t, result.Any(func(tag models.Tag) bool {
+                                        return !glob.Glob("*name*", tag.EntityID) || tag.Key == "name" && !glob.Glob("*name*", tag.Value)
+                                }))
+                        },
+                },
+		    {
+                        Name: "fuzz='*s'",
+                        Query: url.Values{
+                                client.TagQueryParamName: []string{"*s*"},
+                        },
+                        CheckResult: func(t *testing.T, result models.Tags) {
+                                assert.False(t, result.Any(func(tag models.Tag) bool {
+                                        return !glob.Glob("*s", tag.EntityID) || tag.Key == "name" && !glob.Glob("*s", tag.Value)
+                                }))
+                        },
+                },
 		{
 			Name: "version=1",
 			Query: url.Values{
@@ -119,36 +141,36 @@ func TestListTags(t *testing.T) {
 				}))
 			},
 		},
-		 {
-                        Name: "fuzz+type",
-                        Query: url.Values{
-                                client.TagQueryParamType: []string{"environment"},
+		{
+			Name: "fuzz+type",
+			Query: url.Values{
+				client.TagQueryParamType: []string{"environment"},
 				client.TagQueryParamFuzz: []string{"e*"},
-                        },
-                        CheckResult: func(t *testing.T, result models.Tags) {
-                                assert.False(t, result.Any(func(tag models.Tag) bool {
+			},
+			CheckResult: func(t *testing.T, result models.Tags) {
+				assert.False(t, result.Any(func(tag models.Tag) bool {
 					wrongType := tag.EntityType != "environment"
 					noFuzzMatch := !glob.Glob("e*", tag.EntityID) || tag.Key == "name" && !glob.Glob("e*", tag.Value)
 					return wrongType || noFuzzMatch
-                                }))
-                        },
-                },
-		   {
-                        Name: "fuzz+type+environment_id",
-                        Query: url.Values{
-                                client.TagQueryParamType: []string{"service"},
-                                client.TagQueryParamFuzz: []string{"s*"},
+				}))
+			},
+		},
+		{
+			Name: "fuzz+type+environment_id",
+			Query: url.Values{
+				client.TagQueryParamType:          []string{"service"},
+				client.TagQueryParamFuzz:          []string{"s*"},
 				client.TagQueryParamEnvironmentID: []string{"eid1"},
-                        },
-                        CheckResult: func(t *testing.T, result models.Tags) {
-                                assert.False(t, result.Any(func(tag models.Tag) bool {
-                                        wrongType := tag.EntityType != "service"
+			},
+			CheckResult: func(t *testing.T, result models.Tags) {
+				assert.False(t, result.Any(func(tag models.Tag) bool {
+					wrongType := tag.EntityType != "service"
 					noFuzzMatch := !glob.Glob("s*", tag.EntityID) || tag.Key == "name" && !glob.Glob("s*", tag.Value)
 					wrongEnvironment := tag.Key == "environment_id" && tag.Value != "eid1"
 					return wrongType || noFuzzMatch || wrongEnvironment
-                                }))
-                        },
-                },
+				}))
+			},
+		},
 	}
 
 	controller := NewTagController(store)

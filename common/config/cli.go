@@ -57,7 +57,6 @@ func CLIFlags() []cli.Flag {
 
 func ValidateCLIContext(c *cli.Context) error {
 	requiredVars := []string{
-		FLAG_ENDPOINT,
 		FLAG_TOKEN,
 	}
 

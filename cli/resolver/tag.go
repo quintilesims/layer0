@@ -9,7 +9,6 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 )
 
-// todo: support glob matching '*' in api
 func NewTagResolver(c client.Client) ResolverFunc {
 	return func(entityType, target string) ([]string, error) {
 		switch entityType {
