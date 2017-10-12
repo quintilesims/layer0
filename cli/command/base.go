@@ -89,7 +89,7 @@ func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string,
 		return err
 	}
 
-	return onCompleteFn(job.Result)
+	return onCompleteFN(job.Result)
 }
 
 func (b *CommandBase) printJobResponse(jobID string) {
