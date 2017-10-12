@@ -58,8 +58,7 @@ func (s *ServiceCommand) Command() cli.Command {
 				Flags: []cli.Flag{
 					cli.IntFlag{
 						Name:  "tail",
-						Usage: "number of lines from the end to return",
-						Value: 0,
+						Usage: "number of lines from the end to return (default: 0)",
 					},
 					cli.StringFlag{
 						Name:  "start",
@@ -164,17 +163,22 @@ func (s *ServiceCommand) read(c *cli.Context) error {
 		return err
 	}
 
-	serviceID, err := s.resolveSingleEntityIDHelper("service", args["NAME"])
+	serviceIDs, err := s.resolver.Resolve("service", args["NAME"])
 	if err != nil {
 		return err
 	}
 
-	service, err := s.client.ReadService(serviceID)
-	if err != nil {
-		return err
+	services := make([]*models.Service, len(serviceIDs))
+	for i, serviceID := range serviceIDs {
+		service, err := s.client.ReadService(serviceID)
+		if err != nil {
+			return err
+		}
+
+		services[i] = service
 	}
 
-	return s.printer.PrintServices(service)
+	return s.printer.PrintServices(services...)
 }
 
 func (s *ServiceCommand) scale(c *cli.Context) error {
