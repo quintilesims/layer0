@@ -27,7 +27,7 @@ func newTestCommand(t *testing.T) (*TestCommandBase, *gomock.Controller) {
 	return tc, ctrl
 }
 
-func (tc *TestCommandBase) Base() *CommandBase {
+func (tc *TestCommandBase) Command() *CommandBase {
 	return &CommandBase{
 		client:   tc.Client,
 		printer:  tc.Printer,
