@@ -5,10 +5,9 @@ import (
 	"testing"
 	"time"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/urfave/cli"
 )
-
-var TEST_TIMEOUT = time.Minute * 15
 
 func GetCLIContext(t *testing.T, args []string, flags map[string]interface{}) *cli.Context {
 	flagSet := &flag.FlagSet{}
@@ -31,7 +30,7 @@ func GetCLIContext(t *testing.T, args []string, flags map[string]interface{}) *c
 
 	// add default global flags
 	flagSet.String("output", "text", "")
-	flagSet.String("timeout", TEST_TIMEOUT.String(), "")
+	flagSet.String(config.FLAG_TIMEOUT, "15m", "")
 	flagSet.Parse(args)
 	return cli.NewContext(nil, flagSet, nil)
 }
