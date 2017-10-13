@@ -83,7 +83,7 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 	return nil
 }
 
-func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID string, onCompleteFN func(entityID string) error) error {
+func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFN func(entityID string) error) error {
 	waitFlag := c.GlobalBool(config.FLAG_NO_WAIT)
 	waitTimeout := c.GlobalDuration(config.FLAG_TIMEOUT)
 
@@ -92,7 +92,7 @@ func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID string, onCompleteFN
 		return nil
 	}
 
-	b.printer.StartSpinner("creating")
+	b.printer.StartSpinner(spinnerText)
 	defer b.printer.StopSpinner()
 
 	job, err := client.WaitForJob(b.client, jobID, waitTimeout)
@@ -101,6 +101,18 @@ func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID string, onCompleteFN
 	}
 
 	return onCompleteFN(job.Result)
+}
+
+func (b *CommandBase) readEntitiesHelper(entityIDs []string, readEntity func(entityID string) (interface{}, error)) ([]interface{}, error) {
+	entities := make([]interface{}, len(entityIDs))
+	for _, entityID := range entityIDs {
+		entity, err := readEntity(entityID)
+		if err != nil {
+			return nil, err
+		}
+		entities = append(entities, entity)
+	}
+	return entities, nil
 }
 
 func (b *CommandBase) printJobHelper(jobID string) {

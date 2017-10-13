@@ -1,7 +1,9 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/client"
+	"fmt"
+	"strings"
+
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -84,6 +86,12 @@ func (t *TaskCommand) create(c *cli.Context) error {
 		return err
 	}
 
+	// TODO: Add Parse override.
+	// overrides, err := parseOverrides(c.StringSlice("env"))
+	// if err != nil {
+	// 	return err
+	// }
+
 	environmentID, err := t.resolveSingleEntityIDHelper("environment", args["ENVIRONMENT"])
 	if err != nil {
 		return err
@@ -105,7 +113,7 @@ func (t *TaskCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	return t.waitOnJobHelper(c, jobID, func(taskID string) error {
+	return t.waitOnJobHelper(c, jobID, "creating", func(taskID string) error {
 		task, err := t.client.ReadTask(taskID)
 		if err != nil {
 			return err
@@ -136,17 +144,28 @@ func (t *TaskCommand) read(c *cli.Context) error {
 		return err
 	}
 
-	taskID, err := t.resolveSingleEntityIDHelper("task", args["NAME"])
+	taskIDs, err := t.resolver.Resolve("task", args["NAME"])
 	if err != nil {
 		return err
 	}
 
-	task, err := t.client.ReadTask(taskID)
-	if err != nil {
-		return err
+	// MARK: Working Still
+	ts := make([]*models.Task, len(taskIDs))
+	tasks, err := t.readEntitiesHelper(taskIDs, func(taskID string) (interface{}, error) {
+		task, err := t.client.ReadTask(taskID)
+		if err != nil {
+			return nil, err
+		}
+		return task, nil
+	})
+
+	for i, t := range tasks {
+		if t, ok := t.(*models.Task); ok {
+			ts[i] = t
+		}
 	}
 
-	return t.printer.PrintTasks(task)
+	return t.printer.PrintTasks(ts...)
 }
 
 func (t *TaskCommand) logs(c *cli.Context) error {
@@ -160,11 +179,52 @@ func (t *TaskCommand) logs(c *cli.Context) error {
 		return err
 	}
 
-	query := buildLogQueryHelper(id, c.String(client.LogQueryParamStart), c.String(client.LogQueryParamEnd), c.Int(client.LogQueryParamTail))
+	query := buildLogQueryHelper(id, c.String("start"), c.String("end"), c.Int("tail"))
 	logs, err := t.client.ReadTaskLogs(id, query)
 	if err != nil {
 		return err
 	}
 
 	return t.printer.PrintLogs(logs...)
+}
+
+// MARK: Move to Models
+type ContainerOverride struct {
+	ContainerName        string            `json:"container_name"`
+	EnvironmentOverrides map[string]string `json:"environment_overrides"`
+}
+
+func parseOverrides(overrides []string) ([]ContainerOverride, error) {
+	catalog := map[string]ContainerOverride{}
+
+	for _, o := range overrides {
+		split := strings.FieldsFunc(o, func(r rune) bool {
+			return r == ':' || r == '='
+		})
+
+		if len(split) != 3 {
+			return nil, fmt.Errorf("Environment Variable Override format is: CONTAINER:VAR=VAL")
+		}
+
+		container := split[0]
+		key := split[1]
+		val := split[2]
+
+		if _, ok := catalog[container]; !ok {
+			catalog[container] = ContainerOverride{
+				ContainerName:        container,
+				EnvironmentOverrides: map[string]string{},
+			}
+		}
+
+		catalog[container].EnvironmentOverrides[key] = val
+	}
+
+	models := []ContainerOverride{}
+	for _, override := range catalog {
+		models = append(models, override)
+	}
+
+	return models, nil
+
 }
