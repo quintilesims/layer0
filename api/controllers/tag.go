@@ -62,6 +62,10 @@ func (t *TagController) CreateTag(c *fireball.Context) (fireball.Response, error
 	return fireball.NewJSONResponse(200, tag)
 }
 
+// ListTags returns a list of models.Tag
+// The returned tags can be filterered via query parameters:
+// id, type, environment_id, name, fuzz, and version
+// see swagger docs for infomation on available query parameters
 func (t *TagController) ListTags(c *fireball.Context) (fireball.Response, error) {
 	query := c.Request.URL.Query()
 
