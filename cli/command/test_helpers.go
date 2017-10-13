@@ -30,15 +30,18 @@ func newTestCommand(t *testing.T) (*TestCommandBase, *gomock.Controller) {
 	return tc, ctrl
 }
 
-func (tc *TestCommandBase) Command() *CommandBase {
+func (c *TestCommandBase) Command() *CommandBase {
 	return &CommandBase{
-		Client:   tc.client,
-		Printer:  tc.printer,
-		Resolver: tc.resolver,
+		client:   c.Client,
+		printer:  c.Printer,
+		resolver: c.Resolver,
 	}
 }
 
-func getCLIContext(t *testing.T, args []string, flags map[string]interface{}) *cli.Context {
+type Args []string
+type Flags map[string]interface{}
+
+func getCLIContext(t *testing.T, args Args, flags Flags) *cli.Context {
 	flagSet := &flag.FlagSet{}
 
 	for key, val := range flags {
