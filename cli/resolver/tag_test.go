@@ -13,6 +13,8 @@ import (
 )
 
 func TestTagResolverQueryParams(t *testing.T) {
+	resolvedEnvID := "eid"
+
 	testCases := []struct {
 		Name            string
 		EntityType      string
@@ -77,7 +79,7 @@ func TestTagResolverQueryParams(t *testing.T) {
 				{
 					client.TagQueryParamType:          []string{"load_balancer"},
 					client.TagQueryParamFuzz:          []string{"l*"},
-					client.TagQueryParamEnvironmentID: []string{"eid"},
+					client.TagQueryParamEnvironmentID: []string{resolvedEnvID},
 				},
 			},
 		},
@@ -102,7 +104,7 @@ func TestTagResolverQueryParams(t *testing.T) {
 				{
 					client.TagQueryParamType:          []string{"service"},
 					client.TagQueryParamFuzz:          []string{"s*"},
-					client.TagQueryParamEnvironmentID: []string{"eid"},
+					client.TagQueryParamEnvironmentID: []string{resolvedEnvID},
 				},
 			},
 		},
@@ -127,7 +129,7 @@ func TestTagResolverQueryParams(t *testing.T) {
 				{
 					client.TagQueryParamType:          []string{"task"},
 					client.TagQueryParamFuzz:          []string{"t*"},
-					client.TagQueryParamEnvironmentID: []string{"eid"},
+					client.TagQueryParamEnvironmentID: []string{resolvedEnvID},
 				},
 			},
 		},
@@ -139,7 +141,7 @@ func TestTagResolverQueryParams(t *testing.T) {
 			defer ctrl.Finish()
 
 			// always return an environment entity tag for fully-qualified lookups
-			tags := models.Tags{{EntityID: "eid"}}
+			tags := models.Tags{{EntityID: resolvedEnvID}}
 
 			mockClient := mock_client.NewMockClient(ctrl)
 			for _, expectedQuery := range testCase.ExpectedQueries {
