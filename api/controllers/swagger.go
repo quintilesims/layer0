@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
 	swagger "github.com/zpatrick/go-plugin-swagger"
@@ -54,6 +55,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"LogFile":                   models.LogFile{}.Definition(),
 			"Port":                      models.Port{}.Definition(),
 			"Service":                   models.Service{}.Definition(),
+			"Tag":                       models.Tag{}.Definition(),
 			"Task":                      models.Task{}.Definition(),
 			"Deploy":                    models.Deploy{}.Definition(),
 			"UpdateLoadBalancerRequest": models.UpdateLoadBalancerRequest{}.Definition(),
@@ -83,6 +85,10 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			{
 				Name:        "Task",
 				Description: "Methods related to tasks",
+			},
+			{
+				Name:        "Tag",
+				Description: "Methods related to tags",
 			},
 			{
 				Name:        "Deploy",
@@ -419,6 +425,51 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 						"200": {
 							Description: "The task's logs",
 							Schema:      swagger.NewObjectSliceSchema("LogFile"),
+						},
+					},
+				},
+			},
+			"/tag": map[string]swagger.Method{
+				"delete": {
+					Summary: "Delete a Tag",
+					Tags:    []string{"Tag"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("Tag", "Tag to delete", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "Success",
+						},
+					},
+				},
+				"get": {
+					Summary: "List Tags",
+					Tags:    []string{"Tag"},
+					Parameters: []swagger.Parameter{
+						swagger.NewStringQueryParam(client.TagQueryParamEnvironmentID, "Filter entities that have a matching 'environment_id' tag", false),
+						swagger.NewStringQueryParam(client.TagQueryParamFuzz, "Filter entities that have a matching entity id or name tag (glob patterns allowed)", false),
+						swagger.NewStringQueryParam(client.TagQueryParamID, "Filter entities that have a matching entity id", false),
+						swagger.NewStringQueryParam(client.TagQueryParamName, "Filter entities that have a matching name tag", false),
+						swagger.NewStringQueryParam(client.TagQueryParamType, "Filter entities that have a matching type", false),
+						swagger.NewStringQueryParam(client.TagQueryParamVersion, "Filter entities that have a version tag (version='latest' will return only the latest version)", false),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "An array of tags",
+							Schema:      swagger.NewObjectSliceSchema("Tag"),
+						},
+					},
+				},
+				"post": {
+					Summary: "Add a Tag",
+					Tags:    []string{"Tag"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("Tag", "Tag to add", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The added tag",
+							Schema:      swagger.NewObjectSchema("Tag"),
 						},
 					},
 				},

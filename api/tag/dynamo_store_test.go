@@ -93,6 +93,26 @@ func TestDynamoStoreDelete(t *testing.T) {
 	assert.Equal(t, result[0], tags[1])
 }
 
+func TestDynamoStoreSelectAll(t *testing.T) {
+	store := newTestStore(t)
+	if err := store.Clear(); err != nil {
+		t.Fatal(err)
+	}
+
+	for _, tag := range TestTags {
+		if err := store.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	result, err := store.SelectAll()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Len(t, result, len(TestTags))
+}
+
 func TestDynamoStoreSelectByTypeAndID(t *testing.T) {
 	store := newTestStore(t)
 
