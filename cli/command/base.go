@@ -63,7 +63,7 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 	}
 
 	if waitFlag {
-		b.printJobHelper(jobID)
+		b.printJobResponse(jobID)
 		return nil
 	}
 
@@ -78,7 +78,7 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 	return nil
 }
 
-func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID string, onCompleteFN func(entityID string) error) error {
+func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFN func(entityID string) error) error {
 	waitFlag := c.GlobalBool(config.FLAG_NO_WAIT)
 	waitTimeout := c.GlobalDuration(config.FLAG_TIMEOUT)
 
@@ -87,7 +87,7 @@ func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID string, onCompleteFN
 		return nil
 	}
 
-	b.printer.StartSpinner("creating")
+	b.printer.StartSpinner(spinnerText)
 	defer b.printer.StopSpinner()
 
 	job, err := client.WaitForJob(b.client, jobID, waitTimeout)
