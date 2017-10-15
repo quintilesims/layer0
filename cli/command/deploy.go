@@ -11,5 +11,9 @@ func NewDeployCommand(b *CommandBase) *DeployCommand {
 }
 
 func (d *DeployCommand) Command() cli.Command {
-	return cli.Command{}
+	return cli.Command{
+		Name:        "deploy",
+		Usage:       "manage layer0 deploys",
+		Subcommands: []cli.Command{},
+	}
 }
