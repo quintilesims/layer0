@@ -4,9 +4,10 @@
 package mock_client
 
 import (
+	url "net/url"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	url "net/url"
 )
 
 // Mock of Client interface
@@ -50,6 +51,16 @@ func (_m *MockClient) CreateEnvironment(_param0 models.CreateEnvironmentRequest)
 
 func (_mr *_MockClientRecorder) CreateEnvironment(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0)
+}
+
+func (_m *MockClient) CreateLink(_param0 string, _param1 string) error {
+	ret := _m.ctrl.Call(_m, "CreateLink", _param0, _param1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockClientRecorder) CreateLink(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateLink", arg0, arg1)
 }
 
 func (_m *MockClient) CreateLoadBalancer(_param0 models.CreateLoadBalancerRequest) (string, error) {
@@ -109,6 +120,16 @@ func (_mr *_MockClientRecorder) DeleteEnvironment(arg0 interface{}) *gomock.Call
 
 func (_m *MockClient) DeleteJob(_param0 string) error {
 	ret := _m.ctrl.Call(_m, "DeleteJob", _param0)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (_mr *_MockClientRecorder) DeleteJob(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteJob", arg0)
+}
+
+func (_m *MockClient) DeleteLink(_param0 string, _param1 string) error {
+	ret := _m.ctrl.Call(_m, "DeleteLink", _param0, _param1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
