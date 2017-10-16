@@ -1,0 +1,75 @@
+package command
+
+import (
+	"testing"
+
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/urfave/cli"
+)
+
+func TestCreateService(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	serviceCommand := NewServiceCommand(base.Command())
+
+	req := models.CreateServiceRequest{
+		DeployID:       "dpl_id",
+		EnvironmentID:  "env_id",
+		LoadBalancerID: "lb_id",
+		ServiceName:    "svc_name",
+	}
+
+	base.Resolver.EXPECT().
+		Resolve("deploy", "dpl_name").
+		Return([]string{"dpl_id"}, nil)
+
+	base.Resolver.EXPECT().
+		Resolve("environment", "env_name").
+		Return([]string{"env_id"}, nil)
+
+	base.Resolver.EXPECT().
+		Resolve("load_balancer", "lb_name").
+		Return([]string{"lb_id"}, nil)
+
+	base.Client.EXPECT().
+		CreateService(req).
+		Return("job_id", nil)
+
+	base.Client.EXPECT().
+		ReadJob("job_id").
+		Return(&models.Job{
+			Status: "Completed",
+			Result: "svc_id",
+		}, nil)
+
+	base.Client.EXPECT().
+		ReadService("svc_id").
+		Return(&models.Service{}, nil)
+
+	flags := map[string]interface{}{
+		"loadbalancer": "lb_name",
+	}
+
+	c := getCLIContext(t, []string{"env_name", "svc_name", "dpl_name"}, flags)
+	if err := serviceCommand.create(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCreateService_userInputErrors(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	serviceCommand := NewServiceCommand(base.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing ENVIRONMENT arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg":        getCLIContext(t, []string{"env_name"}, nil),
+		"Missing DEPLOY arg":      getCLIContext(t, []string{"env_name", "svc_name"}, nil),
+	}
+
+	for name, c := range contexts {
+		if err := serviceCommand.create(c); err == nil {
+			t.Fatal("%s: error was nil!", name)
+		}
+	}
+}
