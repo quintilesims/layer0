@@ -1,6 +1,7 @@
 package command
 
 import (
+	"net/url"
 	"testing"
 
 	"github.com/quintilesims/layer0/common/models"
@@ -132,9 +133,47 @@ func TestListServices(t *testing.T) {
 }
 
 func TestServiceLogs(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	serviceCommand := NewServiceCommand(base.Command())
+
+	base.Resolver.EXPECT().
+		Resolve("service", "svc_name").
+		Return([]string{"svc_id"}, nil)
+
+	base.Client.EXPECT().
+		ReadServiceLogs("svc_id", url.Values{
+			"tail":  []string{"100"},
+			"start": []string{"start"},
+			"end":   []string{"end"},
+		})
+
+	flags := map[string]interface{}{
+		"tail":  100,
+		"start": "start",
+		"end":   "end",
+	}
+
+	c := getCLIContext(t, []string{"svc_name"}, flags)
+	if err := serviceCommand.logs(c); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestServiceLogs_userInputError(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	serviceCommand := NewServiceCommand(base.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing NAME arg": getCLIContext(t, nil, nil),
+	}
+
+	for name, c := range contexts {
+		if err := serviceCommand.logs(c); err == nil {
+			t.Fatal("%s: error was nil!", name)
+		}
+	}
 }
 
 func TestReadService(t *testing.T) {
