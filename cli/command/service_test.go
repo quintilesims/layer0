@@ -212,9 +212,56 @@ func TestReadService_userInputError(t *testing.T) {
 }
 
 func TestScaleService(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	serviceCommand := NewServiceCommand(base.Command())
+
+	scale := 2
+	req := models.UpdateServiceRequest{
+		ServiceID: "svc_id",
+		Scale:     &scale,
+	}
+
+	base.Resolver.EXPECT().
+		Resolve("service", "svc_name").
+		Return([]string{"svc_id"}, nil)
+
+	base.Client.EXPECT().
+		UpdateService(req).
+		Return("job_id", nil)
+
+	base.Client.EXPECT().
+		ReadJob("job_id").
+		Return(&models.Job{
+			Status: "Completed",
+			Result: "svc_id",
+		}, nil)
+
+	base.Client.EXPECT().
+		ReadService("svc_id").
+		Return(&models.Service{}, nil)
+
+	c := getCLIContext(t, []string{"svc_name", "2"}, nil)
+	if err := serviceCommand.scale(c); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestScaleService_userInputError(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	serviceCommand := NewServiceCommand(base.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing NAME arg":  getCLIContext(t, nil, nil),
+		"Missing COUNT arg": getCLIContext(t, []string{"svc_name"}, nil),
+	}
+
+	for name, c := range contexts {
+		if err := serviceCommand.scale(c); err == nil {
+			t.Fatal("%s: error was nil!", name)
+		}
+	}
 }
 
 func TestUpdateService(t *testing.T) {
