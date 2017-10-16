@@ -115,3 +115,42 @@ func TestDeleteService_userInputError(t *testing.T) {
 		}
 	}
 }
+
+func TestListServices(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	serviceCommand := NewServiceCommand(base.Command())
+
+	base.Client.EXPECT().
+		ListServices().
+		Return([]*models.ServiceSummary{}, nil)
+
+	c := getCLIContext(t, nil, nil)
+	if err := serviceCommand.list(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestServiceLogs(t *testing.T) {
+}
+
+func TestServiceLogs_userInputError(t *testing.T) {
+}
+
+func TestReadService(t *testing.T) {
+}
+
+func TestReadService_userInputError(t *testing.T) {
+}
+
+func TestScaleService(t *testing.T) {
+}
+
+func TestScaleService_userInputError(t *testing.T) {
+}
+
+func TestUpdateService(t *testing.T) {
+}
+
+func TestUpdateService_userInputError(t *testing.T) {
+}
