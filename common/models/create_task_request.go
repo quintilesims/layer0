@@ -7,9 +7,10 @@ import (
 )
 
 type CreateTaskRequest struct {
-	TaskName      string `json:"task_name"`
-	EnvironmentID string `json:"environment_id"`
-	DeployID      string `json:"deploy_id"`
+	ContainerOverrides []ContainerOverride `json:"container_overrides"`
+	TaskName           string              `json:"task_name"`
+	EnvironmentID      string              `json:"environment_id"`
+	DeployID           string              `json:"deploy_id"`
 }
 
 func (c CreateTaskRequest) Validate() error {

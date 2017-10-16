@@ -86,11 +86,10 @@ func (t *TaskCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	// TODO: Add Parse override.
-	// overrides, err := parseOverrides(c.StringSlice("env"))
-	// if err != nil {
-	// 	return err
-	// }
+	overrides, err := parseOverrides(c.StringSlice("env"))
+	if err != nil {
+		return err
+	}
 
 	environmentID, err := t.resolveSingleEntityIDHelper("environment", args["ENVIRONMENT"])
 	if err != nil {
@@ -103,9 +102,10 @@ func (t *TaskCommand) create(c *cli.Context) error {
 	}
 
 	req := models.CreateTaskRequest{
-		TaskName:      args["NAME"],
-		EnvironmentID: environmentID,
-		DeployID:      deployID,
+		TaskName:           args["NAME"],
+		EnvironmentID:      environmentID,
+		DeployID:           deployID,
+		ContainerOverrides: overrides,
 	}
 
 	jobID, err := t.client.CreateTask(req)
@@ -149,23 +149,17 @@ func (t *TaskCommand) read(c *cli.Context) error {
 		return err
 	}
 
-	// MARK: Working Still
-	ts := make([]*models.Task, len(taskIDs))
-	tasks, err := t.readEntitiesHelper(taskIDs, func(taskID string) (interface{}, error) {
+	tasks := make([]*models.Task, len(taskIDs))
+	for i, taskID := range taskIDs {
 		task, err := t.client.ReadTask(taskID)
 		if err != nil {
-			return nil, err
+			return err
 		}
-		return task, nil
-	})
 
-	for i, t := range tasks {
-		if t, ok := t.(*models.Task); ok {
-			ts[i] = t
-		}
+		tasks[i] = task
 	}
 
-	return t.printer.PrintTasks(ts...)
+	return t.printer.PrintTasks(tasks...)
 }
 
 func (t *TaskCommand) logs(c *cli.Context) error {
@@ -188,14 +182,8 @@ func (t *TaskCommand) logs(c *cli.Context) error {
 	return t.printer.PrintLogs(logs...)
 }
 
-// MARK: Move to Models
-type ContainerOverride struct {
-	ContainerName        string            `json:"container_name"`
-	EnvironmentOverrides map[string]string `json:"environment_overrides"`
-}
-
-func parseOverrides(overrides []string) ([]ContainerOverride, error) {
-	catalog := map[string]ContainerOverride{}
+func parseOverrides(overrides []string) ([]models.ContainerOverride, error) {
+	catalog := map[string]models.ContainerOverride{}
 
 	for _, o := range overrides {
 		split := strings.FieldsFunc(o, func(r rune) bool {
@@ -211,7 +199,7 @@ func parseOverrides(overrides []string) ([]ContainerOverride, error) {
 		val := split[2]
 
 		if _, ok := catalog[container]; !ok {
-			catalog[container] = ContainerOverride{
+			catalog[container] = models.ContainerOverride{
 				ContainerName:        container,
 				EnvironmentOverrides: map[string]string{},
 			}
@@ -220,7 +208,7 @@ func parseOverrides(overrides []string) ([]ContainerOverride, error) {
 		catalog[container].EnvironmentOverrides[key] = val
 	}
 
-	models := []ContainerOverride{}
+	models := []models.ContainerOverride{}
 	for _, override := range catalog {
 		models = append(models, override)
 	}
