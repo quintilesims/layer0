@@ -177,9 +177,38 @@ func TestServiceLogs_userInputError(t *testing.T) {
 }
 
 func TestReadService(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	serviceCommand := NewServiceCommand(base.Command())
+
+	base.Resolver.EXPECT().
+		Resolve("service", "svc_name").
+		Return([]string{"svc_id"}, nil)
+
+	base.Client.EXPECT().
+		ReadService("svc_id").
+		Return(&models.Service{}, nil)
+
+	c := getCLIContext(t, []string{"svc_name"}, nil)
+	if err := serviceCommand.read(c); err != nil {
+		t.Fatal(err)
+	}
 }
 
 func TestReadService_userInputError(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	serviceCommand := NewServiceCommand(base.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing NAME arg": getCLIContext(t, nil, nil),
+	}
+
+	for name, c := range contexts {
+		if err := serviceCommand.read(c); err == nil {
+			t.Fatal("%s: error was nil!", name)
+		}
+	}
 }
 
 func TestScaleService(t *testing.T) {
