@@ -2,6 +2,8 @@ package command
 
 import (
 	"flag"
+	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -65,4 +67,17 @@ func getCLIContext(t *testing.T, args Args, flags Flags) *cli.Context {
 	flagSet.String(config.FLAG_TIMEOUT, "15m", "")
 	flagSet.Parse(args)
 	return cli.NewContext(nil, flagSet, nil)
+}
+
+func tempFile(t *testing.T, content string) (*os.File, func()) {
+	file, err := ioutil.TempFile(os.TempDir(), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := file.Write([]byte(content)); err != nil {
+		t.Fatal(err)
+	}
+
+	return file, func() { os.Remove(file.Name()) }
 }
