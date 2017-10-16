@@ -1,8 +1,6 @@
 package command
 
 import (
-	"io/ioutil"
-	"os"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -14,7 +12,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-func TestCreateEnvironment_userInputErrors(t *testing.T) {
+func TestEnvironmentCommand_userInputErrors(t *testing.T) {
 	_, _, command, _ := initEnvCommandTest(t)
 
 	testCases := []struct {
@@ -55,7 +53,7 @@ func TestCreateEnvironment_userInputErrors(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			c := GetCLIContext(t, tc.args, nil)
+			c := getCLIContext(t, tc.args, nil)
 
 			if err := tc.command(c); err == nil {
 				t.Fatalf("%s: error was nil!", tc.name)
@@ -137,7 +135,7 @@ func CreateEnvironmentNoWait(t *testing.T, otherFlags map[string]interface{}, wa
 		flags[k] = v
 	}
 
-	c := GetCLIContext(t, []string{"name"}, flags)
+	c := getCLIContext(t, []string{"name"}, flags)
 	if err := command.create(c); err != nil {
 		t.Fatal(err)
 	}
@@ -185,7 +183,7 @@ func TestDeleteEnvironment(t *testing.T) {
 					Return(job, nil)
 			}
 
-			c := GetCLIContext(t, []string{"name"}, tc.flags)
+			c := getCLIContext(t, []string{"name"}, tc.flags)
 			if err := command.delete(c); err != nil {
 				t.Fatal(err)
 			}
@@ -205,7 +203,7 @@ func TestGetEnvironment(t *testing.T) {
 		ReadEnvironment("id").
 		Return(&models.Environment{}, nil)
 
-	c := GetCLIContext(t, []string{"name"}, nil)
+	c := getCLIContext(t, []string{"name"}, nil)
 	if err := command.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -219,7 +217,7 @@ func TestListEnvironments(t *testing.T) {
 		ListEnvironments().
 		Return([]*models.EnvironmentSummary{}, nil)
 
-	c := GetCLIContext(t, nil, nil)
+	c := getCLIContext(t, nil, nil)
 	if err := command.list(c); err != nil {
 		t.Fatal(err)
 	}
@@ -271,7 +269,7 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 					Return(&models.Environment{}, nil)
 			}
 
-			c := GetCLIContext(t, []string{"name", "2"}, tc.flags)
+			c := getCLIContext(t, []string{"name", "2"}, tc.flags)
 			if err := command.update(c); err != nil {
 				t.Fatal(err)
 			}
@@ -295,7 +293,7 @@ func TestEnvironmentLink(t *testing.T) {
 		CreateLink("id1", "id2").
 		Return(nil)
 
-	c := GetCLIContext(t, []string{"name1", "name2"}, nil)
+	c := getCLIContext(t, []string{"name1", "name2"}, nil)
 	if err := command.link(c); err != nil {
 		t.Fatal(err)
 	}
@@ -317,7 +315,7 @@ func TestEnvironmentUnlink(t *testing.T) {
 		DeleteLink("id1", "id2").
 		Return(nil)
 
-	c := GetCLIContext(t, []string{"name1", "name2"}, nil)
+	c := getCLIContext(t, []string{"name1", "name2"}, nil)
 	if err := command.unlink(c); err != nil {
 		t.Fatal(err)
 	}
@@ -332,7 +330,7 @@ func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
 		Return([]string{"id1"}, nil).
 		Times(2)
 
-	c := GetCLIContext(t, []string{"name1", "name2"}, nil)
+	c := getCLIContext(t, []string{"name1", "name2"}, nil)
 	if err := command.link(c); err == nil {
 		t.Fatal("error was nil!")
 	}
@@ -347,7 +345,7 @@ func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
 		Return([]string{"id1"}, nil).
 		Times(2)
 
-	c := GetCLIContext(t, []string{"name1", "name2"}, nil)
+	c := getCLIContext(t, []string{"name1", "name2"}, nil)
 	if err := command.unlink(c); err == nil {
 		t.Fatal("error was nil!")
 	}
@@ -365,17 +363,4 @@ func initEnvCommandTest(t *testing.T) (*mock_client.MockClient, *mock_resolver.M
 	envCmd := NewEnvironmentCommand(tc.Command())
 
 	return tc.Client, tc.Resolver, envCmd, ctrl
-}
-
-func tempFile(t *testing.T, content string) (*os.File, func()) {
-	file, err := ioutil.TempFile(os.TempDir(), "")
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	if _, err := file.Write([]byte(content)); err != nil {
-		t.Fatal(err)
-	}
-
-	return file, func() { os.Remove(file.Name()) }
 }
