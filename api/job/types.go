@@ -9,6 +9,8 @@ func (j JobType) String() string {
 const (
 	CreateDeployJob       JobType = "CreateDeploy"
 	CreateEnvironmentJob  JobType = "CreateEnvironment"
+	LinkEnvironmentJob    JobType = "LinkEnvironment"
+	UnlinkEnvironmentJob  JobType = "UnlinkEnvironment"
 	CreateLoadBalancerJob JobType = "CreateLoadBalancer"
 	CreateServiceJob      JobType = "CreateService"
 	CreateTaskJob         JobType = "CreateTask"

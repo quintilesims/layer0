@@ -46,6 +46,10 @@ func (r *JobRunner) Run(j models.Job) (string, error) {
 		return r.createDeploy(j.JobID, j.Request)
 	case job.CreateEnvironmentJob:
 		return r.createEnvironment(j.JobID, j.Request)
+	case job.LinkEnvironmentJob:
+		return r.linkEnvironment(j.JobID, j.Request)
+	case job.UnlinkEnvironmentJob:
+		return r.unlinkEnvironment(j.JobID, j.Request)
 	case job.CreateLoadBalancerJob:
 		return r.createLoadBalancer(j.JobID, j.Request)
 	case job.CreateServiceJob:
@@ -150,6 +154,32 @@ func (r *JobRunner) createTask(jobID, request string) (string, error) {
 
 		return taskID, nil, false
 	})
+}
+
+func (r *JobRunner) linkEnvironment(jobID, request string) (string, error) {
+	var req models.CreateEnvironmentLinkRequest
+	if err := json.Unmarshal([]byte(request), &req); err != nil {
+		return "", errors.New(errors.InvalidRequest, err)
+	}
+
+	if err := r.environmentProvider.Link(req); err != nil {
+		return "", err
+	}
+
+	return req.SourceEnvironmentID, nil
+}
+
+func (r *JobRunner) unlinkEnvironment(jobID, request string) (string, error) {
+	var req models.DeleteEnvironmentLinkRequest
+	if err := json.Unmarshal([]byte(request), &req); err != nil {
+		return "", errors.New(errors.InvalidRequest, err)
+	}
+
+	if err := r.environmentProvider.Unlink(req); err != nil {
+		return "", err
+	}
+
+	return req.SourceEnvironmentID, nil
 }
 
 func (r *JobRunner) deleteDeploy(jobID, deployID string) (string, error) {

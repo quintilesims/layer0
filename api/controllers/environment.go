@@ -105,25 +105,27 @@ func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball
 }
 
 func (e *EnvironmentController) LinkEnvironment(c *fireball.Context) (fireball.Response, error) {
-	var req models.CreateEnvironmentLinkRequest
+	req := models.EnvironmentLinkRequest{}
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	if err := e.EnvironmentProvider.Link(c.PathVariables["id"], req.EnvironmentID); err != nil {
-		return nil, errors.New(errors.UnexpectedError, err)
+	if err := req.Validate(); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return fireball.NewJSONResponse(200, nil)
+	return createJob(e.JobStore, job.LinkEnvironmentJob, req)
 }
 
 func (e *EnvironmentController) UnlinkEnvironment(c *fireball.Context) (fireball.Response, error) {
-	sourceID := c.PathVariables["id"]
-	destID := c.PathVariables["id2"]
-
-	if err := e.EnvironmentProvider.Unlink(sourceID, destID); err != nil {
-		return nil, errors.New(errors.UnexpectedError, err)
+	req := models.EnvironmentLinkRequest{
+		SourceEnvironmentID: c.PathVariables["id"],
+		DestEnvironmentID:   c.PathVariables["id2"],
 	}
 
-	return fireball.NewJSONResponse(200, nil)
+	if err := req.Validate(); err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
+
+	return createJob(e.JobStore, job.UnlinkEnvironmentJob, req)
 }

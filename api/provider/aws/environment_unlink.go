@@ -1,13 +1,18 @@
 package aws
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/quintilesims/layer0/common/models"
 )
 
-func (e *EnvironmentProvider) Unlink(sourceEnvironmentID, destEnvironmentID string) error {
-	fqSourceEnvID := addLayer0Prefix(e.Config.Instance(), sourceEnvironmentID)
-	fqDestEnvID := addLayer0Prefix(e.Config.Instance(), destEnvironmentID)
+func (e *EnvironmentProvider) Unlink(req models.DeleteEnvironmentLinkRequest) error {
+	fmt.Println(req)
+
+	fqSourceEnvID := addLayer0Prefix(e.Config.Instance(), req.SourceEnvironmentID)
+	fqDestEnvID := addLayer0Prefix(e.Config.Instance(), req.DestEnvironmentID)
 
 	sourceGroup, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqSourceEnvID))
 	if err != nil {
@@ -30,11 +35,11 @@ func (e *EnvironmentProvider) Unlink(sourceEnvironmentID, destEnvironmentID stri
 		return err
 	}
 
-	if err := e.deleteLinkTag(sourceEnvironmentID, destEnvironmentID); err != nil {
+	if err := e.deleteLinkTag(req.SourceEnvironmentID, req.DestEnvironmentID); err != nil {
 		return err
 	}
 
-	if err := e.deleteLinkTag(destEnvironmentID, sourceEnvironmentID); err != nil {
+	if err := e.deleteLinkTag(req.DestEnvironmentID, req.SourceEnvironmentID); err != nil {
 		return err
 	}
 
