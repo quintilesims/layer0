@@ -47,11 +47,9 @@ func TestCreateService(t *testing.T) {
 		ReadService("svc_id").
 		Return(&models.Service{}, nil)
 
-	flags := map[string]interface{}{
-		"loadbalancer": "lb_name",
-	}
-
-	c := getCLIContext(t, []string{"env_name", "svc_name", "dpl_name"}, flags)
+	args := Args{"env_name", "svc_name", "dpl_name"}
+	flags := Flags{"loadbalancer": "lb_name"}
+	c := getCLIContext(t, args, flags)
 	if err := serviceCommand.create(c); err != nil {
 		t.Fatal(err)
 	}
@@ -64,8 +62,8 @@ func TestCreateService_userInputErrors(t *testing.T) {
 
 	contexts := map[string]*cli.Context{
 		"Missing ENVIRONMENT arg": getCLIContext(t, nil, nil),
-		"Missing NAME arg":        getCLIContext(t, []string{"env_name"}, nil),
-		"Missing DEPLOY arg":      getCLIContext(t, []string{"env_name", "svc_name"}, nil),
+		"Missing NAME arg":        getCLIContext(t, Args{"env_name"}, nil),
+		"Missing DEPLOY arg":      getCLIContext(t, Args{"env_name", "svc_name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -97,7 +95,8 @@ func TestDeleteService(t *testing.T) {
 			Result: "svc_id",
 		}, nil)
 
-	c := getCLIContext(t, []string{"svc_name"}, nil)
+	args := Args{"svc_name"}
+	c := getCLIContext(t, args, nil)
 	if err := serviceCommand.delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -152,13 +151,9 @@ func TestServiceLogs(t *testing.T) {
 			"end":   []string{"end"},
 		})
 
-	flags := map[string]interface{}{
-		"tail":  100,
-		"start": "start",
-		"end":   "end",
-	}
-
-	c := getCLIContext(t, []string{"svc_name"}, flags)
+	args := Args{"svc_name"}
+	flags := Flags{"tail": 100, "start": "start", "end": "end"}
+	c := getCLIContext(t, args, flags)
 	if err := serviceCommand.logs(c); err != nil {
 		t.Fatal(err)
 	}
@@ -195,7 +190,8 @@ func TestReadService(t *testing.T) {
 		ReadService("svc_id").
 		Return(&models.Service{}, nil)
 
-	c := getCLIContext(t, []string{"svc_name"}, nil)
+	args := Args{"svc_name"}
+	c := getCLIContext(t, args, nil)
 	if err := serviceCommand.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -249,7 +245,8 @@ func TestScaleService(t *testing.T) {
 		ReadService("svc_id").
 		Return(&models.Service{}, nil)
 
-	c := getCLIContext(t, []string{"svc_name", "2"}, nil)
+	args := Args{"svc_name", "2"}
+	c := getCLIContext(t, args, nil)
 	if err := serviceCommand.scale(c); err != nil {
 		t.Fatal(err)
 	}
@@ -262,7 +259,7 @@ func TestScaleService_userInputError(t *testing.T) {
 
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg":  getCLIContext(t, nil, nil),
-		"Missing COUNT arg": getCLIContext(t, []string{"svc_name"}, nil),
+		"Missing COUNT arg": getCLIContext(t, Args{"svc_name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -308,7 +305,8 @@ func TestUpdateService(t *testing.T) {
 		ReadService("svc_id").
 		Return(&models.Service{}, nil)
 
-	c := getCLIContext(t, []string{"svc_name", "dpl_name"}, nil)
+	args := Args{"svc_name", "dpl_name"}
+	c := getCLIContext(t, args, nil)
 	if err := serviceCommand.update(c); err != nil {
 		t.Fatal(err)
 	}
@@ -321,7 +319,7 @@ func TestUpdateService_userInputError(t *testing.T) {
 
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg":   getCLIContext(t, nil, nil),
-		"Missing DEPLOY arg": getCLIContext(t, []string{"svc_name"}, nil),
+		"Missing DEPLOY arg": getCLIContext(t, Args{"svc_name"}, nil),
 	}
 
 	for name, c := range contexts {
