@@ -192,7 +192,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Summary: "Create an Environment Link",
 					Tags:    []string{"Environment"},
 					Parameters: []swagger.Parameter{
-						swagger.NewStringPathParam("id", "ID of the source environment", true),
+						swagger.NewStringPathParam("source_id", "ID of the source environment", true),
 						swagger.NewBodyParam("CreateEnvironmentLinkRequest", "ID of the destination environment", true),
 					},
 					Responses: map[string]swagger.Response{
