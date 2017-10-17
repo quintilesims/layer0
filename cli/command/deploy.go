@@ -102,13 +102,13 @@ func (d *DeployCommand) read(c *cli.Context) error {
 	deployIDs, err := d.resolver.Resolve("deploy", args["NAME"])
 
 	deploys := make([]*models.Deploy, len(deployIDs))
-	for _, deployID := range deployIDs {
+	for i, deployID := range deployIDs {
 		deploy, err := d.client.ReadDeploy(deployID)
 		if err != nil {
 			return err
 		}
 
-		deploys = append(deploys, deploy)
+		deploys[i] = deploy
 	}
 
 	return d.printer.PrintDeploys(deploys...)
