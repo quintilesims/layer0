@@ -43,6 +43,7 @@ type Flags map[string]interface{}
 
 func getCLIContext(t *testing.T, args Args, flags Flags) *cli.Context {
 	flagSet := &flag.FlagSet{}
+	app := &cli.App{}
 
 	for key, val := range flags {
 		switch v := val.(type) {
@@ -64,5 +65,5 @@ func getCLIContext(t *testing.T, args Args, flags Flags) *cli.Context {
 	flagSet.String(config.FLAG_OUTPUT, "text", "")
 	flagSet.String(config.FLAG_TIMEOUT, "15m", "")
 	flagSet.Parse(args)
-	return cli.NewContext(nil, flagSet, nil)
+	return cli.NewContext(app, flagSet, nil)
 }

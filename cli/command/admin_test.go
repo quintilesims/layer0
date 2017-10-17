@@ -1,41 +1,21 @@
 package command
 
 import (
-	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/common/models"
 	"testing"
 )
 
 func TestDebugAdmin(t *testing.T) {
-	// ctrl := gomock.NewController(t)
-
-	// tc := &TestCommand{
-	// 	Client:   mock_client.NewMockClient(ctrl),
-	// 	Printer:  &printer.TestPrinter{},
-	// 	Resolver: mock_command.NewMockResolver(ctrl),
-	// }
-
-	// defer ctrl.Finish()
-	// command := NewAdminCommand(tc.Command())
-
-	// tc.Client.EXPECT().
-	// 	GetVersion().
-	// 	Return("v1.2.3", nil)
-
-	// c := getCLIContext(t, nil, nil)
-	// if err := command.Debug(c); err != nil {
-	// 	t.Fatal(err)
-	// }
-
-	tc, ctrl := newTestCommand(t)
+	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewAdminCommand(tc.Command())
 
-	tc.Client.EXPECT().
-		GetVersion().
-		Return("v1.2.3", nil)
+	base.Client.EXPECT().
+		ReadConfig().
+		Return(&models.APIConfig{}, nil)
 
+	adminCommand := NewAdminCommand(base.Command())
 	c := getCLIContext(t, nil, nil)
-	if err := command.debug(c); err != nil {
+	if err := adminCommand.debug(c); err != nil {
 		t.Fatal(err)
 	}
 }

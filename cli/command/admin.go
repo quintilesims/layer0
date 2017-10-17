@@ -10,9 +10,7 @@ type AdminCommand struct {
 }
 
 func NewAdminCommand(b *CommandBase) *AdminCommand {
-	return &AdminCommand{
-		CommandBase: b,
-	}
+	return &AdminCommand{b}
 }
 
 func (a *AdminCommand) Command() cli.Command {
@@ -32,8 +30,8 @@ func (a *AdminCommand) Command() cli.Command {
 }
 
 func (a *AdminCommand) debug(c *cli.Context) error {
-	apiEndpoint := c.GlobalString(config.ENVVAR_ENDPOINT)
-	cliAuth := c.GlobalString(config.ENVVAR_TOKEN)
+	apiEndpoint := c.GlobalString(config.FLAG_ENDPOINT)
+	cliAuth := c.GlobalString(config.FLAG_TOKEN)
 	cliVersion := c.App.Version
 
 	debugInfo, err := a.client.ReadConfig()
@@ -42,12 +40,12 @@ func (a *AdminCommand) debug(c *cli.Context) error {
 	}
 
 	sslVerify := "enabled"
-	if c.GlobalBool(config.ENVVAR_SKIP_VERIFY_SSL) {
+	if c.GlobalBool(config.FLAG_SKIP_VERIFY_SSL) {
 		sslVerify = "disabled"
 	}
 
 	versionVerify := "enabled"
-	if c.GlobalBool(config.ENVVAR_SKIP_VERIFY_VERSION) {
+	if c.GlobalBool(config.FLAG_SKIP_VERIFY_VERSION) {
 		versionVerify = "disabled"
 	}
 
