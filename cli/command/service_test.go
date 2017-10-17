@@ -11,7 +11,6 @@ import (
 func TestCreateService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	req := models.CreateServiceRequest{
 		DeployID:       "dpl_id",
@@ -50,6 +49,8 @@ func TestCreateService(t *testing.T) {
 	args := Args{"env_name", "svc_name", "dpl_name"}
 	flags := Flags{"loadbalancer": "lb_name"}
 	c := getCLIContext(t, args, flags)
+
+	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.create(c); err != nil {
 		t.Fatal(err)
 	}
@@ -58,7 +59,6 @@ func TestCreateService(t *testing.T) {
 func TestCreateService_userInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
 		"Missing ENVIRONMENT arg": getCLIContext(t, nil, nil),
@@ -66,6 +66,7 @@ func TestCreateService_userInputErrors(t *testing.T) {
 		"Missing DEPLOY arg":      getCLIContext(t, Args{"env_name", "svc_name"}, nil),
 	}
 
+	serviceCommand := NewServiceCommand(base.Command())
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.create(c); err == nil {
@@ -78,7 +79,6 @@ func TestCreateService_userInputErrors(t *testing.T) {
 func TestDeleteService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	base.Resolver.EXPECT().
 		Resolve("service", "svc_name").
@@ -97,6 +97,8 @@ func TestDeleteService(t *testing.T) {
 
 	args := Args{"svc_name"}
 	c := getCLIContext(t, args, nil)
+
+	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -105,12 +107,12 @@ func TestDeleteService(t *testing.T) {
 func TestDeleteService_userInputError(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg": getCLIContext(t, nil, nil),
 	}
 
+	serviceCommand := NewServiceCommand(base.Command())
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.create(c); err == nil {
@@ -123,13 +125,14 @@ func TestDeleteService_userInputError(t *testing.T) {
 func TestListServices(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	base.Client.EXPECT().
 		ListServices().
 		Return([]*models.ServiceSummary{}, nil)
 
 	c := getCLIContext(t, nil, nil)
+
+	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.list(c); err != nil {
 		t.Fatal(err)
 	}
@@ -138,7 +141,6 @@ func TestListServices(t *testing.T) {
 func TestServiceLogs(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	base.Resolver.EXPECT().
 		Resolve("service", "svc_name").
@@ -154,6 +156,8 @@ func TestServiceLogs(t *testing.T) {
 	args := Args{"svc_name"}
 	flags := Flags{"tail": 100, "start": "start", "end": "end"}
 	c := getCLIContext(t, args, flags)
+
+	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.logs(c); err != nil {
 		t.Fatal(err)
 	}
@@ -162,12 +166,12 @@ func TestServiceLogs(t *testing.T) {
 func TestServiceLogs_userInputError(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg": getCLIContext(t, nil, nil),
 	}
 
+	serviceCommand := NewServiceCommand(base.Command())
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.logs(c); err == nil {
@@ -180,7 +184,6 @@ func TestServiceLogs_userInputError(t *testing.T) {
 func TestReadService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	base.Resolver.EXPECT().
 		Resolve("service", "svc_name").
@@ -192,6 +195,8 @@ func TestReadService(t *testing.T) {
 
 	args := Args{"svc_name"}
 	c := getCLIContext(t, args, nil)
+
+	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -200,12 +205,12 @@ func TestReadService(t *testing.T) {
 func TestReadService_userInputError(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg": getCLIContext(t, nil, nil),
 	}
 
+	serviceCommand := NewServiceCommand(base.Command())
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.read(c); err == nil {
@@ -218,7 +223,6 @@ func TestReadService_userInputError(t *testing.T) {
 func TestScaleService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	scale := 2
 	req := models.UpdateServiceRequest{
@@ -247,6 +251,8 @@ func TestScaleService(t *testing.T) {
 
 	args := Args{"svc_name", "2"}
 	c := getCLIContext(t, args, nil)
+
+	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.scale(c); err != nil {
 		t.Fatal(err)
 	}
@@ -255,13 +261,13 @@ func TestScaleService(t *testing.T) {
 func TestScaleService_userInputError(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg":  getCLIContext(t, nil, nil),
 		"Missing COUNT arg": getCLIContext(t, Args{"svc_name"}, nil),
 	}
 
+	serviceCommand := NewServiceCommand(base.Command())
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.scale(c); err == nil {
@@ -274,7 +280,6 @@ func TestScaleService_userInputError(t *testing.T) {
 func TestUpdateService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	deployID := "dpl_id"
 	req := models.UpdateServiceRequest{
@@ -307,6 +312,8 @@ func TestUpdateService(t *testing.T) {
 
 	args := Args{"svc_name", "dpl_name"}
 	c := getCLIContext(t, args, nil)
+
+	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.update(c); err != nil {
 		t.Fatal(err)
 	}
@@ -315,13 +322,13 @@ func TestUpdateService(t *testing.T) {
 func TestUpdateService_userInputError(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	serviceCommand := NewServiceCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg":   getCLIContext(t, nil, nil),
 		"Missing DEPLOY arg": getCLIContext(t, Args{"svc_name"}, nil),
 	}
 
+	serviceCommand := NewServiceCommand(base.Command())
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.update(c); err == nil {
