@@ -69,9 +69,11 @@ func TestCreateService_userInputErrors(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		if err := serviceCommand.create(c); err == nil {
-			t.Fatal("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := serviceCommand.create(c); err == nil {
+				t.Fatal("%s: error was nil!", name)
+			}
+		})
 	}
 }
 
@@ -111,9 +113,11 @@ func TestDeleteService_userInputError(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		if err := serviceCommand.create(c); err == nil {
-			t.Fatal("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := serviceCommand.create(c); err == nil {
+				t.Fatal("%s: error was nil!", name)
+			}
+		})
 	}
 }
 
@@ -170,9 +174,11 @@ func TestServiceLogs_userInputError(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		if err := serviceCommand.logs(c); err == nil {
-			t.Fatal("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := serviceCommand.logs(c); err == nil {
+				t.Fatal("%s: error was nil!", name)
+			}
+		})
 	}
 }
 
@@ -205,9 +211,11 @@ func TestReadService_userInputError(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		if err := serviceCommand.read(c); err == nil {
-			t.Fatal("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := serviceCommand.read(c); err == nil {
+				t.Fatal("%s: error was nil!", name)
+			}
+		})
 	}
 }
 
@@ -258,9 +266,11 @@ func TestScaleService_userInputError(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		if err := serviceCommand.scale(c); err == nil {
-			t.Fatal("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := serviceCommand.scale(c); err == nil {
+				t.Fatal("%s: error was nil!", name)
+			}
+		})
 	}
 }
 
@@ -315,8 +325,10 @@ func TestUpdateService_userInputError(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		if err := serviceCommand.update(c); err == nil {
-			t.Fatal("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := serviceCommand.update(c); err == nil {
+				t.Fatal("%s: error was nil!", name)
+			}
+		})
 	}
 }
