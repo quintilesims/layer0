@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 	"io/ioutil"
@@ -142,12 +143,12 @@ func filterDeploySummaries(deploys []*models.DeploySummary) ([]*models.DeploySum
 
 			max, err := strconv.Atoi(catalog[name].Version)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("Deploy %s has an invalid version tag: %v", catalog[name].DeployID, err)
 			}
 
 			current, err := strconv.Atoi(deploy.Version)
 			if err != nil {
-				return nil, err
+				return nil, fmt.Errorf("Deploy %s has an invalid version tag: %v", deploy.Version, err)
 			}
 
 			if current > max {
