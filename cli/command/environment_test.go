@@ -30,7 +30,7 @@ func TestEnvironmentCommand_userInputErrors(t *testing.T) {
 		{
 			name:    "setMinCount",
 			command: command.update,
-			args:    []string{"NAME", "1w"},
+			args:    []string{"env_name", "1w"},
 		},
 		{
 			name:    "read",
@@ -71,7 +71,7 @@ func TestCreateEnvironment(t *testing.T) {
 		defer close()
 
 		req := models.CreateEnvironmentRequest{
-			EnvironmentName:  "name",
+			EnvironmentName:  "env_name",
 			InstanceSize:     "m3.large",
 			MinClusterCount:  2,
 			UserDataTemplate: []byte(userData),
@@ -81,9 +81,9 @@ func TestCreateEnvironment(t *testing.T) {
 
 		environment := &models.Environment{}
 		job := &models.Job{
-			JobID:  "job-id",
+			JobID:  "job_id",
 			Status: job.Completed.String(),
-			Result: "entity-id",
+			Result: "entity_id",
 		}
 
 		client.EXPECT().
@@ -111,7 +111,7 @@ func TestCreateEnvironment(t *testing.T) {
 			flags[k] = v
 		}
 
-		c := getCLIContext(t, []string{"name"}, flags)
+		c := getCLIContext(t, []string{"env_name"}, flags)
 		if err := command.create(c); err != nil {
 			t.Fatal(err)
 		}
@@ -124,17 +124,17 @@ func TestDeleteEnvironment(t *testing.T) {
 		defer ctrl.Finish()
 
 		job := &models.Job{
-			JobID:  "job-id",
+			JobID:  "job_id",
 			Status: job.Completed.String(),
-			Result: "entity-id",
+			Result: "entity_id",
 		}
 
 		resolver.EXPECT().
-			Resolve("environment", "name").
-			Return([]string{"id"}, nil)
+			Resolve("environment", "env_name").
+			Return([]string{"env_id"}, nil)
 
 		client.EXPECT().
-			DeleteEnvironment("id").
+			DeleteEnvironment("env_id").
 			Return(job.JobID, nil)
 
 		if wait {
@@ -143,7 +143,7 @@ func TestDeleteEnvironment(t *testing.T) {
 				Return(job, nil)
 		}
 
-		c := getCLIContext(t, []string{"name"}, flags)
+		c := getCLIContext(t, []string{"env_name"}, flags)
 		if err := command.delete(c); err != nil {
 			t.Fatal(err)
 		}
@@ -155,14 +155,14 @@ func TestGetEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	resolver.EXPECT().
-		Resolve("environment", "name").
-		Return([]string{"id"}, nil)
+		Resolve("environment", "env_name").
+		Return([]string{"env_id"}, nil)
 
 	client.EXPECT().
-		ReadEnvironment("id").
+		ReadEnvironment("env_id").
 		Return(&models.Environment{}, nil)
 
-	c := getCLIContext(t, []string{"name"}, nil)
+	c := getCLIContext(t, []string{"env_name"}, nil)
 	if err := command.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -188,14 +188,14 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 		defer ctrl.Finish()
 
 		job := &models.Job{
-			JobID:  "job-id",
+			JobID:  "job_id",
 			Status: job.Completed.String(),
-			Result: "entity-id",
+			Result: "entity_id",
 		}
 
 		resolver.EXPECT().
-			Resolve("environment", "name").
-			Return([]string{"id"}, nil)
+			Resolve("environment", "env_name").
+			Return([]string{"env_id"}, nil)
 
 		client.EXPECT().
 			UpdateEnvironment(gomock.Any()).
@@ -211,7 +211,7 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 				Return(&models.Environment{}, nil)
 		}
 
-		c := getCLIContext(t, []string{"name", "2"}, flags)
+		c := getCLIContext(t, []string{"env_name", "2"}, flags)
 		if err := command.update(c); err != nil {
 			t.Fatal(err)
 		}
@@ -223,18 +223,18 @@ func TestEnvironmentLink(t *testing.T) {
 	defer ctrl.Finish()
 
 	resolver.EXPECT().
-		Resolve("environment", "name1").
-		Return([]string{"id1"}, nil)
+		Resolve("environment", "env_name1").
+		Return([]string{"env_id1"}, nil)
 
 	resolver.EXPECT().
-		Resolve("environment", "name2").
-		Return([]string{"id2"}, nil)
+		Resolve("environment", "env_name2").
+		Return([]string{"env_id2"}, nil)
 
 	client.EXPECT().
-		CreateLink("id1", "id2").
+		CreateLink("env_id1", "env_id2").
 		Return(nil)
 
-	c := getCLIContext(t, []string{"name1", "name2"}, nil)
+	c := getCLIContext(t, []string{"env_name1", "env_name2"}, nil)
 	if err := command.link(c); err != nil {
 		t.Fatal(err)
 	}
@@ -245,18 +245,18 @@ func TestEnvironmentUnlink(t *testing.T) {
 	defer ctrl.Finish()
 
 	resolver.EXPECT().
-		Resolve("environment", "name1").
-		Return([]string{"id1"}, nil)
+		Resolve("environment", "env_name1").
+		Return([]string{"env_id1"}, nil)
 
 	resolver.EXPECT().
-		Resolve("environment", "name2").
-		Return([]string{"id2"}, nil)
+		Resolve("environment", "env_name2").
+		Return([]string{"env_id2"}, nil)
 
 	client.EXPECT().
-		DeleteLink("id1", "id2").
+		DeleteLink("env_id1", "env_id2").
 		Return(nil)
 
-	c := getCLIContext(t, []string{"name1", "name2"}, nil)
+	c := getCLIContext(t, []string{"env_name1", "env_name2"}, nil)
 	if err := command.unlink(c); err != nil {
 		t.Fatal(err)
 	}
@@ -268,10 +268,10 @@ func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
 
 	resolver.EXPECT().
 		Resolve("environment", gomock.Any()).
-		Return([]string{"id1"}, nil).
+		Return([]string{"env_id1"}, nil).
 		Times(2)
 
-	c := getCLIContext(t, []string{"name1", "name2"}, nil)
+	c := getCLIContext(t, []string{"env_name1", "env_name1"}, nil)
 	if err := command.link(c); err == nil {
 		t.Fatal("error was nil!")
 	}
@@ -283,10 +283,10 @@ func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
 
 	resolver.EXPECT().
 		Resolve("environment", gomock.Any()).
-		Return([]string{"id1"}, nil).
+		Return([]string{"env_id1"}, nil).
 		Times(2)
 
-	c := getCLIContext(t, []string{"name1", "name2"}, nil)
+	c := getCLIContext(t, []string{"env_name1", "env_name1"}, nil)
 	if err := command.unlink(c); err == nil {
 		t.Fatal("error was nil!")
 	}
