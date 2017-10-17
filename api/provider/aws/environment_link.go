@@ -6,9 +6,9 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func (e *EnvironmentProvider) Link(sourceEnvironmentID, destEnvironmentID string) error {
-	fqSourceEnvID := addLayer0Prefix(e.Config.Instance(), sourceEnvironmentID)
-	fqDestEnvID := addLayer0Prefix(e.Config.Instance(), destEnvironmentID)
+func (e *EnvironmentProvider) Link(req models.CreateEnvironmentLinkRequest) error {
+	fqSourceEnvID := addLayer0Prefix(e.Config.Instance(), req.SourceEnvironmentID)
+	fqDestEnvID := addLayer0Prefix(e.Config.Instance(), req.DestEnvironmentID)
 
 	sourceGroup, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqSourceEnvID))
 	if err != nil {
@@ -30,6 +30,30 @@ func (e *EnvironmentProvider) Link(sourceEnvironmentID, destEnvironmentID string
 		return err
 	}
 
+	if err := e.createLinkTags(req.SourceEnvironmentID, req.DestEnvironmentID); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (e *EnvironmentProvider) createIngressInput(sourceGroupID, destGroupID *string) *ec2.AuthorizeSecurityGroupIngressInput {
+	return &ec2.AuthorizeSecurityGroupIngressInput{
+		GroupId: sourceGroupID,
+		IpPermissions: []*ec2.IpPermission{
+			{
+				UserIdGroupPairs: []*ec2.UserIdGroupPair{
+					{
+						GroupId: destGroupID,
+					},
+				},
+				IpProtocol: aws.String("-1"),
+			},
+		},
+	}
+}
+
+func (e *EnvironmentProvider) createLinkTags(sourceEnvironmentID, destEnvironmentID string) error {
 	tags := models.Tags{
 		{
 			EntityID:   sourceEnvironmentID,
@@ -52,20 +76,4 @@ func (e *EnvironmentProvider) Link(sourceEnvironmentID, destEnvironmentID string
 	}
 
 	return nil
-}
-
-func (e *EnvironmentProvider) createIngressInput(sourceGroupID, destGroupID *string) *ec2.AuthorizeSecurityGroupIngressInput {
-	return &ec2.AuthorizeSecurityGroupIngressInput{
-		GroupId: sourceGroupID,
-		IpPermissions: []*ec2.IpPermission{
-			{
-				UserIdGroupPairs: []*ec2.UserIdGroupPair{
-					{
-						GroupId: destGroupID,
-					},
-				},
-				IpProtocol: aws.String("-1"),
-			},
-		},
-	}
 }
