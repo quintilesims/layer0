@@ -43,7 +43,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"Admin":                        models.APIConfig{}.Definition(),
 			"Container":                    models.Container{}.Definition(),
 			"CreateEnvironmentRequest":     models.CreateEnvironmentRequest{}.Definition(),
-			"CreateEnvironmentLinkRequest": models.CreateEnvironmentLinkRequest{}.Definition(),
+			"CreateEnvironmentLinkRequest": models.EnvironmentLinkRequest{}.Definition(),
 			"CreateLoadBalancerRequest":    models.CreateLoadBalancerRequest{}.Definition(),
 			"CreateServiceRequest":         models.CreateServiceRequest{}.Definition(),
 			"CreateTaskRequest":            models.CreateTaskRequest{}.Definition(),
