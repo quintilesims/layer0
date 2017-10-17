@@ -34,3 +34,8 @@ func (c *TestCommandBase) Command() *CommandBase {
 		resolver: c.Resolver,
 	}
 }
+
+func testWaitHelper(t *testing.T, fn func(t *testing.T, wait bool)) {
+	t.Run("wait", func(t *testing.T) { fn(t, true) })
+	t.Run("no-wait", func(t *testing.T) { fn(t, false) })
+}
