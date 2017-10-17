@@ -5,7 +5,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job"
-	"github.com/quintilesims/layer0/cli/printer"
 	"github.com/quintilesims/layer0/cli/resolver/mock_resolver"
 	"github.com/quintilesims/layer0/client/mock_client"
 	"github.com/quintilesims/layer0/common/models"
@@ -63,132 +62,92 @@ func TestEnvironmentCommand_userInputErrors(t *testing.T) {
 }
 
 func TestCreateEnvironment(t *testing.T) {
-	testCases := []struct {
-		name  string
-		flags map[string]interface{}
-		wait  bool
-	}{
-		{
-			name: "Wait",
-			wait: true,
-		},
-		{
-			name:  "NoWait",
-			flags: map[string]interface{}{"no-wait": true},
-			wait:  false,
-		},
-	}
+	testNoWaitCaseHelper(t, func(t *testing.T, otherFlags map[string]interface{}, wait bool) {
+		client, _, command, ctrl := initEnvCommandTest(t)
+		defer ctrl.Finish()
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			CreateEnvironmentNoWait(t, tc.flags, tc.wait)
-		})
-	}
-}
+		userData := "user_data"
+		file, close := tempFile(t, userData)
+		defer close()
 
-func CreateEnvironmentNoWait(t *testing.T, otherFlags map[string]interface{}, wait bool) {
-	client, _, command, ctrl := initEnvCommandTest(t)
-	defer ctrl.Finish()
+		req := models.CreateEnvironmentRequest{
+			EnvironmentName:  "name",
+			InstanceSize:     "m3.large",
+			MinClusterCount:  2,
+			UserDataTemplate: []byte(userData),
+			OperatingSystem:  "linux",
+			AMIID:            "ami",
+		}
 
-	userData := "user_data"
-	file, close := tempFile(t, userData)
-	defer close()
-
-	req := models.CreateEnvironmentRequest{
-		EnvironmentName:  "name",
-		InstanceSize:     "m3.large",
-		MinClusterCount:  2,
-		UserDataTemplate: []byte(userData),
-		OperatingSystem:  "linux",
-		AMIID:            "ami",
-	}
-
-	environment := &models.Environment{}
-	job := &models.Job{
-		JobID:  "job-id",
-		Status: job.Completed.String(),
-		Result: "entity-id",
-	}
-
-	client.EXPECT().
-		CreateEnvironment(req).
-		Return(job.JobID, nil)
-
-	if wait {
-		client.EXPECT().
-			ReadJob(job.JobID).
-			Return(job, nil)
+		environment := &models.Environment{}
+		job := &models.Job{
+			JobID:  "job-id",
+			Status: job.Completed.String(),
+			Result: "entity-id",
+		}
 
 		client.EXPECT().
-			ReadEnvironment(job.Result).
-			Return(environment, nil)
-	}
+			CreateEnvironment(req).
+			Return(job.JobID, nil)
 
-	flags := map[string]interface{}{
-		"size":      req.InstanceSize,
-		"min-count": req.MinClusterCount,
-		"user-data": file.Name(),
-		"os":        req.OperatingSystem,
-		"ami":       req.AMIID,
-	}
-	for k, v := range otherFlags {
-		flags[k] = v
-	}
+		if wait {
+			client.EXPECT().
+				ReadJob(job.JobID).
+				Return(job, nil)
 
-	c := getCLIContext(t, []string{"name"}, flags)
-	if err := command.create(c); err != nil {
-		t.Fatal(err)
-	}
+			client.EXPECT().
+				ReadEnvironment(job.Result).
+				Return(environment, nil)
+		}
+
+		flags := map[string]interface{}{
+			"size":      req.InstanceSize,
+			"min-count": req.MinClusterCount,
+			"user-data": file.Name(),
+			"os":        req.OperatingSystem,
+			"ami":       req.AMIID,
+		}
+		for k, v := range otherFlags {
+			flags[k] = v
+		}
+
+		c := getCLIContext(t, []string{"name"}, flags)
+		if err := command.create(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestDeleteEnvironment(t *testing.T) {
-	testCases := []struct {
-		name  string
-		flags map[string]interface{}
-		wait  bool
-	}{
-		{
-			name: "Wait",
-			wait: true,
-		},
-		{
-			name:  "NoWait",
-			flags: map[string]interface{}{"no-wait": true},
-			wait:  false,
-		},
-	}
+	testNoWaitCaseHelper(t, func(t *testing.T, flags map[string]interface{}, wait bool) {
+		client, resolver, command, ctrl := initEnvCommandTest(t)
+		defer ctrl.Finish()
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			client, resolver, command, ctrl := initEnvCommandTest(t)
-			defer ctrl.Finish()
+		job := &models.Job{
+			JobID:  "job-id",
+			Status: job.Completed.String(),
+			Result: "entity-id",
+		}
 
-			job := &models.Job{
-				JobID:  "job-id",
-				Status: job.Completed.String(),
-				Result: "entity-id",
-			}
+		resolver.EXPECT().
+			Resolve("environment", "name").
+			Return([]string{"id"}, nil)
 
-			resolver.EXPECT().
-				Resolve("environment", "name").
-				Return([]string{"id"}, nil)
+		client.EXPECT().
+			DeleteEnvironment("id").
+			Return(job.JobID, nil)
 
+		if wait {
 			client.EXPECT().
-				DeleteEnvironment("id").
-				Return(job.JobID, nil)
+				ReadJob(job.JobID).
+				Return(job, nil)
+		}
 
-			if tc.wait {
-				client.EXPECT().
-					ReadJob(job.JobID).
-					Return(job, nil)
-			}
-
-			c := getCLIContext(t, []string{"name"}, tc.flags)
-			if err := command.delete(c); err != nil {
-				t.Fatal(err)
-			}
-		})
-	}
+		c := getCLIContext(t, []string{"name"}, flags)
+		if err := command.delete(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestGetEnvironment(t *testing.T) {
@@ -224,57 +183,39 @@ func TestListEnvironments(t *testing.T) {
 }
 
 func TestEnvironmentSetMinCount(t *testing.T) {
-	testCases := []struct {
-		name  string
-		flags map[string]interface{}
-		wait  bool
-	}{
-		{
-			name: "Wait",
-			wait: true,
-		},
-		{
-			name:  "NoWait",
-			flags: map[string]interface{}{"no-wait": true},
-			wait:  false,
-		},
-	}
+	testNoWaitCaseHelper(t, func(t *testing.T, flags map[string]interface{}, wait bool) {
+		client, resolver, command, ctrl := initEnvCommandTest(t)
+		defer ctrl.Finish()
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			client, resolver, command, ctrl := initEnvCommandTest(t)
-			defer ctrl.Finish()
+		job := &models.Job{
+			JobID:  "job-id",
+			Status: job.Completed.String(),
+			Result: "entity-id",
+		}
 
-			job := &models.Job{
-				JobID:  "job-id",
-				Status: job.Completed.String(),
-				Result: "entity-id",
-			}
+		resolver.EXPECT().
+			Resolve("environment", "name").
+			Return([]string{"id"}, nil)
 
-			resolver.EXPECT().
-				Resolve("environment", "name").
-				Return([]string{"id"}, nil)
+		client.EXPECT().
+			UpdateEnvironment(gomock.Any()).
+			Return(job.JobID, nil)
+
+		if wait {
+			client.EXPECT().
+				ReadJob(job.JobID).
+				Return(job, nil)
 
 			client.EXPECT().
-				UpdateEnvironment(gomock.Any()).
-				Return(job.JobID, nil)
+				ReadEnvironment(job.Result).
+				Return(&models.Environment{}, nil)
+		}
 
-			if tc.wait {
-				client.EXPECT().
-					ReadJob(job.JobID).
-					Return(job, nil)
-
-				client.EXPECT().
-					ReadEnvironment(job.Result).
-					Return(&models.Environment{}, nil)
-			}
-
-			c := getCLIContext(t, []string{"name", "2"}, tc.flags)
-			if err := command.update(c); err != nil {
-				t.Fatal(err)
-			}
-		})
-	}
+		c := getCLIContext(t, []string{"name", "2"}, flags)
+		if err := command.update(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestEnvironmentLink(t *testing.T) {
@@ -352,15 +293,6 @@ func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
 }
 
 func initEnvCommandTest(t *testing.T) (*mock_client.MockClient, *mock_resolver.MockResolver, *EnvironmentCommand, *gomock.Controller) {
-	ctrl := gomock.NewController(t)
-
-	tc := &TestCommandBase{
-		Client:   mock_client.NewMockClient(ctrl),
-		Printer:  &printer.TestPrinter{},
-		Resolver: mock_resolver.NewMockResolver(ctrl),
-	}
-
-	envCmd := NewEnvironmentCommand(tc.Command())
-
-	return tc.Client, tc.Resolver, envCmd, ctrl
+	tc, ctrl := newTestCommand(t)
+	return tc.Client, tc.Resolver, NewEnvironmentCommand(tc.Command()), ctrl
 }
