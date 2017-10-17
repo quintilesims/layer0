@@ -58,6 +58,43 @@ func TestCreateService(t *testing.T) {
 	}
 }
 
+func TestCreateService_noWait(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	base.Resolver.EXPECT().
+		Resolve("deploy", "dpl_name").
+		Return([]string{"dpl_id"}, nil)
+
+	base.Resolver.EXPECT().
+		Resolve("environment", "env_name").
+		Return([]string{"env_id"}, nil)
+
+	base.Resolver.EXPECT().
+		Resolve("load_balancer", "lb_name").
+		Return([]string{"lb_id"}, nil)
+
+	req := models.CreateServiceRequest{
+		DeployID:       "dpl_id",
+		EnvironmentID:  "env_id",
+		LoadBalancerID: "lb_id",
+		ServiceName:    "svc_name",
+	}
+
+	base.Client.EXPECT().
+		CreateService(req).
+		Return("job_id", nil)
+
+	args := Args{"env_name", "svc_name", "dpl_name"}
+	flags := Flags{"loadbalancer": "lb_name"}
+	c := getCLIContext(t, args, flags, SetNoWait(true))
+
+	serviceCommand := NewServiceCommand(base.Command())
+	if err := serviceCommand.create(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestCreateService_userInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
@@ -101,6 +138,27 @@ func TestDeleteService(t *testing.T) {
 
 	args := Args{"svc_name"}
 	c := getCLIContext(t, args, nil)
+
+	serviceCommand := NewServiceCommand(base.Command())
+	if err := serviceCommand.delete(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestDeleteService_noWait(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	base.Resolver.EXPECT().
+		Resolve("service", "svc_name").
+		Return([]string{"svc_id"}, nil)
+
+	base.Client.EXPECT().
+		DeleteService("svc_id").
+		Return("job_id", nil)
+
+	args := Args{"svc_name"}
+	c := getCLIContext(t, args, nil, SetNoWait(true))
 
 	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.delete(c); err != nil {
@@ -266,6 +324,33 @@ func TestScaleService(t *testing.T) {
 	}
 }
 
+func TestScaleService_noWait(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	base.Resolver.EXPECT().
+		Resolve("service", "svc_name").
+		Return([]string{"svc_id"}, nil)
+
+	scale := 2
+	req := models.UpdateServiceRequest{
+		ServiceID: "svc_id",
+		Scale:     &scale,
+	}
+
+	base.Client.EXPECT().
+		UpdateService(req).
+		Return("job_id", nil)
+
+	args := Args{"svc_name", "2"}
+	c := getCLIContext(t, args, nil, SetNoWait(true))
+
+	serviceCommand := NewServiceCommand(base.Command())
+	if err := serviceCommand.scale(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestScaleService_userInputError(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
@@ -322,6 +407,37 @@ func TestUpdateService(t *testing.T) {
 
 	args := Args{"svc_name", "dpl_name"}
 	c := getCLIContext(t, args, nil)
+
+	serviceCommand := NewServiceCommand(base.Command())
+	if err := serviceCommand.update(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestUpdateService_noWait(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	base.Resolver.EXPECT().
+		Resolve("service", "svc_name").
+		Return([]string{"svc_id"}, nil)
+
+	base.Resolver.EXPECT().
+		Resolve("deploy", "dpl_name").
+		Return([]string{"dpl_id"}, nil)
+
+	deployID := "dpl_id"
+	req := models.UpdateServiceRequest{
+		ServiceID: "svc_id",
+		DeployID:  &deployID,
+	}
+
+	base.Client.EXPECT().
+		UpdateService(req).
+		Return("job_id", nil)
+
+	args := Args{"svc_name", "dpl_name"}
+	c := getCLIContext(t, args, nil, SetNoWait(true))
 
 	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.update(c); err != nil {
