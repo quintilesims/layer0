@@ -82,10 +82,10 @@ func TestDeleteService(t *testing.T) {
 
 	base.Resolver.EXPECT().
 		Resolve("service", "svc_name").
-		Return([]string{"id"}, nil)
+		Return([]string{"svc_id"}, nil)
 
 	base.Client.EXPECT().
-		DeleteService("id").
+		DeleteService("svc_id").
 		Return("job_id", nil)
 
 	base.Client.EXPECT().
