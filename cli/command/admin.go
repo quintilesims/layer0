@@ -55,7 +55,6 @@ func (a *AdminCommand) debug(c *cli.Context) error {
 	a.printer.Printf("API Endpoint:     %v\n", apiEndpoint)
 	a.printer.Printf("API Version:      %v\n", debugInfo.Version)
 	a.printer.Printf("CLI Version:      %v\n", cliVersion)
-	a.printer.Printf("CLI Auth:         %v\n", cliAuth)
 	a.printer.Printf("SSL Verify:       %v\n", sslVerify)
 	a.printer.Printf("Version Verify:   %v\n", versionVerify)
 	a.printer.Printf("------------ \n")
