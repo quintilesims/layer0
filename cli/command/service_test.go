@@ -12,13 +12,6 @@ func TestCreateService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
-	req := models.CreateServiceRequest{
-		DeployID:       "dpl_id",
-		EnvironmentID:  "env_id",
-		LoadBalancerID: "lb_id",
-		ServiceName:    "svc_name",
-	}
-
 	base.Resolver.EXPECT().
 		Resolve("deploy", "dpl_name").
 		Return([]string{"dpl_id"}, nil)
@@ -31,16 +24,25 @@ func TestCreateService(t *testing.T) {
 		Resolve("load_balancer", "lb_name").
 		Return([]string{"lb_id"}, nil)
 
+	req := models.CreateServiceRequest{
+		DeployID:       "dpl_id",
+		EnvironmentID:  "env_id",
+		LoadBalancerID: "lb_id",
+		ServiceName:    "svc_name",
+	}
+
 	base.Client.EXPECT().
 		CreateService(req).
 		Return("job_id", nil)
 
+	job := &models.Job{
+		Status: "Completed",
+		Result: "svc_id",
+	}
+
 	base.Client.EXPECT().
 		ReadJob("job_id").
-		Return(&models.Job{
-			Status: "Completed",
-			Result: "svc_id",
-		}, nil)
+		Return(job, nil)
 
 	base.Client.EXPECT().
 		ReadService("svc_id").
@@ -88,12 +90,14 @@ func TestDeleteService(t *testing.T) {
 		DeleteService("svc_id").
 		Return("job_id", nil)
 
+	job := &models.Job{
+		Status: "Completed",
+		Result: "svc_id",
+	}
+
 	base.Client.EXPECT().
 		ReadJob("job_id").
-		Return(&models.Job{
-			Status: "Completed",
-			Result: "svc_id",
-		}, nil)
+		Return(job, nil)
 
 	args := Args{"svc_name"}
 	c := getCLIContext(t, args, nil)
@@ -146,12 +150,14 @@ func TestServiceLogs(t *testing.T) {
 		Resolve("service", "svc_name").
 		Return([]string{"svc_id"}, nil)
 
+	values := url.Values{
+		"tail":  []string{"100"},
+		"start": []string{"start"},
+		"end":   []string{"end"},
+	}
+
 	base.Client.EXPECT().
-		ReadServiceLogs("svc_id", url.Values{
-			"tail":  []string{"100"},
-			"start": []string{"start"},
-			"end":   []string{"end"},
-		})
+		ReadServiceLogs("svc_id", values)
 
 	args := Args{"svc_name"}
 	flags := Flags{"tail": 100, "start": "start", "end": "end"}
@@ -224,26 +230,28 @@ func TestScaleService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
+	base.Resolver.EXPECT().
+		Resolve("service", "svc_name").
+		Return([]string{"svc_id"}, nil)
+
 	scale := 2
 	req := models.UpdateServiceRequest{
 		ServiceID: "svc_id",
 		Scale:     &scale,
 	}
 
-	base.Resolver.EXPECT().
-		Resolve("service", "svc_name").
-		Return([]string{"svc_id"}, nil)
-
 	base.Client.EXPECT().
 		UpdateService(req).
 		Return("job_id", nil)
 
+	job := &models.Job{
+		Status: "Completed",
+		Result: "svc_id",
+	}
+
 	base.Client.EXPECT().
 		ReadJob("job_id").
-		Return(&models.Job{
-			Status: "Completed",
-			Result: "svc_id",
-		}, nil)
+		Return(job, nil)
 
 	base.Client.EXPECT().
 		ReadService("svc_id").
@@ -281,12 +289,6 @@ func TestUpdateService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
-	deployID := "dpl_id"
-	req := models.UpdateServiceRequest{
-		ServiceID: "svc_id",
-		DeployID:  &deployID,
-	}
-
 	base.Resolver.EXPECT().
 		Resolve("service", "svc_name").
 		Return([]string{"svc_id"}, nil)
@@ -295,16 +297,24 @@ func TestUpdateService(t *testing.T) {
 		Resolve("deploy", "dpl_name").
 		Return([]string{"dpl_id"}, nil)
 
+	deployID := "dpl_id"
+	req := models.UpdateServiceRequest{
+		ServiceID: "svc_id",
+		DeployID:  &deployID,
+	}
+
 	base.Client.EXPECT().
 		UpdateService(req).
 		Return("job_id", nil)
 
+	job := &models.Job{
+		Status: "Completed",
+		Result: "svc_id",
+	}
+
 	base.Client.EXPECT().
 		ReadJob("job_id").
-		Return(&models.Job{
-			Status: "Completed",
-			Result: "svc_id",
-		}, nil)
+		Return(job, nil)
 
 	base.Client.EXPECT().
 		ReadService("svc_id").
