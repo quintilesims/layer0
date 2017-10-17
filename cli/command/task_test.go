@@ -3,102 +3,63 @@ package command
 import (
 	"testing"
 
-	"github.com/stretchr/testify/assert"
-
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
 
 func TestCreateTask(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	taskCommand := NewTaskCommand(base.Command())
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
+		taskCommand := NewTaskCommand(base.Command())
+		args := Args{"env_name", "dpl_name", "task_name"}
+		flags := Flags{
+			"copies": 1,
+			"env":    []string{"container:key=val"},
+		}
+		overrides := []models.ContainerOverride{{
+			ContainerName:        "container",
+			EnvironmentOverrides: map[string]string{"key": "val"},
+		}}
 
-	overrides := []models.ContainerOverride{{
-		ContainerName:        "container",
-		EnvironmentOverrides: map[string]string{"key": "val"},
-	}}
+		req := models.CreateTaskRequest{
+			TaskName:           "task_name",
+			DeployID:           "dpl_id",
+			EnvironmentID:      "env_id",
+			ContainerOverrides: overrides,
+		}
 
-	req := models.CreateTaskRequest{
-		TaskName:           "task_name",
-		DeployID:           "dpl_id",
-		EnvironmentID:      "env_id",
-		ContainerOverrides: overrides,
-	}
+		base.Resolver.EXPECT().
+			Resolve("deploy", "dpl_name").
+			Return(Args{"dpl_id"}, nil)
 
-	base.Resolver.EXPECT().
-		Resolve("deploy", "dpl_name").
-		Return(Args{"dpl_id"}, nil)
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name").
+			Return(Args{"env_id"}, nil)
 
-	base.Resolver.EXPECT().
-		Resolve("environment", "env_name").
-		Return(Args{"env_id"}, nil)
+		base.Client.EXPECT().
+			CreateTask(req).
+			Return("job_id", nil)
 
-	base.Client.EXPECT().
-		CreateTask(req).
-		Return("job_id", nil)
+		if wait {
+			base.Client.EXPECT().
+				ReadJob("job_id").
+				Return(&models.Job{
+					Status: "Completed",
+					Result: "task_id",
+				}, nil)
 
-	base.Client.EXPECT().
-		ReadJob("job_id").
-		Return(&models.Job{
-			Status: "Completed",
-			Result: "task_id",
-		}, nil)
+			base.Client.EXPECT().
+				ReadTask("task_id").
+				Return(&models.Task{}, nil)
+		}
 
-	base.Client.EXPECT().
-		ReadTask("task_id").
-		Return(&models.Task{}, nil)
-
-	flags := Flags{
-		"copies": 1,
-		"env":    []string{"container:key=val"},
-	}
-
-	c := getCLIContext(t, Args{"env_name", "dpl_name", "task_name"}, flags)
-	if err := taskCommand.create(c); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestCreateTaskNoWait(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	taskCommand := NewTaskCommand(base.Command())
-
-	overrides := []models.ContainerOverride{{
-		ContainerName:        "container",
-		EnvironmentOverrides: map[string]string{"key": "val"},
-	}}
-
-	req := models.CreateTaskRequest{
-		TaskName:           "task_name",
-		DeployID:           "dpl_id",
-		EnvironmentID:      "env_id",
-		ContainerOverrides: overrides,
-	}
-
-	base.Resolver.EXPECT().
-		Resolve("deploy", "dpl_name").
-		Return(Args{"dpl_id"}, nil)
-
-	base.Resolver.EXPECT().
-		Resolve("environment", "env_name").
-		Return(Args{"env_id"}, nil)
-
-	base.Client.EXPECT().
-		CreateTask(req).
-		Return("job_id", nil)
-
-	flags := Flags{
-		"no-wait": true,
-		"copies":  1,
-		"env":     []string{"container:key=val"},
-	}
-
-	c := getCLIContext(t, Args{"env_name", "dpl_name", "task_name"}, flags)
-	if err := taskCommand.create(c); err != nil {
-		t.Fatal(err)
-	}
+		c := NewContext(t, args, flags, SetNoWait(!wait))
+		if err := taskCommand.create(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestCreateTask_userInputErrors(t *testing.T) {
@@ -107,9 +68,9 @@ func TestCreateTask_userInputErrors(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing ENVIRONMENT arg": getCLIContext(t, nil, nil),
-		"Missing NAME arg":        getCLIContext(t, Args{"environment"}, nil),
-		"Missing DEPLOY arg":      getCLIContext(t, Args{"environment", "name"}, nil),
+		"Missing ENVIRONMENT arg": NewContext(t, nil, nil),
+		"Missing NAME arg":        NewContext(t, Args{"environment"}, nil),
+		"Missing DEPLOY arg":      NewContext(t, Args{"environment", "name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -141,7 +102,7 @@ func TestDeleteTask(t *testing.T) {
 		ReadJob("job_id").
 		Return(job, nil)
 
-	c := getCLIContext(t, Args{"task_name"}, nil)
+	c := NewContext(t, Args{"task_name"}, nil)
 	if err := taskCommand.delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -153,7 +114,7 @@ func TestDeleteTask_userInputErrors(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": NewContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -176,7 +137,7 @@ func TestReadTask(t *testing.T) {
 		ReadTask("task_id").
 		Return(&models.Task{}, nil)
 
-	c := getCLIContext(t, Args{"task_name"}, nil)
+	c := NewContext(t, Args{"task_name"}, nil)
 	if err := taskCommand.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -188,7 +149,7 @@ func TestReadTask_userInputErrors(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": NewContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -199,33 +160,33 @@ func TestReadTask_userInputErrors(t *testing.T) {
 }
 
 // TODO: Fix
-func TestReadTask_expiredTasks(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	taskCommand := NewTaskCommand(base.Command())
-	result := []*models.TaskSummary{
-		{TaskID: "task_id"},
-	}
+// func TestReadTask_expiredTasks(t *testing.T) {
+// 	base, ctrl := newTestCommand(t)
+// 	defer ctrl.Finish()
+// 	taskCommand := NewTaskCommand(base.Command())
+// 	result := []*models.TaskSummary{
+// 		{TaskID: "task_id"},
+// 	}
 
-	base.Resolver.EXPECT().
-		Resolve("task", "task_name").
-		Return(Args{"task_id", "task_id", "task_id"}, nil)
+// 	base.Resolver.EXPECT().
+// 		Resolve("task", "task_name").
+// 		Return(Args{"task_id", "task_id", "task_id"}, nil)
 
-	base.Client.EXPECT().
-		ListTasks().
-		Return(result, nil)
+// 	base.Client.EXPECT().
+// 		ListTasks().
+// 		Return(result, nil)
 
-	//only task 'id3' should result in a GetTask call
-	base.Client.EXPECT().
-		ReadTask("task_id").
-		Return(&models.Task{}, nil)
+// 	//only task 'id3' should result in a GetTask call
+// 	base.Client.EXPECT().
+// 		ReadTask("task_id").
+// 		Return(&models.Task{}, nil)
 
-	c := getCLIContext(t, Args{"task_name"}, nil)
-	if err := taskCommand.read(c); err != nil {
-		t.Fatal(err)
-	}
+// 	c := NewContext(t, Args{"task_name"}, nil)
+// 	if err := taskCommand.read(c); err != nil {
+// 		t.Fatal(err)
+// 	}
 
-}
+// }
 
 func TestListTasks(t *testing.T) {
 	base, ctrl := newTestCommand(t)
@@ -236,7 +197,7 @@ func TestListTasks(t *testing.T) {
 		ListTasks().
 		Return([]*models.TaskSummary{}, nil)
 
-	c := getCLIContext(t, nil, nil)
+	c := NewContext(t, nil, nil)
 	if err := taskCommand.list(c); err != nil {
 		t.Fatal(err)
 	}
@@ -262,7 +223,7 @@ func TestReadTaskLogs(t *testing.T) {
 		"end":   "end",
 	}
 
-	c := getCLIContext(t, Args{"name"}, flags)
+	c := NewContext(t, Args{"name"}, flags)
 	if err := taskCommand.logs(c); err != nil {
 		t.Fatal(err)
 	}
@@ -274,7 +235,7 @@ func TestReadTaskLogs_userInputErrors(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": NewContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
