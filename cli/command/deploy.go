@@ -101,6 +101,9 @@ func (d *DeployCommand) read(c *cli.Context) error {
 	}
 
 	deployIDs, err := d.resolver.Resolve("deploy", args["NAME"])
+	if err != nil {
+		return err
+	}
 
 	deploys := make([]*models.Deploy, len(deployIDs))
 	for i, deployID := range deployIDs {

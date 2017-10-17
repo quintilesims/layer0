@@ -31,7 +31,6 @@ func (a *AdminCommand) Command() cli.Command {
 
 func (a *AdminCommand) debug(c *cli.Context) error {
 	apiEndpoint := c.GlobalString(config.FLAG_ENDPOINT)
-	cliAuth := c.GlobalString(config.FLAG_TOKEN)
 	cliVersion := c.App.Version
 
 	debugInfo, err := a.client.ReadConfig()
