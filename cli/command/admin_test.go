@@ -14,7 +14,8 @@ func TestDebugAdmin(t *testing.T) {
 		Return(&models.APIConfig{}, nil)
 
 	adminCommand := NewAdminCommand(base.Command())
-	c := getCLIContext(t, nil, nil)
+	c := NewContext(t, nil, nil)
+
 	if err := adminCommand.debug(c); err != nil {
 		t.Fatal(err)
 	}

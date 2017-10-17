@@ -38,7 +38,7 @@ func TestCreateDeploy(t *testing.T) {
 		ReadDeploy("dpl_id").
 		Return(&models.Deploy{}, nil)
 
-	c := getCLIContext(t, []string{file.Name(), "dpl_name"}, nil)
+	c := NewContext(t, []string{file.Name(), "dpl_name"}, nil)
 	if err := command.create(c); err != nil {
 		t.Fatal(err)
 	}
@@ -50,8 +50,8 @@ func TestCreateDeploy_userInputErrors(t *testing.T) {
 	command := NewDeployCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing PATH arg": getCLIContext(t, nil, nil),
-		"Missing NAME arg": getCLIContext(t, []string{"path"}, nil),
+		"Missing PATH arg": NewContext(t, nil, nil),
+		"Missing NAME arg": NewContext(t, []string{"path"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -83,7 +83,7 @@ func TestDeleteDeploy(t *testing.T) {
 		ReadJob("jid").
 		Return(job, nil)
 
-	c := getCLIContext(t, []string{"dpl_name"}, nil)
+	c := NewContext(t, []string{"dpl_name"}, nil)
 	if err := command.delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -95,7 +95,7 @@ func TestDeleteDeploy_userInputErrors(t *testing.T) {
 	command := NewDeployCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": NewContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -118,7 +118,7 @@ func TestReadDeploy(t *testing.T) {
 		ReadDeploy("id").
 		Return(&models.Deploy{}, nil)
 
-	c := getCLIContext(t, []string{"dpl_name"}, nil)
+	c := NewContext(t, []string{"dpl_name"}, nil)
 	if err := command.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -130,7 +130,7 @@ func TestReadDeploy_userInputErrors(t *testing.T) {
 	command := NewDeployCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": getCLIContext(t, nil, nil),
+		"Missing NAME arg": NewContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -149,7 +149,7 @@ func TestListDeploys(t *testing.T) {
 		ListDeploys().
 		Return([]*models.DeploySummary{}, nil)
 
-	c := getCLIContext(t, nil, map[string]interface{}{"all": true})
+	c := NewContext(t, nil, map[string]interface{}{"all": true})
 	if err := command.list(c); err != nil {
 		t.Fatal(err)
 	}
