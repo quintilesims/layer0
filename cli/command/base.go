@@ -1,12 +1,11 @@
 package command
 
 import (
-	"fmt"
-
 	"github.com/quintilesims/layer0/cli/printer"
 	"github.com/quintilesims/layer0/cli/resolver"
 	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/urfave/cli"
 )
 
@@ -36,16 +35,11 @@ func (b *CommandBase) resolveSingleEntityIDHelper(entityType, target string) (st
 
 	switch len(entityIDs) {
 	case 0:
-		return "", fmt.Errorf("%s lookup using '%s' yielded no matches.", entityType, target)
+		return "", errors.NoMatchesError(entityType, target)
 	case 1:
 		return entityIDs[0], nil
 	default:
-		text := fmt.Sprintf("%s lookup using '%s' yielded multiple matches: \n", entityType, target)
-		for _, entityID := range entityIDs {
-			text += fmt.Sprintf("%s \n", entityID)
-		}
-
-		return "", fmt.Errorf(text)
+		return "", errors.MultipleMatchesError(entityType, target, entityIDs)
 	}
 }
 
@@ -66,8 +60,7 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 	}
 
 	if c.GlobalBool(config.FLAG_NO_WAIT) {
-		// todo: use single 'running as job' helper printer
-		b.printer.Printf("Running as job '%s'", jobID)
+		b.printJobResponse(jobID)
 		return nil
 	}
 
@@ -78,25 +71,27 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 		return err
 	}
 
+	b.printer.Printf("done")
 	return nil
 }
 
 func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFN func(entityID string) error) error {
-	waitFlag := c.GlobalBool(config.FLAG_NO_WAIT)
-	waitTimeout := c.GlobalDuration(config.FLAG_TIMEOUT)
-
-	if waitFlag {
-		b.printer.Printf("Running as job '%s'", jobID)
+	if c.GlobalBool(config.FLAG_NO_WAIT) {
+		b.printJobResponse(jobID)
 		return nil
 	}
 
 	b.printer.StartSpinner(spinnerText)
 	defer b.printer.StopSpinner()
 
-	job, err := client.WaitForJob(b.client, jobID, waitTimeout)
+	job, err := client.WaitForJob(b.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT))
 	if err != nil {
 		return err
 	}
 
 	return onCompleteFN(job.Result)
+}
+
+func (b *CommandBase) printJobResponse(jobID string) {
+	b.printer.Printf("Operation is running as job '%s'", jobID)
 }

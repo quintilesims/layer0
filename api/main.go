@@ -89,6 +89,7 @@ func main() {
 		routes = append(routes, controllers.NewJobController(jobStore).Routes()...)
 		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider, jobStore).Routes()...)
 		routes = append(routes, controllers.NewServiceController(serviceProvider, jobStore).Routes()...)
+		routes = append(routes, controllers.NewTagController(tagStore).Routes()...)
 		routes = append(routes, controllers.NewTaskController(taskProvider, jobStore).Routes()...)
 
 		// todo: add decorators to routes

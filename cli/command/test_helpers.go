@@ -13,32 +13,35 @@ import (
 )
 
 type TestCommandBase struct {
-	client   *mock_client.MockClient
-	printer  *printer.TestPrinter
-	resolver *mock_resolver.MockResolver
+	Client   *mock_client.MockClient
+	Printer  *printer.TestPrinter
+	Resolver *mock_resolver.MockResolver
 }
 
 func newTestCommand(t *testing.T) (*TestCommandBase, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 
 	tc := &TestCommandBase{
-		client:   mock_client.NewMockClient(ctrl),
-		printer:  &printer.TestPrinter{},
-		resolver: mock_resolver.NewMockResolver(ctrl),
+		Client:   mock_client.NewMockClient(ctrl),
+		Printer:  &printer.TestPrinter{},
+		Resolver: mock_resolver.NewMockResolver(ctrl),
 	}
 
 	return tc, ctrl
 }
 
-func (tc *TestCommandBase) Command() *CommandBase {
+func (c *TestCommandBase) Command() *CommandBase {
 	return &CommandBase{
-		client:   tc.client,
-		printer:  tc.printer,
-		resolver: tc.resolver,
+		client:   c.Client,
+		printer:  c.Printer,
+		resolver: c.Resolver,
 	}
 }
 
-func getCLIContext(t *testing.T, args []string, flags map[string]interface{}) *cli.Context {
+type Args []string
+type Flags map[string]interface{}
+
+func getCLIContext(t *testing.T, args Args, flags Flags) *cli.Context {
 	flagSet := &flag.FlagSet{}
 
 	for key, val := range flags {

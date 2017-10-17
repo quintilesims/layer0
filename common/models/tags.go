@@ -59,3 +59,17 @@ func (t Tags) Any(f filter) bool {
 
 	return false
 }
+
+func (t Tags) GroupByID() map[string]Tags {
+	entityTags := map[string]Tags{}
+	for _, tag := range t {
+		tags, ok := entityTags[tag.EntityID]
+		if !ok {
+			tags = Tags{}
+		}
+
+		entityTags[tag.EntityID] = append(tags, tag)
+	}
+
+	return entityTags
+}

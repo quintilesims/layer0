@@ -7,6 +7,7 @@ import (
 type Store interface {
 	Delete(entityType, entityID, key string) error
 	Insert(tag models.Tag) error
+	SelectAll() (models.Tags, error)
 	SelectByType(entityType string) (models.Tags, error)
 	SelectByTypeAndID(entityType, entityID string) (models.Tags, error)
 }
