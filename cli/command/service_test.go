@@ -44,9 +44,34 @@ func TestCreateService(t *testing.T) {
 		ReadJob("job_id").
 		Return(job, nil)
 
+	deployments := []models.Deployment{
+		{
+			DesiredCount: 1,
+			RunningCount: 1,
+		},
+	}
+
+	service := &models.Service{
+		Deployments:  deployments,
+		DesiredCount: 1,
+		RunningCount: 1,
+	}
+
 	base.Client.EXPECT().
 		ReadService("svc_id").
-		Return(&models.Service{}, nil)
+		Return(service, nil)
+
+	base.Client.EXPECT().
+		ReadService("svc_id").
+		Return(service, nil)
+
+	base.Client.EXPECT().
+		ReadService("svc_id").
+		Return(service, nil)
+
+	base.Client.EXPECT().
+		ReadService("svc_id").
+		Return(service, nil)
 
 	args := Args{"env_name", "svc_name", "dpl_name"}
 	flags := Flags{"loadbalancer": "lb_name"}

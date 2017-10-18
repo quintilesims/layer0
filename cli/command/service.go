@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -125,7 +126,7 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 	}
 
 	onCompleteFN := func(serviceID string) error {
-		service, err := s.client.ReadService(serviceID)
+		service, err := WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
 		if err != nil {
 			return err
 		}
