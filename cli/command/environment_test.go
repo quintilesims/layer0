@@ -5,14 +5,15 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job"
-	"github.com/quintilesims/layer0/cli/resolver/mock_resolver"
-	"github.com/quintilesims/layer0/client/mock_client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
 
 func TestEnvironmentCommand_userInputErrors(t *testing.T) {
-	_, _, command, _ := initEnvCommandTest(t)
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	command := NewEnvironmentCommand(base.Command())
 
 	testCases := []struct {
 		name    string
@@ -63,8 +64,10 @@ func TestEnvironmentCommand_userInputErrors(t *testing.T) {
 
 func TestCreateEnvironment(t *testing.T) {
 	testNoWaitCaseHelper(t, func(t *testing.T, otherFlags map[string]interface{}, wait bool) {
-		client, _, command, ctrl := initEnvCommandTest(t)
+		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
+
+		command := NewEnvironmentCommand(base.Command())
 
 		userData := "user_data"
 		file, close := tempFile(t, userData)
@@ -86,16 +89,16 @@ func TestCreateEnvironment(t *testing.T) {
 			Result: "entity_id",
 		}
 
-		client.EXPECT().
+		base.Client.EXPECT().
 			CreateEnvironment(req).
 			Return(job.JobID, nil)
 
 		if wait {
-			client.EXPECT().
+			base.Client.EXPECT().
 				ReadJob(job.JobID).
 				Return(job, nil)
 
-			client.EXPECT().
+			base.Client.EXPECT().
 				ReadEnvironment(job.Result).
 				Return(environment, nil)
 		}
@@ -120,8 +123,10 @@ func TestCreateEnvironment(t *testing.T) {
 
 func TestDeleteEnvironment(t *testing.T) {
 	testNoWaitCaseHelper(t, func(t *testing.T, flags map[string]interface{}, wait bool) {
-		client, resolver, command, ctrl := initEnvCommandTest(t)
+		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
+
+		command := NewEnvironmentCommand(base.Command())
 
 		job := &models.Job{
 			JobID:  "job_id",
@@ -129,16 +134,16 @@ func TestDeleteEnvironment(t *testing.T) {
 			Result: "entity_id",
 		}
 
-		resolver.EXPECT().
+		base.Resolver.EXPECT().
 			Resolve("environment", "env_name").
 			Return([]string{"env_id"}, nil)
 
-		client.EXPECT().
+		base.Client.EXPECT().
 			DeleteEnvironment("env_id").
 			Return(job.JobID, nil)
 
 		if wait {
-			client.EXPECT().
+			base.Client.EXPECT().
 				ReadJob(job.JobID).
 				Return(job, nil)
 		}
@@ -151,14 +156,16 @@ func TestDeleteEnvironment(t *testing.T) {
 }
 
 func TestGetEnvironment(t *testing.T) {
-	client, resolver, command, ctrl := initEnvCommandTest(t)
+	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
-	resolver.EXPECT().
+	command := NewEnvironmentCommand(base.Command())
+
+	base.Resolver.EXPECT().
 		Resolve("environment", "env_name").
 		Return([]string{"env_id"}, nil)
 
-	client.EXPECT().
+	base.Client.EXPECT().
 		ReadEnvironment("env_id").
 		Return(&models.Environment{}, nil)
 
@@ -169,10 +176,12 @@ func TestGetEnvironment(t *testing.T) {
 }
 
 func TestListEnvironments(t *testing.T) {
-	client, _, command, ctrl := initEnvCommandTest(t)
+	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
-	client.EXPECT().
+	command := NewEnvironmentCommand(base.Command())
+
+	base.Client.EXPECT().
 		ListEnvironments().
 		Return([]*models.EnvironmentSummary{}, nil)
 
@@ -184,8 +193,10 @@ func TestListEnvironments(t *testing.T) {
 
 func TestEnvironmentSetMinCount(t *testing.T) {
 	testNoWaitCaseHelper(t, func(t *testing.T, flags map[string]interface{}, wait bool) {
-		client, resolver, command, ctrl := initEnvCommandTest(t)
+		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
+
+		command := NewEnvironmentCommand(base.Command())
 
 		job := &models.Job{
 			JobID:  "job_id",
@@ -193,20 +204,20 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 			Result: "entity_id",
 		}
 
-		resolver.EXPECT().
+		base.Resolver.EXPECT().
 			Resolve("environment", "env_name").
 			Return([]string{"env_id"}, nil)
 
-		client.EXPECT().
+		base.Client.EXPECT().
 			UpdateEnvironment(gomock.Any()).
 			Return(job.JobID, nil)
 
 		if wait {
-			client.EXPECT().
+			base.Client.EXPECT().
 				ReadJob(job.JobID).
 				Return(job, nil)
 
-			client.EXPECT().
+			base.Client.EXPECT().
 				ReadEnvironment(job.Result).
 				Return(&models.Environment{}, nil)
 		}
@@ -219,18 +230,20 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 }
 
 func TestEnvironmentLink(t *testing.T) {
-	client, resolver, command, ctrl := initEnvCommandTest(t)
+	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
-	resolver.EXPECT().
+	command := NewEnvironmentCommand(base.Command())
+
+	base.Resolver.EXPECT().
 		Resolve("environment", "env_name1").
 		Return([]string{"env_id1"}, nil)
 
-	resolver.EXPECT().
+	base.Resolver.EXPECT().
 		Resolve("environment", "env_name2").
 		Return([]string{"env_id2"}, nil)
 
-	client.EXPECT().
+	base.Client.EXPECT().
 		CreateLink("env_id1", "env_id2").
 		Return(nil)
 
@@ -241,18 +254,20 @@ func TestEnvironmentLink(t *testing.T) {
 }
 
 func TestEnvironmentUnlink(t *testing.T) {
-	client, resolver, command, ctrl := initEnvCommandTest(t)
+	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
-	resolver.EXPECT().
+	command := NewEnvironmentCommand(base.Command())
+
+	base.Resolver.EXPECT().
 		Resolve("environment", "env_name1").
 		Return([]string{"env_id1"}, nil)
 
-	resolver.EXPECT().
+	base.Resolver.EXPECT().
 		Resolve("environment", "env_name2").
 		Return([]string{"env_id2"}, nil)
 
-	client.EXPECT().
+	base.Client.EXPECT().
 		DeleteLink("env_id1", "env_id2").
 		Return(nil)
 
@@ -263,10 +278,12 @@ func TestEnvironmentUnlink(t *testing.T) {
 }
 
 func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
-	_, resolver, command, ctrl := initEnvCommandTest(t)
+	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
-	resolver.EXPECT().
+	command := NewEnvironmentCommand(base.Command())
+
+	base.Resolver.EXPECT().
 		Resolve("environment", gomock.Any()).
 		Return([]string{"env_id1"}, nil).
 		Times(2)
@@ -278,10 +295,12 @@ func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
 }
 
 func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
-	_, resolver, command, ctrl := initEnvCommandTest(t)
+	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
-	resolver.EXPECT().
+	command := NewEnvironmentCommand(base.Command())
+
+	base.Resolver.EXPECT().
 		Resolve("environment", gomock.Any()).
 		Return([]string{"env_id1"}, nil).
 		Times(2)
@@ -290,9 +309,4 @@ func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
 	if err := command.unlink(c); err == nil {
 		t.Fatal("error was nil!")
 	}
-}
-
-func initEnvCommandTest(t *testing.T) (*mock_client.MockClient, *mock_resolver.MockResolver, *EnvironmentCommand, *gomock.Controller) {
-	tc, ctrl := newTestCommand(t)
-	return tc.Client, tc.Resolver, NewEnvironmentCommand(tc.Command()), ctrl
 }
