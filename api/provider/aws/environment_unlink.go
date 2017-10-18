@@ -1,7 +1,7 @@
 package aws
 
 import (
-	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -9,29 +9,30 @@ import (
 )
 
 func (e *EnvironmentProvider) Unlink(req models.DeleteEnvironmentLinkRequest) error {
-	fmt.Println(req)
+	if err := models.EnvironmentLinkRequest(req).Validate(); err != nil {
+		return err
+	}
 
 	fqSourceEnvID := addLayer0Prefix(e.Config.Instance(), req.SourceEnvironmentID)
 	fqDestEnvID := addLayer0Prefix(e.Config.Instance(), req.DestEnvironmentID)
 
-	sourceGroup, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqSourceEnvID))
+	sourceSecurityGroup, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqSourceEnvID))
 	if err != nil {
-		//todo: not sure if we want to still log these warning messages here
-		//log.Warnf("Skipping environment unlink since security group '%s' does not exist", getEnvironmentSGName(fqDestEnvID))
-		return err
+		log.Printf("[WARN] skipping environment unlink since security group '%s' does not exist\n", getEnvironmentSGName(fqDestEnvID))
+		return nil
 	}
 
-	destGroup, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqDestEnvID))
+	destSecurityGroup, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqDestEnvID))
 	if err != nil {
-		//log.Warnf("Skipping environment unlink since security group '%s' does not exist", getEnvironmentSGName(fqDestEnvID))
+		log.Printf("[WARN] skipping environment unlink since security group '%s' does not exist\n", getEnvironmentSGName(fqDestEnvID))
+		return nil
+	}
+
+	if err := e.removeIngressRule(sourceSecurityGroup, *destSecurityGroup.GroupId); err != nil {
 		return err
 	}
 
-	if err := e.removeIngressRule(sourceGroup, *destGroup.GroupId); err != nil {
-		return err
-	}
-
-	if err := e.removeIngressRule(destGroup, *sourceGroup.GroupId); err != nil {
+	if err := e.removeIngressRule(destSecurityGroup, *sourceSecurityGroup.GroupId); err != nil {
 		return err
 	}
 
@@ -59,8 +60,7 @@ func (e *EnvironmentProvider) removeIngressRule(group *ec2.SecurityGroup, groupI
 					GroupId:       group.GroupId,
 					IpPermissions: []*ec2.IpPermission{groupPermission},
 				}
-				_, err := e.AWS.EC2.RevokeSecurityGroupIngress(input)
-				if err != nil {
+				if _, err := e.AWS.EC2.RevokeSecurityGroupIngress(input); err != nil {
 					return err
 				}
 			}

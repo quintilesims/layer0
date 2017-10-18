@@ -20,12 +20,14 @@ func (e *EnvironmentProvider) Link(req models.CreateEnvironmentLinkRequest) erro
 		return err
 	}
 
-	ingressInput := e.createIngressInput(sourceGroup.GroupId, destGroup.GroupId)
+	sourceGroupID := sourceGroup.GroupId
+	destGroupID := destGroup.GroupId
+	ingressInput := e.createIngressInput(sourceGroupID, destGroupID)
 	if _, err := e.AWS.EC2.AuthorizeSecurityGroupIngress(ingressInput); err != nil {
 		return err
 	}
 
-	ingressInput = e.createIngressInput(destGroup.GroupId, sourceGroup.GroupId)
+	ingressInput = e.createIngressInput(destGroupID, sourceGroupID)
 	if _, err := e.AWS.EC2.AuthorizeSecurityGroupIngress(ingressInput); err != nil {
 		return err
 	}
@@ -38,19 +40,19 @@ func (e *EnvironmentProvider) Link(req models.CreateEnvironmentLinkRequest) erro
 }
 
 func (e *EnvironmentProvider) createIngressInput(sourceGroupID, destGroupID *string) *ec2.AuthorizeSecurityGroupIngressInput {
-	return &ec2.AuthorizeSecurityGroupIngressInput{
-		GroupId: sourceGroupID,
-		IpPermissions: []*ec2.IpPermission{
-			{
-				UserIdGroupPairs: []*ec2.UserIdGroupPair{
-					{
-						GroupId: destGroupID,
-					},
-				},
-				IpProtocol: aws.String("-1"),
-			},
-		},
-	}
+	groupPair := &ec2.UserIdGroupPair{}
+	groupPair.SetGroupId(aws.StringValue(destGroupID))
+
+	permission := &ec2.IpPermission{}
+	permission.SetIpProtocol("-1")
+	permission.SetUserIdGroupPairs([]*ec2.UserIdGroupPair{groupPair})
+
+	ingressInput := &ec2.AuthorizeSecurityGroupIngressInput{}
+	ingressInput.SetGroupId(aws.StringValue(sourceGroupID))
+
+	ingressInput.SetIpPermissions([]*ec2.IpPermission{permission})
+
+	return ingressInput
 }
 
 func (e *EnvironmentProvider) createLinkTags(sourceEnvironmentID, destEnvironmentID string) error {
