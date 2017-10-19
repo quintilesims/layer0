@@ -39,11 +39,14 @@ func (e *EnvironmentProvider) Unlink(req models.DeleteEnvironmentLinkRequest) er
 		return err
 	}
 
-	if err := e.removeIngressRule(sourceSecurityGroup, destSecurityGroup.GroupId); err != nil {
+	sourceSecurityGroupID := aws.StringValue(sourceSecurityGroup.GroupId)
+	destSecurityGroupID := aws.StringValue(destSecurityGroup.GroupId)
+
+	if err := e.removeIngressRule(sourceSecurityGroup, destSecurityGroupID); err != nil {
 		return err
 	}
 
-	if err := e.removeIngressRule(destSecurityGroup, sourceSecurityGroup.GroupId); err != nil {
+	if err := e.removeIngressRule(destSecurityGroup, sourceSecurityGroupID); err != nil {
 		return err
 	}
 

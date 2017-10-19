@@ -23,11 +23,11 @@ func (e *EnvironmentProvider) Link(req models.CreateEnvironmentLinkRequest) erro
 	sourceGroupID := sourceGroup.GroupId
 	destGroupID := destGroup.GroupId
 
-	if _, err := e.createIngressInput(sourceGroupID, destGroupID); err != nil {
+	if err := e.createIngressInput(sourceGroupID, destGroupID); err != nil {
 		return err
 	}
 
-	if _, err := e.createIngressInput(destGroupID, sourceGroupID); err != nil {
+	if err := e.createIngressInput(destGroupID, sourceGroupID); err != nil {
 		return err
 	}
 
@@ -38,7 +38,7 @@ func (e *EnvironmentProvider) Link(req models.CreateEnvironmentLinkRequest) erro
 	return nil
 }
 
-func (e *EnvironmentProvider) createIngressInput(sourceGroupID, destGroupID *string) *ec2.AuthorizeSecurityGroupIngressInput {
+func (e *EnvironmentProvider) createIngressInput(sourceGroupID, destGroupID *string) error {
 	groupPair := &ec2.UserIdGroupPair{}
 	groupPair.SetGroupId(aws.StringValue(destGroupID))
 
