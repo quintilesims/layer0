@@ -214,21 +214,25 @@ func (e *EnvironmentCommand) link(c *cli.Context) error {
 		return err
 	}
 
-	sourceID, err := e.resolveSingleEntityIDHelper("environment", args["SOURCE"])
+	sourceEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["SOURCE"])
 	if err != nil {
 		return err
 	}
 
-	destID, err := e.resolveSingleEntityIDHelper("environment", args["DESTINATION"])
+	destEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["DESTINATION"])
 	if err != nil {
 		return err
 	}
 
-	if sourceID == destID {
+	if sourceEnvironmentID == destEnvironmentID {
 		return fmt.Errorf("Cannot link an environment to itself")
 	}
 
-	if err := e.client.CreateLink(sourceID, destID); err != nil {
+	req := models.CreateEnvironmentLinkRequest{
+		SourceEnvironmentID: sourceEnvironmentID,
+		DestEnvironmentID:   destEnvironmentID,
+	}
+	if err := e.client.CreateLink(req); err != nil {
 		return err
 	}
 
@@ -243,21 +247,25 @@ func (e *EnvironmentCommand) unlink(c *cli.Context) error {
 		return err
 	}
 
-	sourceID, err := e.resolveSingleEntityIDHelper("environment", args["SOURCE"])
+	sourceEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["SOURCE"])
 	if err != nil {
 		return err
 	}
 
-	destID, err := e.resolveSingleEntityIDHelper("environment", args["DESTINATION"])
+	destEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["DESTINATION"])
 	if err != nil {
 		return err
 	}
 
-	if sourceID == destID {
+	if sourceEnvironmentID == destEnvironmentID {
 		return fmt.Errorf("Cannot unlink an environment from itself")
 	}
 
-	if err := e.client.DeleteLink(sourceID, destID); err != nil {
+	req := models.DeleteEnvironmentLinkRequest{
+		SourceEnvironmentID: sourceEnvironmentID,
+		DestEnvironmentID:   destEnvironmentID,
+	}
+	if err := e.client.DeleteLink(req); err != nil {
 		return err
 	}
 
