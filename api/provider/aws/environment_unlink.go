@@ -3,12 +3,15 @@ package aws
 import (
 	"log"
 
+	"github.com/aws/aws-sdk-go/aws/awserr"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 func (e *EnvironmentProvider) Unlink(req models.DeleteEnvironmentLinkRequest) error {
+	log.Printf("[DEBUG] unlink called")
 	if err := models.EnvironmentLinkRequest(req).Validate(); err != nil {
 		return err
 	}
@@ -18,21 +21,29 @@ func (e *EnvironmentProvider) Unlink(req models.DeleteEnvironmentLinkRequest) er
 
 	sourceSecurityGroup, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqSourceEnvID))
 	if err != nil {
-		log.Printf("[WARN] skipping environment unlink since security group '%s' does not exist\n", getEnvironmentSGName(fqDestEnvID))
-		return nil
+		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "DoesNotExist" {
+			log.Printf("[WARN] skipping environment unlink since security group '%s' does not exist\n", getEnvironmentSGName(fqSourceEnvID))
+			return nil
+		}
+
+		return err
 	}
 
 	destSecurityGroup, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqDestEnvID))
 	if err != nil {
-		log.Printf("[WARN] skipping environment unlink since security group '%s' does not exist\n", getEnvironmentSGName(fqDestEnvID))
-		return nil
-	}
+		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "DoesNotExist" {
+			log.Printf("[WARN] skipping environment unlink since security group '%s' does not exist\n", getEnvironmentSGName(fqDestEnvID))
+			return nil
+		}
 
-	if err := e.removeIngressRule(sourceSecurityGroup, *destSecurityGroup.GroupId); err != nil {
 		return err
 	}
 
-	if err := e.removeIngressRule(destSecurityGroup, *sourceSecurityGroup.GroupId); err != nil {
+	if err := e.removeIngressRule(sourceSecurityGroup, destSecurityGroup.GroupId); err != nil {
+		return err
+	}
+
+	if err := e.removeIngressRule(destSecurityGroup, sourceSecurityGroup.GroupId); err != nil {
 		return err
 	}
 
