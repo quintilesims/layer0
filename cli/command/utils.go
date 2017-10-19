@@ -66,9 +66,8 @@ func WaitForDeployment(client client.Client, serviceID string, timeout time.Dura
 	}
 
 	delay := 5 * time.Second * timeMultiplier
-	start := time.Now()
 
-	for elapsed := time.Since(start); elapsed <= timeout; time.Sleep(delay) {
+	for start := time.Now(); time.Since(start) < timeout; time.Sleep(delay) {
 		finished, err := check()
 		if err != nil {
 			return nil, err
@@ -77,8 +76,6 @@ func WaitForDeployment(client client.Client, serviceID string, timeout time.Dura
 		if finished {
 			return client.ReadService(serviceID)
 		}
-
-		elapsed = time.Since(start)
 	}
 
 	return nil, fmt.Errorf("Deployment of service '%s' has not completed within the timeout '%v'", serviceID, timeout)
