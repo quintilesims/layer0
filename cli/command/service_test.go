@@ -4,12 +4,13 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
 
 func TestCreateService(t *testing.T) {
-	defer SetTimeMultiplier(0)()
+	defer client.SetTimeMultiplier(0)()
 
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
@@ -302,7 +303,7 @@ func TestReadService_userInputError(t *testing.T) {
 }
 
 func TestScaleService(t *testing.T) {
-	defer SetTimeMultiplier(0)()
+	defer client.SetTimeMultiplier(0)()
 
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
@@ -409,10 +410,10 @@ func TestScaleService_userInputError(t *testing.T) {
 }
 
 func TestUpdateService(t *testing.T) {
-	defer SetTimeMultiplier(0)()
-
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
+
+	defer client.SetTimeMultiplier(0)()
 
 	base.Resolver.EXPECT().
 		Resolve("service", "svc_name").

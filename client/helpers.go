@@ -30,6 +30,46 @@ const (
 	TagQueryParamVersion       = "version"
 )
 
+func SetTimeMultiplier(v time.Duration) func() {
+	timeMultiplier = v
+	return func() { timeMultiplier = 1 }
+}
+
+func WaitForDeployment(client Client, serviceID string, timeout time.Duration) (*models.Service, error) {
+	successCount := 0
+	requiredSuccessCount := 3
+
+	check := func() (bool, error) {
+		service, err := client.ReadService(serviceID)
+		if err != nil {
+			return false, err
+		}
+
+		for _, deployment := range service.Deployments {
+			if deployment.DesiredCount != deployment.RunningCount {
+				return false, nil
+			}
+		}
+
+		successCount++
+		return successCount >= requiredSuccessCount, nil
+	}
+
+	sleep := newLinearBackoffSleeper(time.Second)
+	for start := time.Now(); time.Since(start) < timeout; sleep() {
+		finished, err := check()
+		if err != nil {
+			return nil, err
+		}
+
+		if finished {
+			return client.ReadService(serviceID)
+		}
+	}
+
+	return nil, fmt.Errorf("Deployment of service '%s' has not completed within the timeout '%v'", serviceID, timeout)
+}
+
 func WaitForJob(client Client, jobID string, timeout time.Duration) (*models.Job, error) {
 	sleep := newLinearBackoffSleeper(time.Second)
 	for start := time.Now(); time.Since(start) < timeout; sleep() {

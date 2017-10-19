@@ -17,6 +17,18 @@ type TestCommandBase struct {
 	Resolver *mock_resolver.MockResolver
 }
 
+func NewTestCommand(t *testing.T) (*TestCommandBase, *gomock.Controller) {
+	ctrl := gomock.NewController(t)
+
+	tc := &TestCommandBase{
+		Client:   mock_client.NewMockClient(ctrl),
+		Printer:  &printer.TestPrinter{},
+		Resolver: mock_resolver.NewMockResolver(ctrl),
+	}
+
+	return tc, ctrl
+}
+
 func newTestCommand(t *testing.T) (*TestCommandBase, *gomock.Controller) {
 	ctrl := gomock.NewController(t)
 

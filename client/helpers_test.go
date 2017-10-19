@@ -1,6 +1,7 @@
 package client
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -11,13 +12,87 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func setTimeMultiplier(v time.Duration) func() {
-	timeMultiplier = v
-	return func() { timeMultiplier = 1 }
+func TestWaitForDeployment(t *testing.T) {
+	defer SetTimeMultiplier(0)()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	client := mock_client.NewMockClient(ctrl)
+
+	deployments := []models.Deployment{
+		{
+			DesiredCount: 1,
+			RunningCount: 1,
+		},
+	}
+
+	expected := &models.Service{
+		Deployments:  deployments,
+		DesiredCount: 1,
+		RunningCount: 1,
+	}
+
+	client.EXPECT().
+		ReadService("svc_id").
+		Return(expected, nil).
+		AnyTimes()
+
+	result, err := WaitForDeployment(client, "svc_id", time.Second)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, expected, result)
+}
+
+func TestWaitForDeployment_error(t *testing.T) {
+	defer SetTimeMultiplier(0)()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	client := mock_client.NewMockClient(ctrl)
+
+	expected := fmt.Errorf("Error reading service")
+
+	client.EXPECT().
+		ReadService("svc_id").
+		Return(nil, expected)
+
+	if _, err := WaitForDeployment(client, "svc_id", time.Second); err == nil {
+		t.Fatal("Error was nil!")
+	}
+}
+
+func TestWaitForDeployment_timeout(t *testing.T) {
+	defer SetTimeMultiplier(0)()
+
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+	client := mock_client.NewMockClient(ctrl)
+
+	deployments := []models.Deployment{
+		{
+			DesiredCount: 1,
+			RunningCount: 0,
+		},
+	}
+
+	expected := &models.Service{
+		Deployments: deployments,
+	}
+
+	client.EXPECT().
+		ReadService("svc_id").
+		AnyTimes().
+		Return(expected, nil)
+
+	if _, err := WaitForDeployment(client, "svc_id", time.Second); err == nil {
+		t.Fatal("Error was nil!")
+	}
 }
 
 func TestWaitForJob(t *testing.T) {
-	defer setTimeMultiplier(0)()
+	defer SetTimeMultiplier(0)()
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -41,7 +116,7 @@ func TestWaitForJob(t *testing.T) {
 }
 
 func TestWaitForJobError(t *testing.T) {
-	defer setTimeMultiplier(0)()
+	defer SetTimeMultiplier(0)()
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
@@ -62,7 +137,7 @@ func TestWaitForJobError(t *testing.T) {
 }
 
 func TestWaitForJobTimeout(t *testing.T) {
-	defer setTimeMultiplier(0)()
+	defer SetTimeMultiplier(0)()
 
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
