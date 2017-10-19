@@ -81,7 +81,7 @@ func (t *TaskCommand) Command() cli.Command {
 }
 
 func (t *TaskCommand) create(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "ENVIRONMENT", "DEPLOY", "NAME")
+	args, err := extractArgs(c.Args(), "ENVIRONMENT", "NAME", "DEPLOY")
 	if err != nil {
 		return err
 	}

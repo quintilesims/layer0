@@ -44,9 +44,6 @@ func (b *CommandBase) resolveSingleEntityIDHelper(entityType, target string) (st
 }
 
 func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN func(entityID string) (string, error)) error {
-	waitFlag := c.GlobalBool(config.FLAG_NO_WAIT)
-	waitTimeout := c.GlobalDuration(config.FLAG_TIMEOUT)
-
 	args, err := extractArgs(c.Args(), "NAME")
 	if err != nil {
 		return err
@@ -62,7 +59,7 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 		return err
 	}
 
-	if waitFlag {
+	if c.GlobalBool(config.FLAG_NO_WAIT) {
 		b.printJobResponse(jobID)
 		return nil
 	}
@@ -70,7 +67,7 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 	b.printer.StartSpinner("deleting")
 	defer b.printer.StopSpinner()
 
-	if _, err := client.WaitForJob(b.client, jobID, waitTimeout); err != nil {
+	if _, err := client.WaitForJob(b.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT)); err != nil {
 		return err
 	}
 
@@ -79,10 +76,7 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 }
 
 func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFN func(entityID string) error) error {
-	waitFlag := c.GlobalBool(config.FLAG_NO_WAIT)
-	waitTimeout := c.GlobalDuration(config.FLAG_TIMEOUT)
-
-	if waitFlag {
+	if c.GlobalBool(config.FLAG_NO_WAIT) {
 		b.printJobResponse(jobID)
 		return nil
 	}
@@ -90,7 +84,7 @@ func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string,
 	b.printer.StartSpinner(spinnerText)
 	defer b.printer.StopSpinner()
 
-	job, err := client.WaitForJob(b.client, jobID, waitTimeout)
+	job, err := client.WaitForJob(b.client, jobID, c.GlobalDuration(config.FLAG_TIMEOUT))
 	if err != nil {
 		return err
 	}
