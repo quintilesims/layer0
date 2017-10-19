@@ -61,8 +61,8 @@ func TestCreateService(t *testing.T) {
 
 	base.Client.EXPECT().
 		ReadService("svc_id").
-		Times(4).
-		Return(service, nil)
+		Return(service, nil).
+		AnyTimes()
 
 	args := Args{"env_name", "svc_name", "dpl_name"}
 	flags := Flags{"loadbalancer": "lb_name"}
@@ -224,14 +224,14 @@ func TestServiceLogs(t *testing.T) {
 		Resolve("service", "svc_name").
 		Return([]string{"svc_id"}, nil)
 
-	values := url.Values{
+	query := url.Values{
 		"tail":  []string{"100"},
 		"start": []string{"start"},
 		"end":   []string{"end"},
 	}
 
 	base.Client.EXPECT().
-		ReadServiceLogs("svc_id", values)
+		ReadServiceLogs([]models.LogFile{}, query)
 
 	args := Args{"svc_name"}
 	flags := Flags{"tail": 100, "start": "start", "end": "end"}
@@ -344,8 +344,8 @@ func TestScaleService(t *testing.T) {
 
 	base.Client.EXPECT().
 		ReadService("svc_id").
-		Times(4).
-		Return(service, nil)
+		Return(service, nil).
+		AnyTimes()
 
 	args := Args{"svc_name", "2"}
 	c := NewContext(t, args, nil)
@@ -449,8 +449,8 @@ func TestUpdateService(t *testing.T) {
 
 	base.Client.EXPECT().
 		ReadService("svc_id").
-		Times(4).
-		Return(service, nil)
+		Return(service, nil).
+		AnyTimes()
 
 	args := Args{"svc_name", "dpl_name"}
 	c := NewContext(t, args, nil)
