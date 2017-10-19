@@ -10,6 +10,10 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+var (
+	timeMultiplier time.Duration = 1
+)
+
 func extractArgs(received []string, names ...string) (map[string]string, error) {
 	args := map[string]string{}
 	for i, name := range names {
@@ -61,7 +65,7 @@ func WaitForDeployment(client client.Client, serviceID string, timeout time.Dura
 		return successCount >= requiredSuccessCount, nil
 	}
 
-	delay := time.Second * 5
+	delay := 5 * time.Second * timeMultiplier
 	start := time.Now()
 
 	for elapsed := time.Since(start); elapsed <= timeout; time.Sleep(delay) {

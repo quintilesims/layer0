@@ -3,14 +3,22 @@ package command
 import (
 	"net/url"
 	"testing"
+	"time"
 
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
 
+func setTimeMultiplier(v time.Duration) func() {
+	timeMultiplier = v
+	return func() { timeMultiplier = 1 }
+}
+
 func TestCreateService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
+
+	defer setTimeMultiplier(0)()
 
 	base.Resolver.EXPECT().
 		Resolve("deploy", "dpl_name").
@@ -59,18 +67,7 @@ func TestCreateService(t *testing.T) {
 
 	base.Client.EXPECT().
 		ReadService("svc_id").
-		Return(service, nil)
-
-	base.Client.EXPECT().
-		ReadService("svc_id").
-		Return(service, nil)
-
-	base.Client.EXPECT().
-		ReadService("svc_id").
-		Return(service, nil)
-
-	base.Client.EXPECT().
-		ReadService("svc_id").
+		Times(4).
 		Return(service, nil)
 
 	args := Args{"env_name", "svc_name", "dpl_name"}
@@ -342,7 +339,6 @@ func TestScaleService(t *testing.T) {
 
 	args := Args{"svc_name", "2"}
 	c := NewContext(t, args, nil)
-
 	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.scale(c); err != nil {
 		t.Fatal(err)
