@@ -212,7 +212,7 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 
 	scale, err := strconv.Atoi(args["COUNT"])
 	if err != nil {
-		return fmt.Errorf("Failed to parse COUNT argument: %v", err)
+		return fmt.Errorf("Failed to parse COUNT argument: %v", args["COUNT"])
 	}
 
 	req := models.UpdateServiceRequest{

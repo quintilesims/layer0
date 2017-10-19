@@ -231,7 +231,8 @@ func TestServiceLogs(t *testing.T) {
 	}
 
 	base.Client.EXPECT().
-		ReadServiceLogs([]models.LogFile{}, query)
+		ReadServiceLogs("svc_id", query).
+		Return([]*models.LogFile{}, nil)
 
 	args := Args{"svc_name"}
 	flags := Flags{"tail": 100, "start": "start", "end": "end"}
@@ -386,9 +387,15 @@ func TestScaleService_userInputError(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
+	base.Resolver.EXPECT().
+		Resolve("service", "svc_name").
+		Return([]string{"svc_id"}, nil).
+		AnyTimes()
+
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg":  NewContext(t, nil, nil),
-		"Missing COUNT arg": NewContext(t, Args{"svc_name"}, nil),
+		"Missing NAME arg":      NewContext(t, nil, nil),
+		"Missing COUNT arg":     NewContext(t, Args{"svc_name"}, nil),
+		"Non-integer COUNT arg": NewContext(t, Args{"svc_name", "string"}, nil),
 	}
 
 	serviceCommand := NewServiceCommand(base.Command())
