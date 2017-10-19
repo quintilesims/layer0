@@ -3,19 +3,13 @@ package command
 import (
 	"net/url"
 	"testing"
-	"time"
 
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
 
-func setTimeMultiplier(v time.Duration) func() {
-	timeMultiplier = v
-	return func() { timeMultiplier = 1 }
-}
-
 func TestCreateService(t *testing.T) {
-	defer setTimeMultiplier(0)()
+	defer SetTimeMultiplier(0)()
 
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
@@ -307,7 +301,7 @@ func TestReadService_userInputError(t *testing.T) {
 }
 
 func TestScaleService(t *testing.T) {
-	defer setTimeMultiplier(0)()
+	defer SetTimeMultiplier(0)()
 
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
@@ -408,7 +402,7 @@ func TestScaleService_userInputError(t *testing.T) {
 }
 
 func TestUpdateService(t *testing.T) {
-	defer setTimeMultiplier(0)()
+	defer SetTimeMultiplier(0)()
 
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()

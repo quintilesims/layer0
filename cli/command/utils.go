@@ -45,6 +45,11 @@ func buildLogQueryHelper(start, end string, tail int) url.Values {
 	return query
 }
 
+func SetTimeMultiplier(v time.Duration) func() {
+	timeMultiplier = v
+	return func() { timeMultiplier = 1 }
+}
+
 func WaitForDeployment(client client.Client, serviceID string, timeout time.Duration) (*models.Service, error) {
 	successCount := 0
 	requiredSuccessCount := 3
