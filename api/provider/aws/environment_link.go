@@ -22,13 +22,12 @@ func (e *EnvironmentProvider) Link(req models.CreateEnvironmentLinkRequest) erro
 
 	sourceGroupID := sourceGroup.GroupId
 	destGroupID := destGroup.GroupId
-	ingressInput := e.createIngressInput(sourceGroupID, destGroupID)
-	if _, err := e.AWS.EC2.AuthorizeSecurityGroupIngress(ingressInput); err != nil {
+
+	if _, err := e.createIngressInput(sourceGroupID, destGroupID); err != nil {
 		return err
 	}
 
-	ingressInput = e.createIngressInput(destGroupID, sourceGroupID)
-	if _, err := e.AWS.EC2.AuthorizeSecurityGroupIngress(ingressInput); err != nil {
+	if _, err := e.createIngressInput(destGroupID, sourceGroupID); err != nil {
 		return err
 	}
 
@@ -52,7 +51,11 @@ func (e *EnvironmentProvider) createIngressInput(sourceGroupID, destGroupID *str
 
 	ingressInput.SetIpPermissions([]*ec2.IpPermission{permission})
 
-	return ingressInput
+	if _, err := e.AWS.EC2.AuthorizeSecurityGroupIngress(ingressInput); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (e *EnvironmentProvider) createLinkTags(sourceEnvironmentID, destEnvironmentID string) error {
