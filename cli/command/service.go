@@ -226,7 +226,7 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 	}
 
 	onCompleteFN := func(serviceID string) error {
-		service, err := s.client.ReadService(serviceID)
+		service, err := WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
 		if err != nil {
 			return err
 		}
@@ -264,7 +264,7 @@ func (s *ServiceCommand) update(c *cli.Context) error {
 	}
 
 	onCompleteFN := func(serviceID string) error {
-		service, err := s.client.ReadService(serviceID)
+		service, err := WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
 		if err != nil {
 			return err
 		}

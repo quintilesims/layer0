@@ -15,10 +15,10 @@ func setTimeMultiplier(v time.Duration) func() {
 }
 
 func TestCreateService(t *testing.T) {
+	defer setTimeMultiplier(0)()
+
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-
-	defer setTimeMultiplier(0)()
 
 	base.Resolver.EXPECT().
 		Resolve("deploy", "dpl_name").
@@ -307,6 +307,8 @@ func TestReadService_userInputError(t *testing.T) {
 }
 
 func TestScaleService(t *testing.T) {
+	defer setTimeMultiplier(0)()
+
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
@@ -333,9 +335,23 @@ func TestScaleService(t *testing.T) {
 		ReadJob("job_id").
 		Return(job, nil)
 
+	deployments := []models.Deployment{
+		{
+			DesiredCount: 1,
+			RunningCount: 1,
+		},
+	}
+
+	service := &models.Service{
+		Deployments:  deployments,
+		DesiredCount: 1,
+		RunningCount: 1,
+	}
+
 	base.Client.EXPECT().
 		ReadService("svc_id").
-		Return(&models.Service{}, nil)
+		Times(4).
+		Return(service, nil)
 
 	args := Args{"svc_name", "2"}
 	c := NewContext(t, args, nil)
@@ -392,6 +408,8 @@ func TestScaleService_userInputError(t *testing.T) {
 }
 
 func TestUpdateService(t *testing.T) {
+	defer setTimeMultiplier(0)()
+
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
@@ -422,9 +440,23 @@ func TestUpdateService(t *testing.T) {
 		ReadJob("job_id").
 		Return(job, nil)
 
+	deployments := []models.Deployment{
+		{
+			DesiredCount: 1,
+			RunningCount: 1,
+		},
+	}
+
+	service := &models.Service{
+		Deployments:  deployments,
+		DesiredCount: 1,
+		RunningCount: 1,
+	}
+
 	base.Client.EXPECT().
 		ReadService("svc_id").
-		Return(&models.Service{}, nil)
+		Times(4).
+		Return(service, nil)
 
 	args := Args{"svc_name", "dpl_name"}
 	c := NewContext(t, args, nil)
