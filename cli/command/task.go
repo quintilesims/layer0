@@ -139,6 +139,22 @@ func (t *TaskCommand) list(c *cli.Context) error {
 }
 
 func (t *TaskCommand) read(c *cli.Context) error {
+
+	taskSummaries, err := t.client.ListTasks()
+	if err != nil {
+		return err
+	}
+
+	taskExists := func(id string) bool {
+		for _, t := range taskSummaries {
+			if t.TaskID == id {
+				return true
+			}
+		}
+
+		return false
+	}
+
 	args, err := extractArgs(c.Args(), "NAME")
 	if err != nil {
 		return err
@@ -151,12 +167,14 @@ func (t *TaskCommand) read(c *cli.Context) error {
 
 	tasks := make([]*models.Task, len(taskIDs))
 	for i, taskID := range taskIDs {
-		task, err := t.client.ReadTask(taskID)
-		if err != nil {
-			return err
-		}
+		if taskExists(taskID) {
+			task, err := t.client.ReadTask(taskID)
+			if err != nil {
+				return err
+			}
 
-		tasks[i] = task
+			tasks[i] = task
+		}
 	}
 
 	return t.printer.PrintTasks(tasks...)

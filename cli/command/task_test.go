@@ -128,10 +128,17 @@ func TestReadTask(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	taskCommand := NewTaskCommand(base.Command())
+	result := []*models.TaskSummary{
+		{TaskID: "task_id"},
+	}
 
 	base.Resolver.EXPECT().
 		Resolve("task", "task_name").
 		Return(Args{"task_id"}, nil)
+
+	base.Client.EXPECT().
+		ListTasks().
+		Return(result, nil)
 
 	base.Client.EXPECT().
 		ReadTask("task_id").
@@ -148,6 +155,10 @@ func TestReadTask_userInputErrors(t *testing.T) {
 	defer ctrl.Finish()
 	taskCommand := NewTaskCommand(base.Command())
 
+	base.Client.EXPECT().
+		ListTasks().
+		Return([]*models.TaskSummary{}, nil)
+
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg": NewContext(t, nil, nil),
 	}
@@ -159,34 +170,32 @@ func TestReadTask_userInputErrors(t *testing.T) {
 	}
 }
 
-// TODO: Fix
-// func TestReadTask_expiredTasks(t *testing.T) {
-// 	base, ctrl := newTestCommand(t)
-// 	defer ctrl.Finish()
-// 	taskCommand := NewTaskCommand(base.Command())
-// 	result := []*models.TaskSummary{
-// 		{TaskID: "task_id"},
-// 	}
+func TestReadTask_expiredTasks(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	taskCommand := NewTaskCommand(base.Command())
+	result := []*models.TaskSummary{
+		{TaskID: "task_id"},
+	}
 
-// 	base.Resolver.EXPECT().
-// 		Resolve("task", "task_name").
-// 		Return(Args{"task_id", "task_id", "task_id"}, nil)
+	base.Resolver.EXPECT().
+		Resolve("task", "task_name").
+		Return(Args{"task_id", "task_id2", "task_id3"}, nil)
 
-// 	base.Client.EXPECT().
-// 		ListTasks().
-// 		Return(result, nil)
+	base.Client.EXPECT().
+		ListTasks().
+		Return(result, nil)
 
-// 	//only task 'id3' should result in a GetTask call
-// 	base.Client.EXPECT().
-// 		ReadTask("task_id").
-// 		Return(&models.Task{}, nil)
+	base.Client.EXPECT().
+		ReadTask("task_id").
+		Return(&models.Task{}, nil)
 
-// 	c := NewContext(t, Args{"task_name"}, nil)
-// 	if err := taskCommand.read(c); err != nil {
-// 		t.Fatal(err)
-// 	}
+	c := NewContext(t, Args{"task_name"}, nil)
+	if err := taskCommand.read(c); err != nil {
+		t.Fatal(err)
+	}
 
-// }
+}
 
 func TestListTasks(t *testing.T) {
 	base, ctrl := newTestCommand(t)
