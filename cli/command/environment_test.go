@@ -25,10 +25,6 @@ func TestEnvironmentCommand_userInputErrors(t *testing.T) {
 			command: command.create,
 		},
 		{
-			name:    "update",
-			command: command.update,
-		},
-		{
 			name:    "setMinCount",
 			command: command.update,
 			args:    []string{"env_name", "1w"},
@@ -162,14 +158,18 @@ func TestGetEnvironment(t *testing.T) {
 	command := NewEnvironmentCommand(base.Command())
 
 	base.Resolver.EXPECT().
-		Resolve("environment", "env_name").
-		Return([]string{"env_id"}, nil)
+		Resolve("environment", "env_name*").
+		Return([]string{"env_id1", "env_id2"}, nil)
 
 	base.Client.EXPECT().
-		ReadEnvironment("env_id").
+		ReadEnvironment("env_id1").
 		Return(&models.Environment{}, nil)
 
-	c := getCLIContext(t, []string{"env_name"}, nil)
+	base.Client.EXPECT().
+		ReadEnvironment("env_id2").
+		Return(&models.Environment{}, nil)
+
+	c := getCLIContext(t, []string{"env_name*"}, nil)
 	if err := command.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -198,6 +198,7 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 
 		command := NewEnvironmentCommand(base.Command())
 
+		minCount := 2
 		job := &models.Job{
 			JobID:  "job_id",
 			Status: job.Completed.String(),
@@ -208,8 +209,13 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 			Resolve("environment", "env_name").
 			Return([]string{"env_id"}, nil)
 
+		req := models.UpdateEnvironmentRequest{
+			EnvironmentID:   "env_id",
+			MinClusterCount: &minCount,
+		}
+
 		base.Client.EXPECT().
-			UpdateEnvironment(gomock.Any()).
+			UpdateEnvironment(req).
 			Return(job.JobID, nil)
 
 		if wait {
