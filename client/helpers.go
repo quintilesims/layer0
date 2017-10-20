@@ -36,34 +36,29 @@ func SetTimeMultiplier(v time.Duration) func() {
 }
 
 func WaitForDeployment(client Client, serviceID string, timeout time.Duration) (*models.Service, error) {
-	successCount := 0
-	requiredSuccessCount := 3
-
-	check := func() (bool, error) {
-		service, err := client.ReadService(serviceID)
-		if err != nil {
-			return false, err
-		}
-
+	var consecutiveSuccesses int
+	check := func(service *models.Service) bool {
 		for _, deployment := range service.Deployments {
 			if deployment.DesiredCount != deployment.RunningCount {
-				return false, nil
+				return false
 			}
 		}
 
-		successCount++
-		return successCount >= requiredSuccessCount, nil
+		consecutiveSuccesses++
+		return consecutiveSuccesses >= 3
 	}
 
 	sleep := newLinearBackoffSleeper(time.Second)
 	for start := time.Now(); time.Since(start) < timeout; sleep() {
-		finished, err := check()
+		service, err := client.ReadService(serviceID)
 		if err != nil {
 			return nil, err
 		}
 
+		finished := check(service)
+
 		if finished {
-			return client.ReadService(serviceID)
+			return service, nil
 		}
 	}
 
