@@ -1,6 +1,8 @@
 package command
 
 import (
+	"io/ioutil"
+	"os"
 	"testing"
 
 	"github.com/golang/mock/gomock"
@@ -38,4 +40,17 @@ func (c *TestCommandBase) Command() *CommandBase {
 func testWaitHelper(t *testing.T, fn func(t *testing.T, wait bool)) {
 	t.Run("wait", func(t *testing.T) { fn(t, true) })
 	t.Run("no-wait", func(t *testing.T) { fn(t, false) })
+}
+
+func createTempFile(t *testing.T, content string) (*os.File, func()) {
+	file, err := ioutil.TempFile(os.TempDir(), "")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if _, err := file.Write([]byte(content)); err != nil {
+		t.Fatal(err)
+	}
+
+	return file, func() { os.Remove(file.Name()) }
 }
