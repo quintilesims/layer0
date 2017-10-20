@@ -11,7 +11,6 @@ import (
 )
 
 func (e *EnvironmentProvider) Unlink(req models.DeleteEnvironmentLinkRequest) error {
-	log.Printf("[DEBUG] unlink called")
 	if err := models.EnvironmentLinkRequest(req).Validate(); err != nil {
 		return err
 	}
@@ -42,11 +41,11 @@ func (e *EnvironmentProvider) Unlink(req models.DeleteEnvironmentLinkRequest) er
 	sourceSecurityGroupID := aws.StringValue(sourceSecurityGroup.GroupId)
 	destSecurityGroupID := aws.StringValue(destSecurityGroup.GroupId)
 
-	if err := e.removeIngressRule(sourceSecurityGroup, destSecurityGroupID); err != nil {
+	if err := e.removeIngressRule(sourceSecurityGroupID, destSecurityGroupID); err != nil {
 		return err
 	}
 
-	if err := e.removeIngressRule(destSecurityGroup, sourceSecurityGroupID); err != nil {
+	if err := e.removeIngressRule(destSecurityGroupID, sourceSecurityGroupID); err != nil {
 		return err
 	}
 
@@ -61,24 +60,25 @@ func (e *EnvironmentProvider) Unlink(req models.DeleteEnvironmentLinkRequest) er
 	return nil
 }
 
-func (e *EnvironmentProvider) removeIngressRule(group *ec2.SecurityGroup, groupIDToRemove string) error {
-	for _, permission := range group.IpPermissions {
-		for _, pair := range permission.UserIdGroupPairs {
-			if aws.StringValue(pair.GroupId) == groupIDToRemove {
-				groupPermission := &ec2.IpPermission{
-					IpProtocol:       permission.IpProtocol,
-					UserIdGroupPairs: []*ec2.UserIdGroupPair{pair},
-				}
+func (e *EnvironmentProvider) removeIngressRule(groupID, groupIDToRemove string) error {
+	groupPair := &ec2.UserIdGroupPair{}
+	groupPair.SetGroupId(groupIDToRemove)
 
-				input := &ec2.RevokeSecurityGroupIngressInput{
-					GroupId:       group.GroupId,
-					IpPermissions: []*ec2.IpPermission{groupPermission},
-				}
-				if _, err := e.AWS.EC2.RevokeSecurityGroupIngress(input); err != nil {
-					return err
-				}
-			}
+	permission := &ec2.IpPermission{}
+	permission.SetIpProtocol("-1")
+	permission.SetUserIdGroupPairs([]*ec2.UserIdGroupPair{groupPair})
+
+	input := &ec2.RevokeSecurityGroupIngressInput{}
+	input.SetGroupId(groupID)
+	input.SetIpPermissions([]*ec2.IpPermission{permission})
+
+	if _, err := e.AWS.EC2.RevokeSecurityGroupIngress(input); err != nil {
+		if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "InvalidPermission.NotFound" {
+			log.Println("[DEBUG] skipping ingressRule deletion as the rule doesn't seem to exist")
+			return nil
 		}
+
+		return err
 	}
 
 	return nil
