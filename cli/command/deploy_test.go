@@ -9,39 +9,43 @@ import (
 )
 
 func TestCreateDeploy(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewDeployCommand(base.Command())
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
+		command := NewDeployCommand(base.Command())
 
-	file, close := createTempFile(t, "dpl_file")
-	defer close()
+		file, close := createTempFile(t, "dpl_file")
+		defer close()
 
-	req := models.CreateDeployRequest{
-		DeployName: "dpl_name",
-		DeployFile: []byte("dpl_file"),
-	}
+		req := models.CreateDeployRequest{
+			DeployName: "dpl_name",
+			DeployFile: []byte("dpl_file"),
+		}
 
-	base.Client.EXPECT().
-		CreateDeploy(req).
-		Return("jid", nil)
+		base.Client.EXPECT().
+			CreateDeploy(req).
+			Return("jid", nil)
 
-	job := &models.Job{
-		Status: "Completed",
-		Result: "dpl_id",
-	}
+		job := &models.Job{
+			Status: "Completed",
+			Result: "dpl_id",
+		}
 
-	base.Client.EXPECT().
-		ReadJob("jid").
-		Return(job, nil)
+		if wait {
+			base.Client.EXPECT().
+				ReadJob("jid").
+				Return(job, nil)
 
-	base.Client.EXPECT().
-		ReadDeploy("dpl_id").
-		Return(&models.Deploy{}, nil)
+			base.Client.EXPECT().
+				ReadDeploy("dpl_id").
+				Return(&models.Deploy{}, nil)
+		}
 
-	c := NewContext(t, []string{file.Name(), "dpl_name"}, nil)
-	if err := command.create(c); err != nil {
-		t.Fatal(err)
-	}
+		c := NewContext(t, []string{file.Name(), "dpl_name"}, nil, SetNoWait(!wait))
+		if err := command.create(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestCreateDeploy_userInputErrors(t *testing.T) {
@@ -62,31 +66,37 @@ func TestCreateDeploy_userInputErrors(t *testing.T) {
 }
 
 func TestDeleteDeploy(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewDeployCommand(base.Command())
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
 
-	base.Resolver.EXPECT().
-		Resolve("deploy", "dpl_name").
-		Return([]string{"id"}, nil)
+		base.Resolver.EXPECT().
+			Resolve("deploy", "dpl_name").
+			Return([]string{"dpl_id"}, nil)
 
-	base.Client.EXPECT().
-		DeleteDeploy("id").
-		Return("jid", nil)
+		base.Client.EXPECT().
+			DeleteDeploy("dpl_id").
+			Return("jid", nil)
 
-	job := &models.Job{
-		Status: "Completed",
-		Result: "dpl_id",
-	}
+		job := &models.Job{
+			Status: "Completed",
+			Result: "dpl_id",
+		}
 
-	base.Client.EXPECT().
-		ReadJob("jid").
-		Return(job, nil)
+		if wait {
+			base.Client.EXPECT().
+				ReadJob("jid").
+				Return(job, nil)
+		}
 
-	c := NewContext(t, []string{"dpl_name"}, nil)
-	if err := command.delete(c); err != nil {
-		t.Fatal(err)
-	}
+		args := Args{"dpl_name"}
+		c := NewContext(t, args, nil, SetNoWait(!wait))
+
+		command := NewDeployCommand(base.Command())
+		if err := command.delete(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestDeleteDeploy_userInputErrors(t *testing.T) {

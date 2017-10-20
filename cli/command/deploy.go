@@ -27,19 +27,19 @@ func (d *DeployCommand) Command() cli.Command {
 				Name:      "create",
 				Usage:     "create a new deploy",
 				Action:    d.create,
-				ArgsUsage: "PATH NAME",
+				ArgsUsage: "PATH DEPLOY_NAME",
 			},
 			{
 				Name:      "delete",
 				Usage:     "delete a deploy",
-				ArgsUsage: "NAME",
+				ArgsUsage: "DEPLOY_NAME",
 				Action:    d.delete,
 			},
 			{
 				Name:      "get",
 				Usage:     "describe a deploy",
 				Action:    d.read,
-				ArgsUsage: "NAME",
+				ArgsUsage: "DEPLOY_NAME",
 			},
 			{
 				Name:      "list",
@@ -58,7 +58,7 @@ func (d *DeployCommand) Command() cli.Command {
 }
 
 func (d *DeployCommand) create(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "PATH", "NAME")
+	args, err := extractArgs(c.Args(), "PATH", "DEPLOY_NAME")
 	if err != nil {
 		return err
 	}
@@ -69,7 +69,7 @@ func (d *DeployCommand) create(c *cli.Context) error {
 	}
 
 	req := models.CreateDeployRequest{
-		DeployName: args["NAME"],
+		DeployName: args["DEPLOY_NAME"],
 		DeployFile: content,
 	}
 
@@ -95,12 +95,12 @@ func (d *DeployCommand) delete(c *cli.Context) error {
 }
 
 func (d *DeployCommand) read(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "NAME")
+	args, err := extractArgs(c.Args(), "DEPLOY_NAME")
 	if err != nil {
 		return err
 	}
 
-	deployIDs, err := d.resolver.Resolve("deploy", args["NAME"])
+	deployIDs, err := d.resolver.Resolve("deploy", args["DEPLOY_NAME"])
 	if err != nil {
 		return err
 	}
