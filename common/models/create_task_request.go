@@ -36,6 +36,8 @@ func (c CreateTaskRequest) Definition() swagger.Definition {
 			"task_name":      swagger.NewStringProperty(),
 			"environment_id": swagger.NewStringProperty(),
 			"deploy_id":      swagger.NewStringProperty(),
+			// TODO: Change to Map defintion
+			"container_overrides": swagger.NewStringProperty(),
 		},
 	}
 }

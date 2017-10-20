@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/quintilesims/layer0/common/models"
@@ -139,20 +140,14 @@ func (t *TaskCommand) list(c *cli.Context) error {
 }
 
 func (t *TaskCommand) read(c *cli.Context) error {
-
 	taskSummaries, err := t.client.ListTasks()
 	if err != nil {
 		return err
 	}
 
-	taskExists := func(id string) bool {
-		for _, t := range taskSummaries {
-			if t.TaskID == id {
-				return true
-			}
-		}
-
-		return false
+	taskExists := map[string]bool{}
+	for _, taskSummary := range taskSummaries {
+		taskExists[taskSummary.TaskID] = true
 	}
 
 	args, err := extractArgs(c.Args(), "NAME")
@@ -167,7 +162,12 @@ func (t *TaskCommand) read(c *cli.Context) error {
 
 	tasks := make([]*models.Task, len(taskIDs))
 	for i, taskID := range taskIDs {
-		if taskExists(taskID) {
+		if !taskExists[taskID] {
+			log.Printf("[DEBUG] Resolver returned an expired task '%s'", taskID)
+			continue
+		}
+
+		if taskExists[taskID] {
 			task, err := t.client.ReadTask(taskID)
 			if err != nil {
 				return err
@@ -186,13 +186,13 @@ func (t *TaskCommand) logs(c *cli.Context) error {
 		return err
 	}
 
-	id, err := t.resolveSingleEntityIDHelper("task", args["NAME"])
+	taskID, err := t.resolveSingleEntityIDHelper("task", args["NAME"])
 	if err != nil {
 		return err
 	}
 
-	query := buildLogQueryHelper(id, c.String("start"), c.String("end"), c.Int("tail"))
-	logs, err := t.client.ReadTaskLogs(id, query)
+	query := buildLogQueryHelper(taskID, c.String("start"), c.String("end"), c.Int("tail"))
+	logs, err := t.client.ReadTaskLogs(taskID, query)
 	if err != nil {
 		return err
 	}

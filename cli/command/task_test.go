@@ -3,6 +3,7 @@ package command
 import (
 	"testing"
 
+	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -12,12 +13,16 @@ func TestCreateTask(t *testing.T) {
 	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
+
 		taskCommand := NewTaskCommand(base.Command())
+
 		args := Args{"env_name", "dpl_name", "task_name"}
+
 		flags := Flags{
 			"copies": 1,
 			"env":    []string{"container:key=val"},
 		}
+
 		overrides := []models.ContainerOverride{{
 			ContainerName:        "container",
 			EnvironmentOverrides: map[string]string{"key": "val"},
@@ -43,12 +48,14 @@ func TestCreateTask(t *testing.T) {
 			Return("job_id", nil)
 
 		if wait {
+			job := &models.Job{
+				Status: job.Completed.String(),
+				Result: "task_id",
+			}
+
 			base.Client.EXPECT().
 				ReadJob("job_id").
-				Return(&models.Job{
-					Status: "Completed",
-					Result: "task_id",
-				}, nil)
+				Return(job, nil)
 
 			base.Client.EXPECT().
 				ReadTask("task_id").
@@ -65,6 +72,7 @@ func TestCreateTask(t *testing.T) {
 func TestCreateTask_userInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
+
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
@@ -81,36 +89,42 @@ func TestCreateTask_userInputErrors(t *testing.T) {
 }
 
 func TestDeleteTask(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	taskCommand := NewTaskCommand(base.Command())
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
 
-	base.Resolver.EXPECT().
-		Resolve("task", "task_name").
-		Return(Args{"task_id"}, nil)
+		taskCommand := NewTaskCommand(base.Command())
 
-	base.Client.EXPECT().
-		DeleteTask("task_id").
-		Return("job_id", nil)
+		base.Resolver.EXPECT().
+			Resolve("task", "task_name").
+			Return(Args{"task_id"}, nil)
 
-	job := &models.Job{
-		Status: "Completed",
-		Result: "job_id",
-	}
+		base.Client.EXPECT().
+			DeleteTask("task_id").
+			Return("job_id", nil)
 
-	base.Client.EXPECT().
-		ReadJob("job_id").
-		Return(job, nil)
+		if wait {
+			job := &models.Job{
+				Status: job.Completed.String(),
+				Result: "job_id",
+			}
 
-	c := NewContext(t, Args{"task_name"}, nil)
-	if err := taskCommand.delete(c); err != nil {
-		t.Fatal(err)
-	}
+			base.Client.EXPECT().
+				ReadJob("job_id").
+				Return(job, nil)
+		}
+
+		c := NewContext(t, Args{"task_name"}, nil, SetNoWait(!wait))
+		if err := taskCommand.delete(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestDeleteTask_userInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
+
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
@@ -127,7 +141,9 @@ func TestDeleteTask_userInputErrors(t *testing.T) {
 func TestReadTask(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
+
 	taskCommand := NewTaskCommand(base.Command())
+
 	result := []*models.TaskSummary{
 		{TaskID: "task_id"},
 	}
@@ -153,15 +169,16 @@ func TestReadTask(t *testing.T) {
 func TestReadTask_userInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	taskCommand := NewTaskCommand(base.Command())
 
-	base.Client.EXPECT().
-		ListTasks().
-		Return([]*models.TaskSummary{}, nil)
+	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg": NewContext(t, nil, nil),
 	}
+
+	base.Client.EXPECT().
+		ListTasks().
+		Return([]*models.TaskSummary{}, nil)
 
 	for name, c := range contexts {
 		if err := taskCommand.read(c); err == nil {
@@ -173,24 +190,26 @@ func TestReadTask_userInputErrors(t *testing.T) {
 func TestReadTask_expiredTasks(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
+
 	taskCommand := NewTaskCommand(base.Command())
+
 	result := []*models.TaskSummary{
-		{TaskID: "task_id"},
+		{TaskID: "tsk_id1"},
 	}
 
 	base.Resolver.EXPECT().
-		Resolve("task", "task_name").
-		Return(Args{"task_id", "task_id2", "task_id3"}, nil)
+		Resolve("task", "tsk_name").
+		Return([]string{"tsk_id1", "expired1", "expired2"}, nil)
 
 	base.Client.EXPECT().
 		ListTasks().
 		Return(result, nil)
 
 	base.Client.EXPECT().
-		ReadTask("task_id").
+		ReadTask("tsk_id1").
 		Return(&models.Task{}, nil)
 
-	c := NewContext(t, Args{"task_name"}, nil)
+	c := NewContext(t, Args{"tsk_name"}, nil)
 	if err := taskCommand.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -200,11 +219,12 @@ func TestReadTask_expiredTasks(t *testing.T) {
 func TestListTasks(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
+
 	taskCommand := NewTaskCommand(base.Command())
 
 	base.Client.EXPECT().
 		ListTasks().
-		Return([]*models.TaskSummary{}, nil)
+		Return([]*models.LogFile{}, nil)
 
 	c := NewContext(t, nil, nil)
 	if err := taskCommand.list(c); err != nil {
@@ -218,13 +238,13 @@ func TestReadTaskLogs(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	base.Resolver.EXPECT().
-		Resolve("task", "name").
-		Return(Args{"id"}, nil)
+		Resolve("task", "tsk_name").
+		Return([]string{"tsk_id"}, nil)
 
-	query := buildLogQueryHelper("id", "start", "end", 100)
+	query := buildLogQueryHelper("tsk_id", "start", "end", 100)
 
 	base.Client.EXPECT().
-		ReadTaskLogs("id", query)
+		ReadTaskLogs("tsk_id", query)
 
 	flags := Flags{
 		"tail":  100,
@@ -232,7 +252,7 @@ func TestReadTaskLogs(t *testing.T) {
 		"end":   "end",
 	}
 
-	c := NewContext(t, Args{"name"}, flags)
+	c := NewContext(t, Args{"tsk_name"}, flags)
 	if err := taskCommand.logs(c); err != nil {
 		t.Fatal(err)
 	}
@@ -255,7 +275,7 @@ func TestReadTaskLogs_userInputErrors(t *testing.T) {
 }
 
 func TestParseOverrides(t *testing.T) {
-	input := Args{
+	input := []string{
 		"container1:key1=val1",
 		"container1:key2=val2",
 		"container2:k1=v1"}
@@ -280,6 +300,7 @@ func TestParseOverrides(t *testing.T) {
 	assert.Equal(t, expected[0], output[0])
 	assert.Equal(t, expected[1], output[1])
 }
+
 func TestParseOverridesErrors(t *testing.T) {
 	cases := map[string]string{
 		"Missing CONTAINER": ":key=val",
