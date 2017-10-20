@@ -232,6 +232,7 @@ func (e *EnvironmentCommand) link(c *cli.Context) error {
 		SourceEnvironmentID: sourceEnvironmentID,
 		DestEnvironmentID:   destEnvironmentID,
 	}
+
 	if err := e.client.CreateLink(req); err != nil {
 		return err
 	}
@@ -265,6 +266,7 @@ func (e *EnvironmentCommand) unlink(c *cli.Context) error {
 		SourceEnvironmentID: sourceEnvironmentID,
 		DestEnvironmentID:   destEnvironmentID,
 	}
+
 	if err := e.client.DeleteLink(req); err != nil {
 		return err
 	}
