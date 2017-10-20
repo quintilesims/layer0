@@ -26,7 +26,7 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				Name:      "create",
 				Usage:     "create a new environment",
 				Action:    e.create,
-				ArgsUsage: "NAME",
+				ArgsUsage: "ENVIRONMENT_NAME",
 				Flags: []cli.Flag{
 					cli.StringFlag{
 						Name:  "size",
@@ -56,7 +56,7 @@ func (e *EnvironmentCommand) Command() cli.Command {
 			{
 				Name:      "delete",
 				Usage:     "delete an environment",
-				ArgsUsage: "NAME",
+				ArgsUsage: "ENVIRONMENT_NAME",
 				Action:    e.delete,
 			},
 			{
@@ -69,32 +69,32 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				Name:      "read",
 				Usage:     "describe an environment",
 				Action:    e.read,
-				ArgsUsage: "NAME",
+				ArgsUsage: "ENVIRONMENT_NAME",
 			},
 			{
 				Name:      "setmincount",
 				Usage:     "set the minimum instance count for an environment cluster",
 				Action:    e.update,
-				ArgsUsage: "NAME COUNT",
+				ArgsUsage: "ENVIRONMENT_NAME COUNT",
 			},
 			{
 				Name:      "link",
 				Usage:     "links two environments together",
 				Action:    e.link,
-				ArgsUsage: "SOURCE DESTINATION",
+				ArgsUsage: "SOURCE_ENVIRONMENT_NAME DESTINATION_ENVIRONMENT_NAME",
 			},
 			{
 				Name:      "unlink",
 				Usage:     "unlinks two previously linked environments",
 				Action:    e.unlink,
-				ArgsUsage: "SOURCE DESTINATION",
+				ArgsUsage: "SOURCE_ENVIRONMENT_NAME DESTINATION_ENVIRONMENT_NAME",
 			},
 		},
 	}
 }
 
 func (e *EnvironmentCommand) create(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "NAME")
+	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME")
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 	}
 
 	req := models.CreateEnvironmentRequest{
-		EnvironmentName:  args["NAME"],
+		EnvironmentName:  args["ENVIRONMENT_NAME"],
 		InstanceSize:     c.String("size"),
 		MinClusterCount:  c.Int("min-count"),
 		UserDataTemplate: userData,
@@ -149,12 +149,12 @@ func (e *EnvironmentCommand) list(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) read(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "NAME")
+	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME")
 	if err != nil {
 		return err
 	}
 
-	environmentIDs, err := e.resolver.Resolve("environment", args["NAME"])
+	environmentIDs, err := e.resolver.Resolve("environment", args["ENVIRONMENT_NAME"])
 	if err != nil {
 		return err
 	}
@@ -173,7 +173,7 @@ func (e *EnvironmentCommand) read(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) update(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "NAME", "COUNT")
+	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME", "COUNT")
 	if err != nil {
 		return err
 	}
@@ -183,7 +183,7 @@ func (e *EnvironmentCommand) update(c *cli.Context) error {
 		return fmt.Errorf("'%s' is not a valid integer", args["COUNT"])
 	}
 
-	id, err := e.resolveSingleEntityIDHelper("environment", args["NAME"])
+	id, err := e.resolveSingleEntityIDHelper("environment", args["ENVIRONMENT_NAME"])
 	if err != nil {
 		return err
 	}
@@ -209,17 +209,17 @@ func (e *EnvironmentCommand) update(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) link(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "SOURCE", "DESTINATION")
+	args, err := extractArgs(c.Args(), "SOURCE_ENVIRONMENT_NAME", "DESTINATION_ENVIRONMENT_NAME")
 	if err != nil {
 		return err
 	}
 
-	sourceEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["SOURCE"])
+	sourceEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["SOURCE_ENVIRONMENT_NAME"])
 	if err != nil {
 		return err
 	}
 
-	destEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["DESTINATION"])
+	destEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["DESTINATION_ENVIRONMENT_NAME"])
 	if err != nil {
 		return err
 	}
@@ -245,17 +245,17 @@ func (e *EnvironmentCommand) link(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) unlink(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "SOURCE", "DESTINATION")
+	args, err := extractArgs(c.Args(), "SOURCE_ENVIRONMENT_NAME", "DESTINATION_ENVIRONMENT_NAME")
 	if err != nil {
 		return err
 	}
 
-	sourceEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["SOURCE"])
+	sourceEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["SOURCE_ENVIRONMENT_NAME"])
 	if err != nil {
 		return err
 	}
 
-	destEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["DESTINATION"])
+	destEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["DESTINATION_ENVIRONMENT_NAME"])
 	if err != nil {
 		return err
 	}
