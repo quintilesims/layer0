@@ -233,13 +233,15 @@ func (e *EnvironmentCommand) link(c *cli.Context) error {
 		DestEnvironmentID:   destEnvironmentID,
 	}
 
-	if err := e.client.CreateLink(req); err != nil {
+	jobID, err := e.client.CreateLink(req)
+	if err != nil {
 		return err
 	}
 
-	e.printer.Printf("Environment successfully linked\n")
-
-	return nil
+	return e.waitOnJobHelper(c, jobID, "linking", func(environmentID string) error {
+		e.printer.Printf("Environment successfully linked\n")
+		return nil
+	})
 }
 
 func (e *EnvironmentCommand) unlink(c *cli.Context) error {
@@ -267,11 +269,13 @@ func (e *EnvironmentCommand) unlink(c *cli.Context) error {
 		DestEnvironmentID:   destEnvironmentID,
 	}
 
-	if err := e.client.DeleteLink(req); err != nil {
+	jobID, err := e.client.DeleteLink(req)
+	if err != nil {
 		return err
 	}
 
-	e.printer.Printf("Environment successfully unlinked\n")
-
-	return nil
+	return e.waitOnJobHelper(c, jobID, "unlinking", func(environmentID string) error {
+		e.printer.Printf("Environment successfully unlinked\n")
+		return nil
+	})
 }

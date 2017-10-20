@@ -135,3 +135,55 @@ func TestUpdateEnvironment(t *testing.T) {
 
 	assert.Equal(t, "jid", jobID)
 }
+
+func TestCreateEnvironmentLink(t *testing.T) {
+	req := models.CreateEnvironmentLinkRequest{
+		SourceEnvironmentID: "env_id1",
+		DestEnvironmentID:   "env_id2",
+	}
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, r.Method, "POST")
+		assert.Equal(t, r.URL.Path, "/environment/env_id1/link")
+
+		var body models.CreateEnvironmentLinkRequest
+		Unmarshal(t, r, &body)
+
+		assert.Equal(t, req, body)
+		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "job_id"}, 200)
+	}
+
+	client, server := newClientAndServer(handler)
+	defer server.Close()
+
+	jobID, err := client.CreateLink(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, "job_id", jobID)
+}
+
+func TestCreateEnvironmentUnlink(t *testing.T) {
+	req := models.DeleteEnvironmentLinkRequest{
+		SourceEnvironmentID: "env_id1",
+		DestEnvironmentID:   "env_id2",
+	}
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, r.Method, "DELETE")
+		assert.Equal(t, r.URL.Path, "/environment/env_id1/link/env_id2")
+
+		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "job_id"}, 200)
+	}
+
+	client, server := newClientAndServer(handler)
+	defer server.Close()
+
+	jobID, err := client.DeleteLink(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, "job_id", jobID)
+}
