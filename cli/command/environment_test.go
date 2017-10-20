@@ -49,7 +49,7 @@ func TestEnvironmentCommand_userInputErrors(t *testing.T) {
 
 	for _, tc := range testCases {
 		t.Run(tc.name, func(t *testing.T) {
-			c := getCLIContext(t, tc.args, nil)
+			c := NewContext(t, tc.args, nil)
 
 			if err := tc.command(c); err == nil {
 				t.Fatalf("%s: error was nil!", tc.name)
@@ -59,7 +59,7 @@ func TestEnvironmentCommand_userInputErrors(t *testing.T) {
 }
 
 func TestCreateEnvironment(t *testing.T) {
-	testNoWaitCaseHelper(t, func(t *testing.T, otherFlags map[string]interface{}, wait bool) {
+	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
 
@@ -106,11 +106,8 @@ func TestCreateEnvironment(t *testing.T) {
 			"os":        req.OperatingSystem,
 			"ami":       req.AMIID,
 		}
-		for k, v := range otherFlags {
-			flags[k] = v
-		}
 
-		c := getCLIContext(t, []string{"env_name"}, flags)
+		c := NewContext(t, []string{"env_name"}, flags, SetNoWait(!wait))
 		if err := command.create(c); err != nil {
 			t.Fatal(err)
 		}
@@ -118,7 +115,7 @@ func TestCreateEnvironment(t *testing.T) {
 }
 
 func TestDeleteEnvironment(t *testing.T) {
-	testNoWaitCaseHelper(t, func(t *testing.T, flags map[string]interface{}, wait bool) {
+	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
 
@@ -144,7 +141,7 @@ func TestDeleteEnvironment(t *testing.T) {
 				Return(job, nil)
 		}
 
-		c := getCLIContext(t, []string{"env_name"}, flags)
+		c := NewContext(t, []string{"env_name"}, nil, SetNoWait(!wait))
 		if err := command.delete(c); err != nil {
 			t.Fatal(err)
 		}
@@ -169,7 +166,7 @@ func TestGetEnvironment(t *testing.T) {
 		ReadEnvironment("env_id2").
 		Return(&models.Environment{}, nil)
 
-	c := getCLIContext(t, []string{"env_name*"}, nil)
+	c := NewContext(t, []string{"env_name*"}, nil)
 	if err := command.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -185,14 +182,14 @@ func TestListEnvironments(t *testing.T) {
 		ListEnvironments().
 		Return([]*models.EnvironmentSummary{}, nil)
 
-	c := getCLIContext(t, nil, nil)
+	c := NewContext(t, nil, nil)
 	if err := command.list(c); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestEnvironmentSetMinCount(t *testing.T) {
-	testNoWaitCaseHelper(t, func(t *testing.T, flags map[string]interface{}, wait bool) {
+	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
 
@@ -228,7 +225,7 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 				Return(&models.Environment{}, nil)
 		}
 
-		c := getCLIContext(t, []string{"env_name", "2"}, flags)
+		c := NewContext(t, []string{"env_name", "2"}, nil, SetNoWait(!wait))
 		if err := command.update(c); err != nil {
 			t.Fatal(err)
 		}
@@ -236,7 +233,7 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 }
 
 func TestEnvironmentLink(t *testing.T) {
-	testNoWaitCaseHelper(t, func(t *testing.T, flags map[string]interface{}, wait bool) {
+	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
 
@@ -270,7 +267,7 @@ func TestEnvironmentLink(t *testing.T) {
 				Return(job, nil)
 		}
 
-		c := getCLIContext(t, []string{"env_name1", "env_name2"}, flags)
+		c := NewContext(t, []string{"env_name1", "env_name2"}, nil, SetNoWait(!wait))
 		if err := command.link(c); err != nil {
 			t.Fatal(err)
 		}
@@ -278,7 +275,7 @@ func TestEnvironmentLink(t *testing.T) {
 }
 
 func TestEnvironmentUnlink(t *testing.T) {
-	testNoWaitCaseHelper(t, func(t *testing.T, flags map[string]interface{}, wait bool) {
+	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
 
@@ -312,7 +309,7 @@ func TestEnvironmentUnlink(t *testing.T) {
 				Return(job, nil)
 		}
 
-		c := getCLIContext(t, []string{"env_name1", "env_name2"}, flags)
+		c := NewContext(t, []string{"env_name1", "env_name2"}, nil, SetNoWait(!wait))
 		if err := command.unlink(c); err != nil {
 			t.Fatal(err)
 		}
@@ -330,7 +327,7 @@ func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
 		Return([]string{"env_id1"}, nil).
 		Times(2)
 
-	c := getCLIContext(t, []string{"env_name1", "env_name1"}, nil)
+	c := NewContext(t, []string{"env_name1", "env_name1"}, nil)
 	if err := command.link(c); err == nil {
 		t.Fatal("error was nil!")
 	}
@@ -347,7 +344,7 @@ func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
 		Return([]string{"env_id1"}, nil).
 		Times(2)
 
-	c := getCLIContext(t, []string{"env_name1", "env_name1"}, nil)
+	c := NewContext(t, []string{"env_name1", "env_name1"}, nil)
 	if err := command.unlink(c); err == nil {
 		t.Fatal("error was nil!")
 	}
