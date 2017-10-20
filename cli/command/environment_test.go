@@ -168,7 +168,7 @@ func TestCreateEnvironment(t *testing.T) {
 		command := NewEnvironmentCommand(base.Command())
 
 		userData := "user_data"
-		file, close := tempFile(t, userData)
+		file, close := createTempFile(t, userData)
 		defer close()
 
 		req := models.CreateEnvironmentRequest{
