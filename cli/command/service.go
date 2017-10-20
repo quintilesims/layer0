@@ -27,7 +27,7 @@ func (s *ServiceCommand) Command() cli.Command {
 				Name:      "create",
 				Usage:     "create a new service",
 				Action:    s.create,
-				ArgsUsage: "ENVIRONMENT NAME DEPLOY",
+				ArgsUsage: "ENVIRONMENT SERVICE_NAME DEPLOY",
 				Flags: []cli.Flag{
 					cli.StringFlag{
 						Name:  "loadbalancer",
@@ -39,13 +39,13 @@ func (s *ServiceCommand) Command() cli.Command {
 				Name:      "delete",
 				Usage:     "delete a service",
 				Action:    s.delete,
-				ArgsUsage: "NAME",
+				ArgsUsage: "SERVICE_NAME",
 			},
 			{
 				Name:      "get",
 				Usage:     "describe a service",
 				Action:    s.read,
-				ArgsUsage: "NAME",
+				ArgsUsage: "SERVICE_NAME",
 			},
 			{
 				Name:   "list",
@@ -56,7 +56,7 @@ func (s *ServiceCommand) Command() cli.Command {
 				Name:      "logs",
 				Usage:     "get the logs for a service",
 				Action:    s.logs,
-				ArgsUsage: "NAME",
+				ArgsUsage: "SERVICE_NAME",
 				Flags: []cli.Flag{
 					cli.IntFlag{
 						Name:  "tail",
@@ -76,20 +76,20 @@ func (s *ServiceCommand) Command() cli.Command {
 				Name:      "scale",
 				Usage:     "scale a service",
 				Action:    s.scale,
-				ArgsUsage: "NAME COUNT",
+				ArgsUsage: "SERVICE_NAME COUNT",
 			},
 			{
 				Name:      "update",
 				Usage:     "run a new dploy on a service",
 				Action:    s.update,
-				ArgsUsage: "NAME DEPLOY",
+				ArgsUsage: "SERVICE_NAME DEPLOY",
 			},
 		},
 	}
 }
 
 func (s *ServiceCommand) create(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "ENVIRONMENT", "NAME", "DEPLOY")
+	args, err := extractArgs(c.Args(), "ENVIRONMENT", "SERVICE_NAME", "DEPLOY")
 	if err != nil {
 		return err
 	}
@@ -118,7 +118,7 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 		DeployID:       deployID,
 		EnvironmentID:  environmentID,
 		LoadBalancerID: loadBalancerID,
-		ServiceName:    args["NAME"],
+		ServiceName:    args["SERVICE_NAME"],
 	}
 
 	jobID, err := s.client.CreateService(req)
@@ -156,12 +156,12 @@ func (s *ServiceCommand) list(c *cli.Context) error {
 }
 
 func (s *ServiceCommand) logs(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "NAME")
+	args, err := extractArgs(c.Args(), "SERVICE_NAME")
 	if err != nil {
 		return err
 	}
 
-	serviceID, err := s.resolveSingleEntityIDHelper("service", args["NAME"])
+	serviceID, err := s.resolveSingleEntityIDHelper("service", args["SERVICE_NAME"])
 	if err != nil {
 		return err
 	}
@@ -177,12 +177,12 @@ func (s *ServiceCommand) logs(c *cli.Context) error {
 }
 
 func (s *ServiceCommand) read(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "NAME")
+	args, err := extractArgs(c.Args(), "SERVICE_NAME")
 	if err != nil {
 		return err
 	}
 
-	serviceIDs, err := s.resolver.Resolve("service", args["NAME"])
+	serviceIDs, err := s.resolver.Resolve("service", args["SERVICE_NAME"])
 	if err != nil {
 		return err
 	}
@@ -201,12 +201,12 @@ func (s *ServiceCommand) read(c *cli.Context) error {
 }
 
 func (s *ServiceCommand) scale(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "NAME", "COUNT")
+	args, err := extractArgs(c.Args(), "SERVICE_NAME", "COUNT")
 	if err != nil {
 		return err
 	}
 
-	serviceID, err := s.resolveSingleEntityIDHelper("service", args["NAME"])
+	serviceID, err := s.resolveSingleEntityIDHelper("service", args["SERVICE_NAME"])
 	if err != nil {
 		return err
 	}
@@ -239,12 +239,12 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 }
 
 func (s *ServiceCommand) update(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "NAME", "DEPLOY")
+	args, err := extractArgs(c.Args(), "SERVICE_NAME", "DEPLOY")
 	if err != nil {
 		return err
 	}
 
-	serviceID, err := s.resolveSingleEntityIDHelper("service", args["NAME"])
+	serviceID, err := s.resolveSingleEntityIDHelper("service", args["SERVICE_NAME"])
 	if err != nil {
 		return err
 	}
