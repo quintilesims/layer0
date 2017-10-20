@@ -54,27 +54,3 @@ func createTempFile(t *testing.T, content string) (*os.File, func()) {
 
 	return file, func() { os.Remove(file.Name()) }
 }
-
-func testNoWaitCaseHelper(t *testing.T, FN func(*testing.T, map[string]interface{}, bool)) {
-	testCases := []struct {
-		name  string
-		flags map[string]interface{}
-		wait  bool
-	}{
-		{
-			name: "Wait",
-			wait: true,
-		},
-		{
-			name:  "NoWait",
-			flags: map[string]interface{}{"no-wait": true},
-			wait:  false,
-		},
-	}
-
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			FN(t, tc.flags, tc.wait)
-		})
-	}
-}
