@@ -53,10 +53,11 @@ func (_mr *_MockClientRecorder) CreateEnvironment(arg0 interface{}) *gomock.Call
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0)
 }
 
-func (_m *MockClient) CreateLink(_param0 models.CreateEnvironmentLinkRequest) error {
+func (_m *MockClient) CreateLink(_param0 models.CreateEnvironmentLinkRequest) (string, error) {
 	ret := _m.ctrl.Call(_m, "CreateLink", _param0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 func (_mr *_MockClientRecorder) CreateLink(arg0 interface{}) *gomock.Call {
@@ -128,10 +129,11 @@ func (_mr *_MockClientRecorder) DeleteJob(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteJob", arg0)
 }
 
-func (_m *MockClient) DeleteLink(_param0 models.DeleteEnvironmentLinkRequest) error {
+func (_m *MockClient) DeleteLink(_param0 models.DeleteEnvironmentLinkRequest) (string, error) {
 	ret := _m.ctrl.Call(_m, "DeleteLink", _param0)
-	ret0, _ := ret[0].(error)
-	return ret0
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 func (_m *MockClient) DeleteLoadBalancer(_param0 string) (string, error) {

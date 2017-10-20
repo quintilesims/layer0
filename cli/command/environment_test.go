@@ -230,51 +230,87 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 }
 
 func TestEnvironmentLink(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
+	testNoWaitCaseHelper(t, func(t *testing.T, flags map[string]interface{}, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
 
-	command := NewEnvironmentCommand(base.Command())
+		command := NewEnvironmentCommand(base.Command())
 
-	base.Resolver.EXPECT().
-		Resolve("environment", "env_name1").
-		Return([]string{"env_id1"}, nil)
+		job := &models.Job{
+			JobID:  "job_id",
+			Status: job.Completed.String(),
+			Result: "entity_id",
+		}
 
-	base.Resolver.EXPECT().
-		Resolve("environment", "env_name2").
-		Return([]string{"env_id2"}, nil)
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name1").
+			Return([]string{"env_id1"}, nil)
 
-	base.Client.EXPECT().
-		CreateLink("env_id1", "env_id2").
-		Return(nil)
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name2").
+			Return([]string{"env_id2"}, nil)
 
-	c := getCLIContext(t, []string{"env_name1", "env_name2"}, nil)
-	if err := command.link(c); err != nil {
-		t.Fatal(err)
-	}
+		req := models.CreateEnvironmentLinkRequest{
+			SourceEnvironmentID: "env_id1",
+			DestEnvironmentID:   "env_id2",
+		}
+		base.Client.EXPECT().
+			CreateLink(req).
+			Return(job.JobID, nil)
+
+		if wait {
+			base.Client.EXPECT().
+				ReadJob(job.JobID).
+				Return(job, nil)
+		}
+
+		c := getCLIContext(t, []string{"env_name1", "env_name2"}, flags)
+		if err := command.link(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestEnvironmentUnlink(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
+	testNoWaitCaseHelper(t, func(t *testing.T, flags map[string]interface{}, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
 
-	command := NewEnvironmentCommand(base.Command())
+		command := NewEnvironmentCommand(base.Command())
 
-	base.Resolver.EXPECT().
-		Resolve("environment", "env_name1").
-		Return([]string{"env_id1"}, nil)
+		job := &models.Job{
+			JobID:  "job_id",
+			Status: job.Completed.String(),
+			Result: "entity_id",
+		}
 
-	base.Resolver.EXPECT().
-		Resolve("environment", "env_name2").
-		Return([]string{"env_id2"}, nil)
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name1").
+			Return([]string{"env_id1"}, nil)
 
-	base.Client.EXPECT().
-		DeleteLink("env_id1", "env_id2").
-		Return(nil)
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name2").
+			Return([]string{"env_id2"}, nil)
 
-	c := getCLIContext(t, []string{"env_name1", "env_name2"}, nil)
-	if err := command.unlink(c); err != nil {
-		t.Fatal(err)
-	}
+		req := models.DeleteEnvironmentLinkRequest{
+			SourceEnvironmentID: "env_id1",
+			DestEnvironmentID:   "env_id2",
+		}
+		base.Client.EXPECT().
+			DeleteLink(req).
+			Return(job.JobID, nil)
+
+		if wait {
+			base.Client.EXPECT().
+				ReadJob(job.JobID).
+				Return(job, nil)
+		}
+
+		c := getCLIContext(t, []string{"env_name1", "env_name2"}, flags)
+		if err := command.unlink(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
