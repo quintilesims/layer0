@@ -16,7 +16,7 @@ func TestCreateTask(t *testing.T) {
 
 		taskCommand := NewTaskCommand(base.Command())
 
-		args := Args{"env_name", "dpl_name", "task_name"}
+		args := Args{"env_name", "tsk_name", "dpl_name"}
 
 		flags := Flags{
 			"copies": 1,
@@ -29,7 +29,7 @@ func TestCreateTask(t *testing.T) {
 		}}
 
 		req := models.CreateTaskRequest{
-			TaskName:           "task_name",
+			TaskName:           "tsk_name",
 			DeployID:           "dpl_id",
 			EnvironmentID:      "env_id",
 			ContainerOverrides: overrides,
@@ -77,7 +77,7 @@ func TestCreateTask_userInputErrors(t *testing.T) {
 
 	contexts := map[string]*cli.Context{
 		"Missing ENVIRONMENT arg": NewContext(t, nil, nil),
-		"Missing NAME arg":        NewContext(t, Args{"environment"}, nil),
+		"Missing TASK_NAME arg":   NewContext(t, Args{"environment"}, nil),
 		"Missing DEPLOY arg":      NewContext(t, Args{"environment", "name"}, nil),
 	}
 
@@ -128,7 +128,7 @@ func TestDeleteTask_userInputErrors(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing TASK_NAME arg": NewContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -149,7 +149,7 @@ func TestReadTask(t *testing.T) {
 	}
 
 	base.Resolver.EXPECT().
-		Resolve("task", "task_name").
+		Resolve("task", "tsk_name").
 		Return(Args{"task_id"}, nil)
 
 	base.Client.EXPECT().
@@ -160,7 +160,7 @@ func TestReadTask(t *testing.T) {
 		ReadTask("task_id").
 		Return(&models.Task{}, nil)
 
-	c := NewContext(t, Args{"task_name"}, nil)
+	c := NewContext(t, Args{"tsk_name"}, nil)
 	if err := taskCommand.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -173,7 +173,7 @@ func TestReadTask_userInputErrors(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing TASK_NAME arg": NewContext(t, nil, nil),
 	}
 
 	base.Client.EXPECT().
@@ -224,7 +224,7 @@ func TestListTasks(t *testing.T) {
 
 	base.Client.EXPECT().
 		ListTasks().
-		Return([]*models.LogFile{}, nil)
+		Return([]*models.TaskSummary{}, nil)
 
 	c := NewContext(t, nil, nil)
 	if err := taskCommand.list(c); err != nil {
@@ -244,7 +244,8 @@ func TestReadTaskLogs(t *testing.T) {
 	query := buildLogQueryHelper("tsk_id", "start", "end", 100)
 
 	base.Client.EXPECT().
-		ReadTaskLogs("tsk_id", query)
+		ReadTaskLogs("tsk_id", query).
+		Return([]*models.LogFile{}, nil)
 
 	flags := Flags{
 		"tail":  100,
@@ -264,7 +265,7 @@ func TestReadTaskLogs_userInputErrors(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing TASK_NAME arg": NewContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {

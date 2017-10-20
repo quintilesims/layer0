@@ -26,7 +26,7 @@ func (t *TaskCommand) Command() cli.Command {
 				Name:      "create",
 				Usage:     "create a new task",
 				Action:    t.create,
-				ArgsUsage: "ENVIRONMENT NAME DEPLOY",
+				ArgsUsage: "ENVIRONMENT TASK_NAME DEPLOY",
 				Flags: []cli.Flag{
 					cli.IntFlag{
 						Name:  "copies",
@@ -42,7 +42,7 @@ func (t *TaskCommand) Command() cli.Command {
 			{
 				Name:      "delete",
 				Usage:     "delete a Task",
-				ArgsUsage: "NAME",
+				ArgsUsage: "TASK_NAME",
 				Action:    t.delete,
 			},
 			{
@@ -55,13 +55,13 @@ func (t *TaskCommand) Command() cli.Command {
 				Name:      "read",
 				Usage:     "describe a Task",
 				Action:    t.read,
-				ArgsUsage: "NAME",
+				ArgsUsage: "TASK_NAME",
 			},
 			{
 				Name:      "logs",
 				Usage:     "get the logs for a task",
 				Action:    t.logs,
-				ArgsUsage: "NAME",
+				ArgsUsage: "TASK_NAME",
 				Flags: []cli.Flag{
 					cli.IntFlag{
 						Name:  "tail",
@@ -82,7 +82,7 @@ func (t *TaskCommand) Command() cli.Command {
 }
 
 func (t *TaskCommand) create(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "ENVIRONMENT", "NAME", "DEPLOY")
+	args, err := extractArgs(c.Args(), "ENVIRONMENT", "TASK_NAME", "DEPLOY")
 	if err != nil {
 		return err
 	}
@@ -103,7 +103,7 @@ func (t *TaskCommand) create(c *cli.Context) error {
 	}
 
 	req := models.CreateTaskRequest{
-		TaskName:           args["NAME"],
+		TaskName:           args["TASK_NAME"],
 		EnvironmentID:      environmentID,
 		DeployID:           deployID,
 		ContainerOverrides: overrides,
@@ -150,12 +150,12 @@ func (t *TaskCommand) read(c *cli.Context) error {
 		taskExists[taskSummary.TaskID] = true
 	}
 
-	args, err := extractArgs(c.Args(), "NAME")
+	args, err := extractArgs(c.Args(), "TASK_NAME")
 	if err != nil {
 		return err
 	}
 
-	taskIDs, err := t.resolver.Resolve("task", args["NAME"])
+	taskIDs, err := t.resolver.Resolve("task", args["TASK_NAME"])
 	if err != nil {
 		return err
 	}
@@ -181,12 +181,12 @@ func (t *TaskCommand) read(c *cli.Context) error {
 }
 
 func (t *TaskCommand) logs(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "NAME")
+	args, err := extractArgs(c.Args(), "TASK_NAME")
 	if err != nil {
 		return err
 	}
 
-	taskID, err := t.resolveSingleEntityIDHelper("task", args["NAME"])
+	taskID, err := t.resolveSingleEntityIDHelper("task", args["TASK_NAME"])
 	if err != nil {
 		return err
 	}
