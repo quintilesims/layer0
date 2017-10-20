@@ -118,6 +118,10 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 		AMIID:            c.String("ami"),
 	}
 
+	if err := req.Validate(); err != nil {
+		return err
+	}
+
 	jobID, err := e.client.CreateEnvironment(req)
 	if err != nil {
 		return err
@@ -191,6 +195,10 @@ func (e *EnvironmentCommand) update(c *cli.Context) error {
 	req := models.UpdateEnvironmentRequest{
 		EnvironmentID:   id,
 		MinClusterCount: &minClusterCount,
+	}
+
+	if err := req.Validate(); err != nil {
+		return err
 	}
 
 	jobID, err := e.client.UpdateEnvironment(req)

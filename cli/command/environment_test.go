@@ -9,55 +9,157 @@ import (
 	"github.com/urfave/cli"
 )
 
-func TestEnvironmentCommand_userInputErrors(t *testing.T) {
+func TestEnvironmentCreate_userInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
 	command := NewEnvironmentCommand(base.Command())
 
-	testCases := []struct {
-		name    string
-		command func(*cli.Context) error
-		args    []string
-	}{
-		{
-			name:    "create",
-			command: command.create,
-		},
-		{
-			name:    "setMinCount",
-			command: command.update,
-			args:    []string{"env_name", "1w"},
-		},
-		{
-			name:    "read",
-			command: command.read,
-		},
-		{
-			name:    "delete",
-			command: command.delete,
-		},
-		{
-			name:    "link",
-			command: command.link,
-		},
-		{
-			name:    "unlink",
-			command: command.unlink,
-		},
+	contexts := map[string]*cli.Context{
+		"Missing NAME arg": NewContext(t, nil, nil),
+		"OS missing":       NewContext(t, Args{"env_name"}, nil),
+		"Count negative": NewContext(t, Args{"env_name"},
+			Flags{
+				"os":        "linux",
+				"min-count": "-1",
+			}),
 	}
 
-	for _, tc := range testCases {
-		t.Run(tc.name, func(t *testing.T) {
-			c := NewContext(t, tc.args, nil)
-
-			if err := tc.command(c); err == nil {
-				t.Fatalf("%s: error was nil!", tc.name)
-			}
-		})
+	for name, c := range contexts {
+		err := command.create(c)
+		if err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
 	}
 }
 
+func TestEnvironmentDelete_userInputErrors(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	command := NewEnvironmentCommand(base.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing NAME arg": NewContext(t, nil, nil),
+	}
+
+	for name, c := range contexts {
+		err := command.delete(c)
+		if err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
+	}
+}
+
+func TestEnvironmentRead_userInputErrors(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	command := NewEnvironmentCommand(base.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing NAME arg": NewContext(t, nil, nil),
+	}
+
+	for name, c := range contexts {
+		err := command.read(c)
+		if err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
+	}
+}
+
+func TestEnvironmentSetMinCount_userInputErrors(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	command := NewEnvironmentCommand(base.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing NAME arg":  NewContext(t, nil, nil),
+		"Missing COUNT arg": NewContext(t, Args{"env_name"}, nil),
+		"Invalid COUNT arg": NewContext(t, Args{"env_name", "not_a_number"}, nil),
+	}
+
+	for name, c := range contexts {
+		err := command.update(c)
+		if err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
+	}
+}
+
+func TestEnvironmentLink_userInputErrors(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	command := NewEnvironmentCommand(base.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing SOURCE & DESTINATION args": NewContext(t, nil, nil),
+		"Missing DESTINATION arg":           NewContext(t, Args{"env_name1"}, nil),
+	}
+
+	for name, c := range contexts {
+		err := command.link(c)
+		if err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
+	}
+}
+
+func TestEnvironmentUnlink_userInputErrors(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	command := NewEnvironmentCommand(base.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing SOURCE & DESTINATION args": NewContext(t, nil, nil),
+		"Missing DESTINATION arg":           NewContext(t, Args{"env_name1"}, nil),
+	}
+
+	for name, c := range contexts {
+		err := command.unlink(c)
+		if err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
+	}
+}
+
+func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	command := NewEnvironmentCommand(base.Command())
+
+	base.Resolver.EXPECT().
+		Resolve("environment", gomock.Any()).
+		Return([]string{"env_id1"}, nil).
+		Times(2)
+
+	c := NewContext(t, []string{"env_name1", "env_name1"}, nil)
+	if err := command.link(c); err == nil {
+		t.Fatal("error was nil!")
+	}
+}
+
+func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+
+	command := NewEnvironmentCommand(base.Command())
+
+	base.Resolver.EXPECT().
+		Resolve("environment", gomock.Any()).
+		Return([]string{"env_id1"}, nil).
+		Times(2)
+
+	c := NewContext(t, []string{"env_name1", "env_name1"}, nil)
+	if err := command.unlink(c); err == nil {
+		t.Fatal("error was nil!")
+	}
+}
 func TestCreateEnvironment(t *testing.T) {
 	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
@@ -314,38 +416,4 @@ func TestEnvironmentUnlink(t *testing.T) {
 			t.Fatal(err)
 		}
 	})
-}
-
-func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-
-	command := NewEnvironmentCommand(base.Command())
-
-	base.Resolver.EXPECT().
-		Resolve("environment", gomock.Any()).
-		Return([]string{"env_id1"}, nil).
-		Times(2)
-
-	c := NewContext(t, []string{"env_name1", "env_name1"}, nil)
-	if err := command.link(c); err == nil {
-		t.Fatal("error was nil!")
-	}
-}
-
-func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-
-	command := NewEnvironmentCommand(base.Command())
-
-	base.Resolver.EXPECT().
-		Resolve("environment", gomock.Any()).
-		Return([]string{"env_id1"}, nil).
-		Times(2)
-
-	c := NewContext(t, []string{"env_name1", "env_name1"}, nil)
-	if err := command.unlink(c); err == nil {
-		t.Fatal("error was nil!")
-	}
 }
