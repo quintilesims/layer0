@@ -38,7 +38,7 @@ func main() {
 		command.NewServiceCommand(base).Command(),
 		command.NewTaskCommand(base).Command(),
 	}
-	
+
 	app.Before = func(c *cli.Context) error {
 		if err := config.ValidateCLIContext(c); err != nil {
 			return err
