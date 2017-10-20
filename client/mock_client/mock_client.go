@@ -4,10 +4,9 @@
 package mock_client
 
 import (
-	url "net/url"
-
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
+	url "net/url"
 )
 
 // Mock of Client interface
@@ -134,6 +133,10 @@ func (_m *MockClient) DeleteLink(_param0 models.DeleteEnvironmentLinkRequest) (s
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
+}
+
+func (_mr *_MockClientRecorder) DeleteLink(arg0 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteLink", arg0)
 }
 
 func (_m *MockClient) DeleteLoadBalancer(_param0 string) (string, error) {
