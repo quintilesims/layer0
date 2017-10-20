@@ -10,106 +10,73 @@ import (
 )
 
 func TestCreateService(t *testing.T) {
-	defer client.SetTimeMultiplier(0)()
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		defer client.SetTimeMultiplier(0)()
 
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
 
-	base.Resolver.EXPECT().
-		Resolve("deploy", "dpl_name").
-		Return([]string{"dpl_id"}, nil)
+		base.Resolver.EXPECT().
+			Resolve("deploy", "dpl_name").
+			Return([]string{"dpl_id"}, nil)
 
-	base.Resolver.EXPECT().
-		Resolve("environment", "env_name").
-		Return([]string{"env_id"}, nil)
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name").
+			Return([]string{"env_id"}, nil)
 
-	base.Resolver.EXPECT().
-		Resolve("load_balancer", "lb_name").
-		Return([]string{"lb_id"}, nil)
+		base.Resolver.EXPECT().
+			Resolve("load_balancer", "lb_name").
+			Return([]string{"lb_id"}, nil)
 
-	req := models.CreateServiceRequest{
-		DeployID:       "dpl_id",
-		EnvironmentID:  "env_id",
-		LoadBalancerID: "lb_id",
-		ServiceName:    "svc_name",
-	}
+		req := models.CreateServiceRequest{
+			DeployID:       "dpl_id",
+			EnvironmentID:  "env_id",
+			LoadBalancerID: "lb_id",
+			ServiceName:    "svc_name",
+		}
 
-	base.Client.EXPECT().
-		CreateService(req).
-		Return("job_id", nil)
+		base.Client.EXPECT().
+			CreateService(req).
+			Return("job_id", nil)
 
-	job := &models.Job{
-		Status: "Completed",
-		Result: "svc_id",
-	}
+		if wait {
+			job := &models.Job{
+				Status: "Completed",
+				Result: "svc_id",
+			}
 
-	base.Client.EXPECT().
-		ReadJob("job_id").
-		Return(job, nil)
+			base.Client.EXPECT().
+				ReadJob("job_id").
+				Return(job, nil)
 
-	deployments := []models.Deployment{
-		{
-			DesiredCount: 1,
-			RunningCount: 1,
-		},
-	}
+			deployments := []models.Deployment{
+				{
+					DesiredCount: 1,
+					RunningCount: 1,
+				},
+			}
 
-	service := &models.Service{
-		Deployments:  deployments,
-		DesiredCount: 1,
-		RunningCount: 1,
-	}
+			service := &models.Service{
+				Deployments:  deployments,
+				DesiredCount: 1,
+				RunningCount: 1,
+			}
 
-	base.Client.EXPECT().
-		ReadService("svc_id").
-		Return(service, nil).
-		AnyTimes()
+			base.Client.EXPECT().
+				ReadService("svc_id").
+				Return(service, nil).
+				AnyTimes()
+		}
 
-	args := Args{"env_name", "svc_name", "dpl_name"}
-	flags := Flags{"loadbalancer": "lb_name"}
-	c := NewContext(t, args, flags)
+		args := Args{"env_name", "svc_name", "dpl_name"}
+		flags := Flags{"loadbalancer": "lb_name"}
+		c := NewContext(t, args, flags, SetNoWait(!wait))
 
-	serviceCommand := NewServiceCommand(base.Command())
-	if err := serviceCommand.create(c); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestCreateService_noWait(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-
-	base.Resolver.EXPECT().
-		Resolve("deploy", "dpl_name").
-		Return([]string{"dpl_id"}, nil)
-
-	base.Resolver.EXPECT().
-		Resolve("environment", "env_name").
-		Return([]string{"env_id"}, nil)
-
-	base.Resolver.EXPECT().
-		Resolve("load_balancer", "lb_name").
-		Return([]string{"lb_id"}, nil)
-
-	req := models.CreateServiceRequest{
-		DeployID:       "dpl_id",
-		EnvironmentID:  "env_id",
-		LoadBalancerID: "lb_id",
-		ServiceName:    "svc_name",
-	}
-
-	base.Client.EXPECT().
-		CreateService(req).
-		Return("job_id", nil)
-
-	args := Args{"env_name", "svc_name", "dpl_name"}
-	flags := Flags{"loadbalancer": "lb_name"}
-	c := NewContext(t, args, flags, SetNoWait(true))
-
-	serviceCommand := NewServiceCommand(base.Command())
-	if err := serviceCommand.create(c); err != nil {
-		t.Fatal(err)
-	}
+		serviceCommand := NewServiceCommand(base.Command())
+		if err := serviceCommand.create(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestCreateService_userInputErrors(t *testing.T) {
@@ -133,54 +100,37 @@ func TestCreateService_userInputErrors(t *testing.T) {
 }
 
 func TestDeleteService(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
 
-	base.Resolver.EXPECT().
-		Resolve("service", "svc_name").
-		Return([]string{"svc_id"}, nil)
+		base.Resolver.EXPECT().
+			Resolve("service", "svc_name").
+			Return([]string{"svc_id"}, nil)
 
-	base.Client.EXPECT().
-		DeleteService("svc_id").
-		Return("job_id", nil)
+		base.Client.EXPECT().
+			DeleteService("svc_id").
+			Return("job_id", nil)
 
-	job := &models.Job{
-		Status: "Completed",
-		Result: "svc_id",
-	}
+		if wait {
+			job := &models.Job{
+				Status: "Completed",
+				Result: "svc_id",
+			}
 
-	base.Client.EXPECT().
-		ReadJob("job_id").
-		Return(job, nil)
+			base.Client.EXPECT().
+				ReadJob("job_id").
+				Return(job, nil)
+		}
 
-	args := Args{"svc_name"}
-	c := NewContext(t, args, nil)
+		args := Args{"svc_name"}
+		c := NewContext(t, args, nil, SetNoWait(!wait))
 
-	serviceCommand := NewServiceCommand(base.Command())
-	if err := serviceCommand.delete(c); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestDeleteService_noWait(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-
-	base.Resolver.EXPECT().
-		Resolve("service", "svc_name").
-		Return([]string{"svc_id"}, nil)
-
-	base.Client.EXPECT().
-		DeleteService("svc_id").
-		Return("job_id", nil)
-
-	args := Args{"svc_name"}
-	c := NewContext(t, args, nil, SetNoWait(true))
-
-	serviceCommand := NewServiceCommand(base.Command())
-	if err := serviceCommand.delete(c); err != nil {
-		t.Fatal(err)
-	}
+		serviceCommand := NewServiceCommand(base.Command())
+		if err := serviceCommand.delete(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestDeleteService_userInputError(t *testing.T) {
@@ -303,85 +253,62 @@ func TestReadService_userInputError(t *testing.T) {
 }
 
 func TestScaleService(t *testing.T) {
-	defer client.SetTimeMultiplier(0)()
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		defer client.SetTimeMultiplier(0)()
 
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
 
-	base.Resolver.EXPECT().
-		Resolve("service", "svc_name").
-		Return([]string{"svc_id"}, nil)
+		base.Resolver.EXPECT().
+			Resolve("service", "svc_name").
+			Return([]string{"svc_id"}, nil)
 
-	scale := 2
-	req := models.UpdateServiceRequest{
-		ServiceID: "svc_id",
-		Scale:     &scale,
-	}
+		scale := 2
+		req := models.UpdateServiceRequest{
+			ServiceID: "svc_id",
+			Scale:     &scale,
+		}
 
-	base.Client.EXPECT().
-		UpdateService(req).
-		Return("job_id", nil)
+		base.Client.EXPECT().
+			UpdateService(req).
+			Return("job_id", nil)
 
-	job := &models.Job{
-		Status: "Completed",
-		Result: "svc_id",
-	}
+		if wait {
+			job := &models.Job{
+				Status: "Completed",
+				Result: "svc_id",
+			}
 
-	base.Client.EXPECT().
-		ReadJob("job_id").
-		Return(job, nil)
+			base.Client.EXPECT().
+				ReadJob("job_id").
+				Return(job, nil)
 
-	deployments := []models.Deployment{
-		{
-			DesiredCount: 1,
-			RunningCount: 1,
-		},
-	}
+			deployments := []models.Deployment{
+				{
+					DesiredCount: 1,
+					RunningCount: 1,
+				},
+			}
 
-	service := &models.Service{
-		Deployments:  deployments,
-		DesiredCount: 1,
-		RunningCount: 1,
-	}
+			service := &models.Service{
+				Deployments:  deployments,
+				DesiredCount: 1,
+				RunningCount: 1,
+			}
 
-	base.Client.EXPECT().
-		ReadService("svc_id").
-		Return(service, nil).
-		AnyTimes()
+			base.Client.EXPECT().
+				ReadService("svc_id").
+				Return(service, nil).
+				AnyTimes()
+		}
 
-	args := Args{"svc_name", "2"}
-	c := NewContext(t, args, nil)
-	serviceCommand := NewServiceCommand(base.Command())
-	if err := serviceCommand.scale(c); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestScaleService_noWait(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-
-	base.Resolver.EXPECT().
-		Resolve("service", "svc_name").
-		Return([]string{"svc_id"}, nil)
-
-	scale := 2
-	req := models.UpdateServiceRequest{
-		ServiceID: "svc_id",
-		Scale:     &scale,
-	}
-
-	base.Client.EXPECT().
-		UpdateService(req).
-		Return("job_id", nil)
-
-	args := Args{"svc_name", "2"}
-	c := NewContext(t, args, nil, SetNoWait(true))
-
-	serviceCommand := NewServiceCommand(base.Command())
-	if err := serviceCommand.scale(c); err != nil {
-		t.Fatal(err)
-	}
+		args := Args{"svc_name", "2"}
+		c := NewContext(t, args, nil, SetNoWait(!wait))
+		serviceCommand := NewServiceCommand(base.Command())
+		if err := serviceCommand.scale(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestScaleService_userInputError(t *testing.T) {
@@ -410,94 +337,67 @@ func TestScaleService_userInputError(t *testing.T) {
 }
 
 func TestUpdateService(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
 
-	defer client.SetTimeMultiplier(0)()
+		defer client.SetTimeMultiplier(0)()
 
-	base.Resolver.EXPECT().
-		Resolve("service", "svc_name").
-		Return([]string{"svc_id"}, nil)
+		base.Resolver.EXPECT().
+			Resolve("service", "svc_name").
+			Return([]string{"svc_id"}, nil)
 
-	base.Resolver.EXPECT().
-		Resolve("deploy", "dpl_name").
-		Return([]string{"dpl_id"}, nil)
+		base.Resolver.EXPECT().
+			Resolve("deploy", "dpl_name").
+			Return([]string{"dpl_id"}, nil)
 
-	deployID := "dpl_id"
-	req := models.UpdateServiceRequest{
-		ServiceID: "svc_id",
-		DeployID:  &deployID,
-	}
+		deployID := "dpl_id"
+		req := models.UpdateServiceRequest{
+			ServiceID: "svc_id",
+			DeployID:  &deployID,
+		}
 
-	base.Client.EXPECT().
-		UpdateService(req).
-		Return("job_id", nil)
+		base.Client.EXPECT().
+			UpdateService(req).
+			Return("job_id", nil)
 
-	job := &models.Job{
-		Status: "Completed",
-		Result: "svc_id",
-	}
+		if wait {
+			job := &models.Job{
+				Status: "Completed",
+				Result: "svc_id",
+			}
 
-	base.Client.EXPECT().
-		ReadJob("job_id").
-		Return(job, nil)
+			base.Client.EXPECT().
+				ReadJob("job_id").
+				Return(job, nil)
 
-	deployments := []models.Deployment{
-		{
-			DesiredCount: 1,
-			RunningCount: 1,
-		},
-	}
+			deployments := []models.Deployment{
+				{
+					DesiredCount: 1,
+					RunningCount: 1,
+				},
+			}
 
-	service := &models.Service{
-		Deployments:  deployments,
-		DesiredCount: 1,
-		RunningCount: 1,
-	}
+			service := &models.Service{
+				Deployments:  deployments,
+				DesiredCount: 1,
+				RunningCount: 1,
+			}
 
-	base.Client.EXPECT().
-		ReadService("svc_id").
-		Return(service, nil).
-		AnyTimes()
+			base.Client.EXPECT().
+				ReadService("svc_id").
+				Return(service, nil).
+				AnyTimes()
+		}
 
-	args := Args{"svc_name", "dpl_name"}
-	c := NewContext(t, args, nil)
+		args := Args{"svc_name", "dpl_name"}
+		c := NewContext(t, args, nil, SetNoWait(!wait))
 
-	serviceCommand := NewServiceCommand(base.Command())
-	if err := serviceCommand.update(c); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestUpdateService_noWait(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-
-	base.Resolver.EXPECT().
-		Resolve("service", "svc_name").
-		Return([]string{"svc_id"}, nil)
-
-	base.Resolver.EXPECT().
-		Resolve("deploy", "dpl_name").
-		Return([]string{"dpl_id"}, nil)
-
-	deployID := "dpl_id"
-	req := models.UpdateServiceRequest{
-		ServiceID: "svc_id",
-		DeployID:  &deployID,
-	}
-
-	base.Client.EXPECT().
-		UpdateService(req).
-		Return("job_id", nil)
-
-	args := Args{"svc_name", "dpl_name"}
-	c := NewContext(t, args, nil, SetNoWait(true))
-
-	serviceCommand := NewServiceCommand(base.Command())
-	if err := serviceCommand.update(c); err != nil {
-		t.Fatal(err)
-	}
+		serviceCommand := NewServiceCommand(base.Command())
+		if err := serviceCommand.update(c); err != nil {
+			t.Fatal(err)
+		}
+	})
 }
 
 func TestUpdateService_userInputError(t *testing.T) {
