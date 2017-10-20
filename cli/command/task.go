@@ -30,7 +30,6 @@ func (t *TaskCommand) Command() cli.Command {
 				Flags: []cli.Flag{
 					cli.IntFlag{
 						Name:  "copies",
-						Value: 1,
 						Usage: "number of copies of deploy to run (default: 1)",
 					},
 					cli.StringSliceFlag{
