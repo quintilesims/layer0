@@ -285,15 +285,13 @@ func TestScaleService(t *testing.T) {
 
 			deployments := []models.Deployment{
 				{
-					DesiredCount: 1,
-					RunningCount: 1,
+					DesiredCount: 2,
+					RunningCount: 2,
 				},
 			}
 
 			service := &models.Service{
-				Deployments:  deployments,
-				DesiredCount: 1,
-				RunningCount: 1,
+				Deployments: deployments,
 			}
 
 			base.Client.EXPECT().
