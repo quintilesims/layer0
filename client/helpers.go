@@ -40,6 +40,7 @@ func WaitForDeployment(client Client, serviceID string, timeout time.Duration) (
 	check := func(service *models.Service) bool {
 		for _, deployment := range service.Deployments {
 			if deployment.DesiredCount != deployment.RunningCount {
+				consecutiveSuccesses = 0
 				return false
 			}
 		}
@@ -55,14 +56,12 @@ func WaitForDeployment(client Client, serviceID string, timeout time.Duration) (
 			return nil, err
 		}
 
-		finished := check(service)
-
-		if finished {
+		if check(service) {
 			return service, nil
 		}
 	}
 
-	return nil, fmt.Errorf("Deployment of service '%s' has not completed within the timeout '%v'", serviceID, timeout)
+	return nil, fmt.Errorf("Deployment of service '%s' has not completed after %v", serviceID, timeout)
 }
 
 func WaitForJob(client Client, jobID string, timeout time.Duration) (*models.Job, error) {
