@@ -74,11 +74,9 @@ func TestWaitForDeployment_error(t *testing.T) {
 	defer ctrl.Finish()
 	client := mock_client.NewMockClient(ctrl)
 
-	expected := fmt.Errorf("Error reading service")
-
 	client.EXPECT().
 		ReadService("svc_id").
-		Return(nil, expected)
+		Return(nil, fmt.Errorf("Error reading service"))
 
 	if _, err := WaitForDeployment(client, "svc_id", time.Second); err == nil {
 		t.Fatal("Error was nil!")
