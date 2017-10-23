@@ -166,7 +166,7 @@ func (s *ServiceCommand) logs(c *cli.Context) error {
 		return err
 	}
 
-	query := buildLogQueryHelper(serviceID, c.String("start"), c.String("end"), c.Int("tail"))
+	query := buildLogQueryHelper(c.String("start"), c.String("end"), c.Int("tail"))
 
 	logs, err := s.client.ReadServiceLogs(serviceID, query)
 	if err != nil {
