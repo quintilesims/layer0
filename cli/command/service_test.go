@@ -93,7 +93,7 @@ func TestCreateService_userInputErrors(t *testing.T) {
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.create(c); err == nil {
-				t.Fatal("%s: error was nil!", name)
+				t.Fatal("Error was nil!")
 			}
 		})
 	}
@@ -145,7 +145,7 @@ func TestDeleteService_userInputError(t *testing.T) {
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.create(c); err == nil {
-				t.Fatal("%s: error was nil!", name)
+				t.Fatal("Error was nil!")
 			}
 		})
 	}
@@ -207,7 +207,7 @@ func TestServiceLogs_userInputError(t *testing.T) {
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.logs(c); err == nil {
-				t.Fatal("%s: error was nil!", name)
+				t.Fatal("Error was nil!")
 			}
 		})
 	}
@@ -246,7 +246,7 @@ func TestReadService_userInputError(t *testing.T) {
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.read(c); err == nil {
-				t.Fatal("%s: error was nil!", name)
+				t.Fatal("Error was nil!")
 			}
 		})
 	}
@@ -328,7 +328,7 @@ func TestScaleService_userInputError(t *testing.T) {
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.scale(c); err == nil {
-				t.Fatal("%s: error was nil!", name)
+				t.Fatal("Error was nil!")
 			}
 		})
 	}
@@ -411,7 +411,7 @@ func TestUpdateService_userInputError(t *testing.T) {
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
 			if err := serviceCommand.update(c); err == nil {
-				t.Fatal("%s: error was nil!", name)
+				t.Fatal("Error was nil!")
 			}
 		})
 	}
