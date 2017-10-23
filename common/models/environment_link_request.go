@@ -6,9 +6,9 @@ import (
 	swagger "github.com/zpatrick/go-plugin-swagger"
 )
 
-type CreateEnvironmentLinkRequest EnvironmentLinkRequest
+type CreateEnvironmentLinkRequest = EnvironmentLinkRequest
 
-type DeleteEnvironmentLinkRequest EnvironmentLinkRequest
+type DeleteEnvironmentLinkRequest = EnvironmentLinkRequest
 
 type EnvironmentLinkRequest struct {
 	SourceEnvironmentID string `json:"source_environment_id"`

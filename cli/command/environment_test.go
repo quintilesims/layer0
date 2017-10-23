@@ -26,10 +26,11 @@ func TestEnvironmentCreate_userInputErrors(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		err := command.create(c)
-		if err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.create(c); err == nil {
+				t.Fatalf("%s: error was nil!", name)
+			}
+		})
 	}
 }
 
@@ -44,10 +45,11 @@ func TestEnvironmentDelete_userInputErrors(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		err := command.delete(c)
-		if err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.delete(c); err == nil {
+				t.Fatalf("%s: error was nil!", name)
+			}
+		})
 	}
 }
 
@@ -62,10 +64,11 @@ func TestEnvironmentRead_userInputErrors(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		err := command.read(c)
-		if err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.read(c); err == nil {
+				t.Fatalf("%s: error was nil!", name)
+			}
+		})
 	}
 }
 
@@ -82,10 +85,11 @@ func TestEnvironmentSetMinCount_userInputErrors(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		err := command.update(c)
-		if err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.update(c); err == nil {
+				t.Fatalf("%s: error was nil!", name)
+			}
+		})
 	}
 }
 
@@ -101,10 +105,11 @@ func TestEnvironmentLink_userInputErrors(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		err := command.link(c)
-		if err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.link(c); err == nil {
+				t.Fatalf("%s: error was nil!", name)
+			}
+		})
 	}
 }
 
@@ -120,10 +125,11 @@ func TestEnvironmentUnlink_userInputErrors(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		err := command.unlink(c)
-		if err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.unlink(c); err == nil {
+				t.Fatalf("%s: error was nil!", name)
+			}
+		})
 	}
 }
 
