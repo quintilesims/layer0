@@ -162,14 +162,12 @@ func (t *TaskCommand) read(c *cli.Context) error {
 			continue
 		}
 
-		if taskExists[taskID] {
-			task, err := t.client.ReadTask(taskID)
-			if err != nil {
-				return err
-			}
-
-			tasks = append(tasks, task)
+		task, err := t.client.ReadTask(taskID)
+		if err != nil {
+			return err
 		}
+
+		tasks = append(tasks, task)
 	}
 
 	return t.printer.PrintTasks(tasks...)
@@ -186,7 +184,7 @@ func (t *TaskCommand) logs(c *cli.Context) error {
 		return err
 	}
 
-	query := buildLogQueryHelper(taskID, c.String("start"), c.String("end"), c.Int("tail"))
+	query := buildLogQueryHelper(c.String("start"), c.String("end"), c.Int("tail"))
 	logs, err := t.client.ReadTaskLogs(taskID, query)
 	if err != nil {
 		return err

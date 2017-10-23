@@ -82,9 +82,11 @@ func TestCreateTask_userInputErrors(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		if err := taskCommand.create(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := taskCommand.create(c); err == nil {
+				t.Fatalf("Error was nil!")
+			}
+		})
 	}
 }
 
@@ -132,9 +134,11 @@ func TestDeleteTask_userInputErrors(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		if err := taskCommand.delete(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := taskCommand.delete(c); err == nil {
+				t.Fatalf("Error was nil!")
+			}
+		})
 	}
 }
 
@@ -177,9 +181,11 @@ func TestReadTask_userInputErrors(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		if err := taskCommand.read(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := taskCommand.read(c); err == nil {
+				t.Fatalf("Error was nil!")
+			}
+		})
 	}
 }
 
@@ -237,7 +243,7 @@ func TestReadTaskLogs(t *testing.T) {
 		Resolve("task", "tsk_name").
 		Return([]string{"tsk_id"}, nil)
 
-	query := buildLogQueryHelper("tsk_id", "start", "end", 100)
+	query := buildLogQueryHelper("start", "end", 100)
 
 	base.Client.EXPECT().
 		ReadTaskLogs("tsk_id", query).
@@ -265,9 +271,11 @@ func TestReadTaskLogs_userInputErrors(t *testing.T) {
 	}
 
 	for name, c := range contexts {
-		if err := taskCommand.logs(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := taskCommand.logs(c); err == nil {
+				t.Fatalf("Error was nil!")
+			}
+		})
 	}
 }
 
@@ -293,7 +301,7 @@ func TestParseOverrides(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, len(output), len(expected))
+	assert.Equal(t, output, expected)
 	assert.Equal(t, expected[0], output[0])
 	assert.Equal(t, expected[1], output[1])
 }
@@ -306,7 +314,7 @@ func TestParseOverridesErrors(t *testing.T) {
 	}
 
 	for name, input := range cases {
-		if _, err := parseOverrides(Args{input}); err == nil {
+		if _, err := parseOverrides([]string{input}); err == nil {
 			t.Fatalf("%s: error was nil!", name)
 		}
 	}

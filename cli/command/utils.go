@@ -21,7 +21,7 @@ func extractArgs(received []string, names ...string) (map[string]string, error) 
 	return args, nil
 }
 
-func buildLogQueryHelper(id, start, end string, tail int) url.Values {
+func buildLogQueryHelper(start, end string, tail int) url.Values {
 	query := url.Values{}
 
 	if tail > 0 {
