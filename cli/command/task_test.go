@@ -301,7 +301,7 @@ func TestParseOverrides(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, output, expected)
+	assert.Equal(t, expected, output)
 	assert.Equal(t, expected[0], output[0])
 	assert.Equal(t, expected[1], output[1])
 }
