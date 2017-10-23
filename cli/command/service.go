@@ -126,24 +126,20 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	onCompleteFN := func(serviceID string) error {
+	return s.waitOnJobHelper(c, jobID, "creating", func(serviceID string) error {
 		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
 		if err != nil {
 			return err
 		}
 
 		return s.printer.PrintServices(service)
-	}
-
-	return s.waitOnJobHelper(c, jobID, "creating", onCompleteFN)
+	})
 }
 
 func (s *ServiceCommand) delete(c *cli.Context) error {
-	deleteFN := func(serviceID string) (string, error) {
+	return s.deleteHelper(c, "service", func(serviceID string) (string, error) {
 		return s.client.DeleteService(serviceID)
-	}
-
-	return s.deleteHelper(c, "service", deleteFN)
+	})
 }
 
 func (s *ServiceCommand) list(c *cli.Context) error {
@@ -226,16 +222,14 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 		return err
 	}
 
-	onCompleteFN := func(serviceID string) error {
+	return s.waitOnJobHelper(c, jobID, "scaling", func(serviceID string) error {
 		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
 		if err != nil {
 			return err
 		}
 
 		return s.printer.PrintServices(service)
-	}
-
-	return s.waitOnJobHelper(c, jobID, "scaling", onCompleteFN)
+	})
 }
 
 func (s *ServiceCommand) update(c *cli.Context) error {
@@ -264,14 +258,12 @@ func (s *ServiceCommand) update(c *cli.Context) error {
 		return err
 	}
 
-	onCompleteFN := func(serviceID string) error {
+	return s.waitOnJobHelper(c, jobID, "updating", func(serviceID string) error {
 		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
 		if err != nil {
 			return err
 		}
 
 		return s.printer.PrintServices(service)
-	}
-
-	return s.waitOnJobHelper(c, jobID, "updating", onCompleteFN)
+	})
 }
