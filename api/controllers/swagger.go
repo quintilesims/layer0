@@ -42,6 +42,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 		Definitions: map[string]swagger.Definition{
 			"Admin":                     models.APIConfig{}.Definition(),
 			"Container":                 models.Container{}.Definition(),
+			"ContainerOverride":         models.ContainerOverride{}.Definition(),
 			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
 			"CreateServiceRequest":      models.CreateServiceRequest{}.Definition(),
