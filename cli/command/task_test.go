@@ -50,7 +50,7 @@ func TestCreateTask(t *testing.T) {
 		if wait {
 			job := &models.Job{
 				Status: job.Completed.String(),
-				Result: "task_id",
+				Result: "tsk_id",
 			}
 
 			base.Client.EXPECT().
@@ -58,7 +58,7 @@ func TestCreateTask(t *testing.T) {
 				Return(job, nil)
 
 			base.Client.EXPECT().
-				ReadTask("task_id").
+				ReadTask("tsk_id").
 				Return(&models.Task{}, nil)
 		}
 
@@ -97,10 +97,10 @@ func TestDeleteTask(t *testing.T) {
 
 		base.Resolver.EXPECT().
 			Resolve("task", "task_name").
-			Return(Args{"task_id"}, nil)
+			Return(Args{"tsk_id"}, nil)
 
 		base.Client.EXPECT().
-			DeleteTask("task_id").
+			DeleteTask("tsk_id").
 			Return("job_id", nil)
 
 		if wait {
@@ -145,19 +145,19 @@ func TestReadTask(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	result := []*models.TaskSummary{
-		{TaskID: "task_id"},
+		{TaskID: "tsk_id"},
 	}
 
 	base.Resolver.EXPECT().
 		Resolve("task", "tsk_name").
-		Return(Args{"task_id"}, nil)
+		Return(Args{"tsk_id"}, nil)
 
 	base.Client.EXPECT().
 		ListTasks().
 		Return(result, nil)
 
 	base.Client.EXPECT().
-		ReadTask("task_id").
+		ReadTask("tsk_id").
 		Return(&models.Task{}, nil)
 
 	c := NewContext(t, Args{"tsk_name"}, nil)
@@ -175,10 +175,6 @@ func TestReadTask_userInputErrors(t *testing.T) {
 	contexts := map[string]*cli.Context{
 		"Missing TASK_NAME arg": NewContext(t, nil, nil),
 	}
-
-	base.Client.EXPECT().
-		ListTasks().
-		Return([]*models.TaskSummary{}, nil)
 
 	for name, c := range contexts {
 		if err := taskCommand.read(c); err == nil {

@@ -28,10 +28,6 @@ func (t *TaskCommand) Command() cli.Command {
 				Action:    t.create,
 				ArgsUsage: "ENVIRONMENT TASK_NAME DEPLOY",
 				Flags: []cli.Flag{
-					cli.IntFlag{
-						Name:  "copies",
-						Usage: "number of copies of deploy to run (default: 1)",
-					},
 					cli.StringSliceFlag{
 						Name:  "env",
 						Usage: "environment variable override in format 'CONTAINER:VAR=VAL' (can be specified multiple times)",
@@ -139,16 +135,6 @@ func (t *TaskCommand) list(c *cli.Context) error {
 }
 
 func (t *TaskCommand) read(c *cli.Context) error {
-	taskSummaries, err := t.client.ListTasks()
-	if err != nil {
-		return err
-	}
-
-	taskExists := map[string]bool{}
-	for _, taskSummary := range taskSummaries {
-		taskExists[taskSummary.TaskID] = true
-	}
-
 	args, err := extractArgs(c.Args(), "TASK_NAME")
 	if err != nil {
 		return err
@@ -159,8 +145,18 @@ func (t *TaskCommand) read(c *cli.Context) error {
 		return err
 	}
 
-	tasks := make([]*models.Task, len(taskIDs))
-	for i, taskID := range taskIDs {
+	taskSummaries, err := t.client.ListTasks()
+	if err != nil {
+		return err
+	}
+
+	taskExists := map[string]bool{}
+	for _, taskSummary := range taskSummaries {
+		taskExists[taskSummary.TaskID] = true
+	}
+
+	tasks := make([]*models.Task, 0, len(taskIDs))
+	for _, taskID := range taskIDs {
 		if !taskExists[taskID] {
 			log.Printf("[DEBUG] Resolver returned an expired task '%s'", taskID)
 			continue
@@ -172,7 +168,7 @@ func (t *TaskCommand) read(c *cli.Context) error {
 				return err
 			}
 
-			tasks[i] = task
+			tasks = append(tasks, task)
 		}
 	}
 
