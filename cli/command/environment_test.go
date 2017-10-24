@@ -17,10 +17,8 @@ func TestEnvironmentCreate_userInputErrors(t *testing.T) {
 
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg": NewContext(t, nil, nil),
-		"OS missing":       NewContext(t, Args{"env_name"}, nil),
 		"Count negative": NewContext(t, Args{"env_name"},
 			Flags{
-				"os":        "linux",
 				"min-count": "-1",
 			}),
 	}
