@@ -39,6 +39,11 @@ func (t *TextPrinter) Printf(format string, tokens ...interface{}) {
 	fmt.Printf(format, tokens...)
 }
 
+func (t *TextPrinter) Println(tokens ...interface{}) {
+	t.StopSpinner()
+	fmt.Println(tokens...)
+}
+
 func (t *TextPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
 	t.Printf(format, tokens...)
 	fmt.Println()
@@ -52,7 +57,7 @@ func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
 		rows = append(rows, row)
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -63,7 +68,7 @@ func (t *TextPrinter) PrintDeploySummaries(deploys ...*models.DeploySummary) err
 		rows = append(rows, row)
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -95,7 +100,7 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 		}
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -106,7 +111,7 @@ func (t *TextPrinter) PrintEnvironmentSummaries(environments ...*models.Environm
 		rows = append(rows, row)
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -122,7 +127,7 @@ func (t *TextPrinter) PrintJobs(jobs ...*models.Job) error {
 		rows = append(rows, row)
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -172,7 +177,7 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 		}
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -195,7 +200,7 @@ func (t *TextPrinter) PrintLoadBalancerSummaries(loadBalancers ...*models.LoadBa
 		rows = append(rows, row)
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -221,11 +226,12 @@ func (t *TextPrinter) PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBala
 
 	rows = append(rows, row)
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
 func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
+	t.StopSpinner()
 	for _, l := range logs {
 		fmt.Println(l.ContainerName)
 		for i := 0; i < len(l.ContainerName); i++ {
@@ -248,7 +254,7 @@ func (t *TextPrinter) PrintScalerRunInfo(runInfo *models.ScalerRunInfo) error {
 		fmt.Sprintf("%s | %d | %d", runInfo.EnvironmentID, runInfo.ScaleBeforeRun, runInfo.ActualScaleAfterRun),
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -315,7 +321,7 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 		}
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -338,7 +344,7 @@ func (t *TextPrinter) PrintServiceSummaries(services ...*models.ServiceSummary) 
 		rows = append(rows, row)
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -376,7 +382,7 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 		rows = append(rows, row)
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -399,6 +405,6 @@ func (t *TextPrinter) PrintTaskSummaries(tasks ...*models.TaskSummary) error {
 		rows = append(rows, row)
 	}
 
-	fmt.Println(columnize.SimpleFormat(rows))
+	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
