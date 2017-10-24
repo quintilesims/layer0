@@ -1,8 +1,8 @@
 package aws
 
 const (
-	DEFAULT_INSTANCE_SIZE = "m3.medium"
-  DEFAULT_ENVIRONMENT_OS = "linux"
+	DEFAULT_INSTANCE_SIZE  = "m3.medium"
+	DEFAULT_ENVIRONMENT_OS = "linux"
 )
 
 const DEFAULT_LINUX_USERDATA_TEMPLATE = `
