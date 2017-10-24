@@ -86,28 +86,28 @@ func TestListTags(t *testing.T) {
 				}))
 			},
 		},
-		  {
-                        Name: "fuzz='*name*'",
-                        Query: url.Values{
-                                client.TagQueryParamName: []string{"*name*"},
-                        },
-                        CheckResult: func(t *testing.T, result models.Tags) {
-                                assert.False(t, result.Any(func(tag models.Tag) bool {
-                                        return !glob.Glob("*name*", tag.EntityID) || tag.Key == "name" && !glob.Glob("*name*", tag.Value)
-                                }))
-                        },
-                },
-		    {
-                        Name: "fuzz='*s'",
-                        Query: url.Values{
-                                client.TagQueryParamName: []string{"*s*"},
-                        },
-                        CheckResult: func(t *testing.T, result models.Tags) {
-                                assert.False(t, result.Any(func(tag models.Tag) bool {
-                                        return !glob.Glob("*s", tag.EntityID) || tag.Key == "name" && !glob.Glob("*s", tag.Value)
-                                }))
-                        },
-                },
+		{
+			Name: "fuzz='*name*'",
+			Query: url.Values{
+				client.TagQueryParamName: []string{"*name*"},
+			},
+			CheckResult: func(t *testing.T, result models.Tags) {
+				assert.False(t, result.Any(func(tag models.Tag) bool {
+					return !glob.Glob("*name*", tag.EntityID) || tag.Key == "name" && !glob.Glob("*name*", tag.Value)
+				}))
+			},
+		},
+		{
+			Name: "fuzz='*s'",
+			Query: url.Values{
+				client.TagQueryParamName: []string{"*s*"},
+			},
+			CheckResult: func(t *testing.T, result models.Tags) {
+				assert.False(t, result.Any(func(tag models.Tag) bool {
+					return !glob.Glob("*s", tag.EntityID) || tag.Key == "name" && !glob.Glob("*s", tag.Value)
+				}))
+			},
+		},
 		{
 			Name: "version=1",
 			Query: url.Values{
