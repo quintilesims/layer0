@@ -25,7 +25,9 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	startedBy := t.Config.Instance()
 	taskDefinitionFamily := addLayer0Prefix(t.Config.Instance(), deployName)
 	taskDefinitionVersion := deployVersion
-	task, err := t.runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionVersion)
+	overrides := req.ContainerOverrides
+
+	task, err := t.runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionVersion, overrides)
 	if err != nil {
 		return "", err
 	}
@@ -38,13 +40,47 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	return taskID, nil
 }
 
-func (t *TaskProvider) runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionRevision string) (*ecs.Task, error) {
+func (t *TaskProvider) runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionRevision string, overrides []models.ContainerOverride) (*ecs.Task, error) {
 	input := &ecs.RunTaskInput{}
 	input.SetCluster(clusterName)
 	input.SetStartedBy(startedBy)
 
 	taskFamilyRevision := fmt.Sprintf("%s:%s", taskDefinitionFamily, taskDefinitionRevision)
 	input.SetTaskDefinition(taskFamilyRevision)
+
+	newContainerOverride := func(envVars map[string]string) []*ecs.KeyValuePair {
+		environment := []*ecs.KeyValuePair{}
+		for k, v := range envVars {
+			name := k
+			value := v
+			environment = append(environment, &ecs.KeyValuePair{
+				Name:  &name,
+				Value: &value,
+			})
+		}
+		return environment
+	}
+
+	// Convert to Task Overrides
+	var taskOverride *ecs.TaskOverride
+	if overrides != nil {
+		containerOverrides := []*ecs.ContainerOverride{}
+		for _, c := range overrides {
+			containerOverride := &ecs.ContainerOverride{}
+			containerOverride.SetName(c.ContainerName)
+
+			// Convert Map to Key Value
+			overrideKV := newContainerOverride(c.EnvironmentOverrides)
+			containerOverride.SetEnvironment(overrideKV)
+			containerOverrides = append(containerOverrides, containerOverride)
+		}
+
+		taskOverride = &ecs.TaskOverride{
+			ContainerOverrides: containerOverrides,
+		}
+
+		input.SetOverrides(taskOverride)
+	}
 
 	if err := input.Validate(); err != nil {
 		return nil, err
