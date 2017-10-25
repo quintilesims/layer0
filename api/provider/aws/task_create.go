@@ -25,7 +25,9 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	startedBy := t.Config.Instance()
 	taskDefinitionFamily := addLayer0Prefix(t.Config.Instance(), deployName)
 	taskDefinitionVersion := deployVersion
-	task, err := t.runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionVersion)
+	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
+
+	task, err := t.runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionVersion, taskOverrides)
 	if err != nil {
 		return "", err
 	}
@@ -38,10 +40,36 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	return taskID, nil
 }
 
-func (t *TaskProvider) runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionRevision string) (*ecs.Task, error) {
+func convertContainerOverrides(overrides []models.ContainerOverride) *ecs.TaskOverride {
+	ecsOverrides := make([]*ecs.ContainerOverride, len(overrides))
+	for i, o := range overrides {
+		environment := []*ecs.KeyValuePair{}
+		for name, value := range o.EnvironmentOverrides {
+			kvp := &ecs.KeyValuePair{}
+			kvp.SetName(name)
+			kvp.SetValue(value)
+
+			environment = append(environment, kvp)
+		}
+
+		ecsOverride := &ecs.ContainerOverride{}
+		ecsOverride.SetName(o.ContainerName)
+		ecsOverride.SetEnvironment(environment)
+
+		ecsOverrides[i] = ecsOverride
+	}
+
+	taskOverride := &ecs.TaskOverride{}
+	taskOverride.SetContainerOverrides(ecsOverrides)
+
+	return taskOverride
+}
+
+func (t *TaskProvider) runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionRevision string, overrides *ecs.TaskOverride) (*ecs.Task, error) {
 	input := &ecs.RunTaskInput{}
 	input.SetCluster(clusterName)
 	input.SetStartedBy(startedBy)
+	input.SetOverrides(overrides)
 
 	taskFamilyRevision := fmt.Sprintf("%s:%s", taskDefinitionFamily, taskDefinitionRevision)
 	input.SetTaskDefinition(taskFamilyRevision)
