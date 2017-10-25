@@ -33,6 +33,10 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	var userDataTemplate []byte
 	var amiID string
 
+	if req.OperatingSystem == "" {
+		req.OperatingSystem = DEFAULT_ENVIRONMENT_OS
+	}
+
 	switch strings.ToLower(req.OperatingSystem) {
 	case "linux":
 		userDataTemplate = []byte(DEFAULT_LINUX_USERDATA_TEMPLATE)

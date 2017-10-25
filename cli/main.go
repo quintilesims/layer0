@@ -28,38 +28,35 @@ func main() {
 	app.Version = Version
 	app.Flags = config.CLIFlags()
 
-	commandFactory := command.NewCommandFactory(nil, nil, nil)
+	base := &command.CommandBase{}
 	app.Commands = []cli.Command{
-		commandFactory.Deploy(),
-		commandFactory.Environment(),
-		// todo: other entities
+		command.NewAdminCommand(base).Command(),
+		command.NewDeployCommand(base).Command(),
+		command.NewEnvironmentCommand(base).Command(),
+		command.NewJobCommand(base).Command(),
+		command.NewLoadBalancerCommand(base).Command(),
+		command.NewServiceCommand(base).Command(),
+		command.NewTaskCommand(base).Command(),
 	}
 
 	app.Before = func(c *cli.Context) error {
-		cfg := config.NewContextCLIConfig(c)
-		if err := cfg.Validate(); err != nil {
+		if err := config.ValidateCLIContext(c); err != nil {
 			return err
 		}
 
-		logger := logging.NewLogWriter(cfg.Debug())
+		logger := logging.NewLogWriter(c.GlobalBool(config.FLAG_DEBUG))
 		log.SetOutput(logger)
 
-		// inject the api client
 		apiClient := client.NewAPIClient(client.Config{
-			Endpoint:  cfg.Endpoint(),
-			Token:     cfg.Token(),
-			VerifySSL: cfg.VerifySSL(),
+			Endpoint:  c.GlobalString(config.FLAG_ENDPOINT),
+			Token:     c.GlobalString(config.FLAG_TOKEN),
+			VerifySSL: !c.GlobalBool(config.FLAG_SKIP_VERIFY_SSL),
 		})
 
-		commandFactory.SetClient(apiClient)
-
-		// inject the resolver
 		tagResolver := resolver.NewTagResolver(apiClient)
-		commandFactory.SetResolver(tagResolver)
 
-		// inject the printer
 		var p printer.Printer
-		switch format := cfg.Output(); format {
+		switch format := c.GlobalString(config.FLAG_OUTPUT); format {
 		case "text":
 			p = &printer.TextPrinter{}
 		case "json":
@@ -68,9 +65,22 @@ func main() {
 			return fmt.Errorf("Unrecognized output format '%s'", format)
 		}
 
-		commandFactory.SetPrinter(p)
-		
-		// todo: verify version
+		base.SetClient(apiClient)
+		base.SetResolver(tagResolver)
+		base.SetPrinter(p)
+
+		if !c.GlobalBool(config.FLAG_SKIP_VERIFY_VERSION) {
+			apiConfig, err := apiClient.ReadConfig()
+			if err != nil {
+				return err
+			}
+
+			if apiConfig.Version != Version {
+				text := fmt.Sprintf("API and CLI version mismatch (CLI: '%s', API: '%s')\n", Version, apiConfig.Version)
+				text += fmt.Sprintf("To disable this warning, set %s=\"1\"", config.ENVVAR_SKIP_VERIFY_VERSION)
+				return fmt.Errorf(text)
+			}
+		}
 
 		return nil
 	}

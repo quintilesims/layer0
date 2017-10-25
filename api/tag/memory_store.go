@@ -35,6 +35,10 @@ func (m *MemoryStore) Insert(tag models.Tag) error {
 	return nil
 }
 
+func (m *MemoryStore) SelectAll() (models.Tags, error) {
+	return m.tags, nil
+}
+
 func (m *MemoryStore) SelectByType(entityType string) (models.Tags, error) {
 	return m.tags.WithType(entityType), nil
 }

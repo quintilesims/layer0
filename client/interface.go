@@ -17,6 +17,8 @@ type Client interface {
 	ListEnvironments() ([]*models.EnvironmentSummary, error)
 	ReadEnvironment(environmentID string) (*models.Environment, error)
 	UpdateEnvironment(req models.UpdateEnvironmentRequest) (string, error)
+	CreateLink(req models.CreateEnvironmentLinkRequest) (string, error)
+	DeleteLink(req models.DeleteEnvironmentLinkRequest) (string, error)
 
 	DeleteJob(jobID string) error
 	ReadJob(jobID string) (*models.Job, error)

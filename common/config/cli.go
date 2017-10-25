@@ -30,81 +30,41 @@ func CLIFlags() []cli.Flag {
 			Name:   FLAG_ENDPOINT,
 			EnvVar: ENVVAR_ENDPOINT,
 			Value:  "http://localhost:9090/",
+			Usage:  "The endpoint of the Layer0 API",
 		},
 		cli.StringFlag{
 			Name:   FLAG_TOKEN,
 			EnvVar: ENVVAR_TOKEN,
+			Usage:  "The auth token of the Layer0 API",
 		},
 		cli.BoolFlag{
 			Name:   FLAG_SKIP_VERIFY_SSL,
 			EnvVar: ENVVAR_SKIP_VERIFY_SSL,
+			Usage:  "If set, will skip ssl verification",
 		},
 		cli.BoolFlag{
 			Name:   FLAG_SKIP_VERIFY_VERSION,
 			EnvVar: ENVVAR_SKIP_VERIFY_VERSION,
+			Usage:  "If set, will skip version verification",
+		},
+		cli.BoolFlag{
+			Name:   FLAG_NO_WAIT,
+			EnvVar: ENVVAR_NO_WAIT,
+			Usage:  "If set, will not wait for job operations to complete",
 		},
 	}
 }
 
-type CLIConfig interface {
-	Output() string
-	Timeout() time.Duration
-	Debug() bool
-	Endpoint() string
-	Token() string
-	VerifySSL() bool
-	VerifyVersion() bool
-}
-
-type ContextCLIConfig struct {
-	C *cli.Context
-}
-
-func NewContextCLIConfig(c *cli.Context) *ContextCLIConfig {
-	return &ContextCLIConfig{
-		C: c,
-	}
-}
-
-func (c *ContextCLIConfig) Validate() error {
+func ValidateCLIContext(c *cli.Context) error {
 	requiredVars := []string{
-		FLAG_ENDPOINT,
 		FLAG_TOKEN,
 	}
 
 	for _, name := range requiredVars {
-		if !c.C.IsSet(name) {
+		if !c.IsSet(name) {
 			return fmt.Errorf("Required Variable %s is not set!", name)
 		}
 	}
 
 	return nil
-}
-
-func (c *ContextCLIConfig) Output() string {
-	return c.C.String(FLAG_OUTPUT)
-}
-
-func (c *ContextCLIConfig) Timeout() time.Duration {
-	return c.C.Duration(FLAG_TIMEOUT)
-}
-
-func (c *ContextCLIConfig) Debug() bool {
-	return c.C.Bool(FLAG_DEBUG)
-}
-
-func (c *ContextCLIConfig) Endpoint() string {
-	return c.C.String(FLAG_ENDPOINT)
-}
-
-func (c *ContextCLIConfig) Token() string {
-	return c.C.String(FLAG_TOKEN)
-}
-
-func (c *ContextCLIConfig) VerifySSL() bool {
-	return !c.C.Bool(FLAG_SKIP_VERIFY_SSL)
-}
-
-func (c *ContextCLIConfig) VerifyVersion() bool {
-	return !c.C.Bool(FLAG_SKIP_VERIFY_VERSION)
 }

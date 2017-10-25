@@ -7,9 +7,10 @@ import (
 )
 
 type CreateTaskRequest struct {
-	TaskName      string `json:"task_name"`
-	EnvironmentID string `json:"environment_id"`
-	DeployID      string `json:"deploy_id"`
+	ContainerOverrides []ContainerOverride `json:"container_overrides"`
+	TaskName           string              `json:"task_name"`
+	EnvironmentID      string              `json:"environment_id"`
+	DeployID           string              `json:"deploy_id"`
 }
 
 func (c CreateTaskRequest) Validate() error {
@@ -35,6 +36,8 @@ func (c CreateTaskRequest) Definition() swagger.Definition {
 			"task_name":      swagger.NewStringProperty(),
 			"environment_id": swagger.NewStringProperty(),
 			"deploy_id":      swagger.NewStringProperty(),
+			// TODO: Change to Map defintion
+			"container_overrides": swagger.NewStringProperty(),
 		},
 	}
 }

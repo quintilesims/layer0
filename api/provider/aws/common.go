@@ -170,7 +170,8 @@ func readSG(ec2api ec2iface.EC2API, groupName string) (*ec2.SecurityGroup, error
 		}
 	}
 
-	return nil, fmt.Errorf("Security group '%s' does not exist", groupName)
+	message := fmt.Sprintf("Security group '%s' does not exist", groupName)
+	return nil, awserr.New("DoesNotExist", message, nil)
 }
 
 func deleteSG(ec2api ec2iface.EC2API, securityGroupID string) error {
