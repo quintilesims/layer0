@@ -28,7 +28,6 @@ func (e *EnvironmentController) Routes() []*fireball.Route {
 			Path: "/environment",
 			Handlers: fireball.Handlers{
 				"GET":  e.ListEnvironments,
-				"PUT":  e.UpdateEnvironment,
 				"POST": e.CreateEnvironment,
 			},
 		},
@@ -40,15 +39,9 @@ func (e *EnvironmentController) Routes() []*fireball.Route {
 			},
 		},
 		{
-			Path: "/environment/:id/link",
+			Path: "/environment/:id",
 			Handlers: fireball.Handlers{
-				"POST": e.LinkEnvironment,
-			},
-		},
-		{
-			Path: "/environment/:id/link/:id2",
-			Handlers: fireball.Handlers{
-				"DELETE": e.UnlinkEnvironment,
+				"PATCH": e.UpdateEnvironment,
 			},
 		},
 	}
@@ -92,6 +85,7 @@ func (e *EnvironmentController) ListEnvironments(c *fireball.Context) (fireball.
 }
 
 func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball.Response, error) {
+	id := c.PathVariables["id"]
 	var req models.UpdateEnvironmentRequest
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
@@ -101,31 +95,6 @@ func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(e.JobStore, job.UpdateEnvironmentJob, req)
-}
-
-func (e *EnvironmentController) LinkEnvironment(c *fireball.Context) (fireball.Response, error) {
-	req := models.EnvironmentLinkRequest{}
-	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
-		return nil, errors.New(errors.InvalidRequest, err)
-	}
-
-	if err := req.Validate(); err != nil {
-		return nil, errors.New(errors.InvalidRequest, err)
-	}
-
-	return createJob(e.JobStore, job.LinkEnvironmentJob, req)
-}
-
-func (e *EnvironmentController) UnlinkEnvironment(c *fireball.Context) (fireball.Response, error) {
-	req := models.EnvironmentLinkRequest{
-		SourceEnvironmentID: c.PathVariables["id"],
-		DestEnvironmentID:   c.PathVariables["id2"],
-	}
-
-	if err := req.Validate(); err != nil {
-		return nil, errors.New(errors.InvalidRequest, err)
-	}
-
-	return createJob(e.JobStore, job.UnlinkEnvironmentJob, req)
+	jobRequest := models.UpdateEnvironmentRequestJob{id, req}
+	return createJob(e.JobStore, job.UpdateEnvironmentJob, jobRequest)
 }

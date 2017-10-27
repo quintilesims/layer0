@@ -177,3 +177,36 @@ func TestWaitForJobTimeout(t *testing.T) {
 		t.Fatal("Error was nil!")
 	}
 }
+
+func TestContains(t *testing.T) {
+	tests := []struct {
+		InputValue string
+		InputSlice []string
+		Output     bool
+	}{
+		{
+			InputValue: "a",
+			InputSlice: []string{"a", "b", "c"},
+			Output:     true,
+		},
+		{
+			InputValue: "c",
+			InputSlice: []string{"a", "b", "c"},
+			Output:     true,
+		},
+		{
+			InputValue: "d",
+			InputSlice: []string{"a", "b", "c"},
+			Output:     false,
+		},
+	}
+
+	for _, tc := range tests {
+		t.Run(fmt.Sprintf("is \"%s\" in %q", tc.InputValue, tc.InputSlice), func(t *testing.T) {
+			result := Contains(tc.InputValue, tc.InputSlice)
+			if result != tc.Output {
+				t.Fatalf("Expected %v but got %v", tc.Output, result)
+			}
+		})
+	}
+}

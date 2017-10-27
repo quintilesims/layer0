@@ -213,11 +213,10 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 	}
 
 	req := models.UpdateServiceRequest{
-		ServiceID: serviceID,
-		Scale:     &scale,
+		Scale: &scale,
 	}
 
-	jobID, err := s.client.UpdateService(req)
+	jobID, err := s.client.UpdateService(serviceID, req)
 	if err != nil {
 		return err
 	}
@@ -249,11 +248,10 @@ func (s *ServiceCommand) update(c *cli.Context) error {
 	}
 
 	req := models.UpdateServiceRequest{
-		ServiceID: serviceID,
-		DeployID:  &deployID,
+		DeployID: &deployID,
 	}
 
-	jobID, err := s.client.UpdateService(req)
+	jobID, err := s.client.UpdateService(serviceID, req)
 	if err != nil {
 		return err
 	}

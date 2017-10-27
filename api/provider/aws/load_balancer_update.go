@@ -14,8 +14,8 @@ import (
 // are included in the Update Load Balancer Request, all existing listeners and
 // EC2 Security Group ingress rules are removed first and then new listeners and
 // Security Group ingress rules are created based on the provided list of ports.
-func (l *LoadBalancerProvider) Update(req models.UpdateLoadBalancerRequest) error {
-	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), req.LoadBalancerID)
+func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLoadBalancerRequest) error {
+	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	loadBalancerName := fqLoadBalancerID
 
 	if req.HealthCheck != nil {

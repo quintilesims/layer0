@@ -56,9 +56,10 @@ func (c *APIClient) ReadServiceLogs(serviceID string, query url.Values) ([]*mode
 	return logs, nil
 }
 
-func (c *APIClient) UpdateService(req models.UpdateServiceRequest) (string, error) {
+func (c *APIClient) UpdateService(serviceID string, req models.UpdateServiceRequest) (string, error) {
 	var resp models.CreateJobResponse
-	if err := c.client.Put("/service", req, &resp); err != nil {
+	path := fmt.Sprintf("/service/%s", serviceID)
+	if err := c.client.Put(path, req, &resp); err != nil {
 		return "", err
 	}
 
