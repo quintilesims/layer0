@@ -2,10 +2,10 @@ deps:
 	go get -u github.com/golang/mock/mockgen
 	go install github.com/golang/mock/mockgen
 
-all: api cli common
+all: api cli common 
 api: provider job
 cli: command client
-common: aws
+common: aws config
 
 provider:
 	mockgen github.com/quintilesims/layer0/api/provider EnvironmentProvider > ../api/provider/mock_provider/mock_environment.go &
@@ -32,4 +32,7 @@ aws:
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/iam/iamiface IAMAPI > ../common/aws/mock_aws/mock_iam.go &
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/s3/s3iface S3API > ../common/aws/mock_aws/mock_s3.go &
 
-.PHONY: deps all api common provider job aws
+config:
+	mockgen github.com/quintilesims/layer0/common/config APIConfig > ../common/config/mock_config/mock_api.go &
+
+.PHONY: deps all api common provider job aws config
