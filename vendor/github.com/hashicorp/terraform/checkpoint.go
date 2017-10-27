@@ -5,6 +5,7 @@ import (
 	"log"
 	"path/filepath"
 
+	"github.com/hashicorp/go-checkpoint"
 	"github.com/hashicorp/terraform/command"
 )
 

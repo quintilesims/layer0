@@ -119,6 +119,9 @@ func (t *DestroyEdgeTransformer) Transform(g *Graph) error {
 		return &NodeApplyableProvider{NodeAbstractProvider: a}
 	}
 	steps := []GraphTransformer{
+		// Add the local values
+		&LocalTransformer{Module: t.Module},
+
 		// Add outputs and metadata
 		&OutputTransformer{Module: t.Module},
 		&AttachResourceConfigTransformer{Module: t.Module},
@@ -148,7 +151,7 @@ func (t *DestroyEdgeTransformer) Transform(g *Graph) error {
 	//
 	var tempG Graph
 	var tempDestroyed []dag.Vertex
-	for d := range destroyers {
+	for d, _ := range destroyers {
 		// d is what is being destroyed. We parse the resource address
 		// which it came from it is a panic if this fails.
 		addr, err := ParseResourceAddress(d)
