@@ -13,6 +13,8 @@ type ResponseReader func(resp *http.Response, v interface{}) error
 // Otherwise, an error is thrown.
 // It assumes the response body is in JSON format.
 func ReadJSONResponse(resp *http.Response, v interface{}) error {
+	defer resp.Body.Close()
+
 	switch {
 	case resp.StatusCode < 200, resp.StatusCode > 299:
 		return NewResponseErrorf(resp, "Invalid status code: %d", resp.StatusCode)
@@ -22,8 +24,6 @@ func ReadJSONResponse(resp *http.Response, v interface{}) error {
 		if err := json.NewDecoder(resp.Body).Decode(v); err != nil {
 			return NewResponseError(resp, err.Error())
 		}
-
-		resp.Body.Close()
 	}
 
 	return nil

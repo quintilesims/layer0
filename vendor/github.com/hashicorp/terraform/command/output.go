@@ -16,7 +16,10 @@ type OutputCommand struct {
 }
 
 func (c *OutputCommand) Run(args []string) int {
-	args = c.Meta.process(args, false)
+	args, err := c.Meta.process(args, false)
+	if err != nil {
+		return 1
+	}
 
 	var module string
 	var jsonOutput bool
@@ -50,7 +53,7 @@ func (c *OutputCommand) Run(args []string) int {
 		return 1
 	}
 
-	env := c.Env()
+	env := c.Workspace()
 
 	// Get the state
 	stateStore, err := b.State(env)
@@ -204,7 +207,7 @@ func formatListOutput(indent, outputName string, outputList []interface{}) strin
 
 func formatNestedMap(indent string, outputMap map[string]interface{}) string {
 	ks := make([]string, 0, len(outputMap))
-	for k := range outputMap {
+	for k, _ := range outputMap {
 		ks = append(ks, k)
 	}
 	sort.Strings(ks)
@@ -229,7 +232,7 @@ func formatNestedMap(indent string, outputMap map[string]interface{}) string {
 
 func formatMapOutput(indent, outputName string, outputMap map[string]interface{}) string {
 	ks := make([]string, 0, len(outputMap))
-	for k := range outputMap {
+	for k, _ := range outputMap {
 		ks = append(ks, k)
 	}
 	sort.Strings(ks)

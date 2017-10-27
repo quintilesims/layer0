@@ -15,15 +15,9 @@ const (
 )
 
 func (b *Backend) States() ([]string, error) {
-	// Get the Consul client
-	client, err := b.clientRaw()
-	if err != nil {
-		return nil, err
-	}
-
 	// List our raw path
 	prefix := b.configData.Get("path").(string) + keyEnvPrefix
-	keys, _, err := client.KV().Keys(prefix, "/", nil)
+	keys, _, err := b.client.KV().Keys(prefix, "/", nil)
 	if err != nil {
 		return nil, err
 	}
@@ -48,7 +42,7 @@ func (b *Backend) States() ([]string, error) {
 
 	result := make([]string, 1, len(envs)+1)
 	result[0] = backend.DefaultStateName
-	for k := range envs {
+	for k, _ := range envs {
 		result = append(result, k)
 	}
 
@@ -56,14 +50,8 @@ func (b *Backend) States() ([]string, error) {
 }
 
 func (b *Backend) DeleteState(name string) error {
-	if name == backend.DefaultStateName {
+	if name == backend.DefaultStateName || name == "" {
 		return fmt.Errorf("can't delete default state")
-	}
-
-	// Get the Consul API client
-	client, err := b.clientRaw()
-	if err != nil {
-		return err
 	}
 
 	// Determine the path of the data
@@ -71,17 +59,11 @@ func (b *Backend) DeleteState(name string) error {
 
 	// Delete it. We just delete it without any locking since
 	// the DeleteState API is documented as such.
-	_, err = client.KV().Delete(path, nil)
+	_, err := b.client.KV().Delete(path, nil)
 	return err
 }
 
 func (b *Backend) State(name string) (state.State, error) {
-	// Get the Consul API client
-	client, err := b.clientRaw()
-	if err != nil {
-		return nil, err
-	}
-
 	// Determine the path of the data
 	path := b.path(name)
 
@@ -89,12 +71,23 @@ func (b *Backend) State(name string) (state.State, error) {
 	gzip := b.configData.Get("gzip").(bool)
 
 	// Build the state client
-	stateMgr := &remote.State{
+	var stateMgr state.State = &remote.State{
 		Client: &RemoteClient{
-			Client: client,
-			Path:   path,
-			GZip:   gzip,
+			Client:    b.client,
+			Path:      path,
+			GZip:      gzip,
+			lockState: b.lock,
 		},
+	}
+
+	// If we're not locking, disable it
+	if !b.lock {
+		stateMgr = &state.LockDisabled{Inner: stateMgr}
+	}
+
+	// the default state always exists
+	if name == backend.DefaultStateName {
+		return stateMgr, nil
 	}
 
 	// Grab a lock, we use this to write an empty state if one doesn't

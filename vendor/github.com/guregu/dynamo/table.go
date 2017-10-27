@@ -1,7 +1,22 @@
 package dynamo
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
+)
+
+// Status is an enumeration of table and index statuses.
+type Status string
+
+const (
+	// The table or index is ready for use.
+	ActiveStatus Status = "ACTIVE"
+	// The table or index is being created.
+	CreatingStatus = "CREATING"
+	// The table or index is being updated.
+	UpdatingStatus = "UPDATING"
+	// The table or index is being deleted.
+	DeletingStatus = "DELETING"
 )
 
 // Table is a DynamoDB table.
@@ -36,9 +51,16 @@ func (table Table) DeleteTable() *DeleteTable {
 
 // Run executes this request and deletes the table.
 func (dt *DeleteTable) Run() error {
+	ctx, cancel := defaultContext()
+	defer cancel()
+	return dt.RunWithContext(ctx)
+}
+
+// RunWithContext executes this request and deletes the table.
+func (dt *DeleteTable) RunWithContext(ctx aws.Context) error {
 	input := dt.input()
-	return retry(func() error {
-		_, err := dt.table.db.client.DeleteTable(input)
+	return retry(ctx, func() error {
+		_, err := dt.table.db.client.DeleteTableWithContext(ctx, input)
 		return err
 	})
 }
