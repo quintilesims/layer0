@@ -7,5 +7,5 @@ type LoadBalancerProvider interface {
 	Delete(loadBalancerID string) error
 	List() ([]models.LoadBalancerSummary, error)
 	Read(loadBalancerID string) (*models.LoadBalancer, error)
-	Update(req models.UpdateLoadBalancerRequest) error
+	Update(loadBalancerID string, req models.UpdateLoadBalancerRequest) error
 }

@@ -40,29 +40,29 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			Version: s.version,
 		},
 		Definitions: map[string]swagger.Definition{
-			"Admin":                        models.APIConfig{}.Definition(),
-			"Container":                    models.Container{}.Definition(),
-			"ContainerOverride":            models.ContainerOverride{}.Definition(),
-			"CreateEnvironmentRequest":     models.CreateEnvironmentRequest{}.Definition(),
-			"CreateEnvironmentLinkRequest": models.EnvironmentLinkRequest{}.Definition(),
-			"CreateLoadBalancerRequest":    models.CreateLoadBalancerRequest{}.Definition(),
-			"CreateServiceRequest":         models.CreateServiceRequest{}.Definition(),
-			"CreateTaskRequest":            models.CreateTaskRequest{}.Definition(),
-			"CreateDeployRequest":          models.CreateDeployRequest{}.Definition(),
-			"Deployment":                   models.Deployment{}.Definition(),
-			"Environment":                  models.Environment{}.Definition(),
-			"HealthCheck":                  models.HealthCheck{}.Definition(),
-			"Job":                          models.Job{}.Definition(),
-			"LoadBalancer":                 models.LoadBalancer{}.Definition(),
-			"LogFile":                      models.LogFile{}.Definition(),
-			"Port":                         models.Port{}.Definition(),
-			"Service":                      models.Service{}.Definition(),
-			"Tag":                          models.Tag{}.Definition(),
-			"Task":                         models.Task{}.Definition(),
-			"Deploy":                       models.Deploy{}.Definition(),
-			"UpdateLoadBalancerRequest":    models.UpdateLoadBalancerRequest{}.Definition(),
-			"UpdateServiceRequest":         models.UpdateServiceRequest{}.Definition(),
-			"UpdateEnvironmentRequest":     models.UpdateEnvironmentRequest{}.Definition(),
+			"Admin":                     models.APIConfig{}.Definition(),
+			"Container":                 models.Container{}.Definition(),
+			"ContainerOverride":         models.ContainerOverride{}.Definition(),
+			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
+			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
+			"CreateServiceRequest":      models.CreateServiceRequest{}.Definition(),
+			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),
+			"CreateDeployRequest":       models.CreateDeployRequest{}.Definition(),
+			"CreateJobResponse":         models.CreateJobResponse{}.Definition(),
+			"Deployment":                models.Deployment{}.Definition(),
+			"Environment":               models.Environment{}.Definition(),
+			"HealthCheck":               models.HealthCheck{}.Definition(),
+			"Job":                       models.Job{}.Definition(),
+			"LoadBalancer":              models.LoadBalancer{}.Definition(),
+			"LogFile":                   models.LogFile{}.Definition(),
+			"Port":                      models.Port{}.Definition(),
+			"Service":                   models.Service{}.Definition(),
+			"Tag":                       models.Tag{}.Definition(),
+			"Task":                      models.Task{}.Definition(),
+			"Deploy":                    models.Deploy{}.Definition(),
+			"UpdateLoadBalancerRequest": models.UpdateLoadBalancerRequest{}.Definition(),
+			"UpdateServiceRequest":      models.UpdateServiceRequest{}.Definition(),
+			"UpdateEnvironmentRequest":  models.UpdateEnvironmentRequest{}.Definition(),
 		},
 		Tags: []swagger.Tag{
 			{
@@ -141,8 +141,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The added environment",
-							Schema:      swagger.NewObjectSchema("Environment"),
+							Description: "The Job ID of the create request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
 						},
 					},
 				},
@@ -161,20 +161,6 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 						},
 					},
 				},
-				"put": {
-					Summary: "Update Environment",
-					Tags:    []string{"Environment"},
-					Parameters: []swagger.Parameter{
-						swagger.NewStringPathParam("id", "ID of the environment to describe", true),
-						swagger.NewBodyParam("UpdateEnvironmentRequest", "The updated environment", true),
-					},
-					Responses: map[string]swagger.Response{
-						"200": {
-							Description: "The desired environment",
-							Schema:      swagger.NewObjectSchema("Environment"),
-						},
-					},
-				},
 				"delete": {
 					Summary: "Delete an Environment",
 					Tags:    []string{"Environment"},
@@ -183,37 +169,22 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "Success",
+							Description: "The Job ID of the delete request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
 						},
 					},
 				},
-			},
-			"/environment/{id}/link": map[string]swagger.Method{
-				"post": {
-					Summary: "Create an Environment Link",
+				"patch": {
+					Summary: "Update Environment links",
 					Tags:    []string{"Environment"},
 					Parameters: []swagger.Parameter{
-						swagger.NewStringPathParam("source_id", "ID of the source environment", true),
-						swagger.NewBodyParam("CreateEnvironmentLinkRequest", "ID of the destination environment", true),
+						swagger.NewStringPathParam("id", "ID of the environment to describe", true),
+						swagger.NewBodyParam("UpdateEnvironmentRequest", "Environment update request", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "Created",
-						},
-					},
-				},
-			},
-			"/environment/{source_id}/link/{dest_id}": map[string]swagger.Method{
-				"delete": {
-					Summary: "Delete an Environment Link",
-					Tags:    []string{"Environment"},
-					Parameters: []swagger.Parameter{
-						swagger.NewStringPathParam("source_id", "ID of the source environment", true),
-						swagger.NewStringPathParam("dest_id", "ID of the destination environment", true),
-					},
-					Responses: map[string]swagger.Response{
-						"200": {
-							Description: "Deleted",
+							Description: "The Job ID of the update request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
 						},
 					},
 				},
@@ -276,22 +247,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The added load balancer",
-							// todo: this actually returns a CreateJobResponse
-							Schema: swagger.NewObjectSchema("LoadBalancer"),
-						},
-					},
-				},
-				"put": {
-					Summary: "Update a LoadBalancer",
-					Tags:    []string{"LoadBalancer"},
-					Parameters: []swagger.Parameter{
-						swagger.NewBodyParam("UpdateLoadBalancerRequest", "LoadBalancer to update", true),
-					},
-					Responses: map[string]swagger.Response{
-						"200": {
-							Description: "The updated load balancer",
-							Schema:      swagger.NewObjectSchema("LoadBalancer"),
+							Description: "The Job ID of the create request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
 						},
 					},
 				},
@@ -310,6 +267,19 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 						},
 					},
 				},
+				"patch": {
+					Summary: "Update a LoadBalancer",
+					Tags:    []string{"LoadBalancer"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("UpdateLoadBalancerRequest", "LoadBalancer to update", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The Job ID of the update request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+						},
+					},
+				},
 				"delete": {
 					Summary: "Delete a LoadBalancer",
 					Tags:    []string{"LoadBalancer"},
@@ -318,7 +288,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "Success",
+							Description: "The Job ID of the delete request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
 						},
 					},
 				},
@@ -332,8 +303,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The added service",
-							Schema:      swagger.NewObjectSchema("Service"),
+							Description: "The Job ID of the create request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
 						},
 					},
 				},
@@ -344,19 +315,6 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 						"200": {
 							Description: "An array of services",
 							Schema:      swagger.NewObjectSliceSchema("Service"),
-						},
-					},
-				},
-				"put": {
-					Summary: "Update a Service",
-					Tags:    []string{"Service"},
-					Parameters: []swagger.Parameter{
-						swagger.NewBodyParam("UpdateServiceRequest", "Service to update", true),
-					},
-					Responses: map[string]swagger.Response{
-						"200": {
-							Description: "The updated Service",
-							Schema:      swagger.NewObjectSchema("Service"),
 						},
 					},
 				},
@@ -375,6 +333,19 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 						},
 					},
 				},
+				"patch": {
+					Summary: "Update a Service",
+					Tags:    []string{"Service"},
+					Parameters: []swagger.Parameter{
+						swagger.NewBodyParam("UpdateServiceRequest", "Service to update", true),
+					},
+					Responses: map[string]swagger.Response{
+						"200": {
+							Description: "The Job ID of the update request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+						},
+					},
+				},
 				"delete": {
 					Summary: "Delete a Service",
 					Tags:    []string{"Service"},
@@ -383,7 +354,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "Success",
+							Description: "The Job ID of the delete request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
 						},
 					},
 				},
@@ -425,8 +397,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The added task",
-							Schema:      swagger.NewObjectSchema("Task"),
+							Description: "The Job ID of the create request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
 						},
 					},
 				},
@@ -453,7 +425,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "Success",
+							Description: "The Job ID of the delete request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
 						},
 					},
 				},
@@ -540,8 +513,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The added Deploy",
-							Schema:      swagger.NewObjectSchema("Deploy"),
+							Description: "The Job ID of the create request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
 						},
 					},
 				},
@@ -568,7 +541,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "Success",
+							Description: "The Job ID of the delete request",
+							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
 						},
 					},
 				},
