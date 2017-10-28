@@ -19,7 +19,7 @@ type MockClient struct {
 func NewMockClient(ctrl *gomock.Controller) *MockClient {
 	return &MockClient{
 		AutoScaling:    NewMockAutoScalingAPI(ctrl),
-		CloudTail:      NewMockCloudTrailAPI(ctrl),
+		CloudTrail:     NewMockCloudTrailAPI(ctrl),
 		CloudWatchLogs: NewMockCloudWatchLogsAPI(ctrl),
 		EC2:            NewMockEC2API(ctrl),
 		ECS:            NewMockECSAPI(ctrl),
