@@ -26,3 +26,12 @@ func describeSecurityGroupHelper(mockAWS *awsc.MockClient, securityGroupName, se
 		DescribeSecurityGroups(input).
 		Return(output, nil)
 }
+
+func deleteSecurityGroupHelper(mockAWS *awsc.MockClient, securityGroupID string) {
+	input := &ec2.DeleteSecurityGroupInput{}
+	input.SetGroupId(securityGroupID)
+
+	mockAWS.EC2.EXPECT().
+		DeleteSecurityGroup(input).
+		Return(&ec2.DeleteSecurityGroupOutput{}, nil)
+}
