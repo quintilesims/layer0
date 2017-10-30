@@ -152,8 +152,8 @@ func (c *Client) Get() error {
 	if archiveV == "" {
 		// We don't appear to... but is it part of the filename?
 		matchingLen := 0
-		for k := range decompressors {
-			if strings.HasSuffix(u.Path, k) && len(k) > matchingLen {
+		for k, _ := range decompressors {
+			if strings.HasSuffix(u.Path, "."+k) && len(k) > matchingLen {
 				archiveV = k
 				matchingLen = len(k)
 			}
@@ -222,13 +222,29 @@ func (c *Client) Get() error {
 		checksumValue = b
 	}
 
-	// For now, any means file. In the future, we'll ask the getter
-	// what it thinks it is.
 	if mode == ClientModeAny {
-		mode = ClientModeFile
+		// Ask the getter which client mode to use
+		mode, err = g.ClientMode(u)
+		if err != nil {
+			return err
+		}
 
-		// Destination is the base name of the URL path
-		dst = filepath.Join(dst, filepath.Base(u.Path))
+		// Destination is the base name of the URL path in "any" mode when
+		// a file source is detected.
+		if mode == ClientModeFile {
+			filename := filepath.Base(u.Path)
+
+			// Determine if we have a custom file name
+			if v := q.Get("filename"); v != "" {
+				// Delete the query parameter if we have it.
+				q.Del("filename")
+				u.RawQuery = q.Encode()
+
+				filename = v
+			}
+
+			dst = filepath.Join(dst, filename)
+		}
 	}
 
 	// If we're not downloading a directory, then just download the file
@@ -300,7 +316,13 @@ func (c *Client) Get() error {
 			return err
 		}
 
-		return copyDir(realDst, filepath.Join(dst, subDir), false)
+		// Process any globs
+		subDir, err := SubdirGlob(dst, subDir)
+		if err != nil {
+			return err
+		}
+
+		return copyDir(realDst, subDir, false)
 	}
 
 	return nil

@@ -35,6 +35,50 @@ func (m *MockCloudWatchLogsAPI) EXPECT() *MockCloudWatchLogsAPIMockRecorder {
 	return m.recorder
 }
 
+// AssociateKmsKey mocks base method
+func (m *MockCloudWatchLogsAPI) AssociateKmsKey(arg0 *cloudwatchlogs.AssociateKmsKeyInput) (*cloudwatchlogs.AssociateKmsKeyOutput, error) {
+	ret := m.ctrl.Call(m, "AssociateKmsKey", arg0)
+	ret0, _ := ret[0].(*cloudwatchlogs.AssociateKmsKeyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AssociateKmsKey indicates an expected call of AssociateKmsKey
+func (mr *MockCloudWatchLogsAPIMockRecorder) AssociateKmsKey(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssociateKmsKey", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).AssociateKmsKey), arg0)
+}
+
+// AssociateKmsKeyRequest mocks base method
+func (m *MockCloudWatchLogsAPI) AssociateKmsKeyRequest(arg0 *cloudwatchlogs.AssociateKmsKeyInput) (*request.Request, *cloudwatchlogs.AssociateKmsKeyOutput) {
+	ret := m.ctrl.Call(m, "AssociateKmsKeyRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudwatchlogs.AssociateKmsKeyOutput)
+	return ret0, ret1
+}
+
+// AssociateKmsKeyRequest indicates an expected call of AssociateKmsKeyRequest
+func (mr *MockCloudWatchLogsAPIMockRecorder) AssociateKmsKeyRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssociateKmsKeyRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).AssociateKmsKeyRequest), arg0)
+}
+
+// AssociateKmsKeyWithContext mocks base method
+func (m *MockCloudWatchLogsAPI) AssociateKmsKeyWithContext(arg0 aws.Context, arg1 *cloudwatchlogs.AssociateKmsKeyInput, arg2 ...request.Option) (*cloudwatchlogs.AssociateKmsKeyOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "AssociateKmsKeyWithContext", varargs...)
+	ret0, _ := ret[0].(*cloudwatchlogs.AssociateKmsKeyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// AssociateKmsKeyWithContext indicates an expected call of AssociateKmsKeyWithContext
+func (mr *MockCloudWatchLogsAPIMockRecorder) AssociateKmsKeyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AssociateKmsKeyWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).AssociateKmsKeyWithContext), varargs...)
+}
+
 // CancelExportTask mocks base method
 func (m *MockCloudWatchLogsAPI) CancelExportTask(arg0 *cloudwatchlogs.CancelExportTaskInput) (*cloudwatchlogs.CancelExportTaskOutput, error) {
 	ret := m.ctrl.Call(m, "CancelExportTask", arg0)
@@ -385,6 +429,50 @@ func (m *MockCloudWatchLogsAPI) DeleteMetricFilterWithContext(arg0 aws.Context, 
 func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteMetricFilterWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteMetricFilterWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteMetricFilterWithContext), varargs...)
+}
+
+// DeleteResourcePolicy mocks base method
+func (m *MockCloudWatchLogsAPI) DeleteResourcePolicy(arg0 *cloudwatchlogs.DeleteResourcePolicyInput) (*cloudwatchlogs.DeleteResourcePolicyOutput, error) {
+	ret := m.ctrl.Call(m, "DeleteResourcePolicy", arg0)
+	ret0, _ := ret[0].(*cloudwatchlogs.DeleteResourcePolicyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteResourcePolicy indicates an expected call of DeleteResourcePolicy
+func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteResourcePolicy(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteResourcePolicy", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteResourcePolicy), arg0)
+}
+
+// DeleteResourcePolicyRequest mocks base method
+func (m *MockCloudWatchLogsAPI) DeleteResourcePolicyRequest(arg0 *cloudwatchlogs.DeleteResourcePolicyInput) (*request.Request, *cloudwatchlogs.DeleteResourcePolicyOutput) {
+	ret := m.ctrl.Call(m, "DeleteResourcePolicyRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudwatchlogs.DeleteResourcePolicyOutput)
+	return ret0, ret1
+}
+
+// DeleteResourcePolicyRequest indicates an expected call of DeleteResourcePolicyRequest
+func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteResourcePolicyRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteResourcePolicyRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteResourcePolicyRequest), arg0)
+}
+
+// DeleteResourcePolicyWithContext mocks base method
+func (m *MockCloudWatchLogsAPI) DeleteResourcePolicyWithContext(arg0 aws.Context, arg1 *cloudwatchlogs.DeleteResourcePolicyInput, arg2 ...request.Option) (*cloudwatchlogs.DeleteResourcePolicyOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteResourcePolicyWithContext", varargs...)
+	ret0, _ := ret[0].(*cloudwatchlogs.DeleteResourcePolicyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteResourcePolicyWithContext indicates an expected call of DeleteResourcePolicyWithContext
+func (mr *MockCloudWatchLogsAPIMockRecorder) DeleteResourcePolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteResourcePolicyWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DeleteResourcePolicyWithContext), varargs...)
 }
 
 // DeleteRetentionPolicy mocks base method
@@ -811,6 +899,50 @@ func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeMetricFiltersWithContext(ar
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeMetricFiltersWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeMetricFiltersWithContext), varargs...)
 }
 
+// DescribeResourcePolicies mocks base method
+func (m *MockCloudWatchLogsAPI) DescribeResourcePolicies(arg0 *cloudwatchlogs.DescribeResourcePoliciesInput) (*cloudwatchlogs.DescribeResourcePoliciesOutput, error) {
+	ret := m.ctrl.Call(m, "DescribeResourcePolicies", arg0)
+	ret0, _ := ret[0].(*cloudwatchlogs.DescribeResourcePoliciesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeResourcePolicies indicates an expected call of DescribeResourcePolicies
+func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeResourcePolicies(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeResourcePolicies", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeResourcePolicies), arg0)
+}
+
+// DescribeResourcePoliciesRequest mocks base method
+func (m *MockCloudWatchLogsAPI) DescribeResourcePoliciesRequest(arg0 *cloudwatchlogs.DescribeResourcePoliciesInput) (*request.Request, *cloudwatchlogs.DescribeResourcePoliciesOutput) {
+	ret := m.ctrl.Call(m, "DescribeResourcePoliciesRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudwatchlogs.DescribeResourcePoliciesOutput)
+	return ret0, ret1
+}
+
+// DescribeResourcePoliciesRequest indicates an expected call of DescribeResourcePoliciesRequest
+func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeResourcePoliciesRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeResourcePoliciesRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeResourcePoliciesRequest), arg0)
+}
+
+// DescribeResourcePoliciesWithContext mocks base method
+func (m *MockCloudWatchLogsAPI) DescribeResourcePoliciesWithContext(arg0 aws.Context, arg1 *cloudwatchlogs.DescribeResourcePoliciesInput, arg2 ...request.Option) (*cloudwatchlogs.DescribeResourcePoliciesOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DescribeResourcePoliciesWithContext", varargs...)
+	ret0, _ := ret[0].(*cloudwatchlogs.DescribeResourcePoliciesOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeResourcePoliciesWithContext indicates an expected call of DescribeResourcePoliciesWithContext
+func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeResourcePoliciesWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeResourcePoliciesWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeResourcePoliciesWithContext), varargs...)
+}
+
 // DescribeSubscriptionFilters mocks base method
 func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFilters(arg0 *cloudwatchlogs.DescribeSubscriptionFiltersInput) (*cloudwatchlogs.DescribeSubscriptionFiltersOutput, error) {
 	ret := m.ctrl.Call(m, "DescribeSubscriptionFilters", arg0)
@@ -882,6 +1014,50 @@ func (m *MockCloudWatchLogsAPI) DescribeSubscriptionFiltersWithContext(arg0 aws.
 func (mr *MockCloudWatchLogsAPIMockRecorder) DescribeSubscriptionFiltersWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeSubscriptionFiltersWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DescribeSubscriptionFiltersWithContext), varargs...)
+}
+
+// DisassociateKmsKey mocks base method
+func (m *MockCloudWatchLogsAPI) DisassociateKmsKey(arg0 *cloudwatchlogs.DisassociateKmsKeyInput) (*cloudwatchlogs.DisassociateKmsKeyOutput, error) {
+	ret := m.ctrl.Call(m, "DisassociateKmsKey", arg0)
+	ret0, _ := ret[0].(*cloudwatchlogs.DisassociateKmsKeyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DisassociateKmsKey indicates an expected call of DisassociateKmsKey
+func (mr *MockCloudWatchLogsAPIMockRecorder) DisassociateKmsKey(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DisassociateKmsKey", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DisassociateKmsKey), arg0)
+}
+
+// DisassociateKmsKeyRequest mocks base method
+func (m *MockCloudWatchLogsAPI) DisassociateKmsKeyRequest(arg0 *cloudwatchlogs.DisassociateKmsKeyInput) (*request.Request, *cloudwatchlogs.DisassociateKmsKeyOutput) {
+	ret := m.ctrl.Call(m, "DisassociateKmsKeyRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudwatchlogs.DisassociateKmsKeyOutput)
+	return ret0, ret1
+}
+
+// DisassociateKmsKeyRequest indicates an expected call of DisassociateKmsKeyRequest
+func (mr *MockCloudWatchLogsAPIMockRecorder) DisassociateKmsKeyRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DisassociateKmsKeyRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DisassociateKmsKeyRequest), arg0)
+}
+
+// DisassociateKmsKeyWithContext mocks base method
+func (m *MockCloudWatchLogsAPI) DisassociateKmsKeyWithContext(arg0 aws.Context, arg1 *cloudwatchlogs.DisassociateKmsKeyInput, arg2 ...request.Option) (*cloudwatchlogs.DisassociateKmsKeyOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DisassociateKmsKeyWithContext", varargs...)
+	ret0, _ := ret[0].(*cloudwatchlogs.DisassociateKmsKeyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DisassociateKmsKeyWithContext indicates an expected call of DisassociateKmsKeyWithContext
+func (mr *MockCloudWatchLogsAPIMockRecorder) DisassociateKmsKeyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DisassociateKmsKeyWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).DisassociateKmsKeyWithContext), varargs...)
 }
 
 // FilterLogEvents mocks base method
@@ -1248,6 +1424,50 @@ func (m *MockCloudWatchLogsAPI) PutMetricFilterWithContext(arg0 aws.Context, arg
 func (mr *MockCloudWatchLogsAPIMockRecorder) PutMetricFilterWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutMetricFilterWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutMetricFilterWithContext), varargs...)
+}
+
+// PutResourcePolicy mocks base method
+func (m *MockCloudWatchLogsAPI) PutResourcePolicy(arg0 *cloudwatchlogs.PutResourcePolicyInput) (*cloudwatchlogs.PutResourcePolicyOutput, error) {
+	ret := m.ctrl.Call(m, "PutResourcePolicy", arg0)
+	ret0, _ := ret[0].(*cloudwatchlogs.PutResourcePolicyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutResourcePolicy indicates an expected call of PutResourcePolicy
+func (mr *MockCloudWatchLogsAPIMockRecorder) PutResourcePolicy(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutResourcePolicy", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutResourcePolicy), arg0)
+}
+
+// PutResourcePolicyRequest mocks base method
+func (m *MockCloudWatchLogsAPI) PutResourcePolicyRequest(arg0 *cloudwatchlogs.PutResourcePolicyInput) (*request.Request, *cloudwatchlogs.PutResourcePolicyOutput) {
+	ret := m.ctrl.Call(m, "PutResourcePolicyRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*cloudwatchlogs.PutResourcePolicyOutput)
+	return ret0, ret1
+}
+
+// PutResourcePolicyRequest indicates an expected call of PutResourcePolicyRequest
+func (mr *MockCloudWatchLogsAPIMockRecorder) PutResourcePolicyRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutResourcePolicyRequest", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutResourcePolicyRequest), arg0)
+}
+
+// PutResourcePolicyWithContext mocks base method
+func (m *MockCloudWatchLogsAPI) PutResourcePolicyWithContext(arg0 aws.Context, arg1 *cloudwatchlogs.PutResourcePolicyInput, arg2 ...request.Option) (*cloudwatchlogs.PutResourcePolicyOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PutResourcePolicyWithContext", varargs...)
+	ret0, _ := ret[0].(*cloudwatchlogs.PutResourcePolicyOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutResourcePolicyWithContext indicates an expected call of PutResourcePolicyWithContext
+func (mr *MockCloudWatchLogsAPIMockRecorder) PutResourcePolicyWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutResourcePolicyWithContext", reflect.TypeOf((*MockCloudWatchLogsAPI)(nil).PutResourcePolicyWithContext), varargs...)
 }
 
 // PutRetentionPolicy mocks base method

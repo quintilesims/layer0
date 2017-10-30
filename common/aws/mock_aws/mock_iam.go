@@ -1663,6 +1663,50 @@ func (mr *MockIAMAPIMockRecorder) DeleteServerCertificateWithContext(arg0, arg1 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteServerCertificateWithContext", reflect.TypeOf((*MockIAMAPI)(nil).DeleteServerCertificateWithContext), varargs...)
 }
 
+// DeleteServiceLinkedRole mocks base method
+func (m *MockIAMAPI) DeleteServiceLinkedRole(arg0 *iam.DeleteServiceLinkedRoleInput) (*iam.DeleteServiceLinkedRoleOutput, error) {
+	ret := m.ctrl.Call(m, "DeleteServiceLinkedRole", arg0)
+	ret0, _ := ret[0].(*iam.DeleteServiceLinkedRoleOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteServiceLinkedRole indicates an expected call of DeleteServiceLinkedRole
+func (mr *MockIAMAPIMockRecorder) DeleteServiceLinkedRole(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteServiceLinkedRole", reflect.TypeOf((*MockIAMAPI)(nil).DeleteServiceLinkedRole), arg0)
+}
+
+// DeleteServiceLinkedRoleRequest mocks base method
+func (m *MockIAMAPI) DeleteServiceLinkedRoleRequest(arg0 *iam.DeleteServiceLinkedRoleInput) (*request.Request, *iam.DeleteServiceLinkedRoleOutput) {
+	ret := m.ctrl.Call(m, "DeleteServiceLinkedRoleRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*iam.DeleteServiceLinkedRoleOutput)
+	return ret0, ret1
+}
+
+// DeleteServiceLinkedRoleRequest indicates an expected call of DeleteServiceLinkedRoleRequest
+func (mr *MockIAMAPIMockRecorder) DeleteServiceLinkedRoleRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteServiceLinkedRoleRequest", reflect.TypeOf((*MockIAMAPI)(nil).DeleteServiceLinkedRoleRequest), arg0)
+}
+
+// DeleteServiceLinkedRoleWithContext mocks base method
+func (m *MockIAMAPI) DeleteServiceLinkedRoleWithContext(arg0 aws.Context, arg1 *iam.DeleteServiceLinkedRoleInput, arg2 ...request.Option) (*iam.DeleteServiceLinkedRoleOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteServiceLinkedRoleWithContext", varargs...)
+	ret0, _ := ret[0].(*iam.DeleteServiceLinkedRoleOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteServiceLinkedRoleWithContext indicates an expected call of DeleteServiceLinkedRoleWithContext
+func (mr *MockIAMAPIMockRecorder) DeleteServiceLinkedRoleWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteServiceLinkedRoleWithContext", reflect.TypeOf((*MockIAMAPI)(nil).DeleteServiceLinkedRoleWithContext), varargs...)
+}
+
 // DeleteServiceSpecificCredential mocks base method
 func (m *MockIAMAPI) DeleteServiceSpecificCredential(arg0 *iam.DeleteServiceSpecificCredentialInput) (*iam.DeleteServiceSpecificCredentialOutput, error) {
 	ret := m.ctrl.Call(m, "DeleteServiceSpecificCredential", arg0)
@@ -2995,6 +3039,50 @@ func (m *MockIAMAPI) GetServerCertificateWithContext(arg0 aws.Context, arg1 *iam
 func (mr *MockIAMAPIMockRecorder) GetServerCertificateWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServerCertificateWithContext", reflect.TypeOf((*MockIAMAPI)(nil).GetServerCertificateWithContext), varargs...)
+}
+
+// GetServiceLinkedRoleDeletionStatus mocks base method
+func (m *MockIAMAPI) GetServiceLinkedRoleDeletionStatus(arg0 *iam.GetServiceLinkedRoleDeletionStatusInput) (*iam.GetServiceLinkedRoleDeletionStatusOutput, error) {
+	ret := m.ctrl.Call(m, "GetServiceLinkedRoleDeletionStatus", arg0)
+	ret0, _ := ret[0].(*iam.GetServiceLinkedRoleDeletionStatusOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetServiceLinkedRoleDeletionStatus indicates an expected call of GetServiceLinkedRoleDeletionStatus
+func (mr *MockIAMAPIMockRecorder) GetServiceLinkedRoleDeletionStatus(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServiceLinkedRoleDeletionStatus", reflect.TypeOf((*MockIAMAPI)(nil).GetServiceLinkedRoleDeletionStatus), arg0)
+}
+
+// GetServiceLinkedRoleDeletionStatusRequest mocks base method
+func (m *MockIAMAPI) GetServiceLinkedRoleDeletionStatusRequest(arg0 *iam.GetServiceLinkedRoleDeletionStatusInput) (*request.Request, *iam.GetServiceLinkedRoleDeletionStatusOutput) {
+	ret := m.ctrl.Call(m, "GetServiceLinkedRoleDeletionStatusRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*iam.GetServiceLinkedRoleDeletionStatusOutput)
+	return ret0, ret1
+}
+
+// GetServiceLinkedRoleDeletionStatusRequest indicates an expected call of GetServiceLinkedRoleDeletionStatusRequest
+func (mr *MockIAMAPIMockRecorder) GetServiceLinkedRoleDeletionStatusRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServiceLinkedRoleDeletionStatusRequest", reflect.TypeOf((*MockIAMAPI)(nil).GetServiceLinkedRoleDeletionStatusRequest), arg0)
+}
+
+// GetServiceLinkedRoleDeletionStatusWithContext mocks base method
+func (m *MockIAMAPI) GetServiceLinkedRoleDeletionStatusWithContext(arg0 aws.Context, arg1 *iam.GetServiceLinkedRoleDeletionStatusInput, arg2 ...request.Option) (*iam.GetServiceLinkedRoleDeletionStatusOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetServiceLinkedRoleDeletionStatusWithContext", varargs...)
+	ret0, _ := ret[0].(*iam.GetServiceLinkedRoleDeletionStatusOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetServiceLinkedRoleDeletionStatusWithContext indicates an expected call of GetServiceLinkedRoleDeletionStatusWithContext
+func (mr *MockIAMAPIMockRecorder) GetServiceLinkedRoleDeletionStatusWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServiceLinkedRoleDeletionStatusWithContext", reflect.TypeOf((*MockIAMAPI)(nil).GetServiceLinkedRoleDeletionStatusWithContext), varargs...)
 }
 
 // GetUser mocks base method

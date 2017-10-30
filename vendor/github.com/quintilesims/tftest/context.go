@@ -2,7 +2,6 @@ package tftest
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"os/exec"
 	"strings"
@@ -17,7 +16,7 @@ type Context struct {
 
 func NewContext(options ...ContextOption) *Context {
 	context := &Context{
-		Logger: log.New(os.Stdout, "", 0),
+		Logger: NewIOLogger(os.Stdout),
 		Vars:   map[string]string{},
 		dir:    ".",
 	}
@@ -35,6 +34,10 @@ func (c *Context) DryRun() bool {
 
 func (c *Context) Dir() string {
 	return c.dir
+}
+
+func (c *Context) Init() ([]byte, error) {
+	return c.Terraformf("init")
 }
 
 func (c *Context) Apply() ([]byte, error) {
@@ -79,7 +82,7 @@ func (c *Context) Terraformf(command string, args ...string) ([]byte, error) {
 	cmd.Env = env
 	cmd.Dir = c.dir
 
-	c.Logger.Printf("Running %v from %s", cmd.Args, cmd.Dir)
+	c.Logger.Logf("Running %v from %s", cmd.Args, cmd.Dir)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {

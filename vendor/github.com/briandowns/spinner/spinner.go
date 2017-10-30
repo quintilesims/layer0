@@ -29,16 +29,34 @@ import (
 var errInvalidColor = errors.New("invalid color")
 
 // validColors holds an array of the only colors allowed
-var validColors = []string{"red", "green", "yellow", "blue", "magenta", "cyan", "white"}
+var validColors = map[string]bool{
+	"red":     true,
+	"green":   true,
+	"yellow":  true,
+	"blue":    true,
+	"magenta": true,
+	"cyan":    true,
+	"white":   true,
+}
+
+// returns a valid color's foreground text color attribute
+var colorAttributeMap = map[string]color.Attribute{
+	"red":     color.FgRed,
+	"green":   color.FgGreen,
+	"yellow":  color.FgYellow,
+	"blue":    color.FgBlue,
+	"magenta": color.FgMagenta,
+	"cyan":    color.FgCyan,
+	"white":   color.FgWhite,
+}
 
 // validColor will make sure the given color is actually allowed
 func validColor(c string) bool {
-	for _, i := range validColors {
-		if c == i {
-			return true
-		}
+	valid := false
+	if validColors[c] {
+		valid = true
 	}
-	return false
+	return valid
 }
 
 // Spinner struct to hold the provided options
@@ -50,7 +68,7 @@ type Spinner struct {
 	FinalMSG   string                        // string displayed after Stop() is called
 	lastOutput string                        // last character(set) written
 	color      func(a ...interface{}) string // default color is white
-	lock       *sync.RWMutex                 // Lock useed for
+	lock       *sync.RWMutex                 //
 	Writer     io.Writer                     // to make testing better, exported so users have access
 	active     bool                          // active holds the state of the spinner
 	stopChan   chan struct{}                 // stopChan is a channel used to stop the indicator
@@ -83,13 +101,16 @@ func (s *Spinner) Start() {
 				case <-s.stopChan:
 					return
 				default:
-					fmt.Fprint(s.Writer, fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix))
-					out := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
-					s.lastOutput = out
-					s.lock.RLock()
-					time.Sleep(s.Delay)
-					s.lock.RUnlock()
-					s.erase(out)
+					s.lock.Lock()
+					s.erase()
+					outColor := fmt.Sprintf("%s%s%s ", s.Prefix, s.color(s.chars[i]), s.Suffix)
+					outPlain := fmt.Sprintf("%s%s%s ", s.Prefix, s.chars[i], s.Suffix)
+					fmt.Fprint(s.Writer, outColor)
+					s.lastOutput = outPlain
+					delay := s.Delay
+					s.lock.Unlock()
+
+					time.Sleep(delay)
 				}
 			}
 		}
@@ -101,11 +122,12 @@ func (s *Spinner) Stop() {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	if s.active {
-		s.stopChan <- struct{}{}
 		s.active = false
+		s.erase()
 		if s.FinalMSG != "" {
 			fmt.Fprintf(s.Writer, s.FinalMSG)
 		}
+		s.stopChan <- struct{}{}
 	}
 }
 
@@ -126,33 +148,11 @@ func (s *Spinner) Reverse() {
 
 // Color will set the struct field for the given color to be used
 func (s *Spinner) Color(c string) error {
-	if validColor(c) {
-		switch c {
-		case "red":
-			s.color = color.New(color.FgRed).SprintFunc()
-			s.Restart()
-		case "yellow":
-			s.color = color.New(color.FgYellow).SprintFunc()
-			s.Restart()
-		case "green":
-			s.color = color.New(color.FgGreen).SprintFunc()
-			s.Restart()
-		case "magenta":
-			s.color = color.New(color.FgMagenta).SprintFunc()
-			s.Restart()
-		case "blue":
-			s.color = color.New(color.FgBlue).SprintFunc()
-			s.Restart()
-		case "cyan":
-			s.color = color.New(color.FgCyan).SprintFunc()
-			s.Restart()
-		case "white":
-			s.color = color.New(color.FgWhite).SprintFunc()
-			s.Restart()
-		default:
-			return errInvalidColor
-		}
+	if !validColor(c) {
+		return errInvalidColor
 	}
+	s.color = color.New(colorAttributeMap[c]).SprintFunc()
+	s.Restart()
 	return nil
 }
 
@@ -171,21 +171,24 @@ func (s *Spinner) UpdateCharSet(cs []string) {
 }
 
 // erase deletes written characters
-func (s *Spinner) erase(a string) {
-	n := utf8.RuneCountInString(a)
-	s.lock.RLock()
-	defer s.lock.RUnlock()
-	for i := 0; i < n; i++ {
-		fmt.Fprintf(s.Writer, "\b")
+//
+// Caller must already hold s.lock.
+func (s *Spinner) erase() {
+	n := utf8.RuneCountInString(s.lastOutput)
+	for _, c := range []string{"\b", " ", "\b"} {
+		for i := 0; i < n; i++ {
+			fmt.Fprintf(s.Writer, c)
+		}
 	}
+	s.lastOutput = ""
 }
 
 // GenerateNumberSequence will generate a slice of integers at the
 // provided length and convert them each to a string
 func GenerateNumberSequence(length int) []string {
-	var numSeq []string
+	numSeq := make([]string, length)
 	for i := 0; i < length; i++ {
-		numSeq = append(numSeq, strconv.Itoa(i))
+		numSeq[i] = strconv.Itoa(i)
 	}
 	return numSeq
 }

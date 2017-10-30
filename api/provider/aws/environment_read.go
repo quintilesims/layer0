@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -62,7 +63,8 @@ func (e *EnvironmentProvider) readLC(launchConfigName string) (*autoscaling.Laun
 		}
 	}
 
-	return nil, fmt.Errorf("Launch Configuration '%s' does not exist", launchConfigName)
+	message := fmt.Sprintf("Launch Configuration '%s' does not exist", launchConfigName)
+	return nil, awserr.New("DoesNotExist", message, nil)
 }
 
 func (e *EnvironmentProvider) readASG(autoScalingGroupName string) (*autoscaling.Group, error) {
@@ -80,7 +82,8 @@ func (e *EnvironmentProvider) readASG(autoScalingGroupName string) (*autoscaling
 		}
 	}
 
-	return nil, fmt.Errorf("AutoScaling Group '%s' does not exist", autoScalingGroupName)
+	message := fmt.Sprintf("AutoScalingGroup '%s' does not exist", autoScalingGroupName)
+	return nil, awserr.New("DoesNotExist", message, nil)
 }
 
 func (e *EnvironmentProvider) makeEnvironmentModel(environmentID string) (*models.Environment, error) {
