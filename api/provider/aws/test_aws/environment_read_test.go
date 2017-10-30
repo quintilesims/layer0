@@ -3,6 +3,7 @@ package test_aws
 import (
 	"testing"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
@@ -45,29 +46,40 @@ func TestEnvironmentRead(t *testing.T) {
 		}
 	}
 
+	// environments' security group names are <fq environment id>-env
 	describeSecurityGroupHelper(mockAWS, "l0-test-env_id-env", "sg_id")
 
+	// environments' asg names are the same as the fq environment id
+	describeASGInput := &autoscaling.DescribeAutoScalingGroupsInput{}
+	describeASGInput.SetAutoScalingGroupNames([]*string{aws.String("l0-test-env_id")})
+
+	// environment's use the asg.LaunchConfigurationName as the source of truth for
+	// their launch configuration name
 	asg := &autoscaling.Group{}
 	asg.SetAutoScalingGroupName("l0-test-env_id")
-	asg.SetLaunchConfigurationName("l0-test-env_id")
+	asg.SetLaunchConfigurationName("lc_name")
+	asg.SetInstances(make([]*autoscaling.Instance, 2))
 
 	describeASGOutput := &autoscaling.DescribeAutoScalingGroupsOutput{}
 	describeASGOutput.SetAutoScalingGroups([]*autoscaling.Group{asg})
 
-	// todo: check input
 	mockAWS.AutoScaling.EXPECT().
-		DescribeAutoScalingGroups(gomock.Any()).
+		DescribeAutoScalingGroups(describeASGInput).
 		Return(describeASGOutput, nil)
 
+	describeLCInput := &autoscaling.DescribeLaunchConfigurationsInput{}
+	describeLCInput.SetLaunchConfigurationNames([]*string{aws.String("lc_name")})
+
 	lc := &autoscaling.LaunchConfiguration{}
-	lc.SetLaunchConfigurationName("l0-test-env_id")
+	lc.SetLaunchConfigurationName("lc_name")
+	lc.SetInstanceType("m3.small")
+	lc.SetImageId("ami_id")
 
 	describeLCOutput := &autoscaling.DescribeLaunchConfigurationsOutput{}
 	describeLCOutput.SetLaunchConfigurations([]*autoscaling.LaunchConfiguration{lc})
 
-	// todo: check input
 	mockAWS.AutoScaling.EXPECT().
-		DescribeLaunchConfigurations(gomock.Any()).
+		DescribeLaunchConfigurations(describeLCInput).
 		Return(describeLCOutput, nil)
 
 	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
@@ -76,6 +88,7 @@ func TestEnvironmentRead(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	// todo: Links
 	expected := &models.Environment{
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
@@ -84,7 +97,7 @@ func TestEnvironmentRead(t *testing.T) {
 		SecurityGroupID: "sg_id",
 		ClusterCount:    2,
 		AMIID:           "ami_id",
-		// TODO: Links
+		Links:           []string{},
 	}
 
 	assert.Equal(t, expected, result)
