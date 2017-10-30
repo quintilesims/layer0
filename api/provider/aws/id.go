@@ -20,7 +20,7 @@ const (
 
 var entityIDGenerator func(string) string
 
-func init(){
+func init() {
 	entityIDGenerator = defaultEntityIDGenerator
 }
 
@@ -60,12 +60,12 @@ func defaultEntityIDGenerator(name string) string {
 	return prefix + hash
 }
 
-func SetEntityIDGenerator(entityID string) func()  {
-	entityIDGenerator = func(string) string{
+func SetEntityIDGenerator(entityID string) func() {
+	entityIDGenerator = func(string) string {
 		return entityID
 	}
 
-	return func(){ entityIDGenerator = defaultEntityIDGenerator }
+	return func() { entityIDGenerator = defaultEntityIDGenerator }
 }
 
 // filters out any non-alphanumeric characters
