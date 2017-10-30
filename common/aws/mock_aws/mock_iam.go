@@ -5,11 +5,12 @@
 package mock_aws
 
 import (
+	reflect "reflect"
+
 	aws "github.com/aws/aws-sdk-go/aws"
 	request "github.com/aws/aws-sdk-go/aws/request"
 	iam "github.com/aws/aws-sdk-go/service/iam"
 	gomock "github.com/golang/mock/gomock"
-	reflect "reflect"
 )
 
 // MockIAMAPI is a mock of IAMAPI interface

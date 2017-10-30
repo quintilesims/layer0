@@ -5,9 +5,10 @@
 package mock_provider
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockEnvironmentProvider is a mock of EnvironmentProvider interface
@@ -58,18 +59,6 @@ func (mr *MockEnvironmentProviderMockRecorder) Delete(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockEnvironmentProvider)(nil).Delete), arg0)
 }
 
-// Link mocks base method
-func (m *MockEnvironmentProvider) Link(arg0 models.EnvironmentLinkRequest) error {
-	ret := m.ctrl.Call(m, "Link", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Link indicates an expected call of Link
-func (mr *MockEnvironmentProviderMockRecorder) Link(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Link", reflect.TypeOf((*MockEnvironmentProvider)(nil).Link), arg0)
-}
-
 // List mocks base method
 func (m *MockEnvironmentProvider) List() ([]models.EnvironmentSummary, error) {
 	ret := m.ctrl.Call(m, "List")
@@ -94,18 +83,6 @@ func (m *MockEnvironmentProvider) Read(arg0 string) (*models.Environment, error)
 // Read indicates an expected call of Read
 func (mr *MockEnvironmentProviderMockRecorder) Read(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Read", reflect.TypeOf((*MockEnvironmentProvider)(nil).Read), arg0)
-}
-
-// Unlink mocks base method
-func (m *MockEnvironmentProvider) Unlink(arg0 models.EnvironmentLinkRequest) error {
-	ret := m.ctrl.Call(m, "Unlink", arg0)
-	ret0, _ := ret[0].(error)
-	return ret0
-}
-
-// Unlink indicates an expected call of Unlink
-func (mr *MockEnvironmentProviderMockRecorder) Unlink(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Unlink", reflect.TypeOf((*MockEnvironmentProvider)(nil).Unlink), arg0)
 }
 
 // Update mocks base method
