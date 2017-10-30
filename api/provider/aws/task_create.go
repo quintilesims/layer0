@@ -13,7 +13,7 @@ import (
 // The Deploy ID is used to look up the ECS Task Definition family and version of the
 // Task to run.
 func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
-	taskID := generateEntityID(req.TaskName)
+	taskID := entityIDGenerator(req.TaskName)
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
 
 	deployName, deployVersion, err := lookupDeployNameAndVersion(t.TagStore, req.DeployID)

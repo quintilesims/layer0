@@ -37,10 +37,10 @@ func TestEnvironment_createTags(t *testing.T) {
 	}
 }
 
-func TestEnvironment_renderUserData(t *testing.T) {
+func TestEnvironment_RenderUserData(t *testing.T) {
 	template := "{{ .ECSEnvironmentID }} {{ .S3Bucket }}"
 
-	encoded, err := renderUserData("env_id", "bucket", []byte(template))
+	encoded, err := RenderUserData("env_id", "bucket", []byte(template))
 	if err != nil {
 		t.Fatal(err)
 	}

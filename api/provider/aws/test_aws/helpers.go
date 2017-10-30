@@ -1,12 +1,29 @@
 package test_aws
 
 import (
+	"testing"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/golang/mock/gomock"
 	awsc "github.com/quintilesims/layer0/common/aws"
+	"github.com/stretchr/testify/assert"
 )
 
-func describeSecurityGroupHelper(mockAWS *awsc.MockClient, securityGroupName, securityGroupID string) {
+func createSGHelper(t *testing.T, mockAWS *awsc.MockClient, groupName, vpcID string) {
+	// use this method so we can ignore validation for the Description field
+	validateInput := func(input *ec2.CreateSecurityGroupInput) {
+		assert.Equal(t, groupName, aws.StringValue(input.GroupName))
+		assert.Equal(t, vpcID, aws.StringValue(input.VpcId))
+	}
+
+	mockAWS.EC2.EXPECT().
+		CreateSecurityGroup(gomock.Any()).
+		Do(validateInput).
+		Return(&ec2.CreateSecurityGroupOutput{}, nil)
+}
+
+func readSGHelper(mockAWS *awsc.MockClient, securityGroupName, securityGroupID string) {
 	filter := &ec2.Filter{}
 	filter.SetName("group-name")
 	filter.SetValues([]*string{aws.String(securityGroupName)})
@@ -27,7 +44,7 @@ func describeSecurityGroupHelper(mockAWS *awsc.MockClient, securityGroupName, se
 		Return(output, nil)
 }
 
-func deleteSecurityGroupHelper(mockAWS *awsc.MockClient, securityGroupID string) {
+func deleteSGHelper(mockAWS *awsc.MockClient, securityGroupID string) {
 	input := &ec2.DeleteSecurityGroupInput{}
 	input.SetGroupId(securityGroupID)
 

@@ -47,7 +47,7 @@ func TestEnvironmentRead(t *testing.T) {
 	}
 
 	// an environment's security group name is <fq environment id>-env
-	describeSecurityGroupHelper(mockAWS, "l0-test-env_id-env", "sg_id")
+	readSGHelper(mockAWS, "l0-test-env_id-env", "sg_id")
 
 	// an environment's asg name is the same as the fq environment id
 	describeASGInput := &autoscaling.DescribeAutoScalingGroupsInput{}
