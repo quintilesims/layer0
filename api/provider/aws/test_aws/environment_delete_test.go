@@ -66,8 +66,8 @@ func TestEnvironmentDelete(t *testing.T) {
 		Return(&autoscaling.DeleteLaunchConfigurationOutput{}, nil)
 
 	// an environment's security group name is <fq environment id>-env
-	describeSecurityGroupHelper(mockAWS, "l0-test-env_id-env", "sg_id")
-	deleteSecurityGroupHelper(mockAWS, "sg_id")
+	readSGHelper(mockAWS, "l0-test-env_id-env", "sg_id")
+	deleteSGHelper(mockAWS, "sg_id")
 
 	// an environment's cluster name is the fq environment id
 	deleteClusterInput := &ecs.DeleteClusterInput{}
