@@ -1,4 +1,4 @@
-package aws_test
+package test_aws
 
 import (
 	"testing"
@@ -6,7 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
-	"github.com/quintilesims/layer0/common/aws/mock_aws"
+	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -16,7 +16,7 @@ func TestLoadBalancer_Create(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockAWS := mock_aws.NewMockClient(ctrl)
+	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
@@ -24,28 +24,22 @@ func TestLoadBalancer_Create(t *testing.T) {
 
 	tags := models.Tags{
 		{
-			EntityID:   "lb_id1",
+			EntityID:   "lb_id",
 			EntityType: "load_balancer",
 			Key:        "name",
-			Value:      "lb_name1",
+			Value:      "lb_name",
 		},
 		{
-			EntityID:   "lb_id1",
+			EntityID:   "lb_id",
 			EntityType: "load_balancer",
 			Key:        "environment_id",
-			Value:      "env_id1",
+			Value:      "env_id",
 		},
 		{
-			EntityID:   "lb_id2",
-			EntityType: "load_balancer",
-			Key:        "name",
-			Value:      "env_name2",
-		},
-		{
-			EntityID:   "env_id2",
+			EntityID:   "env_id",
 			EntityType: "environment",
 			Key:        "os",
-			Value:      "os2",
+			Value:      "linux",
 		},
 	}
 
@@ -55,9 +49,12 @@ func TestLoadBalancer_Create(t *testing.T) {
 		}
 	}
 
+	describeSecurityGroupHelper(mockAWS, "l0-test-env_id-env", "env_sg_id")
+	describeSecurityGroupHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg_id")
+
 	req := models.CreateLoadBalancerRequest{
-		LoadBalancerName: "lb_name1",
-		EnvironmentID:    "env_id1",
+		LoadBalancerName: "lb_name",
+		EnvironmentID:    "env_id",
 		IsPublic:         true,
 		Ports:            []models.Port{},
 		HealthCheck: models.HealthCheck{
@@ -75,6 +72,6 @@ func TestLoadBalancer_Create(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	expected := []string{"jid1", "jid2"}
+	expected := []string{"jid"}
 	assert.Equal(t, expected, result)
 }
