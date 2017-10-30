@@ -53,7 +53,7 @@ func TestEnvironmentRead(t *testing.T) {
 	describeASGInput := &autoscaling.DescribeAutoScalingGroupsInput{}
 	describeASGInput.SetAutoScalingGroupNames([]*string{aws.String("l0-test-env_id")})
 
-	// environment's use the asg.LaunchConfigurationName as the source of truth for
+	// environments use the asg.LaunchConfigurationName as the source of truth for
 	// their launch configuration name
 	asg := &autoscaling.Group{}
 	asg.SetAutoScalingGroupName("l0-test-env_id")
