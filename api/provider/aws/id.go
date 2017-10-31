@@ -18,6 +18,12 @@ const (
 	MIN_ID_HASH_LENGTH = 5
 )
 
+var entityIDGenerator func(string) string
+
+func init() {
+	entityIDGenerator = defaultEntityIDGenerator
+}
+
 func prefix(instance string) string {
 	return fmt.Sprintf("l0-%s-", instance)
 }
@@ -41,7 +47,7 @@ func delLayer0Prefix(instance, v string) string {
 // generates an id using as much of the name as possible
 // with at least MIN_ID_HASH_LENGTH characters of the id randomly hashed
 // the id will always be MAX_ID_LENGTH characters in length
-func generateEntityID(name string) string {
+func defaultEntityIDGenerator(name string) string {
 	prefix := filterUsableID(name)
 
 	if maxPrefixLength := MAX_ID_LENGTH - MIN_ID_HASH_LENGTH; len(prefix) > maxPrefixLength {
@@ -52,6 +58,14 @@ func generateEntityID(name string) string {
 	hash := hashNow()[:hashLength]
 
 	return prefix + hash
+}
+
+func SetEntityIDGenerator(entityID string) func() {
+	entityIDGenerator = func(string) string {
+		return entityID
+	}
+
+	return func() { entityIDGenerator = defaultEntityIDGenerator }
 }
 
 // filters out any non-alphanumeric characters

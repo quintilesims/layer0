@@ -24,7 +24,7 @@ import (
 // added based on the list of ports in the Create Load Balancer Request. The
 // Security Group is then attached to the created Load Balancer.
 func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (string, error) {
-	loadBalancerID := generateEntityID(req.LoadBalancerName)
+	loadBalancerID := entityIDGenerator(req.LoadBalancerName)
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	fqEnvironmentID := addLayer0Prefix(l.Config.Instance(), req.EnvironmentID)
 
@@ -71,7 +71,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		return "", err
 	}
 
-	policy, err := renderLoadBalancerRolePolicy(
+	policy, err := RenderLoadBalancerRolePolicy(
 		l.Config.Region(),
 		l.Config.AccountID(),
 		fqLoadBalancerID,
@@ -275,7 +275,7 @@ func (l *LoadBalancerProvider) createTags(loadBalancerID, loadBalancerName, envi
 	return nil
 }
 
-func renderLoadBalancerRolePolicy(region, accountID, loadBalancerID, rolePolicyTemplate string) (string, error) {
+func RenderLoadBalancerRolePolicy(region, accountID, loadBalancerID, rolePolicyTemplate string) (string, error) {
 	tmpl, err := template.New("").Parse(rolePolicyTemplate)
 	if err != nil {
 		return "", fmt.Errorf("Failed to parse role policy template: %v", err)
