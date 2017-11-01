@@ -137,4 +137,17 @@ func TestServiceDelete(t *testing.T) {
 }
 
 func TestServiceDelete_idempotence(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAWS := awsc.NewMockClient(ctrl)
+	tagStore := tag.NewMemoryStore()
+	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+
+	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	if err := target.Delete("svc_id"); err != nil {
+		t.Fatal(err)
+	}
 }
