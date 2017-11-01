@@ -35,8 +35,14 @@ func TestTaskList(t *testing.T) {
 		{
 			EntityID:   "tsk_id1",
 			EntityType: "task",
-			Key:        "id",
+			Key:        "environment_id",
 			Value:      "env_id1",
+		},
+		{
+			EntityID:   "tsk_id1",
+			EntityType: "task",
+			Key:        "arn",
+			Value:      "arn1",
 		},
 		{
 			EntityID:   "tsk_id2",
@@ -47,8 +53,14 @@ func TestTaskList(t *testing.T) {
 		{
 			EntityID:   "tsk_id2",
 			EntityType: "task",
-			Key:        "id",
+			Key:        "environment_id",
 			Value:      "env_id2",
+		},
+		{
+			EntityID:   "tsk_id2",
+			EntityType: "task",
+			Key:        "arn",
+			Value:      "arn2",
 		},
 		{
 			EntityID:   "env_id1",
@@ -70,18 +82,33 @@ func TestTaskList(t *testing.T) {
 		}
 	}
 
+	listClusterPagesFN := func(input *ecs.ListClustersInput, fn func(output *ecs.ListClustersOutput, lastPage bool) bool) error {
+		clusterARNs := []*string{
+			aws.String("arn:aws:ecs:region:012345678910:cluster/l0-test-env_id1"),
+			aws.String("arn:aws:ecs:region:012345678910:cluster/l0-test-env_id2"),
+		}
+
+		output := &ecs.ListClustersOutput{}
+		output.SetClusterArns(clusterARNs)
+
+		fn(output, true)
+
+		return nil
+	}
+
 	mockAWS.ECS.EXPECT().
 		ListClustersPages(gomock.Any(), gomock.Any()).
+		Do(listClusterPagesFN).
 		Return(nil)
 
 	listTaskPagesFN := func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
 		taskARNs := []*string{
-			aws.String("arn:aws:ecs:region:012345678910:task/l0-test-tsk_id1"),
-			aws.String("arn:aws:ecs:region:012345678910:task/l0-test-tsk_id2"),
+			aws.String("arn:aws:ecs:region:012345678910:task/arn1"),
+			aws.String("arn:aws:ecs:region:012345678910:task/arn2"),
 		}
-
 		output := &ecs.ListTasksOutput{}
 		output.SetTaskArns(taskARNs)
+
 		fn(output, true)
 
 		return nil

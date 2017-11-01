@@ -58,22 +58,6 @@ func TestTaskDelete(t *testing.T) {
 		}
 	}
 
-	// // ensure we filter out tasks that don't belong to our instance
-	// listTaskPagesFN := func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
-	// 	taskARNs := []*string{
-	// 		aws.String("arn:aws:ecs:region:012345678910:task/l0-test-tsk_id1"),
-	// 		aws.String("arn:aws:ecs:region:012345678910:task/l0-test-tsk_id2"),
-	// 		aws.String("arn:aws:ecs:region:012345678910:task/l0-bad-tsk_id1"),
-	// 		aws.String("arn:aws:ecs:region:012345678910:task/bad2"),
-	// 	}
-
-	// 	output := &ecs.ListTasksOutput{}
-	// 	output.SetTaskArns(taskARNs)
-	// 	fn(output, true)
-
-	// 	return nil
-	// }
-
 	stopTaskInput := &ecs.StopTaskInput{}
 	stopTaskInput.SetCluster("l0-test-env_id")
 	stopTaskInput.SetTask("l0-test-tsk_id")
