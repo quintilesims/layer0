@@ -1,0 +1,96 @@
+package test_aws
+
+import (
+	"testing"
+
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/elb"
+	"github.com/golang/mock/gomock"
+	provider "github.com/quintilesims/layer0/api/provider/aws"
+	"github.com/quintilesims/layer0/api/tag"
+	awsc "github.com/quintilesims/layer0/common/aws"
+	"github.com/quintilesims/layer0/common/config/mock_config"
+	"github.com/quintilesims/layer0/common/models"
+	"github.com/stretchr/testify/assert"
+)
+
+func TestLoadBalancerRead(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAWS := awsc.NewMockClient(ctrl)
+	tagStore := tag.NewMemoryStore()
+	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+
+	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+
+	tags := models.Tags{
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "name",
+			Value:      "lb_name",
+		},
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "environment_id",
+			Value:      "env_id",
+		},
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
+			Key:        "name",
+			Value:      "env_name",
+		},
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
+			Key:        "os",
+			Value:      "linux",
+		},
+	}
+
+	for _, tag := range tags {
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	describeLoadBalancersInput := &elb.DescribeLoadBalancersInput{}
+	describeLoadBalancersInput.SetLoadBalancerNames([]*string{aws.String("l0-test-lb_id")})
+	describeLoadBalancersInput.SetPageSize(1)
+
+	healthCheck := &elb.HealthCheck{}
+	listener := &elb.Listener{}
+	listenerDescription := &elb.ListenerDescription{}
+	listenerDescription.SetListener(listener)
+
+	lb := &elb.LoadBalancerDescription{}
+	lb.SetLoadBalancerName("l0-test-lb_id")
+	lb.SetHealthCheck(healthCheck)
+	lb.SetListenerDescriptions([]*elb.ListenerDescription{listenerDescription})
+
+	describeLoadBalancersOutput := &elb.DescribeLoadBalancersOutput{}
+	describeLoadBalancersOutput.SetLoadBalancerDescriptions([]*elb.LoadBalancerDescription{lb})
+
+	mockAWS.ELB.EXPECT().
+		DescribeLoadBalancers(describeLoadBalancersInput).
+		Return(describeLoadBalancersOutput, nil)
+
+	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
+	result, err := target.Read("lb_id")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := &models.LoadBalancer{
+		LoadBalancerID:   "lb_id",
+		LoadBalancerName: "lb_name",
+		EnvironmentID:    "env_id",
+		EnvironmentName:  "env_name",
+		Ports:            []models.Port{models.Port{}},
+	}
+
+	assert.Equal(t, expected, result)
+}
