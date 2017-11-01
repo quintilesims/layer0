@@ -44,12 +44,6 @@ func TestLoadBalancerList(t *testing.T) {
 			Value:      "env_name1",
 		},
 		{
-			EntityID:   "env_id1",
-			EntityType: "environment",
-			Key:        "os",
-			Value:      "linux",
-		},
-		{
 			EntityID:   "lb_id2",
 			EntityType: "load_balancer",
 			Key:        "name",
@@ -66,12 +60,6 @@ func TestLoadBalancerList(t *testing.T) {
 			EntityType: "environment",
 			Key:        "name",
 			Value:      "env_name2",
-		},
-		{
-			EntityID:   "env_id2",
-			EntityType: "environment",
-			Key:        "os",
-			Value:      "windows",
 		},
 	}
 

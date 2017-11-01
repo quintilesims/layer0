@@ -180,14 +180,14 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		Return(&elb.CreateLoadBalancerListenersOutput{}, nil)
 
 	for _, listener := range listeners {
-		portNumber := aws.Int64Value(listener.LoadBalancerPort)
+		loadBalancerListenerPort := aws.Int64Value(listener.LoadBalancerPort)
 
 		ingressInput := &ec2.AuthorizeSecurityGroupIngressInput{}
 		ingressInput.SetGroupId("lb_sg")
 		ingressInput.SetCidrIp("0.0.0.0/0")
 		ingressInput.SetIpProtocol("TCP")
-		ingressInput.SetFromPort(portNumber)
-		ingressInput.SetToPort(portNumber)
+		ingressInput.SetFromPort(loadBalancerListenerPort)
+		ingressInput.SetToPort(loadBalancerListenerPort)
 
 		mockAWS.EC2.EXPECT().
 			AuthorizeSecurityGroupIngress(ingressInput).

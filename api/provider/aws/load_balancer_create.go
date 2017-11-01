@@ -152,13 +152,13 @@ func (l *LoadBalancerProvider) putRolePolicy(policyName, roleName, policy string
 	return nil
 }
 
-func (l *LoadBalancerProvider) authorizeSGIngressFromPort(groupID string, port int64) error {
+func (l *LoadBalancerProvider) authorizeSGIngressFromPort(groupID string, hostPort int64) error {
 	input := &ec2.AuthorizeSecurityGroupIngressInput{}
 	input.SetGroupId(groupID)
 	input.SetCidrIp("0.0.0.0/0")
 	input.SetIpProtocol("TCP")
-	input.SetFromPort(port)
-	input.SetToPort(port)
+	input.SetFromPort(hostPort)
+	input.SetToPort(hostPort)
 
 	if _, err := l.AWS.EC2.AuthorizeSecurityGroupIngress(input); err != nil {
 		return err

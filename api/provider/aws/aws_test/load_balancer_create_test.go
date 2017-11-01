@@ -40,13 +40,13 @@ func TestLoadBalancerCreate(t *testing.T) {
 		Ports: []models.Port{
 			{
 				CertificateName: "cert",
-				ContainerPort:   80,
+				ContainerPort:   88,
 				HostPort:        80,
 				Protocol:        "http",
 			},
 			{
 				CertificateName: "cert",
-				ContainerPort:   443,
+				ContainerPort:   4444,
 				HostPort:        443,
 				Protocol:        "https",
 			},
@@ -61,7 +61,6 @@ func TestLoadBalancerCreate(t *testing.T) {
 	}
 
 	readSGHelper(mockAWS, "l0-test-env_id-env", "env_sg")
-
 	createSGHelper(t, mockAWS, "l0-test-lb_id-lb", "vpc_id")
 	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
 
@@ -101,7 +100,8 @@ func TestLoadBalancerCreate(t *testing.T) {
 	putIAMPolicyInput.SetPolicyDocument(renderedLBRolePolicy)
 
 	mockAWS.IAM.EXPECT().
-		PutRolePolicy(putIAMPolicyInput)
+		PutRolePolicy(putIAMPolicyInput).
+		Return(&iam.PutRolePolicyOutput{}, nil)
 
 	listeners := make([]*elb.Listener, len(req.Ports))
 	for i, port := range req.Ports {
@@ -166,7 +166,6 @@ func TestLoadBalancerCreate(t *testing.T) {
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.Create(req)
-
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -231,7 +230,6 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 	}
 
 	readSGHelper(mockAWS, "l0-test-env_id-env", "env_sg")
-
 	createSGHelper(t, mockAWS, "l0-test-lb_id-lb", "vpc_id")
 	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
 
@@ -246,30 +244,13 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		AuthorizeSecurityGroupIngress(ingressInput).
 		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
 
-	iamRoleInput := &iam.CreateRoleInput{}
-	iamRoleInput.SetRoleName("l0-test-lb_id-lb")
-	iamRoleInput.SetAssumeRolePolicyDocument(provider.DEFAULT_ASSUME_ROLE_POLICY)
-
 	mockAWS.IAM.EXPECT().
-		CreateRole(iamRoleInput).
+		CreateRole(gomock.Any()).
 		Return(&iam.CreateRoleOutput{}, nil)
 
-	renderedLBRolePolicy, err := provider.RenderLoadBalancerRolePolicy(
-		"region",
-		"123456789012",
-		"l0-test-lb_id",
-		provider.DEFAULT_LB_ROLE_POLICY_TEMPLATE)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	putIAMPolicyInput := &iam.PutRolePolicyInput{}
-	putIAMPolicyInput.SetPolicyName("l0-test-lb_id-lb")
-	putIAMPolicyInput.SetRoleName("l0-test-lb_id-lb")
-	putIAMPolicyInput.SetPolicyDocument(renderedLBRolePolicy)
-
 	mockAWS.IAM.EXPECT().
-		PutRolePolicy(putIAMPolicyInput)
+		PutRolePolicy(gomock.Any()).
+		Return(&iam.PutRolePolicyOutput{}, nil)
 
 	listeners := make([]*elb.Listener, len(req.Ports))
 	listener := &elb.Listener{}
@@ -313,23 +294,4 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 	}
 
 	assert.Equal(t, "lb_id", result)
-
-	expectedTags := models.Tags{
-		{
-			EntityID:   "lb_id",
-			EntityType: "load_balancer",
-			Key:        "name",
-			Value:      "lb_name",
-		},
-		{
-			EntityID:   "lb_id",
-			EntityType: "load_balancer",
-			Key:        "environment_id",
-			Value:      "env_id",
-		},
-	}
-
-	for _, tag := range expectedTags {
-		assert.Contains(t, tagStore.Tags(), tag)
-	}
 }
