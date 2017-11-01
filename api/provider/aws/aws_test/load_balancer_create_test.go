@@ -145,8 +145,15 @@ func TestLoadBalancerCreate(t *testing.T) {
 	createLoadBalancerInput.SetSubnets([]*string{aws.String("priv1"), aws.String("priv2")})
 	createLoadBalancerInput.SetListeners(listeners)
 
+	validateFN := func(input *elb.CreateLoadBalancerInput) {
+		for i, listener := range input.Listeners {
+			assert.Equal(t, listeners[i], listener)
+		}
+	}
+
 	mockAWS.ELB.EXPECT().
 		CreateLoadBalancer(createLoadBalancerInput).
+		Do(validateFN).
 		Return(&elb.CreateLoadBalancerOutput{}, nil)
 
 	healthCheck := &elb.HealthCheck{}
