@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
@@ -23,33 +22,38 @@ func TestTaskRead(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
-	// todo: setup helper for config
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
 	tags := models.Tags{
 		{
-			EntityID:   "tsk_id1",
+			EntityID:   "tsk_id",
 			EntityType: "task",
 			Key:        "name",
-			Value:      "tsk_name1",
+			Value:      "tsk_name",
 		},
 		{
-			EntityID:   "tsk_id1",
+			EntityID:   "tsk_id",
 			EntityType: "task",
 			Key:        "arn",
-			Value:      "arn1",
+			Value:      "arn:aws:ecs:region:012345678910:task/arn",
 		},
 		{
-			EntityID:   "tsk_id1",
+			EntityID:   "tsk_id",
 			EntityType: "task",
-			Key:        "id",
+			Key:        "environment_id",
 			Value:      "env_id",
 		},
 		{
-			EntityID:   "env_id",
-			EntityType: "environment",
+			EntityID:   "dpl_id",
+			EntityType: "deploy",
 			Key:        "name",
-			Value:      "env_name",
+			Value:      "dpl_name",
+		},
+		{
+			EntityID:   "dpl_id",
+			EntityType: "deploy",
+			Key:        "version",
+			Value:      "version",
 		},
 	}
 
@@ -59,52 +63,21 @@ func TestTaskRead(t *testing.T) {
 		}
 	}
 
-	// environments' asg names are the same as the fq environment id
-	describeASGInput := &autoscaling.DescribeAutoScalingGroupsInput{}
-	describeASGInput.SetAutoScalingGroupNames([]*string{aws.String("l0-test-env_id")})
+	describeTaskInput := &ecs.DescribeTasksInput{}
+	describeTaskInput.SetCluster("l0-test-env_id")
+	describeTaskInput.SetTasks([]*string{aws.String("arn:aws:ecs:region:012345678910:task/arn")})
 
-	// environments use the asg.LaunchConfigurationName as the source of truth for
-	// their launch configuration name
-	asg := &autoscaling.Group{}
-	asg.SetAutoScalingGroupName("l0-test-env_id")
-	asg.SetLaunchConfigurationName("lc_name")
-	asg.SetInstances(make([]*autoscaling.Instance, 2))
+	task := &ecs.Task{}
+	task.SetTaskArn("arn:aws:ecs:region:012345678910:task/arn")
+	task.SetTaskDefinitionArn("arn:aws:ecs:region:account:task-definition/dpl_id:version")
+	task.SetLastStatus(ecs.DesiredStatusRunning)
 
-	describeASGOutput := &autoscaling.DescribeAutoScalingGroupsOutput{}
-	describeASGOutput.SetAutoScalingGroups([]*autoscaling.Group{asg})
-
-	mockAWS.AutoScaling.EXPECT().
-		DescribeAutoScalingGroups(describeASGInput).
-		Return(describeASGOutput, nil)
-
-	describeLCInput := &autoscaling.DescribeLaunchConfigurationsInput{}
-	describeLCInput.SetLaunchConfigurationNames([]*string{aws.String("lc_name")})
-
-	lc := &autoscaling.LaunchConfiguration{}
-	lc.SetLaunchConfigurationName("lc_name")
-	lc.SetInstanceType("m3.small")
-	lc.SetImageId("ami_id")
-
-	describeLCOutput := &autoscaling.DescribeLaunchConfigurationsOutput{}
-	describeLCOutput.SetLaunchConfigurations([]*autoscaling.LaunchConfiguration{lc})
-
-	taskARNs := []*string{
-		aws.String("arn:aws:ecs:region:012345678910:task/l0-test-tsk_id1"),
-		aws.String("arn:aws:ecs:region:012345678910:task/l0-test-tsk_id2"),
-		aws.String("arn:aws:ecs:region:012345678910:task/l0-bad-tsk_id1"),
-		aws.String("arn:aws:ecs:region:012345678910:task/bad2"),
-	}
-
-	input := &ecs.DescribeTasksInput{}
-	// input.SetCluster()
-	input.SetTasks(taskARNs)
-
-	output := &ecs.DescribeTasksOutput{}
-	// output.SetTasks()
+	describeTaskOutput := &ecs.DescribeTasksOutput{}
+	describeTaskOutput.SetTasks([]*ecs.Task{task})
 
 	mockAWS.ECS.EXPECT().
-		DescribeTasks(input).
-		Return(output, nil)
+		DescribeTasks(describeTaskInput).
+		Return(describeTaskOutput, nil)
 
 	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.Read("tsk_id")
@@ -112,8 +85,16 @@ func TestTaskRead(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	// todo: Links
-	expected := &models.Task{}
+	expected := &models.Task{
+		TaskID:        "tsk_id",
+		TaskName:      "tsk_name",
+		EnvironmentID: "env_id",
+		DeployID:      "dpl_id",
+		DeployName:    "dpl_name",
+		DeployVersion: "version",
+		Status:        "RUNNING",
+		Containers:    []models.Container{},
+	}
 
 	assert.Equal(t, expected, result)
 }
