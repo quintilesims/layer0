@@ -227,15 +227,6 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 	createSGHelper(t, mockAWS, "l0-test-lb_id-lb", "vpc_id")
 	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
 
-	/*
-		ingressInput := &ec2.AuthorizeSecurityGroupIngressInput{}
-		ingressInput.SetGroupId("lb_sg")
-		ingressInput.SetCidrIp("0.0.0.0/0")
-		ingressInput.SetIpProtocol("TCP")
-		ingressInput.SetFromPort(int64(80))
-		ingressInput.SetToPort(int64(80))
-	*/
-
 	mockAWS.EC2.EXPECT().
 		AuthorizeSecurityGroupIngress(gomock.Any()).
 		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
@@ -248,45 +239,9 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		PutRolePolicy(gomock.Any()).
 		Return(&iam.PutRolePolicyOutput{}, nil)
 
-	/*
-		listeners := make([]*elb.Listener, 1)
-		listener := &elb.Listener{}
-		listener.SetProtocol("tcp")
-		listener.SetLoadBalancerPort(80)
-		listener.SetInstancePort(80)
-		listener.SetInstanceProtocol("tcp")
-		listeners[0] = listener
-
-		createLoadBalancerInput := &elb.CreateLoadBalancerInput{}
-		createLoadBalancerInput.SetLoadBalancerName("l0-test-lb_id")
-		createLoadBalancerInput.SetScheme("internal")
-		createLoadBalancerInput.SetSecurityGroups([]*string{aws.String("env_sg"), aws.String("lb_sg")})
-		createLoadBalancerInput.SetSubnets([]*string{aws.String("priv1"), aws.String("priv2")})
-		createLoadBalancerInput.SetListeners(listeners)
-
-		validateFN := func(input *elb.CreateLoadBalancerInput) {
-			for i, listener := range input.Listeners {
-				assert.Equal(t, listeners[i], listener)
-			}
-		}
-	*/
-
 	mockAWS.ELB.EXPECT().
 		CreateLoadBalancer(gomock.Any()).
 		Return(&elb.CreateLoadBalancerOutput{}, nil)
-
-	/*
-		healthCheck := &elb.HealthCheck{}
-		healthCheck.SetTarget("TCP:80")
-		healthCheck.SetInterval(int64(30))
-		healthCheck.SetTimeout(int64(5))
-		healthCheck.SetHealthyThreshold(int64(2))
-		healthCheck.SetUnhealthyThreshold(int64(2))
-
-		configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
-		configureHealthCheckInput.SetLoadBalancerName("l0-test-lb_id")
-		configureHealthCheckInput.SetHealthCheck(healthCheck)
-	*/
 
 	mockAWS.ELB.EXPECT().
 		ConfigureHealthCheck(gomock.Any()).
