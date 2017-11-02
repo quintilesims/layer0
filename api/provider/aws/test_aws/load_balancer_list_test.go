@@ -77,6 +77,12 @@ func TestLoadBalancerList(t *testing.T) {
 			{
 				LoadBalancerName: aws.String("l0-test-lb_id2"),
 			},
+			{
+				LoadBalancerName: aws.String("l0-anotherinstance-lb_id1"),
+			},
+			{
+				LoadBalancerName: aws.String("l0-yetanotherinstance-lb_id1"),
+			},
 		}
 
 		output := &elb.DescribeLoadBalancersOutput{}
@@ -87,7 +93,7 @@ func TestLoadBalancerList(t *testing.T) {
 	}
 
 	mockAWS.ELB.EXPECT().
-		DescribeLoadBalancersPages(gomock.Any(), gomock.Any()).
+		DescribeLoadBalancersPages(&elb.DescribeLoadBalancersInput{}, gomock.Any()).
 		Do(describeLoadBalancerPagesFN).
 		Return(nil)
 

@@ -46,19 +46,19 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		Ports:          requestPorts,
 		HealthCheck: &models.HealthCheck{
 			Target:             "HTTPS:444/path/to/site",
-			Interval:           75,
-			Timeout:            75,
-			HealthyThreshold:   4,
+			Interval:           15,
+			Timeout:            10,
+			HealthyThreshold:   5,
 			UnhealthyThreshold: 4,
 		},
 	}
 
 	healthCheck := &elb.HealthCheck{}
-	healthCheck.SetTarget(req.HealthCheck.Target)
-	healthCheck.SetInterval(int64(req.HealthCheck.Interval))
-	healthCheck.SetTimeout(int64(req.HealthCheck.Timeout))
-	healthCheck.SetHealthyThreshold(int64(req.HealthCheck.HealthyThreshold))
-	healthCheck.SetUnhealthyThreshold(int64(req.HealthCheck.UnhealthyThreshold))
+	healthCheck.SetTarget("HTTPS:444/path/to/site")
+	healthCheck.SetInterval(int64(15))
+	healthCheck.SetTimeout(int64(10))
+	healthCheck.SetHealthyThreshold(int64(5))
+	healthCheck.SetUnhealthyThreshold(int64(4))
 
 	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
 	configureHealthCheckInput.SetLoadBalancerName("l0-test-lb_name")

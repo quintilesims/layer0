@@ -1,7 +1,6 @@
 package test_aws
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -54,9 +53,9 @@ func TestLoadBalancerCreate(t *testing.T) {
 		},
 		HealthCheck: models.HealthCheck{
 			Target:             "HTTPS:443/path/to/site",
-			Interval:           60,
-			Timeout:            60,
-			HealthyThreshold:   3,
+			Interval:           20,
+			Timeout:            15,
+			HealthyThreshold:   4,
 			UnhealthyThreshold: 3,
 		},
 	}
@@ -65,18 +64,27 @@ func TestLoadBalancerCreate(t *testing.T) {
 	createSGHelper(t, mockAWS, "l0-test-lb_id-lb", "vpc_id")
 	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
 
-	for _, port := range req.Ports {
-		ingressInput := &ec2.AuthorizeSecurityGroupIngressInput{}
-		ingressInput.SetGroupId("lb_sg")
-		ingressInput.SetCidrIp("0.0.0.0/0")
-		ingressInput.SetIpProtocol("TCP")
-		ingressInput.SetFromPort(int64(port.HostPort))
-		ingressInput.SetToPort(int64(port.HostPort))
+	ingressInput1 := &ec2.AuthorizeSecurityGroupIngressInput{}
+	ingressInput1.SetGroupId("lb_sg")
+	ingressInput1.SetCidrIp("0.0.0.0/0")
+	ingressInput1.SetIpProtocol("TCP")
+	ingressInput1.SetFromPort(int64(80))
+	ingressInput1.SetToPort(int64(80))
 
-		mockAWS.EC2.EXPECT().
-			AuthorizeSecurityGroupIngress(ingressInput).
-			Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
-	}
+	mockAWS.EC2.EXPECT().
+		AuthorizeSecurityGroupIngress(ingressInput1).
+		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
+
+	ingressInput2 := &ec2.AuthorizeSecurityGroupIngressInput{}
+	ingressInput2.SetGroupId("lb_sg")
+	ingressInput2.SetCidrIp("0.0.0.0/0")
+	ingressInput2.SetIpProtocol("TCP")
+	ingressInput2.SetFromPort(int64(443))
+	ingressInput2.SetToPort(int64(443))
+
+	mockAWS.EC2.EXPECT().
+		AuthorizeSecurityGroupIngress(ingressInput2).
+		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
 
 	iamRoleInput := &iam.CreateRoleInput{}
 	iamRoleInput.SetRoleName("l0-test-lb_id-lb")
@@ -104,40 +112,36 @@ func TestLoadBalancerCreate(t *testing.T) {
 		PutRolePolicy(putIAMPolicyInput).
 		Return(&iam.PutRolePolicyOutput{}, nil)
 
-	listeners := make([]*elb.Listener, len(req.Ports))
-	for i, port := range req.Ports {
-		listener := &elb.Listener{}
-		listener.SetProtocol(port.Protocol)
-		listener.SetLoadBalancerPort(port.HostPort)
-		listener.SetInstancePort(port.ContainerPort)
+	serverCertificateMetadata := &iam.ServerCertificateMetadata{}
+	serverCertificateMetadata.SetArn("cert")
+	serverCertificateMetadata.SetServerCertificateName("cert")
+	serverCertificateMetadataList := []*iam.ServerCertificateMetadata{serverCertificateMetadata}
 
-		if port.CertificateName != "" {
-			serverCertificateMetadataList := []*iam.ServerCertificateMetadata{
-				&iam.ServerCertificateMetadata{
-					Arn: aws.String(port.CertificateName),
-					ServerCertificateName: aws.String(port.CertificateName),
-				},
-			}
+	listServerCertificatesOutput := &iam.ListServerCertificatesOutput{}
+	listServerCertificatesOutput.SetServerCertificateMetadataList(serverCertificateMetadataList)
 
-			listServerCertificatesOutput := &iam.ListServerCertificatesOutput{}
-			listServerCertificatesOutput.SetServerCertificateMetadataList(serverCertificateMetadataList)
+	mockAWS.IAM.EXPECT().
+		ListServerCertificates(&iam.ListServerCertificatesInput{}).
+		Return(listServerCertificatesOutput, nil).
+		AnyTimes()
 
-			mockAWS.IAM.EXPECT().
-				ListServerCertificates(&iam.ListServerCertificatesInput{}).
-				Return(listServerCertificatesOutput, nil)
+	listener1 := &elb.Listener{}
+	listener1.SetProtocol("http")
+	listener1.SetLoadBalancerPort(80)
+	listener1.SetInstancePort(88)
+	listener1.SetSSLCertificateId("cert")
+	listener1.SetInstanceProtocol("http")
 
-			listener.SetSSLCertificateId(port.CertificateName)
-		}
+	listener2 := &elb.Listener{}
+	listener2.SetProtocol("https")
+	listener2.SetLoadBalancerPort(443)
+	listener2.SetInstancePort(4444)
+	listener2.SetSSLCertificateId("cert")
+	listener2.SetInstanceProtocol("http")
 
-		switch strings.ToLower(port.Protocol) {
-		case "http", "https":
-			listener.SetInstanceProtocol("http")
-		case "tcp", "ssl":
-			listener.SetInstanceProtocol("tcp")
-		}
-
-		listeners[i] = listener
-	}
+	listeners := make([]*elb.Listener, 2)
+	listeners[0] = listener1
+	listeners[1] = listener2
 
 	createLoadBalancerInput := &elb.CreateLoadBalancerInput{}
 	createLoadBalancerInput.SetLoadBalancerName("l0-test-lb_id")
@@ -147,8 +151,12 @@ func TestLoadBalancerCreate(t *testing.T) {
 	createLoadBalancerInput.SetListeners(listeners)
 
 	validateFN := func(input *elb.CreateLoadBalancerInput) {
-		for i, listener := range input.Listeners {
-			assert.Equal(t, listeners[i], listener)
+		assert.NotNil(t, input.Listeners)
+		assert.NotNil(t, input.LoadBalancerName)
+
+		for _, listener := range input.Listeners {
+			err := listener.Validate()
+			assert.NoError(t, err)
 		}
 	}
 
@@ -158,11 +166,11 @@ func TestLoadBalancerCreate(t *testing.T) {
 		Return(&elb.CreateLoadBalancerOutput{}, nil)
 
 	healthCheck := &elb.HealthCheck{}
-	healthCheck.SetTarget(req.HealthCheck.Target)
-	healthCheck.SetInterval(int64(req.HealthCheck.Interval))
-	healthCheck.SetTimeout(int64(req.HealthCheck.Timeout))
-	healthCheck.SetHealthyThreshold(int64(req.HealthCheck.HealthyThreshold))
-	healthCheck.SetUnhealthyThreshold(int64(req.HealthCheck.UnhealthyThreshold))
+	healthCheck.SetTarget("HTTPS:443/path/to/site")
+	healthCheck.SetInterval(int64(20))
+	healthCheck.SetTimeout(int64(15))
+	healthCheck.SetHealthyThreshold(int64(4))
+	healthCheck.SetUnhealthyThreshold(int64(3))
 
 	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
 	configureHealthCheckInput.SetLoadBalancerName("l0-test-lb_id")
@@ -239,12 +247,38 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		PutRolePolicy(gomock.Any()).
 		Return(&iam.PutRolePolicyOutput{}, nil)
 
-	mockAWS.ELB.EXPECT().
-		CreateLoadBalancer(gomock.Any()).
-		Return(&elb.CreateLoadBalancerOutput{}, nil)
+	listeners := make([]*elb.Listener, 1)
+	listener := &elb.Listener{}
+	listener.SetProtocol("tcp")
+	listener.SetLoadBalancerPort(80)
+	listener.SetInstancePort(80)
+	listener.SetInstanceProtocol("tcp")
+	listeners[0] = listener
+
+	createLoadBalancerInput := &elb.CreateLoadBalancerInput{}
+	createLoadBalancerInput.SetLoadBalancerName("l0-test-lb_id")
+	createLoadBalancerInput.SetScheme("internal")
+	createLoadBalancerInput.SetSecurityGroups([]*string{aws.String("env_sg"), aws.String("lb_sg")})
+	createLoadBalancerInput.SetSubnets([]*string{aws.String("priv1"), aws.String("priv2")})
+	createLoadBalancerInput.SetListeners(listeners)
 
 	mockAWS.ELB.EXPECT().
-		ConfigureHealthCheck(gomock.Any()).
+		CreateLoadBalancer(createLoadBalancerInput).
+		Return(&elb.CreateLoadBalancerOutput{}, nil)
+
+	healthCheck := &elb.HealthCheck{}
+	healthCheck.SetTarget("TCP:80")
+	healthCheck.SetInterval(int64(30))
+	healthCheck.SetTimeout(int64(5))
+	healthCheck.SetHealthyThreshold(int64(2))
+	healthCheck.SetUnhealthyThreshold(int64(2))
+
+	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
+	configureHealthCheckInput.SetLoadBalancerName("l0-test-lb_id")
+	configureHealthCheckInput.SetHealthCheck(healthCheck)
+
+	mockAWS.ELB.EXPECT().
+		ConfigureHealthCheck(configureHealthCheckInput).
 		Return(&elb.ConfigureHealthCheckOutput{}, nil)
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)

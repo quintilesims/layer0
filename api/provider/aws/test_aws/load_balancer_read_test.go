@@ -58,9 +58,9 @@ func TestLoadBalancerRead(t *testing.T) {
 
 	healthCheck := models.HealthCheck{
 		Target:             "HTTPS:443/path/to/site",
-		Interval:           5,
-		Timeout:            5,
-		HealthyThreshold:   2,
+		Interval:           10,
+		Timeout:            6,
+		HealthyThreshold:   3,
 		UnhealthyThreshold: 2,
 	}
 

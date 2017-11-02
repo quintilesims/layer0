@@ -124,7 +124,7 @@ const DEFAULT_LB_ROLE_POLICY_TEMPLATE = `{
     ]
 }`
 
-var DEFAULT_CREATE_LB_PORT_MODEL = []models.Port{
+var DefaultCreateLBPortModel = []models.Port{
 	models.Port{
 		ContainerPort: 80,
 		HostPort:      80,
@@ -132,7 +132,7 @@ var DEFAULT_CREATE_LB_PORT_MODEL = []models.Port{
 	},
 }
 
-var DEFAULT_CREATE_LB_HEALTHCHECK_MODEL = models.HealthCheck{
+var DefaultCreateLBHealthCheckModel = models.HealthCheck{
 	Target:             "TCP:80",
 	Interval:           30,
 	Timeout:            5,
