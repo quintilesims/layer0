@@ -5,7 +5,7 @@ import (
 	"github.com/docker/docker/daemon/caps"
 	"github.com/docker/docker/daemon/exec"
 	"github.com/docker/docker/libcontainerd"
-	"github.com/opencontainers/runtime-spec/specs-go"
+	specs "github.com/opencontainers/runtime-spec/specs-go"
 )
 
 func execSetPlatformOpt(c *container.Container, ec *exec.Config, p *libcontainerd.Process) error {

@@ -7,7 +7,7 @@ import (
 	"github.com/urfave/cli"
 )
 
-const DefaultTimeout = time.Minute*15
+const DefaultTimeout = time.Minute * 15
 
 func CLIFlags() []cli.Flag {
 	return []cli.Flag{

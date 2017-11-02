@@ -1,9 +1,10 @@
 package client
 
 import (
+	"fmt"
+
 	"github.com/quintilesims/sts/models"
 	"github.com/zpatrick/rclient"
-	"fmt"
 )
 
 type APIClient struct {
@@ -43,14 +44,13 @@ func (a *APIClient) GetCommand(name string) (*models.Command, error) {
 }
 
 func (a *APIClient) GetHealth() (*models.Health, error) {
-        var health *models.Health
-        if err := a.client.Get("/health", &health); err != nil {
-                return nil, err
-        }
+	var health *models.Health
+	if err := a.client.Get("/health", &health); err != nil {
+		return nil, err
+	}
 
-        return health, nil
+	return health, nil
 }
-
 
 func (a *APIClient) ListCommands() ([]*models.Command, error) {
 	var commands []*models.Command
@@ -62,15 +62,14 @@ func (a *APIClient) ListCommands() ([]*models.Command, error) {
 }
 
 func (a *APIClient) SetHealth(mode string) (*models.Health, error) {
-	 req := models.SetHealthRequest{
-                Mode: mode,
-        }
+	req := models.SetHealthRequest{
+		Mode: mode,
+	}
 
-        var health *models.Health
-        if err := a.client.Post("/health", req, &health); err != nil {
-                return nil, err
-        }
+	var health *models.Health
+	if err := a.client.Post("/health", req, &health); err != nil {
+		return nil, err
+	}
 
-        return health, nil
+	return health, nil
 }
-

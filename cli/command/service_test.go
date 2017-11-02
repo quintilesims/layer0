@@ -33,7 +33,7 @@ func TestCreateService(t *testing.T) {
 			EnvironmentID:  "env_id",
 			LoadBalancerID: "lb_id",
 			ServiceName:    "svc_name",
-			Scale: 3,
+			Scale:          3,
 		}
 
 		base.Client.EXPECT().

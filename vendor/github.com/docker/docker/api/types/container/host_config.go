@@ -7,7 +7,6 @@ import (
 	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/strslice"
 	"github.com/docker/go-connections/nat"
-	"github.com/docker/go-units"
 )
 
 // NetworkMode represents the container network stack.

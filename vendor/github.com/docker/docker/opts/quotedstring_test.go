@@ -1,8 +1,9 @@
 package opts
 
 import (
-	"github.com/docker/docker/pkg/testutil/assert"
 	"testing"
+
+	"github.com/docker/docker/pkg/testutil/assert"
 )
 
 func TestQuotedStringSetWithQuotes(t *testing.T) {

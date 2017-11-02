@@ -17,7 +17,6 @@ import (
 	"golang.org/x/oauth2/google"
 	"golang.org/x/oauth2/jwt"
 	"google.golang.org/api/googleapi"
-	"google.golang.org/api/storage/v1"
 
 	version "github.com/hashicorp/terraform/version"
 )

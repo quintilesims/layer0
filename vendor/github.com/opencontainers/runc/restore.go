@@ -11,7 +11,6 @@ import (
 	"github.com/opencontainers/runc/libcontainer"
 	"github.com/opencontainers/runc/libcontainer/configs"
 	"github.com/opencontainers/runc/libcontainer/specconv"
-	"github.com/opencontainers/runtime-spec/specs-go"
 )
 
 var restoreCommand = cli.Command{
