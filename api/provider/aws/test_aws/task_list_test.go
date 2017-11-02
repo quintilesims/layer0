@@ -42,7 +42,7 @@ func TestTaskList(t *testing.T) {
 			EntityID:   "tsk_id1",
 			EntityType: "task",
 			Key:        "arn",
-			Value:      "arn1",
+			Value:      "arn:aws:ecs:region:012345678910:task/arn1",
 		},
 		{
 			EntityID:   "tsk_id2",
@@ -60,7 +60,7 @@ func TestTaskList(t *testing.T) {
 			EntityID:   "tsk_id2",
 			EntityType: "task",
 			Key:        "arn",
-			Value:      "arn2",
+			Value:      "arn:aws:ecs:region:012345678910:task/arn2",
 		},
 		{
 			EntityID:   "env_id1",
@@ -82,6 +82,7 @@ func TestTaskList(t *testing.T) {
 		}
 	}
 
+	//[l0-nick-demo91e6e283 l0-nick-api l0-nick-demoenve36e9 l0-nick-endtoenb8169]
 	listClusterPagesFN := func(input *ecs.ListClustersInput, fn func(output *ecs.ListClustersOutput, lastPage bool) bool) error {
 		clusterARNs := []*string{
 			aws.String("arn:aws:ecs:region:012345678910:cluster/l0-test-env_id1"),
@@ -101,23 +102,31 @@ func TestTaskList(t *testing.T) {
 		Do(listClusterPagesFN).
 		Return(nil)
 
-	listTaskPagesFN := func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
-		taskARNs := []*string{
-			aws.String("arn:aws:ecs:region:012345678910:task/arn1"),
-			aws.String("arn:aws:ecs:region:012345678910:task/arn2"),
+	for _, environmentID := range []string{"l0-test-env_id1", "l0-test-env_id2"} {
+		listTaskPagesFN := func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
+			taskARNs := []*string{
+				aws.String("arn:aws:ecs:region:012345678910:task/arn1"),
+				aws.String("arn:aws:ecs:region:012345678910:task/arn2"),
+			}
+			output := &ecs.ListTasksOutput{}
+			output.SetTaskArns(taskARNs)
+			fn(output, true)
+
+			return nil
 		}
-		output := &ecs.ListTasksOutput{}
-		output.SetTaskArns(taskARNs)
 
-		fn(output, true)
+		for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
+			input := &ecs.ListTasksInput{}
+			input.SetCluster(environmentID)
+			input.SetDesiredStatus(status)
+			input.SetStartedBy("test")
 
-		return nil
+			mockAWS.ECS.EXPECT().
+				ListTasksPages(input, gomock.Any()).
+				Do(listTaskPagesFN).
+				Return(nil)
+		}
 	}
-
-	mockAWS.ECS.EXPECT().
-		ListTasksPages(gomock.Any(), gomock.Any()).
-		Do(listTaskPagesFN).
-		Return(nil)
 
 	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.List()
