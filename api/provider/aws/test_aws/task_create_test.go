@@ -22,6 +22,7 @@ func TestTaskCreate(t *testing.T) {
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	defer provider.SetEntityIDGenerator("tsk_id")()
 
 	tags := models.Tags{
 		{
@@ -78,16 +79,28 @@ func TestTaskCreate(t *testing.T) {
 
 	assert.Equal(t, "tsk_id", result)
 
-	// expectedTags := models.Tags{
-	// 	{
-	// 		EntityID:   "tsk_id",
-	// 		EntityType: "task",
-	// 		Key:        "name",
-	// 		Value:      "tsk_name",
-	// 	},
-	// }
+	expectedTags := models.Tags{
+		{
+			EntityID:   "tsk_id",
+			EntityType: "task",
+			Key:        "name",
+			Value:      "tsk_name",
+		},
+		{
+			EntityID:   "tsk_id",
+			EntityType: "task",
+			Key:        "environment_id",
+			Value:      "env_id",
+		},
+		{
+			EntityID:   "tsk_id",
+			EntityType: "task",
+			Key:        "arn",
+			Value:      "arn:aws:ecs:region:012345678910:task/arn",
+		},
+	}
 
-	// for _, tag := range expectedTags {
-	// 	assert.Contains(t, tagStore.Tags(), tag)
-	// }
+	for _, tag := range expectedTags {
+		assert.Contains(t, tagStore.Tags(), tag)
+	}
 }
