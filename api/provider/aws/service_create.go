@@ -14,7 +14,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 
 	desiredCount := 1
 
-	serviceID := generateEntityID(req.ServiceName)
+	serviceID := entityIDGenerator(req.ServiceName)
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
 	serviceName := fqServiceID
 

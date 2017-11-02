@@ -24,7 +24,7 @@ import (
 // added based on the list of ports in the Create Load Balancer Request. The
 // Security Group is then attached to the created Load Balancer.
 func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (string, error) {
-	loadBalancerID := generateEntityID(req.LoadBalancerName)
+	loadBalancerID := entityIDGenerator(req.LoadBalancerName)
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	fqEnvironmentID := addLayer0Prefix(l.Config.Instance(), req.EnvironmentID)
 
