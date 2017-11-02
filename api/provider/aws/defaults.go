@@ -1,5 +1,7 @@
 package aws
 
+import "github.com/quintilesims/layer0/common/models"
+
 const (
 	DEFAULT_INSTANCE_SIZE  = "m3.medium"
 	DEFAULT_ENVIRONMENT_OS = "linux"
@@ -121,3 +123,19 @@ const DEFAULT_LB_ROLE_POLICY_TEMPLATE = `{
         }
     ]
 }`
+
+var DEFAULT_CREATE_LB_PORT_MODEL = []models.Port{
+	models.Port{
+		ContainerPort: 80,
+		HostPort:      80,
+		Protocol:      "tcp",
+	},
+}
+
+var DEFAULT_CREATE_LB_HEALTHCHECK_MODEL = models.HealthCheck{
+	Target:             "TCP:80",
+	Interval:           30,
+	Timeout:            5,
+	HealthyThreshold:   2,
+	UnhealthyThreshold: 2,
+}
