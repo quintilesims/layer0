@@ -3,6 +3,7 @@ package test_aws
 import (
 	"testing"
 
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
@@ -22,15 +23,52 @@ func TestTaskCreate(t *testing.T) {
 
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
-	req := models.CreateTaskRequest{
-		DeployID:      "deploy_id",
-		EnvironmentID: "env_id",
-		TaskName:      "task_name",
+	tags := models.Tags{
+		{
+			EntityID:   "dpl_id",
+			EntityType: "deploy",
+			Key:        "name",
+			Value:      "dpl_name",
+		},
+		{
+			EntityID:   "dpl_id",
+			EntityType: "deploy",
+			Key:        "version",
+			Value:      "version",
+		},
 	}
 
-	// mockAWS.ECS.EXPECT().
-	// 	RunTask().
-	// 	Return(nil, nil)
+	for _, tag := range tags {
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	req := models.CreateTaskRequest{
+		DeployID:           "dpl_id",
+		EnvironmentID:      "env_id",
+		TaskName:           "tsk_name",
+		ContainerOverrides: []models.ContainerOverride{},
+	}
+
+	taskOverride := &ecs.TaskOverride{}
+	taskOverride.SetContainerOverrides([]*ecs.ContainerOverride{})
+
+	runTaskInput := &ecs.RunTaskInput{}
+	runTaskInput.SetCluster("l0-test-env_id")
+	runTaskInput.SetStartedBy("test")
+	runTaskInput.SetTaskDefinition("l0-test-dpl_name:version")
+	runTaskInput.SetOverrides(taskOverride)
+
+	task := &ecs.Task{}
+	task.SetTaskArn("arn:aws:ecs:region:012345678910:task/arn")
+
+	runTaskOutput := &ecs.RunTaskOutput{}
+	runTaskOutput.SetTasks([]*ecs.Task{task})
+
+	mockAWS.ECS.EXPECT().
+		RunTask(runTaskInput).
+		Return(runTaskOutput, nil)
 
 	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.Create(req)
@@ -39,4 +77,17 @@ func TestTaskCreate(t *testing.T) {
 	}
 
 	assert.Equal(t, "tsk_id", result)
+
+	// expectedTags := models.Tags{
+	// 	{
+	// 		EntityID:   "tsk_id",
+	// 		EntityType: "task",
+	// 		Key:        "name",
+	// 		Value:      "tsk_name",
+	// 	},
+	// }
+
+	// for _, tag := range expectedTags {
+	// 	assert.Contains(t, tagStore.Tags(), tag)
+	// }
 }
