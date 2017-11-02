@@ -33,6 +33,7 @@ func TestCreateService(t *testing.T) {
 			EnvironmentID:  "env_id",
 			LoadBalancerID: "lb_id",
 			ServiceName:    "svc_name",
+			Scale: 3,
 		}
 
 		base.Client.EXPECT().
@@ -51,15 +52,15 @@ func TestCreateService(t *testing.T) {
 
 			deployments := []models.Deployment{
 				{
-					DesiredCount: 1,
-					RunningCount: 1,
+					DesiredCount: 3,
+					RunningCount: 3,
 				},
 			}
 
 			service := &models.Service{
 				Deployments:  deployments,
-				DesiredCount: 1,
-				RunningCount: 1,
+				DesiredCount: 3,
+				RunningCount: 3,
 			}
 
 			base.Client.EXPECT().
@@ -69,7 +70,7 @@ func TestCreateService(t *testing.T) {
 		}
 
 		args := Args{"env_name", "svc_name", "dpl_name"}
-		flags := Flags{"loadbalancer": "lb_name"}
+		flags := Flags{"loadbalancer": "lb_name", "scale": 3}
 		c := NewContext(t, args, flags, SetNoWait(!wait))
 
 		serviceCommand := NewServiceCommand(base.Command())

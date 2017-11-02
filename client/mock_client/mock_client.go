@@ -4,9 +4,10 @@
 package mock_client
 
 import (
+	url "net/url"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	url "net/url"
 )
 
 // Mock of Client interface

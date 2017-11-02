@@ -12,8 +12,6 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
 	cluster := fqEnvironmentID
 
-	desiredCount := 1
-
 	serviceID := generateEntityID(req.ServiceName)
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
 	serviceName := fqServiceID
@@ -53,10 +51,15 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 				}
 			}
 		}
-
 	}
 
-	if err := s.createService(cluster, serviceName, taskDefinitionARN, desiredCount, loadBalancerRole, loadBalancer); err != nil {
+	if err := s.createService(
+		cluster,
+		serviceName,
+		taskDefinitionARN,
+		req.Scale,
+		loadBalancerRole,
+		loadBalancer); err != nil {
 		return "", err
 	}
 
@@ -67,7 +70,14 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	return serviceID, nil
 }
 
-func (s *ServiceProvider) createService(cluster, serviceName, taskDefinition string, desiredCount int, loadBalancerRole string, loadBalancer *ecs.LoadBalancer) error {
+func (s *ServiceProvider) createService(
+	cluster string,
+	serviceName string,
+	taskDefinition string,
+	desiredCount int,
+	loadBalancerRole string,
+	loadBalancer *ecs.LoadBalancer,
+) error {
 	input := &ecs.CreateServiceInput{}
 	input.SetCluster(cluster)
 	input.SetDesiredCount(int64(desiredCount))

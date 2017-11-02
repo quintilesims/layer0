@@ -15,6 +15,7 @@ func TestCreateService(t *testing.T) {
 		EnvironmentID:  "eid",
 		DeployID:       "did",
 		LoadBalancerID: "lid",
+		Scale:          3,
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {

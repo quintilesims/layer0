@@ -33,6 +33,11 @@ func (s *ServiceCommand) Command() cli.Command {
 						Name:  "loadbalancer",
 						Usage: "attach the service to the specified load balancer",
 					},
+					cli.IntFlag{
+						Name:  "scale",
+						Value: 1,
+						Usage: "The desired scale of the service",
+					},
 				},
 			},
 			{
@@ -119,6 +124,7 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 		EnvironmentID:  environmentID,
 		LoadBalancerID: loadBalancerID,
 		ServiceName:    args["SERVICE_NAME"],
+		Scale:          c.Int("scale"),
 	}
 
 	jobID, err := s.client.CreateService(req)
