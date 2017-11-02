@@ -75,7 +75,7 @@ func TestEnvironmentList(t *testing.T) {
 	}
 
 	mockAWS.ECS.EXPECT().
-		ListClustersPages(gomock.Any(), gomock.Any()).
+		ListClustersPages(&ecs.ListClustersInput{}, gomock.Any()).
 		Do(listClusterPagesFN).
 		Return(nil)
 
