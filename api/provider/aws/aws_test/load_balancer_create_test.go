@@ -274,8 +274,15 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 	createLoadBalancerInput.SetSubnets([]*string{aws.String("pub1"), aws.String("pub2")})
 	createLoadBalancerInput.SetListeners(listeners)
 
+	validateFN := func(input *elb.CreateLoadBalancerInput) {
+		for i, listener := range input.Listeners {
+			assert.Equal(t, listeners[i], listener)
+		}
+	}
+
 	mockAWS.ELB.EXPECT().
 		CreateLoadBalancer(createLoadBalancerInput).
+		Do(validateFN).
 		Return(&elb.CreateLoadBalancerOutput{}, nil)
 
 	healthCheck := &elb.HealthCheck{}
@@ -295,7 +302,6 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.Create(req)
-
 	if err != nil {
 		t.Fatal(err)
 	}
