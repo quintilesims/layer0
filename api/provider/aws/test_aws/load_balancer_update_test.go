@@ -1,7 +1,6 @@
 package test_aws
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -55,12 +54,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		HealthCheck:    requestHealthCheck,
 	}
 
-	healthCheck := &elb.HealthCheck{}
-	healthCheck.SetTarget("HTTPS:444/path/to/site")
-	healthCheck.SetInterval(int64(15))
-	healthCheck.SetTimeout(int64(10))
-	healthCheck.SetHealthyThreshold(int64(5))
-	healthCheck.SetUnhealthyThreshold(int64(4))
+	healthCheck := healthCheckHelper(requestHealthCheck)
 
 	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
 	configureHealthCheckInput.SetLoadBalancerName("l0-test-lb_name")
@@ -75,18 +69,12 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	listeners := make([]*elb.Listener, len(*requestPorts))
 	for i, port := range *requestPorts {
-		listener := &elb.Listener{}
-		listener.SetProtocol(port.Protocol)
-		listener.SetLoadBalancerPort(port.HostPort)
-		listener.SetInstancePort(port.ContainerPort)
-
+		listener := listenerHelper(&port)
 		if port.CertificateName != "" {
-			serverCertificateMetadataList := []*iam.ServerCertificateMetadata{
-				&iam.ServerCertificateMetadata{
-					Arn: aws.String(port.CertificateName),
-					ServerCertificateName: aws.String(port.CertificateName),
-				},
-			}
+			serverCertificateMetadata := &iam.ServerCertificateMetadata{}
+			serverCertificateMetadata.SetArn(port.CertificateName)
+			serverCertificateMetadata.SetServerCertificateName(port.CertificateName)
+			serverCertificateMetadataList := []*iam.ServerCertificateMetadata{serverCertificateMetadata}
 
 			listServerCertificatesOutput := &iam.ListServerCertificatesOutput{}
 			listServerCertificatesOutput.SetServerCertificateMetadataList(serverCertificateMetadataList)
@@ -94,15 +82,6 @@ func TestLoadBalancerUpdate(t *testing.T) {
 			mockAWS.IAM.EXPECT().
 				ListServerCertificates(&iam.ListServerCertificatesInput{}).
 				Return(listServerCertificatesOutput, nil)
-
-			listener.SetSSLCertificateId(port.CertificateName)
-		}
-
-		switch strings.ToLower(port.Protocol) {
-		case "http", "https":
-			listener.SetInstanceProtocol("http")
-		case "tcp", "ssl":
-			listener.SetInstanceProtocol("tcp")
 		}
 
 		listeners[i] = listener
@@ -114,19 +93,8 @@ func TestLoadBalancerUpdate(t *testing.T) {
 	describeLoadBalancersInput.SetLoadBalancerNames([]*string{aws.String("l0-test-lb_name")})
 	describeLoadBalancersInput.SetPageSize(1)
 
-	healthCheck = &elb.HealthCheck{}
-	healthCheck.SetTarget("TCP:80")
-	healthCheck.SetInterval(int64(30))
-	healthCheck.SetTimeout(int64(5))
-	healthCheck.SetHealthyThreshold(int64(2))
-	healthCheck.SetUnhealthyThreshold(int64(2))
-
-	listener := &elb.Listener{}
-	listener.SetProtocol("tcp")
-	listener.SetLoadBalancerPort(80)
-	listener.SetInstancePort(80)
-	listener.SetInstanceProtocol("tcp")
-
+	healthCheck = healthCheckHelper(nil)
+	listener := listenerHelper(nil)
 	listenerDescription := &elb.ListenerDescription{}
 	listenerDescription.SetListener(listener)
 

@@ -248,12 +248,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		Return(&iam.PutRolePolicyOutput{}, nil)
 
 	listeners := make([]*elb.Listener, 1)
-	listener := &elb.Listener{}
-	listener.SetProtocol("tcp")
-	listener.SetLoadBalancerPort(80)
-	listener.SetInstancePort(80)
-	listener.SetInstanceProtocol("tcp")
-	listeners[0] = listener
+	listeners[0] = listenerHelper(nil)
 
 	createLoadBalancerInput := &elb.CreateLoadBalancerInput{}
 	createLoadBalancerInput.SetLoadBalancerName("l0-test-lb_id")
@@ -266,13 +261,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		CreateLoadBalancer(createLoadBalancerInput).
 		Return(&elb.CreateLoadBalancerOutput{}, nil)
 
-	healthCheck := &elb.HealthCheck{}
-	healthCheck.SetTarget("TCP:80")
-	healthCheck.SetInterval(int64(30))
-	healthCheck.SetTimeout(int64(5))
-	healthCheck.SetHealthyThreshold(int64(2))
-	healthCheck.SetUnhealthyThreshold(int64(2))
-
+	healthCheck := healthCheckHelper(nil)
 	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
 	configureHealthCheckInput.SetLoadBalancerName("l0-test-lb_id")
 	configureHealthCheckInput.SetHealthCheck(healthCheck)
