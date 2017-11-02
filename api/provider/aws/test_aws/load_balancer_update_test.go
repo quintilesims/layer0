@@ -41,16 +41,18 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		},
 	}
 
+	requestHealthCheck := &models.HealthCheck{
+		Target:             "HTTPS:444/path/to/site",
+		Interval:           15,
+		Timeout:            10,
+		HealthyThreshold:   5,
+		UnhealthyThreshold: 4,
+	}
+
 	req := models.UpdateLoadBalancerRequest{
 		LoadBalancerID: "lb_name",
 		Ports:          requestPorts,
-		HealthCheck: &models.HealthCheck{
-			Target:             "HTTPS:444/path/to/site",
-			Interval:           15,
-			Timeout:            10,
-			HealthyThreshold:   5,
-			UnhealthyThreshold: 4,
-		},
+		HealthCheck:    requestHealthCheck,
 	}
 
 	healthCheck := &elb.HealthCheck{}
