@@ -139,10 +139,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 	listener2.SetSSLCertificateId("cert")
 	listener2.SetInstanceProtocol("http")
 
-	listeners := make([]*elb.Listener, 2)
-	listeners[0] = listener1
-	listeners[1] = listener2
-
+	listeners := []*elb.Listener{listener1, listener2}
 	createLoadBalancerInput := &elb.CreateLoadBalancerInput{}
 	createLoadBalancerInput.SetLoadBalancerName("l0-test-lb_id")
 	createLoadBalancerInput.SetScheme("internet-facing")
@@ -247,9 +244,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		PutRolePolicy(gomock.Any()).
 		Return(&iam.PutRolePolicyOutput{}, nil)
 
-	listeners := make([]*elb.Listener, 1)
-	listeners[0] = listenerHelper(nil)
-
+	listeners := []*elb.Listener{listenerHelper(nil)}
 	createLoadBalancerInput := &elb.CreateLoadBalancerInput{}
 	createLoadBalancerInput.SetLoadBalancerName("l0-test-lb_id")
 	createLoadBalancerInput.SetScheme("internal")

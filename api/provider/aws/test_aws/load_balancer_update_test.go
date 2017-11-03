@@ -130,9 +130,12 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		DeleteLoadBalancerListeners(deleteLoadBalancerListenersInput).
 		Return(&elb.DeleteLoadBalancerListenersOutput{}, nil)
 
-	listener1 := listenerHelper(&requestPorts[0])
-	listener2 := listenerHelper(&requestPorts[1])
-	listeners := []*elb.Listener{listener1, listener2}
+	//listener1 := listenerHelper(&requestPorts[0])
+	//listener2 := listenerHelper(&requestPorts[1])
+	listeners := []*elb.Listener{
+		listenerHelper(&requestPorts[0]),
+		listenerHelper(&requestPorts[1]),
+	}
 
 	createLoadBalancerListenersInput := &elb.CreateLoadBalancerListenersInput{}
 	createLoadBalancerListenersInput.SetLoadBalancerName("l0-test-lb_name")
