@@ -1,7 +1,6 @@
 package test_aws
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -85,29 +84,15 @@ func TestLoadBalancerRead(t *testing.T) {
 	elbHealthCheck.SetHealthyThreshold(int64(healthCheck.HealthyThreshold))
 	elbHealthCheck.SetUnhealthyThreshold(int64(healthCheck.UnhealthyThreshold))
 
-	listenerDescriptions := make([]*elb.ListenerDescription, len(ports))
-	for i, port := range ports {
-		elbListener := &elb.Listener{}
-		elbListener.SetProtocol(port.Protocol)
-		elbListener.SetLoadBalancerPort(port.HostPort)
-		elbListener.SetInstancePort(port.ContainerPort)
+	listener1 := listenerHelper(&ports[0])
+	listenerDescription1 := &elb.ListenerDescription{}
+	listenerDescription1.SetListener(listener1)
 
-		switch strings.ToLower(port.Protocol) {
-		case "http", "https":
-			elbListener.SetInstanceProtocol("http")
-		case "tcp", "ssl":
-			elbListener.SetInstanceProtocol("tcp")
-		}
+	listener2 := listenerHelper(&ports[1])
+	listenerDescription2 := &elb.ListenerDescription{}
+	listenerDescription2.SetListener(listener2)
 
-		if port.CertificateName != "" {
-			elbListener.SetSSLCertificateId("cert")
-		}
-
-		listenerDescription := &elb.ListenerDescription{}
-		listenerDescription.SetListener(elbListener)
-
-		listenerDescriptions[i] = listenerDescription
-	}
+	listenerDescriptions := []*elb.ListenerDescription{listenerDescription1, listenerDescription2}
 
 	lb := &elb.LoadBalancerDescription{}
 	lb.SetLoadBalancerName("l0-test-lb_id")

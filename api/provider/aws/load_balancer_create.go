@@ -71,7 +71,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	securityGroupIDs = append(securityGroupIDs, aws.StringValue(loadBalancerSG.GroupId))
 
 	roleName := getLoadBalancerRoleName(fqLoadBalancerID)
-	if _, err := l.createRole(roleName, DEFAULT_ASSUME_ROLE_POLICY); err != nil {
+	if _, err := l.createRole(roleName, DefaultAssumeRolePolicy); err != nil {
 		return "", err
 	}
 
@@ -79,7 +79,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		l.Config.Region(),
 		l.Config.AccountID(),
 		fqLoadBalancerID,
-		DEFAULT_LB_ROLE_POLICY_TEMPLATE)
+		DefaultLBRolePolicyTemplate)
 	if err != nil {
 		return "", err
 	}

@@ -3,11 +3,12 @@ package aws
 import "github.com/quintilesims/layer0/common/models"
 
 const (
-	DEFAULT_INSTANCE_SIZE  = "m3.medium"
-	DEFAULT_ENVIRONMENT_OS = "linux"
+	DefaultInstanceSize  = "m3.medium"
+	DefaultEnvironmentOS = "linux"
+	DefaultServiceScale  = 1
 )
 
-const DEFAULT_LINUX_USERDATA_TEMPLATE = `
+const DefaultLinuxUserdataTemplate = `
 #!/bin/bash
 echo ECS_CLUSTER={{ .ECSEnvironmentID }} >> /etc/ecs/ecs.config
 echo ECS_ENGINE_AUTH_TYPE=dockercfg >> /etc/ecs/ecs.config
@@ -19,7 +20,7 @@ docker pull amazon/amazon-ecs-agent:latest
 start ecs
 `
 
-const DEFAULT_WINDOWS_USERDATA_TEMPLATE = `
+const DefaultWindowsUserdataTemplate = `
 <powershell>
 # Set agent env variables for the Machine context (durable)
 $clusterName = "{{ .ECSEnvironmentID }}"
@@ -80,7 +81,7 @@ Add-JobTrigger -Name $jobname -Trigger (New-JobTrigger -AtStartup -RandomDelay 0
 <persist>true</persist>
 `
 
-const DEFAULT_ASSUME_ROLE_POLICY = `{
+const DefaultAssumeRolePolicy = `{
   "Version": "2008-10-17",
   "Statement": [
     {
@@ -98,7 +99,7 @@ const DEFAULT_ASSUME_ROLE_POLICY = `{
   ]
 }`
 
-const DEFAULT_LB_ROLE_POLICY_TEMPLATE = `{
+const DefaultLBRolePolicyTemplate = `{
     "Version": "2012-10-17",
     "Statement": [
         {

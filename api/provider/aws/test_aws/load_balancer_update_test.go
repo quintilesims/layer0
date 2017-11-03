@@ -25,7 +25,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
-	requestPorts := &[]models.Port{
+	requestPorts := []models.Port{
 		models.Port{
 			CertificateName: "cert",
 			ContainerPort:   8080,
@@ -50,7 +50,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	req := models.UpdateLoadBalancerRequest{
 		LoadBalancerID: "lb_name",
-		Ports:          requestPorts,
+		Ports:          &requestPorts,
 		HealthCheck:    requestHealthCheck,
 	}
 
@@ -67,25 +67,25 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		ConfigureHealthCheck(configureHealthCheckInput).
 		Return(configureHealthCheckOutput, nil)
 
-	listeners := make([]*elb.Listener, len(*requestPorts))
-	for i, port := range *requestPorts {
-		listener := listenerHelper(&port)
-		if port.CertificateName != "" {
-			serverCertificateMetadata := &iam.ServerCertificateMetadata{}
-			serverCertificateMetadata.SetArn(port.CertificateName)
-			serverCertificateMetadata.SetServerCertificateName(port.CertificateName)
-			serverCertificateMetadataList := []*iam.ServerCertificateMetadata{serverCertificateMetadata}
+	serverCertificateMetadata := &iam.ServerCertificateMetadata{}
+	serverCertificateMetadata.SetArn("cert")
+	serverCertificateMetadata.SetServerCertificateName("cert")
 
-			listServerCertificatesOutput := &iam.ListServerCertificatesOutput{}
-			listServerCertificatesOutput.SetServerCertificateMetadataList(serverCertificateMetadataList)
+	serverCertificateMetadataList1 := []*iam.ServerCertificateMetadata{serverCertificateMetadata}
+	listServerCertificatesOutput1 := &iam.ListServerCertificatesOutput{}
+	listServerCertificatesOutput1.SetServerCertificateMetadataList(serverCertificateMetadataList1)
 
-			mockAWS.IAM.EXPECT().
-				ListServerCertificates(&iam.ListServerCertificatesInput{}).
-				Return(listServerCertificatesOutput, nil)
-		}
+	mockAWS.IAM.EXPECT().
+		ListServerCertificates(&iam.ListServerCertificatesInput{}).
+		Return(listServerCertificatesOutput1, nil)
 
-		listeners[i] = listener
-	}
+	serverCertificateMetadataList2 := []*iam.ServerCertificateMetadata{serverCertificateMetadata}
+	listServerCertificatesOutput2 := &iam.ListServerCertificatesOutput{}
+	listServerCertificatesOutput2.SetServerCertificateMetadataList(serverCertificateMetadataList2)
+
+	mockAWS.IAM.EXPECT().
+		ListServerCertificates(&iam.ListServerCertificatesInput{}).
+		Return(listServerCertificatesOutput2, nil)
 
 	readSGHelper(mockAWS, "l0-test-lb_name-lb", "lb_sg")
 
@@ -110,36 +110,29 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		DescribeLoadBalancers(describeLoadBalancersInput).
 		Return(describeLoadBalancersOutput, nil)
 
-	portNumbers := make([]int64, len(lb.ListenerDescriptions))
-	for i, listenerDescription := range lb.ListenerDescriptions {
-		ingressInput := &ec2.RevokeSecurityGroupIngressInput{}
-		ingressInput.SetGroupId("lb_sg")
-		ingressInput.SetCidrIp("0.0.0.0/0")
-		ingressInput.SetIpProtocol("TCP")
-		ingressInput.SetFromPort(aws.Int64Value(listenerDescription.Listener.LoadBalancerPort))
-		ingressInput.SetToPort(aws.Int64Value(listenerDescription.Listener.LoadBalancerPort))
+	ingressInput := &ec2.RevokeSecurityGroupIngressInput{}
+	ingressInput.SetGroupId("lb_sg")
+	ingressInput.SetCidrIp("0.0.0.0/0")
+	ingressInput.SetIpProtocol("TCP")
+	ingressInput.SetFromPort(80)
+	ingressInput.SetToPort(80)
 
-		mockAWS.EC2.EXPECT().
-			RevokeSecurityGroupIngress(ingressInput).
-			Return(&ec2.RevokeSecurityGroupIngressOutput{}, nil)
+	mockAWS.EC2.EXPECT().
+		RevokeSecurityGroupIngress(ingressInput).
+		Return(&ec2.RevokeSecurityGroupIngressOutput{}, nil)
 
-		portNumber := aws.Int64Value(listenerDescription.Listener.LoadBalancerPort)
-		portNumbers[i] = portNumber
-	}
-
+	port := int64(80)
 	deleteLoadBalancerListenersInput := &elb.DeleteLoadBalancerListenersInput{}
 	deleteLoadBalancerListenersInput.SetLoadBalancerName("l0-test-lb_name")
-
-	ports := make([]*int64, len(portNumbers))
-	for i, p := range portNumbers {
-		ports[i] = aws.Int64(p)
-	}
-
-	deleteLoadBalancerListenersInput.SetLoadBalancerPorts(ports)
+	deleteLoadBalancerListenersInput.SetLoadBalancerPorts([]*int64{&port})
 
 	mockAWS.ELB.EXPECT().
 		DeleteLoadBalancerListeners(deleteLoadBalancerListenersInput).
 		Return(&elb.DeleteLoadBalancerListenersOutput{}, nil)
+
+	listener1 := listenerHelper(&requestPorts[0])
+	listener2 := listenerHelper(&requestPorts[1])
+	listeners := []*elb.Listener{listener1, listener2}
 
 	createLoadBalancerListenersInput := &elb.CreateLoadBalancerListenersInput{}
 	createLoadBalancerListenersInput.SetLoadBalancerName("l0-test-lb_name")
@@ -149,20 +142,27 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		CreateLoadBalancerListeners(createLoadBalancerListenersInput).
 		Return(&elb.CreateLoadBalancerListenersOutput{}, nil)
 
-	for _, listener := range listeners {
-		loadBalancerListenerPort := aws.Int64Value(listener.LoadBalancerPort)
+	ingressInput1 := &ec2.AuthorizeSecurityGroupIngressInput{}
+	ingressInput1.SetGroupId("lb_sg")
+	ingressInput1.SetCidrIp("0.0.0.0/0")
+	ingressInput1.SetIpProtocol("TCP")
+	ingressInput1.SetFromPort(int64(8088))
+	ingressInput1.SetToPort(int64(8088))
 
-		ingressInput := &ec2.AuthorizeSecurityGroupIngressInput{}
-		ingressInput.SetGroupId("lb_sg")
-		ingressInput.SetCidrIp("0.0.0.0/0")
-		ingressInput.SetIpProtocol("TCP")
-		ingressInput.SetFromPort(loadBalancerListenerPort)
-		ingressInput.SetToPort(loadBalancerListenerPort)
+	mockAWS.EC2.EXPECT().
+		AuthorizeSecurityGroupIngress(ingressInput1).
+		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
 
-		mockAWS.EC2.EXPECT().
-			AuthorizeSecurityGroupIngress(ingressInput).
-			Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
-	}
+	ingressInput2 := &ec2.AuthorizeSecurityGroupIngressInput{}
+	ingressInput2.SetGroupId("lb_sg")
+	ingressInput2.SetCidrIp("0.0.0.0/0")
+	ingressInput2.SetIpProtocol("TCP")
+	ingressInput2.SetFromPort(int64(444))
+	ingressInput2.SetToPort(int64(444))
+
+	mockAWS.EC2.EXPECT().
+		AuthorizeSecurityGroupIngress(ingressInput2).
+		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Update(req); err != nil {

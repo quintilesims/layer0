@@ -25,7 +25,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	environmentID := entityIDGenerator(req.EnvironmentName)
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	instanceType := DEFAULT_INSTANCE_SIZE
+	instanceType := DefaultInstanceSize
 	if req.InstanceSize != "" {
 		instanceType = req.InstanceSize
 	}
@@ -34,15 +34,15 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	var amiID string
 
 	if req.OperatingSystem == "" {
-		req.OperatingSystem = DEFAULT_ENVIRONMENT_OS
+		req.OperatingSystem = DefaultEnvironmentOS
 	}
 
 	switch strings.ToLower(req.OperatingSystem) {
 	case "linux":
-		userDataTemplate = []byte(DEFAULT_LINUX_USERDATA_TEMPLATE)
+		userDataTemplate = []byte(DefaultLinuxUserdataTemplate)
 		amiID = e.Config.LinuxAMI()
 	case "windows":
-		userDataTemplate = []byte(DEFAULT_WINDOWS_USERDATA_TEMPLATE)
+		userDataTemplate = []byte(DefaultWindowsUserdataTemplate)
 		amiID = e.Config.WindowsAMI()
 	default:
 		return "", fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)

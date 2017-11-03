@@ -88,7 +88,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 
 	iamRoleInput := &iam.CreateRoleInput{}
 	iamRoleInput.SetRoleName("l0-test-lb_id-lb")
-	iamRoleInput.SetAssumeRolePolicyDocument(provider.DEFAULT_ASSUME_ROLE_POLICY)
+	iamRoleInput.SetAssumeRolePolicyDocument(provider.DefaultAssumeRolePolicy)
 
 	mockAWS.IAM.EXPECT().
 		CreateRole(iamRoleInput).
@@ -98,7 +98,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 		"region",
 		"123456789012",
 		"l0-test-lb_id",
-		provider.DEFAULT_LB_ROLE_POLICY_TEMPLATE)
+		provider.DefaultLBRolePolicyTemplate)
 	if err != nil {
 		t.Fatal(err)
 	}
