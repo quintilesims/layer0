@@ -130,8 +130,6 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		DeleteLoadBalancerListeners(deleteLoadBalancerListenersInput).
 		Return(&elb.DeleteLoadBalancerListenersOutput{}, nil)
 
-	//listener1 := listenerHelper(&requestPorts[0])
-	//listener2 := listenerHelper(&requestPorts[1])
 	listeners := []*elb.Listener{
 		listenerHelper(&requestPorts[0]),
 		listenerHelper(&requestPorts[1]),
