@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
@@ -12,6 +13,7 @@ import (
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestServiceLogs(t *testing.T) {
@@ -79,22 +81,27 @@ func TestServiceLogs(t *testing.T) {
 
 	generateListTasksPagesFN := func(input *ecs.ListTasksInput) func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
 		var taskARN *string
+		inputStatus := aws.StringValue(input.DesiredStatus)
+		inputStartedBy := aws.StringValue(input.StartedBy)
 
-		if *input.DesiredStatus == ecs.DesiredStatusRunning && *input.StartedBy == "dpl_id:1" {
+		if inputStatus == ecs.DesiredStatusRunning && inputStartedBy == "dpl_id:1" {
 			taskARN = aws.String("arn:aws:ecs:region:012345678910:task-definition/dpl_id:1")
 		}
 
-		if *input.DesiredStatus == ecs.DesiredStatusStopped && *input.StartedBy == "dpl_id:2" {
-			aws.String("arn:aws:ecs:region:012345678910:task-definition/dpl_id:2")
+		if inputStatus == ecs.DesiredStatusStopped && inputStartedBy == "dpl_id:2" {
+			taskARN = aws.String("arn:aws:ecs:region:012345678910:task-definition/dpl_id:2")
 		}
 
 		listTasksPagesFN := func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
-			taskARNs := []*string{
-				taskARN,
+			output := &ecs.ListTasksOutput{}
+			if taskARN != nil {
+				taskARNs := []*string{
+					taskARN,
+				}
+
+				output.SetTaskArns(taskARNs)
 			}
 
-			output := &ecs.ListTasksOutput{}
-			output.SetTaskArns(taskARNs)
 			fn(output, true)
 
 			return nil
@@ -131,9 +138,70 @@ func TestServiceLogs(t *testing.T) {
 		LogGroupName().
 		Return("l0-test")
 
+	describeLogStreamsPagesFN := func(input *cloudwatchlogs.DescribeLogStreamsInput, fn func(ouput *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool) error {
+		logStream1 := &cloudwatchlogs.LogStream{}
+		logStream1.SetLogStreamName("l0/container1/dpl_id:1")
+
+		logStream2 := &cloudwatchlogs.LogStream{}
+		logStream2.SetLogStreamName("l0/container2/dpl_id:2")
+
+		logStreams := []*cloudwatchlogs.LogStream{
+			logStream1,
+			logStream2,
+		}
+
+		output := &cloudwatchlogs.DescribeLogStreamsOutput{}
+		output.SetLogStreams(logStreams)
+		fn(output, true)
+
+		return nil
+	}
+
+	mockAWS.CloudWatchLogs.EXPECT().
+		DescribeLogStreamsPages(gomock.Any(), gomock.Any()).
+		Do(describeLogStreamsPagesFN).
+		Return(nil)
+
+	getLogEventsPagesFN := func(input *cloudwatchlogs.GetLogEventsInput, fn func(ouput *cloudwatchlogs.GetLogEventsOutput, lastPage bool) bool) error {
+		event := &cloudwatchlogs.OutputLogEvent{}
+		event.SetIngestionTime(int64(1234567890))
+		event.SetMessage("log message")
+		event.SetTimestamp(int64(1234567890))
+
+		events := []*cloudwatchlogs.OutputLogEvent{
+			event,
+		}
+
+		output := &cloudwatchlogs.GetLogEventsOutput{}
+		output.SetEvents(events)
+		output.SetNextForwardToken("next")
+		fn(output, true)
+
+		return nil
+	}
+
+	mockAWS.CloudWatchLogs.EXPECT().
+		GetLogEventsPages(gomock.Any(), gomock.Any()).
+		Do(getLogEventsPagesFN).
+		Return(nil).
+		Times(2)
+
 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
-	_, err := target.Logs("svc_id", 0, time.Time{}, time.Time{})
+	result, err := target.Logs("svc_id", 0, time.Time{}, time.Time{})
 	if err != nil {
 		t.Fatal(err)
 	}
+
+	expected := []models.LogFile{
+		{
+			ContainerName: "container1",
+			Lines:         []string{"log message"},
+		},
+		{
+			ContainerName: "container2",
+			Lines:         []string{"log message"},
+		},
+	}
+
+	assert.Equal(t, expected, result)
 }
