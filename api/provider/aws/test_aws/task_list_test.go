@@ -82,7 +82,6 @@ func TestTaskList(t *testing.T) {
 		}
 	}
 
-	//[l0-nick-demo91e6e283 l0-nick-api l0-nick-demoenve36e9 l0-nick-endtoenb8169]
 	listClusterPagesFN := func(input *ecs.ListClustersInput, fn func(output *ecs.ListClustersOutput, lastPage bool) bool) error {
 		clusterARNs := []*string{
 			aws.String("arn:aws:ecs:region:012345678910:cluster/l0-test-env_id1"),
@@ -98,16 +97,21 @@ func TestTaskList(t *testing.T) {
 	}
 
 	mockAWS.ECS.EXPECT().
-		ListClustersPages(gomock.Any(), gomock.Any()).
+		ListClustersPages(&ecs.ListClustersInput{}, gomock.Any()).
 		Do(listClusterPagesFN).
 		Return(nil)
 
-	for _, environmentID := range []string{"l0-test-env_id1", "l0-test-env_id2"} {
+	for i, environmentID := range []string{"l0-test-env_id1", "l0-test-env_id2"} {
+
+		taskARNs := []*string{
+			aws.String("arn:aws:ecs:region:012345678910:task/arn2"),
+			aws.String("arn:aws:ecs:region:012345678910:task/arn1"),
+		}
+
+		taskARNs = append(taskARNs[:i], taskARNs[i+1:]...)
+
 		listTaskPagesFN := func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
-			taskARNs := []*string{
-				aws.String("arn:aws:ecs:region:012345678910:task/arn1"),
-				aws.String("arn:aws:ecs:region:012345678910:task/arn2"),
-			}
+
 			output := &ecs.ListTasksOutput{}
 			output.SetTaskArns(taskARNs)
 			fn(output, true)
@@ -116,13 +120,13 @@ func TestTaskList(t *testing.T) {
 		}
 
 		for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
-			input := &ecs.ListTasksInput{}
-			input.SetCluster(environmentID)
-			input.SetDesiredStatus(status)
-			input.SetStartedBy("test")
+			listTasksInput := &ecs.ListTasksInput{}
+			listTasksInput.SetCluster(environmentID)
+			listTasksInput.SetDesiredStatus(status)
+			listTasksInput.SetStartedBy("test")
 
 			mockAWS.ECS.EXPECT().
-				ListTasksPages(input, gomock.Any()).
+				ListTasksPages(listTasksInput, gomock.Any()).
 				Do(listTaskPagesFN).
 				Return(nil)
 		}
