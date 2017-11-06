@@ -3,6 +3,7 @@ package test_aws
 import (
 	"testing"
 
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
@@ -74,20 +75,14 @@ func TestDeleteTaskIdempotence(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
-	// todo: setup helper for config
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
-	stopTaskInput := &ecs.StopTaskInput{}
-	stopTaskInput.SetCluster("l0-test-env_id")
-	stopTaskInput.SetTask("arn:aws:ecs:region:012345678910:task/arn1")
-
 	mockAWS.ECS.EXPECT().
-		StopTask(stopTaskInput).
-		Return(nil, nil)
+		StopTask(gomock.Any()).
+		Return(nil, awserr.New("TaskDoesNotExist", "Taks 'tsk_id' does not exist", nil))
 
 	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
-	err := target.Delete("tsk_id")
-	if err != nil {
-		// t.Fatal(err)
+	if err := target.Delete("tsk_id"); err != nil {
+		t.Fatal(err)
 	}
 }

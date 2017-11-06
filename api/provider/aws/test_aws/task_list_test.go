@@ -22,7 +22,6 @@ func TestTaskList(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
-	// todo: setup helper for config
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
 	tags := models.Tags{
