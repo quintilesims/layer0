@@ -59,8 +59,7 @@ func TestTaskDelete(t *testing.T) {
 		Return(nil, nil)
 
 	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
-	err := target.Delete("tsk_id")
-	if err != nil {
+	if err := target.Delete("tsk_id"); err != nil {
 		t.Fatal(err)
 	}
 
