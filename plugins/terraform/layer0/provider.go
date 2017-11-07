@@ -34,9 +34,9 @@ func Provider() terraform.ResourceProvider {
 			// todo: environment link
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-			"layer0_api":    dataSourceLayer0API(),
-			"layer0_deploy": dataSourceLayer0Deploy(),
-			//			"layer0_environment":   dataSourceLayer0Environment(),
+			"layer0_api":         dataSourceLayer0API(),
+			"layer0_deploy":      dataSourceLayer0Deploy(),
+			"layer0_environment": dataSourceLayer0Environment(),
 			//			"layer0_load_balancer": dataSourcelayer0LoadBalancer(),
 			//			"layer0_service":       dataSourcelayer0Service(),
 		},
