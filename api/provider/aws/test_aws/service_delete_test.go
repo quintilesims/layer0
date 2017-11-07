@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
@@ -37,6 +38,12 @@ func TestServiceDelete(t *testing.T) {
 			Key:        "environment_id",
 			Value:      "env_id",
 		},
+		{
+			EntityID:   "svc_id",
+			EntityType: "service",
+			Key:        "load_balancer_id",
+			Value:      "lb_id",
+		},
 	}
 
 	for _, tag := range tags {
@@ -50,6 +57,11 @@ func TestServiceDelete(t *testing.T) {
 		aws.String("arn:aws:ecs:region:012345678910:task/l0-test-svc_id2"),
 	}
 
+	listTasksInput := &ecs.ListTasksInput{}
+	listTasksInput.SetCluster("l0-test-env_id")
+	listTasksInput.SetDesiredStatus(ecs.DesiredStatusRunning)
+	listTasksInput.SetStartedBy("l0-test-svc_id")
+
 	listTasksPagesFN := func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
 		output := &ecs.ListTasksOutput{}
 		output.SetTaskArns(taskARNs)
@@ -59,7 +71,7 @@ func TestServiceDelete(t *testing.T) {
 	}
 
 	mockAWS.ECS.EXPECT().
-		ListTasksPages(gomock.Any(), gomock.Any()).
+		ListTasksPages(listTasksInput, gomock.Any()).
 		Do(listTasksPagesFN).
 		Return(nil)
 
@@ -98,11 +110,9 @@ func TestServiceDelete(t *testing.T) {
 		stopTaskInput.SetCluster("l0-test-env_id")
 		stopTaskInput.SetTask(*taskARN)
 
-		stopTaskOutput := &ecs.StopTaskOutput{}
-
 		mockAWS.ECS.EXPECT().
 			StopTask(stopTaskInput).
-			Return(stopTaskOutput, nil)
+			Return(&ecs.StopTaskOutput{}, nil)
 	}
 
 	// ECS.UpdateService(&ecs.UpdateServiceInput{}) from s.scaleService(clusterName, serviceID, desiredCount)
@@ -145,6 +155,53 @@ func TestServiceDelete_idempotence(t *testing.T) {
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+
+	tags := models.Tags{
+		{
+			EntityID:   "svc_id",
+			EntityType: "service",
+			Key:        "name",
+			Value:      "svc_id",
+		},
+		{
+			EntityID:   "svc_id",
+			EntityType: "service",
+			Key:        "environment_id",
+			Value:      "env_id",
+		},
+	}
+
+	for _, tag := range tags {
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	service := &ecs.Service{}
+	service.SetServiceName("l0-test-svc_id")
+
+	services := []*ecs.Service{
+		service,
+	}
+
+	describeServicesOutput := &ecs.DescribeServicesOutput{}
+	describeServicesOutput.SetServices(services)
+
+	mockAWS.ECS.EXPECT().
+		DescribeServices(gomock.Any()).
+		Return(describeServicesOutput, nil)
+
+	mockAWS.ECS.EXPECT().
+		UpdateService(gomock.Any()).
+		Return(&ecs.UpdateServiceOutput{}, nil)
+
+	deleteServiceInput := &ecs.DeleteServiceInput{}
+	deleteServiceInput.SetCluster("l0-test-env_id")
+	deleteServiceInput.SetService("l0-test-svc_id")
+
+	mockAWS.ECS.EXPECT().
+		DeleteService(deleteServiceInput).
+		Return(&ecs.DeleteServiceOutput{}, awserr.New("ServiceNotFoundException", "", nil))
 
 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("svc_id"); err != nil {
