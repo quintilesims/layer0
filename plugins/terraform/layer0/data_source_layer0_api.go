@@ -8,7 +8,6 @@ import (
 func dataSourceLayer0API() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceLayer0APIRead,
-
 		Schema: map[string]*schema.Schema{
 			"instance": {
 				Type:     schema.TypeString,

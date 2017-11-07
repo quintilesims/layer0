@@ -38,7 +38,7 @@ func Provider() terraform.ResourceProvider {
 			"layer0_deploy":      dataSourceLayer0Deploy(),
 			"layer0_environment": dataSourceLayer0Environment(),
 			//			"layer0_load_balancer": dataSourcelayer0LoadBalancer(),
-			//			"layer0_service":       dataSourcelayer0Service(),
+			"layer0_service": dataSourcelayer0Service(),
 		},
 		ConfigureFunc: providerConfigure,
 	}

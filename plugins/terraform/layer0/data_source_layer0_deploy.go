@@ -11,7 +11,6 @@ import (
 func dataSourceLayer0Deploy() *schema.Resource {
 	return &schema.Resource{
 		Read: dataSourceLayer0DeployRead,
-
 		Schema: map[string]*schema.Schema{
 			"name": {
 				Type:     schema.TypeString,
