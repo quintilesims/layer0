@@ -7,5 +7,6 @@ import (
 
 func main() {
 	plugin.Serve(&plugin.ServeOpts{
-		ProviderFunc: layer0.Provider})
+		ProviderFunc: layer0.Provider,
+	})
 }
