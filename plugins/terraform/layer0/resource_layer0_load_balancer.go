@@ -155,8 +155,8 @@ func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) er
 
 	d.Set("name", loadBalancer.LoadBalancerName)
 	d.Set("environment", loadBalancer.EnvironmentID)
-	d.Set("health_check", flattenHealthCheck(loadBalancer.HealthCheck))
 	d.Set("private", !loadBalancer.IsPublic)
+	d.Set("health_check", flattenHealthCheck(loadBalancer.HealthCheck))
 	d.Set("port", flattenPorts(loadBalancer.Ports))
 	d.Set("url", loadBalancer.URL)
 
@@ -286,7 +286,6 @@ func expandPorts(flattened []interface{}) []models.Port {
 
 	return ports
 }
-
 
 func flattenPorts(ports []models.Port) []map[string]interface{} {
 	flattened := []map[string]interface{}{}
