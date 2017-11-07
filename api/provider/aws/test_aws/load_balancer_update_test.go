@@ -79,10 +79,10 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	readSGHelper(mockAWS, "l0-test-lb_name-lb", "lb_sg")
 	listenerDescription := &elb.ListenerDescription{}
-	listenerDescription.SetListener(listenerHelper(provider.DefaultCreateLBPortModel[0]))
+	listenerDescription.SetListener(listenerHelper(provider.DefaultLoadBalancerPort))
 	lb := &elb.LoadBalancerDescription{}
 	lb.SetLoadBalancerName("l0-test-lb_name")
-	lb.SetHealthCheck(healthCheckHelper(&provider.DefaultCreateLBHealthCheckModel))
+	lb.SetHealthCheck(healthCheckHelper(&provider.DefaultHealthCheck))
 	lb.SetListenerDescriptions([]*elb.ListenerDescription{listenerDescription})
 	describeLoadBalancersInput := &elb.DescribeLoadBalancersInput{}
 	describeLoadBalancersInput.SetLoadBalancerNames([]*string{aws.String("l0-test-lb_name")})
@@ -94,7 +94,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		DescribeLoadBalancers(describeLoadBalancersInput).
 		Return(describeLoadBalancersOutput, nil)
 
-	revokeIngressInput := revokeSGIngressHelper(provider.DefaultCreateLBPortModel[0])
+	revokeIngressInput := revokeSGIngressHelper(provider.DefaultLoadBalancerPort)
 	revokeIngressInput.SetGroupId("lb_sg")
 
 	mockAWS.EC2.EXPECT().
