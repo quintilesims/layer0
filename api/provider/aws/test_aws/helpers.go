@@ -57,17 +57,6 @@ func deleteSGHelper(mockAWS *awsc.MockClient, securityGroupID string) {
 }
 
 func healthCheckHelper(healthCheck *models.HealthCheck) *elb.HealthCheck {
-	if healthCheck == nil {
-		elbHealthCheck := &elb.HealthCheck{}
-		elbHealthCheck.SetTarget("TCP:80")
-		elbHealthCheck.SetInterval(int64(30))
-		elbHealthCheck.SetTimeout(int64(5))
-		elbHealthCheck.SetHealthyThreshold(int64(2))
-		elbHealthCheck.SetUnhealthyThreshold(int64(2))
-
-		return elbHealthCheck
-	}
-
 	elbHealthCheck := &elb.HealthCheck{}
 	elbHealthCheck.SetTarget(healthCheck.Target)
 	elbHealthCheck.SetInterval(int64(healthCheck.Interval))
@@ -78,17 +67,7 @@ func healthCheckHelper(healthCheck *models.HealthCheck) *elb.HealthCheck {
 	return elbHealthCheck
 }
 
-func listenerHelper(port *models.Port) *elb.Listener {
-	if port == nil {
-		listener := &elb.Listener{}
-		listener.SetProtocol("tcp")
-		listener.SetLoadBalancerPort(80)
-		listener.SetInstancePort(80)
-		listener.SetInstanceProtocol("tcp")
-
-		return listener
-	}
-
+func listenerHelper(port models.Port) *elb.Listener {
 	listener := &elb.Listener{}
 	listener.SetProtocol(port.Protocol)
 	listener.SetLoadBalancerPort(port.HostPort)
@@ -101,9 +80,25 @@ func listenerHelper(port *models.Port) *elb.Listener {
 		listener.SetInstanceProtocol("tcp")
 	}
 
-	if port.CertificateName != "" {
-		listener.SetSSLCertificateId(port.CertificateName)
-	}
-
 	return listener
+}
+
+func authorizeSGIngressHelper(port models.Port) *ec2.AuthorizeSecurityGroupIngressInput {
+	ingressInput := &ec2.AuthorizeSecurityGroupIngressInput{}
+	ingressInput.SetCidrIp("0.0.0.0/0")
+	ingressInput.SetIpProtocol("TCP")
+	ingressInput.SetFromPort(int64(port.HostPort))
+	ingressInput.SetToPort(int64(port.HostPort))
+
+	return ingressInput
+}
+
+func revokeSGIngressHelper(port models.Port) *ec2.RevokeSecurityGroupIngressInput {
+	ingressInput := &ec2.RevokeSecurityGroupIngressInput{}
+	ingressInput.SetCidrIp("0.0.0.0/0")
+	ingressInput.SetIpProtocol("TCP")
+	ingressInput.SetFromPort(port.HostPort)
+	ingressInput.SetToPort(port.HostPort)
+
+	return ingressInput
 }

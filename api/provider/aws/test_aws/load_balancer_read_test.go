@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/elb"
+	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
@@ -42,6 +43,24 @@ func TestLoadBalancerRead(t *testing.T) {
 			EntityType: "environment",
 			Key:        "name",
 			Value:      "env_name",
+		},
+		{
+			EntityID:   "svc_id",
+			EntityType: "service",
+			Key:        "name",
+			Value:      "svc_name",
+		},
+		{
+			EntityID:   "svc_id",
+			EntityType: "service",
+			Key:        "environment_id",
+			Value:      "env_id",
+		},
+		{
+			EntityID:   "svc_id",
+			EntityType: "service",
+			Key:        "load_balancer_id",
+			Value:      "lb_id",
 		},
 	}
 
@@ -83,22 +102,21 @@ func TestLoadBalancerRead(t *testing.T) {
 	elbHealthCheck.SetTimeout(int64(healthCheck.Timeout))
 	elbHealthCheck.SetHealthyThreshold(int64(healthCheck.HealthyThreshold))
 	elbHealthCheck.SetUnhealthyThreshold(int64(healthCheck.UnhealthyThreshold))
-
-	listener1 := listenerHelper(&ports[0])
+	certificateARN := "arn:aws:iam::123456789012:server-certificate/cert"
+	serverCertificateMetadata := &iam.ServerCertificateMetadata{}
+	serverCertificateMetadata.SetArn(certificateARN)
+	serverCertificateMetadata.SetServerCertificateName("cert")
+	listener1 := listenerHelper(ports[0])
+	listener1.SetSSLCertificateId(certificateARN)
 	listenerDescription1 := &elb.ListenerDescription{}
 	listenerDescription1.SetListener(listener1)
-
-	listener2 := listenerHelper(&ports[1])
 	listenerDescription2 := &elb.ListenerDescription{}
-	listenerDescription2.SetListener(listener2)
-
+	listenerDescription2.SetListener(listenerHelper(ports[1]))
 	listenerDescriptions := []*elb.ListenerDescription{listenerDescription1, listenerDescription2}
-
 	lb := &elb.LoadBalancerDescription{}
 	lb.SetLoadBalancerName("l0-test-lb_id")
 	lb.SetHealthCheck(elbHealthCheck)
 	lb.SetListenerDescriptions(listenerDescriptions)
-
 	describeLoadBalancersOutput := &elb.DescribeLoadBalancersOutput{}
 	describeLoadBalancersOutput.SetLoadBalancerDescriptions([]*elb.LoadBalancerDescription{lb})
 
@@ -117,6 +135,8 @@ func TestLoadBalancerRead(t *testing.T) {
 		LoadBalancerName: "lb_name",
 		EnvironmentID:    "env_id",
 		EnvironmentName:  "env_name",
+		ServiceID:        "svc_id",
+		ServiceName:      "svc_name",
 		HealthCheck:      healthCheck,
 		Ports:            ports,
 	}
