@@ -59,7 +59,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 
 	loadBalancerSGID := aws.StringValue(loadBalancerSG.GroupId)
 	if len(req.Ports) == 0 {
-		req.Ports = DefaultCreateLBPortModel
+		req.Ports = []models.Port{DefaultLoadBalancerPort}
 	}
 
 	for _, port := range req.Ports {
@@ -104,7 +104,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	}
 
 	if req.HealthCheck == (models.HealthCheck{}) {
-		req.HealthCheck = DefaultCreateLBHealthCheckModel
+		req.HealthCheck = DefaultHealthCheck
 	}
 
 	healthCheck := &elb.HealthCheck{
