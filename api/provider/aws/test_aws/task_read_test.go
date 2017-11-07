@@ -67,10 +67,14 @@ func TestTaskRead(t *testing.T) {
 	describeTaskInput.SetCluster("l0-test-env_id")
 	describeTaskInput.SetTasks([]*string{aws.String("arn:aws:ecs:region:012345678910:task/arn")})
 
+	containerECS := &ecs.Container{}
+	containerECS.SetName("container")
+
 	task := &ecs.Task{}
 	task.SetTaskArn("arn:aws:ecs:region:012345678910:task/arn")
 	task.SetTaskDefinitionArn("arn:aws:ecs:region:account:task-definition/dpl_id:version")
 	task.SetLastStatus(ecs.DesiredStatusRunning)
+	task.SetContainers([]*ecs.Container{containerECS})
 
 	describeTaskOutput := &ecs.DescribeTasksOutput{}
 	describeTaskOutput.SetTasks([]*ecs.Task{task})
@@ -85,6 +89,10 @@ func TestTaskRead(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	container := models.Container{
+		ContainerName: "container",
+	}
+
 	expected := &models.Task{
 		TaskID:        "tsk_id",
 		TaskName:      "tsk_name",
@@ -93,7 +101,7 @@ func TestTaskRead(t *testing.T) {
 		DeployName:    "dpl_name",
 		DeployVersion: "version",
 		Status:        "RUNNING",
-		Containers:    []models.Container{},
+		Containers:    []models.Container{container},
 	}
 
 	assert.Equal(t, expected, result)

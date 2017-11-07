@@ -45,15 +45,30 @@ func TestTaskCreate(t *testing.T) {
 		}
 	}
 
+	containerOverride := []models.ContainerOverride{
+		{
+			ContainerName:        "container",
+			EnvironmentOverrides: map[string]string{"key": "val"},
+		},
+	}
+
 	req := models.CreateTaskRequest{
 		DeployID:           "dpl_id",
 		EnvironmentID:      "env_id",
 		TaskName:           "tsk_name",
-		ContainerOverrides: []models.ContainerOverride{},
+		ContainerOverrides: containerOverride,
 	}
 
+	kvp := &ecs.KeyValuePair{}
+	kvp.SetName("key")
+	kvp.SetValue("val")
+
+	override := &ecs.ContainerOverride{}
+	override.SetName("container")
+	override.SetEnvironment([]*ecs.KeyValuePair{kvp})
+
 	taskOverride := &ecs.TaskOverride{}
-	taskOverride.SetContainerOverrides([]*ecs.ContainerOverride{})
+	taskOverride.SetContainerOverrides([]*ecs.ContainerOverride{override})
 
 	runTaskInput := &ecs.RunTaskInput{}
 	runTaskInput.SetCluster("l0-test-env_id")
