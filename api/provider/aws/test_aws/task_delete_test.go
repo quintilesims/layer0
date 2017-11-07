@@ -57,7 +57,7 @@ func TestTaskDelete(t *testing.T) {
 
 	mockAWS.ECS.EXPECT().
 		StopTask(stopTaskInput).
-		Return(nil, nil)
+		Return(&ecs.StopTaskOutput{}, nil)
 
 	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("tsk_id"); err != nil {

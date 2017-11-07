@@ -100,24 +100,41 @@ func TestTaskList(t *testing.T) {
 		Do(listClusterPagesFN).
 		Return(nil)
 
-	for i, environmentID := range []string{"l0-test-env_id1", "l0-test-env_id2"} {
+	var taskARNs = map[string]map[string][]*string{}
 
-		taskARNs := []*string{
-			aws.String("arn:aws:ecs:region:012345678910:task/arn2"),
-			aws.String("arn:aws:ecs:region:012345678910:task/arn1"),
-		}
+	taskARNs["l0-test-env_id1"] = map[string][]*string{}
+	taskARNs["l0-test-env_id2"] = map[string][]*string{}
 
-		taskARNs = append(taskARNs[:i], taskARNs[i+1:]...)
+	taskARNs["l0-test-env_id1"][ecs.DesiredStatusRunning] = []*string{
+		aws.String("arn:aws:ecs:region:012345678910:task/arn1"),
+	}
 
+	taskARNs["l0-test-env_id1"][ecs.DesiredStatusStopped] = []*string{
+		aws.String("arn:aws:ecs:region:012345678910:task/arn2"),
+	}
+
+	taskARNs["l0-test-env_id2"][ecs.DesiredStatusRunning] = []*string{
+		aws.String("arn:aws:ecs:region:012345678910:task/arn3"),
+	}
+
+	taskARNs["l0-test-env_id2"][ecs.DesiredStatusStopped] = []*string{
+		aws.String("arn:aws:ecs:region:012345678910:task/arn4"),
+	}
+
+	newListTaskPagesFN := func(environmentID string, status string) func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
 		listTaskPagesFN := func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
 
 			output := &ecs.ListTasksOutput{}
-			output.SetTaskArns(taskARNs)
+			output.SetTaskArns(taskARNs[environmentID][status])
 			fn(output, true)
 
 			return nil
 		}
 
+		return listTaskPagesFN
+	}
+
+	for _, environmentID := range []string{"l0-test-env_id1", "l0-test-env_id2"} {
 		for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
 			listTasksInput := &ecs.ListTasksInput{}
 			listTasksInput.SetCluster(environmentID)
@@ -126,7 +143,7 @@ func TestTaskList(t *testing.T) {
 
 			mockAWS.ECS.EXPECT().
 				ListTasksPages(listTasksInput, gomock.Any()).
-				Do(listTaskPagesFN).
+				Do(newListTaskPagesFN(environmentID, status)).
 				Return(nil)
 		}
 	}
