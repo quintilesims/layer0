@@ -96,12 +96,6 @@ func TestLoadBalancerRead(t *testing.T) {
 		},
 	}
 
-	elbHealthCheck := &elb.HealthCheck{}
-	elbHealthCheck.SetTarget(healthCheck.Target)
-	elbHealthCheck.SetInterval(int64(healthCheck.Interval))
-	elbHealthCheck.SetTimeout(int64(healthCheck.Timeout))
-	elbHealthCheck.SetHealthyThreshold(int64(healthCheck.HealthyThreshold))
-	elbHealthCheck.SetUnhealthyThreshold(int64(healthCheck.UnhealthyThreshold))
 	certificateARN := "arn:aws:iam::123456789012:server-certificate/cert"
 	serverCertificateMetadata := &iam.ServerCertificateMetadata{}
 	serverCertificateMetadata.SetArn(certificateARN)
@@ -115,7 +109,7 @@ func TestLoadBalancerRead(t *testing.T) {
 	listenerDescriptions := []*elb.ListenerDescription{listenerDescription1, listenerDescription2}
 	lb := &elb.LoadBalancerDescription{}
 	lb.SetLoadBalancerName("l0-test-lb_id")
-	lb.SetHealthCheck(elbHealthCheck)
+	lb.SetHealthCheck(healthCheckHelper(&healthCheck))
 	lb.SetListenerDescriptions(listenerDescriptions)
 	describeLoadBalancersOutput := &elb.DescribeLoadBalancersOutput{}
 	describeLoadBalancersOutput.SetLoadBalancerDescriptions([]*elb.LoadBalancerDescription{lb})
