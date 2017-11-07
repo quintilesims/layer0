@@ -110,7 +110,7 @@ func TestServiceList(t *testing.T) {
 	}
 
 	mockAWS.ECS.EXPECT().
-		ListClustersPages(gomock.Any(), gomock.Any()).
+		ListClustersPages(&ecs.ListClustersInput{}, gomock.Any()).
 		Do(listClustersPagesFN).
 		Return(nil)
 
@@ -126,9 +126,7 @@ func TestServiceList(t *testing.T) {
 		},
 	}
 
-	generateListServicesPagesFN := func(input *ecs.ListServicesInput) func(input *ecs.ListServicesInput, fn func(output *ecs.ListServicesOutput, lastPage bool) bool) error {
-		clusterName := *input.Cluster
-
+	generateListServicesPagesFN := func(clusterName string) func(input *ecs.ListServicesInput, fn func(output *ecs.ListServicesOutput, lastPage bool) bool) error {
 		listServicesPagesFN := func(input *ecs.ListServicesInput, fn func(output *ecs.ListServicesOutput, lastPage bool) bool) error {
 			output := &ecs.ListServicesOutput{}
 			output.SetServiceArns(clusterServices[clusterName])
@@ -147,7 +145,7 @@ func TestServiceList(t *testing.T) {
 
 		mockAWS.ECS.EXPECT().
 			ListServicesPages(input, gomock.Any()).
-			Do(generateListServicesPagesFN(input)).
+			Do(generateListServicesPagesFN(clusterName)).
 			Return(nil)
 	}
 

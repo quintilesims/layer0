@@ -19,8 +19,6 @@ func TestServiceCreate(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	defer provider.SetEntityIDGenerator("svc_id")()
-
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
@@ -42,6 +40,8 @@ func TestServiceCreate(t *testing.T) {
 		}
 	}
 
+	defer provider.SetEntityIDGenerator("svc_id")()
+
 	// ServiceProvider.Create() makes AWS calls that need to be mocked out:
 	// - ELB.DescribeLoadBalancer (if req.LoadBalancerID != "")
 	// - ECS.DescribeTaskDefinition (if req.LoadBalancerID != "")
@@ -51,8 +51,6 @@ func TestServiceCreate(t *testing.T) {
 	loadBalancerInput := &elb.DescribeLoadBalancersInput{}
 	loadBalancerInput.SetLoadBalancerNames([]*string{aws.String("l0-test-lb_id")})
 	loadBalancerInput.SetPageSize(1)
-
-	loadBalancerOuput := &elb.DescribeLoadBalancersOutput{}
 
 	listener := &elb.Listener{}
 	listener.SetInstancePort(80)
@@ -66,17 +64,18 @@ func TestServiceCreate(t *testing.T) {
 
 	loadBalancerDescription := &elb.LoadBalancerDescription{}
 	loadBalancerDescription.SetListenerDescriptions(listenerDescriptions)
-	loadBalancerDescription.SetLoadBalancerName("lb_name")
+	loadBalancerDescription.SetLoadBalancerName("l0-test-lb_id")
 
 	loadBalancerDescriptions := []*elb.LoadBalancerDescription{
 		loadBalancerDescription,
 	}
 
-	loadBalancerOuput.SetLoadBalancerDescriptions(loadBalancerDescriptions)
+	loadBalancerOutput := &elb.DescribeLoadBalancersOutput{}
+	loadBalancerOutput.SetLoadBalancerDescriptions(loadBalancerDescriptions)
 
 	mockAWS.ELB.EXPECT().
 		DescribeLoadBalancers(loadBalancerInput).
-		Return(loadBalancerOuput, nil)
+		Return(loadBalancerOutput, nil)
 
 	// ECS.DescribeTaskDefinition
 	taskDefinitionInput := &ecs.DescribeTaskDefinitionInput{}
@@ -116,7 +115,7 @@ func TestServiceCreate(t *testing.T) {
 	loadBalancer := &ecs.LoadBalancer{}
 	loadBalancer.SetContainerName("ctn_name")
 	loadBalancer.SetContainerPort(80)
-	loadBalancer.SetLoadBalancerName("lb_name")
+	loadBalancer.SetLoadBalancerName("l0-test-lb_id")
 
 	loadBalancers := []*ecs.LoadBalancer{loadBalancer}
 
@@ -172,8 +171,6 @@ func TestServiceCreate_defaults(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	defer provider.SetEntityIDGenerator("svc_id")()
-
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
@@ -194,6 +191,8 @@ func TestServiceCreate_defaults(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+
+	defer provider.SetEntityIDGenerator("svc_id")()
 
 	// ServiceProvider.Create() makes AWS calls that need to be mocked out:
 	// - ELB.DescribeLoadBalancer (if req.LoadBalancerID != "")
@@ -218,12 +217,9 @@ func TestServiceCreate_defaults(t *testing.T) {
 	}
 
 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
-	result, err := target.Create(req)
-	if err != nil {
+	if _, err := target.Create(req); err != nil {
 		t.Fatal(err)
 	}
-
-	assert.Equal(t, result, "svc_id")
 
 	expectedTags := models.Tags{
 		{
