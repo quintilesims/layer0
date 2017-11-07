@@ -27,18 +27,18 @@ func Provider() terraform.ResourceProvider {
 			},
 		},
 		ResourcesMap: map[string]*schema.Resource{
-			"layer0_deploy":      resourceLayer0Deploy(),
-			"layer0_environment": resourceLayer0Environment(),
-			//			"layer0_environment_link": resourceLayer0EnvironmentLink(),
+			"layer0_deploy":        resourceLayer0Deploy(),
+			"layer0_environment":   resourceLayer0Environment(),
 			"layer0_load_balancer": resourceLayer0LoadBalancer(),
 			"layer0_service":       resourceLayer0Service(),
+			// todo: environment link
 		},
 		DataSourcesMap: map[string]*schema.Resource{
-		//			"layer0_api":           dataSourceLayer0API(),
-		//			"layer0_environment":   dataSourceLayer0Environment(),
-		//			"layer0_load_balancer": dataSourcelayer0LoadBalancer(),
-		//			"layer0_deploy":        dataSourceLayer0Deploy(),
-		//			"layer0_service":       dataSourcelayer0Service(),
+			"layer0_api": dataSourceLayer0API(),
+			//			"layer0_environment":   dataSourceLayer0Environment(),
+			//			"layer0_load_balancer": dataSourcelayer0LoadBalancer(),
+			//			"layer0_deploy":        dataSourceLayer0Deploy(),
+			//			"layer0_service":       dataSourcelayer0Service(),
 		},
 		ConfigureFunc: providerConfigure,
 	}
