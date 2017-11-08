@@ -57,6 +57,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
 	configureHealthCheckInput.SetLoadBalancerName("l0-test-lb_name")
 	configureHealthCheckInput.SetHealthCheck(healthCheckHelper(requestHealthCheck))
+
 	configureHealthCheckOutput := &elb.ConfigureHealthCheckOutput{}
 	configureHealthCheckOutput.SetHealthCheck(healthCheckHelper(requestHealthCheck))
 
@@ -69,6 +70,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 	serverCertificateMetadata.SetArn(certificateARN)
 	serverCertificateMetadata.SetServerCertificateName("cert")
 	serverCertificateMetadataList := []*iam.ServerCertificateMetadata{serverCertificateMetadata}
+
 	listServerCertificatesOutput := &iam.ListServerCertificatesOutput{}
 	listServerCertificatesOutput.SetServerCertificateMetadataList(serverCertificateMetadataList)
 
@@ -80,13 +82,16 @@ func TestLoadBalancerUpdate(t *testing.T) {
 	readSGHelper(mockAWS, "l0-test-lb_name-lb", "lb_sg")
 	listenerDescription := &elb.ListenerDescription{}
 	listenerDescription.SetListener(listenerHelper(provider.DefaultLoadBalancerPort))
+
 	lb := &elb.LoadBalancerDescription{}
 	lb.SetLoadBalancerName("l0-test-lb_name")
 	lb.SetHealthCheck(healthCheckHelper(&provider.DefaultHealthCheck))
 	lb.SetListenerDescriptions([]*elb.ListenerDescription{listenerDescription})
+
 	describeLoadBalancersInput := &elb.DescribeLoadBalancersInput{}
 	describeLoadBalancersInput.SetLoadBalancerNames([]*string{aws.String("l0-test-lb_name")})
 	describeLoadBalancersInput.SetPageSize(1)
+
 	describeLoadBalancersOutput := &elb.DescribeLoadBalancersOutput{}
 	describeLoadBalancersOutput.SetLoadBalancerDescriptions([]*elb.LoadBalancerDescription{lb})
 
@@ -114,6 +119,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 	listener1.SetSSLCertificateId(certificateARN)
 	listener2 := listenerHelper(requestPorts[1])
 	listener2.SetSSLCertificateId(certificateARN)
+
 	createLoadBalancerListenersInput := &elb.CreateLoadBalancerListenersInput{}
 	createLoadBalancerListenersInput.SetLoadBalancerName("l0-test-lb_name")
 	createLoadBalancerListenersInput.SetListeners([]*elb.Listener{listener1, listener2})

@@ -100,6 +100,7 @@ func TestLoadBalancerRead(t *testing.T) {
 	serverCertificateMetadata := &iam.ServerCertificateMetadata{}
 	serverCertificateMetadata.SetArn(certificateARN)
 	serverCertificateMetadata.SetServerCertificateName("cert")
+
 	listener1 := listenerHelper(ports[0])
 	listener1.SetSSLCertificateId(certificateARN)
 	listenerDescription1 := &elb.ListenerDescription{}
@@ -107,10 +108,12 @@ func TestLoadBalancerRead(t *testing.T) {
 	listenerDescription2 := &elb.ListenerDescription{}
 	listenerDescription2.SetListener(listenerHelper(ports[1]))
 	listenerDescriptions := []*elb.ListenerDescription{listenerDescription1, listenerDescription2}
+
 	lb := &elb.LoadBalancerDescription{}
 	lb.SetLoadBalancerName("l0-test-lb_id")
 	lb.SetHealthCheck(healthCheckHelper(&healthCheck))
 	lb.SetListenerDescriptions(listenerDescriptions)
+
 	describeLoadBalancersOutput := &elb.DescribeLoadBalancersOutput{}
 	describeLoadBalancersOutput.SetLoadBalancerDescriptions([]*elb.LoadBalancerDescription{lb})
 

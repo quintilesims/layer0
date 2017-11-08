@@ -63,6 +63,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 	readSGHelper(mockAWS, "l0-test-env_id-env", "env_sg")
 	createSGHelper(t, mockAWS, "l0-test-lb_id-lb", "vpc_id")
 	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
+
 	authorizeIngressInput := authorizeSGIngressHelper(req.Ports[0])
 	authorizeIngressInput.SetGroupId("lb_sg")
 
@@ -108,6 +109,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 	serverCertificateMetadata.SetArn(certificateARN)
 	serverCertificateMetadata.SetServerCertificateName("cert")
 	serverCertificateMetadataList := []*iam.ServerCertificateMetadata{serverCertificateMetadata}
+
 	listServerCertificatesOutput := &iam.ListServerCertificatesOutput{}
 	listServerCertificatesOutput.SetServerCertificateMetadataList(serverCertificateMetadataList)
 
@@ -121,6 +123,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 	listener2 := listenerHelper(req.Ports[1])
 	listener2.SetSSLCertificateId(certificateARN)
 	listeners := []*elb.Listener{listener1, listener2}
+
 	createLoadBalancerInput := &elb.CreateLoadBalancerInput{}
 	createLoadBalancerInput.SetLoadBalancerName("l0-test-lb_id")
 	createLoadBalancerInput.SetScheme("internet-facing")
