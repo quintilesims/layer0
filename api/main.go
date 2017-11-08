@@ -102,8 +102,8 @@ func main() {
 		scalerTicker := scalerDispatcher.RunEvery(time.Minute * 5)
 		defer scalerTicker.Stop()
 
-		// todo: get job expiry from config env var
-		jobJanitor := job.NewJanitor(jobStore, time.Hour*24)
+		expiry := cfg.JobExpiry()
+		jobJanitor := job.NewJanitor(jobStore, time.Duration(expiry))
 		jobJanitorTicker := jobJanitor.RunEvery(time.Hour)
 		defer jobJanitorTicker.Stop()
 

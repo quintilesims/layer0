@@ -8,7 +8,17 @@ import (
 
 func NewJanitor(jobStore Store, expiry time.Duration) *janitor.Janitor {
 	return janitor.NewJanitor("Job", func() error {
-		// todo: select all jobs, delete those older than expiry
+		jobs, err := jobStore.SelectAll()
+		if err != nil {
+			return err
+		}
+
+		for _, job := range jobs {
+			if job.Created.Before(time.Now().Add(-expiry)) {
+				jobStore.Delete(job.JobID)
+			}
+		}
+
 		return nil
 	})
 }
