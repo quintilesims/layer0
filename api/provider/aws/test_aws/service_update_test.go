@@ -12,7 +12,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func TestServiceUpdate_taskDefinition(t *testing.T) {
+func TestServiceUpdate(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -43,64 +43,29 @@ func TestServiceUpdate_taskDefinition(t *testing.T) {
 		}
 	}
 
-	updateServiceInput := &ecs.UpdateServiceInput{}
-	updateServiceInput.SetCluster("l0-test-env_id")
-	updateServiceInput.SetService("l0-test-svc_id")
-	updateServiceInput.SetTaskDefinition("arn:aws:ecs:region:012345678910:task-definition/dpl_id:1")
+	updateServiceScaleInput := &ecs.UpdateServiceInput{}
+	updateServiceScaleInput.SetCluster("l0-test-env_id")
+	updateServiceScaleInput.SetDesiredCount(2)
+	updateServiceScaleInput.SetService("l0-test-svc_id")
 
 	mockAWS.ECS.EXPECT().
-		UpdateService(updateServiceInput).
+		UpdateService(updateServiceScaleInput).
+		Return(&ecs.UpdateServiceOutput{}, nil)
+
+	updateServiceTaskDefinitionInput := &ecs.UpdateServiceInput{}
+	updateServiceTaskDefinitionInput.SetCluster("l0-test-env_id")
+	updateServiceTaskDefinitionInput.SetService("l0-test-svc_id")
+	updateServiceTaskDefinitionInput.SetTaskDefinition("arn:aws:ecs:region:012345678910:task-definition/dpl_id:1")
+
+	mockAWS.ECS.EXPECT().
+		UpdateService(updateServiceTaskDefinitionInput).
 		Return(&ecs.UpdateServiceOutput{}, nil)
 
 	deployID := "dpl_id"
-	req := models.UpdateServiceRequest{
-		ServiceID: "svc_id",
-		DeployID:  &deployID,
-	}
-
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
-	if err := target.Update(req); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestServiceUpdate_scale(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockAWS := awsc.NewMockClient(ctrl)
-	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
-
-	tags := models.Tags{
-		{
-			EntityID:   "svc_id",
-			EntityType: "service",
-			Key:        "environment_id",
-			Value:      "env_id",
-		},
-	}
-
-	for _, tag := range tags {
-		if err := tagStore.Insert(tag); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	updateServiceInput := &ecs.UpdateServiceInput{}
-	updateServiceInput.SetCluster("l0-test-env_id")
-	updateServiceInput.SetDesiredCount(2)
-	updateServiceInput.SetService("l0-test-svc_id")
-
-	mockAWS.ECS.EXPECT().
-		UpdateService(updateServiceInput).
-		Return(&ecs.UpdateServiceOutput{}, nil)
-
 	scale := 2
 	req := models.UpdateServiceRequest{
 		ServiceID: "svc_id",
+		DeployID:  &deployID,
 		Scale:     &scale,
 	}
 
