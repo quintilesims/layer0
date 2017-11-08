@@ -171,40 +171,10 @@ func TestServiceRead_serviceNotFoundError(t *testing.T) {
 
 	tags := models.Tags{
 		{
-			EntityID:   "env_id",
-			EntityType: "environment",
-			Key:        "name",
-			Value:      "env_name",
-		},
-		{
-			EntityID:   "svc_id",
-			EntityType: "service",
-			Key:        "name",
-			Value:      "svc_name",
-		},
-		{
 			EntityID:   "svc_id",
 			EntityType: "service",
 			Key:        "environment_id",
 			Value:      "env_id",
-		},
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "arn",
-			Value:      "arn:aws:ecs:region:012345678910:task-definition/dpl_id:1",
-		},
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "name",
-			Value:      "dpl_name",
-		},
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "version",
-			Value:      "1",
 		},
 	}
 
@@ -214,10 +184,6 @@ func TestServiceRead_serviceNotFoundError(t *testing.T) {
 		}
 	}
 
-	describeServicesInput := &ecs.DescribeServicesInput{}
-	describeServicesInput.SetCluster("l0-test-env_id")
-	describeServicesInput.SetServices([]*string{aws.String("l0-test-svc_id")})
-
 	deployment := &ecs.Deployment{}
 	deployment.SetCreatedAt(time.Time{})
 	deployment.SetDesiredCount(int64(1))
@@ -226,6 +192,7 @@ func TestServiceRead_serviceNotFoundError(t *testing.T) {
 	deployment.SetStatus(ecs.DesiredStatusRunning)
 	deployment.SetTaskDefinition("arn:aws:ecs:region:012345678910:task-definition/dpl_id:1")
 	deployment.SetUpdatedAt(time.Time{})
+
 	deployments := []*ecs.Deployment{
 		deployment,
 	}
@@ -235,6 +202,7 @@ func TestServiceRead_serviceNotFoundError(t *testing.T) {
 	service.SetDesiredCount(int64(1))
 	service.SetPendingCount(int64(0))
 	service.SetRunningCount(int64(1))
+
 	services := []*ecs.Service{
 		service,
 	}
@@ -245,7 +213,7 @@ func TestServiceRead_serviceNotFoundError(t *testing.T) {
 	awsError := awserr.New("ServiceNotFoundException", "", nil)
 
 	mockAWS.ECS.EXPECT().
-		DescribeServices(describeServicesInput).
+		DescribeServices(gomock.Any()).
 		Return(&ecs.DescribeServicesOutput{}, awsError)
 
 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)

@@ -93,7 +93,6 @@ func TestServiceList(t *testing.T) {
 		}
 	}
 
-	// listClusterNames() calls ECS.ListClustersPages()
 	clusterARNs := []*string{
 		aws.String("arn:aws:ecs:region:012345678910:cluster/l0-test-env_id1"),
 		aws.String("arn:aws:ecs:region:012345678910:cluster/l0-test-env_id2"),
@@ -114,7 +113,6 @@ func TestServiceList(t *testing.T) {
 		Do(listClustersPagesFN).
 		Return(nil)
 
-	// listClusterServiceNames() calls ECS.ListServicesPages() once for each cluster
 	clusterServices := map[string][]*string{
 		"l0-test-env_id1": []*string{
 			aws.String("arn:aws:ecs:region:012345678910:service/l0-test-svc_id1"),
@@ -126,10 +124,10 @@ func TestServiceList(t *testing.T) {
 		},
 	}
 
-	generateListServicesPagesFN := func(clusterName string) func(input *ecs.ListServicesInput, fn func(output *ecs.ListServicesOutput, lastPage bool) bool) error {
+	generateListServicesPagesFN := func(serviceARNs []*string) func(input *ecs.ListServicesInput, fn func(output *ecs.ListServicesOutput, lastPage bool) bool) error {
 		listServicesPagesFN := func(input *ecs.ListServicesInput, fn func(output *ecs.ListServicesOutput, lastPage bool) bool) error {
 			output := &ecs.ListServicesOutput{}
-			output.SetServiceArns(clusterServices[clusterName])
+			output.SetServiceArns(serviceARNs)
 
 			fn(output, true)
 
@@ -139,13 +137,13 @@ func TestServiceList(t *testing.T) {
 		return listServicesPagesFN
 	}
 
-	for clusterName, _ := range clusterServices {
+	for clusterName, serviceARNs := range clusterServices {
 		input := &ecs.ListServicesInput{}
 		input.SetCluster(clusterName)
 
 		mockAWS.ECS.EXPECT().
 			ListServicesPages(input, gomock.Any()).
-			Do(generateListServicesPagesFN(clusterName)).
+			Do(generateListServicesPagesFN(serviceARNs)).
 			Return(nil)
 	}
 

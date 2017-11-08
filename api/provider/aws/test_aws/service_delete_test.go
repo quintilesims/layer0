@@ -75,7 +75,6 @@ func TestServiceDelete(t *testing.T) {
 		Do(listTasksPagesFN).
 		Return(nil)
 
-	// ECS.DescribeServices(&ecs.DescribeServicesInput{}) from s.readService(clusterName, serviceID)
 	describeServicesInput := &ecs.DescribeServicesInput{}
 	describeServicesInput.SetCluster("l0-test-env_id")
 	describeServicesInput.SetServices([]*string{
@@ -104,7 +103,6 @@ func TestServiceDelete(t *testing.T) {
 		DescribeServices(describeServicesInput).
 		Return(describeServicesOutput, nil)
 
-	// ECS.StopTask(&ecs.StopTaskInput{}) from s.stopServiceTasks(clusterName, taskARNs)
 	for _, taskARN := range taskARNs {
 		stopTaskInput := &ecs.StopTaskInput{}
 		stopTaskInput.SetCluster("l0-test-env_id")
@@ -115,7 +113,6 @@ func TestServiceDelete(t *testing.T) {
 			Return(&ecs.StopTaskOutput{}, nil)
 	}
 
-	// ECS.UpdateService(&ecs.UpdateServiceInput{}) from s.scaleService(clusterName, serviceID, desiredCount)
 	updateServiceInput := &ecs.UpdateServiceInput{}
 	updateServiceInput.SetDesiredCount(int64(0))
 	updateServiceInput.SetCluster("l0-test-env_id")
@@ -127,7 +124,6 @@ func TestServiceDelete(t *testing.T) {
 		UpdateService(updateServiceInput).
 		Return(updateServiceOutput, nil)
 
-	// ECS.DeleteService(&ecs.DeleteServiceInput{}) from s.deleteService(clusterName, serviceID)
 	deleteServiceInput := &ecs.DeleteServiceInput{}
 	deleteServiceInput.SetCluster("l0-test-env_id")
 	deleteServiceInput.SetService("l0-test-svc_id")

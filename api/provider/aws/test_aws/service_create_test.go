@@ -42,12 +42,6 @@ func TestServiceCreate(t *testing.T) {
 
 	defer provider.SetEntityIDGenerator("svc_id")()
 
-	// ServiceProvider.Create() makes AWS calls that need to be mocked out:
-	// - ELB.DescribeLoadBalancer (if req.LoadBalancerID != "")
-	// - ECS.DescribeTaskDefinition (if req.LoadBalancerID != "")
-	// - ECS.CreateService
-
-	// ELB.DescribeLoadBalancer
 	loadBalancerInput := &elb.DescribeLoadBalancersInput{}
 	loadBalancerInput.SetLoadBalancerNames([]*string{aws.String("l0-test-lb_id")})
 	loadBalancerInput.SetPageSize(1)
@@ -77,21 +71,22 @@ func TestServiceCreate(t *testing.T) {
 		DescribeLoadBalancers(loadBalancerInput).
 		Return(loadBalancerOutput, nil)
 
-	// ECS.DescribeTaskDefinition
 	taskDefinitionInput := &ecs.DescribeTaskDefinitionInput{}
 	taskDefinitionInput.SetTaskDefinition("dpl_arn")
 
+	portMapping := &ecs.PortMapping{}
+	portMapping.SetContainerPort(int64(80))
+
 	portMappings := []*ecs.PortMapping{
-		{
-			ContainerPort: aws.Int64(80),
-		},
+		portMapping,
 	}
 
+	containerDefinition := &ecs.ContainerDefinition{}
+	containerDefinition.SetName("ctn_name")
+	containerDefinition.SetPortMappings(portMappings)
+
 	containerDefinitions := []*ecs.ContainerDefinition{
-		{
-			Name:         aws.String("ctn_name"),
-			PortMappings: portMappings,
-		},
+		containerDefinition,
 	}
 
 	taskDefinition := &ecs.TaskDefinition{
@@ -105,7 +100,6 @@ func TestServiceCreate(t *testing.T) {
 		DescribeTaskDefinition(taskDefinitionInput).
 		Return(taskDefinitionOutput, nil)
 
-	// ECS.CreateService
 	createServiceInput := &ecs.CreateServiceInput{}
 	createServiceInput.SetCluster("l0-test-env_id")
 	createServiceInput.SetDesiredCount(1)
@@ -194,12 +188,6 @@ func TestServiceCreate_defaults(t *testing.T) {
 
 	defer provider.SetEntityIDGenerator("svc_id")()
 
-	// ServiceProvider.Create() makes AWS calls that need to be mocked out:
-	// - ELB.DescribeLoadBalancer (if req.LoadBalancerID != "")
-	// - ECS.DescribeTaskDefinition (if req.LoadBalancerID != "")
-	// - ECS.CreateService
-
-	// ECS.CreateService
 	createServiceInput := &ecs.CreateServiceInput{}
 	createServiceInput.SetCluster("l0-test-env_id")
 	createServiceInput.SetDesiredCount(1)
@@ -219,24 +207,5 @@ func TestServiceCreate_defaults(t *testing.T) {
 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
 	if _, err := target.Create(req); err != nil {
 		t.Fatal(err)
-	}
-
-	expectedTags := models.Tags{
-		{
-			EntityID:   "svc_id",
-			EntityType: "service",
-			Key:        "name",
-			Value:      "svc_name",
-		},
-		{
-			EntityID:   "svc_id",
-			EntityType: "service",
-			Key:        "environment_id",
-			Value:      "env_id",
-		},
-	}
-
-	for _, tag := range expectedTags {
-		assert.Contains(t, tagStore.Tags(), tag)
 	}
 }
