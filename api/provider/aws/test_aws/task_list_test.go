@@ -1,6 +1,7 @@
 package test_aws
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -100,32 +101,12 @@ func TestTaskList(t *testing.T) {
 		Do(listClusterPagesFN).
 		Return(nil)
 
-	var taskARNs = map[string]map[string][]*string{}
-
-	taskARNs["l0-test-env_id1"] = map[string][]*string{}
-	taskARNs["l0-test-env_id2"] = map[string][]*string{}
-
-	taskARNs["l0-test-env_id1"][ecs.DesiredStatusRunning] = []*string{
-		aws.String("arn:aws:ecs:region:012345678910:task/arn1"),
-	}
-
-	taskARNs["l0-test-env_id1"][ecs.DesiredStatusStopped] = []*string{
-		aws.String("arn:aws:ecs:region:012345678910:task/arn2"),
-	}
-
-	taskARNs["l0-test-env_id2"][ecs.DesiredStatusRunning] = []*string{
-		aws.String("arn:aws:ecs:region:012345678910:task/arn3"),
-	}
-
-	taskARNs["l0-test-env_id2"][ecs.DesiredStatusStopped] = []*string{
-		aws.String("arn:aws:ecs:region:012345678910:task/arn4"),
-	}
-
-	newListTaskPagesFN := func(environmentID string, status string) func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
+	newListTaskPagesFN := func(taskARN int) func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
 		listTaskPagesFN := func(input *ecs.ListTasksInput, fn func(output *ecs.ListTasksOutput, lastPage bool) bool) error {
+			arn := []*string{aws.String(fmt.Sprintf("arn:aws:ecs:region:012345678910:task/arn%d", taskARN))}
 
 			output := &ecs.ListTasksOutput{}
-			output.SetTaskArns(taskARNs[environmentID][status])
+			output.SetTaskArns(arn)
 			fn(output, true)
 
 			return nil
@@ -134,8 +115,8 @@ func TestTaskList(t *testing.T) {
 		return listTaskPagesFN
 	}
 
-	for _, environmentID := range []string{"l0-test-env_id1", "l0-test-env_id2"} {
-		for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
+	for i, environmentID := range []string{"l0-test-env_id1", "l0-test-env_id2"} {
+		for j, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
 			listTasksInput := &ecs.ListTasksInput{}
 			listTasksInput.SetCluster(environmentID)
 			listTasksInput.SetDesiredStatus(status)
@@ -143,7 +124,7 @@ func TestTaskList(t *testing.T) {
 
 			mockAWS.ECS.EXPECT().
 				ListTasksPages(listTasksInput, gomock.Any()).
-				Do(newListTaskPagesFN(environmentID, status)).
+				Do(newListTaskPagesFN(i + j)).
 				Return(nil)
 		}
 	}

@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"log"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -13,12 +14,12 @@ import (
 func (t *TaskProvider) Delete(taskID string) error {
 	environmentID, err := lookupEntityEnvironmentID(t.TagStore, "task", taskID)
 	if err != nil {
-		return err
+		log.Printf("[WARN] Environment not found\n")
 	}
 
 	taskARN, err := t.lookupTaskARN(taskID)
 	if err != nil {
-		return err
+		log.Printf("[WARN] Task not found\n")
 	}
 
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), environmentID)

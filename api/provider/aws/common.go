@@ -82,7 +82,7 @@ func lookupTaskDefinitionARNFromDeployID(store tag.Store, deployID string) (stri
 func lookupEntityEnvironmentID(store tag.Store, entityType, entityID string) (string, error) {
 	tags, err := store.SelectByTypeAndID(entityType, entityID)
 	if err != nil {
-		return "", err
+		return "ts", err
 	}
 
 	if len(tags) == 0 {

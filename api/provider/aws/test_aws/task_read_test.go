@@ -53,7 +53,7 @@ func TestTaskRead(t *testing.T) {
 			EntityID:   "dpl_id",
 			EntityType: "deploy",
 			Key:        "version",
-			Value:      "version",
+			Value:      "deployVersion",
 		},
 	}
 
@@ -69,10 +69,12 @@ func TestTaskRead(t *testing.T) {
 
 	containerECS := &ecs.Container{}
 	containerECS.SetName("container")
+	containerECS.SetLastStatus("status")
+	containerECS.SetExitCode(0)
 
 	task := &ecs.Task{}
 	task.SetTaskArn("arn:aws:ecs:region:012345678910:task/arn")
-	task.SetTaskDefinitionArn("arn:aws:ecs:region:account:task-definition/dpl_id:version")
+	task.SetTaskDefinitionArn("arn:aws:ecs:region:account:task-definition/dpl_id:deployVersion")
 	task.SetLastStatus(ecs.DesiredStatusRunning)
 	task.SetContainers([]*ecs.Container{containerECS})
 
@@ -91,6 +93,8 @@ func TestTaskRead(t *testing.T) {
 
 	container := models.Container{
 		ContainerName: "container",
+		Status:        "status",
+		ExitCode:      0,
 	}
 
 	expected := &models.Task{
@@ -99,7 +103,7 @@ func TestTaskRead(t *testing.T) {
 		EnvironmentID: "env_id",
 		DeployID:      "dpl_id",
 		DeployName:    "dpl_name",
-		DeployVersion: "version",
+		DeployVersion: "deployVersion",
 		Status:        "RUNNING",
 		Containers:    []models.Container{container},
 	}
