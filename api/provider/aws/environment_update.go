@@ -1,7 +1,6 @@
 package aws
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -129,12 +128,6 @@ func (e *EnvironmentProvider) updateASGSize(autoScalingGroupName string, minSize
 }
 
 func (e *EnvironmentProvider) createIngressInput(sourceGroupID, destGroupID string) error {
-	if sourceGroupID == "" || destGroupID == "" {
-		return fmt.Errorf("createIngressInput requires both sourceSGID:'%s' and destSGID:'%s'",
-			sourceGroupID,
-			destGroupID)
-	}
-
 	groupPair := &ec2.UserIdGroupPair{}
 	groupPair.SetGroupId(destGroupID)
 
@@ -186,12 +179,6 @@ func (e *EnvironmentProvider) setLinkTags(environmentID string, links []string) 
 }
 
 func (e *EnvironmentProvider) removeIngressRule(groupID, groupIDToRemove string) error {
-	if groupID == "" || groupIDToRemove == "" {
-		return fmt.Errorf("removeIngressRule requires both sourceSGID:'%s' and groupSGID to remove:'%s'",
-			groupID,
-			groupIDToRemove)
-	}
-
 	groupPair := &ec2.UserIdGroupPair{}
 	groupPair.SetGroupId(groupIDToRemove)
 
