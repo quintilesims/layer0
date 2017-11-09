@@ -64,9 +64,9 @@ func TestDeployCreate(t *testing.T) {
 			"awslogs-stream-prefix": aws.String("test_prefix"),
 		},
 	}
+
 	container.SetLogConfiguration(logConfig)
-	containers := []*ecs.ContainerDefinition{}
-	containers = append(containers, container)
+	containers := []*ecs.ContainerDefinition{container}
 
 	// define request
 	reqDeployFile := &ecs.TaskDefinition{}

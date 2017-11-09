@@ -3,7 +3,7 @@ package test_aws
 import (
 	"testing"
 
-	// "github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
@@ -26,40 +26,40 @@ func TestDeployList(t *testing.T) {
 
 	tags := models.Tags{
 		{
-			EntityID:   "dpl_id",
+			EntityID:   "dpl_id1",
 			EntityType: "deploy",
 			Key:        "name",
-			Value:      "dpl_name",
+			Value:      "dpl1",
 		},
 		{
-			EntityID:   "dpl_id",
+			EntityID:   "dpl_id1",
 			EntityType: "deploy",
 			Key:        "version",
-			Value:      "dpl_version",
+			Value:      "1",
 		},
 		{
-			EntityID:   "dpl_id",
+			EntityID:   "dpl_id1",
 			EntityType: "deploy",
 			Key:        "arn",
-			Value:      "arn:aws:ecs:region:012345678910:task/arn",
+			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl:1",
 		},
 		{
 			EntityID:   "dpl_id2",
 			EntityType: "deploy",
 			Key:        "name",
-			Value:      "dpl_name2",
+			Value:      "dpl2",
 		},
 		{
 			EntityID:   "dpl_id2",
 			EntityType: "deploy",
 			Key:        "version",
-			Value:      "dpl_version2",
+			Value:      "1",
 		},
 		{
 			EntityID:   "dpl_id2",
 			EntityType: "deploy",
 			Key:        "arn",
-			Value:      "arn:aws:ecs:region:012345678911:task/arn",
+			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl:2",
 		},
 	}
 
@@ -69,17 +69,24 @@ func TestDeployList(t *testing.T) {
 		}
 	}
 
-	// taskDefinitionFamilies := []string{}
-	// listTaskDefinitionFamiliesPagesfn := func(output *ecs.ListTaskDefinitionFamiliesOutput, lastPage bool) bool {
-	// 	for _, taskDefinitionFamily := range output.Families {
-	// 		taskDefinitionFamilies = append(taskDefinitionFamilies, aws.StringValue(taskDefinitionFamily))
+	// listTaskDefinitionFamiliesPagesfn := func(input *ecs.ListTaskDefinitionFamiliesInput,
+	// 	fn func(output *ecs.ListTaskDefinitionFamiliesOutput, lastPage bool) bool) error {
+	// 	taskDefinitionFamilies := []*string{
+	// 		aws.String("l0-test-"),
+	// 		aws.String("l0-test-"),
+	// 		aws.String("l0-test-"),
+	// 		aws.String("l0-test-"),
 	// 	}
-	// 	return !lastPage
+
+	// 	output := &ecs.ListTaskDefinitionFamiliesOutput{}
+	// 	output.SetFamilies(taskDefinitionFamilies)
+	// 	fn(output, true)
+
+	// 	return nil
 	// }
 
 	tdFamilies := &ecs.ListTaskDefinitionFamiliesInput{}
 	tdFamilies.SetFamilyPrefix("l0-test-")
-	// TODO: for some reason, ListTask...() call panics when SetStatus == "ACTIVE"
 	tdFamilies.SetStatus(ecs.TaskDefinitionFamilyStatusActive)
 
 	mockAWS.ECS.EXPECT().
@@ -87,21 +94,28 @@ func TestDeployList(t *testing.T) {
 		// Do(listTaskDefinitionFamiliesPagesfn).
 		Return(nil)
 
-	// taskDefinitionARNs := []string{}
-	// listTaskDefinitionPagesfn := func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool {
-	// 	for _, taskDefinitionARN := range output.TaskDefinitionArns {
-	// 		taskDefinitionARNs = append(taskDefinitionARNs, aws.StringValue(taskDefinitionARN))
-	// 	}
-	// 	return !lastPage
-	// }
+	listTaskDefinitionPagesfn := func(input *ecs.ListTaskDefinitionsInput,
+		fn func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool) error {
+		taskDefinitionARNs := []*string{
+			aws.String("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl1:1"),
+			aws.String("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl2:1"),
+			aws.String("arn:aws:ecs:region:012345678910:task-definition/l0-bad-dpl1:1"),
+		}
+
+		output := &ecs.ListTaskDefinitionsOutput{}
+		output.SetTaskDefinitionArns(taskDefinitionARNs)
+		fn(output, true)
+
+		return nil
+	}
 
 	td := &ecs.ListTaskDefinitionsInput{}
 	td.SetFamilyPrefix("l0-test-")
-	td.SetStatus(ecs.TaskDefinitionFamilyStatusActive)
+	td.SetStatus(ecs.TaskDefinitionStatusActive)
 
 	mockAWS.ECS.EXPECT().
 		ListTaskDefinitionsPages(td, gomock.Any()).
-		// Do(listTaskDefinitionPagesfn).
+		Do(listTaskDefinitionPagesfn).
 		Return(nil)
 
 	target := provider.NewDeployProvider(mockAWS.Client(), tagStore, mockConfig)
@@ -112,14 +126,14 @@ func TestDeployList(t *testing.T) {
 
 	expected := []models.DeploySummary{
 		{
-			DeployID:   "dpl_id",
-			DeployName: "dpl_name",
-			Version:    "dpl_version",
+			DeployID:   "dpl_id1",
+			DeployName: "dpl1",
+			Version:    "1",
 		},
 		{
 			DeployID:   "dpl_id2",
-			DeployName: "dpl_name2",
-			Version:    "dpl_version2",
+			DeployName: "dpl2",
+			Version:    "1",
 		},
 	}
 
