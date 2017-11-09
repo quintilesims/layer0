@@ -41,7 +41,7 @@ func TestDeployList(t *testing.T) {
 			EntityID:   "dpl_id1",
 			EntityType: "deploy",
 			Key:        "arn",
-			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl:1",
+			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl1:1",
 		},
 		{
 			EntityID:   "dpl_id2",
@@ -59,7 +59,7 @@ func TestDeployList(t *testing.T) {
 			EntityID:   "dpl_id2",
 			EntityType: "deploy",
 			Key:        "arn",
-			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl:2",
+			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl2:1",
 		},
 	}
 
