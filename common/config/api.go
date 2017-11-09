@@ -37,7 +37,7 @@ func APIFlags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_REGION,
-			Value:  "us-west-2",
+			Value:  DefaultAWSRegion,
 			EnvVar: ENVVAR_AWS_REGION,
 		},
 		cli.StringFlag{

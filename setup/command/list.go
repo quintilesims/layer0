@@ -58,7 +58,7 @@ func (f *CommandFactory) List() cli.Command {
 }
 
 func (f *CommandFactory) addRemoteInstances(c *cli.Context, current map[string]status) error {
-	provider, err := f.newAWSProviderHelper(c)
+	provider, err := f.newAWSClientHelper(c)
 	if err != nil {
 		return err
 	}

@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/quintilesims/layer0/setup/aws"
 )
 
 const LAYER0_MODULE_SOURCE = "github.com/quintilesims/layer0//setup/module"
@@ -148,7 +147,7 @@ var Layer0ModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_AWS_REGION,
 		Description: INPUT_AWS_REGION_DESCRIPTION,
-		Default:     aws.DEFAULT_AWS_REGION,
+		Default:     "us-west-2",
 		prompter:    RequiredStringPrompter,
 	},
 	{

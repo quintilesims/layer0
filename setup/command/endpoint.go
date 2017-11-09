@@ -35,8 +35,8 @@ func (f *CommandFactory) Endpoint() cli.Command {
 			}
 
 			outputEnvvars := map[string]string{
-				instance.OUTPUT_ENDPOINT: config.API_ENDPOINT,
-				instance.OUTPUT_TOKEN:    config.AUTH_TOKEN,
+				instance.OUTPUT_ENDPOINT: config.ENVVAR_ENDPOINT,
+				instance.OUTPUT_TOKEN:    config.ENVVAR_TOKEN,
 			}
 
 			if c.Bool("dev") {

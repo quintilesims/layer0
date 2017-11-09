@@ -18,7 +18,7 @@ func GetTestAWSSession() *session.Session {
 	secretKey := os.Getenv(ENVVAR_AWS_SECRET_KEY)
 	region := os.Getenv(ENVVAR_AWS_REGION)
 	if region == "" {
-		region = "us-west-2"
+		region = DefaultAWSRegion
 	}
 
 	creds := credentials.NewStaticCredentials(accessKey, secretKey, "")
