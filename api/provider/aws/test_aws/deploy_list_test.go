@@ -69,21 +69,18 @@ func TestDeployList(t *testing.T) {
 		}
 	}
 
-	// listTaskDefinitionFamiliesPagesfn := func(input *ecs.ListTaskDefinitionFamiliesInput,
-	// 	fn func(output *ecs.ListTaskDefinitionFamiliesOutput, lastPage bool) bool) error {
-	// 	taskDefinitionFamilies := []*string{
-	// 		aws.String("l0-test-"),
-	// 		aws.String("l0-test-"),
-	// 		aws.String("l0-test-"),
-	// 		aws.String("l0-test-"),
-	// 	}
+	listTaskDefinitionFamiliesPagesfn := func(input *ecs.ListTaskDefinitionFamiliesInput,
+		fn func(output *ecs.ListTaskDefinitionFamiliesOutput, lastPage bool) bool) error {
+		taskDefinitionFamilies := []*string{
+			aws.String("l0-test-"),
+		}
 
-	// 	output := &ecs.ListTaskDefinitionFamiliesOutput{}
-	// 	output.SetFamilies(taskDefinitionFamilies)
-	// 	fn(output, true)
+		output := &ecs.ListTaskDefinitionFamiliesOutput{}
+		output.SetFamilies(taskDefinitionFamilies)
+		fn(output, true)
 
-	// 	return nil
-	// }
+		return nil
+	}
 
 	tdFamilies := &ecs.ListTaskDefinitionFamiliesInput{}
 	tdFamilies.SetFamilyPrefix("l0-test-")
@@ -91,7 +88,7 @@ func TestDeployList(t *testing.T) {
 
 	mockAWS.ECS.EXPECT().
 		ListTaskDefinitionFamiliesPages(tdFamilies, gomock.Any()).
-		// Do(listTaskDefinitionFamiliesPagesfn).
+		Do(listTaskDefinitionFamiliesPagesfn).
 		Return(nil)
 
 	listTaskDefinitionPagesfn := func(input *ecs.ListTaskDefinitionsInput,
