@@ -106,7 +106,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		RevokeSecurityGroupIngress(revokeIngressInput).
 		Return(&ec2.RevokeSecurityGroupIngressOutput{}, nil)
 
-	port := int64(80)
+	port := int64(provider.DefaultLoadBalancerPort.HostPort)
 	deleteLoadBalancerListenersInput := &elb.DeleteLoadBalancerListenersInput{}
 	deleteLoadBalancerListenersInput.SetLoadBalancerName("l0-test-lb_name")
 	deleteLoadBalancerListenersInput.SetLoadBalancerPorts([]*int64{&port})
