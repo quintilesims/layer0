@@ -430,15 +430,15 @@ func TestEnvironmentUnlinkBiDirectional(t *testing.T) {
 
 		command := NewEnvironmentCommand(base.Command())
 
-		links1 := []string{}
-		links2 := []string{}
+		links1 := []string{"env_id3"}
+		links2 := []string{"env_id3"}
 		env1 := &models.Environment{
 			EnvironmentID: "env_id1",
-			Links:         []string{"env_id2"},
+			Links:         []string{"env_id2", "env_id3"},
 		}
 		env2 := &models.Environment{
 			EnvironmentID: "env_id2",
-			Links:         []string{"env_id1"},
+			Links:         []string{"env_id1", "env_id3"},
 		}
 
 		base.Resolver.EXPECT().
@@ -508,8 +508,11 @@ func TestEnvironmentUnlinkUnidirectional(t *testing.T) {
 		defer ctrl.Finish()
 
 		command := NewEnvironmentCommand(base.Command())
-
 		links1 := []string{}
+		env1 := &models.Environment{
+			EnvironmentID: "env_id1",
+			Links:         []string{"env_id2"},
+		}
 
 		base.Resolver.EXPECT().
 			Resolve("environment", "env_name1").
@@ -521,10 +524,7 @@ func TestEnvironmentUnlinkUnidirectional(t *testing.T) {
 
 		base.Client.EXPECT().
 			ReadEnvironment("env_id1").
-			Return(&models.Environment{
-				EnvironmentID: "env_id1",
-				Links:         []string{"env_id2"},
-			}, nil)
+			Return(env1, nil)
 
 		job1 := &models.Job{
 			JobID:  "job_id1",
