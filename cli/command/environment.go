@@ -237,8 +237,9 @@ func (e *EnvironmentCommand) link(c *cli.Context) error {
 			return models.UpdateEnvironmentRequest{}, err
 		}
 
+		appendedLinks := []string{}
 		if !client.Contains(destEnvironmentID, env.Links) {
-			appendedLinks := append(env.Links, destEnvironmentID)
+			appendedLinks = append(env.Links, destEnvironmentID)
 		}
 
 		req := models.UpdateEnvironmentRequest{Links: &appendedLinks}
@@ -270,8 +271,10 @@ func (e *EnvironmentCommand) unlink(c *cli.Context) error {
 	return e.updateEnvironmentLinksHelper(c, generateRemoveLinkRequest)
 }
 
-func (e *EnvironmentCommand) updateEnvironmentLinksHelper(c *cli.Context,
-	generateReq func(string, string) (models.UpdateEnvironmentRequest, error)) error {
+func (e *EnvironmentCommand) updateEnvironmentLinksHelper(
+	c *cli.Context,
+	generateReq func(string, string) (models.UpdateEnvironmentRequest, error)) 
+error {
 	args, err := extractArgs(c.Args(), "SOURCE_ENVIRONMENT_NAME", "DESTINATION_ENVIRONMENT_NAME")
 	if err != nil {
 		return err
@@ -288,31 +291,31 @@ func (e *EnvironmentCommand) updateEnvironmentLinksHelper(c *cli.Context,
 	}
 
 	if sourceEnvironmentID == destEnvironmentID {
-		return fmt.Errorf("Cannot link an environment to itself")
+		return fmt.Errorf("Cannot unlink an environment from itself")
 	}
 
-	addLinkFN := func(sourceEnvID, destEnvID string) error {
+	updateLinkFN := func(sourceEnvID, destEnvID string) error {
 		updateEnvReq, err := generateReq(sourceEnvID, destEnvID)
 		if err != nil {
 			return err
 		}
 
-		jobID1, err := e.client.UpdateEnvironment(sourceEnvID, updateEnvReq)
+		jobID, err := e.client.UpdateEnvironment(sourceEnvID, updateEnvReq)
 		if err != nil {
 			return err
 		}
 
-		return e.waitOnJobHelper(c, jobID1, "updating", func(environmentID string) error {
+		return e.waitOnJobHelper(c, jobID, "updating", func(environmentID string) error {
 			e.printer.Printf("Environment update successfull")
 			return nil
 		})
 	}
 
-	addLinkFN(sourceEnvironmentID, destEnvironmentID)
+	updateLinkFN(sourceEnvironmentID, destEnvironmentID)
 
 	if !c.Bool(FLAG_BI_DIRECTIONAL) {
 		return nil
 	}
 
-	return addLinkFN(destEnvironmentID, sourceEnvironmentID)
+	return updateLinkFN(destEnvironmentID, sourceEnvironmentID)
 }

@@ -63,14 +63,12 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 
 			fqDestEnvID := addLayer0Prefix(e.Config.Instance(), destEnvironmentID)
 			sg, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqDestEnvID))
-
 			if err != nil {
 				return err
 			}
 
 			sourceSGID := aws.StringValue(sourceEnvSG.GroupId)
 			destSGID := aws.StringValue(sg.GroupId)
-
 			if err := e.createIngressInput(sourceSGID, destSGID); err != nil {
 				return err
 			}
@@ -84,10 +82,9 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 
 			fqDestEnvID := addLayer0Prefix(e.Config.Instance(), destEnvironmentID)
 			sg, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqDestEnvID))
-
 			if err != nil {
 				if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "DoesNotExist" {
-					log.Printf("[WARN] skipping environment link/unlink since security group '%s' does not exist\n", getEnvironmentSGName(fqEnvironmentID))
+					log.Printf("[WARN] skipping environment unlink since security group '%s' does not exist\n", getEnvironmentSGName(fqEnvironmentID))
 					continue
 				}
 
@@ -96,7 +93,6 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 
 			sourceSGID := aws.StringValue(sourceEnvSG.GroupId)
 			destSGID := aws.StringValue(sg.GroupId)
-
 			if err := e.removeIngressRule(sourceSGID, destSGID); err != nil {
 				return err
 			}
