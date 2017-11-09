@@ -155,7 +155,7 @@ func (e *EnvironmentProvider) createIngressInput(sourceGroupID, destGroupID stri
 func (e *EnvironmentProvider) setLinkTags(environmentID string, links []string) error {
 	uniqueLinks := []string{}
 	for _, l := range links {
-		if client.Contains(l, uniqueLinks) {
+		if !client.Contains(l, uniqueLinks) {
 			uniqueLinks = append(uniqueLinks, l)
 		}
 	}
