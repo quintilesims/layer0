@@ -110,25 +110,24 @@ func TestReadEnvironment(t *testing.T) {
 func TestUpdateEnvironment(t *testing.T) {
 	count := 1
 	links := []string{}
-	req := models.UpdateEnvironmentRequest{EnvironmentID: "eid"}
-	req.MinClusterCount = &count
+	req := models.UpdateEnvironmentRequest{MinClusterCount: &count}
 	req.Links = &links
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "PATCH")
 		assert.Equal(t, r.URL.Path, "/environment/eid")
 
-		var body models.UpdateEnvironmentRequestParams
+		var body models.UpdateEnvironmentRequest
 		Unmarshal(t, r, &body)
 
-		assert.Equal(t, req.UpdateEnvironmentRequestParams, body)
+		assert.Equal(t, req, body)
 		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.UpdateEnvironment(req)
+	jobID, err := client.UpdateEnvironment("eid", req)
 	if err != nil {
 		t.Fatal(err)
 	}
