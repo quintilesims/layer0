@@ -74,8 +74,9 @@ func (l *LoadBalancerProvider) Update(req models.UpdateLoadBalancerRequest) erro
 		}
 
 		for _, listener := range listeners {
-			portNumber := aws.Int64Value(listener.LoadBalancerPort)
-			if err := l.authorizeSGIngressFromPort(securityGroupID, portNumber); err != nil {
+			loadBalancerListenerPort := aws.Int64Value(listener.LoadBalancerPort)
+
+			if err := l.authorizeSGIngressFromPort(securityGroupID, loadBalancerListenerPort); err != nil {
 				return err
 			}
 		}
