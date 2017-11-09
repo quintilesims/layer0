@@ -47,7 +47,7 @@ func TestServiceCreate(t *testing.T) {
 	loadBalancerInput.SetPageSize(1)
 
 	listener := &elb.Listener{}
-	listener.SetInstancePort(80)
+	listener.SetInstancePort(provider.DefaultLoadBalancerPort.HostPort)
 
 	listenerDescription := &elb.ListenerDescription{}
 	listenerDescription.SetListener(listener)
@@ -108,7 +108,7 @@ func TestServiceCreate(t *testing.T) {
 
 	loadBalancer := &ecs.LoadBalancer{}
 	loadBalancer.SetContainerName("ctn_name")
-	loadBalancer.SetContainerPort(80)
+	loadBalancer.SetContainerPort(provider.DefaultLoadBalancerPort.ContainerPort)
 	loadBalancer.SetLoadBalancerName("l0-test-lb_id")
 
 	loadBalancers := []*ecs.LoadBalancer{loadBalancer}
