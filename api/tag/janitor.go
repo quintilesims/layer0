@@ -18,7 +18,7 @@ func NewJanitor(tagStore Store, taskProvider provider.TaskProvider) *janitor.Jan
 			return err
 		}
 
-		m := make(map[string]bool)
+		m := make(map[string]bool, len(tasks))
 		for _, task := range tasks {
 			m[task.TaskID] = true
 		}
