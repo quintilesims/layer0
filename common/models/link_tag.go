@@ -19,9 +19,11 @@ func (l LinkTags) Distinct() []string {
 		m[k] = idx
 	}
 
-	d := []string{}
+	d := make([]string, len(m))
+	i := 0
 	for k, _ := range m {
-		d = append(d, k)
+		d[i] = k
+		i++
 	}
 
 	return d
