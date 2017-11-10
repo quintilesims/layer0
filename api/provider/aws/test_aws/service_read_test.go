@@ -184,41 +184,13 @@ func TestServiceRead_serviceNotFoundError(t *testing.T) {
 		}
 	}
 
-	deployment := &ecs.Deployment{}
-	deployment.SetCreatedAt(time.Time{})
-	deployment.SetDesiredCount(int64(1))
-	deployment.SetPendingCount(int64(0))
-	deployment.SetRunningCount(int64(1))
-	deployment.SetStatus(ecs.DesiredStatusRunning)
-	deployment.SetTaskDefinition("arn:aws:ecs:region:012345678910:task-definition/dpl_id:1")
-	deployment.SetUpdatedAt(time.Time{})
-
-	deployments := []*ecs.Deployment{
-		deployment,
-	}
-
-	service := &ecs.Service{}
-	service.SetDeployments(deployments)
-	service.SetDesiredCount(int64(1))
-	service.SetPendingCount(int64(0))
-	service.SetRunningCount(int64(1))
-
-	services := []*ecs.Service{
-		service,
-	}
-
-	describeServicesOutput := &ecs.DescribeServicesOutput{}
-	describeServicesOutput.SetServices(services)
-
 	awsError := awserr.New("ServiceNotFoundException", "", nil)
 
 	mockAWS.ECS.EXPECT().
 		DescribeServices(gomock.Any()).
-		Return(&ecs.DescribeServicesOutput{}, awsError)
+		Return(nil, awsError)
 
 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
 	_, err := target.Read("svc_id")
-
-	expectedErr := errors.Newf(errors.ServiceDoesNotExist, "Service 'l0-test-svc_id' does not exist")
-	assert.Equal(t, expectedErr, err)
+	assert.Equal(t, errors.ServiceDoesNotExist, err.(*errors.ServerError).Code)
 }

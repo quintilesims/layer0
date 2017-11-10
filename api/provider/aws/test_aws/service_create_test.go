@@ -108,7 +108,7 @@ func TestServiceCreate(t *testing.T) {
 
 	loadBalancer := &ecs.LoadBalancer{}
 	loadBalancer.SetContainerName("ctn_name")
-	loadBalancer.SetContainerPort(provider.DefaultLoadBalancerPort.ContainerPort)
+	loadBalancer.SetContainerPort(80)
 	loadBalancer.SetLoadBalancerName("l0-test-lb_id")
 
 	loadBalancers := []*ecs.LoadBalancer{loadBalancer}
