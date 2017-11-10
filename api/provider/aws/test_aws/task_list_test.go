@@ -54,13 +54,49 @@ func TestTaskList(t *testing.T) {
 			EntityID:   "tsk_id2",
 			EntityType: "task",
 			Key:        "environment_id",
-			Value:      "env_id2",
+			Value:      "env_id1",
 		},
 		{
 			EntityID:   "tsk_id2",
 			EntityType: "task",
 			Key:        "arn",
 			Value:      "arn:aws:ecs:region:012345678910:task/arn2",
+		},
+		{
+			EntityID:   "tsk_id3",
+			EntityType: "task",
+			Key:        "name",
+			Value:      "tsk_name3",
+		},
+		{
+			EntityID:   "tsk_id3",
+			EntityType: "task",
+			Key:        "environment_id",
+			Value:      "env_id2",
+		},
+		{
+			EntityID:   "tsk_id3",
+			EntityType: "task",
+			Key:        "arn",
+			Value:      "arn:aws:ecs:region:012345678910:task/arn3",
+		},
+		{
+			EntityID:   "tsk_id4",
+			EntityType: "task",
+			Key:        "name",
+			Value:      "tsk_name4",
+		},
+		{
+			EntityID:   "tsk_id4",
+			EntityType: "task",
+			Key:        "environment_id",
+			Value:      "env_id2",
+		},
+		{
+			EntityID:   "tsk_id4",
+			EntityType: "task",
+			Key:        "arn",
+			Value:      "arn:aws:ecs:region:012345678910:task/arn4",
 		},
 		{
 			EntityID:   "env_id1",
@@ -115,8 +151,9 @@ func TestTaskList(t *testing.T) {
 		return listTaskPagesFN
 	}
 
-	for i, environmentID := range []string{"l0-test-env_id1", "l0-test-env_id2"} {
-		for j, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
+	taskARNCount := 1
+	for _, environmentID := range []string{"l0-test-env_id1", "l0-test-env_id2"} {
+		for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
 			listTasksInput := &ecs.ListTasksInput{}
 			listTasksInput.SetCluster(environmentID)
 			listTasksInput.SetDesiredStatus(status)
@@ -124,8 +161,10 @@ func TestTaskList(t *testing.T) {
 
 			mockAWS.ECS.EXPECT().
 				ListTasksPages(listTasksInput, gomock.Any()).
-				Do(newListTaskPagesFN(i + j)).
+				Do(newListTaskPagesFN(taskARNCount)).
 				Return(nil)
+
+			taskARNCount++
 		}
 	}
 
@@ -145,6 +184,18 @@ func TestTaskList(t *testing.T) {
 		{
 			TaskID:          "tsk_id2",
 			TaskName:        "tsk_name2",
+			EnvironmentID:   "env_id1",
+			EnvironmentName: "env_name1",
+		},
+		{
+			TaskID:          "tsk_id3",
+			TaskName:        "tsk_name3",
+			EnvironmentID:   "env_id2",
+			EnvironmentName: "env_name2",
+		},
+		{
+			TaskID:          "tsk_id4",
+			TaskName:        "tsk_name4",
 			EnvironmentID:   "env_id2",
 			EnvironmentName: "env_name2",
 		},

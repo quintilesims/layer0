@@ -122,12 +122,6 @@ func TestDeleteTaskIdempotenceWithoutTags(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
-
-	mockAWS.ECS.EXPECT().
-		StopTask(gomock.Any()).
-		Return(nil, nil)
-
 	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("tsk_id"); err != nil {
 		t.Fatal(err)
