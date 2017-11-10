@@ -64,13 +64,12 @@ func TestServiceUpdate(t *testing.T) {
 	deployID := "dpl_id"
 	scale := 2
 	req := models.UpdateServiceRequest{
-		ServiceID: "svc_id",
-		DeployID:  &deployID,
-		Scale:     &scale,
+		DeployID: &deployID,
+		Scale:    &scale,
 	}
 
 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
-	if err := target.Update(req); err != nil {
+	if err := target.Update("svc_id", req); err != nil {
 		t.Fatal(err)
 	}
 }
