@@ -6,6 +6,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/errors"
 )
 
 // Delete stops an ECS Task using the specified taskID. The taskID is used to look up the name of
@@ -15,13 +16,19 @@ func (t *TaskProvider) Delete(taskID string) error {
 	environmentID, err := lookupEntityEnvironmentID(t.TagStore, "task", taskID)
 	if err != nil {
 		log.Printf("[WARN] Environment not found\n")
-		return nil
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.TaskDoesNotExist {
+			return nil
+		}
+		return err
 	}
 
 	taskARN, err := t.lookupTaskARN(taskID)
 	if err != nil {
 		log.Printf("[WARN] Task not found\n")
-		return nil
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.TaskDoesNotExist {
+			return nil
+		}
+		return err
 	}
 
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), environmentID)
