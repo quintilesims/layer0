@@ -96,13 +96,3 @@ func newLinearBackoffSleeper(d time.Duration) func() {
 		time.Sleep(d * time.Duration(i) * timeMultiplier)
 	}
 }
-
-func Contains(value string, values []string) bool {
-	for _, v := range values {
-		if v == value {
-			return true
-		}
-	}
-
-	return false
-}

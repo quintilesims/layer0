@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"strconv"
 
-	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -238,7 +237,8 @@ func (e *EnvironmentCommand) link(c *cli.Context) error {
 		}
 
 		appendedLinks := []string{}
-		if !client.Contains(destEnvironmentID, env.Links) {
+		envLinks := models.LinkTags(env.Links)
+		if !envLinks.Contains(destEnvironmentID) {
 			appendedLinks = append(env.Links, destEnvironmentID)
 		}
 
@@ -273,8 +273,8 @@ func (e *EnvironmentCommand) unlink(c *cli.Context) error {
 
 func (e *EnvironmentCommand) updateEnvironmentLinksHelper(
 	c *cli.Context,
-	generateReq func(string, string) (models.UpdateEnvironmentRequest, error)) 
-error {
+	generateReq func(string, string) (models.UpdateEnvironmentRequest, error),
+) error {
 	args, err := extractArgs(c.Args(), "SOURCE_ENVIRONMENT_NAME", "DESTINATION_ENVIRONMENT_NAME")
 	if err != nil {
 		return err

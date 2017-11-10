@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ec2"
-	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -57,7 +56,8 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 
 		// add - check if current link state contains links in request
 		for _, destEnvironmentID := range *req.Links {
-			if client.Contains(destEnvironmentID, currentLinkedEnvIDs) {
+			actualLinks := models.LinkTags(currentLinkedEnvIDs)
+			if actualLinks.Contains(destEnvironmentID) {
 				continue
 			}
 
@@ -76,7 +76,8 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 
 		// remove - check if links in request are missing from current links
 		for _, destEnvironmentID := range currentLinkedEnvIDs {
-			if client.Contains(destEnvironmentID, *req.Links) {
+			desiredLinks := models.LinkTags(*req.Links)
+			if desiredLinks.Contains(destEnvironmentID) {
 				continue
 			}
 
@@ -149,19 +150,13 @@ func (e *EnvironmentProvider) createIngressInput(sourceGroupID, destGroupID stri
 }
 
 func (e *EnvironmentProvider) setLinkTags(environmentID string, links []string) error {
-	uniqueLinks := []string{}
-	for _, l := range links {
-		if !client.Contains(l, uniqueLinks) {
-			uniqueLinks = append(uniqueLinks, l)
-		}
-	}
-
+	l := models.LinkTags(links)
 	newTags := models.Tags{
 		{
 			EntityID:   environmentID,
 			EntityType: "environment",
 			Key:        "link",
-			Value:      strings.Join(uniqueLinks, ","),
+			Value:      strings.Join(l.Distinct(), ","),
 		},
 	}
 
