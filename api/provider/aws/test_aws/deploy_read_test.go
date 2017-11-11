@@ -1,6 +1,7 @@
 package test_aws
 
 import (
+	"encoding/json"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -40,7 +41,7 @@ func TestDeployRead(t *testing.T) {
 			EntityID:   "dpl_id",
 			EntityType: "deploy",
 			Key:        "arn",
-			Value:      "arn:aws:ecs:region:012345678910:task/arn",
+			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id:1",
 		},
 	}
 
@@ -50,10 +51,21 @@ func TestDeployRead(t *testing.T) {
 		}
 	}
 
+	// Set Container Definition Defaults
+	containerDefinition := &ecs.ContainerDefinition{}
+	containerDefinition.SetName("taskDefinition")
+	containerDefinitions := []*ecs.ContainerDefinition{containerDefinition}
+
+	// Set Task Definition Defaults
+	taskDefinition := &ecs.TaskDefinition{}
+	taskDefinition.SetContainerDefinitions(containerDefinitions)
+
+	// Set up ECS mock inputs and outputs
 	taskDefinitionInput := &ecs.DescribeTaskDefinitionInput{}
-	taskDefinitionInput.SetTaskDefinition("arn:aws:ecs:region:012345678910:task/arn")
+	taskDefinitionInput.SetTaskDefinition("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id:1")
 
 	taskDefinitionOutput := &ecs.DescribeTaskDefinitionOutput{}
+	taskDefinitionOutput.SetTaskDefinition(taskDefinition)
 
 	mockAWS.ECS.EXPECT().
 		DescribeTaskDefinition(taskDefinitionInput).
@@ -65,8 +77,13 @@ func TestDeployRead(t *testing.T) {
 		t.Fatal(err)
 	}
 
+	deployFile, err := json.Marshal(taskDefinitionOutput.TaskDefinition)
+	if err != nil {
+		t.Fatal(err)
+	}
+
 	expected := &models.Deploy{
-		DeployFile: []byte("null"),
+		DeployFile: deployFile,
 		DeployID:   "dpl_id",
 		DeployName: "dpl_name",
 		Version:    "dpl_version",

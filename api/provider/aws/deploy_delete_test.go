@@ -10,7 +10,6 @@ import (
 
 func TestDeploy_deleteDeployTags(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
-	deploy := NewDeployProvider(nil, tagStore, nil)
 
 	tags := models.Tags{
 		{
@@ -39,7 +38,7 @@ func TestDeploy_deleteDeployTags(t *testing.T) {
 		}
 	}
 
-	if err := deploy.deleteDeployTags("deploy_id"); err != nil {
+	if err := deleteEntityTags(tagStore, "deploy", "deploy_id"); err != nil {
 		t.Fatal(err)
 	}
 

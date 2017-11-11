@@ -26,36 +26,7 @@ func TestDeployCreate(t *testing.T) {
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 	defer provider.SetEntityIDGenerator("dpl_id")()
 
-	tags := models.Tags{
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "name",
-			Value:      "dpl_name",
-		},
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "version",
-			Value:      "dpl_version",
-		},
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "arn",
-			Value:      "arn:aws:ecs:region:012345678910:task/arn",
-		},
-	}
-
-	for _, tag := range tags {
-		if err := tagStore.Insert(tag); err != nil {
-			t.Fatal(err)
-		}
-	}
-
 	// define container defaults
-	container := &ecs.ContainerDefinition{}
-	container.SetName("test_name")
 	logConfig := &ecs.LogConfiguration{
 		LogDriver: aws.String("awslogs"),
 		Options: map[string]*string{
@@ -65,13 +36,23 @@ func TestDeployCreate(t *testing.T) {
 		},
 	}
 
-	container.SetLogConfiguration(logConfig)
-	containers := []*ecs.ContainerDefinition{container}
+	cntr1 := &ecs.ContainerDefinition{}
+	cntr1.SetName("cntr_name_1")
+	cntr1.SetLogConfiguration(logConfig)
+
+	cntr2 := &ecs.ContainerDefinition{}
+	cntr2.SetName("cntr_name_2")
+	cntr2.SetLogConfiguration(logConfig)
+
+	containers := []*ecs.ContainerDefinition{cntr1, cntr2}
 
 	// define request
 	reqDeployFile := &ecs.TaskDefinition{}
 	reqDeployFile.SetContainerDefinitions(containers)
-	deployFile, _ := json.Marshal(reqDeployFile)
+	deployFile, err := json.Marshal(reqDeployFile)
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	req := models.CreateDeployRequest{
 		DeployName: "dpl_id",
@@ -80,12 +61,12 @@ func TestDeployCreate(t *testing.T) {
 
 	registerTaskDefinitionInput := &ecs.RegisterTaskDefinitionInput{}
 	registerTaskDefinitionInput.SetFamily("l0-test-dpl_id")
-	registerTaskDefinitionInput.SetTaskRoleArn("")
 	registerTaskDefinitionInput.SetContainerDefinitions(containers)
-	registerTaskDefinitionInput.SetVolumes(nil)
-	registerTaskDefinitionInput.SetPlacementConstraints(nil)
+	registerTaskDefinitionInput.SetTaskRoleArn("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id:1")
 
 	taskDefinitionOutput := &ecs.TaskDefinition{}
+	taskDefinitionOutput.SetFamily("l0-test-dpl_id")
+	taskDefinitionOutput.SetTaskRoleArn("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id:1")
 	registerTaskDefinitionOutput := &ecs.RegisterTaskDefinitionOutput{}
 	registerTaskDefinitionOutput.SetTaskDefinition(taskDefinitionOutput)
 
@@ -118,7 +99,7 @@ func TestDeployCreate(t *testing.T) {
 			EntityID:   "dpl_id",
 			EntityType: "deploy",
 			Key:        "arn",
-			Value:      "arn:aws:ecs:region:012345678910:task/arn",
+			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id:1",
 		},
 	}
 

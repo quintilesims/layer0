@@ -3,13 +3,13 @@ package test_aws
 import (
 	"testing"
 
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config/mock_config"
-	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -105,7 +105,7 @@ func TestDeleteDeployIdempotence(t *testing.T) {
 
 	mockAWS.ECS.EXPECT().
 		DeregisterTaskDefinition(gomock.Any()).
-		Return(nil, errors.Newf(errors.DeployDoesNotExist, "Task Definition does not exist", nil))
+		Return(nil, awserr.New("", "task definition does not exist", nil))
 
 	target := provider.NewDeployProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("dpl_id"); err != nil {
