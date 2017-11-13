@@ -1,6 +1,7 @@
 package test_aws
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -41,7 +42,7 @@ func TestDeployList(t *testing.T) {
 			EntityID:   "dpl_id1",
 			EntityType: "deploy",
 			Key:        "arn",
-			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl1:1",
+			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id1:1",
 		},
 		{
 			EntityID:   "dpl_id2",
@@ -59,7 +60,7 @@ func TestDeployList(t *testing.T) {
 			EntityID:   "dpl_id2",
 			EntityType: "deploy",
 			Key:        "arn",
-			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl2:1",
+			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id2:1",
 		},
 	}
 
@@ -72,7 +73,6 @@ func TestDeployList(t *testing.T) {
 	taskDefinitionFamilies := []*string{
 		aws.String("l0-test-dpl_id1"),
 		aws.String("l0-test-dpl_id2"),
-		aws.String("l0-bad-dpl_id1"),
 	}
 
 	// ListTaskDefinitionsFamiliesPages Mocks
@@ -106,6 +106,7 @@ func TestDeployList(t *testing.T) {
 		listTaskDefinitionPagesFN := func(input *ecs.ListTaskDefinitionsInput, fn func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool) error {
 			output := &ecs.ListTaskDefinitionsOutput{}
 			output.SetTaskDefinitionArns([]*string{taskDefinitionARN})
+			fmt.Printf("%#v\n", *output)
 
 			fn(output, true)
 
@@ -115,11 +116,11 @@ func TestDeployList(t *testing.T) {
 		return listTaskDefinitionPagesFN
 	}
 
-	td := &ecs.ListTaskDefinitionsInput{}
-	td.SetFamilyPrefix("l0-test-dpl_id")
-	td.SetStatus(ecs.TaskDefinitionStatusActive)
+	for i, taskDefinitionFamily := range taskDefinitionFamilies {
+		td := &ecs.ListTaskDefinitionsInput{}
+		td.SetFamilyPrefix(aws.StringValue(taskDefinitionFamily))
+		td.SetStatus(ecs.TaskDefinitionStatusActive)
 
-	for i := range taskDefinitionFamilies {
 		mockAWS.ECS.EXPECT().
 			ListTaskDefinitionsPages(td, gomock.Any()).
 			Do(generateTaskDefinitionPagesFN(taskDefinitionARNs[i])).
