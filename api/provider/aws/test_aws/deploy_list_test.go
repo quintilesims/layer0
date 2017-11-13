@@ -72,8 +72,10 @@ func TestDeployList(t *testing.T) {
 	taskDefinitionFamilies := []*string{
 		aws.String("l0-test-dpl_id1"),
 		aws.String("l0-test-dpl_id2"),
+		aws.String("l0-bad-dpl_id1"),
 	}
 
+	// ListTaskDefinitionsFamiliesPages Mocks
 	listTaskDefinitionFamiliesPagesfn := func(input *ecs.ListTaskDefinitionFamiliesInput,
 		fn func(output *ecs.ListTaskDefinitionFamiliesOutput, lastPage bool) bool) error {
 
@@ -88,36 +90,41 @@ func TestDeployList(t *testing.T) {
 	tdFamilies.SetFamilyPrefix("l0-test-")
 	tdFamilies.SetStatus(ecs.TaskDefinitionFamilyStatusActive)
 
-	for taskDefinitionFamily := range taskDefinitionFamilies {
-		mockAWS.ECS.EXPECT().
-			ListTaskDefinitionFamiliesPages(taskDefinitionFamily, gomock.Any()).
-			Do(listTaskDefinitionFamiliesPagesfn).
-			Return(nil)
+	mockAWS.ECS.EXPECT().
+		ListTaskDefinitionFamiliesPages(tdFamilies, gomock.Any()).
+		Do(listTaskDefinitionFamiliesPagesfn).
+		Return(nil)
+
+	// ListTaskDefinitionsPages Mocks
+	taskDefinitionARNs := []*string{
+		aws.String("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id1:1"),
+		aws.String("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id2:1"),
+		aws.String("arn:aws:ecs:region:012345678910:task-definition/l0-bad-dpl_id1:1"),
 	}
 
-	listTaskDefinitionPagesfn := func(input *ecs.ListTaskDefinitionsInput,
-		fn func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool) error {
-		taskDefinitionARNs := []*string{
-			aws.String("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl1:1"),
-			aws.String("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl2:1"),
-			aws.String("arn:aws:ecs:region:012345678910:task-definition/l0-bad-dpl1:1"),
+	generateTaskDefinitionPagesFN := func(taskDefinitionARN *string) func(input *ecs.ListTaskDefinitionsInput, fn func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool) error {
+		listTaskDefinitionPagesFN := func(input *ecs.ListTaskDefinitionsInput, fn func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool) error {
+			output := &ecs.ListTaskDefinitionsOutput{}
+			output.SetTaskDefinitionArns([]*string{taskDefinitionARN})
+
+			fn(output, true)
+
+			return nil
 		}
 
-		output := &ecs.ListTaskDefinitionsOutput{}
-		output.SetTaskDefinitionArns(taskDefinitionARNs)
-		fn(output, true)
-
-		return nil
+		return listTaskDefinitionPagesFN
 	}
 
 	td := &ecs.ListTaskDefinitionsInput{}
-	td.SetFamilyPrefix("l0-test-dpl1")
+	td.SetFamilyPrefix("l0-test-dpl_id")
 	td.SetStatus(ecs.TaskDefinitionStatusActive)
 
-	mockAWS.ECS.EXPECT().
-		ListTaskDefinitionsPages(td, gomock.Any()).
-		Do(listTaskDefinitionPagesfn).
-		Return(nil)
+	for i := range taskDefinitionFamilies {
+		mockAWS.ECS.EXPECT().
+			ListTaskDefinitionsPages(td, gomock.Any()).
+			Do(generateTaskDefinitionPagesFN(taskDefinitionARNs[i])).
+			Return(nil)
+	}
 
 	target := provider.NewDeployProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.List()
