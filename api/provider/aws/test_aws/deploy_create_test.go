@@ -49,24 +49,27 @@ func TestDeployCreate(t *testing.T) {
 	// define request
 	reqDeployFile := &ecs.TaskDefinition{}
 	reqDeployFile.SetContainerDefinitions(containers)
+	reqDeployFile.SetTaskRoleArn("arn:aws:iam::012345678910:role/test-role")
 	deployFile, err := json.Marshal(reqDeployFile)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	req := models.CreateDeployRequest{
-		DeployName: "dpl_id",
+		DeployName: "dpl_name",
 		DeployFile: deployFile,
 	}
 
 	registerTaskDefinitionInput := &ecs.RegisterTaskDefinitionInput{}
-	registerTaskDefinitionInput.SetFamily("l0-test-dpl_id")
+	registerTaskDefinitionInput.SetTaskRoleArn("arn:aws:iam::012345678910:role/test-role")
+	registerTaskDefinitionInput.SetFamily("l0-test-dpl_name")
 	registerTaskDefinitionInput.SetContainerDefinitions(containers)
-	registerTaskDefinitionInput.SetTaskRoleArn("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id:1")
 
 	taskDefinitionOutput := &ecs.TaskDefinition{}
-	taskDefinitionOutput.SetFamily("l0-test-dpl_id")
-	taskDefinitionOutput.SetTaskRoleArn("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id:1")
+	taskDefinitionOutput.SetFamily("l0-test-dpl_name")
+	taskDefinitionOutput.SetTaskRoleArn("arn:aws:iam::012345678910:role/test-role")
+	taskDefinitionOutput.SetTaskDefinitionArn("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id:1")
+	taskDefinitionOutput.SetContainerDefinitions(containers)
 	registerTaskDefinitionOutput := &ecs.RegisterTaskDefinitionOutput{}
 	registerTaskDefinitionOutput.SetTaskDefinition(taskDefinitionOutput)
 
@@ -93,7 +96,7 @@ func TestDeployCreate(t *testing.T) {
 			EntityID:   "dpl_id",
 			EntityType: "deploy",
 			Key:        "version",
-			Value:      "dpl_version",
+			Value:      "0",
 		},
 		{
 			EntityID:   "dpl_id",
