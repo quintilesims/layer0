@@ -25,7 +25,6 @@ func TestEnvironmentUpdate(t *testing.T) {
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
 	req := models.UpdateEnvironmentRequest{
-		EnvironmentID:   "env_id",
 		MinClusterCount: aws.Int(2),
 	}
 
@@ -56,7 +55,7 @@ func TestEnvironmentUpdate(t *testing.T) {
 		Return(&autoscaling.UpdateAutoScalingGroupOutput{}, nil)
 
 	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
-	if err := target.Update(req); err != nil {
+	if err := target.Update("env_id", req); err != nil {
 		t.Fatal(err)
 	}
 }

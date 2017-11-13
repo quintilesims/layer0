@@ -49,9 +49,8 @@ func TestLoadBalancerUpdate(t *testing.T) {
 	}
 
 	req := models.UpdateLoadBalancerRequest{
-		LoadBalancerID: "lb_name",
-		Ports:          &requestPorts,
-		HealthCheck:    requestHealthCheck,
+		Ports:       &requestPorts,
+		HealthCheck: requestHealthCheck,
 	}
 
 	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
@@ -143,7 +142,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
-	if err := target.Update(req); err != nil {
+	if err := target.Update("lb_name", req); err != nil {
 		t.Fatal(err)
 	}
 }
