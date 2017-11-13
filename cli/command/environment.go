@@ -9,6 +9,10 @@ import (
 	"github.com/urfave/cli"
 )
 
+const (
+	FLAG_BI_DIRECTIONAL = "bi-directional"
+)
+
 type EnvironmentCommand struct {
 	*CommandBase
 }
@@ -66,7 +70,7 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				ArgsUsage: " ",
 			},
 			{
-				Name:      "read",
+				Name:      "get",
 				Usage:     "describe an environment",
 				Action:    e.read,
 				ArgsUsage: "ENVIRONMENT_NAME",
@@ -82,12 +86,24 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				Usage:     "links two environments together",
 				Action:    e.link,
 				ArgsUsage: "SOURCE_ENVIRONMENT_NAME DESTINATION_ENVIRONMENT_NAME",
+				Flags: []cli.Flag{
+					cli.BoolTFlag{
+						Name:  FLAG_BI_DIRECTIONAL,
+						Usage: "specifies whether the link should be direcional",
+					},
+				},
 			},
 			{
 				Name:      "unlink",
 				Usage:     "unlinks two previously linked environments",
 				Action:    e.unlink,
 				ArgsUsage: "SOURCE_ENVIRONMENT_NAME DESTINATION_ENVIRONMENT_NAME",
+				Flags: []cli.Flag{
+					cli.BoolTFlag{
+						Name:  FLAG_BI_DIRECTIONAL,
+						Usage: "specifies whether the link should be direcional",
+					},
+				},
 			},
 		},
 	}
@@ -192,16 +208,13 @@ func (e *EnvironmentCommand) update(c *cli.Context) error {
 		return err
 	}
 
-	req := models.UpdateEnvironmentRequest{
-		EnvironmentID:   id,
-		MinClusterCount: &minClusterCount,
-	}
+	req := models.UpdateEnvironmentRequest{MinClusterCount: &minClusterCount}
 
 	if err := req.Validate(); err != nil {
 		return err
 	}
 
-	jobID, err := e.client.UpdateEnvironment(req)
+	jobID, err := e.client.UpdateEnvironment(id, req)
 	if err != nil {
 		return err
 	}
@@ -217,42 +230,51 @@ func (e *EnvironmentCommand) update(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) link(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "SOURCE_ENVIRONMENT_NAME", "DESTINATION_ENVIRONMENT_NAME")
-	if err != nil {
-		return err
+	generateAddLinkRequest := func(sourceEnvironmentID, destEnvironmentID string) (models.UpdateEnvironmentRequest, error) {
+		env, err := e.client.ReadEnvironment(sourceEnvironmentID)
+		if err != nil {
+			return models.UpdateEnvironmentRequest{}, err
+		}
+
+		appendedLinks := []string{}
+		envLinks := models.LinkTags(env.Links)
+		if !envLinks.Contains(destEnvironmentID) {
+			appendedLinks = append(env.Links, destEnvironmentID)
+		}
+
+		req := models.UpdateEnvironmentRequest{Links: &appendedLinks}
+		return req, nil
 	}
 
-	sourceEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["SOURCE_ENVIRONMENT_NAME"])
-	if err != nil {
-		return err
-	}
-
-	destEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["DESTINATION_ENVIRONMENT_NAME"])
-	if err != nil {
-		return err
-	}
-
-	if sourceEnvironmentID == destEnvironmentID {
-		return fmt.Errorf("Cannot link an environment to itself")
-	}
-
-	req := models.CreateEnvironmentLinkRequest{
-		SourceEnvironmentID: sourceEnvironmentID,
-		DestEnvironmentID:   destEnvironmentID,
-	}
-
-	jobID, err := e.client.CreateLink(req)
-	if err != nil {
-		return err
-	}
-
-	return e.waitOnJobHelper(c, jobID, "linking", func(environmentID string) error {
-		e.printer.Printf("Environment successfully linked\n")
-		return nil
-	})
+	return e.updateEnvironmentLinksHelper(c, generateAddLinkRequest)
 }
 
 func (e *EnvironmentCommand) unlink(c *cli.Context) error {
+	generateRemoveLinkRequest := func(sourceEnvironmentID, destEnvironmentID string) (models.UpdateEnvironmentRequest, error) {
+		env, err := e.client.ReadEnvironment(sourceEnvironmentID)
+		if err != nil {
+			return models.UpdateEnvironmentRequest{}, err
+		}
+
+		updatedLinks := []string{}
+		for _, link := range env.Links {
+			if link != destEnvironmentID {
+				updatedLinks = append(updatedLinks, link)
+			}
+		}
+
+		req := models.UpdateEnvironmentRequest{Links: &updatedLinks}
+
+		return req, nil
+	}
+
+	return e.updateEnvironmentLinksHelper(c, generateRemoveLinkRequest)
+}
+
+func (e *EnvironmentCommand) updateEnvironmentLinksHelper(
+	c *cli.Context,
+	generateReq func(string, string) (models.UpdateEnvironmentRequest, error),
+) error {
 	args, err := extractArgs(c.Args(), "SOURCE_ENVIRONMENT_NAME", "DESTINATION_ENVIRONMENT_NAME")
 	if err != nil {
 		return err
@@ -272,18 +294,28 @@ func (e *EnvironmentCommand) unlink(c *cli.Context) error {
 		return fmt.Errorf("Cannot unlink an environment from itself")
 	}
 
-	req := models.DeleteEnvironmentLinkRequest{
-		SourceEnvironmentID: sourceEnvironmentID,
-		DestEnvironmentID:   destEnvironmentID,
+	updateLinkFN := func(sourceEnvID, destEnvID string) error {
+		updateEnvReq, err := generateReq(sourceEnvID, destEnvID)
+		if err != nil {
+			return err
+		}
+
+		jobID, err := e.client.UpdateEnvironment(sourceEnvID, updateEnvReq)
+		if err != nil {
+			return err
+		}
+
+		return e.waitOnJobHelper(c, jobID, "updating", func(environmentID string) error {
+			e.printer.Printf("Environment update successfull")
+			return nil
+		})
 	}
 
-	jobID, err := e.client.DeleteLink(req)
-	if err != nil {
-		return err
-	}
+	updateLinkFN(sourceEnvironmentID, destEnvironmentID)
 
-	return e.waitOnJobHelper(c, jobID, "unlinking", func(environmentID string) error {
-		e.printer.Printf("Environment successfully unlinked\n")
+	if !c.Bool(FLAG_BI_DIRECTIONAL) {
 		return nil
-	})
+	}
+
+	return updateLinkFN(destEnvironmentID, sourceEnvironmentID)
 }

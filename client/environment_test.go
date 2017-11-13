@@ -109,14 +109,13 @@ func TestReadEnvironment(t *testing.T) {
 
 func TestUpdateEnvironment(t *testing.T) {
 	count := 1
-	req := models.UpdateEnvironmentRequest{
-		EnvironmentID:   "eid",
-		MinClusterCount: &count,
-	}
+	links := []string{}
+	req := models.UpdateEnvironmentRequest{MinClusterCount: &count}
+	req.Links = &links
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, r.Method, "PUT")
-		assert.Equal(t, r.URL.Path, "/environment")
+		assert.Equal(t, r.Method, "PATCH")
+		assert.Equal(t, r.URL.Path, "/environment/eid")
 
 		var body models.UpdateEnvironmentRequest
 		Unmarshal(t, r, &body)
@@ -128,62 +127,10 @@ func TestUpdateEnvironment(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.UpdateEnvironment(req)
+	jobID, err := client.UpdateEnvironment("eid", req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	assert.Equal(t, "jid", jobID)
-}
-
-func TestCreateEnvironmentLink(t *testing.T) {
-	req := models.CreateEnvironmentLinkRequest{
-		SourceEnvironmentID: "env_id1",
-		DestEnvironmentID:   "env_id2",
-	}
-
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, r.Method, "POST")
-		assert.Equal(t, r.URL.Path, "/environment/env_id1/link")
-
-		var body models.CreateEnvironmentLinkRequest
-		Unmarshal(t, r, &body)
-
-		assert.Equal(t, req, body)
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "job_id"}, 200)
-	}
-
-	client, server := newClientAndServer(handler)
-	defer server.Close()
-
-	jobID, err := client.CreateLink(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, "job_id", jobID)
-}
-
-func TestCreateEnvironmentUnlink(t *testing.T) {
-	req := models.DeleteEnvironmentLinkRequest{
-		SourceEnvironmentID: "env_id1",
-		DestEnvironmentID:   "env_id2",
-	}
-
-	handler := func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, r.Method, "DELETE")
-		assert.Equal(t, r.URL.Path, "/environment/env_id1/link/env_id2")
-
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "job_id"}, 200)
-	}
-
-	client, server := newClientAndServer(handler)
-	defer server.Close()
-
-	jobID, err := client.DeleteLink(req)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, "job_id", jobID)
 }

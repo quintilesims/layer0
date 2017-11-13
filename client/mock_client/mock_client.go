@@ -52,17 +52,6 @@ func (_mr *_MockClientRecorder) CreateEnvironment(arg0 interface{}) *gomock.Call
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateEnvironment", arg0)
 }
 
-func (_m *MockClient) CreateLink(_param0 models.CreateEnvironmentLinkRequest) (string, error) {
-	ret := _m.ctrl.Call(_m, "CreateLink", _param0)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) CreateLink(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateLink", arg0)
-}
-
 func (_m *MockClient) CreateLoadBalancer(_param0 models.CreateLoadBalancerRequest) (string, error) {
 	ret := _m.ctrl.Call(_m, "CreateLoadBalancer", _param0)
 	ret0, _ := ret[0].(string)
@@ -126,17 +115,6 @@ func (_m *MockClient) DeleteJob(_param0 string) error {
 
 func (_mr *_MockClientRecorder) DeleteJob(arg0 interface{}) *gomock.Call {
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteJob", arg0)
-}
-
-func (_m *MockClient) DeleteLink(_param0 models.DeleteEnvironmentLinkRequest) (string, error) {
-	ret := _m.ctrl.Call(_m, "DeleteLink", _param0)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-func (_mr *_MockClientRecorder) DeleteLink(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "DeleteLink", arg0)
 }
 
 func (_m *MockClient) DeleteLoadBalancer(_param0 string) (string, error) {
@@ -348,35 +326,35 @@ func (_mr *_MockClientRecorder) ReadTaskLogs(arg0, arg1 interface{}) *gomock.Cal
 	return _mr.mock.ctrl.RecordCall(_mr.mock, "ReadTaskLogs", arg0, arg1)
 }
 
-func (_m *MockClient) UpdateEnvironment(_param0 models.UpdateEnvironmentRequest) (string, error) {
-	ret := _m.ctrl.Call(_m, "UpdateEnvironment", _param0)
+func (_m *MockClient) UpdateEnvironment(_param0 string, _param1 models.UpdateEnvironmentRequest) (string, error) {
+	ret := _m.ctrl.Call(_m, "UpdateEnvironment", _param0, _param1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockClientRecorder) UpdateEnvironment(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateEnvironment", arg0)
+func (_mr *_MockClientRecorder) UpdateEnvironment(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateEnvironment", arg0, arg1)
 }
 
-func (_m *MockClient) UpdateLoadBalancer(_param0 models.UpdateLoadBalancerRequest) (string, error) {
-	ret := _m.ctrl.Call(_m, "UpdateLoadBalancer", _param0)
+func (_m *MockClient) UpdateLoadBalancer(_param0 string, _param1 models.UpdateLoadBalancerRequest) (string, error) {
+	ret := _m.ctrl.Call(_m, "UpdateLoadBalancer", _param0, _param1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockClientRecorder) UpdateLoadBalancer(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateLoadBalancer", arg0)
+func (_mr *_MockClientRecorder) UpdateLoadBalancer(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateLoadBalancer", arg0, arg1)
 }
 
-func (_m *MockClient) UpdateService(_param0 models.UpdateServiceRequest) (string, error) {
-	ret := _m.ctrl.Call(_m, "UpdateService", _param0)
+func (_m *MockClient) UpdateService(_param0 string, _param1 models.UpdateServiceRequest) (string, error) {
+	ret := _m.ctrl.Call(_m, "UpdateService", _param0, _param1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-func (_mr *_MockClientRecorder) UpdateService(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateService", arg0)
+func (_mr *_MockClientRecorder) UpdateService(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "UpdateService", arg0, arg1)
 }

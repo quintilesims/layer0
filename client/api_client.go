@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"net/http/httputil"
+	"strings"
 
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/zpatrick/rclient"
@@ -38,7 +39,7 @@ func NewAPIClient(c Config) *APIClient {
 	addAuthHeader := rclient.Header("Authorization", fmt.Sprintf("Basic %s", c.Token))
 
 	restClient := rclient.NewRestClient(
-		c.Endpoint,
+		strings.TrimSuffix(c.Endpoint, "/"),
 		rclient.Doer(doer),
 		rclient.Reader(reader),
 		rclient.RequestOptions(addAuthHeader))
