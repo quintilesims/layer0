@@ -16,8 +16,6 @@ func TestJanitor(t *testing.T) {
 	tagStore := NewMemoryStore()
 	taskProvider := mock_provider.NewMockTaskProvider(ctrl)
 
-	// mockConfig.EXPECT().Instance().Return("test").AnyTimes()
-
 	// todo: put some old tags in the store, mock the ListTasks call
 	tags := models.Tags{
 		{
@@ -76,17 +74,37 @@ func TestJanitor(t *testing.T) {
 		}
 	}
 
+	taskSummaries := []models.TaskSummary{
+		{
+			TaskID:          "tsk_id1",
+			TaskName:        "tsk_name1",
+			EnvironmentID:   "env_id1",
+			EnvironmentName: "env_name1",
+		},
+		{
+			TaskID:          "tsk_id2",
+			TaskName:        "tsk_name2",
+			EnvironmentID:   "env_id2",
+			EnvironmentName: "env_name2",
+		},
+	}
+
+	taskProvider.
+		EXPECT().
+		List().
+		Return(taskSummaries, nil)
+
+	actual, _ := taskProvider.List()
+
+	taskProvider.
+		EXPECT().
+		List().
+		Return(taskSummaries, nil)
+
 	janitor := NewJanitor(tagStore, taskProvider)
 	if err := janitor.Run(); err != nil {
 		t.Fatal(err)
 	}
-
-	// taskProvider.EXPECT().List().
-	// 	Return(nil)
-	// mockAWS.ECS.EXPECT().
-	// 	ListClustersPages(&ecs.ListClustersInput{}, gomock.Any()).
-	// 	Do(listClusterPagesFN).
-	// 	Return(nil)
 
 	expected := []models.TaskSummary{
 		{
@@ -102,11 +120,6 @@ func TestJanitor(t *testing.T) {
 			EnvironmentName: "env_name2",
 		},
 	}
-	actual := taskProvider.EXPECT().List().Return(expected, nil)
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
 
 	assert.Equal(t, expected, actual)
-	// todo: assert only old tags got deleted
 }
