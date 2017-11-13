@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/urfave/cli"
 )
@@ -14,9 +15,9 @@ func APIFlags() []cli.Flag {
 			Value:  9090,
 			EnvVar: ENVVAR_PORT,
 		},
-		cli.IntFlag{
+		cli.DurationFlag{
 			Name:   FLAG_JOB_EXPIRY,
-			Value:  (60 * 60 * 24),
+			Value:  time.Hour * 24,
 			EnvVar: ENVVAR_JOB_EXPIRY,
 		},
 		cli.BoolFlag{
@@ -105,7 +106,7 @@ type APIConfig interface {
 	DynamoJobTable() string
 	DynamoTagTable() string
 	LogGroupName() string
-	JobExpiry() int
+	JobExpiryHour() time.Duration
 }
 
 type ContextAPIConfig struct {
@@ -209,6 +210,6 @@ func (c *ContextAPIConfig) LogGroupName() string {
 	return c.C.String(FLAG_AWS_LOG_GROUP_NAME)
 }
 
-func (c *ContextAPIConfig) JobExpiry() int {
-	return c.C.Int(FLAG_JOB_EXPIRY)
+func (c *ContextAPIConfig) JobExpiryHour() time.Duration {
+	return c.C.Duration(FLAG_JOB_EXPIRY)
 }

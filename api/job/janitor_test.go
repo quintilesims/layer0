@@ -11,9 +11,8 @@ import (
 func TestJanitor(t *testing.T) {
 	store := NewMemoryStore()
 	janitor := NewJanitor(store, time.Hour*24)
-
 	timeNow := time.Now()
-	// todo: put some jobs in the store
+
 	jobs := []*models.Job{
 		{
 			JobID:   "delete",
@@ -40,7 +39,6 @@ func TestJanitor(t *testing.T) {
 		},
 	}
 
-	// todo: assert only old jobs got deleted
 	actual, _ := store.SelectAll()
 
 	assert.Equal(t, expected, actual)

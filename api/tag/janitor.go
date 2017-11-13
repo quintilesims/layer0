@@ -7,7 +7,6 @@ import (
 
 func NewJanitor(tagStore Store, taskProvider provider.TaskProvider) *janitor.Janitor {
 	return janitor.NewJanitor("Tag", func() error {
-		// todo: delete all tags that don't exist in taskProvider
 		tasks, err := taskProvider.List()
 		if err != nil {
 			return err
@@ -24,7 +23,7 @@ func NewJanitor(tagStore Store, taskProvider provider.TaskProvider) *janitor.Jan
 		}
 
 		for _, tag := range tags {
-			if m[tag.EntityID] {
+			if !m[tag.EntityID] {
 				tagStore.Delete(tag.EntityType, tag.EntityID, tag.Key)
 			}
 		}

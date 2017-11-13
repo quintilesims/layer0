@@ -16,7 +16,6 @@ func TestJanitor(t *testing.T) {
 	tagStore := NewMemoryStore()
 	taskProvider := mock_provider.NewMockTaskProvider(ctrl)
 
-	// todo: put some old tags in the store, mock the ListTasks call
 	tags := models.Tags{
 		{
 			EntityID:   "tsk_id1",
