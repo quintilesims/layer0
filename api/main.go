@@ -98,6 +98,7 @@ func main() {
 
 		// todo: add decorators to routes
 		server := fireball.NewApp(routes)
+		server.ErrorHandler = controllers.ErrorHandler
 
 		// todo: get num workers from config
 		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner)
