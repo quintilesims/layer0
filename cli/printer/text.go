@@ -118,7 +118,7 @@ func (t *TextPrinter) PrintEnvironmentSummaries(environments ...*models.Environm
 func (t *TextPrinter) PrintJobs(jobs ...*models.Job) error {
 	rows := []string{"JOB ID | TYPE | STATUS | CREATED"}
 	for _, j := range jobs {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s",
+		row := fmt.Sprintf("%s | %s | %s | %s ",
 			j.JobID,
 			j.Type,
 			j.Status,
@@ -357,11 +357,6 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 		return t.EnvironmentID
 	}
 
-	getScale := func(t *models.Task) string {
-		// todo: use t.Containers
-		return ""
-	}
-
 	getDeploy := func(t *models.Task) string {
 		if t.DeployName != "" && t.DeployVersion != "" {
 			return fmt.Sprintf("%s:%s", t.DeployName, t.DeployVersion)
@@ -370,14 +365,14 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 		return strings.Replace(t.DeployID, ".", ":", 1)
 	}
 
-	rows := []string{"TASK ID | TASK NAME | ENVIRONMENT | DEPLOY | SCALE "}
+	rows := []string{"TASK ID | TASK NAME | ENVIRONMENT | DEPLOY | STATUS "}
 	for _, t := range tasks {
 		row := fmt.Sprintf("%s | %s | %s | %s | %s",
 			t.TaskID,
 			t.TaskName,
 			getEnvironment(t),
 			getDeploy(t),
-			getScale(t))
+			t.Status)
 
 		rows = append(rows, row)
 	}
