@@ -24,6 +24,8 @@ func TestDeployCreate(t *testing.T) {
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	mockConfig.EXPECT().LogGroupName().Return("l0-test").AnyTimes()
+	mockConfig.EXPECT().Region().Return("us-west-2").AnyTimes()
 	defer provider.SetEntityIDGenerator("dpl_id")()
 
 	// define container defaults
@@ -36,13 +38,21 @@ func TestDeployCreate(t *testing.T) {
 		},
 	}
 
+	logConfig2 := &ecs.LogConfiguration{
+		LogDriver: aws.String("awslogs"),
+		Options: map[string]*string{
+			"awslogs-group":         aws.String("l0-test"),
+			"awslogs-region":        aws.String("us-west-2"),
+			"awslogs-stream-prefix": aws.String("l0"),
+		},
+	}
+
 	cntr1 := &ecs.ContainerDefinition{}
 	cntr1.SetName("cntr_name_1")
 	cntr1.SetLogConfiguration(logConfig)
 
 	cntr2 := &ecs.ContainerDefinition{}
 	cntr2.SetName("cntr_name_2")
-	cntr2.SetLogConfiguration(logConfig)
 
 	containers := []*ecs.ContainerDefinition{cntr1, cntr2}
 
@@ -60,6 +70,8 @@ func TestDeployCreate(t *testing.T) {
 		DeployFile: deployFile,
 	}
 
+	cntr2.SetLogConfiguration(logConfig2)
+
 	registerTaskDefinitionInput := &ecs.RegisterTaskDefinitionInput{}
 	registerTaskDefinitionInput.SetTaskRoleArn("arn:aws:iam::012345678910:role/test-role")
 	registerTaskDefinitionInput.SetFamily("l0-test-dpl_name")
@@ -67,6 +79,7 @@ func TestDeployCreate(t *testing.T) {
 
 	taskDefinitionOutput := &ecs.TaskDefinition{}
 	taskDefinitionOutput.SetFamily("l0-test-dpl_name")
+	taskDefinitionOutput.SetRevision(1)
 	taskDefinitionOutput.SetTaskRoleArn("arn:aws:iam::012345678910:role/test-role")
 	taskDefinitionOutput.SetTaskDefinitionArn("arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id:1")
 	taskDefinitionOutput.SetContainerDefinitions(containers)
@@ -96,7 +109,7 @@ func TestDeployCreate(t *testing.T) {
 			EntityID:   "dpl_id",
 			EntityType: "deploy",
 			Key:        "version",
-			Value:      "0",
+			Value:      "1",
 		},
 		{
 			EntityID:   "dpl_id",

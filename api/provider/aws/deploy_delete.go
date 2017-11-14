@@ -1,12 +1,11 @@
 package aws
 
 import (
-	"fmt"
-	"log"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/errors"
 )
 
 // Delete deregisters an ECS Task Definition using the specified deployID. The deployID is used
@@ -15,6 +14,10 @@ import (
 func (d *DeployProvider) Delete(deployID string) error {
 	taskARN, err := d.lookupTaskDefinitionARN(deployID)
 	if err != nil {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.DeployDoesNotExist {
+			return nil
+		}
+
 		return err
 	}
 
@@ -38,8 +41,6 @@ func (d *DeployProvider) deleteDeploy(taskARN string) error {
 	}
 
 	if _, err := d.AWS.ECS.DeregisterTaskDefinition(input); err != nil {
-		log.Printf("[WARN] Deploy not found\n")
-		fmt.Println(err)
 		if err, ok := err.(awserr.Error); ok && strings.Contains(err.Message(), "does not exist") {
 			return nil
 		}

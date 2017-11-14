@@ -1,7 +1,6 @@
 package test_aws
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -76,7 +75,8 @@ func TestDeployList(t *testing.T) {
 	}
 
 	// ListTaskDefinitionsFamiliesPages Mocks
-	listTaskDefinitionFamiliesPagesfn := func(input *ecs.ListTaskDefinitionFamiliesInput,
+	listTaskDefinitionFamiliesPagesfn := func(
+		input *ecs.ListTaskDefinitionFamiliesInput,
 		fn func(output *ecs.ListTaskDefinitionFamiliesOutput, lastPage bool) bool) error {
 
 		output := &ecs.ListTaskDefinitionFamiliesOutput{}
@@ -103,17 +103,14 @@ func TestDeployList(t *testing.T) {
 	}
 
 	generateTaskDefinitionPagesFN := func(taskDefinitionARN *string) func(input *ecs.ListTaskDefinitionsInput, fn func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool) error {
-		listTaskDefinitionPagesFN := func(input *ecs.ListTaskDefinitionsInput, fn func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool) error {
+		return func(input *ecs.ListTaskDefinitionsInput, fn func(output *ecs.ListTaskDefinitionsOutput, lastPage bool) bool) error {
 			output := &ecs.ListTaskDefinitionsOutput{}
 			output.SetTaskDefinitionArns([]*string{taskDefinitionARN})
-			fmt.Printf("%#v\n", *output)
 
 			fn(output, true)
 
 			return nil
 		}
-
-		return listTaskDefinitionPagesFN
 	}
 
 	for i, taskDefinitionFamily := range taskDefinitionFamilies {
