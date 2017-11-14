@@ -91,46 +91,6 @@ func TestEnvironmentSetMinCount_userInputErrors(t *testing.T) {
 	}
 }
 
-func TestEnvironmentLink_userInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-
-	command := NewEnvironmentCommand(base.Command())
-
-	contexts := map[string]*cli.Context{
-		"Missing SOURCE & DESTINATION args": NewContext(t, nil, nil),
-		"Missing DESTINATION arg":           NewContext(t, Args{"env_name1"}, nil),
-	}
-
-	for name, c := range contexts {
-		t.Run(name, func(t *testing.T) {
-			if err := command.link(c); err == nil {
-				t.Fatalf("%s: error was nil!", name)
-			}
-		})
-	}
-}
-
-func TestEnvironmentUnlink_userInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-
-	command := NewEnvironmentCommand(base.Command())
-
-	contexts := map[string]*cli.Context{
-		"Missing SOURCE & DESTINATION args": NewContext(t, nil, nil),
-		"Missing DESTINATION arg":           NewContext(t, Args{"env_name1"}, nil),
-	}
-
-	for name, c := range contexts {
-		t.Run(name, func(t *testing.T) {
-			if err := command.unlink(c); err == nil {
-				t.Fatalf("%s: error was nil!", name)
-			}
-		})
-	}
-}
-
 func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
@@ -312,13 +272,10 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 			Resolve("environment", "env_name").
 			Return([]string{"env_id"}, nil)
 
-		req := models.UpdateEnvironmentRequest{
-			EnvironmentID:   "env_id",
-			MinClusterCount: &minCount,
-		}
+		req := models.UpdateEnvironmentRequest{MinClusterCount: &minCount}
 
 		base.Client.EXPECT().
-			UpdateEnvironment(req).
+			UpdateEnvironment("env_id", req).
 			Return(job.JobID, nil)
 
 		if wait {
@@ -338,17 +295,22 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 	})
 }
 
-func TestEnvironmentLink(t *testing.T) {
+func TestEnvironmentLinkBiDirectional(t *testing.T) {
 	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
 
 		command := NewEnvironmentCommand(base.Command())
 
-		job := &models.Job{
-			JobID:  "job_id",
-			Status: job.Completed.String(),
-			Result: "entity_id",
+		links1 := []string{"env_id2"}
+		links2 := []string{"env_id3", "env_id1"}
+		env1 := &models.Environment{
+			EnvironmentID: "env_id1",
+			Links:         []string{},
+		}
+		env2 := &models.Environment{
+			EnvironmentID: "env_id2",
+			Links:         []string{"env_id3"},
 		}
 
 		base.Resolver.EXPECT().
@@ -359,18 +321,99 @@ func TestEnvironmentLink(t *testing.T) {
 			Resolve("environment", "env_name2").
 			Return([]string{"env_id2"}, nil)
 
-		req := models.CreateEnvironmentLinkRequest{
-			SourceEnvironmentID: "env_id1",
-			DestEnvironmentID:   "env_id2",
-		}
 		base.Client.EXPECT().
-			CreateLink(req).
-			Return(job.JobID, nil)
+			ReadEnvironment("env_id1").
+			Return(env1, nil)
+
+		base.Client.EXPECT().
+			ReadEnvironment("env_id2").
+			Return(env2, nil)
+
+		job1 := &models.Job{
+			JobID:  "job_id1",
+			Status: job.Completed.String(),
+			Result: "env_id1",
+		}
+
+		req1 := models.UpdateEnvironmentRequest{Links: &links1}
+
+		base.Client.EXPECT().
+			UpdateEnvironment("env_id1", req1).
+			Return(job1.JobID, nil)
+
+		job2 := &models.Job{
+			JobID:  "job_id2",
+			Status: job.Completed.String(),
+			Result: "env_id2",
+		}
+
+		req2 := models.UpdateEnvironmentRequest{Links: &links2}
+
+		base.Client.EXPECT().
+			UpdateEnvironment("env_id2", req2).
+			Return(job2.JobID, nil)
 
 		if wait {
 			base.Client.EXPECT().
-				ReadJob(job.JobID).
-				Return(job, nil)
+				ReadJob(job1.JobID).
+				Return(job1, nil)
+
+			base.Client.EXPECT().
+				ReadJob(job2.JobID).
+				Return(job2, nil)
+		}
+
+		f := Flags{
+			"bi-directional": true,
+		}
+		c := NewContext(t, []string{"env_name1", "env_name2"}, f, SetNoWait(!wait))
+		if err := command.link(c); err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
+func TestEnvironmentLinkUniDirectional(t *testing.T) {
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
+
+		command := NewEnvironmentCommand(base.Command())
+
+		links1 := []string{"env_id3", "env_id2"}
+		env1 := &models.Environment{
+			EnvironmentID: "env_id1",
+			Links:         []string{"env_id3"},
+		}
+
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name1").
+			Return([]string{"env_id1"}, nil)
+
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name2").
+			Return([]string{"env_id2"}, nil)
+
+		base.Client.EXPECT().
+			ReadEnvironment("env_id1").
+			Return(env1, nil)
+
+		job1 := &models.Job{
+			JobID:  "job_id1",
+			Status: job.Completed.String(),
+			Result: "env_id1",
+		}
+
+		req1 := models.UpdateEnvironmentRequest{Links: &links1}
+
+		base.Client.EXPECT().
+			UpdateEnvironment("env_id1", req1).
+			Return(job1.JobID, nil)
+
+		if wait {
+			base.Client.EXPECT().
+				ReadJob(job1.JobID).
+				Return(job1, nil)
 		}
 
 		c := NewContext(t, []string{"env_name1", "env_name2"}, nil, SetNoWait(!wait))
@@ -380,17 +423,22 @@ func TestEnvironmentLink(t *testing.T) {
 	})
 }
 
-func TestEnvironmentUnlink(t *testing.T) {
+func TestEnvironmentUnlinkBiDirectional(t *testing.T) {
 	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
 
 		command := NewEnvironmentCommand(base.Command())
 
-		job := &models.Job{
-			JobID:  "job_id",
-			Status: job.Completed.String(),
-			Result: "entity_id",
+		links1 := []string{"env_id3"}
+		links2 := []string{"env_id3"}
+		env1 := &models.Environment{
+			EnvironmentID: "env_id1",
+			Links:         []string{"env_id2", "env_id3"},
+		}
+		env2 := &models.Environment{
+			EnvironmentID: "env_id2",
+			Links:         []string{"env_id1", "env_id3"},
 		}
 
 		base.Resolver.EXPECT().
@@ -401,18 +449,99 @@ func TestEnvironmentUnlink(t *testing.T) {
 			Resolve("environment", "env_name2").
 			Return([]string{"env_id2"}, nil)
 
-		req := models.DeleteEnvironmentLinkRequest{
-			SourceEnvironmentID: "env_id1",
-			DestEnvironmentID:   "env_id2",
-		}
 		base.Client.EXPECT().
-			DeleteLink(req).
-			Return(job.JobID, nil)
+			ReadEnvironment("env_id1").
+			Return(env1, nil)
+
+		base.Client.EXPECT().
+			ReadEnvironment("env_id2").
+			Return(env2, nil)
+
+		job1 := &models.Job{
+			JobID:  "job_id1",
+			Status: job.Completed.String(),
+			Result: "env_id1",
+		}
+
+		req1 := models.UpdateEnvironmentRequest{Links: &links1}
+
+		base.Client.EXPECT().
+			UpdateEnvironment("env_id1", req1).
+			Return(job1.JobID, nil)
+
+		job2 := &models.Job{
+			JobID:  "job_id2",
+			Status: job.Completed.String(),
+			Result: "env_id2",
+		}
+
+		req2 := models.UpdateEnvironmentRequest{Links: &links2}
+
+		base.Client.EXPECT().
+			UpdateEnvironment("env_id2", req2).
+			Return(job2.JobID, nil)
 
 		if wait {
 			base.Client.EXPECT().
-				ReadJob(job.JobID).
-				Return(job, nil)
+				ReadJob(job1.JobID).
+				Return(job1, nil)
+
+			base.Client.EXPECT().
+				ReadJob(job2.JobID).
+				Return(job2, nil)
+		}
+
+		f := Flags{
+			"bi-directional": true,
+		}
+
+		c := NewContext(t, []string{"env_name1", "env_name2"}, f, SetNoWait(!wait))
+		if err := command.unlink(c); err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
+func TestEnvironmentUnlinkUnidirectional(t *testing.T) {
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
+
+		command := NewEnvironmentCommand(base.Command())
+		links1 := []string{}
+		env1 := &models.Environment{
+			EnvironmentID: "env_id1",
+			Links:         []string{"env_id2"},
+		}
+
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name1").
+			Return([]string{"env_id1"}, nil)
+
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name2").
+			Return([]string{"env_id2"}, nil)
+
+		base.Client.EXPECT().
+			ReadEnvironment("env_id1").
+			Return(env1, nil)
+
+		job1 := &models.Job{
+			JobID:  "job_id1",
+			Status: job.Completed.String(),
+			Result: "env_id1",
+		}
+
+		req1 := models.UpdateEnvironmentRequest{Links: &links1}
+
+		base.Client.EXPECT().
+			UpdateEnvironment("env_id1", req1).
+			Return(job1.JobID, nil)
+
+		if wait {
+			base.Client.EXPECT().
+				ReadJob(job1.JobID).
+				Return(job1, nil)
 		}
 
 		c := NewContext(t, []string{"env_name1", "env_name2"}, nil, SetNoWait(!wait))

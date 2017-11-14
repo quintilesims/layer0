@@ -5,6 +5,7 @@ import (
 
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
@@ -13,12 +14,14 @@ import (
 type LoadBalancerController struct {
 	LoadBalancerProvider provider.LoadBalancerProvider
 	JobStore             job.Store
+	TagStore             tag.Store
 }
 
-func NewLoadBalancerController(l provider.LoadBalancerProvider, j job.Store) *LoadBalancerController {
+func NewLoadBalancerController(l provider.LoadBalancerProvider, j job.Store, t tag.Store) *LoadBalancerController {
 	return &LoadBalancerController{
 		LoadBalancerProvider: l,
 		JobStore:             j,
+		TagStore:             t,
 	}
 }
 
@@ -29,13 +32,13 @@ func (l *LoadBalancerController) Routes() []*fireball.Route {
 			Handlers: fireball.Handlers{
 				"GET":  l.ListLoadBalancers,
 				"POST": l.CreateLoadBalancer,
-				"PUT":  l.UpdateLoadBalancer,
 			},
 		},
 		{
 			Path: "/loadbalancer/:id",
 			Handlers: fireball.Handlers{
 				"GET":    l.ReadLoadBalancer,
+				"PATCH":  l.UpdateLoadBalancer,
 				"DELETE": l.DeleteLoadBalancer,
 			},
 		},
@@ -52,12 +55,12 @@ func (l *LoadBalancerController) CreateLoadBalancer(c *fireball.Context) (fireba
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(l.JobStore, job.CreateLoadBalancerJob, req)
+	return createJob(l.TagStore, l.JobStore, job.CreateLoadBalancerJob, req)
 }
 
 func (l *LoadBalancerController) DeleteLoadBalancer(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(l.JobStore, job.DeleteLoadBalancerJob, id)
+	return createJob(l.TagStore, l.JobStore, job.DeleteLoadBalancerJob, id)
 }
 
 func (l *LoadBalancerController) ReadLoadBalancer(c *fireball.Context) (fireball.Response, error) {
@@ -81,6 +84,7 @@ func (l *LoadBalancerController) ListLoadBalancers(c *fireball.Context) (firebal
 }
 
 func (l *LoadBalancerController) UpdateLoadBalancer(c *fireball.Context) (fireball.Response, error) {
+	id := c.PathVariables["id"]
 	var req models.UpdateLoadBalancerRequest
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
@@ -90,5 +94,6 @@ func (l *LoadBalancerController) UpdateLoadBalancer(c *fireball.Context) (fireba
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(l.JobStore, job.UpdateLoadBalancerJob, req)
+	jobRequest := models.UpdateLoadBalancerRequestJob{id, req}
+	return createJob(l.TagStore, l.JobStore, job.UpdateLoadBalancerJob, jobRequest)
 }

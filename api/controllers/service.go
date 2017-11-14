@@ -5,6 +5,7 @@ import (
 
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
@@ -13,12 +14,14 @@ import (
 type ServiceController struct {
 	ServiceProvider provider.ServiceProvider
 	JobStore        job.Store
+	TagStore        tag.Store
 }
 
-func NewServiceController(s provider.ServiceProvider, j job.Store) *ServiceController {
+func NewServiceController(s provider.ServiceProvider, j job.Store, t tag.Store) *ServiceController {
 	return &ServiceController{
 		ServiceProvider: s,
 		JobStore:        j,
+		TagStore:        t,
 	}
 }
 
@@ -29,13 +32,13 @@ func (s *ServiceController) Routes() []*fireball.Route {
 			Handlers: fireball.Handlers{
 				"GET":  s.ListServices,
 				"POST": s.CreateService,
-				"PUT":  s.UpdateService,
 			},
 		},
 		{
 			Path: "/service/:id",
 			Handlers: fireball.Handlers{
 				"GET":    s.GetService,
+				"PATCH":  s.UpdateService,
 				"DELETE": s.DeleteService,
 			},
 		},
@@ -58,12 +61,12 @@ func (s *ServiceController) CreateService(c *fireball.Context) (fireball.Respons
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(s.JobStore, job.CreateServiceJob, req)
+	return createJob(s.TagStore, s.JobStore, job.CreateServiceJob, req)
 }
 
 func (s *ServiceController) DeleteService(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(s.JobStore, job.DeleteServiceJob, id)
+	return createJob(s.TagStore, s.JobStore, job.DeleteServiceJob, id)
 }
 
 func (s *ServiceController) GetService(c *fireball.Context) (fireball.Response, error) {
@@ -102,6 +105,7 @@ func (s *ServiceController) ListServices(c *fireball.Context) (fireball.Response
 }
 
 func (s *ServiceController) UpdateService(c *fireball.Context) (fireball.Response, error) {
+	id := c.PathVariables["id"]
 	var req models.UpdateServiceRequest
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
@@ -111,5 +115,6 @@ func (s *ServiceController) UpdateService(c *fireball.Context) (fireball.Respons
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(s.JobStore, job.UpdateServiceJob, req)
+	jobRequest := models.UpdateServiceRequestJob{id, req}
+	return createJob(s.TagStore, s.JobStore, job.UpdateServiceJob, jobRequest)
 }

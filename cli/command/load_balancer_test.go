@@ -41,13 +41,10 @@ func TestAddPortToLoadBalancer(t *testing.T) {
 			Protocol:      "tcp",
 		})
 
-		req := models.UpdateLoadBalancerRequest{
-			LoadBalancerID: "lb_id",
-			Ports:          &ports,
-		}
+		req := models.UpdateLoadBalancerRequest{Ports: &ports}
 
 		base.Client.EXPECT().
-			UpdateLoadBalancer(req).
+			UpdateLoadBalancer("lb_id", req).
 			Return("jid", nil)
 
 		job := &models.Job{
@@ -254,13 +251,10 @@ func TestDropPortFromLoadBalancer(t *testing.T) {
 
 		ports = ports[:1]
 
-		req := models.UpdateLoadBalancerRequest{
-			LoadBalancerID: "lb_id",
-			Ports:          &ports,
-		}
+		req := models.UpdateLoadBalancerRequest{Ports: &ports}
 
 		base.Client.EXPECT().
-			UpdateLoadBalancer(req).
+			UpdateLoadBalancer("lb_id", req).
 			Return("jid", nil)
 
 		job := &models.Job{
@@ -352,13 +346,10 @@ func TestUpdateHealthCheck(t *testing.T) {
 			Return(loadBalancer, nil)
 
 		healthCheck = models.HealthCheck{Target: "TCP:81"}
-		req := models.UpdateLoadBalancerRequest{
-			LoadBalancerID: "lb_id",
-			HealthCheck:    &healthCheck,
-		}
+		req := models.UpdateLoadBalancerRequest{HealthCheck: &healthCheck}
 
 		base.Client.EXPECT().
-			UpdateLoadBalancer(req).
+			UpdateLoadBalancer("lb_id", req).
 			Return("jid", nil)
 
 		job := &models.Job{

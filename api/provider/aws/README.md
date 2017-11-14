@@ -24,6 +24,32 @@ For example:
 ```
 errors.Newf(errors.InvalidRequest, "Example operation is not supported in Layer0")
 ```
+* When building `EXPECT()` chains with `gomock` during unit tests, only use anonymous variables if they can be declared in one line. Otherwise, declare the variable outside of the chain:
+
+Good:
+```go
+mock.EXPECT().
+    ReadEnvironment("env_id").
+    Return(&models.Environment{}, nil)
+
+environment := &models.Environment{
+    EnvironmentID:   "env_id",
+    EnvironmentName: "env_name",
+}
+
+mock.EXPECT().
+    ReadEnvironment("env_id").
+    Return(environment, nil)
+```
+
+Bad:
+```
+mock.EXPECT().
+    ReadEnvironment("env_id").
+    Return(&models.Environment{
+        EnvironmentID:   "env_id",
+        EnvironmentName: "env_name"}, nil)
+```
 
 ## Skeletons
 The following sections provide skeletons for each entity action. 
@@ -393,3 +419,4 @@ func (e *EntityProvider) updateResourceB(args) error {
 	return nil
 }
 ```
+

@@ -22,10 +22,10 @@ import (
 // Group, and Security Group are created before the Cluster is created.
 func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (string, error) {
 	// TODO: Ensure environment name is unique
-	environmentID := generateEntityID(req.EnvironmentName)
+	environmentID := entityIDGenerator(req.EnvironmentName)
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	instanceType := DEFAULT_INSTANCE_SIZE
+	instanceType := DefaultInstanceSize
 	if req.InstanceSize != "" {
 		instanceType = req.InstanceSize
 	}
@@ -34,15 +34,15 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	var amiID string
 
 	if req.OperatingSystem == "" {
-		req.OperatingSystem = DEFAULT_ENVIRONMENT_OS
+		req.OperatingSystem = DefaultEnvironmentOS
 	}
 
 	switch strings.ToLower(req.OperatingSystem) {
 	case "linux":
-		userDataTemplate = []byte(DEFAULT_LINUX_USERDATA_TEMPLATE)
+		userDataTemplate = []byte(DefaultLinuxUserdataTemplate)
 		amiID = e.Config.LinuxAMI()
 	case "windows":
-		userDataTemplate = []byte(DEFAULT_WINDOWS_USERDATA_TEMPLATE)
+		userDataTemplate = []byte(DefaultWindowsUserdataTemplate)
 		amiID = e.Config.WindowsAMI()
 	default:
 		return "", fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)
@@ -56,7 +56,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		userDataTemplate = req.UserDataTemplate
 	}
 
-	userData, err := renderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
+	userData, err := RenderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
 	if err != nil {
 		return "", err
 	}
@@ -165,10 +165,7 @@ func (e *EnvironmentProvider) createASG(autoScalingGroupName, launchConfigName s
 	tag.SetValue(autoScalingGroupName)
 	tag.SetPropagateAtLaunch(true)
 
-	var subnetIdentifier string
-	for _, subnet := range privateSubnets {
-		subnetIdentifier = fmt.Sprintf("%s%s,", subnetIdentifier, subnet)
-	}
+	subnetIdentifier := strings.Join(privateSubnets, ",")
 
 	input := &autoscaling.CreateAutoScalingGroupInput{}
 	input.SetAutoScalingGroupName(autoScalingGroupName)
@@ -225,7 +222,7 @@ func (e *EnvironmentProvider) createTags(environmentID, environmentName, operati
 	return nil
 }
 
-func renderUserData(environmentID, s3Bucket string, userDataTemplate []byte) (string, error) {
+func RenderUserData(environmentID, s3Bucket string, userDataTemplate []byte) (string, error) {
 	tmpl, err := template.New("").Parse(string(userDataTemplate))
 	if err != nil {
 		return "", fmt.Errorf("Failed to parse user data: %v", err)

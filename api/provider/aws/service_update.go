@@ -9,9 +9,7 @@ import (
 // The Update Service Request contains the Service ID, the Deploy ID and the scale of the DesiredCount
 // of the Service. The Service's Task Definition and Desired Count are updated with two separate UpdateService
 // requests to AWS.
-func (s *ServiceProvider) Update(req models.UpdateServiceRequest) error {
-	serviceID := req.ServiceID
-
+func (s *ServiceProvider) Update(serviceID string, req models.UpdateServiceRequest) error {
 	environmentID, err := lookupEntityEnvironmentID(s.TagStore, "service", serviceID)
 	if err != nil {
 		return err

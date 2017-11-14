@@ -24,7 +24,7 @@ import (
 // added based on the list of ports in the Create Load Balancer Request. The
 // Security Group is then attached to the created Load Balancer.
 func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (string, error) {
-	loadBalancerID := generateEntityID(req.LoadBalancerName)
+	loadBalancerID := entityIDGenerator(req.LoadBalancerName)
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	fqEnvironmentID := addLayer0Prefix(l.Config.Instance(), req.EnvironmentID)
 
@@ -58,6 +58,10 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	}
 
 	loadBalancerSGID := aws.StringValue(loadBalancerSG.GroupId)
+	if len(req.Ports) == 0 {
+		req.Ports = []models.Port{DefaultLoadBalancerPort}
+	}
+
 	for _, port := range req.Ports {
 		if err := l.authorizeSGIngressFromPort(loadBalancerSGID, int64(port.HostPort)); err != nil {
 			return "", err
@@ -67,15 +71,15 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	securityGroupIDs = append(securityGroupIDs, aws.StringValue(loadBalancerSG.GroupId))
 
 	roleName := getLoadBalancerRoleName(fqLoadBalancerID)
-	if _, err := l.createRole(roleName, DEFAULT_ASSUME_ROLE_POLICY); err != nil {
+	if _, err := l.createRole(roleName, DefaultAssumeRolePolicy); err != nil {
 		return "", err
 	}
 
-	policy, err := renderLoadBalancerRolePolicy(
+	policy, err := RenderLoadBalancerRolePolicy(
 		l.Config.Region(),
 		l.Config.AccountID(),
 		fqLoadBalancerID,
-		DEFAULT_LB_ROLE_POLICY_TEMPLATE)
+		DefaultLBRolePolicyTemplate)
 	if err != nil {
 		return "", err
 	}
@@ -97,6 +101,10 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		subnets,
 		listeners); err != nil {
 		return "", err
+	}
+
+	if req.HealthCheck == (models.HealthCheck{}) {
+		req.HealthCheck = DefaultHealthCheck
 	}
 
 	healthCheck := &elb.HealthCheck{
@@ -152,13 +160,13 @@ func (l *LoadBalancerProvider) putRolePolicy(policyName, roleName, policy string
 	return nil
 }
 
-func (l *LoadBalancerProvider) authorizeSGIngressFromPort(groupID string, port int64) error {
+func (l *LoadBalancerProvider) authorizeSGIngressFromPort(groupID string, hostPort int64) error {
 	input := &ec2.AuthorizeSecurityGroupIngressInput{}
 	input.SetGroupId(groupID)
 	input.SetCidrIp("0.0.0.0/0")
 	input.SetIpProtocol("TCP")
-	input.SetFromPort(port)
-	input.SetToPort(port)
+	input.SetFromPort(hostPort)
+	input.SetToPort(hostPort)
 
 	if _, err := l.AWS.EC2.AuthorizeSecurityGroupIngress(input); err != nil {
 		return err
@@ -275,7 +283,7 @@ func (l *LoadBalancerProvider) createTags(loadBalancerID, loadBalancerName, envi
 	return nil
 }
 
-func renderLoadBalancerRolePolicy(region, accountID, loadBalancerID, rolePolicyTemplate string) (string, error) {
+func RenderLoadBalancerRolePolicy(region, accountID, loadBalancerID, rolePolicyTemplate string) (string, error) {
 	tmpl, err := template.New("").Parse(rolePolicyTemplate)
 	if err != nil {
 		return "", fmt.Errorf("Failed to parse role policy template: %v", err)

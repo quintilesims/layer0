@@ -9,6 +9,7 @@ import (
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -19,7 +20,8 @@ func TestCreateTask(t *testing.T) {
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewTaskController(mockTaskProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewTaskController(mockTaskProvider, mockJobStore, tagStore)
 
 	req := models.CreateTaskRequest{
 		DeployID:      "deploy_id",
@@ -50,7 +52,8 @@ func TestDeleteTask(t *testing.T) {
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewTaskController(mockTaskProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewTaskController(mockTaskProvider, mockJobStore, tagStore)
 
 	mockJobStore.EXPECT().
 		Insert(job.DeleteTaskJob, "tid").
@@ -75,7 +78,8 @@ func TestGetTask(t *testing.T) {
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewTaskController(mockTaskProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewTaskController(mockTaskProvider, mockJobStore, tagStore)
 
 	taskModel := models.Task{
 		TaskID:          "task_id",
@@ -119,7 +123,8 @@ func TestGetTaskLogs(t *testing.T) {
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewTaskController(mockTaskProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewTaskController(mockTaskProvider, mockJobStore, tagStore)
 
 	logFiles := []models.LogFile{
 		{
@@ -167,7 +172,8 @@ func TestListTasks(t *testing.T) {
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewTaskController(mockTaskProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewTaskController(mockTaskProvider, mockJobStore, tagStore)
 
 	taskSummaries := []models.TaskSummary{
 		{

@@ -5,6 +5,7 @@ import (
 
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
@@ -13,12 +14,14 @@ import (
 type DeployController struct {
 	DeployProvider provider.DeployProvider
 	JobStore       job.Store
+	TagStore       tag.Store
 }
 
-func NewDeployController(d provider.DeployProvider, j job.Store) *DeployController {
+func NewDeployController(d provider.DeployProvider, j job.Store, t tag.Store) *DeployController {
 	return &DeployController{
 		DeployProvider: d,
 		JobStore:       j,
+		TagStore:       t,
 	}
 }
 
@@ -51,12 +54,12 @@ func (d *DeployController) CreateDeploy(c *fireball.Context) (fireball.Response,
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(d.JobStore, job.CreateDeployJob, req)
+	return createJob(d.TagStore, d.JobStore, job.CreateDeployJob, req)
 }
 
 func (d *DeployController) DeleteDeploy(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(d.JobStore, job.DeleteDeployJob, id)
+	return createJob(d.TagStore, d.JobStore, job.DeleteDeployJob, id)
 }
 
 func (d *DeployController) GetDeploy(c *fireball.Context) (fireball.Response, error) {

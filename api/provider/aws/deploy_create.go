@@ -14,7 +14,7 @@ import (
 // The Create Deploy Request contains the name of the Deploy and the JSON
 // representation of the Task Definition to create.
 func (d *DeployProvider) Create(req models.CreateDeployRequest) (string, error) {
-	deployID := generateEntityID(req.DeployName)
+	deployID := entityIDGenerator(req.DeployName)
 	familyName := addLayer0Prefix(d.Config.Instance(), req.DeployName)
 
 	renderedTaskDefinition, err := d.renderTaskDefinition(req.DeployFile, familyName)

@@ -44,29 +44,10 @@ func (c *APIClient) ReadEnvironment(environmentID string) (*models.Environment, 
 	return environment, nil
 }
 
-func (c *APIClient) UpdateEnvironment(req models.UpdateEnvironmentRequest) (string, error) {
+func (c *APIClient) UpdateEnvironment(environmentID string, req models.UpdateEnvironmentRequest) (string, error) {
 	var resp models.CreateJobResponse
-	if err := c.client.Put("/environment", req, &resp); err != nil {
-		return "", err
-	}
-
-	return resp.JobID, nil
-}
-
-func (c *APIClient) CreateLink(req models.CreateEnvironmentLinkRequest) (string, error) {
-	var resp models.CreateJobResponse
-	path := fmt.Sprintf("/environment/%s/link", req.SourceEnvironmentID)
-	if err := c.client.Post(path, req, &resp); err != nil {
-		return "", err
-	}
-
-	return resp.JobID, nil
-}
-
-func (c *APIClient) DeleteLink(req models.DeleteEnvironmentLinkRequest) (string, error) {
-	var resp models.CreateJobResponse
-	path := fmt.Sprintf("/environment/%s/link/%s", req.SourceEnvironmentID, req.DestEnvironmentID)
-	if err := c.client.Delete(path, nil, &resp); err != nil {
+	path := fmt.Sprintf("/environment/%s", environmentID)
+	if err := c.client.Patch(path, req, &resp); err != nil {
 		return "", err
 	}
 

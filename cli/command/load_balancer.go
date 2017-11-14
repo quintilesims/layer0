@@ -160,11 +160,10 @@ func (l *LoadBalancerCommand) addport(c *cli.Context) error {
 
 	ports := append(loadBalancer.Ports, *port)
 	req := models.UpdateLoadBalancerRequest{
-		LoadBalancerID: loadBalancerID,
-		Ports:          &ports,
+		Ports: &ports,
 	}
 
-	jobID, err := l.client.UpdateLoadBalancer(req)
+	jobID, err := l.client.UpdateLoadBalancer(loadBalancerID, req)
 	if err != nil {
 		return err
 	}
@@ -280,12 +279,11 @@ func (l *LoadBalancerCommand) dropport(c *cli.Context) error {
 	}
 
 	req := models.UpdateLoadBalancerRequest{
-		LoadBalancerID: loadBalancerID,
-		Ports:          &loadBalancer.Ports,
-		HealthCheck:    nil,
+		Ports:       &loadBalancer.Ports,
+		HealthCheck: nil,
 	}
 
-	jobID, err := l.client.UpdateLoadBalancer(req)
+	jobID, err := l.client.UpdateLoadBalancer(loadBalancerID, req)
 	if err != nil {
 		return err
 	}
@@ -354,11 +352,10 @@ func (l *LoadBalancerCommand) healthcheck(c *cli.Context) error {
 	}
 
 	req := models.UpdateLoadBalancerRequest{
-		LoadBalancerID: loadBalancerID,
-		HealthCheck:    &healthCheck,
+		HealthCheck: &healthCheck,
 	}
 
-	jobID, err := l.client.UpdateLoadBalancer(req)
+	jobID, err := l.client.UpdateLoadBalancer(loadBalancerID, req)
 	if err != nil {
 		return err
 	}

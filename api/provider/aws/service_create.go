@@ -12,7 +12,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
 	cluster := fqEnvironmentID
 
-	serviceID := generateEntityID(req.ServiceName)
+	serviceID := entityIDGenerator(req.ServiceName)
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
 	serviceName := fqServiceID
 
