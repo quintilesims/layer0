@@ -70,7 +70,7 @@ func TestTaskRead(t *testing.T) {
 	containerECS := &ecs.Container{}
 	containerECS.SetName("container")
 	containerECS.SetLastStatus("status")
-	containerECS.SetExitCode(0)
+	containerECS.SetExitCode(1)
 
 	task := &ecs.Task{}
 	task.SetTaskArn("arn:aws:ecs:region:012345678910:task/arn")
@@ -94,7 +94,7 @@ func TestTaskRead(t *testing.T) {
 	container := models.Container{
 		ContainerName: "container",
 		Status:        "status",
-		ExitCode:      0,
+		ExitCode:      1,
 	}
 
 	expected := &models.Task{

@@ -15,8 +15,8 @@ import (
 func (t *TaskProvider) Delete(taskID string) error {
 	environmentID, err := lookupEntityEnvironmentID(t.TagStore, "task", taskID)
 	if err != nil {
-		log.Printf("[WARN] Environment not found\n")
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.TaskDoesNotExist {
+			log.Printf("[WARN] Environment not found\n")
 			return nil
 		}
 		return err
@@ -24,8 +24,8 @@ func (t *TaskProvider) Delete(taskID string) error {
 
 	taskARN, err := t.lookupTaskARN(taskID)
 	if err != nil {
-		log.Printf("[WARN] Task not found\n")
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.TaskDoesNotExist {
+			log.Printf("[WARN] Task not found\n")
 			return nil
 		}
 		return err
