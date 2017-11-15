@@ -16,9 +16,9 @@ func APIFlags() []cli.Flag {
 			EnvVar: ENVVAR_PORT,
 		},
 		cli.DurationFlag{
-			Name:   FLAG_JOB_EXPIRY,
-			Value:  time.Hour * 24,
-			EnvVar: ENVVAR_JOB_EXPIRY,
+			Name:  FLAG_JOB_EXPIRY,
+			Value: ENVVAR_JOB_EXPIRY,
+			// EnvVar: ENVVAR_JOB_EXPIRY,
 		},
 		cli.BoolFlag{
 			// todo: renamed from 'LAYER0_LOG_LEVEL'
@@ -106,7 +106,7 @@ type APIConfig interface {
 	DynamoJobTable() string
 	DynamoTagTable() string
 	LogGroupName() string
-	JobExpiryHour() time.Duration
+	JobExpiry() time.Duration
 }
 
 type ContextAPIConfig struct {
@@ -210,6 +210,6 @@ func (c *ContextAPIConfig) LogGroupName() string {
 	return c.C.String(FLAG_AWS_LOG_GROUP_NAME)
 }
 
-func (c *ContextAPIConfig) JobExpiryHour() time.Duration {
+func (c *ContextAPIConfig) JobExpiry() time.Duration {
 	return c.C.Duration(FLAG_JOB_EXPIRY)
 }

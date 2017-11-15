@@ -24,7 +24,9 @@ func NewJanitor(tagStore Store, taskProvider provider.TaskProvider) *janitor.Jan
 
 		for _, tag := range tags {
 			if !m[tag.EntityID] {
-				tagStore.Delete(tag.EntityType, tag.EntityID, tag.Key)
+				if err := tagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
+					return err
+				}
 			}
 		}
 		return nil

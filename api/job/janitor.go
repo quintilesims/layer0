@@ -1,6 +1,7 @@
 package job
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/quintilesims/layer0/api/janitor"
@@ -14,8 +15,12 @@ func NewJanitor(jobStore Store, expiry time.Duration) *janitor.Janitor {
 		}
 
 		for _, job := range jobs {
-			if job.Created.Before(time.Now().Add(-expiry)) {
-				jobStore.Delete(job.JobID)
+			fmt.Println("HERE", time.Since(job.Created), expiry)
+			fmt.Println(time.Since(job.Created) > expiry)
+			if time.Since(job.Created) > expiry {
+				if err := jobStore.Delete(job.JobID); err != nil {
+					return err
+				}
 			}
 		}
 

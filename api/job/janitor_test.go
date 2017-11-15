@@ -11,16 +11,18 @@ import (
 func TestJanitor(t *testing.T) {
 	store := NewMemoryStore()
 	janitor := NewJanitor(store, time.Hour*24)
-	timeNow := time.Now()
+
+	expiry := -24 * time.Hour
+	now := time.Now()
 
 	jobs := []*models.Job{
 		{
 			JobID:   "delete",
-			Created: timeNow.Add(-24 * time.Hour),
+			Created: now.Add(expiry),
 		},
 		{
 			JobID:   "keep",
-			Created: timeNow.Add(-12 * time.Hour),
+			Created: now.Add(expiry * -2),
 		},
 	}
 
@@ -35,11 +37,14 @@ func TestJanitor(t *testing.T) {
 	expected := []*models.Job{
 		{
 			JobID:   "keep",
-			Created: timeNow.Add(-12 * time.Hour),
+			Created: now.Add(expiry * -2),
 		},
 	}
 
-	actual, _ := store.SelectAll()
+	actual, err := store.SelectAll()
+	if err != nil {
+		t.Fatal(err)
+	}
 
 	assert.Equal(t, expected, actual)
 }

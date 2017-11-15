@@ -102,8 +102,8 @@ func main() {
 		scalerTicker := scalerDispatcher.RunEvery(time.Minute * 5)
 		defer scalerTicker.Stop()
 
-		expiry := cfg.JobExpiryHour()
-		jobJanitor := job.NewJanitor(jobStore, time.Duration(expiry))
+		expiry := cfg.JobExpiry()
+		jobJanitor := job.NewJanitor(jobStore, expiry)
 		jobJanitorTicker := jobJanitor.RunEvery(time.Hour)
 		defer jobJanitorTicker.Stop()
 
