@@ -5,7 +5,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/client"
 	"github.com/aws/aws-sdk-go/aws/request"
 )
@@ -16,7 +15,7 @@ type Retryer struct {
 	maxRetryTime int
 }
 
-func NewRetryer(minRetryTime, maxRetryTime int, a *aws.Config) *Retryer {
+func NewRetryer(minRetryTime, maxRetryTime int) *Retryer {
 	// minRetryTime default is 500ms
 	// maxRetryTime default is 5 minutes
 	retryer := &Retryer{
