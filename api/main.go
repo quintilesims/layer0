@@ -56,9 +56,7 @@ func main() {
 
 		awsConfig := defaults.Get().Config
 		customRetryer := config.NewRetryer(cfg.MinRetryTime(), cfg.MaxRetryTime(), awsConfig)
-		if customRetryer != nil {
-			awsConfig.Retryer = customRetryer
-		}
+		awsConfig.Retryer = customRetryer
 
 		staticCreds := credentials.NewStaticCredentials(cfg.AccessKey(), cfg.SecretKey(), "")
 		awsConfig.WithCredentials(staticCreds)

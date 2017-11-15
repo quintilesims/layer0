@@ -17,14 +17,22 @@ type Retryer struct {
 }
 
 func NewRetryer(minRetryTime, maxRetryTime int, a *aws.Config) *Retryer {
-	if minRetryTime > 0 || maxRetryTime > 0 {
-		return &Retryer{
-			minRetryTime: minRetryTime,
-			maxRetryTime: maxRetryTime,
-		}
+	// minRetryTime default is 500ms
+	// maxRetryTime default is 5 minutes
+	retryer := &Retryer{
+		minRetryTime: 500,
+		maxRetryTime: 300000,
 	}
 
-	return nil
+	if minRetryTime > 0 {
+		retryer.minRetryTime = minRetryTime
+	}
+
+	if maxRetryTime > 0 {
+		retryer.maxRetryTime = maxRetryTime
+	}
+
+	return retryer
 }
 
 var seededRand = rand.New(&lockedSource{src: rand.NewSource(time.Now().UnixNano())})
