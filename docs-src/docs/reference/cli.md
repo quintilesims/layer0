@@ -319,7 +319,7 @@ Use the **delete** subcommand to delete an existing Layer0 environment.
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 environment delete** [--wait] _environmentName_</div>
+    <div class="divCellNoPadding">**l0 environment delete** [--no-wait] _environmentName_</div>
   </div>
 </div>
 
@@ -334,15 +334,15 @@ Use the **delete** subcommand to delete an existing Layer0 environment.
 ####Optional arguments
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">--wait</div>
-    <div class="divCell">Wait until the deletion is complete before exiting.</div>
+    <div class="divCellNoWrap">--no-wait</div>
+    <div class="divCell">Do not wait until the deletion is complete before exiting.</div>
   </div>
 </div>
 
 ####Additional information
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">This operation performs several tasks asynchronously. When run without the _--wait_ option, this operation will most likely exit before all of these tasks are complete; when run with the _--wait_ option, this operation will only exit once these tasks have completed.</div>
+    <div class="divCellNoPadding">When run with the _--no-wait_ option, this operation will most likely exit before all of these tasks are complete;</div>
   </div>
 </div>
 
@@ -662,7 +662,7 @@ Use the **delete** subcommand to delete an existing load balancer.
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 loadbalancer delete** [--wait] *loadBalancerName*</div>
+    <div class="divCellNoPadding">**l0 loadbalancer delete** [--no-wait] *loadBalancerName*</div>
   </div>
 </div>
 
@@ -677,8 +677,8 @@ Use the **delete** subcommand to delete an existing load balancer.
 ####Optional arguments
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">--wait</div>
-    <div class="divCell">Wait until the deletion is complete before exiting.</div>
+    <div class="divCellNoWrap">--no-wait</div>
+    <div class="divCell">Do not wait until deletion is complete before exiting.</div>
   </div>
 </div>
 
@@ -688,7 +688,7 @@ Use the **delete** subcommand to delete an existing load balancer.
     <div class="divCellNoPadding">In order to delete a load balancer that is already attached to a service, you must first delete the service that uses the load balancer.</div>
   </div><br />
   <div class="divRow">
-    <div class="divCellNoPadding">This operation performs several tasks asynchronously. When run without the _--wait_ option, this operation will most likely exit before all of these tasks are complete; when run with the _--wait_ option, this operation will only exit once these tasks have completed.</div>
+    <div class="divCellNoPadding">When run with the _--no-wait_ option, this operation will most likely exit before all of these tasks are complete;</div>
   </div>
 </div>
 
@@ -966,7 +966,7 @@ Use the **delete** subcommand to delete an existing Layer0 service.
 #### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 service delete** [--wait] _environmentName:serviceName_</div>
+    <div class="divCellNoPadding">**l0 service delete** [--no-wait] _environmentName:serviceName_</div>
   </div>
 </div>
 
@@ -985,15 +985,15 @@ Use the **delete** subcommand to delete an existing Layer0 service.
 ####Optional arguments
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">--wait</div>
-    <div class="divCell">Wait until the deletion is complete before exiting.</div>
+    <div class="divCellNoWrap">--no-wait</div>
+    <div class="divCell">Do not wait until the deletion is complete before exiting.</div>
   </div>
 </div>
 
 ####Additional information
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">This operation performs several tasks asynchronously. When run without the _--wait_ option, this operation will most likely exit before all of these tasks are complete; when run with the _--wait_ option, this operation will only exit once these tasks have completed.</div>
+    <div class="divCellNoPadding">When run with the _--no-wait_ option, this operation will most likely exit before all of these tasks are complete;</div>
   </div>
 </div>
 

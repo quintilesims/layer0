@@ -12,7 +12,7 @@ $ l0 environment list
 For each environment listed in the previous step, with the exception of the environment named `api`, 
 issue the following command (replacing `<environment_name>` with the name of the environment to delete):
 ```
-l0 environment delete --wait <environment_name>
+l0 environment delete <environment_name>
 ```
 
 
