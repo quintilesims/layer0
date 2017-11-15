@@ -70,6 +70,8 @@ func TestDeployCreate(t *testing.T) {
 		DeployFile: deployFile,
 	}
 
+	// We set the second container's log configuration after the deployFile has been marshaled
+	// to ensure that log configuration is properly rendered.
 	cntr2.SetLogConfiguration(logConfig2)
 
 	registerTaskDefinitionInput := &ecs.RegisterTaskDefinitionInput{}
