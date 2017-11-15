@@ -106,7 +106,7 @@ The following is a summary of the arguments passed in the above command:
 Here, we pull the previous resources together to create a service.
 At the command prompt, execute the following:
 
-`l0 service create --wait --loadbalancer demo-env:consul-lb demo-env consul-svc consul-dpl:latest`
+`l0 service create --loadbalancer demo-env:consul-lb demo-env consul-svc consul-dpl:latest`
 
 We should see output like the following:
 
@@ -119,13 +119,12 @@ consuls2f3c6  consul-svc    demo-env     consul-lb     consul-dpl:1  1/1
 The following is a summary of the arguments passed in the above commands:
 
 - `service create`: creates a new Layer0 Service
-- `--wait`: instructs the CLI to keep hold of the shell until the service has been successfully deployed
 - `--loadbalancer demo-env:consul-lb`: the fully-qualified name of the load balancer behind which the service should live; in this case, the load balancer named **consul-lb** in the environment named **demo-env**
 - `demo-env`: the name of the environment in which the service is to reside
 - `consul-svc`: a name for the service itself
 - `consul-dpl:latest`: the name and version of the deploy that the service should put into action
 
-Once the service has finished being deployed (and `--wait` has returned our shell to us), we need to scale the service.
+Once the service has finished being deployed, we need to scale the service.
 
 Currently, we only have one Consul server running in the cluster.
 For best use, we should have at least 3 servers running (see [this link](https://www.consul.io/docs/internals/consensus.html) for more details on Consul servers and their concensus protocol).
@@ -134,7 +133,7 @@ This tells the Consul server that we have just deployed that it should be expect
 We still need to fulfill that expectation, so we'll scale our service up to three.
 At the command prompt, execute the following:
 
-`l0 service scale --wait consul-svc 3`
+`l0 service scale consul-svc 3`
 
 We should see output like the following:
 
@@ -165,9 +164,9 @@ At the command prompt, execute the two following commands to create new versions
 
 Then, execute the two following commands to redeploy the existing Redis and Guestbook services using those new deploys:
 
-`l0 service update --wait redis-svc redis-dpl:latest`
+`l0 service update redis-svc redis-dpl:latest`
 
-`l0 service update --wait guestbook-svc guestbook-dpl:latest`
+`l0 service update guestbook-svc guestbook-dpl:latest`
 
 !!! NOTE
     Here, we should run `l0 service logs consul-svc` again and confirm that the Consul cluster has discovered these two services.

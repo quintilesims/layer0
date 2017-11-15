@@ -27,7 +27,7 @@ At this point, you can use the **task create** command to run a copy of the task
 
 To run the task, use the following command:
 
-`l0 task create demo-env echo-tsk one-off-task-dpl:latest --wait`
+`l0 task create demo-env echo-tsk one-off-task-dpl:latest`
 
 You will see the following output:
 ```

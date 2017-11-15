@@ -86,7 +86,7 @@ The following is a summary of the arguments passed in the above command:
 Here, we just need to pull the previous resources together into a service.
 At the command prompt, execute the following:
 
-`l0 service create --wait --loadbalancer demo-env:redis-lb demo-env redis-svc redis-dpl:latest`
+`l0 service create --loadbalancer demo-env:redis-lb demo-env redis-svc redis-dpl:latest`
 
 We should see output like the following:
 
@@ -98,7 +98,6 @@ redislb16ae6  redis-svc     demo-env     redis-lb      redis-dpl:1  0/1
 The following is a summary of the arguments passed in the above commands:
 
 - `service create`: creates a new Layer0 Service
-- `--wait`:  instructs the CLI to keep hold of the shell until the service has been successfully deployed
 - `--loadbalancer demo-env:redis-lb`: the fully-qualified name of the load balancer; in this case, the load balancer named **redis-lb** in the environment named **demo-env**
     - _(Again, it's not strictly necessary to use the fully-qualified name of the load balancer as long as there isn't another load balancer with the same name in a different environment)_
 - `demo-env`: the name of the environment in which the service is to reside
@@ -246,10 +245,9 @@ We'll wait.
 
 Now, let's prove that we've actually separated the data from the application by deleting and redeploying the Guestbook application:
 
-`l0 service delete --wait guestbook-svc`
+`l0 service delete guestbook-svc`
 
 _(We'll leave the `deploy` intact so we can spin up a new service easily, and we'll leave the environment untouched because it also contained the Redis server.
-We'll also pass the `--wait` flag so that we don't need to keep checking on the status of the job to know when it's complete.)_
 
 Once those resources have been deleted, we can recreate them!
 
