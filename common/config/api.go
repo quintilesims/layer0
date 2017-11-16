@@ -16,9 +16,9 @@ func APIFlags() []cli.Flag {
 			EnvVar: ENVVAR_PORT,
 		},
 		cli.DurationFlag{
-			Name:  FLAG_JOB_EXPIRY,
-			Value: ENVVAR_JOB_EXPIRY,
-			// EnvVar: ENVVAR_JOB_EXPIRY,
+			Name:   FLAG_JOB_EXPIRY,
+			Value:  time.Hour * 24,
+			EnvVar: ENVVAR_JOB_EXPIRY,
 		},
 		cli.BoolFlag{
 			// todo: renamed from 'LAYER0_LOG_LEVEL'

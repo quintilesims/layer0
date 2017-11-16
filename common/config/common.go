@@ -1,7 +1,5 @@
 package config
 
-import "time"
-
 const (
 	FLAG_PORT                 = "port"
 	FLAG_JOB_EXPIRY           = "job-expiry"
@@ -31,7 +29,7 @@ const (
 )
 
 const (
-	ENVVAR_JOB_EXPIRY           = time.Hour * 24
+	ENVVAR_JOB_EXPIRY           = "LAYER0_JOB_EXPIRY"
 	ENVVAR_PORT                 = "LAYER0_PORT"
 	ENVVAR_DEBUG                = "LAYER0_DEBUG"
 	ENVVAR_OUTPUT               = "LAYER0_OUTPUT"

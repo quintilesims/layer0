@@ -52,11 +52,6 @@ func TestJanitor(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	actual, err := tagStore.SelectByType("task")
-	if err != nil {
-		t.Fatal(err)
-	}
-
 	expected := models.Tags{
 		{
 			EntityID:   "tsk_id2",
@@ -66,5 +61,5 @@ func TestJanitor(t *testing.T) {
 		},
 	}
 
-	assert.Equal(t, expected, actual)
+	assert.Equal(t, expected, tagStore.tags)
 }

@@ -29,6 +29,7 @@ func NewJanitor(tagStore Store, taskProvider provider.TaskProvider) *janitor.Jan
 				}
 			}
 		}
+
 		return nil
 	})
 }
