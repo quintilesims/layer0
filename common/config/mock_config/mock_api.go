@@ -7,6 +7,7 @@ package mock_config
 import (
 	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+	time "time"
 )
 
 // MockAPIConfig is a mock of APIConfig interface
@@ -138,6 +139,18 @@ func (m *MockAPIConfig) MaxRetryTime() int {
 // MaxRetryTime indicates an expected call of MaxRetryTime
 func (mr *MockAPIConfigMockRecorder) MaxRetryTime() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MaxRetryTime", reflect.TypeOf((*MockAPIConfig)(nil).MaxRetryTime))
+}
+
+// MinAWSPerRequestTime mocks base method
+func (m *MockAPIConfig) MinAWSPerRequestTime() time.Duration {
+	ret := m.ctrl.Call(m, "MinAWSPerRequestTime")
+	ret0, _ := ret[0].(time.Duration)
+	return ret0
+}
+
+// MinAWSPerRequestTime indicates an expected call of MinAWSPerRequestTime
+func (mr *MockAPIConfigMockRecorder) MinAWSPerRequestTime() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MinAWSPerRequestTime", reflect.TypeOf((*MockAPIConfig)(nil).MinAWSPerRequestTime))
 }
 
 // MinRetryTime mocks base method

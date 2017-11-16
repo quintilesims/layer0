@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/urfave/cli"
 )
@@ -80,6 +81,11 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_LOG_GROUP_NAME,
 			EnvVar: ENVVAR_AWS_LOG_GROUP_NAME,
 		},
+		cli.DurationFlag{
+			Name:   FLAG_AWS_MIN_PER_REQUEST_TIME,
+			Value:  10 * time.Millisecond,
+			EnvVar: ENVVAR_AWS_MIN_PER_REQUEST_TIME,
+		},
 		cli.IntFlag{
 			Name:   FLAG_MIN_RETRY_TIME,
 			EnvVar: ENVVAR_MIN_RETRY_TIME,
@@ -110,6 +116,7 @@ type APIConfig interface {
 	LogGroupName() string
 	MinRetryTime() int
 	MaxRetryTime() int
+	MinAWSPerRequestTime() time.Duration
 }
 
 type ContextAPIConfig struct {
@@ -219,4 +226,8 @@ func (c *ContextAPIConfig) MinRetryTime() int {
 
 func (c *ContextAPIConfig) MaxRetryTime() int {
 	return c.C.Int(FLAG_MAX_RETRY_TIME)
+}
+
+func (c *ContextAPIConfig) MinAWSPerRequestTime() time.Duration {
+	return c.C.Duration(FLAG_AWS_MIN_PER_REQUEST_TIME)
 }

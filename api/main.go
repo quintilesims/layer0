@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/defaults"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/api/controllers"
 	"github.com/quintilesims/layer0/api/job"
@@ -64,7 +65,13 @@ func main() {
 		awsConfig.WithMaxRetries(MAX_AWS_RETRIES)
 		session := session.New(awsConfig)
 
-		client := awsclient.NewClient(awsConfig)
+		delay := c.Duration(config.FLAG_AWS_MIN_PER_REQUEST_TIME)
+		ticker := time.Tick(delay)
+		session.Handlers.Send.PushBack(func(r *request.Request) {
+			<-ticker
+		})
+
+		client := awsclient.NewClient(session)
 		tagStore := tag.NewDynamoStore(session, cfg.DynamoTagTable())
 		jobStore := job.NewDynamoStore(session, cfg.DynamoJobTable())
 
