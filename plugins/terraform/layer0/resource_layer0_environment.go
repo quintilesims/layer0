@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
@@ -28,7 +29,7 @@ func resourceLayer0Environment() *schema.Resource {
 			"size": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "m3.medium",
+				Default:  aws.DefaultInstanceSize,
 				ForceNew: true,
 			},
 			"min_count": {
@@ -43,7 +44,7 @@ func resourceLayer0Environment() *schema.Resource {
 			"os": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  "linux",
+				Default:  aws.DefaultEnvironmentOS,
 				ForceNew: true,
 			},
 			"ami": {
@@ -119,7 +120,7 @@ func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) err
 
 func resourceLayer0EnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(client.Client)
-	//environmentID := d.Id()
+	environmentID := d.Id()
 
 	if d.HasChange("min_count") {
 		minCount := d.Get("min_count").(int)
@@ -128,8 +129,7 @@ func resourceLayer0EnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 			MinClusterCount: &minCount,
 		}
 
-		// todo: put environment id as first param
-		jobID, err := apiClient.UpdateEnvironment(req)
+		jobID, err := apiClient.UpdateEnvironment(environmentID, req)
 		if err != nil {
 			return err
 		}

@@ -106,7 +106,7 @@ func resourceLayer0ServiceRead(d *schema.ResourceData, meta interface{}) error {
 
 func resourceLayer0ServiceUpdate(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(client.Client)
-	//serviceID := d.Id()
+	serviceID := d.Id()
 
 	req := models.UpdateServiceRequest{}
 
@@ -121,7 +121,7 @@ func resourceLayer0ServiceUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if req.DeployID != nil || req.Scale != nil {
-		jobID, err := apiClient.UpdateService(req)
+		jobID, err := apiClient.UpdateService(serviceID, req)
 		if err != nil {
 			return err
 		}

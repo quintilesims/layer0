@@ -8,6 +8,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
@@ -73,33 +74,32 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 				Optional: true,
 				Computed: true,
 				MaxItems: 1,
-				// todo: use defaults delcared elsehwere
 				Elem: &schema.Resource{
 					Schema: map[string]*schema.Schema{
 						"target": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  "TCP:80",
+							Default:  aws.DefaultHealthCheck.Target,
 						},
 						"interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  30,
+							Default:  aws.DefaultHealthCheck.Interval,
 						},
 						"timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  5,
+							Default:  aws.DefaultHealthCheck.Timeout,
 						},
 						"healthy_threshold": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  2,
+							Default:  aws.DefaultHealthCheck.HealthyThreshold,
 						},
 						"unhealthy_threshold": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  2,
+							Default:  aws.DefaultHealthCheck.UnhealthyThreshold,
 						},
 					},
 				},
@@ -112,7 +112,9 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 	apiClient := meta.(client.Client)
 
 	ports := expandPorts(d.Get("port").(*schema.Set).List())
-	// todo: if empty, use default port
+	if len(ports) == 0 {
+		ports = []models.Port{aws.DefaultLoadBalancerPort}
+	}
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: d.Get("name").(string),
@@ -165,7 +167,7 @@ func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) er
 
 func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(client.Client)
-	//loadBalancerID := d.Id()
+	loadBalancerID := d.Id()
 
 	req := models.UpdateLoadBalancerRequest{}
 
@@ -180,7 +182,7 @@ func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if req.Ports != nil || req.HealthCheck != nil {
-		jobID, err := apiClient.UpdateLoadBalancer(req)
+		jobID, err := apiClient.UpdateLoadBalancer(loadBalancerID, req)
 		if err != nil {
 			return err
 		}
@@ -247,8 +249,7 @@ func expandHealthCheck(flattened interface{}) models.HealthCheck {
 		}
 	}
 
-	// todo: return default health check
-	return models.HealthCheck{}
+	return aws.DefaultHealthCheck
 }
 
 func flattenHealthCheck(healthCheck models.HealthCheck) []map[string]interface{} {
