@@ -57,7 +57,7 @@ func dataSourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if len(tags) == 0 {
-		return fmt.Errorf("No environment found matching the specified name")
+		return fmt.Errorf("No environment found matching %#v", query)
 	}
 
 	environmentID := tags[0].EntityID

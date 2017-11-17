@@ -50,7 +50,7 @@ func dataSourceLayer0ServiceRead(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if len(tags) == 0 {
-		return fmt.Errorf("No service found matching the specified name and environment id")
+		return fmt.Errorf("No service found matching %#v", query)
 	}
 
 	serviceID := tags[0].EntityID

@@ -54,7 +54,7 @@ func dataSourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if len(tags) == 0 {
-		return fmt.Errorf("No load balancer found matching the specified name and environment id")
+		return fmt.Errorf("No load balancer found matching %#v", query)
 	}
 
 	loadBalancerID := tags[0].EntityID

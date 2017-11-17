@@ -42,7 +42,7 @@ func dataSourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error 
 	}
 
 	if len(tags) == 0 {
-		return fmt.Errorf("No deploy found matching the specified name and version")
+		return fmt.Errorf("No deploy found matching %#v", query)
 	}
 
 	deployID := tags[0].EntityID
