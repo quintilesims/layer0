@@ -53,11 +53,16 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		}
 	}
 
+	scale := req.Scale
+	if req.Scale == 0 {
+		scale = 1
+	}
+
 	if err := s.createService(
 		cluster,
 		serviceName,
 		taskDefinitionARN,
-		req.Scale,
+		scale,
 		loadBalancerRole,
 		loadBalancer); err != nil {
 		return "", err
