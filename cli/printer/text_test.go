@@ -96,9 +96,9 @@ func ExampleTextPrintJobs() {
 			Created: time.Time{},
 		},
 		{
-			JobID:       "job_id3",
-			Type:     job.UpdateLoadBalancerJob.String(),
-			Status:   job.Error.String(),
+			JobID:   "job_id3",
+			Type:    job.UpdateLoadBalancerJob.String(),
+			Status:  job.Error.String(),
 			Created: time.Time{},
 		},
 	}
@@ -347,28 +347,28 @@ func ExampleTextPrintTasks() {
 			EnvironmentName: "ename1",
 			DeployName:      "d1",
 			DeployVersion:   "1",
-			Status: "RUNNING",
+			Status:          "RUNNING",
 		},
 		{
 			TaskID:        "id2",
 			TaskName:      "tsk2",
 			EnvironmentID: "eid2",
 			DeployID:      "d2.1",
-			Status: "RUNNING",
+			Status:        "RUNNING",
 		},
 		{
 			TaskID:        "id3",
 			TaskName:      "tsk3",
 			EnvironmentID: "eid3",
 			DeployID:      "d3.1",
-			Status: "RUNNING",
+			Status:        "RUNNING",
 		},
 		{
 			TaskID:        "id4",
 			TaskName:      "tsk4",
 			EnvironmentID: "eid4",
 			DeployID:      "d4.1",
-			Status: "RUNNING",
+			Status:        "RUNNING",
 		},
 	}
 
