@@ -64,12 +64,12 @@ func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(e.JobStore, job.CreateEnvironmentJob, req)
+	return createJob(e.JobStore, models.CreateEnvironmentJob, req)
 }
 
 func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(e.JobStore, job.DeleteEnvironmentJob, id)
+	return createJob(e.JobStore, models.DeleteEnvironmentJob, id)
 }
 
 func (e *EnvironmentController) GetEnvironment(c *fireball.Context) (fireball.Response, error) {
@@ -101,7 +101,7 @@ func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(e.JobStore, job.UpdateEnvironmentJob, req)
+	return createJob(e.JobStore, models.UpdateEnvironmentJob, req)
 }
 
 func (e *EnvironmentController) LinkEnvironment(c *fireball.Context) (fireball.Response, error) {
@@ -114,7 +114,7 @@ func (e *EnvironmentController) LinkEnvironment(c *fireball.Context) (fireball.R
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(e.JobStore, job.LinkEnvironmentJob, req)
+	return createJob(e.JobStore, models.LinkEnvironmentJob, req)
 }
 
 func (e *EnvironmentController) UnlinkEnvironment(c *fireball.Context) (fireball.Response, error) {
@@ -127,5 +127,5 @@ func (e *EnvironmentController) UnlinkEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(e.JobStore, job.UnlinkEnvironmentJob, req)
+	return createJob(e.JobStore, models.UnlinkEnvironmentJob, req)
 }

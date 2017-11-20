@@ -8,7 +8,6 @@ import (
 	reflect "reflect"
 
 	gomock "github.com/golang/mock/gomock"
-	job "github.com/quintilesims/layer0/api/job"
 	models "github.com/quintilesims/layer0/common/models"
 )
 
@@ -61,7 +60,7 @@ func (mr *MockStoreMockRecorder) Delete(arg0 interface{}) *gomock.Call {
 }
 
 // Insert mocks base method
-func (m *MockStore) Insert(arg0 job.JobType, arg1 string) (string, error) {
+func (m *MockStore) Insert(arg0 models.JobType, arg1 string) (string, error) {
 	ret := m.ctrl.Call(m, "Insert", arg0, arg1)
 	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
@@ -134,7 +133,7 @@ func (mr *MockStoreMockRecorder) SetJobResult(arg0, arg1 interface{}) *gomock.Ca
 }
 
 // SetJobStatus mocks base method
-func (m *MockStore) SetJobStatus(arg0 string, arg1 job.Status) error {
+func (m *MockStore) SetJobStatus(arg0 string, arg1 models.JobStatus) error {
 	ret := m.ctrl.Call(m, "SetJobStatus", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0

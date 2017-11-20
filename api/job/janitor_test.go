@@ -4,13 +4,17 @@ import (
 	"testing"
 	"time"
 
+	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/common/models"
-	"github.com/stretchr/testify/assert"
 )
 
 func TestJanitor(t *testing.T) {
-	store := NewMemoryStore()
-	janitor := NewJanitor(store, time.Hour*24)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	janitor := NewJanitor(mockJobStore, time.Hour*24)
 
 	expiry := -24 * time.Hour
 	now := time.Now()
@@ -18,33 +22,24 @@ func TestJanitor(t *testing.T) {
 	jobs := []*models.Job{
 		{
 			JobID:   "delete",
-			Created: now.Add(expiry),
+			Created: now.Add(expiry - time.Hour),
 		},
 		{
 			JobID:   "keep",
-			Created: now.Add(expiry * -2),
+			Created: now.Add(expiry + time.Hour),
 		},
 	}
 
-	for _, job := range jobs {
-		store.jobs = append(store.jobs, job)
-	}
+	mockJobStore.EXPECT().
+		SelectAll().
+		Return(jobs, nil)
+
+	mockJobStore.EXPECT().
+		Delete("delete").
+		Return(nil)
 
 	if err := janitor.Run(); err != nil {
 		t.Fatal(err)
 	}
 
-	expected := []*models.Job{
-		{
-			JobID:   "keep",
-			Created: now.Add(expiry * -2),
-		},
-	}
-
-	actual, err := store.SelectAll()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, expected, actual)
 }

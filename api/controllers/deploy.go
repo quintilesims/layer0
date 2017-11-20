@@ -51,12 +51,12 @@ func (d *DeployController) CreateDeploy(c *fireball.Context) (fireball.Response,
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(d.JobStore, job.CreateDeployJob, req)
+	return createJob(d.JobStore, models.CreateDeployJob, req)
 }
 
 func (d *DeployController) DeleteDeploy(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(d.JobStore, job.DeleteDeployJob, id)
+	return createJob(d.JobStore, models.DeleteDeployJob, id)
 }
 
 func (d *DeployController) GetDeploy(c *fireball.Context) (fireball.Response, error) {

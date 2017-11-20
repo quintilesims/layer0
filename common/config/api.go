@@ -12,12 +12,12 @@ func APIFlags() []cli.Flag {
 		cli.IntFlag{
 			// todo: renamed from 'LAYER0_API_PORT'
 			Name:   FLAG_PORT,
-			Value:  9090,
+			Value:  DEFAULT_PORT,
 			EnvVar: ENVVAR_PORT,
 		},
 		cli.DurationFlag{
 			Name:   FLAG_JOB_EXPIRY,
-			Value:  time.Hour * 24,
+			Value:  DEFAULT_JOB_EXPIRY,
 			EnvVar: ENVVAR_JOB_EXPIRY,
 		},
 		cli.BoolFlag{

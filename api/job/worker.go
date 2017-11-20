@@ -2,6 +2,8 @@ package job
 
 import (
 	"log"
+
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type Worker struct {
@@ -60,7 +62,7 @@ func (w *Worker) Start() func() {
 					}
 				}
 
-				if err := w.Store.SetJobStatus(jobID, Completed); err != nil {
+				if err := w.Store.SetJobStatus(jobID, models.Completed); err != nil {
 					log.Printf("[ERROR] [JobWorker %d]: Failed to set job status for job %s: %v", w.ID, jobID, err)
 					continue
 				}
