@@ -65,7 +65,7 @@ func main() {
 		awsConfig.WithMaxRetries(MAX_AWS_RETRIES)
 		session := session.New(awsConfig)
 
-		delay := c.Duration(config.FLAG_AWS_MIN_PER_REQUEST_TIME)
+		delay := c.Duration(config.FLAG_AWS_TIME_BETWEEN_REQUESTS)
 		ticker := time.Tick(delay)
 		session.Handlers.Send.PushBack(func(r *request.Request) {
 			<-ticker

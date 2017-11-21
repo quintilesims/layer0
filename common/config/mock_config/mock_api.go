@@ -141,18 +141,6 @@ func (mr *MockAPIConfigMockRecorder) MaxRetryTime() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MaxRetryTime", reflect.TypeOf((*MockAPIConfig)(nil).MaxRetryTime))
 }
 
-// MinAWSPerRequestTime mocks base method
-func (m *MockAPIConfig) MinAWSPerRequestTime() time.Duration {
-	ret := m.ctrl.Call(m, "MinAWSPerRequestTime")
-	ret0, _ := ret[0].(time.Duration)
-	return ret0
-}
-
-// MinAWSPerRequestTime indicates an expected call of MinAWSPerRequestTime
-func (mr *MockAPIConfigMockRecorder) MinAWSPerRequestTime() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MinAWSPerRequestTime", reflect.TypeOf((*MockAPIConfig)(nil).MinAWSPerRequestTime))
-}
-
 // MinRetryTime mocks base method
 func (m *MockAPIConfig) MinRetryTime() int {
 	ret := m.ctrl.Call(m, "MinRetryTime")
@@ -235,6 +223,18 @@ func (m *MockAPIConfig) SecretKey() string {
 // SecretKey indicates an expected call of SecretKey
 func (mr *MockAPIConfigMockRecorder) SecretKey() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SecretKey", reflect.TypeOf((*MockAPIConfig)(nil).SecretKey))
+}
+
+// TimeBetweenRequests mocks base method
+func (m *MockAPIConfig) TimeBetweenRequests() time.Duration {
+	ret := m.ctrl.Call(m, "TimeBetweenRequests")
+	ret0, _ := ret[0].(time.Duration)
+	return ret0
+}
+
+// TimeBetweenRequests indicates an expected call of TimeBetweenRequests
+func (mr *MockAPIConfigMockRecorder) TimeBetweenRequests() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TimeBetweenRequests", reflect.TypeOf((*MockAPIConfig)(nil).TimeBetweenRequests))
 }
 
 // VPC mocks base method

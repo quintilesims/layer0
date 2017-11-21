@@ -82,9 +82,9 @@ func APIFlags() []cli.Flag {
 			EnvVar: ENVVAR_AWS_LOG_GROUP_NAME,
 		},
 		cli.DurationFlag{
-			Name:   FLAG_AWS_MIN_PER_REQUEST_TIME,
+			Name:   FLAG_AWS_TIME_BETWEEN_REQUESTS,
 			Value:  10 * time.Millisecond,
-			EnvVar: ENVVAR_AWS_MIN_PER_REQUEST_TIME,
+			EnvVar: ENVVAR_AWS_TIME_BETWEEN_REQUESTS,
 		},
 		cli.IntFlag{
 			Name:   FLAG_MIN_RETRY_TIME,
@@ -116,7 +116,7 @@ type APIConfig interface {
 	LogGroupName() string
 	MinRetryTime() int
 	MaxRetryTime() int
-	MinAWSPerRequestTime() time.Duration
+	TimeBetweenRequests() time.Duration
 }
 
 type ContextAPIConfig struct {
@@ -228,6 +228,6 @@ func (c *ContextAPIConfig) MaxRetryTime() int {
 	return c.C.Int(FLAG_MAX_RETRY_TIME)
 }
 
-func (c *ContextAPIConfig) MinAWSPerRequestTime() time.Duration {
-	return c.C.Duration(FLAG_AWS_MIN_PER_REQUEST_TIME)
+func (c *ContextAPIConfig) TimeBetweenRequests() time.Duration {
+	return c.C.Duration(FLAG_AWS_TIME_BETWEEN_REQUESTS)
 }
