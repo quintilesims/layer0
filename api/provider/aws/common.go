@@ -243,3 +243,47 @@ func listClusterTaskARNs(ecsapi ecsiface.ECSAPI, clusterName, startedBy, status 
 
 	return taskARNs, nil
 }
+
+func listContainerInstances(ecsapi ecsiface.ECSAPI, clusterName string) ([]string, error) {
+	containerInstanceARNs := []string{}
+	fn := func(output *ecs.ListContainerInstancesOutput, lastPage bool) bool {
+		for _, c := range output.ContainerInstanceArns {
+			containerInstanceARNs = append(containerInstanceARNs, aws.StringValue(c))
+		}
+
+		return !lastPage
+	}
+
+	input := &ecs.ListContainerInstancesInput{}
+	input.SetCluster(clusterName)
+
+	if err := ecsapi.ListContainerInstancesPages(input, fn); err != nil {
+		return nil, err
+	}
+
+	return containerInstanceARNs, nil
+}
+
+func listClusterServiceNames(ecsapi ecsiface.ECSAPI, clusterNames []string) ([]string, error) {
+	var serviceNames []string
+	fn := func(output *ecs.ListServicesOutput, lastPage bool) bool {
+		for _, serviceARN := range output.ServiceArns {
+			// sample service ARN:
+			// arn:aws:ecs:us-west-2:856306994068:service/l0-tlakedev-guestbo80d9d
+			serviceName := strings.Split(aws.StringValue(serviceARN), "/")[1]
+			serviceNames = append(serviceNames, serviceName)
+		}
+
+		return !lastPage
+	}
+
+	for _, clusterName := range clusterNames {
+		input := &ecs.ListServicesInput{}
+		input.SetCluster(clusterName)
+		if err := ecsapi.ListServicesPages(input, fn); err != nil {
+			return nil, err
+		}
+	}
+
+	return serviceNames, nil
+}
