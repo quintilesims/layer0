@@ -85,6 +85,7 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_TIME_BETWEEN_REQUESTS,
 			Value:  10 * time.Millisecond,
 			EnvVar: ENVVAR_AWS_TIME_BETWEEN_REQUESTS,
+			Usage:  "duration [ns,us (or µs),ms,s,m,h]",
 		},
 		cli.IntFlag{
 			Name:   FLAG_AWS_MAX_RETRIES,
