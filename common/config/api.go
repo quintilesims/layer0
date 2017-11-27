@@ -89,7 +89,7 @@ func APIFlags() []cli.Flag {
 		},
 		cli.IntFlag{
 			Name:   FLAG_AWS_MAX_RETRIES,
-			Value:  15,
+			Value:  50,
 			EnvVar: ENVVAR_AWS_MAX_RETRIES,
 		},
 	}
