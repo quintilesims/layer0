@@ -86,6 +86,11 @@ func APIFlags() []cli.Flag {
 			Value:  10 * time.Millisecond,
 			EnvVar: ENVVAR_AWS_TIME_BETWEEN_REQUESTS,
 		},
+		cli.IntFlag{
+			Name:   FLAG_AWS_MAX_RETRIES,
+			Value:  15,
+			EnvVar: ENVVAR_AWS_MAX_RETRIES,
+		},
 	}
 }
 
@@ -107,6 +112,7 @@ type APIConfig interface {
 	DynamoTagTable() string
 	LogGroupName() string
 	TimeBetweenRequests() time.Duration
+	MaxRetries() int
 }
 
 type ContextAPIConfig struct {
@@ -212,4 +218,8 @@ func (c *ContextAPIConfig) LogGroupName() string {
 
 func (c *ContextAPIConfig) TimeBetweenRequests() time.Duration {
 	return c.C.Duration(FLAG_AWS_TIME_BETWEEN_REQUESTS)
+}
+
+func (c *ContextAPIConfig) MaxRetries() int {
+	return c.C.Int(FLAG_AWS_MAX_RETRIES)
 }

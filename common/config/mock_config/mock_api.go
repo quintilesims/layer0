@@ -129,28 +129,16 @@ func (mr *MockAPIConfigMockRecorder) LogGroupName() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogGroupName", reflect.TypeOf((*MockAPIConfig)(nil).LogGroupName))
 }
 
-// MaxRetryTime mocks base method
-func (m *MockAPIConfig) MaxRetryTime() int {
-	ret := m.ctrl.Call(m, "MaxRetryTime")
+// MaxRetries mocks base method
+func (m *MockAPIConfig) MaxRetries() int {
+	ret := m.ctrl.Call(m, "MaxRetries")
 	ret0, _ := ret[0].(int)
 	return ret0
 }
 
-// MaxRetryTime indicates an expected call of MaxRetryTime
-func (mr *MockAPIConfigMockRecorder) MaxRetryTime() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MaxRetryTime", reflect.TypeOf((*MockAPIConfig)(nil).MaxRetryTime))
-}
-
-// MinRetryTime mocks base method
-func (m *MockAPIConfig) MinRetryTime() int {
-	ret := m.ctrl.Call(m, "MinRetryTime")
-	ret0, _ := ret[0].(int)
-	return ret0
-}
-
-// MinRetryTime indicates an expected call of MinRetryTime
-func (mr *MockAPIConfigMockRecorder) MinRetryTime() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MinRetryTime", reflect.TypeOf((*MockAPIConfig)(nil).MinRetryTime))
+// MaxRetries indicates an expected call of MaxRetries
+func (mr *MockAPIConfigMockRecorder) MaxRetries() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MaxRetries", reflect.TypeOf((*MockAPIConfig)(nil).MaxRetries))
 }
 
 // Port mocks base method
