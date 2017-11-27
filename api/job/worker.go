@@ -62,7 +62,7 @@ func (w *Worker) Start() func() {
 					}
 				}
 
-				if err := w.Store.SetJobStatus(jobID, models.Completed); err != nil {
+				if err := w.Store.SetJobStatus(jobID, models.CompletedJobStatus); err != nil {
 					log.Printf("[ERROR] [JobWorker %d]: Failed to set job status for job %s: %v", w.ID, jobID, err)
 					continue
 				}

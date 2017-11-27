@@ -24,7 +24,7 @@ func (m *MemoryStore) Insert(jobType models.JobType, req string) (string, error)
 		JobID:   fmt.Sprintf("%v", time.Now().UnixNano()),
 		Type:    jobType,
 		Request: req,
-		Status:  models.Pending,
+		Status:  models.PendingJobStatus,
 		Created: time.Now(),
 		Result:  "",
 	}
@@ -44,11 +44,11 @@ func (m *MemoryStore) AcquireJob(jobID string) (bool, error) {
 		return false, err
 	}
 
-	if job.Status != models.Pending {
+	if job.Status != models.PendingJobStatus {
 		return false, nil
 	}
 
-	job.Status = models.InProgress
+	job.Status = models.InProgressJobStatus
 	return true, nil
 }
 

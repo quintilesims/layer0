@@ -58,7 +58,7 @@ func (d *Dispatcher) Run() error {
 
 	for _, job := range jobs {
 
-		if models.JobStatus(job.Status) == models.Pending {
+		if models.JobStatus(job.Status) == models.PendingJobStatus {
 			d.queue <- job.JobID
 		}
 	}

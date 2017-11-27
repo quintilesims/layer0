@@ -62,8 +62,8 @@ func (j JobStatus) String() string {
 }
 
 const (
-	Pending    JobStatus = "Pending"
-	InProgress JobStatus = "InProgress"
-	Completed  JobStatus = "Completed"
-	Error      JobStatus = "Error"
+	PendingJobStatus    = "Pending"
+	InProgressJobStatus = "InProgress"
+	CompletedJobStatus  = "Completed"
+	ErrorJobStatus      = "Error"
 )

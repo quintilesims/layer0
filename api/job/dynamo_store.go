@@ -45,7 +45,7 @@ func (d *DynamoStore) Insert(jobType models.JobType, req string) (string, error)
 		JobID:   fmt.Sprintf("%v", time.Now().UnixNano()),
 		Type:    jobType,
 		Request: req,
-		Status:  models.Pending,
+		Status:  models.PendingJobStatus,
 		Created: time.Now(),
 		Result:  "",
 	}
@@ -64,8 +64,8 @@ func (d *DynamoStore) SetInsertHook(hook func(jobID string)) {
 
 func (d *DynamoStore) AcquireJob(jobID string) (bool, error) {
 	if err := d.table.Update("JobID", jobID).
-		Set("Status", models.InProgress).
-		If("'Status' = ?", models.Pending).
+		Set("Status", models.InProgressJobStatus).
+		If("'Status' = ?", models.PendingJobStatus).
 		Run(); err != nil {
 		if strings.Contains(err.Error(), "ConditionalCheckFailedException") {
 			return false, nil
@@ -104,7 +104,7 @@ func (d *DynamoStore) SetJobResult(jobID, result string) error {
 func (d *DynamoStore) SetJobError(jobID string, err error) error {
 	if err := d.table.Update("JobID", jobID).
 		Set("Error", err.Error()).
-		Set("Status", models.Error).
+		Set("Status", models.ErrorJobStatus).
 		Run(); err != nil {
 		return err
 	}

@@ -72,9 +72,9 @@ func WaitForJob(client Client, jobID string, timeout time.Duration) (*models.Job
 		}
 
 		switch j.Status {
-		case models.Completed:
+		case models.CompletedJobStatus:
 			return j, nil
-		case models.Error:
+		case models.ErrorJobStatus:
 			var se *errors.ServerError
 			if err := json.Unmarshal([]byte(j.Error), &se); err != nil {
 				log.Printf("[DEBUG] Failed to marshal job.Error into errors.ServerError: %v", err)
