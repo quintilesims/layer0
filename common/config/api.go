@@ -86,14 +86,6 @@ func APIFlags() []cli.Flag {
 			Value:  10 * time.Millisecond,
 			EnvVar: ENVVAR_AWS_TIME_BETWEEN_REQUESTS,
 		},
-		cli.IntFlag{
-			Name:   FLAG_MIN_RETRY_TIME,
-			EnvVar: ENVVAR_MIN_RETRY_TIME,
-		},
-		cli.IntFlag{
-			Name:   FLAG_MAX_RETRY_TIME,
-			EnvVar: ENVVAR_MAX_RETRY_TIME,
-		},
 	}
 }
 
@@ -114,8 +106,6 @@ type APIConfig interface {
 	DynamoJobTable() string
 	DynamoTagTable() string
 	LogGroupName() string
-	MinRetryTime() int
-	MaxRetryTime() int
 	TimeBetweenRequests() time.Duration
 }
 
@@ -218,14 +208,6 @@ func (c *ContextAPIConfig) PrivateSubnets() []string {
 
 func (c *ContextAPIConfig) LogGroupName() string {
 	return c.C.String(FLAG_AWS_LOG_GROUP_NAME)
-}
-
-func (c *ContextAPIConfig) MinRetryTime() int {
-	return c.C.Int(FLAG_MIN_RETRY_TIME)
-}
-
-func (c *ContextAPIConfig) MaxRetryTime() int {
-	return c.C.Int(FLAG_MAX_RETRY_TIME)
 }
 
 func (c *ContextAPIConfig) TimeBetweenRequests() time.Duration {

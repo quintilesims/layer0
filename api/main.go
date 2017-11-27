@@ -56,9 +56,6 @@ func main() {
 		log.SetOutput(logger)
 
 		awsConfig := defaults.Get().Config
-		customRetryer := config.NewRetryer(cfg.MinRetryTime(), cfg.MaxRetryTime())
-		awsConfig.Retryer = customRetryer
-
 		staticCreds := credentials.NewStaticCredentials(cfg.AccessKey(), cfg.SecretKey(), "")
 		awsConfig.WithCredentials(staticCreds)
 		awsConfig.WithRegion(cfg.Region())
