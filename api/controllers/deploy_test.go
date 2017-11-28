@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/common/models"
@@ -25,7 +24,7 @@ func TestCreateDeploy(t *testing.T) {
 	}
 
 	mockJobStore.EXPECT().
-		Insert(job.CreateDeployJob, gomock.Any()).
+		Insert(models.CreateDeployJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
@@ -50,7 +49,7 @@ func TestDeleteDeploy(t *testing.T) {
 	controller := NewDeployController(mockDeployProvider, mockJobStore)
 
 	mockJobStore.EXPECT().
-		Insert(job.DeleteDeployJob, "did").
+		Insert(models.DeleteDeployJob, "did").
 		Return("jid", nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "did"})

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/common/models"
@@ -28,7 +27,7 @@ func TestCreateEnvironment(t *testing.T) {
 	}
 
 	mockJobStore.EXPECT().
-		Insert(job.CreateEnvironmentJob, gomock.Any()).
+		Insert(models.CreateEnvironmentJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
@@ -53,7 +52,7 @@ func TestDeleteEnvironment(t *testing.T) {
 	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
 
 	mockJobStore.EXPECT().
-		Insert(job.DeleteEnvironmentJob, "eid").
+		Insert(models.DeleteEnvironmentJob, "eid").
 		Return("jid", nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "eid"})
@@ -160,7 +159,7 @@ func TestUpdateEnvironment(t *testing.T) {
 	}
 
 	mockJobStore.EXPECT().
-		Insert(job.UpdateEnvironmentJob, gomock.Any()).
+		Insert(models.UpdateEnvironmentJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)

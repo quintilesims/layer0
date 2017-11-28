@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -40,8 +39,8 @@ func TestGetJob(t *testing.T) {
 
 	jobModel := models.Job{
 		JobID:   "jid",
-		Type:    job.CreateEnvironmentJob.String(),
-		Status:  job.InProgress.String(),
+		Type:    models.CreateEnvironmentJob,
+		Status:  models.InProgressJobStatus,
 		Request: "some data",
 	}
 
@@ -72,14 +71,14 @@ func TestListJobs(t *testing.T) {
 	jobModels := []*models.Job{
 		{
 			JobID:   "j1",
-			Type:    job.CreateEnvironmentJob.String(),
-			Status:  job.InProgress.String(),
+			Type:    models.CreateEnvironmentJob,
+			Status:  models.InProgressJobStatus,
 			Request: "some data",
 		},
 		{
 			JobID:   "j2",
-			Type:    job.DeleteServiceJob.String(),
-			Status:  job.Completed.String(),
+			Type:    models.DeleteServiceJob,
+			Status:  models.CompletedJobStatus,
 			Request: "sid",
 		},
 	}

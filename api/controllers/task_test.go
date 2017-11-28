@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/common/models"
@@ -28,7 +27,7 @@ func TestCreateTask(t *testing.T) {
 	}
 
 	mockJobStore.EXPECT().
-		Insert(job.CreateTaskJob, gomock.Any()).
+		Insert(models.CreateTaskJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
@@ -53,7 +52,7 @@ func TestDeleteTask(t *testing.T) {
 	controller := NewTaskController(mockTaskProvider, mockJobStore)
 
 	mockJobStore.EXPECT().
-		Insert(job.DeleteTaskJob, "tid").
+		Insert(models.DeleteTaskJob, "tid").
 		Return("jid", nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "tid"})
