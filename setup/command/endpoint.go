@@ -40,21 +40,19 @@ func (f *CommandFactory) Endpoint() cli.Command {
 			}
 
 			if c.Bool("dev") {
-				outputEnvvars[instance.OUTPUT_NAME] = config.PREFIX
-				outputEnvvars[instance.OUTPUT_ACCOUNT_ID] = config.AWS_ACCOUNT_ID
-				outputEnvvars[instance.OUTPUT_ACCESS_KEY] = config.AWS_ACCESS_KEY_ID
-				outputEnvvars[instance.OUTPUT_SECRET_KEY] = config.AWS_SECRET_ACCESS_KEY
-				outputEnvvars[instance.OUTPUT_VPC_ID] = config.AWS_VPC_ID
-				outputEnvvars[instance.OUTPUT_PRIVATE_SUBNETS] = config.AWS_PRIVATE_SUBNETS
-				outputEnvvars[instance.OUTPUT_PUBLIC_SUBNETS] = config.AWS_PUBLIC_SUBNETS
-				outputEnvvars[instance.OUTPUT_ECS_ROLE] = config.AWS_ECS_ROLE
-				outputEnvvars[instance.OUTPUT_SSH_KEY_PAIR] = config.AWS_SSH_KEY_PAIR
-				outputEnvvars[instance.OUTPUT_S3_BUCKET] = config.AWS_S3_BUCKET
-				outputEnvvars[instance.OUTPUT_ECS_INSTANCE_PROFILE] = config.AWS_ECS_INSTANCE_PROFILE
-				outputEnvvars[instance.OUTPUT_AWS_LINUX_SERVICE_AMI] = config.AWS_LINUX_SERVICE_AMI
-				outputEnvvars[instance.OUTPUT_WINDOWS_SERVICE_AMI] = config.AWS_WINDOWS_SERVICE_AMI
-				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_TAG_TABLE] = config.AWS_DYNAMO_TAG_TABLE
-				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_JOB_TABLE] = config.AWS_DYNAMO_JOB_TABLE
+				outputEnvvars[instance.OUTPUT_NAME] = config.ENVVAR_INSTANCE
+				outputEnvvars[instance.OUTPUT_ACCOUNT_ID] = config.ENVVAR_AWS_ACCOUNT_ID
+				outputEnvvars[instance.OUTPUT_ACCESS_KEY] = config.ENVVAR_AWS_ACCESS_KEY
+				outputEnvvars[instance.OUTPUT_SECRET_KEY] = config.ENVVAR_AWS_SECRET_KEY
+				outputEnvvars[instance.OUTPUT_VPC_ID] = config.ENVVAR_AWS_VPC
+				outputEnvvars[instance.OUTPUT_PRIVATE_SUBNETS] = config.ENVVAR_AWS_PRIVATE_SUBNETS
+				outputEnvvars[instance.OUTPUT_PUBLIC_SUBNETS] = config.ENVVAR_AWS_PUBLIC_SUBNETS
+				outputEnvvars[instance.OUTPUT_S3_BUCKET] = config.ENVVAR_AWS_S3_BUCKET
+				outputEnvvars[instance.OUTPUT_ECS_INSTANCE_PROFILE] = config.ENVVAR_AWS_INSTANCE_PROFILE
+				outputEnvvars[instance.OUTPUT_AWS_LINUX_SERVICE_AMI] = config.ENVVAR_AWS_LINUX_AMI
+				outputEnvvars[instance.OUTPUT_WINDOWS_SERVICE_AMI] = config.ENVVAR_AWS_WINDOWS_AMI
+				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_TAG_TABLE] = config.ENVVAR_AWS_DYNAMO_TAG_TABLE
+				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_JOB_TABLE] = config.ENVVAR_AWS_DYNAMO_JOB_TABLE
 			}
 
 			fmt.Println("# set the following environment variables in your current session: ")

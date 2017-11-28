@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/RudimentLLC/GiftRegistry/logging"
+	"github.com/quintilesims/layer0/common/logging"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/setup/command"
 	"github.com/quintilesims/layer0/setup/instance"
