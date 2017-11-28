@@ -60,12 +60,12 @@ func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(e.JobStore, models.CreateEnvironmentJob, req)
+	return createJob(e.TagStore, e.JobStore, models.CreateEnvironmentJob, req)
 }
 
 func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(e.JobStore, models.DeleteEnvironmentJob, id)
+	return createJob(e.TagStore, e.JobStore, models.DeleteEnvironmentJob, id)
 }
 
 func (e *EnvironmentController) GetEnvironment(c *fireball.Context) (fireball.Response, error) {
@@ -99,5 +99,5 @@ func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball
 	}
 
 	jobRequest := models.UpdateEnvironmentRequestJob{id, req}
-	return createJob(e.JobStore, models.UpdateEnvironmentJob, jobRequest)
+	return createJob(e.TagStore, e.JobStore, models.UpdateEnvironmentJob, jobRequest)
 }

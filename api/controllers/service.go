@@ -61,12 +61,12 @@ func (s *ServiceController) CreateService(c *fireball.Context) (fireball.Respons
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(s.JobStore, models.CreateServiceJob, req)
+	return createJob(s.TagStore, s.JobStore, models.CreateServiceJob, req)
 }
 
 func (s *ServiceController) DeleteService(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(s.JobStore, models.DeleteServiceJob, id)
+	return createJob(s.TagStore, s.JobStore, models.DeleteServiceJob, id)
 }
 
 func (s *ServiceController) GetService(c *fireball.Context) (fireball.Response, error) {
@@ -116,5 +116,5 @@ func (s *ServiceController) UpdateService(c *fireball.Context) (fireball.Respons
 	}
 
 	jobRequest := models.UpdateServiceRequestJob{id, req}
-	return createJob(s.JobStore, models.UpdateServiceJob, jobRequest)
+	return createJob(s.TagStore, s.JobStore, models.UpdateServiceJob, jobRequest)
 }

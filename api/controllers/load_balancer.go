@@ -55,12 +55,12 @@ func (l *LoadBalancerController) CreateLoadBalancer(c *fireball.Context) (fireba
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(l.JobStore, models.CreateLoadBalancerJob, req)
+	return createJob(l.TagStore, l.JobStore, models.CreateLoadBalancerJob, req)
 }
 
 func (l *LoadBalancerController) DeleteLoadBalancer(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(l.JobStore, models.DeleteLoadBalancerJob, id)
+	return createJob(l.TagStore, l.JobStore, models.DeleteLoadBalancerJob, id)
 }
 
 func (l *LoadBalancerController) ReadLoadBalancer(c *fireball.Context) (fireball.Response, error) {
@@ -95,5 +95,5 @@ func (l *LoadBalancerController) UpdateLoadBalancer(c *fireball.Context) (fireba
 	}
 
 	jobRequest := models.UpdateLoadBalancerRequestJob{id, req}
-	return createJob(l.JobStore, models.UpdateLoadBalancerJob, jobRequest)
+	return createJob(l.TagStore, l.JobStore, models.UpdateLoadBalancerJob, jobRequest)
 }
