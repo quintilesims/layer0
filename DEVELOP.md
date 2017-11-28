@@ -64,24 +64,24 @@ make build
 make release
 ```
 
-## Layer0 Runner
-The Layer0 Runner is a tool that runs asynchronous jobs.
-The [Layer0 API](#layer0-api) creates job for the Layer0 Runner.
+## Layer0 Terraform plugin
+The Layer0 Terraform plugin allows Layer0 integration with [Terraform](https://www.terraform.io/). 
+Terraform provides documentation on how to create custom providers [here](https://www.terraform.io/guides/writing-custom-terraform-providers.html). 
+The plugin is tested through both unit tests and system tests. 
+
+Current Terraform Version: v0.10.0
 
 #### Common Functions
-*The following commands should be run from the `layer0/runner` directory*
+*The following commands should be run from the `layer0/plugins/terraform` directory*
 
 ```
-# run program
-go run main.go
-
-# test program
+# run unit tests
 make test
 
 # build binary
 make build
 
-# build and push docker image for release
+# build binaries for release
 make release
 ```
 

@@ -10,7 +10,7 @@ import (
 	"github.com/docker/docker/cli"
 	"github.com/docker/docker/cli/command"
 	runconfigopts "github.com/docker/docker/runconfig/opts"
-	"github.com/docker/go-units"
+	units "github.com/docker/go-units"
 	"github.com/spf13/cobra"
 )
 

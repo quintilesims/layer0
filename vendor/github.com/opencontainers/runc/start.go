@@ -9,7 +9,6 @@ import (
 	"github.com/codegangsta/cli"
 	"github.com/coreos/go-systemd/activation"
 	"github.com/opencontainers/runc/libcontainer"
-	"github.com/opencontainers/runtime-spec/specs-go"
 )
 
 // default action is to start a container

@@ -15,8 +15,6 @@ import (
 	"path"
 
 	"github.com/hashicorp/go-cleanhttp"
-	"github.com/hashicorp/go-retryablehttp"
-	"github.com/hashicorp/go-rootcerts"
 	"github.com/hashicorp/terraform/state/remote"
 	"github.com/hashicorp/terraform/terraform"
 )

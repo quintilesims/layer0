@@ -8,6 +8,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,7 +19,8 @@ func TestCreateService(t *testing.T) {
 
 	mockServiceProvider := mock_provider.NewMockServiceProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewServiceController(mockServiceProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewServiceController(mockServiceProvider, mockJobStore, tagStore)
 
 	req := models.CreateServiceRequest{
 		DeployID:       "deploy_id",
@@ -50,7 +52,8 @@ func TestDeleteService(t *testing.T) {
 
 	mockServiceProvider := mock_provider.NewMockServiceProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewServiceController(mockServiceProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewServiceController(mockServiceProvider, mockJobStore, tagStore)
 
 	mockJobStore.EXPECT().
 		Insert(models.DeleteServiceJob, "sid").
@@ -75,7 +78,8 @@ func TestGetService(t *testing.T) {
 
 	mockServiceProvider := mock_provider.NewMockServiceProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewServiceController(mockServiceProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewServiceController(mockServiceProvider, mockJobStore, tagStore)
 
 	serviceModel := models.Service{
 		Deployments:      ([]models.Deployment(nil)),
@@ -113,7 +117,8 @@ func TestGetServiceLogs(t *testing.T) {
 
 	mockServiceProvider := mock_provider.NewMockServiceProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewServiceController(mockServiceProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewServiceController(mockServiceProvider, mockJobStore, tagStore)
 
 	logFiles := []models.LogFile{
 		{
@@ -161,7 +166,8 @@ func TestListServices(t *testing.T) {
 
 	mockServiceProvider := mock_provider.NewMockServiceProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewServiceController(mockServiceProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewServiceController(mockServiceProvider, mockJobStore, tagStore)
 
 	serviceSummaries := []models.ServiceSummary{
 		{

@@ -5,6 +5,7 @@ import (
 
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
@@ -13,12 +14,14 @@ import (
 type ServiceController struct {
 	ServiceProvider provider.ServiceProvider
 	JobStore        job.Store
+	TagStore        tag.Store
 }
 
-func NewServiceController(s provider.ServiceProvider, j job.Store) *ServiceController {
+func NewServiceController(s provider.ServiceProvider, j job.Store, t tag.Store) *ServiceController {
 	return &ServiceController{
 		ServiceProvider: s,
 		JobStore:        j,
+		TagStore:        t,
 	}
 }
 

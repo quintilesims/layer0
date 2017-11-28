@@ -7,22 +7,24 @@ import (
 	"github.com/urfave/cli"
 )
 
+const DefaultTimeout = time.Minute * 15
+
 func CLIFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
-			Name:   FLAG_OUTPUT,
+			Name:   fmt.Sprintf("o, %s", FLAG_OUTPUT),
 			EnvVar: FLAG_OUTPUT,
 			Value:  "text",
 			Usage:  "output format [text,json]",
 		},
 		cli.DurationFlag{
-			Name:   FLAG_TIMEOUT,
+			Name:   fmt.Sprintf("t, %s", FLAG_TIMEOUT),
 			EnvVar: ENVVAR_TIMEOUT,
-			Value:  time.Minute * 15,
+			Value:  DefaultTimeout,
 			Usage:  "timeout [h,m,s,ms]",
 		},
 		cli.BoolFlag{
-			Name:   FLAG_DEBUG,
+			Name:   fmt.Sprintf("d, %s", FLAG_DEBUG),
 			EnvVar: ENVVAR_DEBUG,
 			Usage:  "show debug output",
 		},

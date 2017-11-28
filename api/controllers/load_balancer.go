@@ -5,6 +5,7 @@ import (
 
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
@@ -13,12 +14,14 @@ import (
 type LoadBalancerController struct {
 	LoadBalancerProvider provider.LoadBalancerProvider
 	JobStore             job.Store
+	TagStore             tag.Store
 }
 
-func NewLoadBalancerController(l provider.LoadBalancerProvider, j job.Store) *LoadBalancerController {
+func NewLoadBalancerController(l provider.LoadBalancerProvider, j job.Store, t tag.Store) *LoadBalancerController {
 	return &LoadBalancerController{
 		LoadBalancerProvider: l,
 		JobStore:             j,
+		TagStore:             t,
 	}
 }
 

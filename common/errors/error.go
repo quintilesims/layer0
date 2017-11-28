@@ -1,7 +1,10 @@
 package errors
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -33,21 +36,26 @@ func (s *ServerError) Model() models.ServerError {
 	}
 }
 
-func NewEntityDoesNotExistError(entityType, entityID string) *ServerError {
-	switch entityType {
-	case "deploy":
-		return Newf(DeployDoesNotExist, "Deploy '%s' does not exist", entityID)
-	case "environment":
-		return Newf(EnvironmentDoesNotExist, "Environment '%s' does not exist", entityID)
-	case "job":
-		return Newf(JobDoesNotExist, "Job '%s' does not exist", entityID)
-	case "load_balancer":
-		return Newf(LoadBalancerDoesNotExist, "Load balancer '%s' does not exist", entityID)
-	case "service":
-		return Newf(ServiceDoesNotExist, "Service '%s' does not exist", entityID)
-	case "task":
-		return Newf(TaskDoesNotExist, "Task '%s' does not exist", entityID)
+func (s *ServerError) Write(w http.ResponseWriter, r *http.Request) {
+	switch s.Code {
+	case InvalidRequest,
+		DeployDoesNotExist,
+		EnvironmentDoesNotExist,
+		JobDoesNotExist,
+		LoadBalancerDoesNotExist,
+		ServiceDoesNotExist,
+		TaskDoesNotExist:
+		w.WriteHeader(http.StatusBadRequest)
 	default:
-		return Newf(UnexpectedError, "Entity (type='%s') '%s' does not exist", entityType, entityID)
+		w.WriteHeader(http.StatusInternalServerError)
 	}
+
+	body, err := json.Marshal(s.Model())
+	if err != nil {
+		log.Printf("[ERROR] Failed to marshal server error: %v", err)
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	w.Write(body)
 }

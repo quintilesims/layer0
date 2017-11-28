@@ -6,6 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +17,8 @@ func TestCreateDeploy(t *testing.T) {
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
 
 	req := models.CreateDeployRequest{
 		DeployName: "deploy1",
@@ -46,7 +48,8 @@ func TestDeleteDeploy(t *testing.T) {
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
 
 	mockJobStore.EXPECT().
 		Insert(models.DeleteDeployJob, "did").
@@ -78,7 +81,8 @@ func TestGetDeploy(t *testing.T) {
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
 
 	mockDeployProvider.EXPECT().
 		Read("d1").
@@ -103,7 +107,8 @@ func TestListDeploys(t *testing.T) {
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
 
 	deploySummaries := []models.DeploySummary{
 		{

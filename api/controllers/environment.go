@@ -5,6 +5,7 @@ import (
 
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
@@ -13,12 +14,14 @@ import (
 type EnvironmentController struct {
 	EnvironmentProvider provider.EnvironmentProvider
 	JobStore            job.Store
+	TagStore            tag.Store
 }
 
-func NewEnvironmentController(e provider.EnvironmentProvider, j job.Store) *EnvironmentController {
+func NewEnvironmentController(e provider.EnvironmentProvider, j job.Store, t tag.Store) *EnvironmentController {
 	return &EnvironmentController{
 		EnvironmentProvider: e,
 		JobStore:            j,
+		TagStore:            t,
 	}
 }
 

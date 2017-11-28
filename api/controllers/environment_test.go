@@ -6,6 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,7 +17,8 @@ func TestCreateEnvironment(t *testing.T) {
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName: "env",
@@ -49,7 +51,8 @@ func TestDeleteEnvironment(t *testing.T) {
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
 
 	mockJobStore.EXPECT().
 		Insert(models.DeleteEnvironmentJob, "eid").
@@ -74,7 +77,8 @@ func TestGetEnvironment(t *testing.T) {
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
 
 	environmentModel := models.Environment{
 		EnvironmentID:   "e1",
@@ -110,7 +114,8 @@ func TestListEnvironments(t *testing.T) {
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
 
 	environmentSummaries := []models.EnvironmentSummary{
 		{
@@ -148,7 +153,8 @@ func TestUpdateEnvironment(t *testing.T) {
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
 
 	minClusterCount := 2
 	links := []string{"e2"}
