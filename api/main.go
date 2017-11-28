@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/defaults"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/api/controllers"
 	"github.com/quintilesims/layer0/api/job"
@@ -25,7 +26,6 @@ import (
 const (
 	SWAGGER_URL     = "/api/"
 	SWAGGER_UI_PATH = "static/swagger-ui/dist"
-	MAX_AWS_RETRIES = 15
 )
 
 func serveSwaggerUI(w http.ResponseWriter, r *http.Request) {
@@ -58,10 +58,16 @@ func main() {
 		staticCreds := credentials.NewStaticCredentials(cfg.AccessKey(), cfg.SecretKey(), "")
 		awsConfig.WithCredentials(staticCreds)
 		awsConfig.WithRegion(cfg.Region())
-		awsConfig.WithMaxRetries(MAX_AWS_RETRIES)
+		awsConfig.WithMaxRetries(cfg.MaxRetries())
 		session := session.New(awsConfig)
 
-		client := awsclient.NewClient(awsConfig)
+		delay := c.Duration(config.FLAG_AWS_TIME_BETWEEN_REQUESTS)
+		ticker := time.Tick(delay)
+		session.Handlers.Send.PushBack(func(r *request.Request) {
+			<-ticker
+		})
+
+		client := awsclient.NewClient(session)
 		tagStore := tag.NewDynamoStore(session, cfg.DynamoTagTable())
 		jobStore := job.NewDynamoStore(session, cfg.DynamoJobTable())
 
