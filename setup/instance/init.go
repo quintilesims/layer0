@@ -44,7 +44,7 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 	if err := l.Terraform.Init(l.Dir); err != nil {
 		return err
 	}
-	
+
 	// run `terraform get` to download terraform modules
 	if err := l.Terraform.Get(l.Dir); err != nil {
 		return err
@@ -84,7 +84,7 @@ func (l *LocalInstance) setLayer0ModuleInputs(config *terraform.Config, inputOve
 
 		// if the user specified the input with a cli flag, use it
 		if v, ok := inputOverrides[input.Name]; ok {
-			log.Printf("[INFO] Using cli flag/environment variable for %s", input.Name)
+			log.Printf("[DEBUG] Using cli flag/environment variable for %s", input.Name)
 			module[input.Name] = v
 			continue
 		}

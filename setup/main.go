@@ -6,8 +6,8 @@ import (
 	"os"
 
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/logging"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/logging"
 	"github.com/quintilesims/layer0/setup/command"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"

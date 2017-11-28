@@ -5,11 +5,12 @@
 package mock_aws
 
 import (
+	reflect "reflect"
+
 	aws "github.com/aws/aws-sdk-go/aws"
 	request "github.com/aws/aws-sdk-go/aws/request"
 	cloudwatchlogs "github.com/aws/aws-sdk-go/service/cloudwatchlogs"
 	gomock "github.com/golang/mock/gomock"
-	reflect "reflect"
 )
 
 // MockCloudWatchLogsAPI is a mock of CloudWatchLogsAPI interface

@@ -42,7 +42,7 @@ func (f *CommandFactory) newAWSClientHelper(c *cli.Context) (*awsc.Client, error
 		staticCreds := credentials.NewStaticCredentials(accessKey, secretKey, "")
 		awsConfig.WithCredentials(staticCreds)
 	} else {
-		log.Println("[WARN] aws-access-key or aws-secret-key was not specified. Using default credentials")
+		log.Println("[DEBUG] aws-access-key or aws-secret-key was not specified. Using default credentials")
 	}
 
 	// ensure credentials are available
@@ -61,7 +61,7 @@ func (f *CommandFactory) newAWSClientHelper(c *cli.Context) (*awsc.Client, error
 	if region := c.String("aws-region"); region != "" {
 		awsConfig.WithRegion(region)
 	} else {
-		log.Println("[WARN] aws-region was not specified. Using default")
+		log.Println("[DEBUG] aws-region was not specified. Using default")
 	}
 
 	sess := session.New(awsConfig)
