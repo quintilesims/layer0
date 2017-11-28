@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -147,7 +146,7 @@ func TestCreateEnvironment(t *testing.T) {
 		environment := &models.Environment{}
 		job := &models.Job{
 			JobID:  "job_id",
-			Status: job.Completed.String(),
+			Status: models.CompletedJobStatus,
 			Result: "entity_id",
 		}
 
@@ -189,7 +188,7 @@ func TestDeleteEnvironment(t *testing.T) {
 
 		job := &models.Job{
 			JobID:  "job_id",
-			Status: job.Completed.String(),
+			Status: models.CompletedJobStatus,
 			Result: "entity_id",
 		}
 
@@ -264,7 +263,7 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 		minCount := 2
 		job := &models.Job{
 			JobID:  "job_id",
-			Status: job.Completed.String(),
+			Status: models.CompletedJobStatus,
 			Result: "entity_id",
 		}
 
@@ -331,7 +330,7 @@ func TestEnvironmentLinkBiDirectional(t *testing.T) {
 
 		job1 := &models.Job{
 			JobID:  "job_id1",
-			Status: job.Completed.String(),
+			Status: models.CompletedJobStatus,
 			Result: "env_id1",
 		}
 
@@ -343,7 +342,7 @@ func TestEnvironmentLinkBiDirectional(t *testing.T) {
 
 		job2 := &models.Job{
 			JobID:  "job_id2",
-			Status: job.Completed.String(),
+			Status: models.CompletedJobStatus,
 			Result: "env_id2",
 		}
 
@@ -400,7 +399,7 @@ func TestEnvironmentLinkUniDirectional(t *testing.T) {
 
 		job1 := &models.Job{
 			JobID:  "job_id1",
-			Status: job.Completed.String(),
+			Status: models.CompletedJobStatus,
 			Result: "env_id1",
 		}
 
@@ -459,7 +458,7 @@ func TestEnvironmentUnlinkBiDirectional(t *testing.T) {
 
 		job1 := &models.Job{
 			JobID:  "job_id1",
-			Status: job.Completed.String(),
+			Status: models.CompletedJobStatus,
 			Result: "env_id1",
 		}
 
@@ -471,7 +470,7 @@ func TestEnvironmentUnlinkBiDirectional(t *testing.T) {
 
 		job2 := &models.Job{
 			JobID:  "job_id2",
-			Status: job.Completed.String(),
+			Status: models.CompletedJobStatus,
 			Result: "env_id2",
 		}
 
@@ -528,7 +527,7 @@ func TestEnvironmentUnlinkUnidirectional(t *testing.T) {
 
 		job1 := &models.Job{
 			JobID:  "job_id1",
-			Status: job.Completed.String(),
+			Status: models.CompletedJobStatus,
 			Result: "env_id1",
 		}
 
