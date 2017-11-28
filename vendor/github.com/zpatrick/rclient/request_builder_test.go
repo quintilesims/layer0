@@ -2,10 +2,11 @@ package rclient
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"io/ioutil"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestBuildJSONRequest(t *testing.T) {

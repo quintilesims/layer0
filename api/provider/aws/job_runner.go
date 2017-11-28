@@ -121,7 +121,16 @@ func (r *JobRunner) createService(jobID, request string) (string, error) {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	serviceID, err := r.serviceProvider.Create(req)
+	serviceID, err := catchAndRetry(time.Minute*5, func() (result string, err error, shouldRetry bool) {
+		log.Printf("[DEBUG] [JobRunner] Creating service %s", req.ServiceName)
+		serviceID, err := r.serviceProvider.Create(req)
+		if err != nil {
+			log.Printf("[DEBUG] [JobRunner] Failed to create service %s: %v", req.ServiceName, err)
+			return "", err, true
+		}
+
+		return serviceID, nil, false
+	})
 	if err != nil {
 		return "", err
 	}

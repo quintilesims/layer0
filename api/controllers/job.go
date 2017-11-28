@@ -2,16 +2,19 @@ package controllers
 
 import (
 	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/zpatrick/fireball"
 )
 
 type JobController struct {
 	JobStore job.Store
+	TagStore tag.Store
 }
 
-func NewJobController(j job.Store) *JobController {
+func NewJobController(j job.Store, t tag.Store) *JobController {
 	return &JobController{
 		JobStore: j,
+		TagStore: t,
 	}
 }
 
@@ -34,8 +37,12 @@ func (j *JobController) Routes() []*fireball.Route {
 }
 
 func (j *JobController) DeleteJob(c *fireball.Context) (fireball.Response, error) {
-	id := c.PathVariables["id"]
-	if err := j.JobStore.Delete(id); err != nil {
+	jobID := c.PathVariables["id"]
+	if err := j.JobStore.Delete(jobID); err != nil {
+		return nil, err
+	}
+
+	if err := j.TagStore.Delete("job", jobID, "name"); err != nil {
 		return nil, err
 	}
 

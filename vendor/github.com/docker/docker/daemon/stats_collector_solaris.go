@@ -1,8 +1,9 @@
 package daemon
 
 import (
-	"github.com/docker/docker/container"
 	"time"
+
+	"github.com/docker/docker/container"
 )
 
 // newStatsCollector returns a new statsCollector for collection stats
