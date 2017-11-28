@@ -29,7 +29,7 @@ import (
 	"github.com/docker/docker/pkg/urlutil"
 	"github.com/docker/docker/reference"
 	runconfigopts "github.com/docker/docker/runconfig/opts"
-	"github.com/docker/go-units"
+	units "github.com/docker/go-units"
 	"github.com/spf13/cobra"
 )
 

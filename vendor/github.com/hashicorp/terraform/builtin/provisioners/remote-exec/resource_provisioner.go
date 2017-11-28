@@ -16,7 +16,6 @@ import (
 	"github.com/hashicorp/terraform/communicator/remote"
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
-	"github.com/mitchellh/go-linereader"
 )
 
 // maxBackoffDealy is the maximum delay between retry attempts

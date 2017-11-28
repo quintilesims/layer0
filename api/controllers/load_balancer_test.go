@@ -7,6 +7,7 @@ import (
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +18,8 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore, tagStore)
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb1",
@@ -56,7 +58,8 @@ func TestDeleteLoadBalancer(t *testing.T) {
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore, tagStore)
 
 	mockJobStore.EXPECT().
 		Insert(job.DeleteLoadBalancerJob, "lid").
@@ -81,7 +84,8 @@ func TestReadLoadBalancer(t *testing.T) {
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore, tagStore)
 
 	loadBalancerModel := models.LoadBalancer{
 		EnvironmentID:    "e1",
@@ -119,7 +123,8 @@ func TestListLoadBalancers(t *testing.T) {
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore, tagStore)
 
 	loadBalancerSummaries := []models.LoadBalancerSummary{
 		{
@@ -159,7 +164,8 @@ func TestUpdateLoadBalancer(t *testing.T) {
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore, tagStore)
 
 	req := models.UpdateLoadBalancerRequest{
 		Ports: &[]models.Port{},

@@ -6,6 +6,7 @@ import (
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/job/mock_job"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -15,7 +16,8 @@ func TestDeleteJob(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewJobController(mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewJobController(mockJobStore, tagStore)
 
 	mockJobStore.EXPECT().
 		Delete("jid").
@@ -36,7 +38,8 @@ func TestGetJob(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewJobController(mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewJobController(mockJobStore, tagStore)
 
 	jobModel := models.Job{
 		JobID:   "jid",
@@ -67,7 +70,8 @@ func TestListJobs(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewJobController(mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewJobController(mockJobStore, tagStore)
 
 	jobModels := []*models.Job{
 		{

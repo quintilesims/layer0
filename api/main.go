@@ -84,16 +84,21 @@ func main() {
 
 		routes := controllers.NewSwaggerController(Version).Routes()
 		routes = append(routes, controllers.NewAdminController(cfg, Version).Routes()...)
-		routes = append(routes, controllers.NewDeployController(deployProvider, jobStore).Routes()...)
-		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore).Routes()...)
-		routes = append(routes, controllers.NewJobController(jobStore).Routes()...)
-		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider, jobStore).Routes()...)
-		routes = append(routes, controllers.NewServiceController(serviceProvider, jobStore).Routes()...)
+		routes = append(routes, controllers.NewDeployController(deployProvider, jobStore, tagStore).Routes()...)
+		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore, tagStore).Routes()...)
+		routes = append(routes, controllers.NewJobController(jobStore, tagStore).Routes()...)
+		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider, jobStore, tagStore).Routes()...)
+		routes = append(routes, controllers.NewServiceController(serviceProvider, jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewTagController(tagStore).Routes()...)
-		routes = append(routes, controllers.NewTaskController(taskProvider, jobStore).Routes()...)
+		routes = append(routes, controllers.NewTaskController(taskProvider, jobStore, tagStore).Routes()...)
+
+		// todo: add auth decroator
+		routes = fireball.Decorate(routes,
+			fireball.LogDecorator())
 
 		// todo: add decorators to routes
 		server := fireball.NewApp(routes)
+		server.ErrorHandler = controllers.ErrorHandler
 
 		// todo: get num workers from config
 		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner)

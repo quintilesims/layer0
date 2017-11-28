@@ -1,8 +1,9 @@
 package jmespath
 
 import (
-	"github.com/stretchr/testify/assert"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestSlicePositiveStep(t *testing.T) {

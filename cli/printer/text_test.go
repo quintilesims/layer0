@@ -3,6 +3,7 @@ package printer
 import (
 	"time"
 
+	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -83,43 +84,31 @@ func ExampleTextPrintJobs() {
 	printer := &TextPrinter{}
 	jobs := []*models.Job{
 		{
-			JobID:       "id1",
-			TaskID:      "t1",
-			JobType:     int64(types.DeleteEnvironmentJob),
-			JobStatus:   int64(types.Pending),
-			TimeCreated: time.Time{},
+			JobID:   "job_id1",
+			Type:    job.DeleteEnvironmentJob.String(),
+			Status:  job.Pending.String(),
+			Created: time.Time{},
 		},
 		{
-			JobID:       "id2",
-			TaskID:      "t2",
-			JobType:     int64(types.DeleteServiceJob),
-			JobStatus:   int64(types.InProgress),
-			TimeCreated: time.Time{},
+			JobID:   "job_id2",
+			Type:    job.CreateServiceJob.String(),
+			Status:  job.InProgress.String(),
+			Created: time.Time{},
 		},
 		{
-			JobID:       "id3",
-			TaskID:      "t3",
-			JobType:     int64(types.DeleteLoadBalancerJob),
-			JobStatus:   int64(types.Completed),
-			TimeCreated: time.Time{},
-		},
-		{
-			JobID:       "id4",
-			TaskID:      "t4",
-			JobType:     int64(types.DeleteEnvironmentJob),
-			JobStatus:   int64(types.Error),
-			TimeCreated: time.Time{},
+			JobID:   "job_id3",
+			Type:    job.UpdateLoadBalancerJob.String(),
+			Status:  job.Error.String(),
+			Created: time.Time{},
 		},
 	}
 
 	printer.PrintJobs(jobs...)
 	// Output:
-	// JOB ID  TASK ID  TYPE                  STATUS       CREATED
-	// id1     t1       Delete Environment    Pending      0001-01-01 00:00:00
-	// id2     t2       Delete Service        In Progress  0001-01-01 00:00:00
-	// id3     t3       Delete Load Balancer  Completed    0001-01-01 00:00:00
-	// id4     t4       Delete Environment    Error        0001-01-01 00:00:00
-
+	// JOB ID   TYPE                STATUS      CREATED
+	// job_id1  DeleteEnvironment   Pending     0001-01-01 00:00:00
+	// job_id2  CreateService       InProgress  0001-01-01 00:00:00
+	// job_id3  UpdateLoadBalancer  Error       0001-01-01 00:00:00
 }
 
 func ExampleTextPrintLoadBalancers() {
@@ -228,8 +217,8 @@ func ExampleTextPrintLoadBalancerHealthCheck() {
 func ExampleTextPrintLogs() {
 	printer := &TextPrinter{}
 	logs := []*models.LogFile{
-		{Name: "file1", Lines: []string{"line1", "line2", "line3"}},
-		{Name: "file2", Lines: []string{"lineA", "lineB", "lineC"}},
+		{ContainerName: "file1", Lines: []string{"line1", "line2", "line3"}},
+		{ContainerName: "file2", Lines: []string{"lineA", "lineB", "lineC"}},
 	}
 
 	printer.PrintLogs(logs...)
@@ -356,45 +345,40 @@ func ExampleTextPrintTasks() {
 			TaskName:        "tsk1",
 			EnvironmentID:   "eid1",
 			EnvironmentName: "ename1",
-			RunningCount:    1,
-			DesiredCount:    1,
 			DeployName:      "d1",
 			DeployVersion:   "1",
+			Status:          "RUNNING",
 		},
 		{
 			TaskID:        "id2",
 			TaskName:      "tsk2",
 			EnvironmentID: "eid2",
-			RunningCount:  1,
-			DesiredCount:  1,
 			DeployID:      "d2.1",
+			Status:        "RUNNING",
 		},
 		{
 			TaskID:        "id3",
 			TaskName:      "tsk3",
 			EnvironmentID: "eid3",
-			RunningCount:  0,
-			DesiredCount:  1,
-			PendingCount:  1,
 			DeployID:      "d3.1",
+			Status:        "RUNNING",
 		},
 		{
 			TaskID:        "id4",
 			TaskName:      "tsk4",
 			EnvironmentID: "eid4",
-			RunningCount:  1,
-			DesiredCount:  0,
 			DeployID:      "d4.1",
+			Status:        "RUNNING",
 		},
 	}
 
 	printer.PrintTasks(tasks...)
 	// Output:
-	// TASK ID  TASK NAME  ENVIRONMENT  DEPLOY  SCALE
-	// id1      tsk1       ename1       d1:1    1/1
-	// id2      tsk2       eid2         d2:1    1/1
-	// id3      tsk3       eid3         d3:1    0/1 (1)
-	// id4      tsk4       eid4         d4:1    1/0
+	// TASK ID  TASK NAME  ENVIRONMENT  DEPLOY  STATUS
+	// id1      tsk1       ename1       d1:1    RUNNING
+	// id2      tsk2       eid2         d2:1    RUNNING
+	// id3      tsk3       eid3         d3:1    RUNNING
+	// id4      tsk4       eid4         d4:1    RUNNING
 }
 
 func ExampleTextPrintTaskSummaries() {
