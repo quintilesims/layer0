@@ -2,6 +2,7 @@ package aws
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/zpatrick/go-bytesize"
@@ -55,10 +56,30 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 }
 
 func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]models.ResourceProvider, error) {
-	input := &ecs.DescribeContainerInstancesInput{}
-	input.SetCluster(clusterName)
+	listContainerInstancesInput := &ecs.ListContainerInstancesInput{}
+	listContainerInstancesInput.SetCluster(clusterName)
 
-	output, err := e.Client.ECS.DescribeContainerInstances(input)
+	containerInstanceARNs := []*string{}
+	listContainerInstancesPagesFN := func(output *ecs.ListContainerInstancesOutput, lastPage bool) bool {
+		containerInstanceARNs = append(containerInstanceARNs, output.ContainerInstanceArns...)
+
+		return !lastPage
+	}
+
+	if err := e.Client.ECS.ListContainerInstancesPages(listContainerInstancesInput, listContainerInstancesPagesFN); err != nil {
+		return nil, err
+	}
+
+	log.Printf("[DEBUG] containerInstanceARNs:")
+	for _, arn := range containerInstanceARNs {
+		log.Printf("[DEBUG] %#v", aws.StringValue(arn))
+	}
+
+	describeContainerInstancesInput := &ecs.DescribeContainerInstancesInput{}
+	describeContainerInstancesInput.SetCluster(clusterName)
+	describeContainerInstancesInput.SetContainerInstances(containerInstanceARNs)
+
+	output, err := e.Client.ECS.DescribeContainerInstances(describeContainerInstancesInput)
 	if err != nil {
 		return nil, err
 	}
@@ -114,6 +135,11 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]models.R
 }
 
 func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.ResourceConsumer, error) {
+	// from scaler in develop, there are funcs to aggregate three types of resources
+	//   - getPendingServiceResources
+	//   - getPendingTaskResourcesInECS
+	//   - getPendingTaskResourcesInJobs
+
 	// get pending service resource consumers
 	input := &ecs.DescribeServicesInput{}
 	input.SetCluster(clusterName)
@@ -150,7 +176,7 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 		}
 	}
 
-	// get pending task resource consumers
+	// get pending task resource consumers in ECS
 	// input := &ecs.DescribeTasksInput{}
 	// input.SetCluster(clusterName)
 	// output, err := e.Client.ECS.DescribeTasks(input)
@@ -160,6 +186,8 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 
 	// for _, task := range output.Tasks {
 	// }
+
+	// get pending task resource consumers in jobs
 
 	return nil, nil
 }
