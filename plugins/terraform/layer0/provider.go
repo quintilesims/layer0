@@ -18,7 +18,7 @@ func Provider() terraform.ResourceProvider {
 			"token": {
 				Type:        schema.TypeString,
 				Required:    true,
-				Description: "The endpoint of the Layer0 API",
+				Description: "The authentication token of the Layer0 API",
 			},
 			"skip_ssl_verify": {
 				Type:        schema.TypeBool,
