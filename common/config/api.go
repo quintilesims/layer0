@@ -2,6 +2,7 @@ package config
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/urfave/cli"
 )
@@ -80,6 +81,17 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_LOG_GROUP_NAME,
 			EnvVar: ENVVAR_AWS_LOG_GROUP_NAME,
 		},
+		cli.DurationFlag{
+			Name:   FLAG_AWS_TIME_BETWEEN_REQUESTS,
+			Value:  10 * time.Millisecond,
+			EnvVar: ENVVAR_AWS_TIME_BETWEEN_REQUESTS,
+			Usage:  "duration [ns,us (or µs),ms,s,m,h]",
+		},
+		cli.IntFlag{
+			Name:   FLAG_AWS_MAX_RETRIES,
+			Value:  50,
+			EnvVar: ENVVAR_AWS_MAX_RETRIES,
+		},
 	}
 }
 
@@ -100,6 +112,8 @@ type APIConfig interface {
 	DynamoJobTable() string
 	DynamoTagTable() string
 	LogGroupName() string
+	TimeBetweenRequests() time.Duration
+	MaxRetries() int
 }
 
 type ContextAPIConfig struct {
@@ -201,4 +215,12 @@ func (c *ContextAPIConfig) PrivateSubnets() []string {
 
 func (c *ContextAPIConfig) LogGroupName() string {
 	return c.C.String(FLAG_AWS_LOG_GROUP_NAME)
+}
+
+func (c *ContextAPIConfig) TimeBetweenRequests() time.Duration {
+	return c.C.Duration(FLAG_AWS_TIME_BETWEEN_REQUESTS)
+}
+
+func (c *ContextAPIConfig) MaxRetries() int {
+	return c.C.Int(FLAG_AWS_MAX_RETRIES)
 }

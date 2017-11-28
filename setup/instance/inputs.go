@@ -2,8 +2,7 @@ package instance
 
 import (
 	"fmt"
-
-	"github.com/Sirupsen/logrus"
+	"log"
 )
 
 const LAYER0_MODULE_SOURCE = "github.com/quintilesims/layer0//setup/module"
@@ -107,7 +106,7 @@ type ModuleInput struct {
 
 func InitializeLayer0ModuleInputs(version string) {
 	if version == "" {
-		logrus.Warningf("Version not set. Using default values for 'source' and 'version' inputs")
+		log.Printf("[WARN] Version not set. Using default values for 'source' and 'version' inputs")
 		return
 	}
 

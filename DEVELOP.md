@@ -69,6 +69,8 @@ The Layer0 Terraform plugin allows Layer0 integration with [Terraform](https://w
 Terraform provides documentation on how to create custom providers [here](https://www.terraform.io/guides/writing-custom-terraform-providers.html). 
 The plugin is tested through both unit tests and system tests. 
 
+Current Terraform Version: v0.10.0
+
 #### Common Functions
 *The following commands should be run from the `layer0/plugins/terraform` directory*
 

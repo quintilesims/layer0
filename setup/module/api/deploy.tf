@@ -20,7 +20,7 @@ data "template_file" "container_definitions" {
     s3_bucket            = "${aws_s3_bucket.mod.id}"
     linux_service_ami    = "${lookup(var.linux_region_amis, var.region)}"
     windows_service_ami  = "${lookup(var.windows_region_amis, var.region)}"
-    l0_prefix            = "${var.name}"
+    l0_instance          = "${var.name}"
     account_id           = "${data.aws_caller_identity.current.account_id}"
     ssh_key_pair         = "${var.ssh_key_pair}"
     log_group_name       = "${aws_cloudwatch_log_group.mod.id}"

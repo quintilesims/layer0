@@ -59,8 +59,6 @@ func TestEndpointDev(t *testing.T) {
 			instance.OUTPUT_VPC_ID,
 			instance.OUTPUT_PRIVATE_SUBNETS,
 			instance.OUTPUT_PUBLIC_SUBNETS,
-			instance.OUTPUT_ECS_ROLE,
-			instance.OUTPUT_SSH_KEY_PAIR,
 			instance.OUTPUT_S3_BUCKET,
 			instance.OUTPUT_ECS_INSTANCE_PROFILE,
 			instance.OUTPUT_AWS_LINUX_SERVICE_AMI,

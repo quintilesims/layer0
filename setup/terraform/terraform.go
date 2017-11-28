@@ -39,6 +39,10 @@ func (t *Terraform) Get(dir string) error {
 	return t.run(dir, "get", "-update")
 }
 
+func (t *Terraform) Init(dir string) error {
+	return t.run(dir, "init")
+}
+
 func (t *Terraform) Output(dir, key string) (string, error) {
 	if err := t.validateTerraformVersion(); err != nil {
 		return "", err

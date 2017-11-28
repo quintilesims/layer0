@@ -20,6 +20,12 @@ func NewSwaggerController(version string) *SwaggerController {
 func (s *SwaggerController) Routes() []*fireball.Route {
 	routes := []*fireball.Route{
 		{
+			Path: "/",
+			Handlers: fireball.Handlers{
+				"GET": s.Root,
+			},
+		},
+		{
 			Path: "/swagger.json",
 			Handlers: fireball.Handlers{
 				"GET": s.ServeSwaggerSpec,
@@ -28,6 +34,11 @@ func (s *SwaggerController) Routes() []*fireball.Route {
 	}
 
 	return routes
+}
+
+func (s *SwaggerController) Root(c *fireball.Context) (fireball.Response, error){
+	html := "<a href='/api/?url=/swagger.json'>Swagger</a>"
+	return fireball.NewResponse(200, []byte(html), nil), nil
 }
 
 func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Response, error) {

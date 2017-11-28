@@ -2,11 +2,12 @@ package command
 
 import (
 	"fmt"
+	"log"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/defaults"
+	"github.com/aws/aws-sdk-go/aws/session"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/urfave/cli"
@@ -41,7 +42,7 @@ func (f *CommandFactory) newAWSClientHelper(c *cli.Context) (*awsc.Client, error
 		staticCreds := credentials.NewStaticCredentials(accessKey, secretKey, "")
 		awsConfig.WithCredentials(staticCreds)
 	} else {
-		logrus.Debugf("aws-access-key or aws-secret-key was not specified. Using default credentials")
+		log.Println("[WARN] aws-access-key or aws-secret-key was not specified. Using default credentials")
 	}
 
 	// ensure credentials are available
@@ -60,8 +61,9 @@ func (f *CommandFactory) newAWSClientHelper(c *cli.Context) (*awsc.Client, error
 	if region := c.String("aws-region"); region != "" {
 		awsConfig.WithRegion(region)
 	} else {
-		logrus.Debugf("aws-region was not specified. Using default")
+		log.Println("[WARN] aws-region was not specified. Using default")
 	}
 
-	return f.NewAWSClient(awsConfig), nil
+	sess := session.New(awsConfig)
+	return f.NewAWSClient(sess), nil
 }

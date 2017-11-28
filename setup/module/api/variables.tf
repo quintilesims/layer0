@@ -25,7 +25,7 @@ variable "tags" {
 variable "linux_region_amis" {
   default = {
     us-west-1 = "ami-e5cdf385"
-    us-west-2 = "ami-4f8d912b"
+    us-west-2 = "ami-62d35c02"
     us-east-1 = "ami-71ef560b"
     eu-west-1 = "ami-014ae578"
   }
