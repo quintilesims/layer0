@@ -5,6 +5,7 @@ import (
 	"log"
 	"os"
 
+	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/logging"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/setup/command"
@@ -26,7 +27,7 @@ func main() {
 	app.Version = Version
 	app.Flags = config.SetupFlags()
 
-	commandFactory := command.NewCommandFactory(instance.NewLocalInstance, aws.NewProvider)
+	commandFactory := command.NewCommandFactory(instance.NewLocalInstance, awsc.NewClient)
 	app.Commands = []cli.Command{
 		commandFactory.Init(),
 		commandFactory.List(),

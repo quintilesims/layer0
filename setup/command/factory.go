@@ -2,11 +2,12 @@ package command
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
+	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/setup/instance"
 )
 
 type InstanceFactory func(string) instance.Instance
-type AWSClientFactory func(config *aws.Config) *setup_aws.Client
+type AWSClientFactory func(config *aws.Config) *awsc.Client
 
 type CommandFactory struct {
 	NewInstance  InstanceFactory

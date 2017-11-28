@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/quintilesims/layer0/setup/instance/mock_instance"
 )
@@ -37,7 +36,7 @@ func TestEndpoint(t *testing.T) {
 		"syntax": "bash",
 	}
 
-	c := testutils.GetCLIContext(t, []string{"name"}, flags)
+	c := NewContext(t, []string{"name"}, flags)
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}
@@ -87,7 +86,7 @@ func TestEndpointDev(t *testing.T) {
 		"dev":    "true",
 	}
 
-	c := testutils.GetCLIContext(t, []string{"name"}, flags)
+	c := NewContext(t, []string{"name"}, flags)
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}

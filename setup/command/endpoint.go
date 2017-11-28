@@ -70,11 +70,11 @@ func (f *CommandFactory) Endpoint() cli.Command {
 			}
 
 			if c.Bool("insecure") {
-				if err := printOutput(c.String("syntax"), config.SKIP_SSL_VERIFY, "1"); err != nil {
+				if err := printOutput(c.String("syntax"), config.ENVVAR_SKIP_VERIFY_SSL, "1"); err != nil {
 					return err
 				}
 
-				if err := printOutput(c.String("syntax"), config.SKIP_VERSION_VERIFY, "1"); err != nil {
+				if err := printOutput(c.String("syntax"), config.ENVVAR_SKIP_VERIFY_VERSION, "1"); err != nil {
 					return err
 				}
 			}
