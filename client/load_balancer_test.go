@@ -110,14 +110,13 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	ports := []models.Port{}
 	healthCheck := models.HealthCheck{}
 	req := models.UpdateLoadBalancerRequest{
-		LoadBalancerID: "lid",
-		Ports:          &ports,
-		HealthCheck:    &healthCheck,
+		Ports:       &ports,
+		HealthCheck: &healthCheck,
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, r.Method, "PUT")
-		assert.Equal(t, r.URL.Path, "/loadbalancer")
+		assert.Equal(t, r.Method, "PATCH")
+		assert.Equal(t, r.URL.Path, "/loadbalancer/lid")
 
 		var body models.UpdateLoadBalancerRequest
 		Unmarshal(t, r, &body)
@@ -129,7 +128,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.UpdateLoadBalancer(req)
+	jobID, err := client.UpdateLoadBalancer("lid", req)
 	if err != nil {
 		t.Fatal(err)
 	}

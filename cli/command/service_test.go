@@ -264,13 +264,10 @@ func TestScaleService(t *testing.T) {
 			Return([]string{"svc_id"}, nil)
 
 		scale := 2
-		req := models.UpdateServiceRequest{
-			ServiceID: "svc_id",
-			Scale:     &scale,
-		}
+		req := models.UpdateServiceRequest{Scale: &scale}
 
 		base.Client.EXPECT().
-			UpdateService(req).
+			UpdateService("svc_id", req).
 			Return("job_id", nil)
 
 		if wait {
@@ -350,13 +347,10 @@ func TestUpdateService(t *testing.T) {
 			Return([]string{"dpl_id"}, nil)
 
 		deployID := "dpl_id"
-		req := models.UpdateServiceRequest{
-			ServiceID: "svc_id",
-			DeployID:  &deployID,
-		}
+		req := models.UpdateServiceRequest{DeployID: &deployID}
 
 		base.Client.EXPECT().
-			UpdateService(req).
+			UpdateService("svc_id", req).
 			Return("job_id", nil)
 
 		if wait {

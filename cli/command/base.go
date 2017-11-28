@@ -93,5 +93,5 @@ func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string,
 }
 
 func (b *CommandBase) printJobResponse(jobID string) {
-	b.printer.Printf("Operation is running as job '%s'", jobID)
+	b.printer.Printf("Operation is running as job '%s'\n", jobID)
 }

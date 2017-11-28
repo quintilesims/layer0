@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDispatcherQueuesPendingJobs(t *testing.T) {
+func TestDispatcherQueuesPendingJobStatusJobs(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -26,13 +26,13 @@ func TestDispatcherQueuesPendingJobs(t *testing.T) {
 
 		switch i % 4 {
 		case 0:
-			jobStatuses[jobID] = models.Pending
+			jobStatuses[jobID] = models.PendingJobStatus
 		case 1:
-			jobStatuses[jobID] = models.InProgress
+			jobStatuses[jobID] = models.InProgressJobStatus
 		case 2:
-			jobStatuses[jobID] = models.Completed
+			jobStatuses[jobID] = models.CompletedJobStatus
 		case 3:
-			jobStatuses[jobID] = models.Error
+			jobStatuses[jobID] = models.ErrorJobStatus
 
 		}
 	}
@@ -46,7 +46,7 @@ func TestDispatcherQueuesPendingJobs(t *testing.T) {
 	go func() {
 		for {
 			jobID := <-queue
-			assert.Equal(t, models.Pending, jobStatuses[jobID])
+			assert.Equal(t, models.PendingJobStatus, jobStatuses[jobID])
 		}
 	}()
 

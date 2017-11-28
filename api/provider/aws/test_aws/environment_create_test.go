@@ -167,13 +167,13 @@ func TestEnvironmentCreateDefaults(t *testing.T) {
 	renderedUserData, err := provider.RenderUserData(
 		"l0-test-env_id",
 		"bucket",
-		[]byte(provider.DEFAULT_LINUX_USERDATA_TEMPLATE))
+		[]byte(provider.DefaultLinuxUserdataTemplate))
 	if err != nil {
 		t.Fatal(err)
 	}
 
 	validateCreateLCInput := func(input *autoscaling.CreateLaunchConfigurationInput) {
-		assert.Equal(t, provider.DEFAULT_INSTANCE_SIZE, aws.StringValue(input.InstanceType))
+		assert.Equal(t, provider.DefaultInstanceSize, aws.StringValue(input.InstanceType))
 		assert.Equal(t, "lx_ami", aws.StringValue(input.ImageId))
 		assert.Equal(t, renderedUserData, aws.StringValue(input.UserData))
 	}

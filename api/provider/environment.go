@@ -7,7 +7,5 @@ type EnvironmentProvider interface {
 	Delete(environmentID string) error
 	List() ([]models.EnvironmentSummary, error)
 	Read(environmentID string) (*models.Environment, error)
-	Update(req models.UpdateEnvironmentRequest) error
-	Link(req models.CreateEnvironmentLinkRequest) error
-	Unlink(req models.DeleteEnvironmentLinkRequest) error
+	Update(environmentID string, req models.UpdateEnvironmentRequest) error
 }

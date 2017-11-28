@@ -72,7 +72,7 @@ func TestAcquireJobFailure(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := store.SetJobStatus(jobID, models.InProgress); err != nil {
+	if err := store.SetJobStatus(jobID, models.InProgressJobStatus); err != nil {
 		t.Fatal(err)
 	}
 
@@ -148,7 +148,7 @@ func TestDynamoStoreSetJobStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	if err := store.SetJobStatus(jobID, models.Error); err != nil {
+	if err := store.SetJobStatus(jobID, models.ErrorJobStatus); err != nil {
 		t.Fatal(err)
 	}
 
@@ -157,7 +157,7 @@ func TestDynamoStoreSetJobStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, models.Error, job.Status)
+	assert.Equal(t, models.ErrorJobStatus, job.Status)
 }
 
 func TestDynamoStoreSetResult(t *testing.T) {

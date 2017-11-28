@@ -162,8 +162,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore)
 
 	req := models.UpdateLoadBalancerRequest{
-		LoadBalancerID: "lid",
-		Ports:          &[]models.Port{},
+		Ports: &[]models.Port{},
 		HealthCheck: &models.HealthCheck{
 			Target:             "80",
 			Interval:           60,

@@ -16,9 +16,7 @@ type Client interface {
 	DeleteEnvironment(environmentID string) (string, error)
 	ListEnvironments() ([]*models.EnvironmentSummary, error)
 	ReadEnvironment(environmentID string) (*models.Environment, error)
-	UpdateEnvironment(req models.UpdateEnvironmentRequest) (string, error)
-	CreateLink(req models.CreateEnvironmentLinkRequest) (string, error)
-	DeleteLink(req models.DeleteEnvironmentLinkRequest) (string, error)
+	UpdateEnvironment(environmentID string, req models.UpdateEnvironmentRequest) (string, error)
 
 	DeleteJob(jobID string) error
 	ReadJob(jobID string) (*models.Job, error)
@@ -28,14 +26,14 @@ type Client interface {
 	DeleteLoadBalancer(loadBalancerID string) (string, error)
 	ListLoadBalancers() ([]*models.LoadBalancerSummary, error)
 	ReadLoadBalancer(loadBalancerID string) (*models.LoadBalancer, error)
-	UpdateLoadBalancer(req models.UpdateLoadBalancerRequest) (string, error)
+	UpdateLoadBalancer(loadBalancerID string, req models.UpdateLoadBalancerRequest) (string, error)
 
 	CreateService(req models.CreateServiceRequest) (string, error)
 	DeleteService(serviceID string) (string, error)
 	ListServices() ([]*models.ServiceSummary, error)
 	ReadService(serviceID string) (*models.Service, error)
 	ReadServiceLogs(serviceID string, query url.Values) ([]*models.LogFile, error)
-	UpdateService(req models.UpdateServiceRequest) (string, error)
+	UpdateService(serviceID string, req models.UpdateServiceRequest) (string, error)
 
 	CreateTask(req models.CreateTaskRequest) (string, error)
 	DeleteTask(taskID string) (string, error)
