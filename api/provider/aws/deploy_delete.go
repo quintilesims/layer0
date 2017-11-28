@@ -14,6 +14,10 @@ import (
 func (d *DeployProvider) Delete(deployID string) error {
 	taskARN, err := d.lookupTaskDefinitionARN(deployID)
 	if err != nil {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.DeployDoesNotExist {
+			return nil
+		}
+
 		return err
 	}
 
@@ -21,7 +25,7 @@ func (d *DeployProvider) Delete(deployID string) error {
 		return err
 	}
 
-	if err := d.deleteDeployTags(deployID); err != nil {
+	if err := deleteEntityTags(d.TagStore, "deploy", deployID); err != nil {
 		return err
 	}
 
@@ -38,22 +42,10 @@ func (d *DeployProvider) deleteDeploy(taskARN string) error {
 
 	if _, err := d.AWS.ECS.DeregisterTaskDefinition(input); err != nil {
 		if err, ok := err.(awserr.Error); ok && strings.Contains(err.Message(), "does not exist") {
-			return errors.Newf(errors.DeployDoesNotExist, "Deploy does not exist")
+			return nil
 		}
-	}
-	return nil
-}
 
-func (d *DeployProvider) deleteDeployTags(deployID string) error {
-	tags, err := d.TagStore.SelectByTypeAndID("deploy", deployID)
-	if err != nil {
 		return err
-	}
-
-	for _, tag := range tags {
-		if err := d.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
-			return err
-		}
 	}
 
 	return nil

@@ -46,10 +46,6 @@ func (r *JobRunner) Run(j models.Job) (string, error) {
 		return r.createDeploy(j.JobID, j.Request)
 	case job.CreateEnvironmentJob:
 		return r.createEnvironment(j.JobID, j.Request)
-	case job.LinkEnvironmentJob:
-		return r.linkEnvironment(j.JobID, j.Request)
-	case job.UnlinkEnvironmentJob:
-		return r.unlinkEnvironment(j.JobID, j.Request)
 	case job.CreateLoadBalancerJob:
 		return r.createLoadBalancer(j.JobID, j.Request)
 	case job.CreateServiceJob:
@@ -155,33 +151,6 @@ func (r *JobRunner) createTask(jobID, request string) (string, error) {
 		return taskID, nil, false
 	})
 }
-
-func (r *JobRunner) linkEnvironment(jobID, request string) (string, error) {
-	var req models.CreateEnvironmentLinkRequest
-	if err := json.Unmarshal([]byte(request), &req); err != nil {
-		return "", errors.New(errors.InvalidRequest, err)
-	}
-
-	if err := r.environmentProvider.Link(req); err != nil {
-		return "", err
-	}
-
-	return req.SourceEnvironmentID, nil
-}
-
-func (r *JobRunner) unlinkEnvironment(jobID, request string) (string, error) {
-	var req models.DeleteEnvironmentLinkRequest
-	if err := json.Unmarshal([]byte(request), &req); err != nil {
-		return "", errors.New(errors.InvalidRequest, err)
-	}
-
-	if err := r.environmentProvider.Unlink(req); err != nil {
-		return "", err
-	}
-
-	return req.SourceEnvironmentID, nil
-}
-
 func (r *JobRunner) deleteDeploy(jobID, deployID string) (string, error) {
 	return "", r.deployProvider.Delete(deployID)
 }
@@ -258,30 +227,30 @@ func (r *JobRunner) deleteTask(jobID, taskID string) (string, error) {
 }
 
 func (r *JobRunner) updateEnvironment(jobID, request string) (string, error) {
-	var req models.UpdateEnvironmentRequest
+	var req models.UpdateEnvironmentRequestJob
 	if err := json.Unmarshal([]byte(request), &req); err != nil {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	return req.EnvironmentID, r.environmentProvider.Update(req)
+	return req.EnvironmentID, r.environmentProvider.Update(req.EnvironmentID, req.UpdateEnvironmentRequest)
 }
 
 func (r *JobRunner) updateLoadBalancer(jobID, request string) (string, error) {
-	var req models.UpdateLoadBalancerRequest
+	var req models.UpdateLoadBalancerRequestJob
 	if err := json.Unmarshal([]byte(request), &req); err != nil {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	return req.LoadBalancerID, r.loadBalancerProvider.Update(req)
+	return req.LoadBalancerID, r.loadBalancerProvider.Update(req.LoadBalancerID, req.UpdateLoadBalancerRequest)
 }
 
 func (r *JobRunner) updateService(jobID, request string) (string, error) {
-	var req models.UpdateServiceRequest
+	var req models.UpdateServiceRequestJob
 	if err := json.Unmarshal([]byte(request), &req); err != nil {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	return req.ServiceID, r.serviceProvider.Update(req)
+	return req.ServiceID, r.serviceProvider.Update(req.ServiceID, req.UpdateServiceRequest)
 }
 
 func catchAndRetry(timeout time.Duration, fn func() (result string, err error, shouldRetry bool)) (string, error) {

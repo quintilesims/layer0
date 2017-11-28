@@ -44,9 +44,10 @@ func (c *APIClient) ReadLoadBalancer(loadBalancerID string) (*models.LoadBalance
 	return loadbalancer, nil
 }
 
-func (c *APIClient) UpdateLoadBalancer(req models.UpdateLoadBalancerRequest) (string, error) {
+func (c *APIClient) UpdateLoadBalancer(loadBalancerID string, req models.UpdateLoadBalancerRequest) (string, error) {
 	var resp models.CreateJobResponse
-	if err := c.client.Put("/loadbalancer", req, &resp); err != nil {
+	path := fmt.Sprintf("/loadbalancer/%s", loadBalancerID)
+	if err := c.client.Patch(path, req, &resp); err != nil {
 		return "", err
 	}
 

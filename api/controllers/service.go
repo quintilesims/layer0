@@ -29,13 +29,13 @@ func (s *ServiceController) Routes() []*fireball.Route {
 			Handlers: fireball.Handlers{
 				"GET":  s.ListServices,
 				"POST": s.CreateService,
-				"PUT":  s.UpdateService,
 			},
 		},
 		{
 			Path: "/service/:id",
 			Handlers: fireball.Handlers{
 				"GET":    s.GetService,
+				"PATCH":  s.UpdateService,
 				"DELETE": s.DeleteService,
 			},
 		},
@@ -102,6 +102,7 @@ func (s *ServiceController) ListServices(c *fireball.Context) (fireball.Response
 }
 
 func (s *ServiceController) UpdateService(c *fireball.Context) (fireball.Response, error) {
+	id := c.PathVariables["id"]
 	var req models.UpdateServiceRequest
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
@@ -111,5 +112,6 @@ func (s *ServiceController) UpdateService(c *fireball.Context) (fireball.Respons
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(s.JobStore, job.UpdateServiceJob, req)
+	jobRequest := models.UpdateServiceRequestJob{id, req}
+	return createJob(s.JobStore, job.UpdateServiceJob, jobRequest)
 }

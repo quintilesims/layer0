@@ -6,17 +6,17 @@ import (
 	swagger "github.com/zpatrick/go-plugin-swagger"
 )
 
+type UpdateServiceRequestJob struct {
+	ServiceID string
+	UpdateServiceRequest
+}
+
 type UpdateServiceRequest struct {
-	ServiceID string  `json:"service_id"`
-	DeployID  *string `json:"deploy_id"`
-	Scale     *int    `json:"scale"`
+	DeployID *string `json:"deploy_id"`
+	Scale    *int    `json:"scale"`
 }
 
 func (u UpdateServiceRequest) Validate() error {
-	if u.ServiceID == "" {
-		return fmt.Errorf("ServiceID must be specified")
-	}
-
 	if u.DeployID != nil && *u.DeployID == "" {
 		return fmt.Errorf("DeployID must be omitted or non-empty string")
 	}
@@ -32,9 +32,8 @@ func (u UpdateServiceRequest) Definition() swagger.Definition {
 	return swagger.Definition{
 		Type: "object",
 		Properties: map[string]swagger.Property{
-			"service_id": swagger.NewStringProperty(),
-			"deploy_id":  swagger.NewStringProperty(),
-			"scale":      swagger.NewIntProperty(),
+			"deploy_id": swagger.NewStringProperty(),
+			"scale":     swagger.NewIntProperty(),
 		},
 	}
 }

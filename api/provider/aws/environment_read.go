@@ -2,6 +2,7 @@ package aws
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -106,7 +107,7 @@ func (e *EnvironmentProvider) makeEnvironmentModel(environmentID string) (*model
 
 	model.Links = []string{}
 	for _, tag := range tags.WithKey("link") {
-		model.Links = append(model.Links, tag.Value)
+		model.Links = strings.Split(tag.Value, ",")
 	}
 
 	return model, nil

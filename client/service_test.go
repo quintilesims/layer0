@@ -140,14 +140,13 @@ func TestUpdateService(t *testing.T) {
 	deployID := "did"
 	scale := 1
 	req := models.UpdateServiceRequest{
-		ServiceID: "sid",
-		DeployID:  &deployID,
-		Scale:     &scale,
+		DeployID: &deployID,
+		Scale:    &scale,
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
-		assert.Equal(t, r.Method, "PUT")
-		assert.Equal(t, r.URL.Path, "/service")
+		assert.Equal(t, r.Method, "PATCH")
+		assert.Equal(t, r.URL.Path, "/service/sid")
 
 		var body models.UpdateServiceRequest
 		Unmarshal(t, r, &body)
@@ -159,7 +158,7 @@ func TestUpdateService(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.UpdateService(req)
+	jobID, err := client.UpdateService("sid", req)
 	if err != nil {
 		t.Fatal(err)
 	}
