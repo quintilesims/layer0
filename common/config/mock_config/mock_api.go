@@ -6,6 +6,7 @@ package mock_config
 
 import (
 	reflect "reflect"
+	time "time"
 
 	gomock "github.com/golang/mock/gomock"
 )
@@ -129,6 +130,18 @@ func (mr *MockAPIConfigMockRecorder) LogGroupName() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LogGroupName", reflect.TypeOf((*MockAPIConfig)(nil).LogGroupName))
 }
 
+// MaxRetries mocks base method
+func (m *MockAPIConfig) MaxRetries() int {
+	ret := m.ctrl.Call(m, "MaxRetries")
+	ret0, _ := ret[0].(int)
+	return ret0
+}
+
+// MaxRetries indicates an expected call of MaxRetries
+func (mr *MockAPIConfigMockRecorder) MaxRetries() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MaxRetries", reflect.TypeOf((*MockAPIConfig)(nil).MaxRetries))
+}
+
 // Port mocks base method
 func (m *MockAPIConfig) Port() int {
 	ret := m.ctrl.Call(m, "Port")
@@ -199,6 +212,18 @@ func (m *MockAPIConfig) SecretKey() string {
 // SecretKey indicates an expected call of SecretKey
 func (mr *MockAPIConfigMockRecorder) SecretKey() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SecretKey", reflect.TypeOf((*MockAPIConfig)(nil).SecretKey))
+}
+
+// TimeBetweenRequests mocks base method
+func (m *MockAPIConfig) TimeBetweenRequests() time.Duration {
+	ret := m.ctrl.Call(m, "TimeBetweenRequests")
+	ret0, _ := ret[0].(time.Duration)
+	return ret0
+}
+
+// TimeBetweenRequests indicates an expected call of TimeBetweenRequests
+func (mr *MockAPIConfigMockRecorder) TimeBetweenRequests() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TimeBetweenRequests", reflect.TypeOf((*MockAPIConfig)(nil).TimeBetweenRequests))
 }
 
 // VPC mocks base method
