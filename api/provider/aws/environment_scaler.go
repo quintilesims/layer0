@@ -2,15 +2,18 @@ package aws
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 
 	"github.com/zpatrick/go-bytesize"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/api/provider"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -40,18 +43,84 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		return err
 	}
 
-	// resourceConsumers, err := e.getResourceConsumers(clusterName)
-	// if err != nil {
-	// 	return err
-	// }
-
-	fmt.Println(resourceProviders)
+	resourceConsumers, err := e.getResourceConsumers(clusterName)
+	if err != nil {
+		return err
+	}
 
 	// calculate desired capacity
 
 	// scale to new capacity if required
 
 	return fmt.Errorf("EnvironmentScaler not implemented")
+}
+
+func (e *EnvironmentScaler) scale(clusterName string, providers []*models.ResourceProvider, consumers []models.ResourceConsumer) (*models.ScalerRunInfo, error) {
+	scaleBeforeRun := len(providers)
+	var errs []error
+
+	// check if we need to scale up
+	for _, consumer := range consumers {
+		hasRoom := false
+
+		// first, sort by memory so we pack tasks by memory as tightly as possible
+		sortProvidersByMemory(providers)
+
+		// next, place any unused providers in the back of the list
+		// that way, we can can delete them if we avoid placing any tasks in them
+		sortProvidersByUsage(providers)
+
+		for _, provider := range providers {
+
+			if hasResourcesFor(consumer, provider) {
+				hasRoom = true
+				subtractResourcesFor(consumer, provider)
+				break
+			}
+		}
+
+		if !hasRoom {
+			newProvider := &models.ResourceProvider{ID: clusterName}
+
+			if !hasResourcesFor(consumer, newProvider) {
+				text := fmt.Sprintf("Resource '%s' cannot fit into an empty provider!", consumer.ID)
+				text += "\nThe instance size in your environment is too small to run this resource."
+				text += "\nPlease increase the instance size for your environment"
+				err := fmt.Errorf(text)
+				errs = append(errs, err)
+				continue
+			}
+
+			newProvider.SubtractResourcesFor(consumer)
+			providers = append(providers, newProvider)
+		}
+	}
+
+	// check if we need to scale down
+	unusedProviders := []*resource.ResourceProvider{}
+	for i := 0; i < len(providers); i++ {
+		if !providers[i].IsInUse() {
+			unusedProviders = append(unusedProviders, providers[i])
+		}
+	}
+
+	desiredScale := len(providers) - len(unusedProviders)
+	actualScale, err := providerManager.ScaleTo(environmentID, desiredScale, unusedProviders)
+	if err != nil {
+		errs = append(errs, err)
+	}
+
+	info := &models.ScalerRunInfo{
+		EnvironmentID:           environmentID,
+		PendingResources:        resourceConsumerModels(consumers),
+		ResourceProviders:       resourceProviderModels(providers),
+		ScaleBeforeRun:          scaleBeforeRun,
+		DesiredScaleAfterRun:    desiredScale,
+		ActualScaleAfterRun:     actualScale,
+		UnusedResourceProviders: len(unusedProviders),
+	}
+
+	return info, errors.MultiError(errs)
 }
 
 func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]models.ResourceProvider, error) {
@@ -111,6 +180,43 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]models.R
 	}
 
 	return result, nil
+}
+
+func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*models.ResourceProvider, error) {
+	e.Client.CreateAutoScalingGroupInput
+	group, e := e.Client.AutoScaling.CreateAutoScalingGroup()
+
+	group, err := e.Client.AutoScaling.DescribeAutoScalingGroup(clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	config, err := r.Autoscaling.DescribeLaunchConfiguration(pstring(group.LaunchConfigurationName))
+	if err != nil {
+		return nil, err
+	}
+
+	memory, ok := ec2.InstanceSizes[pstring(config.InstanceType)]
+	if !ok {
+		return nil, fmt.Errorf("Environment %s is using unknown instance type '%s'", environmentID, pstring(config.InstanceType))
+	}
+
+	// these ports are automatically used by the ecs agent
+	defaultPorts := []int{
+		22,
+		2376,
+		2375,
+		51678,
+		51679,
+	}
+
+	resource := models.ResourceProvider{}
+	resource.ID = "<new instance>"
+	resource.InUse = false
+	resource.UsedPorts = defaultPorts
+	resource.AvailableMemory = memory
+
+	return resource, nil
 }
 
 func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.ResourceConsumer, error) {
@@ -205,4 +311,68 @@ func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]m
 
 	e.deployCache[deployID] = consumers
 	return consumers, nil
+}
+
+// Helpers
+func sortProvidersByMemory(p []*models.ResourceProvider) {
+	sorter := &ResourceProviderSorter{
+		Providers: p,
+		lessThan: func(i *models.ResourceProvider, j *models.ResourceProvider) bool {
+			return i.AvailableMemory < j.AvailableMemory
+		},
+	}
+
+	sort.Sort(sorter)
+}
+
+func sortProvidersByUsage(p []*models.ResourceProvider) {
+	sorter := &ResourceProviderSorter{
+		Providers: p,
+		lessThan: func(i *models.ResourceProvider, j *models.ResourceProvider) bool {
+			return i.InUse && !j.InUse
+		},
+	}
+
+	sort.Sort(sorter)
+}
+
+type ResourceProviderSorter struct {
+	Providers []*models.ResourceProvider
+	lessThan  func(*models.ResourceProvider, *models.ResourceProvider) bool
+}
+
+func (r *ResourceProviderSorter) Len() int {
+	return len(r.Providers)
+}
+
+func (r *ResourceProviderSorter) Swap(i, j int) {
+	r.Providers[i], r.Providers[j] = r.Providers[j], r.Providers[i]
+}
+
+func (r *ResourceProviderSorter) Less(i, j int) bool {
+	return r.lessThan(r.Providers[i], r.Providers[j])
+}
+
+func hasResourcesFor(consumer models.ResourceConsumer, provider *models.ResourceProvider) bool {
+	for _, wanted := range consumer.Ports {
+		for _, used := range provider.usedPorts {
+			if wanted == used {
+				return false
+			}
+		}
+	}
+
+	return consumer.Memory <= r.availableMemory
+}
+
+func subtractResourcesFor(consumer models.ResourceConsumer, provider *models.ResourceProvider) error {
+	if !hasResourcesFor(consumer, provider) {
+		return errors.New("Provider does not have adequate resources to subtract")
+	}
+
+	provider.UsedPorts = append(provider.UsedPorts, consumer.Ports...)
+	provider.AvailableMemory -= consumer.Memory
+	provider.InUse = true
+
+	return nil
 }
