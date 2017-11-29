@@ -47,23 +47,17 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		return err
 	}
 
-<<<<<<< HEAD
-=======
 	log.Printf("[DEBUG] resourceProviders: %#v", resourceProviders)
 
 	// GET RESOURCE CONSUMERS
->>>>>>> @{-1}
 	resourceConsumers, err := e.getResourceConsumers(clusterName)
 	if err != nil {
 		return err
 	}
-<<<<<<< HEAD
-=======
 
 	log.Printf("[DEBUG] resourceConsumers: %#v", resourceConsumers)
 
 	// RUN BASIC SCALER
->>>>>>> @{-1}
 
 	// calculate desired capacity
 
