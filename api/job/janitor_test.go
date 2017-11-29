@@ -13,9 +13,9 @@ func TestJanitor(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	janitor := NewJanitor(mockJobStore, time.Hour*12)
 	expiry := time.Hour * 12
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	janitor := NewJanitor(mockJobStore, expiry)
 	now := time.Now()
 
 	// There is no Sub function that returns Time in time package,
