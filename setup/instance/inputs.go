@@ -146,7 +146,7 @@ var Layer0ModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_AWS_REGION,
 		Description: INPUT_AWS_REGION_DESCRIPTION,
-		Default:     "us-west-2",
+		Default:     config.DefaultAWSRegion,
 		prompter:    RequiredStringPrompter,
 	},
 	{
