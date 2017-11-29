@@ -3,6 +3,8 @@ package job
 import (
 	"log"
 	"time"
+
+	"github.com/quintilesims/layer0/common/models"
 )
 
 const (
@@ -55,7 +57,8 @@ func (d *Dispatcher) Run() error {
 	}
 
 	for _, job := range jobs {
-		if Status(job.Status) == Pending {
+
+		if models.JobStatus(job.Status) == models.PendingJobStatus {
 			d.queue <- job.JobID
 		}
 	}

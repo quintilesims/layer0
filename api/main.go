@@ -113,6 +113,15 @@ func main() {
 		scalerTicker := scalerDispatcher.RunEvery(time.Minute * 5)
 		defer scalerTicker.Stop()
 
+		expiry := cfg.JobExpiry()
+		jobJanitor := job.NewJanitor(jobStore, expiry)
+		jobJanitorTicker := jobJanitor.RunEvery(time.Hour)
+		defer jobJanitorTicker.Stop()
+
+		tagJanitor := tag.NewJanitor(tagStore, taskProvider)
+		tagJanitorTicker := tagJanitor.RunEvery(time.Hour)
+		defer tagJanitorTicker.Stop()
+
 		log.Printf("[INFO] Listening on port %d", cfg.Port())
 		http.Handle("/", server)
 

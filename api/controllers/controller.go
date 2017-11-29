@@ -9,7 +9,7 @@ import (
 	"github.com/zpatrick/fireball"
 )
 
-func createJob(tagStore tag.Store, jobStore job.Store, jobType job.JobType, req interface{}) (fireball.Response, error) {
+func createJob(tagStore tag.Store, jobStore job.Store, jobType models.JobType, req interface{}) (fireball.Response, error) {
 	var requestStr string
 	switch v := req.(type) {
 	case string:

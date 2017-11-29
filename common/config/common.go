@@ -1,7 +1,10 @@
 package config
 
+import "time"
+
 const (
 	FLAG_PORT                      = "port"
+	FLAG_JOB_EXPIRY                = "job-expiry"
 	FLAG_DEBUG                     = "debug"
 	FLAG_OUTPUT                    = "output"
 	FLAG_TIMEOUT                   = "timeout"
@@ -30,6 +33,7 @@ const (
 )
 
 const (
+	ENVVAR_JOB_EXPIRY                = "LAYER0_JOB_EXPIRY"
 	ENVVAR_PORT                      = "LAYER0_PORT"
 	ENVVAR_DEBUG                     = "LAYER0_DEBUG"
 	ENVVAR_OUTPUT                    = "LAYER0_OUTPUT"
@@ -56,4 +60,9 @@ const (
 	ENVVAR_AWS_LOG_GROUP_NAME        = "LAYER0_AWS_LOG_GROUP_NAME"
 	ENVVAR_AWS_TIME_BETWEEN_REQUESTS = "LAYER0_AWS_TIME_BETWEEN_REQUESTS"
 	ENVVAR_AWS_MAX_RETRIES           = "LAYER0_AWS_MAX_RETRIES"
+)
+
+const (
+	DEFAULT_JOB_EXPIRY = time.Hour * 1
+	DEFAULT_PORT       = 9090
 )

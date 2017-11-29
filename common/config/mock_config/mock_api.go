@@ -226,6 +226,18 @@ func (mr *MockAPIConfigMockRecorder) TimeBetweenRequests() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TimeBetweenRequests", reflect.TypeOf((*MockAPIConfig)(nil).TimeBetweenRequests))
 }
 
+// JobExpiry mocks base method
+func (m *MockAPIConfig) JobExpiry() time.Duration {
+	ret := m.ctrl.Call(m, "TimeBetweenRequests")
+	ret0, _ := ret[0].(time.Duration)
+	return ret0
+}
+
+// JobExpiry indicates an expected call of TimeBetweenRequests
+func (mr *MockAPIConfigMockRecorder) JobExpiry() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "JobExpiry", reflect.TypeOf((*MockAPIConfig)(nil).JobExpiry))
+}
+
 // VPC mocks base method
 func (m *MockAPIConfig) VPC() string {
 	ret := m.ctrl.Call(m, "VPC")

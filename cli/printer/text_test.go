@@ -3,7 +3,6 @@ package printer
 import (
 	"time"
 
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -85,20 +84,20 @@ func ExampleTextPrintJobs() {
 	jobs := []*models.Job{
 		{
 			JobID:   "job_id1",
-			Type:    job.DeleteEnvironmentJob.String(),
-			Status:  job.Pending.String(),
+			Type:    models.DeleteEnvironmentJob,
+			Status:  models.PendingJobStatus,
 			Created: time.Time{},
 		},
 		{
 			JobID:   "job_id2",
-			Type:    job.CreateServiceJob.String(),
-			Status:  job.InProgress.String(),
+			Type:    models.CreateServiceJob,
+			Status:  models.InProgressJobStatus,
 			Created: time.Time{},
 		},
 		{
 			JobID:   "job_id3",
-			Type:    job.UpdateLoadBalancerJob.String(),
-			Status:  job.Error.String(),
+			Type:    models.UpdateLoadBalancerJob,
+			Status:  models.ErrorJobStatus,
 			Created: time.Time{},
 		},
 	}

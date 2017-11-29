@@ -15,7 +15,7 @@ func TestWorkerRunsJob(t *testing.T) {
 	})
 
 	store := NewMemoryStore()
-	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	jobID, err := store.Insert(models.DeleteEnvironmentJob, "1")
 	if err != nil {
 		t.Fatal(err)
 	}

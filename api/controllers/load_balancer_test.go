@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
 	"github.com/quintilesims/layer0/api/tag"
@@ -36,7 +35,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	}
 
 	mockJobStore.EXPECT().
-		Insert(job.CreateLoadBalancerJob, gomock.Any()).
+		Insert(models.CreateLoadBalancerJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
@@ -62,7 +61,7 @@ func TestDeleteLoadBalancer(t *testing.T) {
 	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore, tagStore)
 
 	mockJobStore.EXPECT().
-		Insert(job.DeleteLoadBalancerJob, "lid").
+		Insert(models.DeleteLoadBalancerJob, "lid").
 		Return("jid", nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "lid"})
@@ -179,7 +178,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	}
 
 	mockJobStore.EXPECT().
-		Insert(job.UpdateLoadBalancerJob, gomock.Any()).
+		Insert(models.UpdateLoadBalancerJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)

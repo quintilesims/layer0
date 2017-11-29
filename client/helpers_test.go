@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/client/mock_client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -120,7 +119,7 @@ func TestWaitForJob(t *testing.T) {
 
 	expected := &models.Job{
 		JobID:  "jid",
-		Status: job.Completed.String(),
+		Status: models.CompletedJobStatus,
 	}
 
 	client.EXPECT().
@@ -144,7 +143,7 @@ func TestWaitForJobError(t *testing.T) {
 
 	expected := &models.Job{
 		JobID:  "jid",
-		Status: job.Error.String(),
+		Status: models.ErrorJobStatus,
 	}
 
 	client.EXPECT().
@@ -165,7 +164,7 @@ func TestWaitForJobTimeout(t *testing.T) {
 
 	expected := &models.Job{
 		JobID:  "jid",
-		Status: job.InProgress.String(),
+		Status: models.InProgressJobStatus,
 	}
 
 	client.EXPECT().

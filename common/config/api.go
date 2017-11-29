@@ -12,8 +12,13 @@ func APIFlags() []cli.Flag {
 		cli.IntFlag{
 			// todo: renamed from 'LAYER0_API_PORT'
 			Name:   FLAG_PORT,
-			Value:  9090,
+			Value:  DEFAULT_PORT,
 			EnvVar: ENVVAR_PORT,
+		},
+		cli.DurationFlag{
+			Name:   FLAG_JOB_EXPIRY,
+			Value:  DEFAULT_JOB_EXPIRY,
+			EnvVar: ENVVAR_JOB_EXPIRY,
 		},
 		cli.BoolFlag{
 			// todo: renamed from 'LAYER0_LOG_LEVEL'
@@ -112,6 +117,7 @@ type APIConfig interface {
 	DynamoJobTable() string
 	DynamoTagTable() string
 	LogGroupName() string
+	JobExpiry() time.Duration
 	TimeBetweenRequests() time.Duration
 	MaxRetries() int
 }
@@ -215,6 +221,10 @@ func (c *ContextAPIConfig) PrivateSubnets() []string {
 
 func (c *ContextAPIConfig) LogGroupName() string {
 	return c.C.String(FLAG_AWS_LOG_GROUP_NAME)
+}
+
+func (c *ContextAPIConfig) JobExpiry() time.Duration {
+	return c.C.Duration(FLAG_JOB_EXPIRY)
 }
 
 func (c *ContextAPIConfig) TimeBetweenRequests() time.Duration {
