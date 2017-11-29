@@ -29,12 +29,6 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_INSTANCE,
 			EnvVar: ENVVAR_INSTANCE,
 		},
-		cli.DurationFlag{
-			Name:   FLAG_JOB_EXPIRY,
-			Value:  24 * time.Hour,
-			EnvVar: ENVVAR_JOB_EXPIRY,
-			Usage:  "duration [ns,us (or µs),ms,s,m,h]",
-		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_ACCOUNT_ID,
 			EnvVar: ENVVAR_AWS_ACCOUNT_ID,

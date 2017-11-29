@@ -63,6 +63,6 @@ const (
 )
 
 const (
-	DEFAULT_JOB_EXPIRY = time.Hour * 24
+	DEFAULT_JOB_EXPIRY = time.Hour * 1
 	DEFAULT_PORT       = 9090
 )

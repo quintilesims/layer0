@@ -14,19 +14,20 @@ func TestJanitor(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	janitor := NewJanitor(mockJobStore, time.Hour*24)
-
-	expiry := -24 * time.Hour
+	janitor := NewJanitor(mockJobStore, time.Hour*12)
+	expiry := time.Hour * 12
 	now := time.Now()
 
+	// There is no Sub function that returns Time in time package,
+	// so we must negate the expiry
 	jobs := []*models.Job{
 		{
 			JobID:   "delete",
-			Created: now.Add(expiry - time.Hour),
+			Created: now.Add(-(expiry + time.Second)), // 1 Second over expiry
 		},
 		{
 			JobID:   "keep",
-			Created: now.Add(expiry + time.Hour),
+			Created: now.Add(-(expiry - time.Second)), // 1 Second before expiry
 		},
 	}
 

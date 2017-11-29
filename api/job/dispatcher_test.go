@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDispatcherQueuesPendingJobStatusJobs(t *testing.T) {
+func TestDispatcherQueuesPendingJob(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
