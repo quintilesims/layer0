@@ -33,7 +33,7 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 }
 
 func (e *EnvironmentScaler) Scale(environmentID string) error {
-	// get resource providers
+	// GET RESOURCE PROVIDERS
 	clusterName := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	resourceProviders, err := e.getResourceProviders(clusterName)
@@ -41,12 +41,17 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		return err
 	}
 
-	// resourceConsumers, err := e.getResourceConsumers(clusterName)
-	// if err != nil {
-	// 	return err
-	// }
+	log.Printf("[DEBUG] resourceProviders: %#v", resourceProviders)
 
-	fmt.Println(resourceProviders)
+	// GET RESOURCE CONSUMERS
+	resourceConsumers, err := e.getResourceConsumers(clusterName)
+	if err != nil {
+		return err
+	}
+
+	log.Printf("[DEBUG] resourceConsumers: %#v", resourceConsumers)
+
+	// RUN BASIC SCALER
 
 	// calculate desired capacity
 
@@ -70,11 +75,6 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]models.R
 		return nil, err
 	}
 
-	log.Printf("[DEBUG] containerInstanceARNs:")
-	for _, arn := range containerInstanceARNs {
-		log.Printf("[DEBUG] %#v", aws.StringValue(arn))
-	}
-
 	describeContainerInstancesInput := &ecs.DescribeContainerInstancesInput{}
 	describeContainerInstancesInput.SetCluster(clusterName)
 	describeContainerInstancesInput.SetContainerInstances(containerInstanceARNs)
@@ -90,28 +90,32 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]models.R
 	}
 
 	for _, instance := range output.ContainerInstances {
-		// todo: not sure if this is a permanent condition?
-		// if !instance.AgentConnected {
-		// 	continue
-		// }
+		if !aws.BoolValue(instance.AgentConnected) {
+			continue
+		}
 
-		// if aws.StringValue(instance.Status) != "ACTIVE" {
-		// 	continue
-		// }
+		if aws.StringValue(instance.Status) != "ACTIVE" {
+			continue
+		}
 
-		usedPorts := []int{}
-		var availableMemory bytesize.Bytesize
+		// it's non-intuitive, but the ports being used by the tasks live in
+		// instance.RemainingResources, not instance.RegisteredResources
+		var (
+			usedPorts       []int
+			availableMemory bytesize.Bytesize
+		)
 
 		for _, resource := range instance.RemainingResources {
 			switch aws.StringValue(resource.Name) {
 			case "MEMORY":
-				availableMemory = bytesize.MiB * bytesize.Bytesize(aws.Int64Value(resource.IntegerValue))
+				val := aws.Int64Value(resource.IntegerValue)
+				availableMemory = bytesize.MiB * bytesize.Bytesize(val)
 
 			case "PORTS":
 				for _, port := range resource.StringSetValue {
 					port, err := strconv.Atoi(aws.StringValue(port))
 					if err != nil {
-						//todo: log error
+						log.Printf("[WARN] Instance %s: Failed to convert port to int: %v", aws.StringValue(instance.Ec2InstanceId), err)
 						continue
 					}
 
@@ -140,7 +144,7 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 	//   - getPendingTaskResourcesInECS
 	//   - getPendingTaskResourcesInJobs
 
-	// get pending service resource consumers
+	// GET PENDING SERVICE RESOURCE CONSUMERS
 	input := &ecs.DescribeServicesInput{}
 	input.SetCluster(clusterName)
 	output, err := e.Client.ECS.DescribeServices(input)
@@ -176,7 +180,8 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 		}
 	}
 
-	// get pending task resource consumers in ECS
+	// GET PENDING TASK RESOURCE CONSUMERS IN ECS
+
 	// input := &ecs.DescribeTasksInput{}
 	// input.SetCluster(clusterName)
 	// output, err := e.Client.ECS.DescribeTasks(input)
@@ -187,7 +192,7 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 	// for _, task := range output.Tasks {
 	// }
 
-	// get pending task resource consumers in jobs
+	// GET PENDING TASK RESOURCE CONSUMERS IN JOBS
 
 	return nil, nil
 }
