@@ -2,7 +2,11 @@ package aws
 
 import (
 	"fmt"
+<<<<<<< HEAD
 	"sort"
+=======
+	"log"
+>>>>>>> @{-1}
 	"strconv"
 
 	"github.com/zpatrick/go-bytesize"
@@ -35,7 +39,7 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 }
 
 func (e *EnvironmentScaler) Scale(environmentID string) error {
-	// get resource providers
+	// GET RESOURCE PROVIDERS
 	clusterName := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	resourceProviders, err := e.getResourceProviders(clusterName)
@@ -43,10 +47,23 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		return err
 	}
 
+<<<<<<< HEAD
+=======
+	log.Printf("[DEBUG] resourceProviders: %#v", resourceProviders)
+
+	// GET RESOURCE CONSUMERS
+>>>>>>> @{-1}
 	resourceConsumers, err := e.getResourceConsumers(clusterName)
 	if err != nil {
 		return err
 	}
+<<<<<<< HEAD
+=======
+
+	log.Printf("[DEBUG] resourceConsumers: %#v", resourceConsumers)
+
+	// RUN BASIC SCALER
+>>>>>>> @{-1}
 
 	// calculate desired capacity
 
@@ -124,10 +141,25 @@ func (e *EnvironmentScaler) scale(clusterName string, providers []*models.Resour
 }
 
 func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]models.ResourceProvider, error) {
-	input := &ecs.DescribeContainerInstancesInput{}
-	input.SetCluster(clusterName)
+	listContainerInstancesInput := &ecs.ListContainerInstancesInput{}
+	listContainerInstancesInput.SetCluster(clusterName)
 
-	output, err := e.Client.ECS.DescribeContainerInstances(input)
+	containerInstanceARNs := []*string{}
+	listContainerInstancesPagesFN := func(output *ecs.ListContainerInstancesOutput, lastPage bool) bool {
+		containerInstanceARNs = append(containerInstanceARNs, output.ContainerInstanceArns...)
+
+		return !lastPage
+	}
+
+	if err := e.Client.ECS.ListContainerInstancesPages(listContainerInstancesInput, listContainerInstancesPagesFN); err != nil {
+		return nil, err
+	}
+
+	describeContainerInstancesInput := &ecs.DescribeContainerInstancesInput{}
+	describeContainerInstancesInput.SetCluster(clusterName)
+	describeContainerInstancesInput.SetContainerInstances(containerInstanceARNs)
+
+	output, err := e.Client.ECS.DescribeContainerInstances(describeContainerInstancesInput)
 	if err != nil {
 		return nil, err
 	}
@@ -138,28 +170,32 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]models.R
 	}
 
 	for _, instance := range output.ContainerInstances {
-		// todo: not sure if this is a permanent condition?
-		// if !instance.AgentConnected {
-		// 	continue
-		// }
+		if !aws.BoolValue(instance.AgentConnected) {
+			continue
+		}
 
-		// if aws.StringValue(instance.Status) != "ACTIVE" {
-		// 	continue
-		// }
+		if aws.StringValue(instance.Status) != "ACTIVE" {
+			continue
+		}
 
-		usedPorts := []int{}
-		var availableMemory bytesize.Bytesize
+		// it's non-intuitive, but the ports being used by the tasks live in
+		// instance.RemainingResources, not instance.RegisteredResources
+		var (
+			usedPorts       []int
+			availableMemory bytesize.Bytesize
+		)
 
 		for _, resource := range instance.RemainingResources {
 			switch aws.StringValue(resource.Name) {
 			case "MEMORY":
-				availableMemory = bytesize.MiB * bytesize.Bytesize(aws.Int64Value(resource.IntegerValue))
+				val := aws.Int64Value(resource.IntegerValue)
+				availableMemory = bytesize.MiB * bytesize.Bytesize(val)
 
 			case "PORTS":
 				for _, port := range resource.StringSetValue {
 					port, err := strconv.Atoi(aws.StringValue(port))
 					if err != nil {
-						//todo: log error
+						log.Printf("[WARN] Instance %s: Failed to convert port to int: %v", aws.StringValue(instance.Ec2InstanceId), err)
 						continue
 					}
 
@@ -220,7 +256,12 @@ func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*models.Re
 }
 
 func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.ResourceConsumer, error) {
-	// get pending service resource consumers
+	// from scaler in develop, there are funcs to aggregate three types of resources
+	//   - getPendingServiceResources
+	//   - getPendingTaskResourcesInECS
+	//   - getPendingTaskResourcesInJobs
+
+	// GET PENDING SERVICE RESOURCE CONSUMERS
 	input := &ecs.DescribeServicesInput{}
 	input.SetCluster(clusterName)
 	output, err := e.Client.ECS.DescribeServices(input)
@@ -256,7 +297,8 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 		}
 	}
 
-	// get pending task resource consumers
+	// GET PENDING TASK RESOURCE CONSUMERS IN ECS
+
 	// input := &ecs.DescribeTasksInput{}
 	// input.SetCluster(clusterName)
 	// output, err := e.Client.ECS.DescribeTasks(input)
@@ -266,6 +308,8 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 
 	// for _, task := range output.Tasks {
 	// }
+
+	// GET PENDING TASK RESOURCE CONSUMERS IN JOBS
 
 	return nil, nil
 }
