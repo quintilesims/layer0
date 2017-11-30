@@ -3,6 +3,8 @@ package instance
 import (
 	"fmt"
 	"log"
+
+	"github.com/quintilesims/layer0/common/config"
 )
 
 const LAYER0_MODULE_SOURCE = "github.com/quintilesims/layer0//setup/module"
