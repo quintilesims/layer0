@@ -35,7 +35,7 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 		EnvironmentProvider: e,
 		ServiceProvider:     s,
 		TaskProvider:        t,
-		JobStore:     j,
+		JobStore:     			 j,
 		Config:              c,
 	}
 }
@@ -364,10 +364,8 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 	// for _, task := range output.Tasks {
 	// }
 
+
 	// GET PENDING TASK RESOURCE CONSUMERS IN JOBS
-
-
-
 	jobs, err := e.JobStore.SelectAll()
 	if err != nil {
 		return nil, err
@@ -375,7 +373,7 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 
 	resourceConsumersJob := []models.ResourceConsumer{}
 	for _, job := range jobs {
-		if job.Type == int64(type.CreateTaskJob) {
+		if job.Type == int64(types.CreateTaskJob) {
 			if job.JobStatus == int64(types.Pending) || job.JobStatus == int64(types.InProgress) {
 				var req models.CreateTaskRequest
 				if err := json.Unmarshal([]byte(job.Request), &req); err != nil {
