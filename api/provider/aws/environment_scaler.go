@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"sort"
@@ -11,12 +12,12 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
-	"github.com/quintilesims/layer0/api/job"
 )
 
 type EnvironmentScaler struct {
@@ -24,7 +25,7 @@ type EnvironmentScaler struct {
 	EnvironmentProvider provider.EnvironmentProvider
 	ServiceProvider     provider.ServiceProvider
 	TaskProvider        provider.TaskProvider
-	JobStore    				job.Store
+	JobStore            job.Store
 	Config              config.APIConfig
 	deployCache         map[string][]models.ResourceConsumer
 }
@@ -35,7 +36,7 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 		EnvironmentProvider: e,
 		ServiceProvider:     s,
 		TaskProvider:        t,
-		JobStore:     			 j,
+		JobStore:            j,
 		Config:              c,
 	}
 }
@@ -59,9 +60,12 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 
 	log.Printf("[DEBUG] resourceConsumers for env '%s': %#v", environmentID, resourceConsumers)
 
-	// e.scale(clusterName, resourceProviders, resourceConsumers)
-
-	return fmt.Errorf("EnvironmentScaler not implemented")
+	info, err := e.scale(clusterName, resourceProviders, resourceConsumers)
+	if err != nil {
+		return err
+	}
+	fmt.Println(info)
+	return nil
 }
 
 func (e *EnvironmentScaler) scale(clusterName string, providers []*models.ResourceProvider, consumers []models.ResourceConsumer) (*models.ScalerRunInfo, error) {
@@ -89,7 +93,10 @@ func (e *EnvironmentScaler) scale(clusterName string, providers []*models.Resour
 		}
 
 		if !hasRoom {
-			newProvider := &models.ResourceProvider{ID: clusterName}
+			newProvider, err := e.calculateNewProvider(clusterName)
+			if err != nil {
+				return nil, err
+			}
 
 			if !hasResourcesFor(consumer, newProvider) {
 				text := fmt.Sprintf("Resource '%s' cannot fit into an empty provider!", consumer.ID)
@@ -162,7 +169,7 @@ func resourceProviderModels(providers []*models.ResourceProvider) []models.Resou
 	return providerModels
 }
 
-func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]models.ResourceProvider, error) {
+func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.ResourceProvider, error) {
 	listContainerInstancesInput := &ecs.ListContainerInstancesInput{}
 	listContainerInstancesInput.SetCluster(clusterName)
 
@@ -186,7 +193,7 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]models.R
 		return nil, err
 	}
 
-	result := []models.ResourceProvider{}
+	result := []*models.ResourceProvider{}
 	if len(output.ContainerInstances) == 0 {
 		return result, nil
 	}
@@ -227,7 +234,7 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]models.R
 		}
 
 		inUse := aws.Int64Value(instance.PendingTasksCount)+aws.Int64Value(instance.RunningTasksCount) > 0
-		r := models.ResourceProvider{
+		r := &models.ResourceProvider{
 			ID:              aws.StringValue(instance.Ec2InstanceId),
 			InUse:           inUse,
 			UsedPorts:       usedPorts,
@@ -286,7 +293,7 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 		}
 	}
 
-	result := []models.ResourceConsumer{}
+	resourceConsumers := []models.ResourceConsumer{}
 
 	for _, service := range services {
 		deployIDCopies := map[string]int64{}
@@ -310,7 +317,7 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 				return nil, err
 			}
 
-			result = append(result, c...)
+			resourceConsumers = append(resourceConsumers, c...)
 		}
 	}
 
@@ -320,31 +327,15 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 		return nil, err
 	}
 
-	resourceConsumers := []models.ResourceConsumer{}
-
 	for _, summary := range taskSummaries {
 		if summary.EnvironmentID == clusterName {
-			
+
 			task, err := e.TaskProvider.Read(summary.TaskID)
 			if err != nil {
 				return nil, err
 			}
 
-
-			if task.PendingCount == 0 {
-				continue
-			}
-
-			deployIDCopies := map[string]int{
-				task.DeployID: int(task.TaskID)
-			}
-
-			// resource consumer ids are just used for debugging purposes
-			generateID := func(deployID, containerName string, copy int) string {
-				return fmt.Sprintf("Task: %s, Deploy: %s, Container: %s, Copy: %d", summary.TaskID, deployID, containerName, copy)
-			}
-
-			taskResourceConsumers, err := c.getResourcesHelper(deployIDCopies, generateID)
+			taskResourceConsumers, err := e.getContainerResourceFromDeploy(task.DeployID)
 			if err != nil {
 				return nil, err
 			}
@@ -353,45 +344,23 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 		}
 	}
 
-	// return resourceConsumers, nil
-	// input := &ecs.DescribeTasksInput{}
-	// input.SetCluster(clusterName)
-	// output, err := e.Client.ECS.DescribeTasks(input)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// for _, task := range output.Tasks {
-	// }
-
-
 	// GET PENDING TASK RESOURCE CONSUMERS IN JOBS
 	jobs, err := e.JobStore.SelectAll()
 	if err != nil {
 		return nil, err
 	}
 
-	resourceConsumersJob := []models.ResourceConsumer{}
 	for _, job := range jobs {
-		if job.Type == int64(types.CreateTaskJob) {
-			if job.JobStatus == int64(types.Pending) || job.JobStatus == int64(types.InProgress) {
+		if job.Type == models.CreateDeployJob {
+			if job.Status == models.PendingJobStatus || job.Status == models.InProgressJobStatus {
 				var req models.CreateTaskRequest
 				if err := json.Unmarshal([]byte(job.Request), &req); err != nil {
 					return nil, err
 				}
 
-				if req.EnvironmentID == environmentID {
+				if req.EnvironmentID == clusterName {
 					// note that this isn't exact if the job has started some, but not all of the tasks
-					deployIDCopies := map[string]int{
-						req.DeployID: int(req.Copies),
-					}
-
-					// resource consumer ids are just used for debugging purposes
-					generateID := func(deployID, containerName string, copy int) string {
-						return fmt.Sprintf("Task: %s, Deploy: %s, Container: %s, Copy: %d", req.TaskName, deployID, containerName, copy)
-					}
-
-					taskResourceConsumers, err := c.getResourcesHelper(deployIDCopies, generateID)
+					taskResourceConsumers, err := e.getContainerResourceFromDeploy(req.DeployID)
 					if err != nil {
 						return nil, err
 					}
@@ -403,9 +372,6 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 	}
 
 	return resourceConsumers, nil
-
-
-	return nil, nil
 }
 
 func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*models.ResourceProvider, error) {
@@ -427,11 +393,10 @@ func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*models.Re
 		return nil, err
 	}
 
-	_ = config
-	// memory, ok := ec2.InstanceSizes[pstring(config.InstanceType)]
-	// if !ok {
-	// 	return nil, fmt.Errorf("Environment %s is using unknown instance type '%s'", environmentID, pstring(config.InstanceType))
-	// }
+	var instanceType string
+	if len(config.LaunchConfigurations) > 0 {
+		instanceType = aws.StringValue(config.LaunchConfigurations[0].InstanceType)
+	}
 
 	// these ports are automatically used by the ecs agent
 	defaultPorts := []int{
@@ -446,8 +411,7 @@ func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*models.Re
 	resource.ID = "<new instance>"
 	resource.InUse = false
 	resource.UsedPorts = defaultPorts
-	// resource.AvailableMemory = memory
-
+	resource.AvailableMemory = instanceType
 	return resource, nil
 }
 
