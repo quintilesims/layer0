@@ -16,7 +16,7 @@ import (
 
 	"github.com/docker/docker/pkg/integration"
 	"github.com/docker/docker/pkg/integration/checker"
-	"github.com/docker/go-units"
+	units "github.com/docker/go-units"
 	"github.com/go-check/check"
 )
 

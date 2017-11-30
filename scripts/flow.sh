@@ -15,7 +15,7 @@ update_api() {
     popd
 
     pushd $LAYER0_PATH/setup
-        go run main.go set "$LAYER0_PREFIX" --input version="$GIT_HASH"
+        go run main.go set "$LAYER0_INSTANCE" --input version="$GIT_HASH"
     popd
 }
 
@@ -23,7 +23,7 @@ apply() {
     echo "Applying Changes"
 
     pushd $LAYER0_PATH/setup
-        go run main.go apply "$LAYER0_PREFIX"
+        go run main.go apply "$LAYER0_INSTANCE"
     popd
 }
 
@@ -77,7 +77,7 @@ while getopts "hp:" option; do
             exit 0
             ;;
         p)
-            LAYER0_PREFIX=$OPTARG
+            LAYER0_INSTANCE=$OPTARG
             ;;
         *)
             exit 1
@@ -85,8 +85,8 @@ while getopts "hp:" option; do
     esac
 done
 
-if [ -z $LAYER0_PREFIX ]; then
-    echo "LAYER0_PREFIX not set!"
+if [ -z $LAYER0_INSTANCE ]; then
+    echo "LAYER0_INSTANCE not set!"
     exit 1
 fi
 

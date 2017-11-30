@@ -4,9 +4,9 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -17,7 +17,8 @@ func TestCreateDeploy(t *testing.T) {
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
 
 	req := models.CreateDeployRequest{
 		DeployName: "deploy1",
@@ -25,7 +26,7 @@ func TestCreateDeploy(t *testing.T) {
 	}
 
 	mockJobStore.EXPECT().
-		Insert(job.CreateDeployJob, gomock.Any()).
+		Insert(models.CreateDeployJob, gomock.Any()).
 		Return("jid", nil)
 
 	c := newFireballContext(t, req, nil)
@@ -47,10 +48,11 @@ func TestDeleteDeploy(t *testing.T) {
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
 
 	mockJobStore.EXPECT().
-		Insert(job.DeleteDeployJob, "did").
+		Insert(models.DeleteDeployJob, "did").
 		Return("jid", nil)
 
 	c := newFireballContext(t, nil, map[string]string{"id": "did"})
@@ -79,7 +81,8 @@ func TestGetDeploy(t *testing.T) {
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
 
 	mockDeployProvider.EXPECT().
 		Read("d1").
@@ -104,7 +107,8 @@ func TestListDeploys(t *testing.T) {
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	controller := NewDeployController(mockDeployProvider, mockJobStore)
+	tagStore := tag.NewMemoryStore()
+	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
 
 	deploySummaries := []models.DeploySummary{
 		{

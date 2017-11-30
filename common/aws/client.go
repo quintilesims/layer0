@@ -1,7 +1,6 @@
 package aws
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/autoscaling/autoscalingiface"
@@ -32,8 +31,7 @@ type Client struct {
 	S3             s3iface.S3API
 }
 
-func NewClient(config *aws.Config) *Client {
-	session := session.New(config)
+func NewClient(session *session.Session) *Client {
 	return &Client{
 		AutoScaling:    autoscaling.New(session),
 		CloudTrail:     cloudtrail.New(session),

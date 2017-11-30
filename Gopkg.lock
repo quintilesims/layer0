@@ -332,6 +332,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/zpatrick/go-bytesize"
+  packages = ["."]
+  revision = "40b68ac70b6ad801369c8de9df588ffa5b9b4275"
+
+[[projects]]
+  branch = "master"
   name = "github.com/zpatrick/go-plugin-swagger"
   packages = ["."]
   revision = "c7ab932171be90d64e8c9f4486ea0095f0ee8793"
@@ -381,6 +387,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "18b20948c5b95713d2a04e6f308767d6be3bb059cf77ab42f74a9a38bb0ba5d8"
+  inputs-digest = "ea8ed5488e37cd3b1ab88858fd7b79644fefe817d9aa7b46f79c4d54b143085d"
   solver-name = "gps-cdcl"
   solver-version = 1

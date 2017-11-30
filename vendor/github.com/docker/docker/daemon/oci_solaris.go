@@ -10,7 +10,7 @@ import (
 	"github.com/docker/docker/container"
 	"github.com/docker/docker/oci"
 	"github.com/docker/libnetwork"
-	"github.com/opencontainers/runtime-spec/specs-go"
+	specs "github.com/opencontainers/runtime-spec/specs-go"
 )
 
 func setResources(s *specs.Spec, r containertypes.Resources) error {

@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
 	"github.com/quintilesims/layer0/api/scaler"
 	"github.com/quintilesims/layer0/common/errors"
@@ -41,32 +40,33 @@ func NewJobRunner(
 }
 
 func (r *JobRunner) Run(j models.Job) (string, error) {
-	switch job.JobType(j.Type) {
-	case job.CreateDeployJob:
+
+	switch j.Type {
+	case models.CreateDeployJob:
 		return r.createDeploy(j.JobID, j.Request)
-	case job.CreateEnvironmentJob:
+	case models.CreateEnvironmentJob:
 		return r.createEnvironment(j.JobID, j.Request)
-	case job.CreateLoadBalancerJob:
+	case models.CreateLoadBalancerJob:
 		return r.createLoadBalancer(j.JobID, j.Request)
-	case job.CreateServiceJob:
+	case models.CreateServiceJob:
 		return r.createService(j.JobID, j.Request)
-	case job.CreateTaskJob:
+	case models.CreateTaskJob:
 		return r.createTask(j.JobID, j.Request)
-	case job.DeleteDeployJob:
+	case models.DeleteDeployJob:
 		return r.deleteDeploy(j.JobID, j.Request)
-	case job.DeleteEnvironmentJob:
+	case models.DeleteEnvironmentJob:
 		return r.deleteEnvironment(j.JobID, j.Request)
-	case job.DeleteLoadBalancerJob:
+	case models.DeleteLoadBalancerJob:
 		return r.deleteLoadBalancer(j.JobID, j.Request)
-	case job.DeleteServiceJob:
+	case models.DeleteServiceJob:
 		return r.deleteService(j.JobID, j.Request)
-	case job.DeleteTaskJob:
+	case models.DeleteTaskJob:
 		return r.deleteTask(j.JobID, j.Request)
-	case job.UpdateEnvironmentJob:
+	case models.UpdateEnvironmentJob:
 		return r.updateEnvironment(j.JobID, j.Request)
-	case job.UpdateLoadBalancerJob:
+	case models.UpdateLoadBalancerJob:
 		return r.updateLoadBalancer(j.JobID, j.Request)
-	case job.UpdateServiceJob:
+	case models.UpdateServiceJob:
 		return r.updateService(j.JobID, j.Request)
 	default:
 		return "", fmt.Errorf("Unrecognized JobType '%s'", j.Type)
@@ -121,7 +121,16 @@ func (r *JobRunner) createService(jobID, request string) (string, error) {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
-	serviceID, err := r.serviceProvider.Create(req)
+	serviceID, err := catchAndRetry(time.Minute*5, func() (result string, err error, shouldRetry bool) {
+		log.Printf("[DEBUG] [JobRunner] Creating service %s", req.ServiceName)
+		serviceID, err := r.serviceProvider.Create(req)
+		if err != nil {
+			log.Printf("[DEBUG] [JobRunner] Failed to create service %s: %v", req.ServiceName, err)
+			return "", err, true
+		}
+
+		return serviceID, nil, false
+	})
 	if err != nil {
 		return "", err
 	}

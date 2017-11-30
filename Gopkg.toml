@@ -88,3 +88,7 @@
 [[constraint]]
   branch = "master"
   name = "github.com/zpatrick/rclient"
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/zpatrick/go-bytesize"

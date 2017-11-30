@@ -15,7 +15,6 @@ import (
 
 	"github.com/docker/docker/daemon/graphdriver"
 	"github.com/docker/docker/pkg/stringid"
-	"github.com/docker/go-units"
 )
 
 var (
