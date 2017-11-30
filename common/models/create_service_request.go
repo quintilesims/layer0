@@ -11,6 +11,7 @@ type CreateServiceRequest struct {
 	EnvironmentID  string `json:"environment_id"`
 	LoadBalancerID string `json:"load_balancer_id"`
 	ServiceName    string `json:"service_name"`
+	Scale          int    `json:"scale"`
 }
 
 func (c CreateServiceRequest) Validate() error {
@@ -26,6 +27,10 @@ func (c CreateServiceRequest) Validate() error {
 		return fmt.Errorf("ServiceName is required")
 	}
 
+	if c.Scale < 0 {
+		return fmt.Errorf("Scale must be a positive integer")
+	}
+
 	return nil
 }
 
@@ -37,6 +42,7 @@ func (s CreateServiceRequest) Definition() swagger.Definition {
 			"environment_id":   swagger.NewStringProperty(),
 			"load_balancer_id": swagger.NewStringProperty(),
 			"service_name":     swagger.NewStringProperty(),
+			"scale":            swagger.NewIntProperty(),
 		},
 	}
 }

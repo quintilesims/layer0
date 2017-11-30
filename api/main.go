@@ -9,6 +9,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/defaults"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/api/controllers"
 	"github.com/quintilesims/layer0/api/job"
@@ -25,7 +26,6 @@ import (
 const (
 	SWAGGER_URL     = "/api/"
 	SWAGGER_UI_PATH = "static/swagger-ui/dist"
-	MAX_AWS_RETRIES = 15
 )
 
 func serveSwaggerUI(w http.ResponseWriter, r *http.Request) {
@@ -58,10 +58,16 @@ func main() {
 		staticCreds := credentials.NewStaticCredentials(cfg.AccessKey(), cfg.SecretKey(), "")
 		awsConfig.WithCredentials(staticCreds)
 		awsConfig.WithRegion(cfg.Region())
-		awsConfig.WithMaxRetries(MAX_AWS_RETRIES)
+		awsConfig.WithMaxRetries(cfg.MaxRetries())
 		session := session.New(awsConfig)
 
-		client := awsclient.NewClient(awsConfig)
+		delay := c.Duration(config.FLAG_AWS_TIME_BETWEEN_REQUESTS)
+		ticker := time.Tick(delay)
+		session.Handlers.Send.PushBack(func(r *request.Request) {
+			<-ticker
+		})
+
+		client := awsclient.NewClient(session)
 		tagStore := tag.NewDynamoStore(session, cfg.DynamoTagTable())
 		jobStore := job.NewDynamoStore(session, cfg.DynamoJobTable())
 
@@ -84,16 +90,21 @@ func main() {
 
 		routes := controllers.NewSwaggerController(Version).Routes()
 		routes = append(routes, controllers.NewAdminController(cfg, Version).Routes()...)
-		routes = append(routes, controllers.NewDeployController(deployProvider, jobStore).Routes()...)
-		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore).Routes()...)
-		routes = append(routes, controllers.NewJobController(jobStore).Routes()...)
-		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider, jobStore).Routes()...)
-		routes = append(routes, controllers.NewServiceController(serviceProvider, jobStore).Routes()...)
+		routes = append(routes, controllers.NewDeployController(deployProvider, jobStore, tagStore).Routes()...)
+		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore, tagStore).Routes()...)
+		routes = append(routes, controllers.NewJobController(jobStore, tagStore).Routes()...)
+		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider, jobStore, tagStore).Routes()...)
+		routes = append(routes, controllers.NewServiceController(serviceProvider, jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewTagController(tagStore).Routes()...)
-		routes = append(routes, controllers.NewTaskController(taskProvider, jobStore).Routes()...)
+		routes = append(routes, controllers.NewTaskController(taskProvider, jobStore, tagStore).Routes()...)
+
+		// todo: add auth decroator
+		routes = fireball.Decorate(routes,
+			fireball.LogDecorator())
 
 		// todo: add decorators to routes
 		server := fireball.NewApp(routes)
+		server.ErrorHandler = controllers.ErrorHandler
 
 		// todo: get num workers from config
 		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner)
@@ -101,6 +112,15 @@ func main() {
 
 		scalerTicker := scalerDispatcher.RunEvery(time.Minute * 5)
 		defer scalerTicker.Stop()
+
+		expiry := cfg.JobExpiry()
+		jobJanitor := job.NewJanitor(jobStore, expiry)
+		jobJanitorTicker := jobJanitor.RunEvery(time.Hour)
+		defer jobJanitorTicker.Stop()
+
+		tagJanitor := tag.NewJanitor(tagStore, taskProvider)
+		tagJanitorTicker := tagJanitor.RunEvery(time.Hour)
+		defer tagJanitorTicker.Stop()
 
 		log.Printf("[INFO] Listening on port %d", cfg.Port())
 		http.Handle("/", server)

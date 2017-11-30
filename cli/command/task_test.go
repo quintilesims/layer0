@@ -3,7 +3,6 @@ package command
 import (
 	"testing"
 
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -49,7 +48,7 @@ func TestCreateTask(t *testing.T) {
 
 		if wait {
 			job := &models.Job{
-				Status: job.Completed.String(),
+				Status: models.CompletedJobStatus,
 				Result: "tsk_id",
 			}
 
@@ -107,7 +106,7 @@ func TestDeleteTask(t *testing.T) {
 
 		if wait {
 			job := &models.Job{
-				Status: job.Completed.String(),
+				Status: models.CompletedJobStatus,
 				Result: "job_id",
 			}
 

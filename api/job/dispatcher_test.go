@@ -5,10 +5,11 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDispatcherQueuesPendingJobs(t *testing.T) {
+func TestDispatcherQueuesPendingJob(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -16,22 +17,22 @@ func TestDispatcherQueuesPendingJobs(t *testing.T) {
 	queue := make(chan string)
 	dispatcher := NewDispatcher(store, queue)
 
-	jobStatuses := map[string]Status{}
+	jobStatuses := map[string]models.JobStatus{}
 	for i := 0; i < 50; i++ {
-		jobID, err := store.Insert(DeleteEnvironmentJob, strconv.Itoa(i))
+		jobID, err := store.Insert(models.DeleteEnvironmentJob, strconv.Itoa(i))
 		if err != nil {
 			t.Fatal(err)
 		}
 
 		switch i % 4 {
 		case 0:
-			jobStatuses[jobID] = Pending
+			jobStatuses[jobID] = models.PendingJobStatus
 		case 1:
-			jobStatuses[jobID] = InProgress
+			jobStatuses[jobID] = models.InProgressJobStatus
 		case 2:
-			jobStatuses[jobID] = Completed
+			jobStatuses[jobID] = models.CompletedJobStatus
 		case 3:
-			jobStatuses[jobID] = Error
+			jobStatuses[jobID] = models.ErrorJobStatus
 
 		}
 	}
@@ -45,7 +46,7 @@ func TestDispatcherQueuesPendingJobs(t *testing.T) {
 	go func() {
 		for {
 			jobID := <-queue
-			assert.Equal(t, Pending, jobStatuses[jobID])
+			assert.Equal(t, models.PendingJobStatus, jobStatuses[jobID])
 		}
 	}()
 

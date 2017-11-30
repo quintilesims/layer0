@@ -4,8 +4,9 @@
 package mock_gomock
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockMatcher is a mock of Matcher interface

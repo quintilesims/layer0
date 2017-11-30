@@ -5,6 +5,7 @@ import (
 
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
@@ -18,12 +19,14 @@ const (
 type TaskController struct {
 	TaskProvider provider.TaskProvider
 	JobStore     job.Store
+	TagStore     tag.Store
 }
 
-func NewTaskController(t provider.TaskProvider, j job.Store) *TaskController {
+func NewTaskController(p provider.TaskProvider, j job.Store, t tag.Store) *TaskController {
 	return &TaskController{
-		TaskProvider: t,
+		TaskProvider: p,
 		JobStore:     j,
+		TagStore:     t,
 	}
 }
 
@@ -62,12 +65,12 @@ func (t *TaskController) CreateTask(c *fireball.Context) (fireball.Response, err
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(t.JobStore, job.CreateTaskJob, req)
+	return createJob(t.TagStore, t.JobStore, models.CreateTaskJob, req)
 }
 
 func (t *TaskController) DeleteTask(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(t.JobStore, job.DeleteTaskJob, id)
+	return createJob(t.TagStore, t.JobStore, models.DeleteTaskJob, id)
 }
 
 func (t *TaskController) GetTask(c *fireball.Context) (fireball.Response, error) {
@@ -103,5 +106,4 @@ func (t *TaskController) ListTasks(c *fireball.Context) (fireball.Response, erro
 	}
 
 	return fireball.NewJSONResponse(200, summaries)
-
 }

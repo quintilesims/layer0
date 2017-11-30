@@ -15,7 +15,6 @@ import (
 	"github.com/docker/docker/cli/command"
 	"github.com/docker/docker/cli/command/idresolver"
 	"github.com/docker/docker/pkg/stringid"
-	"github.com/docker/go-units"
 )
 
 const (

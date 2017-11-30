@@ -1,8 +1,9 @@
 package command
 
 import (
-	"github.com/quintilesims/layer0/common/models"
 	"testing"
+
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func TestDebugAdmin(t *testing.T) {

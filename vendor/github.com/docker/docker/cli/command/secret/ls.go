@@ -8,7 +8,6 @@ import (
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/cli"
 	"github.com/docker/docker/cli/command"
-	"github.com/docker/go-units"
 	"github.com/spf13/cobra"
 	"golang.org/x/net/context"
 )

@@ -5,6 +5,7 @@ import (
 
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
+	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
@@ -13,12 +14,14 @@ import (
 type EnvironmentController struct {
 	EnvironmentProvider provider.EnvironmentProvider
 	JobStore            job.Store
+	TagStore            tag.Store
 }
 
-func NewEnvironmentController(e provider.EnvironmentProvider, j job.Store) *EnvironmentController {
+func NewEnvironmentController(e provider.EnvironmentProvider, j job.Store, t tag.Store) *EnvironmentController {
 	return &EnvironmentController{
 		EnvironmentProvider: e,
 		JobStore:            j,
+		TagStore:            t,
 	}
 }
 
@@ -57,12 +60,12 @@ func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(e.JobStore, job.CreateEnvironmentJob, req)
+	return createJob(e.TagStore, e.JobStore, models.CreateEnvironmentJob, req)
 }
 
 func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball.Response, error) {
 	id := c.PathVariables["id"]
-	return createJob(e.JobStore, job.DeleteEnvironmentJob, id)
+	return createJob(e.TagStore, e.JobStore, models.DeleteEnvironmentJob, id)
 }
 
 func (e *EnvironmentController) GetEnvironment(c *fireball.Context) (fireball.Response, error) {
@@ -96,5 +99,5 @@ func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball
 	}
 
 	jobRequest := models.UpdateEnvironmentRequestJob{id, req}
-	return createJob(e.JobStore, job.UpdateEnvironmentJob, jobRequest)
+	return createJob(e.TagStore, e.JobStore, models.UpdateEnvironmentJob, jobRequest)
 }

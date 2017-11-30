@@ -24,7 +24,7 @@ import (
 	"github.com/docker/libnetwork/netutils"
 	lntypes "github.com/docker/libnetwork/types"
 	"github.com/opencontainers/runc/libcontainer/label"
-	"github.com/opencontainers/runtime-spec/specs-go"
+	specs "github.com/opencontainers/runtime-spec/specs-go"
 	"github.com/pkg/errors"
 )
 

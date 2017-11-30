@@ -28,7 +28,7 @@ func newTestStore(t *testing.T) *DynamoStore {
 func TestDynamoStoreInsert(t *testing.T) {
 	store := newTestStore(t)
 
-	if _, err := store.Insert(DeleteEnvironmentJob, "1"); err != nil {
+	if _, err := store.Insert(models.DeleteEnvironmentJob, "1"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -41,7 +41,7 @@ func TestDynamoStoreInsertHook(t *testing.T) {
 		called = true
 	})
 
-	if _, err := store.Insert(DeleteEnvironmentJob, "1"); err != nil {
+	if _, err := store.Insert(models.DeleteEnvironmentJob, "1"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -51,7 +51,7 @@ func TestDynamoStoreInsertHook(t *testing.T) {
 func TestAcquireJobSuccess(t *testing.T) {
 	store := newTestStore(t)
 
-	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	jobID, err := store.Insert(models.DeleteEnvironmentJob, "1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -67,12 +67,12 @@ func TestAcquireJobSuccess(t *testing.T) {
 func TestAcquireJobFailure(t *testing.T) {
 	store := newTestStore(t)
 
-	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	jobID, err := store.Insert(models.DeleteEnvironmentJob, "1")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := store.SetJobStatus(jobID, InProgress); err != nil {
+	if err := store.SetJobStatus(jobID, models.InProgressJobStatus); err != nil {
 		t.Fatal(err)
 	}
 
@@ -87,7 +87,7 @@ func TestAcquireJobFailure(t *testing.T) {
 func TestDynamoStoreDelete(t *testing.T) {
 	store := newTestStore(t)
 
-	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	jobID, err := store.Insert(models.DeleteEnvironmentJob, "1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -101,7 +101,7 @@ func TestDynamoStoreSelectAll(t *testing.T) {
 	store := newTestStore(t)
 
 	for i := 0; i < 5; i++ {
-		if _, err := store.Insert(DeleteEnvironmentJob, "1"); err != nil {
+		if _, err := store.Insert(models.DeleteEnvironmentJob, "1"); err != nil {
 			t.Fatal(err)
 		}
 	}
@@ -118,15 +118,15 @@ func TestDynamoStoreSelectByID(t *testing.T) {
 	store := newTestStore(t)
 
 	jobs := []*models.Job{
-		{Type: string(DeleteEnvironmentJob), Request: "0"},
-		{Type: string(DeleteEnvironmentJob), Request: "1"},
-		{Type: string(DeleteServiceJob), Request: "2"},
-		{Type: string(DeleteLoadBalancerJob), Request: "3"},
-		{Type: string(DeleteTaskJob), Request: "4"},
+		{Type: models.DeleteEnvironmentJob, Request: "0"},
+		{Type: models.DeleteEnvironmentJob, Request: "1"},
+		{Type: models.DeleteServiceJob, Request: "2"},
+		{Type: models.DeleteLoadBalancerJob, Request: "3"},
+		{Type: models.DeleteTaskJob, Request: "4"},
 	}
 
 	for _, job := range jobs {
-		jobID, err := store.Insert(JobType(job.Type), job.Request)
+		jobID, err := store.Insert(models.JobType(job.Type), job.Request)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -143,12 +143,12 @@ func TestDynamoStoreSelectByID(t *testing.T) {
 func TestDynamoStoreSetJobStatus(t *testing.T) {
 	store := newTestStore(t)
 
-	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	jobID, err := store.Insert(models.DeleteEnvironmentJob, "1")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	if err := store.SetJobStatus(jobID, Error); err != nil {
+	if err := store.SetJobStatus(jobID, models.ErrorJobStatus); err != nil {
 		t.Fatal(err)
 	}
 
@@ -157,13 +157,13 @@ func TestDynamoStoreSetJobStatus(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, Error, Status(job.Status))
+	assert.Equal(t, models.ErrorJobStatus, job.Status)
 }
 
 func TestDynamoStoreSetResult(t *testing.T) {
 	store := newTestStore(t)
 
-	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	jobID, err := store.Insert(models.DeleteEnvironmentJob, "1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -183,7 +183,7 @@ func TestDynamoStoreSetResult(t *testing.T) {
 func TestDynamoStoreSetJobError(t *testing.T) {
 	store := newTestStore(t)
 
-	jobID, err := store.Insert(DeleteEnvironmentJob, "1")
+	jobID, err := store.Insert(models.DeleteEnvironmentJob, "1")
 	if err != nil {
 		t.Fatal(err)
 	}
