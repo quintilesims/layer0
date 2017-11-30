@@ -16,6 +16,8 @@ variable "ssh_key_pair" {}
 
 variable "dockercfg" {}
 
+variable "time_between_requests" {}
+
 variable "tags" {
   description = "A map of tags to add to all resources"
   default     = {}

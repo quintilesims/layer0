@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/rclient"
 )
 
@@ -82,13 +83,13 @@ func newResponseReader() rclient.ResponseReader {
 		case resp.StatusCode == 401:
 			return fmt.Errorf("Invalid Auth Token. Have you tried running `l0-setup endpoint <instance>`?")
 		case resp.StatusCode < 200, resp.StatusCode > 299:
-			var se *errors.ServerError
-			if err := json.NewDecoder(resp.Body).Decode(se); err != nil {
+			var se models.ServerError
+			if err := json.NewDecoder(resp.Body).Decode(&se); err != nil {
 				log.Printf("[DEBUG] Failed to decode server error: %v", err)
 				return fmt.Errorf("Layer0 API returned a non-200 status code: %d", resp.StatusCode)
 			}
 
-			return se
+			return errors.FromModel(se)
 		case v == nil:
 			return nil
 		default:

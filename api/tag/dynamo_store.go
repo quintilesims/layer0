@@ -153,11 +153,11 @@ func (d *DynamoStore) SelectByTypeAndID(entityType, entityID string) (models.Tag
 
 func (d *DynamoStore) selectByTypeAndID(entityType, entityID string) (*DynamoTagSchema, error) {
 	if entityType == "" {
-		return nil, fmt.Errorf("EntityType is required")
+		return nil, fmt.Errorf("Failed to select tags: EntityType is required")
 	}
 
 	if entityID == "" {
-		return nil, fmt.Errorf("EntityID is required")
+		return nil, fmt.Errorf("Failed to select tags: EntityID is required")
 	}
 
 	var schema *DynamoTagSchema

@@ -33,6 +33,7 @@ func TestEnvironmentCreate(t *testing.T) {
 	mockConfig.EXPECT().VPC().Return("vpc_id").AnyTimes()
 	mockConfig.EXPECT().InstanceProfile().Return("profile").AnyTimes()
 	mockConfig.EXPECT().PrivateSubnets().Return([]string{"priv1", "priv2"}).AnyTimes()
+	mockConfig.EXPECT().SSHKeyPair().Return("keypair").AnyTimes()
 
 	defer provider.SetEntityIDGenerator("env_id")()
 
@@ -71,6 +72,7 @@ func TestEnvironmentCreate(t *testing.T) {
 	createLCInput.SetInstanceType("m3.small")
 	createLCInput.SetIamInstanceProfile("profile")
 	createLCInput.SetImageId("some ami")
+	createLCInput.SetKeyName("keypair")
 	base64UserData := base64.StdEncoding.EncodeToString([]byte("some user data"))
 	createLCInput.SetUserData(base64UserData)
 
@@ -148,6 +150,7 @@ func TestEnvironmentCreateDefaults(t *testing.T) {
 	mockConfig.EXPECT().VPC().Return("vpc_id").AnyTimes()
 	mockConfig.EXPECT().InstanceProfile().Return("profile").AnyTimes()
 	mockConfig.EXPECT().PrivateSubnets().Return([]string{"priv1", "priv2"}).AnyTimes()
+	mockConfig.EXPECT().SSHKeyPair().Return("keypair").AnyTimes()
 
 	defer provider.SetEntityIDGenerator("env_id")()
 
