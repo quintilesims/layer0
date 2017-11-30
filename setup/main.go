@@ -38,6 +38,7 @@ func main() {
 		commandFactory.Push(),
 		commandFactory.Pull(),
 		commandFactory.Set(),
+		commandFactory.Unset(),
 		commandFactory.Upgrade(),
 	}
 

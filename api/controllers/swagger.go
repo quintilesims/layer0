@@ -36,7 +36,7 @@ func (s *SwaggerController) Routes() []*fireball.Route {
 	return routes
 }
 
-func (s *SwaggerController) Root(c *fireball.Context) (fireball.Response, error){
+func (s *SwaggerController) Root(c *fireball.Context) (fireball.Response, error) {
 	html := "<a href='/api/?url=/swagger.json'>Swagger</a>"
 	return fireball.NewResponse(200, []byte(html), nil), nil
 }

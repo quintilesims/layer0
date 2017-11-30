@@ -6,7 +6,6 @@ import (
 	"log"
 	"time"
 
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -72,10 +71,10 @@ func WaitForJob(client Client, jobID string, timeout time.Duration) (*models.Job
 			return nil, err
 		}
 
-		switch job.Status(j.Status) {
-		case job.Completed:
+		switch j.Status {
+		case models.CompletedJobStatus:
 			return j, nil
-		case job.Error:
+		case models.ErrorJobStatus:
 			var se *errors.ServerError
 			if err := json.Unmarshal([]byte(j.Error), &se); err != nil {
 				log.Printf("[DEBUG] Failed to marshal job.Error into errors.ServerError: %v", err)
