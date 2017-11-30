@@ -44,7 +44,7 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] resourceProviders: %#v", resourceProviders)
+	log.Printf("[DEBUG] resourceProviders for env '%s': %#v", environmentID, resourceProviders)
 
 	// GET RESOURCE CONSUMERS
 	resourceConsumers, err := e.getResourceConsumers(clusterName)
@@ -52,7 +52,7 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] resourceConsumers: %#v", resourceConsumers)
+	log.Printf("[DEBUG] resourceConsumers for env '%s': %#v", environmentID, resourceConsumers)
 
 	// e.scale(clusterName, resourceProviders, resourceConsumers)
 
@@ -242,16 +242,48 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 	//   - getPendingTaskResourcesInJobs
 
 	// GET PENDING SERVICE RESOURCE CONSUMERS
-	input := &ecs.DescribeServicesInput{}
-	input.SetCluster(clusterName)
-	output, err := e.Client.ECS.DescribeServices(input)
-	if err != nil {
+	listServicesInput := &ecs.ListServicesInput{}
+	listServicesInput.SetCluster(clusterName)
+
+	serviceARNs := []*string{}
+	listServicesPagesFN := func(output *ecs.ListServicesOutput, lastPage bool) bool {
+		serviceARNs = append(serviceARNs, output.ServiceArns...)
+
+		return !lastPage
+	}
+
+	if err := e.Client.ECS.ListServicesPages(listServicesInput, listServicesPagesFN); err != nil {
 		return nil, err
+	}
+
+	services := []*ecs.Service{}
+	if len(serviceARNs) > 0 {
+		// The SDK states that you can specify up to 10 services in one DescribeServices operation:
+		// https://github.com/aws/aws-sdk-go/blob/ee1f179877b2daf2aaabf71fa900773bf8842253/service/ecs/api.go#L5420
+		// (aws-sdk-go version 1.12.19, as stated in layer0/Gopkg.toml)
+		for i := 0; i < len(serviceARNs); i += 10 {
+			end := i + 10
+
+			if end > len(serviceARNs) {
+				end = len(serviceARNs)
+			}
+
+			describeServicesInput := &ecs.DescribeServicesInput{}
+			describeServicesInput.SetCluster(clusterName)
+			describeServicesInput.SetServices(serviceARNs[i:end])
+
+			output, err := e.Client.ECS.DescribeServices(describeServicesInput)
+			if err != nil {
+				return nil, err
+			}
+
+			services = append(services, output.Services...)
+		}
 	}
 
 	result := []models.ResourceConsumer{}
 
-	for _, service := range output.Services {
+	for _, service := range services {
 		deployIDCopies := map[string]int64{}
 		for _, d := range service.Deployments {
 			desiredCount := aws.Int64Value(d.DesiredCount)
