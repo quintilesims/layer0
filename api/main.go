@@ -71,7 +71,7 @@ func main() {
 		serviceProvider := aws.NewServiceProvider(client, tagStore, cfg)
 		taskProvider := aws.NewTaskProvider(client, tagStore, cfg)
 
-		environmentScaler := aws.NewEnvironmentScaler(client, environmentProvider, serviceProvider, cfg)
+		environmentScaler := aws.NewEnvironmentScaler(client, environmentProvider, serviceProvider, taskProvider, jobStore, cfg)
 		scalerDispatcher := scaler.NewDispatcher(environmentProvider, environmentScaler)
 
 		jobRunner := aws.NewJobRunner(

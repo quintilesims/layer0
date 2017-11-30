@@ -16,21 +16,26 @@ import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/api/job"
 )
 
 type EnvironmentScaler struct {
 	Client              *awsc.Client
 	EnvironmentProvider provider.EnvironmentProvider
 	ServiceProvider     provider.ServiceProvider
+	TaskProvider        provider.TaskProvider
+	JobStore    				job.Store
 	Config              config.APIConfig
 	deployCache         map[string][]models.ResourceConsumer
 }
 
-func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s provider.ServiceProvider, c config.APIConfig) *EnvironmentScaler {
+func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s provider.ServiceProvider, t provider.TaskProvider, j job.Store, c config.APIConfig) *EnvironmentScaler {
 	return &EnvironmentScaler{
 		Client:              a,
 		EnvironmentProvider: e,
 		ServiceProvider:     s,
+		TaskProvider:        t,
+		JobStore:     j,
 		Config:              c,
 	}
 }
@@ -278,7 +283,45 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 	}
 
 	// GET PENDING TASK RESOURCE CONSUMERS IN ECS
+	taskSummaries, err := e.TaskProvider.List()
+	if err != nil {
+		return nil, err
+	}
 
+	resourceConsumers := []models.ResourceConsumer{}
+
+	for _, summary := range taskSummaries {
+		if summary.EnvironmentID == clusterName {
+			
+			task, err := e.TaskProvider.Read(summary.TaskID)
+			if err != nil {
+				return nil, err
+			}
+
+
+			if task.PendingCount == 0 {
+				continue
+			}
+
+			deployIDCopies := map[string]int{
+				task.DeployID: int(task.TaskID)
+			}
+
+			// resource consumer ids are just used for debugging purposes
+			generateID := func(deployID, containerName string, copy int) string {
+				return fmt.Sprintf("Task: %s, Deploy: %s, Container: %s, Copy: %d", summary.TaskID, deployID, containerName, copy)
+			}
+
+			taskResourceConsumers, err := c.getResourcesHelper(deployIDCopies, generateID)
+			if err != nil {
+				return nil, err
+			}
+
+			resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
+		}
+	}
+
+	// return resourceConsumers, nil
 	// input := &ecs.DescribeTasksInput{}
 	// input.SetCluster(clusterName)
 	// output, err := e.Client.ECS.DescribeTasks(input)
@@ -290,6 +333,47 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 	// }
 
 	// GET PENDING TASK RESOURCE CONSUMERS IN JOBS
+
+
+
+	jobs, err := e.JobStore.SelectAll()
+	if err != nil {
+		return nil, err
+	}
+
+	resourceConsumersJob := []models.ResourceConsumer{}
+	for _, job := range jobs {
+		if job.Type == int64(type.CreateTaskJob) {
+			if job.JobStatus == int64(types.Pending) || job.JobStatus == int64(types.InProgress) {
+				var req models.CreateTaskRequest
+				if err := json.Unmarshal([]byte(job.Request), &req); err != nil {
+					return nil, err
+				}
+
+				if req.EnvironmentID == environmentID {
+					// note that this isn't exact if the job has started some, but not all of the tasks
+					deployIDCopies := map[string]int{
+						req.DeployID: int(req.Copies),
+					}
+
+					// resource consumer ids are just used for debugging purposes
+					generateID := func(deployID, containerName string, copy int) string {
+						return fmt.Sprintf("Task: %s, Deploy: %s, Container: %s, Copy: %d", req.TaskName, deployID, containerName, copy)
+					}
+
+					taskResourceConsumers, err := c.getResourcesHelper(deployIDCopies, generateID)
+					if err != nil {
+						return nil, err
+					}
+
+					resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
+				}
+			}
+		}
+	}
+
+	return resourceConsumers, nil
+
 
 	return nil, nil
 }
