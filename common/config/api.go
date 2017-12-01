@@ -1,7 +1,9 @@
 package config
 
 import (
+	"encoding/base64"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/urfave/cli"
@@ -10,10 +12,13 @@ import (
 func APIFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.IntFlag{
-			// todo: renamed from 'LAYER0_API_PORT'
 			Name:   FLAG_PORT,
 			Value:  DEFAULT_PORT,
 			EnvVar: ENVVAR_PORT,
+		},
+		cli.StringFlag{
+			Name:   FLAG_TOKEN,
+			EnvVar: ENVVAR_TOKEN,
 		},
 		cli.DurationFlag{
 			Name:   FLAG_JOB_EXPIRY,
@@ -21,7 +26,6 @@ func APIFlags() []cli.Flag {
 			EnvVar: ENVVAR_JOB_EXPIRY,
 		},
 		cli.BoolFlag{
-			// todo: renamed from 'LAYER0_LOG_LEVEL'
 			Name:   FLAG_DEBUG,
 			EnvVar: ENVVAR_DEBUG,
 		},
@@ -106,6 +110,7 @@ func APIFlags() []cli.Flag {
 
 type APIConfig interface {
 	Port() int
+	ParseAuthToken() (string, string, error)
 	AccountID() string
 	AccessKey() string
 	SecretKey() string
@@ -140,6 +145,7 @@ func NewContextAPIConfig(c *cli.Context) *ContextAPIConfig {
 func (c *ContextAPIConfig) Validate() error {
 	requiredVars := []string{
 		FLAG_INSTANCE,
+		FLAG_TOKEN,
 		FLAG_AWS_ACCOUNT_ID,
 		FLAG_AWS_ACCESS_KEY,
 		FLAG_AWS_SECRET_KEY,
@@ -167,6 +173,24 @@ func (c *ContextAPIConfig) Validate() error {
 
 func (c *ContextAPIConfig) Port() int {
 	return c.C.Int(FLAG_PORT)
+}
+
+func (c *ContextAPIConfig) AuthToken() string {
+	return c.C.String(FLAG_TOKEN)
+}
+
+func (c *ContextAPIConfig) ParseAuthToken() (string, string, error) {
+	token, err := base64.StdEncoding.DecodeString(c.AuthToken())
+	if err != nil {
+		return "", "", fmt.Errorf("Auth Token is not in valid base64 format: %v", err)
+	}
+
+	split := strings.Split(string(token), ":")
+	if len(split) != 2 {
+		return "", "", fmt.Errorf("Auth Token must be in format 'user:pass' and base64 encoded")
+	}
+
+	return split[0], split[1], nil
 }
 
 func (c *ContextAPIConfig) Instance() string {

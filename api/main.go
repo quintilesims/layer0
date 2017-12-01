@@ -103,11 +103,15 @@ func main() {
 		routes = append(routes, controllers.NewTagController(tagStore).Routes()...)
 		routes = append(routes, controllers.NewTaskController(taskProvider, jobStore, tagStore).Routes()...)
 
-		// todo: add auth decroator
-		routes = fireball.Decorate(routes,
-			fireball.LogDecorator())
+		user, pass, err := cfg.ParseAuthToken()
+		if err != nil {
+			return err
+		}
 
-		// todo: add decorators to routes
+		routes = fireball.Decorate(routes,
+			fireball.LogDecorator(),
+			fireball.BasicAuthDecorator(user, pass))
+
 		server := fireball.NewApp(routes)
 		server.ErrorHandler = controllers.ErrorHandler
 
