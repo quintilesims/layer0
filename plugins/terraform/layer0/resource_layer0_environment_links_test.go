@@ -5,7 +5,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/client/mock_client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -27,7 +26,7 @@ func TestResourceEnvironmentLinksCreateRead(t *testing.T) {
 		Return("job_id", nil)
 
 	job := &models.Job{
-		Status: job.Completed.String(),
+		Status: models.CompletedJobStatus,
 		Result: "env_id",
 	}
 
@@ -74,7 +73,7 @@ func TestResourceEnvironmentLinksDelete(t *testing.T) {
 		Return("job_id", nil)
 
 	job := &models.Job{
-		Status: job.Completed.String(),
+		Status: models.CompletedJobStatus,
 		Result: "env_id",
 	}
 

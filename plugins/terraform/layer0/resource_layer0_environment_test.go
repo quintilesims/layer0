@@ -5,7 +5,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/client/mock_client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -31,7 +30,7 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 		Return("job_id", nil)
 
 	job := &models.Job{
-		Status: job.Completed.String(),
+		Status: models.CompletedJobStatus,
 		Result: "env_id",
 	}
 
@@ -88,7 +87,7 @@ func TestResourceEnvironmentDelete(t *testing.T) {
 
 	mockClient.EXPECT().
 		ReadJob("job_id").
-		Return(&models.Job{Status: job.Completed.String()}, nil)
+		Return(&models.Job{Status: models.CompletedJobStatus}, nil)
 
 	environmentResource := Provider().(*schema.Provider).ResourcesMap["layer0_environment"]
 	d := schema.TestResourceDataRaw(t, environmentResource.Schema, map[string]interface{}{})
