@@ -110,7 +110,6 @@ func APIFlags() []cli.Flag {
 
 type APIConfig interface {
 	Port() int
-	AuthToken() string
 	ParseAuthToken() (string, string, error)
 	AccountID() string
 	AccessKey() string
