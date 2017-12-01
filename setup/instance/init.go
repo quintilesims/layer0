@@ -2,9 +2,9 @@ package instance
 
 import (
 	"fmt"
+	"log"
 	"os"
 
-	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/setup/docker"
 	"github.com/quintilesims/layer0/setup/terraform"
 )
@@ -40,6 +40,11 @@ func (l *LocalInstance) Init(dockerInputPath string, inputOverrides map[string]i
 		return err
 	}
 
+	// run `terraform init` to download providers
+	if err := l.Terraform.Init(l.Dir); err != nil {
+		return err
+	}
+
 	// run `terraform get` to download terraform modules
 	if err := l.Terraform.Get(l.Dir); err != nil {
 		return err
@@ -72,14 +77,14 @@ func (l *LocalInstance) setLayer0ModuleInputs(config *terraform.Config, inputOve
 	for _, input := range Layer0ModuleInputs {
 		// if the input has a static value, it should always be set as the static value
 		if input.StaticValue != nil {
-			logrus.Debugf("Using static variable for %s", input.Name)
+			log.Printf("[DEBUG] Using static variable for %s", input.Name)
 			module[input.Name] = input.StaticValue
 			continue
 		}
 
 		// if the user specified the input with a cli flag, use it
 		if v, ok := inputOverrides[input.Name]; ok {
-			logrus.Infof("Using cli flag/environment variable for %s", input.Name)
+			log.Printf("[DEBUG] Using cli flag/environment variable for %s", input.Name)
 			module[input.Name] = v
 			continue
 		}

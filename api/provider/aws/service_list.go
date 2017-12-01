@@ -69,19 +69,18 @@ func (s *ServiceProvider) makeServiceSummaryModels(serviceIDs []string) ([]model
 			models[i].ServiceName = tag.Value
 		}
 
-		var environmentID string
 		if tag, ok := serviceTags.WithID(serviceID).WithKey("environment_id").First(); ok {
-			environmentID = tag.Value
+			environmentID := tag.Value
 			models[i].EnvironmentID = environmentID
-		}
 
-		environmentTags, err := s.TagStore.SelectByTypeAndID("environment", environmentID)
-		if err != nil {
-			return nil, err
-		}
+			environmentTags, err := s.TagStore.SelectByTypeAndID("environment", environmentID)
+			if err != nil {
+				return nil, err
+			}
 
-		if tag, ok := environmentTags.WithKey("name").First(); ok {
-			models[i].EnvironmentName = tag.Value
+			if tag, ok := environmentTags.WithKey("name").First(); ok {
+				models[i].EnvironmentName = tag.Value
+			}
 		}
 	}
 

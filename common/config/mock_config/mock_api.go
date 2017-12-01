@@ -240,6 +240,18 @@ func (mr *MockAPIConfigMockRecorder) S3Bucket() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "S3Bucket", reflect.TypeOf((*MockAPIConfig)(nil).S3Bucket))
 }
 
+// SSHKeyPair mocks base method
+func (m *MockAPIConfig) SSHKeyPair() string {
+	ret := m.ctrl.Call(m, "SSHKeyPair")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// SSHKeyPair indicates an expected call of SSHKeyPair
+func (mr *MockAPIConfigMockRecorder) SSHKeyPair() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SSHKeyPair", reflect.TypeOf((*MockAPIConfig)(nil).SSHKeyPair))
+}
+
 // SecretKey mocks base method
 func (m *MockAPIConfig) SecretKey() string {
 	ret := m.ctrl.Call(m, "SecretKey")

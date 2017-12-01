@@ -19,6 +19,7 @@ const (
 	FLAG_AWS_SECRET_KEY            = "secret-key"
 	FLAG_AWS_REGION                = "region"
 	FLAG_AWS_VPC                   = "vpc"
+	FLAG_AWS_SSH_KEY_PAIR          = "ssh-key-pair"
 	FLAG_AWS_LINUX_AMI             = "linux-ami"
 	FLAG_AWS_WINDOWS_AMI           = "windows-ami"
 	FLAG_AWS_S3_BUCKET             = "s3-bucket"
@@ -38,7 +39,7 @@ const (
 	ENVVAR_DEBUG                     = "LAYER0_DEBUG"
 	ENVVAR_OUTPUT                    = "LAYER0_OUTPUT"
 	ENVVAR_TIMEOUT                   = "LAYER0_TIMEOUT"
-	ENVVAR_INSTANCE                  = "LAYER0_PREFIX"
+	ENVVAR_INSTANCE                  = "LAYER0_INSTANCE"
 	ENVVAR_ENDPOINT                  = "LAYER0_API_ENDPOINT"
 	ENVVAR_TOKEN                     = "LAYER0_AUTH_TOKEN"
 	ENVVAR_NO_WAIT                   = "LAYER0_NO_WAIT"
@@ -52,6 +53,7 @@ const (
 	ENVVAR_AWS_LINUX_AMI             = "LAYER0_AWS_LINUX_SERVICE_AMI"
 	ENVVAR_AWS_WINDOWS_AMI           = "LAYER0_AWS_WINDOWS_SERVICE_AMI"
 	ENVVAR_AWS_S3_BUCKET             = "LAYER0_AWS_S3_BUCKET"
+	ENVVAR_AWS_SSH_KEY_PAIR          = "LAYER0_AWS_SSH_KEY_PAIR"
 	ENVVAR_AWS_INSTANCE_PROFILE      = "LAYER0_AWS_ECS_INSTANCE_PROFILE"
 	ENVVAR_AWS_PUBLIC_SUBNETS        = "LAYER0_AWS_PUBLIC_SUBNETS"
 	ENVVAR_AWS_PRIVATE_SUBNETS       = "LAYER0_AWS_PRIVATE_SUBNETS"
@@ -63,6 +65,8 @@ const (
 )
 
 const (
-	DEFAULT_JOB_EXPIRY = time.Hour * 1
-	DEFAULT_PORT       = 9090
+	DefaultAWSRegion           = "us-west-2"
+	DefaultTimeBetweenRequests = time.Millisecond * 10
+	DEFAULT_JOB_EXPIRY         = time.Hour * 1
+	DEFAULT_PORT               = 9090
 )

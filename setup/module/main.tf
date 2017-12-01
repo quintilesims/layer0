@@ -33,8 +33,9 @@ module "api" {
   # todo: format hack is a workaround for https://github.com/hashicorp/terraform/issues/14399
   vpc_id = "${ var.vpc_id == "" ? format("%s", module.vpc.vpc_id) : var.vpc_id }"
 
-  ssh_key_pair = "${var.ssh_key_pair}"
-  dockercfg    = "${var.dockercfg}"
+  ssh_key_pair          = "${var.ssh_key_pair}"
+  dockercfg             = "${var.dockercfg}"
+  time_between_requests = "${var.time_between_requests}"
 
   tags {
     "layer0" = "${var.name}"

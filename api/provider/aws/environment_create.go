@@ -86,6 +86,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		aws.StringValue(securityGroup.GroupId),
 		instanceType,
 		e.Config.InstanceProfile(),
+		e.Config.SSHKeyPair(),
 		amiID,
 		userData); err != nil {
 		return "", err
@@ -137,6 +138,7 @@ func (e *EnvironmentProvider) createLC(
 	securityGroupID string,
 	instanceType string,
 	instanceProfile string,
+	keyPairName string,
 	amiID string,
 	userData string,
 ) error {
@@ -145,6 +147,7 @@ func (e *EnvironmentProvider) createLC(
 	input.SetSecurityGroups([]*string{aws.String(securityGroupID)})
 	input.SetInstanceType(instanceType)
 	input.SetIamInstanceProfile(instanceProfile)
+	input.SetKeyName(keyPairName)
 	input.SetImageId(amiID)
 	input.SetUserData(userData)
 

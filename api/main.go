@@ -19,6 +19,7 @@ import (
 	awsclient "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logging"
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 	"github.com/zpatrick/fireball"
 )
@@ -70,6 +71,10 @@ func main() {
 		client := awsclient.NewClient(session)
 		tagStore := tag.NewDynamoStore(session, cfg.DynamoTagTable())
 		jobStore := job.NewDynamoStore(session, cfg.DynamoJobTable())
+
+		if err := addAPIEntityTags(tagStore); err != nil {
+			return err
+		}
 
 		deployProvider := aws.NewDeployProvider(client, tagStore, cfg)
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
@@ -136,4 +141,34 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
+}
+
+func addAPIEntityTags(store tag.Store) error {
+	for _, entityType := range []string{
+		"deploy",
+		"environment",
+		"load_balancer",
+		"service"} {
+
+		t := models.Tag{
+			EntityID:   "api",
+			EntityType: entityType,
+			Key:        "name",
+			Value:      "api",
+		}
+
+		if err := store.Insert(t); err != nil {
+			return err
+		}
+
+		if entityType == "load_balancer" || entityType == "service" {
+			t.Key = "environment_id"
+
+			if err := store.Insert(t); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }

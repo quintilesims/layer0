@@ -27,16 +27,16 @@
             { "name": "LAYER0_AWS_ECS_INSTANCE_PROFILE", "value": "${ecs_instance_profile}" },
             { "name": "LAYER0_AWS_VPC_ID", "value": "${vpc_id}" },
             { "name": "LAYER0_AWS_S3_BUCKET", "value": "${s3_bucket}" },
-            { "name": "LAYER0_PREFIX", "value": "${l0_prefix}" },
+            { "name": "LAYER0_INSTANCE", "value": "${l0_instance}" },
             { "name": "LAYER0_AWS_LINUX_SERVICE_AMI", "value": "${linux_service_ami}" },
             { "name": "LAYER0_AWS_WINDOWS_SERVICE_AMI", "value": "${windows_service_ami}" },
             { "name": "LAYER0_AWS_DYNAMO_TAG_TABLE", "value": "${dynamo_tag_table}" },
             { "name": "LAYER0_AWS_DYNAMO_JOB_TABLE", "value": "${dynamo_job_table}" },
             { "name": "LAYER0_AUTH_TOKEN", "value": "${api_auth_token}" },
-            { "name": "LAYER0_AWS_ECS_ROLE", "value": "${ecs_role}" },
-            { "name": "LAYER0_AWS_SSH_KEY_PAIR", "value": "${ssh_key_pair}" },
             { "name": "LAYER0_AWS_ACCOUNT_ID", "value": "${account_id}" },
-            { "name": "LAYER0_LOG_LEVEL", "value": "debug" }
+            { "name": "LAYER0_AWS_LOG_GROUP_NAME", "value": "${log_group_name}" },
+	          { "name": "LAYER0_AWS_TIME_BETWEEN_REQUESTS", "value": "${time_between_requests}" },
+            { "name": "LAYER0_DEBUG", "value": "true" }
         ]
     }
 ]

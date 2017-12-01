@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
-	"strings"
 
-	"github.com/Sirupsen/logrus"
+	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/logutils"
-	"github.com/quintilesims/layer0/setup/aws"
+	"github.com/quintilesims/layer0/common/logging"
 	"github.com/quintilesims/layer0/setup/command"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
@@ -17,25 +16,18 @@ import (
 var Version string
 
 func main() {
+	if Version == "" {
+		Version = "unset/developer"
+	}
+
 	app := cli.NewApp()
 	app.Name = "Layer0 Setup"
 	app.Usage = "Create and manage Layer0 instances"
 	app.UsageText = "l0-setup [global options] command [command options] [arguments...]"
-
 	app.Version = Version
-	if Version == "" {
-		app.Version = "unset/developer"
-	}
+	app.Flags = config.SetupFlags()
 
-	app.Flags = []cli.Flag{
-		cli.StringFlag{
-			Name:   "l, log",
-			Value:  "info",
-			EnvVar: config.SETUP_LOG_LEVEL,
-		},
-	}
-
-	commandFactory := command.NewCommandFactory(instance.NewLocalInstance, aws.NewProvider)
+	commandFactory := command.NewCommandFactory(instance.NewLocalInstance, awsc.NewClient)
 	app.Commands = []cli.Command{
 		commandFactory.Init(),
 		commandFactory.List(),
@@ -46,28 +38,13 @@ func main() {
 		commandFactory.Push(),
 		commandFactory.Pull(),
 		commandFactory.Set(),
+		commandFactory.Unset(),
 		commandFactory.Upgrade(),
 	}
 
 	app.Before = func(c *cli.Context) error {
-		switch level := strings.ToLower(c.String("log")); level {
-		case "0", "debug":
-			logrus.SetLevel(logrus.DebugLevel)
-		case "1", "info":
-			logrus.SetLevel(logrus.InfoLevel)
-		case "2", "warning":
-			logrus.SetLevel(logrus.WarnLevel)
-		case "3", "error":
-			logrus.SetLevel(logrus.ErrorLevel)
-		case "4", "fatal":
-			logrus.SetLevel(logrus.FatalLevel)
-		default:
-			return fmt.Errorf("Unrecognized log level '%s'", level)
-		}
-
-		logger := logutils.NewStandardLogger("")
-		logger.Formatter = &logutils.CLIFormatter{}
-		logutils.SetGlobalLogger(logger)
+		logger := logging.NewLogWriter(c.Bool("debug"))
+		log.SetOutput(logger)
 
 		instance.InitializeLayer0ModuleInputs(Version)
 

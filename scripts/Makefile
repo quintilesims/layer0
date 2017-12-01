@@ -2,9 +2,10 @@ deps:
 	go get -u github.com/golang/mock/mockgen
 	go install github.com/golang/mock/mockgen
 
-all: api cli common 
+all: api cli setup common
 api: provider job
 cli: command client
+setup: instance
 common: aws config
 
 provider:
@@ -35,4 +36,11 @@ aws:
 config:
 	mockgen github.com/quintilesims/layer0/common/config APIConfig > ../common/config/mock_config/mock_api.go &
 
-.PHONY: deps all api common provider job aws config
+# for some reason, this mock imports s3iface from the vendor/ dir. Using sed as workaround until
+# bug is fixed: https://github.com/golang/mock/pull/28
+instance: 
+	mockgen github.com/quintilesims/layer0/setup/instance Instance > ../setup/instance/mock_instance/mock_instance.go && \
+	sed -i '.tmp' s/github.com\\/quintilesims\\/layer0\\/vendor\\/// ../setup/instance/mock_instance/mock_instance.go && \
+	rm -f ../setup/instance/mock_instance/mock_instance.go.tmp
+
+.PHONY: deps all api common provider job aws config setup instance

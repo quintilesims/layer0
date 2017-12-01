@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/quintilesims/layer0/setup/instance/mock_instance"
 )
@@ -25,7 +24,7 @@ func TestDestroy(t *testing.T) {
 	commandFactory := NewCommandFactory(instanceFactory, nil)
 	action := extractAction(t, commandFactory.Destroy())
 
-	c := testutils.GetCLIContext(t, []string{"name"}, nil)
+	c := NewContext(t, []string{"name"}, nil)
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}
@@ -47,7 +46,7 @@ func TestDestroyForce(t *testing.T) {
 	commandFactory := NewCommandFactory(instanceFactory, nil)
 	action := extractAction(t, commandFactory.Destroy())
 
-	c := testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"force": "true"})
+	c := NewContext(t, []string{"name"}, map[string]interface{}{"force": "true"})
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}
