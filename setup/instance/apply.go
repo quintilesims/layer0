@@ -36,7 +36,7 @@ func (l *LocalInstance) waitForHealthyAPI(endpoint string, timeout time.Duration
 	client := &http.Client{Transport: tr}
 
 	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 15) {
-		log.Printf("[INFP] Waiting for API Service to be healthy... (%s)", time.Since(start).String())
+		log.Printf("[INFO] Waiting for API Service to be healthy... (%s)", time.Since(start).String())
 
 		resp, err := client.Get(endpoint)
 		if err != nil {

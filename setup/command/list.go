@@ -19,22 +19,22 @@ func (f *CommandFactory) List() cli.Command {
 		Usage: "list local and/or remote Layer0 instances",
 		Flags: append(awsFlags,
 			cli.BoolFlag{
-				Name:  "no-local",
-				Usage: "don't show local Layer0 instances, denoted by 'l'",
+				Name:  "l, local",
+				Usage: "only show local Layer0 instances, denoted by 'l'",
 			},
-			cli.BoolTFlag{
-				Name:  "no-remote",
-				Usage: "don't show remote Layer0 instances, denoted by 'r'",
+			cli.BoolFlag{
+				Name:  "r, remote",
+				Usage: "only show remote Layer0 instances, denoted by 'r'",
 			}),
 		Action: func(c *cli.Context) error {
 			instances := map[string]status{}
-			if !c.Bool("no-remote") {
+			if !c.Bool("local") {
 				if err := f.addRemoteInstances(c, instances); err != nil {
 					return err
 				}
 			}
 
-			if !c.Bool("no-local") {
+			if !c.Bool("remote") {
 				if err := f.addLocalInstances(instances); err != nil {
 					return err
 				}

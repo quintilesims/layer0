@@ -90,6 +90,7 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_TIME_BETWEEN_REQUESTS,
 			Value:  DefaultTimeBetweenRequests,
 			EnvVar: ENVVAR_AWS_TIME_BETWEEN_REQUESTS,
+			Usage: "duration [h,m,s,ms,ns]",
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_SSH_KEY_PAIR,
