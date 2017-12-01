@@ -33,7 +33,7 @@ func (f *CommandFactory) Apply() cli.Command {
 			}
 
 			if c.Bool("push") {
-				provider, err := f.newAWSProviderHelper(c)
+				provider, err := f.newAWSClientHelper(c)
 				if err != nil {
 					return err
 				}

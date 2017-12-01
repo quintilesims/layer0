@@ -2,9 +2,9 @@ package instance
 
 import (
 	"fmt"
+	"log"
 
-	"github.com/Sirupsen/logrus"
-	"github.com/quintilesims/layer0/setup/aws"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 const LAYER0_MODULE_SOURCE = "github.com/quintilesims/layer0//setup/module"
@@ -108,7 +108,7 @@ type ModuleInput struct {
 
 func InitializeLayer0ModuleInputs(version string) {
 	if version == "" {
-		logrus.Warningf("Version not set. Using default values for 'source' and 'version' inputs")
+		log.Printf("[WARN] Version not set. Using default values for 'source' and 'version' inputs")
 		return
 	}
 
@@ -148,7 +148,7 @@ var Layer0ModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_AWS_REGION,
 		Description: INPUT_AWS_REGION_DESCRIPTION,
-		Default:     aws.DEFAULT_AWS_REGION,
+		Default:     config.DefaultAWSRegion,
 		prompter:    RequiredStringPrompter,
 	},
 	{

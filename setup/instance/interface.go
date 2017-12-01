@@ -13,5 +13,6 @@ type Instance interface {
 	Pull(s s3iface.S3API) error
 	Push(s s3iface.S3API) error
 	Set(inputs map[string]interface{}) error
+	Unset(key string) error
 	Upgrade(version string, force bool) error
 }

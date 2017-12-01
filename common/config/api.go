@@ -43,7 +43,7 @@ func APIFlags() []cli.Flag {
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_REGION,
-			Value:  "us-west-2",
+			Value:  DefaultAWSRegion,
 			EnvVar: ENVVAR_AWS_REGION,
 		},
 		cli.StringFlag{
@@ -88,9 +88,13 @@ func APIFlags() []cli.Flag {
 		},
 		cli.DurationFlag{
 			Name:   FLAG_AWS_TIME_BETWEEN_REQUESTS,
-			Value:  10 * time.Millisecond,
+			Value:  DefaultTimeBetweenRequests,
 			EnvVar: ENVVAR_AWS_TIME_BETWEEN_REQUESTS,
-			Usage:  "duration [ns,us (or µs),ms,s,m,h]",
+			Usage: "duration [h,m,s,ms,ns]",
+		},
+		cli.StringFlag{
+			Name:   FLAG_AWS_SSH_KEY_PAIR,
+			EnvVar: ENVVAR_AWS_SSH_KEY_PAIR,
 		},
 		cli.IntFlag{
 			Name:   FLAG_AWS_MAX_RETRIES,
@@ -117,6 +121,7 @@ type APIConfig interface {
 	DynamoJobTable() string
 	DynamoTagTable() string
 	LogGroupName() string
+	SSHKeyPair() string
 	JobExpiry() time.Duration
 	TimeBetweenRequests() time.Duration
 	MaxRetries() int
@@ -148,6 +153,7 @@ func (c *ContextAPIConfig) Validate() error {
 		FLAG_AWS_PUBLIC_SUBNETS,
 		FLAG_AWS_PRIVATE_SUBNETS,
 		FLAG_AWS_LOG_GROUP_NAME,
+		FLAG_AWS_SSH_KEY_PAIR,
 	}
 
 	for _, name := range requiredVars {
@@ -185,6 +191,10 @@ func (c *ContextAPIConfig) Region() string {
 
 func (c *ContextAPIConfig) VPC() string {
 	return c.C.String(FLAG_AWS_VPC)
+}
+
+func (c *ContextAPIConfig) SSHKeyPair() string {
+	return c.C.String(FLAG_AWS_SSH_KEY_PAIR)
 }
 
 func (c *ContextAPIConfig) LinuxAMI() string {

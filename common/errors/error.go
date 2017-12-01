@@ -25,6 +25,10 @@ func New(code ErrorCode, err error) *ServerError {
 	}
 }
 
+func FromModel(se models.ServerError) *ServerError {
+	return New(ErrorCode(se.ErrorCode), fmt.Errorf(se.Message))
+}
+
 func (s *ServerError) Error() string {
 	return fmt.Sprintf("ServerError (code='%s') %s", s.Code, s.Err.Error())
 }

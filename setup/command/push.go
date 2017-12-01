@@ -18,7 +18,7 @@ func (f *CommandFactory) Push() cli.Command {
 				return err
 			}
 
-			provider, err := f.newAWSProviderHelper(c)
+			provider, err := f.newAWSClientHelper(c)
 			if err != nil {
 				return err
 			}
