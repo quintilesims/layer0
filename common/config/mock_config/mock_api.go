@@ -58,6 +58,18 @@ func (mr *MockAPIConfigMockRecorder) AccountID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AccountID", reflect.TypeOf((*MockAPIConfig)(nil).AccountID))
 }
 
+// AuthToken mocks base method
+func (m *MockAPIConfig) AuthToken() string {
+	ret := m.ctrl.Call(m, "AuthToken")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// AuthToken indicates an expected call of AuthToken
+func (mr *MockAPIConfigMockRecorder) AuthToken() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthToken", reflect.TypeOf((*MockAPIConfig)(nil).AuthToken))
+}
+
 // DynamoJobTable mocks base method
 func (m *MockAPIConfig) DynamoJobTable() string {
 	ret := m.ctrl.Call(m, "DynamoJobTable")
@@ -106,6 +118,18 @@ func (mr *MockAPIConfigMockRecorder) InstanceProfile() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InstanceProfile", reflect.TypeOf((*MockAPIConfig)(nil).InstanceProfile))
 }
 
+// JobExpiry mocks base method
+func (m *MockAPIConfig) JobExpiry() time.Duration {
+	ret := m.ctrl.Call(m, "JobExpiry")
+	ret0, _ := ret[0].(time.Duration)
+	return ret0
+}
+
+// JobExpiry indicates an expected call of JobExpiry
+func (mr *MockAPIConfigMockRecorder) JobExpiry() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "JobExpiry", reflect.TypeOf((*MockAPIConfig)(nil).JobExpiry))
+}
+
 // LinuxAMI mocks base method
 func (m *MockAPIConfig) LinuxAMI() string {
 	ret := m.ctrl.Call(m, "LinuxAMI")
@@ -140,6 +164,20 @@ func (m *MockAPIConfig) MaxRetries() int {
 // MaxRetries indicates an expected call of MaxRetries
 func (mr *MockAPIConfigMockRecorder) MaxRetries() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MaxRetries", reflect.TypeOf((*MockAPIConfig)(nil).MaxRetries))
+}
+
+// ParseAuthToken mocks base method
+func (m *MockAPIConfig) ParseAuthToken() (string, string, error) {
+	ret := m.ctrl.Call(m, "ParseAuthToken")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// ParseAuthToken indicates an expected call of ParseAuthToken
+func (mr *MockAPIConfigMockRecorder) ParseAuthToken() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseAuthToken", reflect.TypeOf((*MockAPIConfig)(nil).ParseAuthToken))
 }
 
 // Port mocks base method
@@ -224,18 +262,6 @@ func (m *MockAPIConfig) TimeBetweenRequests() time.Duration {
 // TimeBetweenRequests indicates an expected call of TimeBetweenRequests
 func (mr *MockAPIConfigMockRecorder) TimeBetweenRequests() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "TimeBetweenRequests", reflect.TypeOf((*MockAPIConfig)(nil).TimeBetweenRequests))
-}
-
-// JobExpiry mocks base method
-func (m *MockAPIConfig) JobExpiry() time.Duration {
-	ret := m.ctrl.Call(m, "TimeBetweenRequests")
-	ret0, _ := ret[0].(time.Duration)
-	return ret0
-}
-
-// JobExpiry indicates an expected call of TimeBetweenRequests
-func (mr *MockAPIConfigMockRecorder) JobExpiry() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "JobExpiry", reflect.TypeOf((*MockAPIConfig)(nil).JobExpiry))
 }
 
 // VPC mocks base method
