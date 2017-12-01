@@ -56,6 +56,8 @@ func TestEndpointDev(t *testing.T) {
 			instance.OUTPUT_ACCOUNT_ID,
 			instance.OUTPUT_ACCESS_KEY,
 			instance.OUTPUT_SECRET_KEY,
+			instance.OUTPUT_SSH_KEY_PAIR,
+			instance.OUTPUT_AWS_LOG_GROUP_NAME,
 			instance.OUTPUT_VPC_ID,
 			instance.OUTPUT_PRIVATE_SUBNETS,
 			instance.OUTPUT_PUBLIC_SUBNETS,
