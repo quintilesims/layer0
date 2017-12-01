@@ -36,7 +36,7 @@
             { "name": "LAYER0_AWS_ECS_ROLE", "value": "${ecs_role}" },
             { "name": "LAYER0_AWS_SSH_KEY_PAIR", "value": "${ssh_key_pair}" },
             { "name": "LAYER0_AWS_ACCOUNT_ID", "value": "${account_id}" },
-            { "name": "LAYER0_API_LOG_LEVEL", "value": "debug" }
+            { "name": "LAYER0_LOG_LEVEL", "value": "debug" }
         ]
     }
 ]
