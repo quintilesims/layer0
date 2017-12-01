@@ -35,7 +35,7 @@
             { "name": "LAYER0_AUTH_TOKEN", "value": "${api_auth_token}" },
             { "name": "LAYER0_AWS_ACCOUNT_ID", "value": "${account_id}" },
             { "name": "LAYER0_AWS_LOG_GROUP_NAME", "value": "${log_group_name}" },
-	          { "name": "LAYER0_AWS_TIME_BETWEEN_REQUESTS", "value": "${time_between_requests}" },
+	    { "name": "LAYER0_AWS_TIME_BETWEEN_REQUESTS", "value": "${time_between_requests}" },
             { "name": "LAYER0_DEBUG", "value": "true" }
         ]
     }
