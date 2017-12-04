@@ -2,6 +2,7 @@ package system
 
 import (
 	"io/ioutil"
+	"log"
 	"testing"
 )
 
@@ -19,11 +20,18 @@ func TestImport(t *testing.T) {
 		t.Fatalf("Failed to read dockerrun: %v", err)
 	}
 
-	log.Debugf("Creating test resources")
-	environment := s.Layer0.CreateEnvironment("import")
-	loadBalancer := s.Layer0.CreateLoadBalancer("sts", environment.EnvironmentID)
-	deploy := s.Layer0.CreateDeploy("sts", data)
-	service := s.Layer0.CreateService("sts", environment.EnvironmentID, deploy.DeployID, loadBalancer.LoadBalancerID)
+	log.Printf("Creating test resources")
+	s.Layer0.CreateEnvironment("import")
+	environment := s.Layer0.ReadEnvironment("import")
+
+	s.Layer0.CreateLoadBalancer("sts", environment.EnvironmentID)
+	loadBalancer := s.Layer0.ReadLoadBalancer("sts")
+
+	s.Layer0.CreateDeploy("sts", data)
+	deploy := s.Layer0.ReadDeploy("sts")
+
+	s.Layer0.CreateService("sts", environment.EnvironmentID, deploy.DeployID, loadBalancer.LoadBalancerID)
+	service := s.Layer0.ReadService("sts")
 
 	s.Terraform.Import("layer0_environment.import", environment.EnvironmentID)
 	s.Terraform.Import("module.sts.layer0_load_balancer.sts", loadBalancer.LoadBalancerID)

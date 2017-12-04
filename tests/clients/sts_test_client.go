@@ -1,11 +1,11 @@
 package clients
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
 	"github.com/Sirupsen/logrus"
-	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/sts/client"
 	"github.com/quintilesims/sts/models"
 )
@@ -28,15 +28,16 @@ func NewSTSTestClient(t *testing.T, url string) *STSTestClient {
 }
 
 func (s *STSTestClient) WaitForHealthy(timeout time.Duration) {
-	testutils.WaitFor(s.T, time.Second*10, timeout, func() bool {
-		logrus.Debugf("Waiting for sts service to be healthy")
+	logrus.Debugf("Waiting for sts service to be healthy")
+	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 10) {
 		if _, err := s.Client.GetHealth(); err != nil {
 			logrus.Debug(err)
-			return false
 		}
 
-		return true
-	})
+		return
+	}
+
+	fmt.Errorf("[ERROR] Timeout reached after %v", timeout)
 }
 
 func (s *STSTestClient) GetHealth() *models.Health {
