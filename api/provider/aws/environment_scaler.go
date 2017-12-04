@@ -1,7 +1,6 @@
 package aws
 
 import (
-	"encoding/json"
 	"fmt"
 	"log"
 	"sort"
@@ -12,7 +11,6 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
@@ -20,23 +18,29 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+var defaultPorts = []int{
+	22,
+	2376,
+	2375,
+	51678,
+	51679,
+}
+
 type EnvironmentScaler struct {
 	Client              *awsc.Client
 	EnvironmentProvider provider.EnvironmentProvider
 	ServiceProvider     provider.ServiceProvider
 	TaskProvider        provider.TaskProvider
-	JobStore            job.Store
 	Config              config.APIConfig
 	deployCache         map[string][]models.ResourceConsumer
 }
 
-func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s provider.ServiceProvider, t provider.TaskProvider, j job.Store, c config.APIConfig) *EnvironmentScaler {
+func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s provider.ServiceProvider, t provider.TaskProvider, c config.APIConfig) *EnvironmentScaler {
 	return &EnvironmentScaler{
 		Client:              a,
 		EnvironmentProvider: e,
 		ServiceProvider:     s,
 		TaskProvider:        t,
-		JobStore:            j,
 		Config:              c,
 	}
 }
@@ -60,11 +64,11 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 
 	log.Printf("[DEBUG] resourceConsumers for env '%s': %#v", environmentID, resourceConsumers)
 
-	info, err := e.scale(clusterName, resourceProviders, resourceConsumers)
+	_, err = e.scale(clusterName, resourceProviders, resourceConsumers)
 	if err != nil {
 		return err
 	}
-	fmt.Println(info)
+
 	return nil
 }
 
@@ -172,6 +176,7 @@ func resourceProviderModels(providers []*models.ResourceProvider) []models.Resou
 func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.ResourceProvider, error) {
 	listContainerInstancesInput := &ecs.ListContainerInstancesInput{}
 	listContainerInstancesInput.SetCluster(clusterName)
+	listContainerInstancesInput.SetStatus("ACTIVE")
 
 	containerInstanceARNs := []*string{}
 	listContainerInstancesPagesFN := func(output *ecs.ListContainerInstancesOutput, lastPage bool) bool {
@@ -194,19 +199,15 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 	}
 
 	result := []*models.ResourceProvider{}
+	if len(containerInstanceARNs) == 0 {
+		return result, nil
+	}
+
 	if len(output.ContainerInstances) == 0 {
 		return result, nil
 	}
 
 	for _, instance := range output.ContainerInstances {
-		if !aws.BoolValue(instance.AgentConnected) {
-			continue
-		}
-
-		if aws.StringValue(instance.Status) != "ACTIVE" {
-			continue
-		}
-
 		// it's non-intuitive, but the ports being used by the tasks live in
 		// instance.RemainingResources, not instance.RegisteredResources
 		var (
@@ -238,7 +239,7 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 			ID:              aws.StringValue(instance.Ec2InstanceId),
 			InUse:           inUse,
 			UsedPorts:       usedPorts,
-			AvailableMemory: fmt.Sprintf("%v", availableMemory), //todo: this is definitely not correct
+			AvailableMemory: availableMemory.Format("mb"),
 		}
 
 		result = append(result, r)
@@ -322,96 +323,56 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 	}
 
 	// GET PENDING TASK RESOURCE CONSUMERS IN ECS
-	taskSummaries, err := e.TaskProvider.List()
-	if err != nil {
-		return nil, err
+	taskARNs := []string{}
+	fn := func(output *ecs.ListTasksOutput, lastPage bool) bool {
+
+		for _, taskARN := range output.TaskArns {
+			taskARNs = append(taskARNs, aws.StringValue(taskARN))
+		}
+
+		return !lastPage
 	}
 
-	for _, summary := range taskSummaries {
-		if summary.EnvironmentID == clusterName {
-
-			task, err := e.TaskProvider.Read(summary.TaskID)
-			if err != nil {
-				return nil, err
-			}
-
-			taskResourceConsumers, err := e.getContainerResourceFromDeploy(task.DeployID)
-			if err != nil {
-				return nil, err
-			}
-
-			resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
+	startedBy := e.Config.Instance()
+	for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
+		input := &ecs.ListTasksInput{}
+		input.SetCluster(clusterName)
+		input.SetDesiredStatus(status)
+		input.SetStartedBy(startedBy)
+		if err := e.Client.ECS.ListTasksPages(input, fn); err != nil {
+			return nil, err
 		}
 	}
 
-	// GET PENDING TASK RESOURCE CONSUMERS IN JOBS
-	jobs, err := e.JobStore.SelectAll()
-	if err != nil {
-		return nil, err
-	}
-
-	for _, job := range jobs {
-		if job.Type == models.CreateDeployJob {
-			if job.Status == models.PendingJobStatus || job.Status == models.InProgressJobStatus {
-				var req models.CreateTaskRequest
-				if err := json.Unmarshal([]byte(job.Request), &req); err != nil {
-					return nil, err
-				}
-
-				if req.EnvironmentID == clusterName {
-					// note that this isn't exact if the job has started some, but not all of the tasks
-					taskResourceConsumers, err := e.getContainerResourceFromDeploy(req.DeployID)
-					if err != nil {
-						return nil, err
-					}
-
-					resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
-				}
-			}
+	for _, taskARN := range taskARNs {
+		task, err := e.TaskProvider.Read(taskARN)
+		if err != nil {
+			return nil, err
 		}
+
+		taskResourceConsumers, err := e.getContainerResourceFromDeploy(task.DeployID)
+		if err != nil {
+			return nil, err
+		}
+
+		resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
 	}
 
 	return resourceConsumers, nil
 }
 
 func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*models.ResourceProvider, error) {
-	input := &autoscaling.CreateAutoScalingGroupInput{}
-	if err := input.Validate(); err != nil {
-		return nil, err
-	}
-
-	group, err := e.Client.AutoScaling.CreateAutoScalingGroup(input)
+	env, err := e.EnvironmentProvider.Read(clusterName)
 	if err != nil {
 		return nil, err
-	}
-
-	inputLaunch := &autoscaling.DescribeLaunchConfigurationsInput{}
-	inputLaunch.SetLaunchConfigurationNames([]*string{aws.String(group.String())})
-
-	config, err := e.Client.AutoScaling.DescribeLaunchConfigurations(inputLaunch)
-	if err != nil {
-		return nil, err
-	}
-
-	var instanceType string
-	if len(config.LaunchConfigurations) > 0 {
-		instanceType = aws.StringValue(config.LaunchConfigurations[0].InstanceType)
-	}
-
-	// these ports are automatically used by the ecs agent
-	defaultPorts := []int{
-		22,
-		2376,
-		2375,
-		51678,
-		51679,
 	}
 
 	resource := &models.ResourceProvider{}
 	resource.ID = "<new instance>"
 	resource.InUse = false
 	resource.UsedPorts = defaultPorts
-	resource.AvailableMemory = instanceType
+	resource.AvailableMemory = env.InstanceSize
+
 	return resource, nil
 }
 
@@ -487,6 +448,7 @@ func (e *EnvironmentScaler) scaleTo(environmentID string, scale int, unusedProvi
 func (e *EnvironmentScaler) scaleUp(ecsEnvironmentID string, scale int, asg *autoscaling.Group) (int, error) {
 	maxCapacity := int(aws.Int64Value(asg.MaxSize))
 	if scale > maxCapacity {
+		log.Printf("Scale %d is above the maximum capacity of %d. Setting desired capacity to %d.", scale, maxCapacity, maxCapacity)
 		input := &autoscaling.UpdateAutoScalingGroupInput{}
 		input.SetAutoScalingGroupName(aws.StringValue(asg.AutoScalingGroupName))
 		input.SetMaxSize(int64(scale))

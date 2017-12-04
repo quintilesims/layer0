@@ -77,7 +77,7 @@ func main() {
 		serviceProvider := aws.NewServiceProvider(client, tagStore, cfg)
 		taskProvider := aws.NewTaskProvider(client, tagStore, cfg)
 
-		environmentScaler := aws.NewEnvironmentScaler(client, environmentProvider, serviceProvider, taskProvider, jobStore, cfg)
+		environmentScaler := aws.NewEnvironmentScaler(client, environmentProvider, serviceProvider, taskProvider, cfg)
 		scalerDispatcher := scaler.NewDispatcher(environmentProvider, environmentScaler)
 
 		jobRunner := aws.NewJobRunner(
@@ -110,7 +110,7 @@ func main() {
 		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner)
 		defer jobTicker.Stop()
 
-		scalerTicker := scalerDispatcher.RunEvery(time.Minute * 5)
+		scalerTicker := scalerDispatcher.RunEvery(time.Second * 5)
 		defer scalerTicker.Stop()
 
 		expiry := cfg.JobExpiry()
