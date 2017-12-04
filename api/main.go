@@ -110,7 +110,7 @@ func main() {
 		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner)
 		defer jobTicker.Stop()
 
-		scalerTicker := scalerDispatcher.RunEvery(time.Second * 5)
+		scalerTicker := scalerDispatcher.RunEvery(time.Minute * 5)
 		defer scalerTicker.Stop()
 
 		expiry := cfg.JobExpiry()

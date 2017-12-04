@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	SCALE_GRACE_PERIOD = time.Second * 1
+	SCALE_GRACE_PERIOD = time.Second * 15
 )
 
 var (
