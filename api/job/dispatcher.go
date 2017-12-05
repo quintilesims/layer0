@@ -4,24 +4,25 @@ import (
 	"log"
 	"time"
 
+	"github.com/quintilesims/layer0/api/lock"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 const (
 	// dynamodb allows a burst-read/write every 5 minutes
 	// matching that value here to try and avoid hitting that limit
-	DISPATCHER_PERIOD = time.Minute * 5
+	dispatcherPeriod = time.Minute * 5
 )
 
-func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner) *time.Ticker {
+func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner, lock lock.Lock) *time.Ticker {
 	queue := make(chan string)
 	for i := 0; i < numWorkers; i++ {
-		worker := NewWorker(i+1, store, queue, runner)
+		worker := NewWorker(i+1, store, queue, runner, lock)
 		worker.Start()
 	}
 
 	dispatcher := NewDispatcher(store, queue)
-	ticker := time.NewTicker(DISPATCHER_PERIOD)
+	ticker := time.NewTicker(dispatcherPeriod)
 	go func() {
 		for range ticker.C {
 			log.Printf("[INFO] [JobDispatcher] Starting dispatcher")
@@ -57,7 +58,6 @@ func (d *Dispatcher) Run() error {
 	}
 
 	for _, job := range jobs {
-
 		if models.JobStatus(job.Status) == models.PendingJobStatus {
 			d.queue <- job.JobID
 		}

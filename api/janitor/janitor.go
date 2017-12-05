@@ -3,21 +3,43 @@ package janitor
 import (
 	"log"
 	"time"
+
+	"github.com/quintilesims/layer0/api/lock"
 )
 
 type Janitor struct {
-	Name string
-	fn   func() error
+	Name   string
+	lock   lock.Lock
+	lockID string
+	fn     func() error
 }
 
-func NewJanitor(name string, fn func() error) *Janitor {
+func NewJanitor(name, lockID string, lock lock.Lock, fn func() error) *Janitor {
 	return &Janitor{
-		Name: name,
-		fn:   fn,
+		Name:   name,
+		lock:   lock,
+		lockID: lockID,
+		fn:     fn,
 	}
 }
 
 func (j *Janitor) Run() error {
+	acquired, err := j.lock.Acquire(j.lockID)
+	if err != nil {
+		return err
+	}
+
+	if !acquired {
+		log.Printf("[DEBUG] %s Janitor: Lock already acquired", j.Name)
+		return nil
+	}
+
+	defer func() {
+		if err := j.lock.Release(j.lockID); err != nil {
+			log.Printf("[ERROR] %s Janitor: Failed to release lock: %v", j.Name, err)
+		}
+	}()
+
 	log.Printf("[DEBUG] %s Janitor: Starting Run", j.Name)
 	return j.fn()
 }

@@ -10,42 +10,24 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func newTestLock(t *testing.T, lockID string, expiry time.Duration) *DynamoLock {
+func newTestLock(t *testing.T, expiry time.Duration) *DynamoLock {
 	session := config.GetTestAWSSession()
 	table := os.Getenv(config.ENVVAR_TEST_AWS_DYNAMO_LOCK_TABLE)
 	if table == "" {
 		t.Skipf("Test table not set (envvar: %s)", config.ENVVAR_TEST_AWS_DYNAMO_LOCK_TABLE)
 	}
 
-	lock := NewDynamoLock(session, table, lockID, expiry)
-	if err := lock.Release(); err != nil {
-		t.Fatal(err)
-	}
-
+	lock := NewDynamoLock(session, table, expiry)
 	return lock
 }
 
-func TestDynamoLock_acquireWhenDoesNotExist(t *testing.T) {
-	lock := newTestLock(t, "test", time.Hour)
-	acquired, err := lock.Acquire()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.True(t, acquired)
-}
-
 func TestDynamoLock_acquireAfterRelease(t *testing.T) {
-	lock := newTestLock(t, "test", time.Hour)
-	if _, err := lock.Acquire(); err != nil {
+	lock := newTestLock(t, time.Hour)
+	if err := lock.Release("test"); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := lock.Release(); err != nil {
-		t.Fatal(err)
-	}
-
-	acquired, err := lock.Acquire()
+	acquired, err := lock.Acquire("test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,13 +37,13 @@ func TestDynamoLock_acquireAfterRelease(t *testing.T) {
 
 func TestDynamoLock_acquireAfterExpiry(t *testing.T) {
 	expiry := time.Nanosecond
-	lock := newTestLock(t, "test", expiry)
-	if _, err := lock.Acquire(); err != nil {
+	lock := newTestLock(t, expiry)
+	if _, err := lock.Acquire("test"); err != nil {
 		t.Fatal(err)
 	}
 
 	time.Sleep(expiry + 1)
-	acquired, err := lock.Acquire()
+	acquired, err := lock.Acquire("test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -70,12 +52,12 @@ func TestDynamoLock_acquireAfterExpiry(t *testing.T) {
 }
 
 func TestDynamoLock_acquireFailureOnContention(t *testing.T) {
-	lock := newTestLock(t, "test", time.Hour)
-	if _, err := lock.Acquire(); err != nil {
+	lock := newTestLock(t, time.Hour)
+	if _, err := lock.Acquire("test"); err != nil {
 		t.Fatal(err)
 	}
 
-	acquired, err := lock.Acquire()
+	acquired, err := lock.Acquire("test")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -84,19 +66,19 @@ func TestDynamoLock_acquireFailureOnContention(t *testing.T) {
 }
 
 func TestDynamoLock_release(t *testing.T) {
-	lock := newTestLock(t, "test", time.Hour)
-	if _, err := lock.Acquire(); err != nil {
+	lock := newTestLock(t, time.Hour)
+	if _, err := lock.Acquire("test"); err != nil {
 		t.Fatal(err)
 	}
 
-	if err := lock.Release(); err != nil {
+	if err := lock.Release("test"); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestDynamoLock_releaseWhenDoesNotExist(t *testing.T) {
-	lock := newTestLock(t, "test", time.Hour)
-	if err := lock.Release(); err != nil {
+	lock := newTestLock(t, time.Hour)
+	if err := lock.Release("test"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -105,8 +87,12 @@ func TestDynamoLock_locksAreDiscrete(t *testing.T) {
 	for i := 0; i < 10; i++ {
 		lockID := strconv.Itoa(i)
 		t.Run(lockID, func(t *testing.T) {
-			lock := newTestLock(t, lockID, time.Hour)
-			acquired, err := lock.Acquire()
+			lock := newTestLock(t, time.Hour)
+			if err := lock.Release(lockID); err != nil {
+				t.Fatal(err)
+			}
+
+			acquired, err := lock.Acquire(lockID)
 			if err != nil {
 				t.Fatal(err)
 			}
@@ -116,12 +102,10 @@ func TestDynamoLock_locksAreDiscrete(t *testing.T) {
 			// release after an async delay - if locks are not
 			// discrete, then the next acquisition(s) would fail
 			time.AfterFunc(time.Second, func() {
-				if err := lock.Release(); err != nil {
+				if err := lock.Release(lockID); err != nil {
 					t.Fatal(err)
 				}
 			})
 		})
 	}
 }
-
-// unlock success on: exists or doesnn't exit

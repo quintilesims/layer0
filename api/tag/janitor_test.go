@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestJanitor(t *testing.T) {
+func TestJanitorFN(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -47,8 +47,8 @@ func TestJanitor(t *testing.T) {
 		List().
 		Return(tasks, nil)
 
-	janitor := NewJanitor(tagStore, taskProvider)
-	if err := janitor.Run(); err != nil {
+	janitorFN := NewJanitorFN(tagStore, taskProvider)
+	if err := janitorFN(); err != nil {
 		t.Fatal(err)
 	}
 
