@@ -23,33 +23,33 @@ func NewDaemon(name, lockID string, lock lock.Lock, fn func() error) *Daemon {
 	}
 }
 
-func (j *Daemon) Run() error {
-	acquired, err := j.lock.Acquire(j.lockID)
+func (d *Daemon) Run() error {
+	acquired, err := d.lock.Acquire(d.lockID)
 	if err != nil {
 		return err
 	}
 
 	if !acquired {
-		log.Printf("[DEBUG] [%sDaemon]: Lock already acquired", j.Name)
+		log.Printf("[DEBUG] [%sDaemon]: Lock %s already acquired", d.Name, d.lockID)
 		return nil
 	}
 
 	defer func() {
-		if err := j.lock.Release(j.lockID); err != nil {
-			log.Printf("[ERROR] [%sDaemon]: Failed to release lock: %v", j.Name, err)
+		if err := d.lock.Release(d.lockID); err != nil {
+			log.Printf("[ERROR] [%sDaemon]: Failed to release lock %s: %v", d.Name, d.lockID, err)
 		}
 	}()
 
-	log.Printf("[DEBUG] [%sDaemon]: Starting Run", j.Name)
-	return j.fn()
+	log.Printf("[DEBUG] [%sDaemon]: Starting Run", d.Name)
+	return d.fn()
 }
 
-func (j *Daemon) RunEvery(d time.Duration) *time.Ticker {
-	ticker := time.NewTicker(d)
+func (d *Daemon) RunEvery(period time.Duration) *time.Ticker {
+	ticker := time.NewTicker(period)
 	go func() {
 		for range ticker.C {
-			if err := j.Run(); err != nil {
-				log.Printf("[ERROR] [%sDaemon]: %v", j.Name, err)
+			if err := d.Run(); err != nil {
+				log.Printf("[ERROR] [%sDaemon]: %v", d.Name, err)
 			}
 		}
 	}()
