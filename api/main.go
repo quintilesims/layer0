@@ -142,7 +142,6 @@ func main() {
 		lockDaemon := daemon.NewDaemon("Lock", "LockDaemon", dynamoLock, ldFN)
 		lockDaemonTicker := lockDaemon.RunEvery(time.Hour)
 		defer lockDaemonTicker.Stop()
-		lockDaemon.Run()
 
 		log.Printf("[INFO] Listening on port %d", cfg.Port())
 		http.Handle("/", server)
