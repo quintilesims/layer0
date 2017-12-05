@@ -1,10 +1,11 @@
 package job
 
 import (
+	"log"
 	"time"
 )
 
-func NewJanitorFN(jobStore Store, expiry time.Duration) func() error {
+func NewDaemonFN(jobStore Store, expiry time.Duration) func() error {
 	return func() error {
 		jobs, err := jobStore.SelectAll()
 		if err != nil {
@@ -13,6 +14,7 @@ func NewJanitorFN(jobStore Store, expiry time.Duration) func() error {
 
 		for _, job := range jobs {
 			if time.Since(job.Created) > expiry {
+				log.Printf("[DEBUG] [JobDaemon] Deleting job %#v", job)
 				if err := jobStore.Delete(job.JobID); err != nil {
 					return err
 				}

@@ -12,7 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/api/controllers"
-	"github.com/quintilesims/layer0/api/janitor"
+	"github.com/quintilesims/layer0/api/daemon"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/lock"
 	"github.com/quintilesims/layer0/api/provider/aws"
@@ -83,9 +83,8 @@ func main() {
 		loadBalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
 		serviceProvider := aws.NewServiceProvider(client, tagStore, cfg)
 		taskProvider := aws.NewTaskProvider(client, tagStore, cfg)
-
 		environmentScaler := aws.NewEnvironmentScaler()
-		scalerDispatcher := scaler.NewDispatcher(environmentProvider, environmentScaler)
+		scalerDispatcher := scaler.NewDispatcher(jobStore, time.Second*15)
 
 		jobRunner := aws.NewJobRunner(
 			deployProvider,
@@ -93,6 +92,7 @@ func main() {
 			loadBalancerProvider,
 			serviceProvider,
 			taskProvider,
+			environmentScaler,
 			scalerDispatcher)
 
 		routes := controllers.NewSwaggerController(Version).Routes()
@@ -117,30 +117,28 @@ func main() {
 		server := fireball.NewApp(routes)
 		server.ErrorHandler = controllers.ErrorHandler
 
-		// todo: get num workers from config
-		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner)
-		defer jobTicker.Stop()
-
-		scalerTicker := scalerDispatcher.RunEvery(time.Minute * 5)
-		defer scalerTicker.Stop()
-
 		lock := lock.NewDynamoLock(session, cfg.DynamoLockTable(), time.Minute*5)
 
-		jobJanitor := janitor.NewJanitor("Job",
-			"JobJanitor",
-			lock,
-			job.NewJanitorFN(jobStore, cfg.JobExpiry()))
+		// todo: get num workers from config
+		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner, lock)
+		defer jobTicker.Stop()
 
-		jobJanitorTicker := jobJanitor.RunEvery(time.Hour)
-		defer jobJanitorTicker.Stop()
+		sdFN := scaler.NewDaemonFN(jobStore, environmentProvider)
+		scalerDaemon := daemon.NewDaemon("Scaler", "ScalerDaemon", lock, sdFN)
+		scalerDaemonTicker := scalerDaemon.RunEvery(time.Hour)
+		defer scalerDaemonTicker.Stop()
 
-		tagJanitor := janitor.NewJanitor("Tag",
-			"TagJanitor",
-			lock,
-			tag.NewJanitorFN(tagStore, taskProvider))
+		scalerDaemon.Run()
 
-		tagJanitorTicker := tagJanitor.RunEvery(time.Hour)
-		defer tagJanitorTicker.Stop()
+		jdFN := job.NewDaemonFN(jobStore, cfg.JobExpiry())
+		jobDaemon := daemon.NewDaemon("Job", "JobDaemon", lock, jdFN)
+		jobDaemonTicker := jobDaemon.RunEvery(time.Hour)
+		defer jobDaemonTicker.Stop()
+
+		tdFN := tag.NewDaemonFN(tagStore, taskProvider)
+		tagDaemon := daemon.NewDaemon("Tag", "TagDaemon", lock, tdFN)
+		tagDaemonTicker := tagDaemon.RunEvery(time.Hour)
+		defer tagDaemonTicker.Stop()
 
 		log.Printf("[INFO] Listening on port %d", cfg.Port())
 		http.Handle("/", server)
@@ -154,6 +152,7 @@ func main() {
 	}
 }
 
+// todo: add 'arn' tags for all active task definitions for the api
 func addAPIEntityTags(store tag.Store) error {
 	for _, entityType := range []string{
 		"deploy",
@@ -172,8 +171,18 @@ func addAPIEntityTags(store tag.Store) error {
 			return err
 		}
 
+		if entityType == "environment" {
+			t.Key = "os"
+			t.Value = "linux"
+
+			if err := store.Insert(t); err != nil {
+				return err
+			}
+		}
+
 		if entityType == "load_balancer" || entityType == "service" {
 			t.Key = "environment_id"
+			t.Value = "api"
 
 			if err := store.Insert(t); err != nil {
 				return err

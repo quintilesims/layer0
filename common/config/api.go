@@ -78,6 +78,10 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_DYNAMO_TAG_TABLE,
 			EnvVar: ENVVAR_AWS_DYNAMO_TAG_TABLE,
 		},
+		cli.StringFlag{
+			Name:   FLAG_AWS_DYNAMO_LOCK_TABLE,
+			EnvVar: ENVVAR_AWS_DYNAMO_LOCK_TABLE,
+		},
 		cli.StringSliceFlag{
 			Name:   FLAG_AWS_PUBLIC_SUBNETS,
 			EnvVar: ENVVAR_AWS_PUBLIC_SUBNETS,
@@ -94,7 +98,7 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_TIME_BETWEEN_REQUESTS,
 			Value:  DefaultTimeBetweenRequests,
 			EnvVar: ENVVAR_AWS_TIME_BETWEEN_REQUESTS,
-			Usage: "duration [h,m,s,ms,ns]",
+			Usage:  "duration [h,m,s,ms,ns]",
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_SSH_KEY_PAIR,
@@ -125,6 +129,7 @@ type APIConfig interface {
 	PrivateSubnets() []string
 	DynamoJobTable() string
 	DynamoTagTable() string
+	DynamoLockTable() string
 	LogGroupName() string
 	SSHKeyPair() string
 	JobExpiry() time.Duration
@@ -156,6 +161,7 @@ func (c *ContextAPIConfig) Validate() error {
 		FLAG_AWS_INSTANCE_PROFILE,
 		FLAG_AWS_DYNAMO_JOB_TABLE,
 		FLAG_AWS_DYNAMO_TAG_TABLE,
+		FLAG_AWS_DYNAMO_LOCK_TABLE,
 		FLAG_AWS_PUBLIC_SUBNETS,
 		FLAG_AWS_PRIVATE_SUBNETS,
 		FLAG_AWS_LOG_GROUP_NAME,
@@ -243,6 +249,10 @@ func (c *ContextAPIConfig) DynamoJobTable() string {
 
 func (c *ContextAPIConfig) DynamoTagTable() string {
 	return c.C.String(FLAG_AWS_DYNAMO_TAG_TABLE)
+}
+
+func (c *ContextAPIConfig) DynamoLockTable() string {
+	return c.C.String(FLAG_AWS_DYNAMO_LOCK_TABLE)
 }
 
 func (c *ContextAPIConfig) PublicSubnets() []string {

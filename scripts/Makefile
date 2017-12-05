@@ -3,7 +3,7 @@ deps:
 	go install github.com/golang/mock/mockgen
 
 all: api cli setup common
-api: provider job
+api: provider job lock
 cli: command client
 setup: instance
 common: aws config
@@ -17,6 +17,9 @@ provider:
 
 job:
 	mockgen github.com/quintilesims/layer0/api/job Store > ../api/job/mock_job/mock_store.go &
+
+lock:
+	mockgen github.com/quintilesims/layer0/api/lock Lock > ../api/lock/mock_lock/mock_lock.go &
 
 client:
 	mockgen github.com/quintilesims/layer0/client Client > ../client/mock_client/mock_client.go &

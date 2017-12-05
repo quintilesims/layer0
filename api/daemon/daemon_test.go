@@ -1,4 +1,4 @@
-package janitor
+package daemon
 
 import (
 	"testing"
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestJanitorRun(t *testing.T) {
+func TestDaemonRun(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -23,16 +23,16 @@ func TestJanitorRun(t *testing.T) {
 		Return(nil)
 
 	var called bool
-	janitor := NewJanitor("", "lock_id", mockLock, func() error {
+	daemon := NewDaemon("", "lock_id", mockLock, func() error {
 		called = true
 		return nil
 	})
 
-	janitor.Run()
+	daemon.Run()
 	assert.True(t, called)
 }
 
-func TestJanitorHonorsLock(t *testing.T) {
+func TestDaemonHonorsLock(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -41,15 +41,15 @@ func TestJanitorHonorsLock(t *testing.T) {
 		Acquire("lock_id").
 		Return(false, nil)
 
-	janitor := NewJanitor("", "lock_id", mockLock, func() error {
-		t.Fatalf("The Janitor's function was called")
+	daemon := NewDaemon("", "lock_id", mockLock, func() error {
+		t.Fatalf("The Daemon's function was called")
 		return nil
 	})
 
-	janitor.Run()
+	daemon.Run()
 }
 
-func TestJanitorRunEvery(t *testing.T) {
+func TestDaemonRunEvery(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -65,12 +65,12 @@ func TestJanitorRunEvery(t *testing.T) {
 		AnyTimes()
 
 	c := make(chan bool)
-	janitor := NewJanitor("", "", mockLock, func() error {
+	daemon := NewDaemon("", "", mockLock, func() error {
 		c <- true
 		return nil
 	})
 
-	ticker := janitor.RunEvery(time.Nanosecond)
+	ticker := daemon.RunEvery(time.Nanosecond)
 	defer ticker.Stop()
 
 	for i := 0; i < 5; i++ {
