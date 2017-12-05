@@ -3,6 +3,7 @@ package job
 import (
 	"log"
 
+	"github.com/quintilesims/layer0/api/lock"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -11,14 +12,16 @@ type Worker struct {
 	Store  Store
 	Queue  chan string
 	Runner Runner
+	Lock   lock.Lock
 }
 
-func NewWorker(id int, store Store, queue chan string, runner Runner) *Worker {
+func NewWorker(id int, store Store, queue chan string, runner Runner, lock lock.Lock) *Worker {
 	return &Worker{
 		ID:     id,
 		Store:  store,
 		Queue:  queue,
 		Runner: runner,
+		Lock:   lock,
 	}
 }
 
@@ -29,14 +32,14 @@ func (w *Worker) Start() func() {
 		for {
 			select {
 			case jobID := <-w.Queue:
-				ok, err := w.Store.AcquireJob(jobID)
+				acquired, err := w.Lock.Acquire(jobID)
 				if err != nil {
-					log.Printf("[ERROR] [JobWorker %d]: Unexpected error when acquiring job %s: %v", w.ID, jobID, err)
+					log.Printf("[ERROR] [JobWorker %d]: Failed to acquire lock %s: %v", w.ID, jobID, err)
 					continue
 				}
 
-				if !ok {
-					log.Printf("[DEBUG] [JobWorker %d]: Job %s is already acquired", w.ID, jobID)
+				if !acquired {
+					log.Printf("[DEBUG] [JobWorker %d]: Job lock %s is already acquired", w.ID, jobID)
 					continue
 				}
 
@@ -64,6 +67,11 @@ func (w *Worker) Start() func() {
 
 				if err := w.Store.SetJobStatus(jobID, models.CompletedJobStatus); err != nil {
 					log.Printf("[ERROR] [JobWorker %d]: Failed to set job status for job %s: %v", w.ID, jobID, err)
+					continue
+				}
+
+				if err := w.Lock.Release(jobID); err != nil {
+					log.Printf("[ERROR] [JobWorker %d]: Failed to release lock %s: %v", w.ID, jobID, err)
 					continue
 				}
 

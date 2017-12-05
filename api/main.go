@@ -12,7 +12,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/api/controllers"
+	"github.com/quintilesims/layer0/api/janitor"
 	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/api/lock"
 	"github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/scaler"
 	"github.com/quintilesims/layer0/api/tag"
@@ -122,12 +124,21 @@ func main() {
 		scalerTicker := scalerDispatcher.RunEvery(time.Minute * 5)
 		defer scalerTicker.Stop()
 
-		expiry := cfg.JobExpiry()
-		jobJanitor := job.NewJanitor(jobStore, expiry)
+		lock := lock.NewDynamoLock(session, cfg.DynamoLockTable(), time.Minute*5)
+
+		jobJanitor := janitor.NewJanitor("Job",
+			"JobJanitor",
+			lock,
+			job.NewJanitorFN(jobStore, cfg.JobExpiry()))
+
 		jobJanitorTicker := jobJanitor.RunEvery(time.Hour)
 		defer jobJanitorTicker.Stop()
 
-		tagJanitor := tag.NewJanitor(tagStore, taskProvider)
+		tagJanitor := janitor.NewJanitor("Tag",
+			"TagJanitor",
+			lock,
+			tag.NewJanitorFN(tagStore, taskProvider))
+
 		tagJanitorTicker := tagJanitor.RunEvery(time.Hour)
 		defer tagJanitorTicker.Stop()
 

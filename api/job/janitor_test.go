@@ -9,13 +9,13 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func TestJanitor(t *testing.T) {
+func TestJanitorFN(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	expiry := time.Hour * 12
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	janitor := NewJanitor(mockJobStore, expiry)
+	janitorFN := NewJanitorFN(mockJobStore, expiry)
 	now := time.Now()
 
 	// There is no Sub function that returns Time in time package,
@@ -39,8 +39,7 @@ func TestJanitor(t *testing.T) {
 		Delete("delete").
 		Return(nil)
 
-	if err := janitor.Run(); err != nil {
+	if err := janitorFN(); err != nil {
 		t.Fatal(err)
 	}
-
 }

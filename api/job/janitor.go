@@ -2,12 +2,10 @@ package job
 
 import (
 	"time"
-
-	"github.com/quintilesims/layer0/api/janitor"
 )
 
-func NewJanitor(jobStore Store, expiry time.Duration) *janitor.Janitor {
-	return janitor.NewJanitor("Job", func() error {
+func NewJanitorFN(jobStore Store, expiry time.Duration) func() error {
+	return func() error {
 		jobs, err := jobStore.SelectAll()
 		if err != nil {
 			return err
@@ -22,5 +20,5 @@ func NewJanitor(jobStore Store, expiry time.Duration) *janitor.Janitor {
 		}
 
 		return nil
-	})
+	}
 }

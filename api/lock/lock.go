@@ -1,6 +1,6 @@
 package lock
 
 type Lock interface {
-	Acquire() (bool, error)
-	Release() error
+	Acquire(lockID string) (bool, error)
+	Release(lockID string) error
 }
