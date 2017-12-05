@@ -58,18 +58,6 @@ func (mr *MockAPIConfigMockRecorder) AccountID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AccountID", reflect.TypeOf((*MockAPIConfig)(nil).AccountID))
 }
 
-// AuthToken mocks base method
-func (m *MockAPIConfig) AuthToken() string {
-	ret := m.ctrl.Call(m, "AuthToken")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// AuthToken indicates an expected call of AuthToken
-func (mr *MockAPIConfigMockRecorder) AuthToken() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AuthToken", reflect.TypeOf((*MockAPIConfig)(nil).AuthToken))
-}
-
 // DynamoJobTable mocks base method
 func (m *MockAPIConfig) DynamoJobTable() string {
 	ret := m.ctrl.Call(m, "DynamoJobTable")
@@ -80,6 +68,18 @@ func (m *MockAPIConfig) DynamoJobTable() string {
 // DynamoJobTable indicates an expected call of DynamoJobTable
 func (mr *MockAPIConfigMockRecorder) DynamoJobTable() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DynamoJobTable", reflect.TypeOf((*MockAPIConfig)(nil).DynamoJobTable))
+}
+
+// DynamoLockTable mocks base method
+func (m *MockAPIConfig) DynamoLockTable() string {
+	ret := m.ctrl.Call(m, "DynamoLockTable")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// DynamoLockTable indicates an expected call of DynamoLockTable
+func (mr *MockAPIConfigMockRecorder) DynamoLockTable() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DynamoLockTable", reflect.TypeOf((*MockAPIConfig)(nil).DynamoLockTable))
 }
 
 // DynamoTagTable mocks base method

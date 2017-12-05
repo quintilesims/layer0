@@ -1,77 +1,49 @@
 package scaler
 
 import (
+	"strconv"
 	"testing"
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/provider/mock_provider"
+	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/common/models"
-	"github.com/stretchr/testify/assert"
 )
 
-func setTimeMultiplier(m int) func() {
-	timeMultiplier = time.Duration(m)
-	return func() { timeMultiplier = 1 }
-}
-
-func TestDispatcherScheduleRun(t *testing.T) {
-	defer setTimeMultiplier(0)()
-
+func TestDispatcherDispatch(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	dispatcher := NewDispatcher(mockJobStore, time.Nanosecond)
 
-	done := make(chan bool)
-	scaler := ScalerFunc(func(environmentID string) error {
-		assert.Equal(t, "eid", environmentID)
-		done <- true
-		return nil
-	})
+	for i := 0; i < 10; i++ {
+		environmentID := strconv.Itoa(i)
 
-	dispatcher := NewDispatcher(mockEnvironmentProvider, scaler)
-	dispatcher.ScheduleRun("eid")
+		mockJobStore.EXPECT().
+			Insert(models.ScaleEnvironmentJob, environmentID).
+			Return("", nil)
 
-	select {
-	case <-done:
-	case <-time.After(time.Second * 1):
-		t.Fatalf("Failed to run after 1 second")
+		dispatcher.Dispatch(environmentID)
 	}
+
+	time.Sleep(time.Millisecond)
 }
 
-func TestDispatcherRunAll(t *testing.T) {
-	defer setTimeMultiplier(0)()
-
+func TestDispatcherDispatchWithGracePeriod(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
-	environmentIDs := []string{"e1", "e2", "e3"}
-	summaries := make([]models.EnvironmentSummary, len(environmentIDs))
-	for i, environmentID := range environmentIDs {
-		summaries[i] = models.EnvironmentSummary{EnvironmentID: environmentID}
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	dispatcher := NewDispatcher(mockJobStore, time.Millisecond)
+
+	mockJobStore.EXPECT().
+		Insert(models.ScaleEnvironmentJob, "env_id").
+		Return("", nil)
+
+	for i := 0; i < 100; i++ {
+		dispatcher.Dispatch("env_id")
 	}
 
-	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	mockEnvironmentProvider.EXPECT().
-		List().
-		Return(summaries, nil)
-
-	done := make(chan bool)
-	scaler := ScalerFunc(func(environmentID string) error {
-		assert.Contains(t, environmentIDs, environmentID)
-		done <- true
-		return nil
-	})
-
-	dispatcher := NewDispatcher(mockEnvironmentProvider, scaler)
-	dispatcher.RunAll()
-
-	for i := 0; i < len(environmentIDs); i++ {
-		select {
-		case <-done:
-		case <-time.After(time.Second * 1):
-			t.Fatalf("Failed to run after 1 second")
-		}
-	}
+	time.Sleep(time.Millisecond * 2)
 }
