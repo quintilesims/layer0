@@ -85,8 +85,18 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 func (e *EnvironmentScaler) scale(clusterName string, providers []*models.Resource, consumers []*models.Resource) (*models.ScalerRunInfo, error) {
 	var errs []error
 
-	// TODO: pick most efficient distribution of comsumers among providers
+	// pick most efficient distribution of comsumers among providers
 	// depending on whether we sort by memory or by CPU
+	// 	providersByMemory, errsByMemory := e.allocateByMemory(clusterName, providers, consumers)
+	// 	providersByCPU, errsByCPU := e.allocateByCPU(clusterName, providers, consumers)
+	//
+	// 	if len(providersByCPU) > len(providersByMemory) {
+	// 		providers = providersByCPU
+	// 		errs = errsByCPU
+	// 	} else {
+	// 		providers = providersByMemory
+	// 		errs = errsByMemory
+	// 	}
 
 	// check if we need to scale up
 	for _, consumer := range consumers {
@@ -208,28 +218,21 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 	}
 
 	for _, instance := range output.ContainerInstances {
-		if !aws.BoolValue(instance.AgentConnected) {
-			log.Printf("[DEBUG] Not counting instance '%s' as a resource provider (ecs agent not connected)", aws.StringValue(instance.Ec2InstanceId))
-			continue
-		}
-
-		if aws.StringValue(instance.Status) != "ACTIVE" {
-			log.Printf("[DEBUG] Not counting instance '%s' as a resource provider (status != ACTIVE)", aws.StringValue(instance.Ec2InstanceId))
-			continue
-		}
-
 		// it's non-intuitive, but the ports being used by the tasks live in
 		// instance.RemainingResources, not instance.RegisteredResources
 		var (
 			usedPorts       []int
+			availableCPU    bytesize.Bytesize
 			availableMemory bytesize.Bytesize
 			availableCPU    bytesize.Bytesize
 		)
 
 		for _, resource := range instance.RemainingResources {
-			log.Printf("[DEBUG] instance.RemainingResources resource: %#v", resource)
 			switch aws.StringValue(resource.Name) {
-			// TODO: add CPU bound ("fun")
+			case "CPU":
+				val := aws.Int64Value(resource.IntegerValue)
+				availableCPU = bytesize.MiB * bytesize.Bytesize(val)
+
 			case "MEMORY":
 				val := aws.Int64Value(resource.IntegerValue)
 				availableMemory = bytesize.MiB * bytesize.Bytesize(val)
@@ -251,12 +254,14 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 		}
 
 		inUse := aws.Int64Value(instance.PendingTasksCount)+aws.Int64Value(instance.RunningTasksCount) > 0
-		r := &models.Resource{
-			ID:     aws.StringValue(instance.Ec2InstanceId),
-			InUse:  inUse,
-			Ports:  usedPorts,
-			Memory: availableMemory.Megabytes(),
-			CPU:    availableCPU.Megabytes(),
+		r := &models.ResourceProvider{
+			AgentConnected:  aws.BoolValue(instance.AgentConnected),
+			AvailableCPU:    availableCPU.Format("mb"),
+			AvailableMemory: availableMemory.Format("mb"),
+			ID:              aws.StringValue(instance.Ec2InstanceId),
+			InUse:           inUse,
+			Status:          aws.StringValue(instance.Status),
+			UsedPorts:       usedPorts,
 		}
 
 		result = append(result, r)
@@ -582,9 +587,24 @@ func (e *EnvironmentScaler) scaleDown(ecsEnvironmentID string, scale int, asg *a
 	return scale, nil
 }
 
-func (e *EnvironmentScaler) determineSortPriority(providers []*models.Resource, consumers []*models.Resource, clusterName string) int {
-	cpuInstanceSize := len(providers)
-	memoryInstanceSize := len(providers)
+func sortProvidersByCPU(p []*models.ResourceProvider) {
+	sorter := &ResourceProviderSorter{
+		Providers: p,
+		lessThan: func(i *models.ResourceProvider, j *models.ResourceProvider) bool {
+			return i.AvailableCPU < j.AvailableCPU
+		},
+	}
+
+	sort.Sort(sorter)
+}
+
+func sortProvidersByMemory(p []*models.ResourceProvider) {
+	sorter := &ResourceProviderSorter{
+		Providers: p,
+		lessThan: func(i *models.ResourceProvider, j *models.ResourceProvider) bool {
+			return i.AvailableMemory < j.AvailableMemory
+		},
+	}
 
 	for sortMethod := range []int{CPU, Memory} {
 
