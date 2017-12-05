@@ -20,7 +20,7 @@ func TestServiceScale(t *testing.T) {
 	deployID := s.Terraform.Output("deploy_id")
 
 	s.Layer0.UpdateService(serviceID, deployID, 3)
-	log.Printf("Waiting for service to scale up")
+	log.Printf("[DEBUG] Waiting for service to scale up")
 	service := s.Layer0.ReadService(serviceID)
 	for start := time.Now(); time.Since(start) < time.Minute*5; time.Sleep(time.Second * 10) {
 		if service.RunningCount == 3 {
@@ -33,7 +33,7 @@ func TestServiceScale(t *testing.T) {
 	}
 
 	s.Layer0.UpdateService(serviceID, deployID, 1)
-	log.Printf("Waiting for service to scale down")
+	log.Printf("[DEBUG] Waiting for service to scale down")
 	for start := time.Now(); time.Since(start) < time.Minute*5; time.Sleep(time.Second * 10) {
 		if service.RunningCount == 1 {
 			continue

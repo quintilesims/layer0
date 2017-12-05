@@ -21,7 +21,7 @@ func TestDataSources(t *testing.T) {
 	// Compare outputs of data and resource values (resource
 	// values have the '_expected' suffix)
 	checkOutput := func(key string) {
-		log.Printf("Checking data source vs resource output for key: %s", key)
+		log.Printf("[DEBUG] Checking data source vs resource output for key: %s", key)
 
 		if dVal, rVal := s.Terraform.Output(key), s.Terraform.Output(key+"_expected"); dVal != rVal {
 			t.Fatalf(

@@ -18,19 +18,9 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 		vars = map[string]string{}
 	}
 
-	//vars["endpoint"] = config.APIEndpoint()
-	//vars["token"] = config.AuthToken()
-
 	vars["endpoint"] = config.ENVVAR_ENDPOINT
 	vars["token"] = config.ENVVAR_TOKEN
 
-	/*
-		tfContext := tftest.NewTestContext(t,
-			tftest.Dir(dir),
-			tftest.Vars(vars),
-			tftest.DryRun(*dry),
-			tftest.Log(log))
-	*/
 	tfContext := tftest.NewTestContext(t,
 		tftest.Dir(dir),
 		tftest.Vars(vars),

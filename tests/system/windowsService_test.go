@@ -25,7 +25,7 @@ func TestWindowsService(t *testing.T) {
 	serviceURL := s.Terraform.Output("service_url")
 
 	service := s.Layer0.ReadService(serviceID)
-	log.Printf("Waiting for windows service to run")
+	log.Printf("[DEBUG] Waiting for windows service to run")
 	for start := time.Now(); time.Since(start) < time.Minute*45; time.Sleep(time.Second * 30) {
 		if service.RunningCount == 1 {
 			continue
@@ -36,7 +36,7 @@ func TestWindowsService(t *testing.T) {
 		t.Fatalf("[ERROR] Timeout reached after %v", time.Minute*45)
 	}
 
-	log.Printf("Waiting for service to be healthy")
+	log.Printf("[DEBUG] Waiting for service to be healthy")
 	for start := time.Now(); time.Since(start) < time.Minute*10; time.Sleep(time.Second * 30) {
 		resp, err := http.Get(serviceURL)
 		if err != nil {

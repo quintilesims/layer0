@@ -33,8 +33,6 @@ func (s *STSTestClient) WaitForHealthy(timeout time.Duration) {
 		if _, err := s.Client.GetHealth(); err != nil {
 			logrus.Debug(err)
 		}
-
-		return
 	}
 
 	fmt.Errorf("[ERROR] Timeout reached after %v", timeout)

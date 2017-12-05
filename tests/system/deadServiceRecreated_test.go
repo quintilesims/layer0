@@ -25,7 +25,7 @@ func TestDeadServiceRecreated(t *testing.T) {
 	sts.WaitForHealthy(time.Minute * 3)
 	sts.SetHealth("die")
 
-	log.Printf("Waiting for service to die")
+	log.Printf("[DEBUG] Waiting for service to die")
 	service := s.Layer0.ReadService(serviceID)
 	for start := time.Now(); time.Since(start) < time.Minute*2; time.Sleep(time.Second * 10) {
 		if service.RunningCount == 0 {
@@ -37,7 +37,7 @@ func TestDeadServiceRecreated(t *testing.T) {
 		t.Fatalf("[ERROR] Timeout reached after %v", time.Minute*2)
 	}
 
-	log.Printf("Waiting for service to recreate")
+	log.Printf("[DEBUG] Waiting for service to recreate")
 	for start := time.Now(); time.Since(start) < time.Minute*2; time.Sleep(time.Second * 10) {
 		if service.RunningCount == 1 {
 			continue
