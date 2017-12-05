@@ -1,7 +1,6 @@
 package scaler
 
 import (
-	"strconv"
 	"testing"
 	"time"
 
@@ -15,35 +14,51 @@ func TestDispatcherDispatch(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	dispatcher := NewDispatcher(mockJobStore, time.Nanosecond)
+	dispatcher := NewDispatcher(mockJobStore, 0)
 
-	for i := 0; i < 10; i++ {
-		environmentID := strconv.Itoa(i)
-
-		mockJobStore.EXPECT().
-			Insert(models.ScaleEnvironmentJob, environmentID).
-			Return("", nil)
-
-		dispatcher.Dispatch(environmentID)
-	}
-
-	time.Sleep(time.Millisecond)
-}
-
-func TestDispatcherDispatchWithGracePeriod(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	dispatcher := NewDispatcher(mockJobStore, time.Millisecond)
+	done := make(chan bool)
+	recordCall := func(...interface{}) { done <- true }
 
 	mockJobStore.EXPECT().
 		Insert(models.ScaleEnvironmentJob, "env_id").
+		Do(recordCall).
 		Return("", nil)
 
+	dispatcher.Dispatch("env_id")
+	select {
+	case <-done:
+	case <-time.After(time.Second):
+		t.Fatal("timeout")
+	}
+}
+
+func TestDispatcherDispatchWithGracePeriodBuffer(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	gracePeriod := time.Millisecond
+	mockJobStore := mock_job.NewMockStore(ctrl)
+	dispatcher := NewDispatcher(mockJobStore, gracePeriod)
+
+	done := make(chan bool)
+	recordCall := func(...interface{}) { done <- true }
+
+	mockJobStore.EXPECT().
+		Insert(models.ScaleEnvironmentJob, "env_id").
+		Do(recordCall).
+		Return("", nil)
+
+	scheduled := time.Now()
 	for i := 0; i < 100; i++ {
 		dispatcher.Dispatch("env_id")
 	}
 
-	time.Sleep(time.Millisecond * 2)
+	select {
+	case <-done:
+		if elapsed := time.Since(scheduled); elapsed < gracePeriod {
+			t.Fatalf("Only %s has elapsed, expected (at least) %v", elapsed, gracePeriod)
+		}
+	case <-time.After(time.Second):
+		t.Fatal("timeout")
+	}
 }

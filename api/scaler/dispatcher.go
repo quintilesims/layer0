@@ -42,14 +42,20 @@ func (d *Dispatcher) Dispatch(environmentID string) {
 		}
 
 		schedule[environmentID] = time.AfterFunc(d.gracePeriod, func() {
-			d.scheduleOps <- func(schedule map[string]*time.Timer) {
-				delete(schedule, environmentID)
-			}
+			d.Unschedule(environmentID)
 
 			log.Printf("[DEBUG] [ScalerDispatcher] Creating scale job for environment %s", environmentID)
 			if _, err := d.jobStore.Insert(models.ScaleEnvironmentJob, environmentID); err != nil {
 				log.Printf("[ERROR] [ScalerDispatcer] Failed to create scale job for environment %s: %v", environmentID, err)
 			}
 		})
+	}
+}
+
+func (d *Dispatcher) Unschedule(environmentID string) {
+	d.scheduleOps <- func(schedule map[string]*time.Timer) {
+		if _, ok := schedule[environmentID]; ok {
+			delete(schedule, environmentID)
+		}
 	}
 }
