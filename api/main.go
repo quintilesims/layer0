@@ -117,26 +117,32 @@ func main() {
 		server := fireball.NewApp(routes)
 		server.ErrorHandler = controllers.ErrorHandler
 
-		lock := lock.NewDynamoLock(session, cfg.DynamoLockTable(), time.Minute*5)
+		dynamoLock := lock.NewDynamoLock(session, cfg.DynamoLockTable(), time.Minute*5)
 
 		// todo: get num workers from config
-		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner, lock)
+		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner, dynamoLock)
 		defer jobTicker.Stop()
 
 		sdFN := scaler.NewDaemonFN(jobStore, environmentProvider)
-		scalerDaemon := daemon.NewDaemon("Scaler", "ScalerDaemon", lock, sdFN)
+		scalerDaemon := daemon.NewDaemon("Scaler", "ScalerDaemon", dynamoLock, sdFN)
 		scalerDaemonTicker := scalerDaemon.RunEvery(time.Hour)
 		defer scalerDaemonTicker.Stop()
 
 		jdFN := job.NewDaemonFN(jobStore, cfg.JobExpiry())
-		jobDaemon := daemon.NewDaemon("Job", "JobDaemon", lock, jdFN)
+		jobDaemon := daemon.NewDaemon("Job", "JobDaemon", dynamoLock, jdFN)
 		jobDaemonTicker := jobDaemon.RunEvery(time.Hour)
 		defer jobDaemonTicker.Stop()
 
 		tdFN := tag.NewDaemonFN(tagStore, taskProvider)
-		tagDaemon := daemon.NewDaemon("Tag", "TagDaemon", lock, tdFN)
+		tagDaemon := daemon.NewDaemon("Tag", "TagDaemon", dynamoLock, tdFN)
 		tagDaemonTicker := tagDaemon.RunEvery(time.Hour)
 		defer tagDaemonTicker.Stop()
+
+		ldFN := lock.NewDaemonFN(dynamoLock, cfg.LockExpiry())
+		lockDaemon := daemon.NewDaemon("Lock", "LockDaemon", dynamoLock, ldFN)
+		lockDaemonTicker := lockDaemon.RunEvery(time.Hour)
+		defer lockDaemonTicker.Stop()
+		lockDaemon.Run()
 
 		log.Printf("[INFO] Listening on port %d", cfg.Port())
 		http.Handle("/", server)

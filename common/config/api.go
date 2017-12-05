@@ -13,7 +13,7 @@ func APIFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.IntFlag{
 			Name:   FLAG_PORT,
-			Value:  DEFAULT_PORT,
+			Value:  DefaultPort,
 			EnvVar: ENVVAR_PORT,
 		},
 		cli.StringFlag{
@@ -22,8 +22,13 @@ func APIFlags() []cli.Flag {
 		},
 		cli.DurationFlag{
 			Name:   FLAG_JOB_EXPIRY,
-			Value:  DEFAULT_JOB_EXPIRY,
+			Value:  DefaultJobExpiry,
 			EnvVar: ENVVAR_JOB_EXPIRY,
+		},
+		cli.DurationFlag{
+			Name:   FLAG_LOCK_EXPIRY,
+			Value:  DefaultLockExpiry,
+			EnvVar: ENVVAR_LOCK_EXPIRY,
 		},
 		cli.BoolFlag{
 			Name:   FLAG_DEBUG,
@@ -133,6 +138,7 @@ type APIConfig interface {
 	LogGroupName() string
 	SSHKeyPair() string
 	JobExpiry() time.Duration
+	LockExpiry() time.Duration
 	TimeBetweenRequests() time.Duration
 	MaxRetries() int
 }
@@ -269,6 +275,10 @@ func (c *ContextAPIConfig) LogGroupName() string {
 
 func (c *ContextAPIConfig) JobExpiry() time.Duration {
 	return c.C.Duration(FLAG_JOB_EXPIRY)
+}
+
+func (c *ContextAPIConfig) LockExpiry() time.Duration {
+	return c.C.Duration(FLAG_LOCK_EXPIRY)
 }
 
 func (c *ContextAPIConfig) TimeBetweenRequests() time.Duration {
