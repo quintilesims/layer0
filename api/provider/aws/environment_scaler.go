@@ -85,8 +85,48 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 func (e *EnvironmentScaler) scale(clusterName string, providers []*models.Resource, consumers []*models.Resource) (*models.ScalerRunInfo, error) {
 	var errs []error
 
-	// determine most efficient method of packing tasks by cpu or memory.
-	e.determineSortPriority(providers, consumers, clusterName)
+	// TODO: pick most efficient distribution of comsumers among providers
+	// depending on whether we sort by memory or by CPU
+
+	// check if we need to scale up
+	for _, consumer := range consumers {
+		hasRoom := false
+
+		// first, sort by memory so we pack tasks by memory as tightly as possible
+		sortProvidersByMemory(providers)
+
+		// next, place any unused providers in the back of the list
+		// that way, we can can delete them if we avoid placing any tasks in them
+		sortProvidersByUsage(providers)
+
+		for _, provider := range providers {
+
+			if hasResourcesFor(consumer, provider) {
+				hasRoom = true
+				subtractResourcesFor(consumer, provider)
+				break
+			}
+		}
+
+		if !hasRoom {
+			newProvider, err := e.calculateNewProvider(clusterName)
+			if err != nil {
+				return nil, err
+			}
+
+			if !hasResourcesFor(consumer, newProvider) {
+				text := fmt.Sprintf("Resource '%s' cannot fit into an empty provider!", consumer.ID)
+				text += "\nThe instance size in your environment is too small to run this resource."
+				text += "\nPlease increase the instance size for your environment"
+				err := fmt.Errorf(text)
+				errs = append(errs, err)
+				continue
+			}
+
+			subtractResourcesFor(consumer, newProvider)
+			providers = append(providers, newProvider)
+		}
+	}
 
 	// check if we need to scale down
 	unusedProviders := []*models.Resource{}
@@ -168,6 +208,16 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 	}
 
 	for _, instance := range output.ContainerInstances {
+		if !aws.BoolValue(instance.AgentConnected) {
+			log.Printf("[DEBUG] Not counting instance '%s' as a resource provider (ecs agent not connected)", aws.StringValue(instance.Ec2InstanceId))
+			continue
+		}
+
+		if aws.StringValue(instance.Status) != "ACTIVE" {
+			log.Printf("[DEBUG] Not counting instance '%s' as a resource provider (status != ACTIVE)", aws.StringValue(instance.Ec2InstanceId))
+			continue
+		}
+
 		// it's non-intuitive, but the ports being used by the tasks live in
 		// instance.RemainingResources, not instance.RegisteredResources
 		var (
@@ -177,8 +227,9 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 		)
 
 		for _, resource := range instance.RemainingResources {
-			fmt.Println(resource)
+			log.Printf("[DEBUG] instance.RemainingResources resource: %#v", resource)
 			switch aws.StringValue(resource.Name) {
+			// TODO: add CPU bound ("fun")
 			case "MEMORY":
 				val := aws.Int64Value(resource.IntegerValue)
 				availableMemory = bytesize.MiB * bytesize.Bytesize(val)
@@ -260,7 +311,10 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]*models.
 		}
 	}
 
-	resourceConsumers := []*models.Resource{}
+	// TODO: can we use the service provider?
+
+	resourceConsumers := []models.ResourceConsumer{}
+	// TODO: consumers should have ports, mem, cpu
 
 	for _, service := range services {
 		deployIDCopies := map[string]int64{}
@@ -331,7 +385,8 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]*models.
 	}
 
 	for _, job := range jobs {
-		if job.Type == models.CreateDeployJob {
+		if job.Type == models.CreateTaskJob {
+			// TODO: maybe remove pending check here
 			if job.Status == models.PendingJobStatus || job.Status == models.InProgressJobStatus {
 				var req models.CreateTaskRequest
 				if err := json.Unmarshal([]byte(job.Request), &req); err != nil {
@@ -407,12 +462,12 @@ func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]*
 			}
 		}
 
-		//TODO: Calc Memory
-
-		consumers[i] = &models.Resource{
+		consumers[i] = models.ResourceConsumer{
+			// TODO: add cpu to this model
 			ID:     "",
-			Memory: memory.Mebibytes(),
-			Ports:  ports,
+			Memory: fmt.Sprintf("%v", memory), //todo: translate bytesize.ByteSize to string correctly
+			// TODO: use bytesize object
+			Ports: ports,
 		}
 	}
 
