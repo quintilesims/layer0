@@ -9,7 +9,7 @@ import (
 	"github.com/guregu/dynamo"
 )
 
-type lockSchema struct {
+type LockSchema struct {
 	LockID   string
 	Acquired int64
 }
@@ -27,7 +27,7 @@ func NewDynamoLock(session *session.Session, table string, expiry time.Duration)
 }
 
 func (d *DynamoLock) Acquire(lockID string) (bool, error) {
-	lock := lockSchema{
+	lock := LockSchema{
 		LockID:   lockID,
 		Acquired: time.Now().UnixNano(),
 	}
@@ -62,4 +62,30 @@ func (d *DynamoLock) acquireIfExpired(lockID string) (bool, error) {
 
 func (d *DynamoLock) Release(lockID string) error {
 	return d.table.Delete("LockID", lockID).Run()
+}
+
+func (d *DynamoLock) List() ([]LockSchema, error) {
+	locks := []LockSchema{}
+	if err := d.table.Scan().
+		Consistent(false).
+		All(&locks); err != nil {
+		return nil, err
+	}
+
+	return locks, nil
+}
+
+func (d *DynamoLock) Clear() error {
+	locks, err := d.List()
+	if err != nil {
+		return err
+	}
+
+	for _, lock := range locks {
+		if err := d.Release(lock.LockID); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

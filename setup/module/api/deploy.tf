@@ -27,5 +27,6 @@ data "template_file" "container_definitions" {
     time_between_requests = "${var.time_between_requests}"
     dynamo_tag_table      = "${aws_dynamodb_table.tags.id}"
     dynamo_job_table      = "${aws_dynamodb_table.jobs.id}"
+    dynamo_lock_table     = "${aws_dynamodb_table.lock.id}"
   }
 }

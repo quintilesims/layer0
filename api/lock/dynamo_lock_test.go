@@ -18,11 +18,19 @@ func newTestLock(t *testing.T, expiry time.Duration) *DynamoLock {
 	}
 
 	lock := NewDynamoLock(session, table, expiry)
+	if err := lock.Clear(); err != nil {
+		t.Fatal(err)
+	}
+
 	return lock
 }
 
 func TestDynamoLock_acquireAfterRelease(t *testing.T) {
 	lock := newTestLock(t, time.Hour)
+	if _, err := lock.Acquire("test"); err != nil {
+		t.Fatal(err)
+	}
+
 	if err := lock.Release("test"); err != nil {
 		t.Fatal(err)
 	}
@@ -88,10 +96,6 @@ func TestDynamoLock_locksAreDiscrete(t *testing.T) {
 		lockID := strconv.Itoa(i)
 		t.Run(lockID, func(t *testing.T) {
 			lock := newTestLock(t, time.Hour)
-			if err := lock.Release(lockID); err != nil {
-				t.Fatal(err)
-			}
-
 			acquired, err := lock.Acquire(lockID)
 			if err != nil {
 				t.Fatal(err)
