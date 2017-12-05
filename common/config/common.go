@@ -5,6 +5,7 @@ import "time"
 const (
 	FLAG_PORT                      = "port"
 	FLAG_JOB_EXPIRY                = "job-expiry"
+	FLAG_LOCK_EXPIRY               = "lock-expiry"
 	FLAG_DEBUG                     = "debug"
 	FLAG_OUTPUT                    = "output"
 	FLAG_TIMEOUT                   = "timeout"
@@ -36,6 +37,7 @@ const (
 
 const (
 	ENVVAR_JOB_EXPIRY                = "LAYER0_JOB_EXPIRY"
+	ENVVAR_LOCK_EXPIRY               = "LAYER0_LOCK_EXPIRY"
 	ENVVAR_PORT                      = "LAYER0_PORT"
 	ENVVAR_DEBUG                     = "LAYER0_DEBUG"
 	ENVVAR_OUTPUT                    = "LAYER0_OUTPUT"
@@ -69,6 +71,7 @@ const (
 const (
 	DefaultAWSRegion           = "us-west-2"
 	DefaultTimeBetweenRequests = time.Millisecond * 10
-	DEFAULT_JOB_EXPIRY         = time.Hour * 1
-	DEFAULT_PORT               = 9090
+	DefaultJobExpiry           = time.Hour * 1
+	DefaultLockExpiry          = time.Hour * 24
+	DefaultPort                = 9090
 )
