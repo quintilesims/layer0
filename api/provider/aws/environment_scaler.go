@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"sort"
@@ -11,6 +12,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
@@ -31,16 +33,18 @@ type EnvironmentScaler struct {
 	EnvironmentProvider provider.EnvironmentProvider
 	ServiceProvider     provider.ServiceProvider
 	TaskProvider        provider.TaskProvider
+	JobStore            job.Store
 	Config              config.APIConfig
 	deployCache         map[string][]models.ResourceConsumer
 }
 
-func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s provider.ServiceProvider, t provider.TaskProvider, c config.APIConfig) *EnvironmentScaler {
+func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s provider.ServiceProvider, t provider.TaskProvider, j job.Store, c config.APIConfig) *EnvironmentScaler {
 	return &EnvironmentScaler{
 		Client:              a,
 		EnvironmentProvider: e,
 		ServiceProvider:     s,
 		TaskProvider:        t,
+		JobStore:            j,
 		Config:              c,
 	}
 }
@@ -356,6 +360,33 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 		}
 
 		resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
+	}
+
+	// GET PENDING TASK RESOURCE CONSUMERS IN JOBS
+	jobs, err := e.JobStore.SelectAll()
+	if err != nil {
+		return nil, err
+	}
+
+	for _, job := range jobs {
+		if job.Type == models.CreateDeployJob {
+			if job.Status == models.PendingJobStatus || job.Status == models.InProgressJobStatus {
+				var req models.CreateTaskRequest
+				if err := json.Unmarshal([]byte(job.Request), &req); err != nil {
+					return nil, err
+				}
+
+				if req.EnvironmentID == clusterName {
+					// note that this isn't exact if the job has started some, but not all of the tasks
+					taskResourceConsumers, err := e.getContainerResourceFromDeploy(req.DeployID)
+					if err != nil {
+						return nil, err
+					}
+
+					resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
+				}
+			}
+		}
 	}
 
 	return resourceConsumers, nil
