@@ -15,7 +15,7 @@ func TestDaemonFN(t *testing.T) {
 
 	expiry := time.Hour * 12
 	mockJobStore := mock_job.NewMockStore(ctrl)
-	deamonFN := NewDaemonFN(mockJobStore, expiry)
+	daemonFN := NewDaemonFN(mockJobStore, expiry)
 	now := time.Now()
 
 	// There is no Sub function that returns Time in time package,
@@ -39,7 +39,7 @@ func TestDaemonFN(t *testing.T) {
 		Delete("delete").
 		Return(nil)
 
-	if err := deamonFN(); err != nil {
+	if err := daemonFN(); err != nil {
 		t.Fatal(err)
 	}
 }

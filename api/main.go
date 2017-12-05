@@ -128,8 +128,6 @@ func main() {
 		scalerDaemonTicker := scalerDaemon.RunEvery(time.Hour)
 		defer scalerDaemonTicker.Stop()
 
-		scalerDaemon.Run()
-
 		jdFN := job.NewDaemonFN(jobStore, cfg.JobExpiry())
 		jobDaemon := daemon.NewDaemon("Job", "JobDaemon", lock, jdFN)
 		jobDaemonTicker := jobDaemon.RunEvery(time.Hour)

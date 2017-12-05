@@ -15,7 +15,7 @@ func TestDaemonFN(t *testing.T) {
 
 	mockJobStore := mock_job.NewMockStore(ctrl)
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	deamonFN := NewDaemonFN(mockJobStore, mockEnvironmentProvider)
+	daemonFN := NewDaemonFN(mockJobStore, mockEnvironmentProvider)
 
 	environmentSummaries := []models.EnvironmentSummary{
 		{EnvironmentID: "env_id1"},
@@ -32,7 +32,7 @@ func TestDaemonFN(t *testing.T) {
 			Return("", nil)
 	}
 
-	if err := deamonFN(); err != nil {
+	if err := daemonFN(); err != nil {
 		t.Fatal(err)
 	}
 }
