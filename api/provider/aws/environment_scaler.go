@@ -80,6 +80,9 @@ func (e *EnvironmentScaler) scale(clusterName string, providers []*models.Resour
 	scaleBeforeRun := len(providers)
 	var errs []error
 
+	// TODO: pick most efficient distribution of comsumers among providers
+	// depending on whether we sort by memory or by CPU
+
 	// check if we need to scale up
 	for _, consumer := range consumers {
 		hasRoom := false
@@ -212,6 +215,16 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 	}
 
 	for _, instance := range output.ContainerInstances {
+		if !aws.BoolValue(instance.AgentConnected) {
+			log.Printf("[DEBUG] Not counting instance '%s' as a resource provider (ecs agent not connected)", aws.StringValue(instance.Ec2InstanceId))
+			continue
+		}
+
+		if aws.StringValue(instance.Status) != "ACTIVE" {
+			log.Printf("[DEBUG] Not counting instance '%s' as a resource provider (status != ACTIVE)", aws.StringValue(instance.Ec2InstanceId))
+			continue
+		}
+
 		// it's non-intuitive, but the ports being used by the tasks live in
 		// instance.RemainingResources, not instance.RegisteredResources
 		var (
@@ -220,7 +233,9 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 		)
 
 		for _, resource := range instance.RemainingResources {
+			log.Printf("[DEBUG] instance.RemainingResources resource: %#v", resource)
 			switch aws.StringValue(resource.Name) {
+			// TODO: add CPU bound ("fun")
 			case "MEMORY":
 				val := aws.Int64Value(resource.IntegerValue)
 				availableMemory = bytesize.MiB * bytesize.Bytesize(val)
@@ -298,7 +313,10 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 		}
 	}
 
+	// TODO: can we use the service provider?
+
 	resourceConsumers := []models.ResourceConsumer{}
+	// TODO: consumers should have ports, mem, cpu
 
 	for _, service := range services {
 		deployIDCopies := map[string]int64{}
@@ -369,7 +387,8 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]models.R
 	}
 
 	for _, job := range jobs {
-		if job.Type == models.CreateDeployJob {
+		if job.Type == models.CreateTaskJob {
+			// TODO: maybe remove pending check here
 			if job.Status == models.PendingJobStatus || job.Status == models.InProgressJobStatus {
 				var req models.CreateTaskRequest
 				if err := json.Unmarshal([]byte(job.Request), &req); err != nil {
@@ -440,9 +459,11 @@ func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]m
 		}
 
 		consumers[i] = models.ResourceConsumer{
+			// TODO: add cpu to this model
 			ID:     "",
 			Memory: fmt.Sprintf("%v", memory), //todo: translate bytesize.ByteSize to string correctly
-			Ports:  ports,
+			// TODO: use bytesize object
+			Ports: ports,
 		}
 	}
 
