@@ -5,10 +5,9 @@
 package mock_config
 
 import (
+	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 	time "time"
-
-	gomock "github.com/golang/mock/gomock"
 )
 
 // MockAPIConfig is a mock of APIConfig interface
@@ -140,6 +139,18 @@ func (m *MockAPIConfig) LinuxAMI() string {
 // LinuxAMI indicates an expected call of LinuxAMI
 func (mr *MockAPIConfigMockRecorder) LinuxAMI() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LinuxAMI", reflect.TypeOf((*MockAPIConfig)(nil).LinuxAMI))
+}
+
+// LockExpiry mocks base method
+func (m *MockAPIConfig) LockExpiry() time.Duration {
+	ret := m.ctrl.Call(m, "LockExpiry")
+	ret0, _ := ret[0].(time.Duration)
+	return ret0
+}
+
+// LockExpiry indicates an expected call of LockExpiry
+func (mr *MockAPIConfigMockRecorder) LockExpiry() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LockExpiry", reflect.TypeOf((*MockAPIConfig)(nil).LockExpiry))
 }
 
 // LogGroupName mocks base method
