@@ -25,11 +25,11 @@ output "environment_size_expected" {
 }
 
 output "environment_min_count" {
-  value = "${data.layer0_environment.datasources.min_count}"
+  value = "${data.layer0_environment.datasources.cluster_count}"
 }
 
 output "environment_min_count_expected" {
-  value = "${layer0_environment.datasources.cluster_count}"
+  value = "${layer0_environment.datasources.min_count}"
 }
 
 output "environment_os" {
@@ -48,6 +48,14 @@ output "environment_ami_expected" {
   value = "${layer0_environment.datasources.ami}"
 }
 
+output "environment_sg_id" {
+  value = "${data.layer0_environment.datasources.security_group_id}"
+}
+
+output "environment_sg_id_expected" {
+  value = "${layer0_environment.datasources.security_group_id}"
+}
+
 # -- Deploy --
 
 output "deploy_id" {
@@ -59,11 +67,11 @@ output "deploy_id_expected" {
 }
 
 output "deploy_name" {
-  value = "${data.layer0_deploy.datasources.version}"
+  value = "${data.layer0_deploy.datasources.name}"
 }
 
 output "deploy_name_expected" {
-  value = "${layer0_deploy.datasources.version}"
+  value = "${layer0_deploy.datasources.name}"
 }
 
 output "deploy_version" {
@@ -97,7 +105,15 @@ output "load_balancer_environment_name" {
 }
 
 output "load_balancer_environment_name_expected" {
-  value = "${layer0_environment.datasources.name}"
+  value = "${layer0_environment.datasources.environment}"
+}
+
+output "load_balancer_environment_id" {
+  value = "${data.layer0_load_balancer.datasources.environment_id}"
+}
+
+output "load_balancer_environment_id_expected" {
+  value = "${layer0_environment.datasources.environment_id}"
 }
 
 output "load_balancer_private" {
@@ -139,7 +155,7 @@ output "service_environment_id" {
 }
 
 output "service_environment_id_expected" {
-  value = "${layer0_environment.datasources.id}"
+  value = "${layer0_environment.datasources.environment_id}"
 }
 
 output "service_environment_name" {
@@ -147,7 +163,7 @@ output "service_environment_name" {
 }
 
 output "service_environment_name_expected" {
-  value = "${layer0_environment.datasources.name}"
+  value = "${layer0_environment.datasources.environment}"
 }
 
 output "service_scale" {

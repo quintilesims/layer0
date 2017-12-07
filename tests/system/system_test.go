@@ -30,8 +30,7 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 	layer0 := clients.NewLayer0TestClient(t, vars["endpoint"], vars["token"])
 
 	// initialize and download modules
-	tfContext.Terraformf("init")
-	tfContext.Terraformf("get")
+	//tfContext.Terraformf("get")
 
 	return &SystemTest{
 		Terraform: tfContext,
