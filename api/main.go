@@ -120,8 +120,9 @@ func main() {
 		dynamoLock := lock.NewDynamoLock(session, cfg.DynamoLockTable(), time.Minute*5)
 
 		// todo: get num workers from config
-		jobTicker := job.RunWorkersAndDispatcher(2, jobStore, jobRunner, dynamoLock)
+		jobTicker, stopWorkers := job.RunWorkersAndDispatcher(2, jobStore, jobRunner, dynamoLock)
 		defer jobTicker.Stop()
+		defer stopWorkers()
 
 		sdFN := scaler.NewDaemonFN(jobStore, environmentProvider)
 		scalerDaemon := daemon.NewDaemon("Scaler", "ScalerDaemon", dynamoLock, sdFN)
