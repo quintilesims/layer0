@@ -14,11 +14,12 @@ const (
 	dispatcherPeriod = time.Minute * 5
 )
 
-func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner, lock lock.Lock) *time.Ticker {
+func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner, lock lock.Lock) (*time.Ticker, func()) {
+	quitFNs := make([]func(), numWorkers)
 	queue := make(chan string)
 	for i := 0; i < numWorkers; i++ {
 		worker := NewWorker(i+1, store, queue, runner, lock)
-		worker.Start()
+		quitFNs[i] = worker.Start()
 	}
 
 	dispatcher := NewDispatcher(store, queue)
@@ -32,11 +33,18 @@ func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner, lock lo
 		}
 	}()
 
+	// todo: this feels like a hacky solution; should investigate alternative
 	store.SetInsertHook(func(jobID string) {
 		go func() { queue <- jobID }()
 	})
 
-	return ticker
+	quitFN := func() {
+		for _, quitFN := range quitFNs {
+			quitFN()
+		}
+	}
+
+	return ticker, quitFN
 }
 
 type Dispatcher struct {
