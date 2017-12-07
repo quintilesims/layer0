@@ -70,10 +70,17 @@ func TestDaemonRunEvery(t *testing.T) {
 		return nil
 	})
 
-	ticker := daemon.RunEvery(time.Nanosecond)
+	ticker := daemon.RunEvery(time.Millisecond)
 	defer ticker.Stop()
 
 	for i := 0; i < 5; i++ {
 		<-c
+	}
+
+	ticker.Stop()
+	select {
+	case <-c:
+		t.Fatal("Run executed after ticker stopped!")
+	default:
 	}
 }
