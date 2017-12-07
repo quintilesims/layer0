@@ -72,6 +72,6 @@ const (
 	DefaultAWSRegion           = "us-west-2"
 	DefaultTimeBetweenRequests = time.Millisecond * 10
 	DefaultJobExpiry           = time.Hour * 1
-	DefaultLockExpiry          = time.Hour * 24
+	DefaultLockExpiry          = time.Hour * 1
 	DefaultPort                = 9090
 )

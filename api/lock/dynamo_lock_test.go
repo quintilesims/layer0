@@ -18,7 +18,7 @@ func newTestLock(t *testing.T, expiry time.Duration) *DynamoLock {
 	}
 
 	lock := NewDynamoLock(session, table, expiry)
-	if err := lock.Clear(); err != nil {
+	if err := lock.clear(); err != nil {
 		t.Fatal(err)
 	}
 
@@ -92,24 +92,22 @@ func TestDynamoLock_releaseWhenDoesNotExist(t *testing.T) {
 }
 
 func TestDynamoLock_locksAreDiscrete(t *testing.T) {
+	lock := newTestLock(t, time.Hour)
+	done := make(chan bool)
+
 	for i := 0; i < 10; i++ {
-		lockID := strconv.Itoa(i)
-		t.Run(lockID, func(t *testing.T) {
-			lock := newTestLock(t, time.Hour)
+		go func(lockID string) {
 			acquired, err := lock.Acquire(lockID)
 			if err != nil {
 				t.Fatal(err)
 			}
 
 			assert.True(t, acquired)
+			<-done
+		}(strconv.Itoa(i))
+	}
 
-			// release after an async delay - if locks are not
-			// discrete, then the next acquisition(s) would fail
-			time.AfterFunc(time.Second, func() {
-				if err := lock.Release(lockID); err != nil {
-					t.Fatal(err)
-				}
-			})
-		})
+	for i := 0; i < 10; i++ {
+		<-done
 	}
 }
