@@ -75,7 +75,7 @@ func (d *DynamoLock) List() ([]LockSchema, error) {
 	return locks, nil
 }
 
-func (d *DynamoLock) Clear() error {
+func (d *DynamoLock) clear() error {
 	locks, err := d.List()
 	if err != nil {
 		return err
