@@ -7,10 +7,11 @@ import (
 	"sort"
 	"strconv"
 
+	"gitlab.imshealth.com/xfra/layer0/common/aws/ec2"
+
 	"github.com/zpatrick/go-bytesize"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
@@ -56,7 +57,6 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 }
 
 func (e *EnvironmentScaler) Scale(environmentID string) error {
-	// GET RESOURCE PROVIDERS
 	clusterName := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	resourceProviders, err := e.getResourceProviders(clusterName)
@@ -66,217 +66,193 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 
 	log.Printf("[DEBUG] resourceProviders for env '%s': %#v, number of providers:%d", environmentID, resourceProviders, len(resourceProviders))
 
-	// GET RESOURCE CONSUMERS
-	resourceConsumers, err := e.getResourceConsumers(clusterName)
+	var resourceConsumers []models.ResourceConsumer
+
+	// get pending service resource consumers
+	serviceConsumers, err := e.getResourceConsumers_PendingServices(clusterName)
 	if err != nil {
 		return err
 	}
 
-	log.Printf("[DEBUG] resourceConsumers for env '%s': %#v, number of consumers:%d", environmentID, resourceConsumers, len(resourceConsumers))
+	resourceConsumers = append(resourceConsumers, serviceConsumers...)
 
-	_, err = e.scale(clusterName, resourceProviders, resourceConsumers)
+	// get pending task resource consumers in ECS
+	ecsTaskConsumers, err := e.getResourceConsumers_TasksInECS(clusterName)
 	if err != nil {
 		return err
 	}
 
-	return nil
-}
+	resourceConsumers = append(resourceConsumers, ecsTaskConsumers...)
 
-func (e *EnvironmentScaler) scale(clusterName string, providers []*models.Resource, consumers []*models.Resource) (*models.ScalerRunInfo, error) {
+	// get pending task resource consumers in jobs
+	jobTaskConsumers, err := e.getResourceConsumers_TasksInJobs(clusterName)
+	if err != nil {
+		return err
+	}
+
+	resourceConsumers = append(resourceConsumers, jobTaskConsumers...)
+
+	log.Printf("[DEBUG] resourceConsumers for env '%s': %#v", environmentID, resourceConsumers)
+
 	var errs []error
 
-	// pick most efficient distribution of comsumers among providers
-	// depending on whether we sort by memory or by CPU
-	// 	providersByMemory, errsByMemory := e.allocateByMemory(clusterName, providers, consumers)
-	// 	providersByCPU, errsByCPU := e.allocateByCPU(clusterName, providers, consumers)
-	//
-	// 	if len(providersByCPU) > len(providersByMemory) {
-	// 		providers = providersByCPU
-	// 		errs = errsByCPU
-	// 	} else {
-	// 		providers = providersByMemory
-	// 		errs = errsByMemory
-	// 	}
+	// calculate/check for scaling up
+	resourceProviders, scaleUpErrs := e.calculateScaleUp(clusterName, resourceProviders, resourceConsumers)
 
-	// check if we need to scale up
-	for _, consumer := range consumers {
-		hasRoom := false
+	errs = append(errs, scaleUpErrs...)
 
-		// first, sort by memory so we pack tasks by memory as tightly as possible
-		sortProvidersByMemory(providers)
+	// calculate/check for scaling down
+	unusedProviders := e.calculateScaleDown(clusterName, resourceProviders)
 
-		// next, place any unused providers in the back of the list
-		// that way, we can can delete them if we avoid placing any tasks in them
-		sortProvidersByUsage(providers)
-
-		for _, provider := range providers {
-
-			if hasResourcesFor(consumer, provider) {
-				hasRoom = true
-				subtractResourcesFor(consumer, provider)
-				break
-			}
-		}
-
-		if !hasRoom {
-			newProvider, err := e.calculateNewProvider(clusterName)
-			if err != nil {
-				return nil, err
-			}
-
-			if !hasResourcesFor(consumer, newProvider) {
-				text := fmt.Sprintf("Resource '%s' cannot fit into an empty provider!", consumer.ID)
-				text += "\nThe instance size in your environment is too small to run this resource."
-				text += "\nPlease increase the instance size for your environment"
-				err := fmt.Errorf(text)
-				errs = append(errs, err)
-				continue
-			}
-
-			subtractResourcesFor(consumer, newProvider)
-			providers = append(providers, newProvider)
-		}
-	}
-
-	// check if we need to scale down
-	unusedProviders := []*models.Resource{}
-	for _, provider := range providers {
-		if !provider.InUse {
-			unusedProviders = append(unusedProviders, provider)
-		}
-	}
-
-	desiredScale := len(providers) - len(unusedProviders)
+	// do the scaling
+	desiredScale := len(resourceProviders) - len(unusedProviders)
 
 	actualScale, err := e.scaleTo(clusterName, desiredScale, unusedProviders)
 	if err != nil {
 		errs = append(errs, err)
 	}
 
-	scaleBeforeRun := len(providers)
-	info := &models.ScalerRunInfo{
-		EnvironmentID:           clusterName,
-		PendingResources:        resourceModels(consumers),
-		ResourceProviders:       resourceModels(providers),
-		ScaleBeforeRun:          scaleBeforeRun,
-		DesiredScaleAfterRun:    desiredScale,
-		ActualScaleAfterRun:     actualScale,
-		UnusedResourceProviders: len(unusedProviders),
-	}
+	actualScale = actualScale
 
-	return info, errors.MultiError(errs)
+	return errors.MultiError(errs)
 }
 
-func resourceModels(resources []*models.Resource) []models.Resource {
-	resourceModels := make([]models.Resource, len(resources))
-	for i, resource := range resources {
-		new := models.Resource{
-			ID:     resource.ID,
-			InUse:  resource.InUse,
-			Ports:  resource.Ports,
-			Memory: resource.Memory,
-			CPU:    resource.CPU,
-		}
-		resourceModels[i] = new
-	}
-
-	return resourceModels
-}
-
-func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.Resource, error) {
-	listContainerInstancesInput := &ecs.ListContainerInstancesInput{}
-	listContainerInstancesInput.SetCluster(clusterName)
-	listContainerInstancesInput.SetStatus("ACTIVE")
-
-	containerInstanceARNs := []*string{}
-	listContainerInstancesPagesFN := func(output *ecs.ListContainerInstancesOutput, lastPage bool) bool {
-		containerInstanceARNs = append(containerInstanceARNs, output.ContainerInstanceArns...)
-
-		return !lastPage
-	}
-
-	if err := e.Client.ECS.ListContainerInstancesPages(listContainerInstancesInput, listContainerInstancesPagesFN); err != nil {
-		return nil, err
-	}
-
-	describeContainerInstancesInput := &ecs.DescribeContainerInstancesInput{}
-	describeContainerInstancesInput.SetCluster(clusterName)
-	describeContainerInstancesInput.SetContainerInstances(containerInstanceARNs)
-
-	output, err := e.Client.ECS.DescribeContainerInstances(describeContainerInstancesInput)
+func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*models.ResourceProvider, error) {
+	env, err := e.EnvironmentProvider.Read(clusterName)
 	if err != nil {
 		return nil, err
 	}
 
-	result := []*models.Resource{}
-	if len(containerInstanceARNs) == 0 {
-		return result, nil
+	resource := &models.ResourceProvider{}
+	resource.AvailableMemory = ec2.InstanceSizes[env.InstanceSize].(bytesize.Bytesize)
+	resource.ID = "<new instance>"
+	resource.InUse = false
+	resource.UsedPorts = defaultPorts
+
+	return resource, nil
+}
+
+func (e *EnvironmentScaler) calculateScaleDown(clusterName string, resourceProviders []*models.ResourceProvider) []*models.ResourceProvider {
+	var unusedProviders []*models.ResourceProvider
+
+	for _, provider := range resourceProviders {
+		if !provider.InUse {
+			unusedProviders = append(unusedProviders, provider)
+		}
 	}
 
-	if len(output.ContainerInstances) == 0 {
-		return result, nil
+	return unusedProviders
+}
+
+func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProviders []*models.ResourceProvider, resourceConsumers []models.ResourceConsumer) ([]*models.ResourceProvider, []error) {
+	sorts := []struct {
+		Errs      []error
+		Providers []*models.ResourceProvider
+		SortBy    string
+	}{
+		{[]error{}, resourceProviders, "cpu"},
+		{[]error{}, resourceProviders, "mem"},
 	}
 
-	for _, instance := range output.ContainerInstances {
-		// it's non-intuitive, but the ports being used by the tasks live in
-		// instance.RemainingResources, not instance.RegisteredResources
-		var (
-			usedPorts       []int
-			availableCPU    bytesize.Bytesize
-			availableMemory bytesize.Bytesize
-			availableCPU    bytesize.Bytesize
-		)
+	for _, s := range sorts {
+		switch s.SortBy {
+		case "cpu":
+			sortProvidersByCPU(s.Providers)
+			sortConsumersByCPU(resourceConsumers)
 
-		for _, resource := range instance.RemainingResources {
-			switch aws.StringValue(resource.Name) {
-			case "CPU":
-				val := aws.Int64Value(resource.IntegerValue)
-				availableCPU = bytesize.MiB * bytesize.Bytesize(val)
+		case "mem":
+			sortProvidersByMemory(s.Providers)
+			sortConsumersByMemory(resourceConsumers)
+		}
 
-			case "MEMORY":
-				val := aws.Int64Value(resource.IntegerValue)
-				availableMemory = bytesize.MiB * bytesize.Bytesize(val)
+		sortProvidersByUsage(s.Providers)
 
-			case "PORTS":
-				for _, port := range resource.StringSetValue {
-					port, err := strconv.Atoi(aws.StringValue(port))
-					if err != nil {
-						log.Printf("[WARN] Instance %s: Failed to convert port to int: %v", aws.StringValue(instance.Ec2InstanceId), err)
-						continue
-					}
+		for _, consumer := range resourceConsumers {
+			hasRoom := false
 
-					usedPorts = append(usedPorts, port)
+			for _, provider := range s.Providers {
+				if provider.HasResourcesFor(consumer) {
+					hasRoom = true
+					provider.SubtractResourcesFor(consumer)
+					break
 				}
-			case "CPU":
-				val := aws.Int64Value(resource.IntegerValue)
-				availableCPU = bytesize.MiB * bytesize.Bytesize(val)
+			}
+
+			if !hasRoom {
+				newProvider, err := e.calculateNewProvider(clusterName)
+				if err != nil {
+					s.Errs = append(s.Errs, err)
+					continue
+				}
+
+				if !newProvider.HasResourcesFor(consumer) {
+					text := fmt.Sprintf("Resource '%s' cannot fit into an empty provider!", consumer.ID)
+					text += "\nThe instance size in your environment is too small to run this resource."
+					text += "\n Pleace increase the instance size for your environment."
+					err := fmt.Errorf(text)
+					s.Errs = append(s.Errs, err)
+					continue
+				}
+
+				newProvider.SubtractResourcesFor(consumer)
+				s.Providers = append(s.Providers, newProvider)
+			}
+		}
+	}
+
+	if len(sorts[0].Providers) > len(sorts[1].Providers) {
+		return sorts[0].Providers, sorts[0].Errs
+	}
+
+	return sorts[1].Providers, sorts[1].Errs
+}
+
+func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]models.ResourceConsumer, error) {
+	// use some kind of deploy cache
+	if consumers, ok := e.deployCache[deployID]; ok {
+		return consumers, nil
+	}
+
+	input := &ecs.DescribeTaskDefinitionInput{}
+	input.SetTaskDefinition(deployID)
+	output, err := e.Client.ECS.DescribeTaskDefinition(input)
+	if err != nil {
+		return nil, err
+	}
+
+	consumers := make([]models.ResourceConsumer, len(output.TaskDefinition.ContainerDefinitions))
+	for i, d := range output.TaskDefinition.ContainerDefinitions {
+		var memory bytesize.Bytesize
+
+		if aws.Int64Value(d.MemoryReservation) != 0 {
+			memory = bytesize.MiB * bytesize.Bytesize(aws.Int64Value(d.MemoryReservation))
+		}
+
+		if aws.Int64Value(d.Memory) != 0 {
+			memory = bytesize.MiB * bytesize.Bytesize(aws.Int64Value(d.Memory))
+		}
+
+		ports := []int{}
+		for _, p := range d.PortMappings {
+			if aws.Int64Value(p.HostPort) != 0 {
+				ports = append(ports, int(aws.Int64Value(p.HostPort)))
 			}
 		}
 
-		inUse := aws.Int64Value(instance.PendingTasksCount)+aws.Int64Value(instance.RunningTasksCount) > 0
-		r := &models.ResourceProvider{
-			AgentConnected:  aws.BoolValue(instance.AgentConnected),
-			AvailableCPU:    availableCPU.Format("mb"),
-			AvailableMemory: availableMemory.Format("mb"),
-			ID:              aws.StringValue(instance.Ec2InstanceId),
-			InUse:           inUse,
-			Status:          aws.StringValue(instance.Status),
-			UsedPorts:       usedPorts,
+		consumers[i] = models.ResourceConsumer{
+			ID:     "",
+			Memory: memory,
+			Ports:  ports,
 		}
-
-		result = append(result, r)
 	}
 
-	return result, nil
+	e.deployCache[deployID] = consumers
+	return consumers, nil
 }
 
-func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]*models.Resource, error) {
-	// from scaler in develop, there are funcs to aggregate three types of resources
-	//   - getPendingServiceResources
-	//   - getPendingTaskResourcesInECS
-	//   - getPendingTaskResourcesInJobs
+func (e *EnvironmentScaler) getResourceConsumers_PendingServices(clusterName string) ([]models.ResourceConsumer, error) {
+	var resourceConsumers []models.ResourceConsumer
 
-	// GET PENDING SERVICE RESOURCE CONSUMERS
 	listServicesInput := &ecs.ListServicesInput{}
 	listServicesInput.SetCluster(clusterName)
 
@@ -318,9 +294,6 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]*models.
 
 	// TODO: can we use the service provider?
 
-	resourceConsumers := []models.ResourceConsumer{}
-	// TODO: consumers should have ports, mem, cpu
-
 	for _, service := range services {
 		deployIDCopies := map[string]int64{}
 		for _, d := range service.Deployments {
@@ -347,8 +320,15 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]*models.
 		}
 	}
 
-	// GET PENDING TASK RESOURCE CONSUMERS IN ECS
-	taskARNs := []string{}
+	return resourceConsumers, nil
+}
+
+func (e *EnvironmentScaler) getResourceConsumers_TasksInECS(clusterName string) ([]models.ResourceConsumer, error) {
+	var (
+		taskARNs          []string
+		resourceConsumers []models.ResourceConsumer
+	)
+
 	fn := func(output *ecs.ListTasksOutput, lastPage bool) bool {
 
 		for _, taskARN := range output.TaskArns {
@@ -383,7 +363,11 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]*models.
 		resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
 	}
 
-	// GET PENDING TASK RESOURCE CONSUMERS IN JOBS
+	return resourceConsumers, nil
+}
+
+func (e *EnvironmentScaler) getResourceConsumers_TasksInJobs(clusterName string) ([]models.ResourceConsumer, error) {
+	var resourceConsumers []models.ResourceConsumer
 	jobs, err := e.JobStore.SelectAll()
 	if err != nil {
 		return nil, err
@@ -414,177 +398,113 @@ func (e *EnvironmentScaler) getResourceConsumers(clusterName string) ([]*models.
 	return resourceConsumers, nil
 }
 
-func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*models.Resource, error) {
-	env, err := e.EnvironmentProvider.Read(clusterName)
+func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.ResourceProvider, error) {
+	listContainerInstancesInput := &ecs.ListContainerInstancesInput{}
+	listContainerInstancesInput.SetCluster(clusterName)
+	listContainerInstancesInput.SetStatus("ACTIVE")
+
+	containerInstanceARNs := []*string{}
+	listContainerInstancesPagesFN := func(output *ecs.ListContainerInstancesOutput, lastPage bool) bool {
+		containerInstanceARNs = append(containerInstanceARNs, output.ContainerInstanceArns...)
+
+		return !lastPage
+	}
+
+	if err := e.Client.ECS.ListContainerInstancesPages(listContainerInstancesInput, listContainerInstancesPagesFN); err != nil {
+		return nil, err
+	}
+
+	describeContainerInstancesInput := &ecs.DescribeContainerInstancesInput{}
+	describeContainerInstancesInput.SetCluster(clusterName)
+	describeContainerInstancesInput.SetContainerInstances(containerInstanceARNs)
+
+	output, err := e.Client.ECS.DescribeContainerInstances(describeContainerInstancesInput)
 	if err != nil {
 		return nil, err
 	}
 
-	memory, err := strconv.Atoi(env.InstanceSize)
-	if err != nil {
-		return nil, err
+	result := []*models.ResourceProvider{}
+	if len(containerInstanceARNs) == 0 {
+		return result, nil
 	}
 
-	// TODO: Calculate CPU
-	resource := &models.Resource{}
-	resource.ID = "<new instance>"
-	resource.InUse = false
-	resource.Ports = defaultPorts
-	resource.Memory = float64(memory)
-
-	return resource, nil
-}
-
-func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]*models.Resource, error) {
-	// use some kind of deploy cache
-	if consumers, ok := e.deployCache[deployID]; ok {
-		return consumers, nil
+	if len(output.ContainerInstances) == 0 {
+		return result, nil
 	}
 
-	input := &ecs.DescribeTaskDefinitionInput{}
-	input.SetTaskDefinition(deployID)
-	output, err := e.Client.ECS.DescribeTaskDefinition(input)
-	if err != nil {
-		return nil, err
-	}
+	for _, instance := range output.ContainerInstances {
+		// it's non-intuitive, but the ports being used by the tasks live in
+		// instance.RemainingResources, not instance.RegisteredResources
+		var (
+			usedPorts       []int
+			availableCPU    bytesize.Bytesize
+			availableMemory bytesize.Bytesize
+		)
 
-	consumers := make([]*models.Resource, len(output.TaskDefinition.ContainerDefinitions))
-	for i, d := range output.TaskDefinition.ContainerDefinitions {
-		var memory bytesize.Bytesize
+		for _, resource := range instance.RemainingResources {
+			switch aws.StringValue(resource.Name) {
+			case "CPU":
+				val := aws.Int64Value(resource.IntegerValue)
+				availableCPU = bytesize.MiB * bytesize.Bytesize(val)
 
-		if aws.Int64Value(d.MemoryReservation) != 0 {
-			memory = bytesize.MiB * bytesize.Bytesize(aws.Int64Value(d.MemoryReservation))
-		}
+			case "MEMORY":
+				val := aws.Int64Value(resource.IntegerValue)
+				availableMemory = bytesize.MiB * bytesize.Bytesize(val)
 
-		if aws.Int64Value(d.Memory) != 0 {
-			memory = bytesize.MiB * bytesize.Bytesize(aws.Int64Value(d.Memory))
-		}
+			case "PORTS":
+				for _, port := range resource.StringSetValue {
+					port, err := strconv.Atoi(aws.StringValue(port))
+					if err != nil {
+						log.Printf("[WARN] Instance %s: Failed to convert port to int: %v", aws.StringValue(instance.Ec2InstanceId), err)
+						continue
+					}
 
-		ports := []int{}
-		for _, p := range d.PortMappings {
-			if aws.Int64Value(p.HostPort) != 0 {
-				ports = append(ports, int(aws.Int64Value(p.HostPort)))
+					usedPorts = append(usedPorts, port)
+				}
 			}
 		}
 
-		consumers[i] = models.ResourceConsumer{
-			// TODO: add cpu to this model
-			ID:     "",
-			Memory: fmt.Sprintf("%v", memory), //todo: translate bytesize.ByteSize to string correctly
-			// TODO: use bytesize object
-			Ports: ports,
+		inUse := aws.Int64Value(instance.PendingTasksCount)+aws.Int64Value(instance.RunningTasksCount) > 0
+		r := &models.ResourceProvider{
+			AgentIsConnected: aws.BoolValue(instance.AgentConnected),
+			AvailableCPU:     availableCPU,
+			AvailableMemory:  availableMemory,
+			ID:               aws.StringValue(instance.Ec2InstanceId),
+			InUse:            inUse,
+			Status:           aws.StringValue(instance.Status),
+			UsedPorts:        usedPorts,
 		}
+
+		result = append(result, r)
 	}
 
-	// FIX: assignment to entry in nil map
-	// e.deployCache[deployID] = consumers
-	return consumers, nil
+	return result, nil
 }
 
-func (e *EnvironmentScaler) scaleTo(environmentID string, scale int, unusedProviders []*models.Resource) (int, error) {
-	clusterName := addLayer0Prefix(e.Config.Instance(), environmentID)
-
-	input := &autoscaling.DescribeAutoScalingGroupsInput{}
-	input.SetAutoScalingGroupNames([]*string{&clusterName})
-
-	asg, err := e.Client.AutoScaling.DescribeAutoScalingGroups(input)
-	if err != nil {
-		return 0, err
-	}
-
-	currentCapacity := int(aws.Int64Value(asg.AutoScalingGroups[0].DesiredCapacity))
-
-	switch {
-	case scale > currentCapacity:
-		log.Printf("Environment %s is attempting to scale up to size %d", clusterName, scale)
-		return e.scaleUp(clusterName, scale, asg.AutoScalingGroups[0])
-	case scale < currentCapacity:
-		log.Printf("Environment %s is attempting to scale down to size %d", clusterName, scale)
-		return e.scaleDown(clusterName, scale, asg.AutoScalingGroups[0], unusedProviders)
-	default:
-		log.Printf("Environment %s is at desired scale of %d. No scaling action required.", clusterName, scale)
-		return currentCapacity, nil
-	}
+func (e *EnvironmentScaler) scaleTo(clusterName string, desiredScale int, unusedProviders []*models.ResourceProvider) (int, error) {
+	return 0, nil
 }
 
-func (e *EnvironmentScaler) scaleUp(ecsEnvironmentID string, scale int, asg *autoscaling.Group) (int, error) {
-	maxCapacity := int(aws.Int64Value(asg.MaxSize))
-	if scale > maxCapacity {
-		log.Printf("Scale %d is above the maximum capacity of %d. Setting desired capacity to %d.", scale, maxCapacity, maxCapacity)
-		input := &autoscaling.UpdateAutoScalingGroupInput{}
-		input.SetAutoScalingGroupName(aws.StringValue(asg.AutoScalingGroupName))
-		input.SetMaxSize(int64(scale))
-
-		if _, err := e.Client.AutoScaling.UpdateAutoScalingGroup(input); err != nil {
-			return 0, err
-		}
+func sortConsumersByCPU(c []models.ResourceConsumer) {
+	sorter := &ResourceConsumerSorter{
+		Consumers: c,
+		lessThan: func(i models.ResourceConsumer, j models.ResourceConsumer) bool {
+			return i.CPU < j.CPU
+		},
 	}
 
-	input := &autoscaling.SetDesiredCapacityInput{}
-	input.SetAutoScalingGroupName(aws.StringValue(asg.AutoScalingGroupName))
-	input.SetDesiredCapacity(int64(scale))
-
-	if _, err := e.Client.AutoScaling.SetDesiredCapacity(input); err != nil {
-		return 0, err
-	}
-
-	return scale, nil
+	sort.Sort(sorter)
 }
 
-func (e *EnvironmentScaler) scaleDown(ecsEnvironmentID string, scale int, asg *autoscaling.Group, unusedProviders []*models.Resource) (int, error) {
-	minCapacity := int(aws.Int64Value(asg.MinSize))
-	if scale < minCapacity {
-		log.Printf("Scale %d is below the minimum capacity of %d. Setting desired capacity to %d.", scale, minCapacity, minCapacity)
-		scale = minCapacity
+func sortConsumersByMemory(c []models.ResourceConsumer) {
+	sorter := &ResourceConsumerSorter{
+		Consumers: c,
+		lessThan: func(i models.ResourceConsumer, j models.ResourceConsumer) bool {
+			return i.Memory < j.Memory
+		},
 	}
 
-	currentCapacity := int(aws.Int64Value(asg.DesiredCapacity))
-	if scale == currentCapacity {
-		log.Printf("Environment %s is at desired scale of %d. No scaling action required.", ecsEnvironmentID, scale)
-		return scale, nil
-	}
-
-	if scale < currentCapacity {
-		input := &autoscaling.SetDesiredCapacityInput{}
-		input.SetAutoScalingGroupName(aws.StringValue(asg.AutoScalingGroupName))
-		input.SetDesiredCapacity(int64(scale))
-
-		if _, err := e.Client.AutoScaling.SetDesiredCapacity(input); err != nil {
-			return 0, err
-		}
-	}
-
-	// choose which instances to terminate during our scale down process
-	// instead of having asg randomly selecting instances
-	// e.g. if we scale from 5->3, we can terminate up to 2 unused instances
-	maxNumberOfInstancesToTerminate := currentCapacity - scale
-
-	canTerminate := func(i int) bool {
-		if i+1 > maxNumberOfInstancesToTerminate {
-			return false
-		}
-
-		if i > len(unusedProviders)-1 {
-			return false
-		}
-
-		return true
-	}
-
-	for i := 0; canTerminate(i); i++ {
-		unusedProvider := unusedProviders[i]
-		log.Printf("Environment %s terminating unused instance '%s'", ecsEnvironmentID, unusedProvider.ID)
-
-		input := &autoscaling.TerminateInstanceInAutoScalingGroupInput{}
-		input.SetInstanceId(unusedProvider.ID)
-		input.SetShouldDecrementDesiredCapacity(false)
-
-		if _, err := e.Client.AutoScaling.TerminateInstanceInAutoScalingGroup(input); err != nil {
-			return 0, err
-		}
-	}
-
-	return scale, nil
+	sort.Sort(sorter)
 }
 
 func sortProvidersByCPU(p []*models.ResourceProvider) {
@@ -658,29 +578,21 @@ func sortProvidersByMemory(p []*models.ResourceProvider) {
 	return Memory
 }
 
-func hasResourcesFor(consumer models.Resource, provider models.Resource) bool {
-	for _, wanted := range consumer.Ports {
-		for _, used := range provider.Ports {
-			if wanted == used {
-				return false
-			}
-		}
-	}
-
-	return consumer.Memory <= provider.Memory
+type ResourceConsumerSorter struct {
+	Consumers []models.ResourceConsumer
+	lessThan  func(models.ResourceConsumer, models.ResourceConsumer) bool
 }
 
-func subtractResourcesFor(consumer *models.Resource, provider *models.Resource) error {
-	if !hasResourcesFor(*consumer, *provider) {
-		return errors.Newf(errors.InvalidRequest, "Provider does not have adequate resources to subtract")
-	}
+func (r *ResourceConsumerSorter) Len() int {
+	return len(r.Consumers)
+}
 
-	provider.Ports = append(provider.Ports, consumer.Ports...)
-	provider.Memory -= consumer.Memory
-	provider.CPU -= consumer.CPU
-	provider.InUse = true
+func (r *ResourceConsumerSorter) Swap(i, j int) {
+	r.Consumers[i], r.Consumers[j] = r.Consumers[j], r.Consumers[i]
+}
 
-	return nil
+func (r *ResourceConsumerSorter) Less(i, j int) bool {
+	return r.lessThan(r.Consumers[i], r.Consumers[j])
 }
 
 func sortByMemory(resources ...[]*models.Resource) {
