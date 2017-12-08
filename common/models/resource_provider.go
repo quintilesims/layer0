@@ -3,6 +3,7 @@ package models
 import (
 	"fmt"
 
+	"github.com/aws/aws-sdk-go/service/ecs"
 	bytesize "github.com/zpatrick/go-bytesize"
 )
 
@@ -17,7 +18,7 @@ type ResourceProvider struct {
 }
 
 func (r *ResourceProvider) HasResourcesFor(consumer ResourceConsumer) bool {
-	if !r.AgentIsConnected {
+	if !r.AgentIsConnected || r.Status != ecs.ContainerInstanceStatusActive {
 		return false
 	}
 
