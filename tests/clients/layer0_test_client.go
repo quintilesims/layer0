@@ -103,7 +103,6 @@ func (l *Layer0TestClient) CreateService(name, environmentID, deployID, loadBala
 		EnvironmentID:  environmentID,
 		LoadBalancerID: loadBalancerID,
 		ServiceName:    name,
-		Scale:          1,
 	}
 
 	jobID, err := l.Client.CreateService(req)

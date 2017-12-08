@@ -30,11 +30,11 @@ func (s *STSTestClient) WaitForHealthy(timeout time.Duration) {
 	log.Printf("[DEBUG] Waiting for sts service to be healthy")
 	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 10) {
 		if _, err := s.Client.GetHealth(); err != nil {
-			log.Printf(err.Error())
+			log.Println(err.Error())
 		}
 	}
 
-	log.Fatalf("[ERROR] Timeout reached after %v", timeout)
+	log.Printf("[DEBUG] Timeout reached after %v", timeout)
 }
 
 func (s *STSTestClient) GetHealth() *models.Health {
