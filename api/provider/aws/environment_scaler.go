@@ -51,6 +51,7 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 		TaskProvider:        t,
 		JobStore:            j,
 		Config:              c,
+		// deployCache: map[string][]*models.Resource,
 	}
 }
 
@@ -63,7 +64,7 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] resourceProviders for env '%s': %#v", environmentID, resourceProviders)
+	log.Printf("[DEBUG] resourceProviders for env '%s': %#v, number of providers:%d", environmentID, resourceProviders, len(resourceProviders))
 
 	// GET RESOURCE CONSUMERS
 	resourceConsumers, err := e.getResourceConsumers(clusterName)
@@ -71,7 +72,7 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] resourceConsumers for env '%s': %#v", environmentID, resourceConsumers)
+	log.Printf("[DEBUG] resourceConsumers for env '%s': %#v, number of consumers:%d", environmentID, resourceConsumers, len(resourceConsumers))
 
 	_, err = e.scale(clusterName, resourceProviders, resourceConsumers)
 	if err != nil {
@@ -415,7 +416,8 @@ func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]*
 		}
 	}
 
-	e.deployCache[deployID] = consumers
+	// FIX: assignment to entry in nil map
+	// e.deployCache[deployID] = consumers
 	return consumers, nil
 }
 
@@ -554,7 +556,12 @@ func (e *EnvironmentScaler) determineSortPriority(providers []*models.Resource, 
 			}
 
 			if !hasRoom {
-				newProvider, _ := e.calculateNewProvider(clusterName)
+				newProvider, err := e.calculateNewProvider(clusterName)
+				// MARK Fix
+				if err != nil {
+					log.Println("ERROR")
+					continue
+				}
 				if !hasResourcesFor(*consumer, *newProvider) {
 					continue
 				}
