@@ -1,7 +1,6 @@
 package system
 
 import (
-	"log"
 	"testing"
 )
 
@@ -15,14 +14,13 @@ func TestDataSources(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/datasources", nil)
-	s.Terraform.Init()
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 
 	// Compare outputs of data and resource values (resource
 	// values have the '_expected' suffix)
 	checkOutput := func(key string) {
-		log.Printf("[DEBUG] Checking data source vs resource output for key: %s", key)
+		log.Debugf("Checking data source vs resource output for key: %s", key)
 
 		if dVal, rVal := s.Terraform.Output(key), s.Terraform.Output(key+"_expected"); dVal != rVal {
 			t.Fatalf(
@@ -37,10 +35,9 @@ func TestDataSources(t *testing.T) {
 	checkOutput("environment_id")
 	checkOutput("environment_name")
 	checkOutput("environment_size")
-	//checkOutput("environment_min_count")
+	checkOutput("environment_min_count")
 	checkOutput("environment_os")
 	checkOutput("environment_ami")
-	checkOutput("environment_sg_id")
 
 	//check deploy output
 	checkOutput("deploy_id")
@@ -50,17 +47,16 @@ func TestDataSources(t *testing.T) {
 	//check load balancer outputs
 	checkOutput("load_balancer_id")
 	checkOutput("load_balancer_name")
-	//checkOutput("load_balancer_environment_name")
-	//checkOutput("load_balancer_environment_id")
+	checkOutput("load_balancer_environment_name")
 	checkOutput("load_balancer_private")
 	checkOutput("load_balancer_url")
 
 	//check service outputs
 	checkOutput("service_id")
 	checkOutput("service_name")
-	//checkOutput("service_environment_id")
-	//checkOutput("service_environment_name")
+	checkOutput("service_environment_id")
+	checkOutput("service_environment_name")
 	checkOutput("service_scale")
 
-	log.Printf("L0 Terraform Provider Data sources Tests completed.")
+	log.Debugf("L0 Terraform Provider Data sources Tests completed.")
 }
