@@ -43,26 +43,30 @@ func ExampleTextPrintEnvironments() {
 			EnvironmentID:   "id1",
 			EnvironmentName: "name1",
 			OperatingSystem: "linux",
-			ClusterCount:    1,
-			InstanceSize:    "m3.medium",
+			MinScale:        1,
+			CurrentScale:    2,
+			MaxScale:        3,
+			InstanceType:    "m3.medium",
 			Links:           []string{"id2"},
 		},
 		{
 			EnvironmentID:   "id2",
 			EnvironmentName: "name2",
 			OperatingSystem: "windows",
-			ClusterCount:    2,
-			InstanceSize:    "m3.xlarge",
+			MinScale:        2,
+			CurrentScale:    5,
+			MaxScale:        50,
+			InstanceType:    "m3.xlarge",
 			Links:           []string{"id1", "api"},
 		},
 	}
 
 	printer.PrintEnvironments(environments...)
 	// Output:
-	// ENVIRONMENT ID  ENVIRONMENT NAME  OS       CLUSTER COUNT  INSTANCE SIZE  LINKS
-	// id1             name1             linux    1              m3.medium      id2
-	// id2             name2             windows  2              m3.xlarge      id1
-	//                                                                          api
+	// ENVIRONMENT ID  ENVIRONMENT NAME  OS       SCALE   INSTANCE TYPE  LINKS
+	// id1             name1             linux    1:2:3   m3.medium      id2
+	// id2             name2             windows  2:5:50  m3.xlarge      id1
+	//                                                                   api
 }
 
 func ExampleTextPrintEnvironmentSummaries() {
