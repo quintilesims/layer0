@@ -29,7 +29,7 @@ func NewStressTest(t *testing.T, dir string, vars map[string]string) *StressTest
 
 	layer0 := clients.NewLayer0TestClient(t, vars["endpoint"], vars["token"])
 
-	// initialize and download modules
+	// download modules using terraform get
 	tfContext.Terraformf("get")
 
 	return &StressTest{
