@@ -30,7 +30,7 @@ func setup() {
 	log.SetOutput(logger)
 	if !*dry {
 		if err := filepath.Walk("cases", deleteStateFiles); err != nil {
-			log.Fatalf("[ERROR] Error occurred during setup: ", err)
+			log.Println(err.Error())
 		}
 	}
 }
@@ -38,7 +38,7 @@ func setup() {
 func teardown() {
 	if !*dry {
 		if err := filepath.Walk("cases", deleteStateFiles); err != nil {
-			log.Fatalf("[ERROR] Error occurred during teardown: ", err)
+			log.Println(err.Error())
 		}
 	}
 }
