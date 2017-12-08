@@ -37,7 +37,7 @@ type EnvironmentScaler struct {
 	TaskProvider        provider.TaskProvider
 	JobStore            job.Store
 	Config              config.APIConfig
-	deployCache         map[string][]*models.Resource
+	deployCache         map[string][]models.ResourceConsumer
 }
 
 const (
@@ -622,56 +622,18 @@ func sortProvidersByMemory(p []*models.ResourceProvider) {
 		},
 	}
 
-	for sortMethod := range []int{CPU, Memory} {
+	sort.Sort(sorter)
+}
 
-		for _, consumer := range consumers {
-			hasRoom := false
-
-			switch sortMethod {
-			case CPU:
-				sortByCPU(providers, consumers)
-			case Memory:
-				sortByMemory(providers, consumers)
-			}
-
-			// next, place any unused providers in the back of the list
-			// that way, we can can delete them if we avoid placing any tasks in them
-			sortByUsage(providers)
-
-			for _, provider := range providers {
-				if hasResourcesFor(*consumer, *provider) {
-					hasRoom = true
-					subtractResourcesFor(consumer, provider)
-					break
-				}
-			}
-
-			if !hasRoom {
-				newProvider, err := e.calculateNewProvider(clusterName)
-				// MARK Fix
-				if err != nil {
-					log.Println("ERROR")
-					continue
-				}
-				if !hasResourcesFor(*consumer, *newProvider) {
-					continue
-				}
-
-				switch sortMethod {
-				case CPU:
-					cpuInstanceSize++
-				case Memory:
-					memoryInstanceSize++
-				}
-			}
-		}
+func sortProvidersByUsage(r []*models.ResourceProvider) {
+	sorter := &ResourceProviderSorter{
+		Providers: r,
+		lessThan: func(i *models.ResourceProvider, j *models.ResourceProvider) bool {
+			return i.InUse && !j.InUse
+		},
 	}
 
-	if cpuInstanceSize > memoryInstanceSize {
-		return CPU
-	}
-
-	return Memory
+	sort.Sort(sorter)
 }
 
 type ResourceConsumerSorter struct {
@@ -691,56 +653,19 @@ func (r *ResourceConsumerSorter) Less(i, j int) bool {
 	return r.lessThan(r.Consumers[i], r.Consumers[j])
 }
 
-func sortByMemory(resources ...[]*models.Resource) {
-	for _, r := range resources {
-		sorter := &ResourceSorter{
-			Providers: r,
-			lessThan: func(i *models.Resource, j *models.Resource) bool {
-				return i.Memory < j.Memory
-			},
-		}
-
-		sort.Sort(sorter)
-	}
+type ResourceProviderSorter struct {
+	Providers []*models.ResourceProvider
+	lessThan  func(*models.ResourceProvider, *models.ResourceProvider) bool
 }
 
-func sortByCPU(resources ...[]*models.Resource) {
-	for _, r := range resources {
-		sorter := &ResourceSorter{
-			Providers: r,
-			lessThan: func(i *models.Resource, j *models.Resource) bool {
-				return i.CPU < j.CPU
-			},
-		}
-
-		sort.Sort(sorter)
-	}
-}
-
-func sortByUsage(r []*models.Resource) {
-	sorter := &ResourceSorter{
-		Providers: r,
-		lessThan: func(i *models.Resource, j *models.Resource) bool {
-			return i.InUse && !j.InUse
-		},
-	}
-
-	sort.Sort(sorter)
-}
-
-type ResourceSorter struct {
-	Providers []*models.Resource
-	lessThan  func(*models.Resource, *models.Resource) bool
-}
-
-func (r *ResourceSorter) Len() int {
+func (r *ResourceProviderSorter) Len() int {
 	return len(r.Providers)
 }
 
-func (r *ResourceSorter) Swap(i, j int) {
+func (r *ResourceProviderSorter) Swap(i, j int) {
 	r.Providers[i], r.Providers[j] = r.Providers[j], r.Providers[i]
 }
 
-func (r *ResourceSorter) Less(i, j int) bool {
+func (r *ResourceProviderSorter) Less(i, j int) bool {
 	return r.lessThan(r.Providers[i], r.Providers[j])
 }
