@@ -12,6 +12,7 @@ import (
 	"github.com/zpatrick/go-bytesize"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
@@ -64,7 +65,12 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		return err
 	}
 
-	log.Printf("[DEBUG] resourceProviders for env '%s': %#v, number of providers:%d", environmentID, resourceProviders, len(resourceProviders))
+	humanReadableProviders := ""
+	for _, r := range resourceProviders {
+		humanReadableProviders += fmt.Sprintf("\n    %#v", r)
+	}
+
+	log.Printf("[DEBUG] [EnvironmentScaler] resourceProviders for env '%s': %s", environmentID, humanReadableProviders)
 
 	var resourceConsumers []models.ResourceConsumer
 
@@ -92,27 +98,24 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 
 	resourceConsumers = append(resourceConsumers, jobTaskConsumers...)
 
-	log.Printf("[DEBUG] resourceConsumers for env '%s': %#v", environmentID, resourceConsumers)
+	log.Printf("[DEBUG] [EnvironmentScaler] resourceConsumers for env '%s': %#v", environmentID, resourceConsumers)
 
 	var errs []error
 
-	// calculate/check for scaling up
+	// calculate for scaling up
 	resourceProviders, scaleUpErrs := e.calculateScaleUp(clusterName, resourceProviders, resourceConsumers)
 
 	errs = append(errs, scaleUpErrs...)
 
-	// calculate/check for scaling down
+	// calculate for scaling down
 	unusedProviders := e.calculateScaleDown(clusterName, resourceProviders)
 
 	// do the scaling
 	desiredScale := len(resourceProviders) - len(unusedProviders)
 
-	actualScale, err := e.scaleTo(clusterName, desiredScale, unusedProviders)
-	if err != nil {
+	if err := e.scaleTo(clusterName, desiredScale, unusedProviders); err != nil {
 		errs = append(errs, err)
 	}
-
-	actualScale = actualScale
 
 	return errors.MultiError(errs)
 }
@@ -188,7 +191,7 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 				if !newProvider.HasResourcesFor(consumer) {
 					text := fmt.Sprintf("Resource '%s' cannot fit into an empty provider!", consumer.ID)
 					text += "\nThe instance size in your environment is too small to run this resource."
-					text += "\n Pleace increase the instance size for your environment."
+					text += "\n Please increase the instance size for your environment."
 					err := fmt.Errorf(text)
 					s.Errs = append(s.Errs, err)
 					continue
@@ -399,6 +402,8 @@ func (e *EnvironmentScaler) getResourceConsumers_TasksInJobs(clusterName string)
 }
 
 func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.ResourceProvider, error) {
+	var result []*models.ResourceProvider
+
 	listContainerInstancesInput := &ecs.ListContainerInstancesInput{}
 	listContainerInstancesInput.SetCluster(clusterName)
 	listContainerInstancesInput.SetStatus(ecs.ContainerInstanceStatusActive)
@@ -414,6 +419,10 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 		return nil, err
 	}
 
+	if len(containerInstanceARNs) == 0 {
+		return result, nil
+	}
+
 	describeContainerInstancesInput := &ecs.DescribeContainerInstancesInput{}
 	describeContainerInstancesInput.SetCluster(clusterName)
 	describeContainerInstancesInput.SetContainerInstances(containerInstanceARNs)
@@ -421,11 +430,6 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 	output, err := e.Client.ECS.DescribeContainerInstances(describeContainerInstancesInput)
 	if err != nil {
 		return nil, err
-	}
-
-	result := []*models.ResourceProvider{}
-	if len(containerInstanceARNs) == 0 {
-		return result, nil
 	}
 
 	if len(output.ContainerInstances) == 0 {
@@ -455,7 +459,7 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 				for _, port := range resource.StringSetValue {
 					port, err := strconv.Atoi(aws.StringValue(port))
 					if err != nil {
-						log.Printf("[WARN] Instance %s: Failed to convert port to int: %v", aws.StringValue(instance.Ec2InstanceId), err)
+						log.Printf("[WARN] [EnvironmentScaler] Instance %s: Failed to convert port to int: %v", aws.StringValue(instance.Ec2InstanceId), err)
 						continue
 					}
 
@@ -465,6 +469,7 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 		}
 
 		inUse := aws.Int64Value(instance.PendingTasksCount)+aws.Int64Value(instance.RunningTasksCount) > 0
+
 		r := &models.ResourceProvider{
 			AgentIsConnected: aws.BoolValue(instance.AgentConnected),
 			AvailableCPU:     availableCPU,
@@ -481,8 +486,99 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.
 	return result, nil
 }
 
-func (e *EnvironmentScaler) scaleTo(clusterName string, desiredScale int, unusedProviders []*models.ResourceProvider) (int, error) {
-	return 0, nil
+func (e *EnvironmentScaler) scaleDown(clusterName string, desiredScale int, asg *autoscaling.Group, unusedProviders []*models.ResourceProvider) error {
+	minCapacity := int(aws.Int64Value(asg.MinSize))
+	if desiredScale < minCapacity {
+		log.Printf("[DEBUG] [EnvironmentScaler] Minimum capacity is '%d'. Aborting scaling action for environment '%s'.", minCapacity, clusterName)
+		return nil
+	}
+
+	input := &autoscaling.SetDesiredCapacityInput{}
+	input.SetAutoScalingGroupName(aws.StringValue(asg.AutoScalingGroupName))
+	input.SetDesiredCapacity(int64(desiredScale))
+
+	if _, err := e.Client.AutoScaling.SetDesiredCapacity(input); err != nil {
+		return err
+	}
+
+	// choose which instances to terminate during our scale-down process
+	// instead of having asg randomly select instances
+	// e.g. if we scale from 5 to 3, we can terminate up to 2 unused instances
+	currentCapacity := int(aws.Int64Value(asg.DesiredCapacity))
+	maxNumberOfInstancesToTerminate := currentCapacity - desiredScale
+
+	canTerminate := func(i int) bool {
+		if i+1 > maxNumberOfInstancesToTerminate {
+			return false
+		}
+
+		if i > len(unusedProviders)-1 {
+			return false
+		}
+
+		return true
+	}
+
+	for i := 0; canTerminate(i); i++ {
+		unusedProvider := unusedProviders[i]
+		log.Printf("[DEBUG] [EnvironmentScaler] Terminating unused instance '%s' from environment '%s'.", unusedProvider.ID, clusterName)
+
+		input := &autoscaling.TerminateInstanceInAutoScalingGroupInput{}
+		input.SetInstanceId(unusedProvider.ID)
+		input.SetShouldDecrementDesiredCapacity(false)
+
+		if _, err := e.Client.AutoScaling.TerminateInstanceInAutoScalingGroup(input); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (e *EnvironmentScaler) scaleTo(clusterName string, desiredScale int, unusedProviders []*models.ResourceProvider) error {
+	input := &autoscaling.DescribeAutoScalingGroupsInput{}
+	input.SetAutoScalingGroupNames([]*string{&clusterName})
+
+	asgs, err := e.Client.AutoScaling.DescribeAutoScalingGroups(input)
+	if err != nil {
+		return err
+	}
+
+	asg := asgs.AutoScalingGroups[0]
+
+	currentCapacity := int(aws.Int64Value(asg.DesiredCapacity))
+
+	switch {
+	case desiredScale > currentCapacity:
+		log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentCapacity, desiredScale)
+		return e.scaleUp(clusterName, desiredScale, asg)
+
+	case desiredScale < currentCapacity:
+		log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentCapacity, desiredScale)
+		return e.scaleDown(clusterName, desiredScale, asg, unusedProviders)
+
+	default:
+		log.Printf("[DEBUG] [EnvironmentScaler] Environment '%s' is at desired scale of '%d'. No scaling action required.", clusterName, currentCapacity)
+		return nil
+	}
+}
+
+func (e *EnvironmentScaler) scaleUp(clusterName string, desiredScale int, asg *autoscaling.Group) error {
+	maxCapacity := int(aws.Int64Value(asg.MaxSize))
+	if desiredScale > maxCapacity {
+		log.Printf("[DEBUG] [EnvironmentScaler] Maximum capacity is '%d'. Aborting scaling action for environment '%s'.", maxCapacity, clusterName)
+		return nil
+	}
+
+	input := &autoscaling.SetDesiredCapacityInput{}
+	input.SetAutoScalingGroupName(aws.StringValue(asg.AutoScalingGroupName))
+	input.SetDesiredCapacity(int64(desiredScale))
+
+	if _, err := e.Client.AutoScaling.SetDesiredCapacity(input); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func sortConsumersByCPU(c []models.ResourceConsumer) {
