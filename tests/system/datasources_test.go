@@ -1,6 +1,7 @@
 package system
 
 import (
+	"log"
 	"testing"
 )
 
@@ -14,13 +15,14 @@ func TestDataSources(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/datasources", nil)
+	s.Terraform.Init()
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 
 	// Compare outputs of data and resource values (resource
 	// values have the '_expected' suffix)
 	checkOutput := func(key string) {
-		log.Debugf("Checking data source vs resource output for key: %s", key)
+		log.Printf("[DEBUG] Checking data source vs resource output for key: %s", key)
 
 		if dVal, rVal := s.Terraform.Output(key), s.Terraform.Output(key+"_expected"); dVal != rVal {
 			t.Fatalf(
@@ -58,5 +60,5 @@ func TestDataSources(t *testing.T) {
 	checkOutput("service_environment_name")
 	checkOutput("service_scale")
 
-	log.Debugf("L0 Terraform Provider Data sources Tests completed.")
+	log.Printf("[DEBUG] L0 Terraform Provider Data sources Tests completed.")
 }
