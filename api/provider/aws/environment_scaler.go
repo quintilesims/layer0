@@ -401,7 +401,7 @@ func (e *EnvironmentScaler) getResourceConsumers_TasksInJobs(clusterName string)
 func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*models.ResourceProvider, error) {
 	listContainerInstancesInput := &ecs.ListContainerInstancesInput{}
 	listContainerInstancesInput.SetCluster(clusterName)
-	listContainerInstancesInput.SetStatus("ACTIVE")
+	listContainerInstancesInput.SetStatus(ecs.ContainerInstanceStatusActive)
 
 	containerInstanceARNs := []*string{}
 	listContainerInstancesPagesFN := func(output *ecs.ListContainerInstancesOutput, lastPage bool) bool {
