@@ -22,14 +22,7 @@ func NewLayer0TestClient(t *testing.T, endpoint, token string) *Layer0TestClient
 	}
 }
 
-func (l *Layer0TestClient) CreateTask(taskName, environmentID, deployID string, overrides []models.ContainerOverride) string {
-	req := models.CreateTaskRequest{
-		ContainerOverrides: overrides,
-		TaskName:           taskName,
-		EnvironmentID:      environmentID,
-		DeployID:           deployID,
-	}
-
+func (l *Layer0TestClient) CreateTask(req models.CreateTaskRequest) string {
 	jobID, err := l.Client.CreateTask(req)
 	if err != nil {
 		l.T.Fatal(err)
@@ -38,16 +31,7 @@ func (l *Layer0TestClient) CreateTask(taskName, environmentID, deployID string, 
 	return jobID
 }
 
-func (l *Layer0TestClient) CreateEnvironment(name string) string {
-	req := models.CreateEnvironmentRequest{
-		EnvironmentName:  name,
-		InstanceSize:     "m3.medium",
-		UserDataTemplate: nil,
-		MinClusterCount:  0,
-		OperatingSystem:  "linux",
-		AMIID:            "",
-	}
-
+func (l *Layer0TestClient) CreateEnvironment(req models.CreateEnvironmentRequest) string {
 	jobID, err := l.Client.CreateEnvironment(req)
 	if err != nil {
 		l.T.Fatal(err)
@@ -56,12 +40,7 @@ func (l *Layer0TestClient) CreateEnvironment(name string) string {
 	return jobID
 }
 
-func (l *Layer0TestClient) CreateDeploy(name string, content []byte) string {
-	req := models.CreateDeployRequest{
-		DeployName: name,
-		DeployFile: content,
-	}
-
+func (l *Layer0TestClient) CreateDeploy(req models.CreateDeployRequest) string {
 	jobID, err := l.Client.CreateDeploy(req)
 	if err != nil {
 		l.T.Fatal(err)
@@ -70,25 +49,7 @@ func (l *Layer0TestClient) CreateDeploy(name string, content []byte) string {
 	return jobID
 }
 
-func (l *Layer0TestClient) CreateLoadBalancer(name, environmentID string) string {
-	hc := models.HealthCheck{
-		Target:             "TCP:80",
-		Interval:           10,
-		Timeout:            5,
-		HealthyThreshold:   2,
-		UnhealthyThreshold: 2,
-	}
-
-	ports := []models.Port{{HostPort: 80, ContainerPort: 80, Protocol: "http"}}
-
-	req := models.CreateLoadBalancerRequest{
-		LoadBalancerName: name,
-		EnvironmentID:    environmentID,
-		IsPublic:         true,
-		Ports:            ports,
-		HealthCheck:      hc,
-	}
-
+func (l *Layer0TestClient) CreateLoadBalancer(req models.CreateLoadBalancerRequest) string {
 	jobID, err := l.Client.CreateLoadBalancer(req)
 	if err != nil {
 		l.T.Fatal(err)
@@ -97,14 +58,7 @@ func (l *Layer0TestClient) CreateLoadBalancer(name, environmentID string) string
 	return jobID
 }
 
-func (l *Layer0TestClient) CreateService(name, environmentID, deployID, loadBalancerID string) string {
-	req := models.CreateServiceRequest{
-		DeployID:       deployID,
-		EnvironmentID:  environmentID,
-		LoadBalancerID: loadBalancerID,
-		ServiceName:    name,
-	}
-
+func (l *Layer0TestClient) CreateService(req models.CreateServiceRequest) string {
 	jobID, err := l.Client.CreateService(req)
 	if err != nil {
 		l.T.Fatal(err)
@@ -113,8 +67,8 @@ func (l *Layer0TestClient) CreateService(name, environmentID, deployID, loadBala
 	return jobID
 }
 
-func (l *Layer0TestClient) ReadDeploy(id string) *models.Deploy {
-	deploy, err := l.Client.ReadDeploy(id)
+func (l *Layer0TestClient) ReadDeploy(deployID string) *models.Deploy {
+	deploy, err := l.Client.ReadDeploy(deployID)
 	if err != nil {
 		l.T.Fatal(err)
 	}
@@ -122,8 +76,8 @@ func (l *Layer0TestClient) ReadDeploy(id string) *models.Deploy {
 	return deploy
 }
 
-func (l *Layer0TestClient) ReadLoadBalancer(id string) *models.LoadBalancer {
-	loadBalancer, err := l.Client.ReadLoadBalancer(id)
+func (l *Layer0TestClient) ReadLoadBalancer(loadBalancerID string) *models.LoadBalancer {
+	loadBalancer, err := l.Client.ReadLoadBalancer(loadBalancerID)
 	if err != nil {
 		l.T.Fatal(err)
 	}
@@ -131,8 +85,8 @@ func (l *Layer0TestClient) ReadLoadBalancer(id string) *models.LoadBalancer {
 	return loadBalancer
 }
 
-func (l *Layer0TestClient) ReadService(id string) *models.Service {
-	service, err := l.Client.ReadService(id)
+func (l *Layer0TestClient) ReadService(serviceID string) *models.Service {
+	service, err := l.Client.ReadService(serviceID)
 	if err != nil {
 		l.T.Fatal(err)
 	}
@@ -140,8 +94,8 @@ func (l *Layer0TestClient) ReadService(id string) *models.Service {
 	return service
 }
 
-func (l *Layer0TestClient) ReadTask(id string) *models.Task {
-	task, err := l.Client.ReadTask(id)
+func (l *Layer0TestClient) ReadTask(taskID string) *models.Task {
+	task, err := l.Client.ReadTask(taskID)
 	if err != nil {
 		l.T.Fatal(err)
 	}
@@ -149,8 +103,8 @@ func (l *Layer0TestClient) ReadTask(id string) *models.Task {
 	return task
 }
 
-func (l *Layer0TestClient) ReadEnvironment(id string) *models.Environment {
-	environment, err := l.Client.ReadEnvironment(id)
+func (l *Layer0TestClient) ReadEnvironment(environmentID string) *models.Environment {
+	environment, err := l.Client.ReadEnvironment(environmentID)
 	if err != nil {
 		l.T.Fatal(err)
 	}
@@ -167,11 +121,7 @@ func (l *Layer0TestClient) ListTasks() []*models.TaskSummary {
 	return tasks
 }
 
-func (l *Layer0TestClient) UpdateEnvironmentLink(environmentID string, links []string) string {
-	req := models.UpdateEnvironmentRequest{
-		Links: &links,
-	}
-
+func (l *Layer0TestClient) UpdateEnvironmentLink(environmentID string, req models.UpdateEnvironmentRequest) string {
 	jobID, err := l.Client.UpdateEnvironment(environmentID, req)
 	if err != nil {
 		l.T.Fatal(err)
@@ -180,12 +130,7 @@ func (l *Layer0TestClient) UpdateEnvironmentLink(environmentID string, links []s
 	return jobID
 }
 
-func (l *Layer0TestClient) UpdateService(serviceID, deployID string, scale int) string {
-	req := models.UpdateServiceRequest{
-		DeployID: &deployID,
-		Scale:    &scale,
-	}
-
+func (l *Layer0TestClient) UpdateService(serviceID string, req models.UpdateServiceRequest) string {
 	jobID, err := l.Client.UpdateService(serviceID, req)
 	if err != nil {
 		l.T.Fatal(err)
