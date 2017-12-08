@@ -59,6 +59,4 @@ func TestDataSources(t *testing.T) {
 	checkOutput("service_environment_id")
 	checkOutput("service_environment_name")
 	checkOutput("service_scale")
-
-	log.Printf("[DEBUG] L0 Terraform Provider Data sources Tests completed.")
 }

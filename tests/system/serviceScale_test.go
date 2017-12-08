@@ -4,6 +4,8 @@ import (
 	"log"
 	"testing"
 	"time"
+
+	"github.com/quintilesims/layer0/common/testutils"
 )
 
 // Test Resources:
@@ -20,27 +22,16 @@ func TestServiceScale(t *testing.T) {
 	deployID := s.Terraform.Output("deploy_id")
 
 	s.Layer0.UpdateService(serviceID, deployID, 3)
-	log.Printf("[DEBUG] Waiting for service to scale up")
-	service := s.Layer0.ReadService(serviceID)
-	for start := time.Now(); time.Since(start) < time.Minute*5; time.Sleep(time.Second * 10) {
-		if service.RunningCount == 3 {
-			continue
-		}
-	}
-
-	if service.RunningCount != 3 {
-		t.Fatalf("[ERROR] Timeout reached after %v", time.Minute*5)
-	}
+	testutils.WaitFor(t, time.Second*10, time.Minute*5, func() bool {
+		log.Printf("[DEBUG] Waiting for service to scale up")
+		service := s.Layer0.ReadService(serviceID)
+		return service.RunningCount == 3
+	})
 
 	s.Layer0.UpdateService(serviceID, deployID, 1)
-	log.Printf("[DEBUG] Waiting for service to scale down")
-	for start := time.Now(); time.Since(start) < time.Minute*5; time.Sleep(time.Second * 10) {
-		if service.RunningCount == 1 {
-			continue
-		}
-	}
-
-	if service.RunningCount != 1 {
-		t.Fatalf("[ERROR] Timeout reached after %v", time.Minute*5)
-	}
+	testutils.WaitFor(t, time.Second*10, time.Minute*5, func() bool {
+		log.Printf("[DEBUG] Waiting for service to scale down")
+		service := s.Layer0.ReadService(serviceID)
+		return service.RunningCount == 1
+	})
 }

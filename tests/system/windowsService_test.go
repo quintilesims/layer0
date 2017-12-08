@@ -5,6 +5,8 @@ import (
 	"net/http"
 	"testing"
 	"time"
+
+	"github.com/quintilesims/layer0/common/testutils"
 )
 
 // Test Resources:
@@ -24,28 +26,26 @@ func TestWindowsService(t *testing.T) {
 	serviceID := s.Terraform.Output("service_id")
 	serviceURL := s.Terraform.Output("service_url")
 
-	service := s.Layer0.ReadService(serviceID)
-	log.Printf("[DEBUG] Waiting for windows service to run")
-	for start := time.Now(); time.Since(start) < time.Minute*45; time.Sleep(time.Second * 30) {
-		if service.RunningCount == 1 {
-			continue
-		}
-	}
+	testutils.WaitFor(t, time.Second*30, time.Minute*45, func() bool {
+		log.Printf("[DEBUG] Waiting for windows service to run")
+		service := s.Layer0.ReadService(serviceID)
+		return service.RunningCount == 1
+	})
 
-	if service.RunningCount != 1 {
-		t.Fatalf("[ERROR] Timeout reached after %v", time.Minute*45)
-	}
-
-	log.Printf("[DEBUG] Waiting for service to be healthy")
-	for start := time.Now(); time.Since(start) < time.Minute*10; time.Sleep(time.Second * 30) {
+	testutils.WaitFor(t, time.Second*30, time.Minute*10, func() bool {
+		log.Printf("[DEBUG] Waiting for service to be healthy")
 		resp, err := http.Get(serviceURL)
 		if err != nil {
-			t.Fatalf("[ERROR] There was an error checking the Windows service's URL: %v", err)
+			t.Fatalf("There was an error checking the Windows service's URL: %v", err)
+			return false
 		}
 
 		defer resp.Body.Close()
 		if resp.StatusCode < 200 || resp.StatusCode > 299 {
-			t.Fatalf("[ERROR] Windows service returned non-200 status: %d", resp.StatusCode)
+			t.Fatalf("Windows service returned non-200 status: %d", resp.StatusCode)
+			return false
 		}
-	}
+
+		return true
+	})
 }

@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/tests/clients"
 )
 
@@ -28,31 +29,39 @@ func TestEnvironmentLink(t *testing.T) {
 
 	// curl the private service in the private environment from the public service in the public environment
 	// the private service returns "Hello, World!" from its root path
-	log.Printf("[DEBUG] Running curl while link exists")
-	for start := time.Now(); time.Since(start) < time.Minute*5; time.Sleep(time.Second * 10) {
+	testutils.WaitFor(t, time.Second*10, time.Minute*5, func() bool {
+		log.Printf("[DEBUG] Running curl while link exists")
 		output, err := publicService.RunCommand("curl", "-m", "10", "-s", privateServiceURL)
 		if err != nil {
-			t.Fatalf("[ERROR] Error running curl: %v", err)
+			t.Fatalf("Error running curl: %v", err)
+			return false
 		}
 
 		if expected := "Hello, World!"; output != expected {
-			t.Fatalf("[ERROR] Output from curl was '%s', expected '%s'", output, expected)
+			t.Fatalf("Output from curl was '%s', expected '%s'", output, expected)
+			return false
 		}
-	}
+
+		return true
+	})
 
 	log.Printf("[DEBUG] Removing environment link")
 	links := []string{}
 	s.Layer0.UpdateEnvironmentLink(publicEnvironmentID, links)
 
-	log.Printf("[DEBUG] Running curl without link")
-	for start := time.Now(); time.Since(start) < time.Minute*2; time.Sleep(time.Second * 10) {
+	testutils.WaitFor(t, time.Second*10, time.Minute*2, func() bool {
+		log.Printf("[DEBUG] Running curl without link")
 		output, err := publicService.RunCommand("curl", "-m", "10", "-s", privateServiceURL)
 		if err != nil {
-			t.Fatalf("[ERROR] Error running curl: %v", err)
+			t.Fatalf("Error running curl: %v", err)
+			return false
 		}
 
 		if output != "" {
-			t.Fatalf("[ERROR] Output from curl was '%s', expected no output", output)
+			t.Fatalf("Output from curl was '%s', expected no output", output)
+			return false
 		}
-	}
+
+		return true
+	})
 }

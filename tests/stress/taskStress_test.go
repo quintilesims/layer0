@@ -4,6 +4,8 @@ import (
 	"log"
 	"testing"
 	"time"
+
+	"github.com/quintilesims/layer0/common/testutils"
 )
 
 // Test Resources:
@@ -40,8 +42,8 @@ func TestTaskStress(t *testing.T) {
 		}(taskName)
 	}
 
-	log.Printf("[DEBUG] Waiting for all tasks tun run")
-	for start := time.Now(); time.Since(start) < time.Minute*10; time.Sleep(time.Second * 30) {
+	testutils.WaitFor(t, time.Second*30, time.Minute*10, func() bool {
+		log.Printf("[DEBUG] Waiting for all tasks tun run")
 		var numTasks int
 		for _, taskSummary := range s.Layer0.ListTasks() {
 			if taskSummary.EnvironmentID == environmentID {
@@ -50,11 +52,8 @@ func TestTaskStress(t *testing.T) {
 		}
 
 		log.Printf("[DEBUG] %d/100 tasks have run", numTasks)
-
-		if numTasks >= 100 {
-			continue
-		}
-	}
+		return numTasks >= 100
+	})
 
 	// each task sleeps for 10 seconds
 	// wait for all of them to complete
@@ -67,7 +66,7 @@ func TestTaskStress(t *testing.T) {
 			container := task.Containers[0]
 
 			if container.ExitCode != 0 {
-				t.Fatalf("[ERROR] Task %s has unexpected exit code: %#v", task.TaskID, container)
+				t.Fatalf("Task %s has unexpected exit code: %#v", task.TaskID, container)
 			}
 		}
 	}

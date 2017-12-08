@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/sts/client"
 	"github.com/quintilesims/sts/models"
 )
@@ -27,14 +28,16 @@ func NewSTSTestClient(t *testing.T, url string) *STSTestClient {
 }
 
 func (s *STSTestClient) WaitForHealthy(timeout time.Duration) {
-	log.Printf("[DEBUG] Waiting for sts service to be healthy")
-	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 10) {
+	testutils.WaitFor(s.T, time.Second*10, timeout, func() bool {
+		log.Printf("[DEBUG] Waiting for sts service to be healthy")
 		if _, err := s.Client.GetHealth(); err != nil {
-			log.Println(err.Error())
+			s.T.Fatalf("Error checking health: %v", err)
 		}
-	}
 
-	log.Printf("[DEBUG] Timeout reached after %v", timeout)
+		return true
+	})
+
+	s.T.Fatalf("Timeout reached after %v", timeout)
 }
 
 func (s *STSTestClient) GetHealth() *models.Health {

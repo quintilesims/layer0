@@ -17,7 +17,7 @@ func TestImport(t *testing.T) {
 
 	data, err := ioutil.ReadFile("cases/modules/sts/Dockerrun.aws.json")
 	if err != nil {
-		t.Fatalf("[ERROR] Failed to read dockerrun: %v", err)
+		t.Fatalf("Failed to read dockerrun: %v", err)
 	}
 
 	log.Printf("[DEBUG] Creating test resources")

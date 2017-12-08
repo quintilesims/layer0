@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/tests/clients"
 )
 
@@ -25,26 +26,15 @@ func TestDeadServiceRecreated(t *testing.T) {
 	sts.WaitForHealthy(time.Minute * 3)
 	sts.SetHealth("die")
 
-	log.Printf("[DEBUG] Waiting for service to die")
-	service := s.Layer0.ReadService(serviceID)
-	for start := time.Now(); time.Since(start) < time.Minute*2; time.Sleep(time.Second * 10) {
-		if service.RunningCount == 0 {
-			continue
-		}
-	}
+	testutils.WaitFor(t, time.Second*10, time.Minute, func() bool {
+		log.Printf("[DEBUG] Waiting for service to die")
+		service := s.Layer0.ReadService(serviceID)
+		return service.RunningCount == 0
+	})
 
-	if service.RunningCount != 0 {
-		t.Fatalf("[ERROR] Timeout reached after %v", time.Minute*2)
-	}
-
-	log.Printf("[DEBUG] Waiting for service to recreate")
-	for start := time.Now(); time.Since(start) < time.Minute*2; time.Sleep(time.Second * 10) {
-		if service.RunningCount == 1 {
-			continue
-		}
-	}
-
-	if service.RunningCount != 1 {
-		t.Fatalf("[ERROR] Timeout reached after %v", time.Minute*2)
-	}
+	testutils.WaitFor(t, time.Second*10, time.Minute*2, func() bool {
+		log.Printf("[DEBUG] Waiting for service to recreate")
+		service := s.Layer0.ReadService(serviceID)
+		return service.RunningCount == 1
+	})
 }

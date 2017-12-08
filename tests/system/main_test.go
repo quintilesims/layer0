@@ -31,6 +31,7 @@ func setup() {
 	if !*dry {
 		if err := filepath.Walk("cases", deleteStateFiles); err != nil {
 			log.Println("[ERROR] Error occurred during setup: ", err)
+			os.Exit(1)
 		}
 	}
 }
@@ -39,6 +40,7 @@ func teardown() {
 	if !*dry {
 		if err := filepath.Walk("cases", deleteStateFiles); err != nil {
 			log.Println("[ERROR] Error occurred during teardown: ", err)
+			os.Exit(1)
 		}
 	}
 }
@@ -50,7 +52,7 @@ func deleteStateFiles(path string, f os.FileInfo, err error) error {
 
 	if name := f.Name(); strings.HasPrefix(name, "terraform.tfstate") {
 		if err := os.Remove(path); err != nil {
-			return fmt.Errorf("[ERROR] Failed to delete %s: %v", path, err)
+			return fmt.Errorf("Failed to delete %s: %v", path, err)
 		}
 	}
 
