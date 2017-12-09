@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 )
 
@@ -20,15 +21,28 @@ func TestServiceScale(t *testing.T) {
 
 	serviceID := s.Terraform.Output("service_id")
 	deployID := s.Terraform.Output("deploy_id")
+	scale := 3
 
-	s.Layer0.UpdateService(serviceID, deployID, 3)
+	req := models.UpdateServiceRequest{
+		DeployID: &deployID,
+		Scale:    &scale,
+	}
+
+	s.Layer0.UpdateService(serviceID, req)
 	testutils.WaitFor(t, time.Second*10, time.Minute*5, func() bool {
 		log.Printf("[DEBUG] Waiting for service to scale up")
 		service := s.Layer0.ReadService(serviceID)
 		return service.RunningCount == 3
 	})
 
-	s.Layer0.UpdateService(serviceID, deployID, 1)
+	scale = 1
+
+	req = models.UpdateServiceRequest{
+		DeployID: &deployID,
+		Scale:    &scale,
+	}
+
+	s.Layer0.UpdateService(serviceID, req)
 	testutils.WaitFor(t, time.Second*10, time.Minute*5, func() bool {
 		log.Printf("[DEBUG] Waiting for service to scale down")
 		service := s.Layer0.ReadService(serviceID)

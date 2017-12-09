@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/tests/clients"
 )
@@ -46,8 +47,11 @@ func TestEnvironmentLink(t *testing.T) {
 	})
 
 	log.Printf("[DEBUG] Removing environment link")
-	links := []string{}
-	s.Layer0.UpdateEnvironmentLink(publicEnvironmentID, links)
+	req := models.UpdateEnvironmentRequest{
+		Links: &[]string{},
+	}
+
+	s.Layer0.UpdateEnvironment(publicEnvironmentID, req)
 
 	testutils.WaitFor(t, time.Second*10, time.Minute*2, func() bool {
 		log.Printf("[DEBUG] Running curl without link")

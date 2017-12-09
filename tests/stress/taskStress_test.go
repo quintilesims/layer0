@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 )
 
@@ -38,7 +39,14 @@ func TestTaskStress(t *testing.T) {
 	for taskName, copies := range taskNameCopies {
 		go func(taskName string) {
 			log.Printf("[DEBUG] Creating task %s (copies: %d)", taskName, copies)
-			s.Layer0.CreateTask(taskName, environmentID, deployID, nil)
+			req := models.CreateTaskRequest{
+				ContainerOverrides: nil,
+				TaskName:           taskName,
+				EnvironmentID:      environmentID,
+				DeployID:           deployID,
+			}
+
+			s.Layer0.CreateTask(req)
 		}(taskName)
 	}
 

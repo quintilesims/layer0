@@ -4,6 +4,8 @@ import (
 	"io/ioutil"
 	"log"
 	"testing"
+
+	"github.com/quintilesims/layer0/common/models"
 )
 
 // Test Resources:
@@ -21,22 +23,56 @@ func TestImport(t *testing.T) {
 	}
 
 	log.Printf("[DEBUG] Creating test resources")
-	s.Layer0.CreateEnvironment("import")
-	environment := s.Layer0.ReadEnvironment("import")
+	createEnvironmentReq := models.CreateEnvironmentRequest{
+		EnvironmentName:  "import",
+		InstanceSize:     "m3.medium",
+		UserDataTemplate: nil,
+		MinClusterCount:  0,
+		OperatingSystem:  "linux",
+	}
 
-	s.Layer0.CreateLoadBalancer("sts", environment.EnvironmentID)
-	loadBalancer := s.Layer0.ReadLoadBalancer("sts")
+	environmentID := s.Layer0.CreateEnvironment(createEnvironmentReq)
 
-	s.Layer0.CreateDeploy("sts", data)
-	deploy := s.Layer0.ReadDeploy("sts")
+	hc := models.HealthCheck{
+		Target:             "TCP:80",
+		Interval:           10,
+		Timeout:            5,
+		HealthyThreshold:   2,
+		UnhealthyThreshold: 2,
+	}
 
-	s.Layer0.CreateService("sts", environment.EnvironmentID, deploy.DeployID, loadBalancer.LoadBalancerID)
-	service := s.Layer0.ReadService("sts")
+	ports := []models.Port{{HostPort: 80, ContainerPort: 80, Protocol: "http"}}
 
-	s.Terraform.Import("layer0_environment.import", environment.EnvironmentID)
-	s.Terraform.Import("module.sts.layer0_load_balancer.sts", loadBalancer.LoadBalancerID)
-	s.Terraform.Import("module.sts.layer0_deploy.sts", deploy.DeployID)
-	s.Terraform.Import("module.sts.layer0_service.sts", service.ServiceID)
+	createLoadBalancerReq := models.CreateLoadBalancerRequest{
+		LoadBalancerName: "sts",
+		EnvironmentID:    environmentID,
+		IsPublic:         true,
+		Ports:            ports,
+		HealthCheck:      hc,
+	}
+
+	loadBalancerID := s.Layer0.CreateLoadBalancer(createLoadBalancerReq)
+
+	createDeployReq := models.CreateDeployRequest{
+		DeployName: "sts",
+		DeployFile: data,
+	}
+
+	deployID := s.Layer0.CreateDeploy(createDeployReq)
+
+	createServiceReq := models.CreateServiceRequest{
+		DeployID:       deployID,
+		EnvironmentID:  environmentID,
+		LoadBalancerID: loadBalancerID,
+		ServiceName:    "sts",
+	}
+
+	serviceID := s.Layer0.CreateService(createServiceReq)
+
+	s.Terraform.Import("layer0_environment.import", environmentID)
+	s.Terraform.Import("module.sts.layer0_load_balancer.sts", loadBalancerID)
+	s.Terraform.Import("module.sts.layer0_deploy.sts", deployID)
+	s.Terraform.Import("module.sts.layer0_service.sts", serviceID)
 
 	s.Terraform.Apply()
 }

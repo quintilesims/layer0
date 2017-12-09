@@ -2,10 +2,13 @@ package clients
 
 import (
 	"testing"
+	"time"
 
 	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/models"
 )
+
+var defaultTimeout = time.Minute * 5
 
 type Layer0TestClient struct {
 	T      *testing.T
@@ -28,7 +31,12 @@ func (l *Layer0TestClient) CreateTask(req models.CreateTaskRequest) string {
 		l.T.Fatal(err)
 	}
 
-	return jobID
+	job, err := client.WaitForJob(l.Client, jobID, defaultTimeout)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return job.Result
 }
 
 func (l *Layer0TestClient) CreateEnvironment(req models.CreateEnvironmentRequest) string {
@@ -37,7 +45,12 @@ func (l *Layer0TestClient) CreateEnvironment(req models.CreateEnvironmentRequest
 		l.T.Fatal(err)
 	}
 
-	return jobID
+	job, err := client.WaitForJob(l.Client, jobID, defaultTimeout)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return job.Result
 }
 
 func (l *Layer0TestClient) CreateDeploy(req models.CreateDeployRequest) string {
@@ -46,7 +59,12 @@ func (l *Layer0TestClient) CreateDeploy(req models.CreateDeployRequest) string {
 		l.T.Fatal(err)
 	}
 
-	return jobID
+	job, err := client.WaitForJob(l.Client, jobID, defaultTimeout)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return job.Result
 }
 
 func (l *Layer0TestClient) CreateLoadBalancer(req models.CreateLoadBalancerRequest) string {
@@ -55,7 +73,12 @@ func (l *Layer0TestClient) CreateLoadBalancer(req models.CreateLoadBalancerReque
 		l.T.Fatal(err)
 	}
 
-	return jobID
+	job, err := client.WaitForJob(l.Client, jobID, defaultTimeout)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return job.Result
 }
 
 func (l *Layer0TestClient) CreateService(req models.CreateServiceRequest) string {
@@ -64,7 +87,12 @@ func (l *Layer0TestClient) CreateService(req models.CreateServiceRequest) string
 		l.T.Fatal(err)
 	}
 
-	return jobID
+	job, err := client.WaitForJob(l.Client, jobID, defaultTimeout)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return job.Result
 }
 
 func (l *Layer0TestClient) ReadDeploy(deployID string) *models.Deploy {
@@ -121,7 +149,7 @@ func (l *Layer0TestClient) ListTasks() []*models.TaskSummary {
 	return tasks
 }
 
-func (l *Layer0TestClient) UpdateEnvironmentLink(environmentID string, req models.UpdateEnvironmentRequest) string {
+func (l *Layer0TestClient) UpdateEnvironment(environmentID string, req models.UpdateEnvironmentRequest) string {
 	jobID, err := l.Client.UpdateEnvironment(environmentID, req)
 	if err != nil {
 		l.T.Fatal(err)
