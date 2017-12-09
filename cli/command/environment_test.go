@@ -15,11 +15,9 @@ func TestEnvironmentCreate_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
-		"Count negative": NewContext(t, Args{"env_name"},
-			Flags{
-				"min-count": "-1",
-			}),
+		"Missing NAME arg":  NewContext(t, nil, nil),
+		"Negative MinScale": NewContext(t, Args{"env_name"}, Flags{"min-scale": "-1"}),
+		"Negative MaxScale": NewContext(t, Args{"env_name"}, Flags{"max-scale": "-1"}),
 	}
 
 	for name, c := range contexts {
@@ -69,21 +67,19 @@ func TestEnvironmentRead_userInputErrors(t *testing.T) {
 	}
 }
 
-func TestEnvironmentSetMinCount_userInputErrors(t *testing.T) {
+func TestEnvironmentSetScale_userInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
 	command := NewEnvironmentCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg":  NewContext(t, nil, nil),
-		"Missing COUNT arg": NewContext(t, Args{"env_name"}, nil),
-		"Invalid COUNT arg": NewContext(t, Args{"env_name", "not_a_number"}, nil),
+		"Missing NAME arg": NewContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
-			if err := command.update(c); err == nil {
+			if err := command.setScale(c); err == nil {
 				t.Fatalf("%s: error was nil!", name)
 			}
 		})
@@ -123,6 +119,7 @@ func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
 		t.Fatal("error was nil!")
 	}
 }
+
 func TestCreateEnvironment(t *testing.T) {
 	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
@@ -136,8 +133,9 @@ func TestCreateEnvironment(t *testing.T) {
 
 		req := models.CreateEnvironmentRequest{
 			EnvironmentName:  "env_name",
-			InstanceSize:     "m3.large",
-			MinClusterCount:  2,
+			InstanceType:     "m3.large",
+			MinScale:         2,
+			MaxScale:         5,
 			UserDataTemplate: []byte(userData),
 			OperatingSystem:  "linux",
 			AMIID:            "ami",
@@ -165,8 +163,9 @@ func TestCreateEnvironment(t *testing.T) {
 		}
 
 		flags := map[string]interface{}{
-			"size":      req.InstanceSize,
-			"min-count": req.MinClusterCount,
+			"type":      req.InstanceType,
+			"min-scale": req.MinScale,
+			"max-scale": req.MaxScale,
 			"user-data": file.Name(),
 			"os":        req.OperatingSystem,
 			"ami":       req.AMIID,
@@ -253,25 +252,29 @@ func TestListEnvironments(t *testing.T) {
 	}
 }
 
-func TestEnvironmentSetMinCount(t *testing.T) {
+func TestEnvironmentSetScale(t *testing.T) {
 	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
 
 		command := NewEnvironmentCommand(base.Command())
 
-		minCount := 2
-		job := &models.Job{
-			JobID:  "job_id",
-			Status: models.CompletedJobStatus,
-			Result: "entity_id",
-		}
-
 		base.Resolver.EXPECT().
 			Resolve("environment", "env_name").
 			Return([]string{"env_id"}, nil)
 
-		req := models.UpdateEnvironmentRequest{MinClusterCount: &minCount}
+		 minScale := 2
+                maxScale := 5
+		req := models.UpdateEnvironmentRequest{
+			MinScale: &minScale,
+			MaxScale: &maxScale,
+		}
+
+		job := &models.Job{
+                        JobID:  "job_id",
+                        Status: models.CompletedJobStatus,
+                        Result: "entity_id",
+                }
 
 		base.Client.EXPECT().
 			UpdateEnvironment("env_id", req).
@@ -287,8 +290,13 @@ func TestEnvironmentSetMinCount(t *testing.T) {
 				Return(&models.Environment{}, nil)
 		}
 
-		c := NewContext(t, []string{"env_name", "2"}, nil, SetNoWait(!wait))
-		if err := command.update(c); err != nil {
+		flags := Flags{
+			"min-scale": 2,
+			"max-scale": 5,
+		}
+
+		c := NewContext(t, []string{"env_name"}, flags, SetNoWait(!wait))
+		if err := command.setScale(c); err != nil {
 			t.Fatal(err)
 		}
 	})

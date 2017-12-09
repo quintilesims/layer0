@@ -2,12 +2,6 @@ package aws
 
 import "github.com/quintilesims/layer0/common/models"
 
-const (
-	DefaultInstanceSize  = "m3.medium"
-	DefaultEnvironmentOS = "linux"
-	DefaultServiceScale  = 1
-)
-
 const DefaultLinuxUserdataTemplate = `
 #!/bin/bash
 echo ECS_CLUSTER={{ .ECSEnvironmentID }} >> /etc/ecs/ecs.config

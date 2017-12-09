@@ -3,14 +3,10 @@ package command
 import (
 	"fmt"
 	"io/ioutil"
-	"strconv"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
-)
-
-const (
-	FLAG_BI_DIRECTIONAL = "bi-directional"
 )
 
 type EnvironmentCommand struct {
@@ -33,14 +29,19 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				ArgsUsage: "ENVIRONMENT_NAME",
 				Flags: []cli.Flag{
 					cli.StringFlag{
-						Name:  "size",
-						Value: "m3.medium",
-						Usage: "size of the ec2 instances to use in the environment cluster",
+						Name:  "type",
+						Value: config.DefaultEnvironmentInstanceType,
+						Usage: "type of the ec2 instances to use in the environment cluster",
 					},
 					cli.IntFlag{
-						Name:  "min-count",
+						Name:  "min-scale",
 						Value: 0,
-						Usage: "minimum number of instances allowed in the environment cluster",
+						Usage: "minimum allowed scale of the environment cluster",
+					},
+					cli.IntFlag{
+						Name:  "max-scale",
+						Value: config.DefaultEnvironmentMaxScale,
+						Usage: "maximum allowed scale of the environment cluster",
 					},
 					cli.StringFlag{
 						Name:  "user-data",
@@ -76,19 +77,29 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				ArgsUsage: "ENVIRONMENT_NAME",
 			},
 			{
-				Name:      "setmincount",
-				Usage:     "set the minimum instance count for an environment cluster",
-				Action:    e.update,
-				ArgsUsage: "ENVIRONMENT_NAME COUNT",
+				Name:      "set-scale",
+				Usage:     "update the min/max scale of an environment cluster",
+				Action:    e.setScale,
+				ArgsUsage: "ENVIRONMENT_NAME",
+				Flags: []cli.Flag{
+					cli.IntFlag{
+						Name:  "min-scale",
+						Usage: "minimum allowed scale of the environment cluster",
+					},
+					cli.IntFlag{
+						Name:  "max-scale",
+						Usage: "maximum allowed scale of the environment cluster",
+					},
+				},
 			},
 			{
 				Name:      "link",
-				Usage:     "links two environments together",
+				Usage:     "link two environments together",
 				Action:    e.link,
 				ArgsUsage: "SOURCE_ENVIRONMENT_NAME DESTINATION_ENVIRONMENT_NAME",
 				Flags: []cli.Flag{
 					cli.BoolTFlag{
-						Name:  FLAG_BI_DIRECTIONAL,
+						Name:  "bi-directional",
 						Usage: "specifies whether the link should be direcional",
 					},
 				},
@@ -100,7 +111,7 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				ArgsUsage: "SOURCE_ENVIRONMENT_NAME DESTINATION_ENVIRONMENT_NAME",
 				Flags: []cli.Flag{
 					cli.BoolTFlag{
-						Name:  FLAG_BI_DIRECTIONAL,
+						Name:  "bi-directional",
 						Usage: "specifies whether the link should be direcional",
 					},
 				},
@@ -127,8 +138,9 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  args["ENVIRONMENT_NAME"],
-		InstanceSize:     c.String("size"),
-		MinClusterCount:  c.Int("min-count"),
+		InstanceType:     c.String("type"),
+		MinScale:         c.Int("min-scale"),
+		MaxScale:         c.Int("max-scale"),
 		UserDataTemplate: userData,
 		OperatingSystem:  c.String("os"),
 		AMIID:            c.String("ami"),
@@ -192,29 +204,33 @@ func (e *EnvironmentCommand) read(c *cli.Context) error {
 	return e.printer.PrintEnvironments(environments...)
 }
 
-func (e *EnvironmentCommand) update(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME", "COUNT")
+func (e *EnvironmentCommand) setScale(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME")
 	if err != nil {
 		return err
 	}
 
-	minClusterCount, err := strconv.Atoi(args["COUNT"])
-	if err != nil {
-		return fmt.Errorf("'%s' is not a valid integer", args["COUNT"])
+	req := models.UpdateEnvironmentRequest{}
+	if c.IsSet("min-scale") {
+		minScale := c.Int("min-scale")
+		req.MinScale = &minScale
 	}
 
-	id, err := e.resolveSingleEntityIDHelper("environment", args["ENVIRONMENT_NAME"])
-	if err != nil {
-		return err
+	if c.IsSet("max-scale") {
+		maxScale := c.Int("max-scale")
+		req.MaxScale = &maxScale
 	}
-
-	req := models.UpdateEnvironmentRequest{MinClusterCount: &minClusterCount}
 
 	if err := req.Validate(); err != nil {
 		return err
 	}
 
-	jobID, err := e.client.UpdateEnvironment(id, req)
+	environmentID, err := e.resolveSingleEntityIDHelper("environment", args["ENVIRONMENT_NAME"])
+	if err != nil {
+		return err
+	}
+
+	jobID, err := e.client.UpdateEnvironment(environmentID, req)
 	if err != nil {
 		return err
 	}
@@ -313,7 +329,7 @@ func (e *EnvironmentCommand) updateEnvironmentLinksHelper(
 
 	updateLinkFN(sourceEnvironmentID, destEnvironmentID)
 
-	if !c.Bool(FLAG_BI_DIRECTIONAL) {
+	if !c.Bool("bi-directional") {
 		return nil
 	}
 
