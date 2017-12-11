@@ -36,9 +36,9 @@ func TestTaskStress(t *testing.T) {
 		"TaskJ": 1,
 	}
 
-	for taskName, copies := range taskNameCopies {
+	for taskName := range taskNameCopies {
 		go func(taskName string) {
-			log.Printf("[DEBUG] Creating task %s (copies: %d)", taskName, copies)
+			log.Printf("[DEBUG] Creating task %s", taskName)
 			req := models.CreateTaskRequest{
 				ContainerOverrides: nil,
 				TaskName:           taskName,
