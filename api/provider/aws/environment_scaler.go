@@ -7,8 +7,6 @@ import (
 	"sort"
 	"strconv"
 
-	"gitlab.imshealth.com/xfra/layer0/common/aws/ec2"
-
 	"github.com/zpatrick/go-bytesize"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -28,6 +26,51 @@ var defaultPorts = []int{
 	2375,
 	51678,
 	51679,
+}
+
+// https://aws.amazon.com/ec2/instance-types/
+var InstanceSizes = map[string]bytesize.Bytesize{
+	"t2.nano":     0.5 * bytesize.GiB,
+	"t2.micro":    1 * bytesize.GiB,
+	"t2.small":    2 * bytesize.GiB,
+	"t2.medium":   4 * bytesize.GiB,
+	"t2.large":    8 * bytesize.GiB,
+	"m4.large":    8 * bytesize.GiB,
+	"m4.xlarge":   16 * bytesize.GiB,
+	"m4.2xlarge":  32 * bytesize.GiB,
+	"m4.4xlarge":  64 * bytesize.GiB,
+	"m4.10xlarge": 160 * bytesize.GiB,
+	"m3.medium":   3.75 * bytesize.GiB,
+	"m3.large":    7.5 * bytesize.GiB,
+	"m3.xlarge":   15 * bytesize.GiB,
+	"m3.2xlarge":  30 * bytesize.GiB,
+	"c4.large":    3.75 * bytesize.GiB,
+	"c4.xlarge":   7.5 * bytesize.GiB,
+	"c4.2xlarge":  15 * bytesize.GiB,
+	"c4.4xlarge":  30 * bytesize.GiB,
+	"c4.8xlarge":  60 * bytesize.GiB,
+	"c3.large":    3.75 * bytesize.GiB,
+	"c3.xlarge":   7.5 * bytesize.GiB,
+	"c3.2xlarge":  15 * bytesize.GiB,
+	"c3.4xlarge":  30 * bytesize.GiB,
+	"c3.8xlarge":  60 * bytesize.GiB,
+	"g2.2xlarge":  15 * bytesize.GiB,
+	"g2.8xlarge":  60 * bytesize.GiB,
+	"x1.32xlarge": 1952 * bytesize.GiB,
+	"r3.large":    15.25 * bytesize.GiB,
+	"r3.xlarge":   30.5 * bytesize.GiB,
+	"r3.2xlarge":  61 * bytesize.GiB,
+	"r3.4xlarge":  122 * bytesize.GiB,
+	"r3.8xlarge":  244 * bytesize.GiB,
+	"i3.large":    15.25 * bytesize.GiB,
+	"i3.xlarge":   30.5 * bytesize.GiB,
+	"i3.2xlarge":  61 * bytesize.GiB,
+	"i3.4xlarge":  122 * bytesize.GiB,
+	"i3.8xlarge":  244 * bytesize.GiB,
+	"d2.xlarge":   30.5 * bytesize.GiB,
+	"d2.2xlarge":  61 * bytesize.GiB,
+	"d2.4xlarge":  122 * bytesize.GiB,
+	"d2.8xlarge":  244 * bytesize.GiB,
 }
 
 type EnvironmentScaler struct {
@@ -127,7 +170,7 @@ func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*ResourceP
 	}
 
 	resource := &ResourceProvider{}
-	resource.AvailableMemory = ec2.InstanceSizes[env.InstanceSize].(bytesize.Bytesize)
+	resource.AvailableMemory = InstanceSizes[env.InstanceSize]
 	resource.ID = "<new instance>"
 	resource.InUse = false
 	resource.UsedPorts = defaultPorts
