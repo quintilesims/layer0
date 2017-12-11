@@ -16,8 +16,8 @@
     l0 service create --loadbalancer loadbalancer1 test service1 guestbook:latest
 }
 
-@test "service create --wait test service2 guestbook:latest" {
-    l0 service create --wait test service2 guestbook:latest
+@test "service create test service2 guestbook:latest" {
+    l0 service create test service2 guestbook:latest
 }
 
 @test "service create test service3 guestbook:latest" {
@@ -33,11 +33,11 @@
 }
 
 @test "service scale service1 2" {
-    l0 service scale service1 2
+    l0 --no-wait service scale service1 2
 }
 
-@test "service scale --wait service2 2" {
-    l0 service scale --wait service2 2
+@test "service scale service2 2" {
+    l0 service scale service2 2
 }
 
 @test "deploy create guestbook" {
@@ -45,11 +45,11 @@
 }
 
 @test "service update service1 guestbook:latest" {
-    l0 service update service1 guestbook:latest
+    l0 --no-wait service update service1 guestbook:latest
 }
 
-@test "service update --wait service2 guestbook:latest" {
-    l0 service update --wait service2 guestbook:latest
+@test "service update service2 guestbook:latest" {
+    l0 --no-wait service update service2 guestbook:latest
 }
 
 @test "service update service3 guestbook:latest" {
@@ -74,11 +74,11 @@
     l0 deploy delete guestbook:latest
 }
 
-@test "service delete --wait service1" {
-    l0 service delete --wait service1
+@test "service delete service1" {
+    l0 service delete service1
 }
 
-# this deletes the remaining service(s) and loadbalancer(s)
-@test "environment delete --wait test" {
-    l0 environment delete --wait test
+# this deletes the remaining service(s), load balancer(s), and task(s)
+@test "environment delete test" {
+    l0 environment delete test
 }

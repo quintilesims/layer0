@@ -53,17 +53,17 @@
 }
 
 @test "environment delete test1" {
-    l0 environment delete test1
+    l0 --no-wait environment delete test1
 }
 
 @test "environment delete test2" {
-    l0 environment delete test2
+    l0 --no-wait environment delete test2
 }
 
-@test "environment delete --wait test3" {
-    l0 environment delete test3
+@test "environment delete test3" {
+    l0 --no-wait environment delete test3
 }
 
-@test "environment delete --wait test4" {
-    l0 environment delete --wait test4
+@test "environment delete test4" {
+    l0 environment delete test4
 }
