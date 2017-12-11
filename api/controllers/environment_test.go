@@ -22,8 +22,9 @@ func TestCreateEnvironment(t *testing.T) {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName: "env",
-		InstanceSize:    "m3.medium",
-		MinClusterCount: 1,
+		InstanceType:    "m3.medium",
+		MinScale:        1,
+		MaxScale:        3,
 		OperatingSystem: "linux",
 		AMIID:           "ami123",
 	}
@@ -83,8 +84,10 @@ func TestGetEnvironment(t *testing.T) {
 	environmentModel := models.Environment{
 		EnvironmentID:   "e1",
 		EnvironmentName: "env",
-		InstanceSize:    "m3.medium",
-		ClusterCount:    1,
+		InstanceType:    "m3.medium",
+		MinScale:        1,
+		CurrentScale:    2,
+		MaxScale:        3,
 		SecurityGroupID: "sg1",
 		OperatingSystem: "linux",
 		AMIID:           "ami123",
@@ -156,12 +159,14 @@ func TestUpdateEnvironment(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
 
-	minClusterCount := 2
+	minScale := 2
+	maxScale := 5
 	links := []string{"e2"}
 
 	req := models.UpdateEnvironmentRequest{
-		MinClusterCount: &minClusterCount,
-		Links:           &links,
+		MinScale: &minScale,
+		MaxScale: &maxScale,
+		Links:    &links,
 	}
 
 	mockJobStore.EXPECT().
