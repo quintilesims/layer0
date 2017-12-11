@@ -58,7 +58,9 @@ func TestEnvironmentRead(t *testing.T) {
 	asg := &autoscaling.Group{}
 	asg.SetAutoScalingGroupName("l0-test-env_id")
 	asg.SetLaunchConfigurationName("lc_name")
-	asg.SetInstances(make([]*autoscaling.Instance, 2))
+	asg.SetMinSize(1)
+	asg.SetDesiredCapacity(2)
+	asg.SetMaxSize(5)
 
 	describeASGOutput := &autoscaling.DescribeAutoScalingGroupsOutput{}
 	describeASGOutput.SetAutoScalingGroups([]*autoscaling.Group{asg})
@@ -93,9 +95,11 @@ func TestEnvironmentRead(t *testing.T) {
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
 		OperatingSystem: "linux",
-		InstanceSize:    "m3.small",
+		InstanceType:    "m3.small",
 		SecurityGroupID: "sg_id",
-		ClusterCount:    2,
+		MinScale:        1,
+		CurrentScale:    2,
+		MaxScale:        5,
 		AMIID:           "ami_id",
 		Links:           []string{},
 	}

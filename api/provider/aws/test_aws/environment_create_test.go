@@ -12,6 +12,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -39,10 +40,11 @@ func TestEnvironmentCreate(t *testing.T) {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "env_name",
-		InstanceSize:     "m3.small",
+		InstanceType:     "m3.small",
 		UserDataTemplate: []byte("some user data"),
 		AMIID:            "some ami",
-		MinClusterCount:  2,
+		MinScale:         2,
+		MaxScale:         5,
 		OperatingSystem:  "windows",
 	}
 
@@ -91,7 +93,7 @@ func TestEnvironmentCreate(t *testing.T) {
 	createASGInput.SetLaunchConfigurationName("l0-test-env_id")
 	createASGInput.SetVPCZoneIdentifier("priv1,priv2")
 	createASGInput.SetMinSize(2)
-	createASGInput.SetMaxSize(2)
+	createASGInput.SetMaxSize(5)
 	createASGInput.SetTags([]*autoscaling.Tag{tag})
 
 	mockAWS.AutoScaling.EXPECT().
@@ -176,7 +178,7 @@ func TestEnvironmentCreateDefaults(t *testing.T) {
 	}
 
 	validateCreateLCInput := func(input *autoscaling.CreateLaunchConfigurationInput) {
-		assert.Equal(t, provider.DefaultInstanceSize, aws.StringValue(input.InstanceType))
+		assert.Equal(t, config.DefaultEnvironmentInstanceType, aws.StringValue(input.InstanceType))
 		assert.Equal(t, "lx_ami", aws.StringValue(input.ImageId))
 		assert.Equal(t, renderedUserData, aws.StringValue(input.UserData))
 	}

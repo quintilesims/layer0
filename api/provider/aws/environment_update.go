@@ -18,18 +18,21 @@ import (
 func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvironmentRequest) error {
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	if req.MinClusterCount != nil {
-		minSize := int64(*req.MinClusterCount)
-
+	if req.MinScale != nil || req.MaxScale != nil {
 		autoScalingGroupName := fqEnvironmentID
 		asg, err := e.readASG(autoScalingGroupName)
 		if err != nil {
 			return err
 		}
 
+		minSize := aws.Int64Value(asg.MinSize)
+		if req.MinScale != nil {
+			minSize = int64(*req.MinScale)
+		}
+
 		maxSize := aws.Int64Value(asg.MaxSize)
-		if maxSize < minSize {
-			maxSize = minSize
+		if req.MaxScale != nil {
+			maxSize = int64(*req.MaxScale)
 		}
 
 		if err := e.updateASGSize(autoScalingGroupName, minSize, maxSize); err != nil {

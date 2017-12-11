@@ -1,7 +1,5 @@
 package aws
 
-import "github.com/quintilesims/layer0/common/models"
-
 const DefaultLinuxUserdataTemplate = `
 #!/bin/bash
 echo ECS_CLUSTER={{ .ECSEnvironmentID }} >> /etc/ecs/ecs.config

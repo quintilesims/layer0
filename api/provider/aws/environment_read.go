@@ -41,8 +41,10 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 		return nil, err
 	}
 
-	model.ClusterCount = len(autoScalingGroup.Instances)
-	model.InstanceSize = aws.StringValue(launchConfig.InstanceType)
+	model.MinScale = int(aws.Int64Value(autoScalingGroup.MinSize))
+	model.CurrentScale = int(aws.Int64Value(autoScalingGroup.DesiredCapacity))
+	model.MaxScale = int(aws.Int64Value(autoScalingGroup.MaxSize))
+	model.InstanceType = aws.StringValue(launchConfig.InstanceType)
 	model.SecurityGroupID = aws.StringValue(securityGroup.GroupId)
 	model.AMIID = aws.StringValue(launchConfig.ImageId)
 
