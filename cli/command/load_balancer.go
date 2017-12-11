@@ -5,6 +5,7 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -18,7 +19,11 @@ func NewLoadBalancerCommand(b *CommandBase) *LoadBalancerCommand {
 }
 
 func (l *LoadBalancerCommand) Command() cli.Command {
-	defaultPortFlag := cli.StringSlice([]string{"80:80/tcp"})
+	dhc := config.DefaultLoadBalancerHealthCheck
+	dp := config.DefaultLoadBalancerPort
+	defaultPortString := fmt.Sprintf("%d:%d/%s", dp.HostPort, dp.ContainerPort, dp.Protocol)
+	defaultPortFlag := cli.StringSlice([]string{defaultPortString})
+
 	return cli.Command{
 		Name:  "loadbalancer",
 		Usage: "Manage layer0 Load Balancers",
@@ -56,27 +61,27 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 					},
 					cli.StringFlag{
 						Name:  "healthcheck-target",
-						Value: "TCP:80",
+						Value: dhc.Target,
 						Usage: "Health check target in format 'PROTOCOL:PORT' or 'PROTOCOL:PORT/WITH/PATH'",
 					},
 					cli.IntFlag{
 						Name:  "healthcheck-interval",
-						Value: 30,
+						Value: dhc.Interval,
 						Usage: "Health check interval in seconds",
 					},
 					cli.IntFlag{
 						Name:  "healthcheck-timeout",
-						Value: 5,
+						Value: dhc.Timeout,
 						Usage: "Health check timeout in seconds",
 					},
 					cli.IntFlag{
 						Name:  "healthcheck-healthy-threshold",
-						Value: 2,
+						Value: dhc.HealthyThreshold,
 						Usage: "Number of consecutive successes required to count as healthy",
 					},
 					cli.IntFlag{
 						Name:  "healthcheck-unhealthy-threshold",
-						Value: 2,
+						Value: dhc.UnhealthyThreshold,
 						Usage: "Number of consecutive failures required to count as unhealthy",
 					},
 				},
@@ -190,8 +195,14 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		return err
 	}
 
+	// remove the default port flag if --port was specified
+	portFlags := c.StringSlice("port")
+	if c.IsSet("port") {
+		portFlags = portFlags[1:]
+	}
+
 	ports := []models.Port{}
-	for _, p := range c.StringSlice("port") {
+	for _, p := range portFlags {
 		port, err := parsePort(p, c.String("certificate"))
 		if err != nil {
 			return err
@@ -200,8 +211,8 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		ports = append(ports, *port)
 	}
 
-	if c.String("healthcheck-target") != "" {
-		if err := validateTarget(c.String("healthcheck-target")); err != nil {
+	if target := c.String("healthcheck-target"); target != "" {
+		if err := validateTarget(target); err != nil {
 			return err
 		}
 	}

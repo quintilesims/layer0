@@ -263,18 +263,18 @@ func TestEnvironmentSetScale(t *testing.T) {
 			Resolve("environment", "env_name").
 			Return([]string{"env_id"}, nil)
 
-		 minScale := 2
-                maxScale := 5
+		minScale := 2
+		maxScale := 5
 		req := models.UpdateEnvironmentRequest{
 			MinScale: &minScale,
 			MaxScale: &maxScale,
 		}
 
 		job := &models.Job{
-                        JobID:  "job_id",
-                        Status: models.CompletedJobStatus,
-                        Result: "entity_id",
-                }
+			JobID:  "job_id",
+			Status: models.CompletedJobStatus,
+			Result: "entity_id",
+		}
 
 		base.Client.EXPECT().
 			UpdateEnvironment("env_id", req).
@@ -315,6 +315,7 @@ func TestEnvironmentLinkBiDirectional(t *testing.T) {
 			EnvironmentID: "env_id1",
 			Links:         []string{},
 		}
+
 		env2 := &models.Environment{
 			EnvironmentID: "env_id2",
 			Links:         []string{"env_id3"},
@@ -373,6 +374,7 @@ func TestEnvironmentLinkBiDirectional(t *testing.T) {
 		f := Flags{
 			"bi-directional": true,
 		}
+
 		c := NewContext(t, []string{"env_name1", "env_name2"}, f, SetNoWait(!wait))
 		if err := command.link(c); err != nil {
 			t.Fatal(err)

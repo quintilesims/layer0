@@ -282,7 +282,8 @@ func TestParseOverrides(t *testing.T) {
 	input := []string{
 		"container1:key1=val1",
 		"container1:key2=val2",
-		"container2:k1=v1"}
+		"container2:k1=v1",
+	}
 
 	expected := []models.ContainerOverride{
 		{
@@ -300,9 +301,10 @@ func TestParseOverrides(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, expected, output)
-	assert.Equal(t, expected[0], output[0])
-	assert.Equal(t, expected[1], output[1])
+	assert.Len(t, output, 2)
+	for _, e := range expected {
+		assert.Contains(t, output, e)
+	}
 }
 
 func TestParseOverridesErrors(t *testing.T) {
