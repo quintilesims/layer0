@@ -26,6 +26,10 @@ func (u UpdateEnvironmentRequest) Validate() error {
 		return fmt.Errorf("MaxScale must be a positive integer")
 	}
 
+	if u.MaxScale != nil && u.MinScale != nil && *u.MaxScale < *u.MinScale {
+                return fmt.Errorf("MaxScale must be greater than or equal to MinScale")
+        }
+
 	return nil
 }
 
