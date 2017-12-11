@@ -32,8 +32,6 @@ func NewContext(t *testing.T, args Args, flags Flags, options ...Option) *cli.Co
 		case []string:
 			slice := cli.StringSlice(v)
 			flagSet.Var(&slice, key, "")
-
-			// todo: figure hwo to set
 		default:
 			t.Fatalf("Unexpected flag type for '%s'", key)
 		}

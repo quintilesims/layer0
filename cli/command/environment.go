@@ -100,7 +100,7 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				Flags: []cli.Flag{
 					cli.BoolTFlag{
 						Name:  "bi-directional",
-						Usage: "specifies whether the link should be direcional",
+						Usage: "specifies whether the link should be bi-directional",
 					},
 				},
 			},
