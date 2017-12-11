@@ -83,7 +83,8 @@ func main() {
 		loadBalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
 		serviceProvider := aws.NewServiceProvider(client, tagStore, cfg)
 		taskProvider := aws.NewTaskProvider(client, tagStore, cfg)
-		environmentScaler := aws.NewEnvironmentScaler()
+
+		environmentScaler := aws.NewEnvironmentScaler(client, environmentProvider, serviceProvider, taskProvider, jobStore, cfg)
 		scalerDispatcher := scaler.NewDispatcher(jobStore, time.Second*15)
 
 		jobRunner := aws.NewJobRunner(
