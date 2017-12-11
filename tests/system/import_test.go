@@ -15,6 +15,13 @@ func TestImport(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/import", nil)
+
+	// Don't actually run this test if dryrun is specified
+	// as it will first create resources then test imports
+	if s.Terraform.DryRun() {
+		return
+	}
+
 	defer s.Terraform.Destroy()
 
 	data, err := ioutil.ReadFile("cases/modules/sts/Dockerrun.aws.json")
