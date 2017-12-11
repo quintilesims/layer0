@@ -29,8 +29,10 @@ func TestDataSourceLayer0EnvironmentRead(t *testing.T) {
 	environment := &models.Environment{
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
-		ClusterCount:    2,
-		InstanceSize:    "m3.small",
+		MinScale:        1,
+		CurrentScale:    2,
+		MaxScale:        3,
+		InstanceType:    "m3.small",
 		SecurityGroupID: "some_sg",
 		OperatingSystem: "some_os",
 		AMIID:           "some_ami",
@@ -51,8 +53,10 @@ func TestDataSourceLayer0EnvironmentRead(t *testing.T) {
 
 	assert.Equal(t, "env_id", d.Id())
 	assert.Equal(t, "env_name", d.Get("name"))
-	assert.Equal(t, 2, d.Get("cluster_count"))
-	assert.Equal(t, "m3.small", d.Get("size"))
+	assert.Equal(t, 1, d.Get("min_scale"))
+	assert.Equal(t, 2, d.Get("current_scale"))
+	assert.Equal(t, 3, d.Get("max_scale"))
+	assert.Equal(t, "m3.small", d.Get("instance_type"))
 	assert.Equal(t, "some_sg", d.Get("security_group_id"))
 	assert.Equal(t, "some_os", d.Get("os"))
 	assert.Equal(t, "some_ami", d.Get("ami"))
