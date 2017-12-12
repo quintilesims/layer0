@@ -1,7 +1,6 @@
 package system
 
 import (
-	"flag"
 	"io/ioutil"
 	"log"
 	"testing"
@@ -20,7 +19,7 @@ func TestImport(t *testing.T) {
 
 	// Don't actually run this test if dryrun is specified
 	// as it will first create resources then test imports
-	if dry := flag.Lookup("dry"); dry != nil {
+	if *dry {
 		t.Skipf("Test cannot execute during a dry run")
 	}
 

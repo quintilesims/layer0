@@ -29,7 +29,7 @@ func (l *Layer0TestClient) jobHelper(fn func() (string, error)) string {
 		l.T.Fatal(err)
 	}
 
-	job, err := client.WaitForJob(l.Client, jobID, config.DEFAULT_JOB_EXPIRY)
+	job, err := client.WaitForJob(l.Client, jobID, config.DefaultTimeout)
 	if err != nil {
 		l.T.Fatal(err)
 	}
