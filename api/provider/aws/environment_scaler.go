@@ -462,8 +462,9 @@ func (e *EnvironmentScaler) getResourceConsumers_TasksInJobs(clusterName string)
 
 	for _, job := range jobs {
 		if job.Type == models.CreateTaskJob {
-			// TODO: maybe remove pending check here
-			if job.Status == models.PendingJobStatus || job.Status == models.InProgressJobStatus {
+			// don't check for Pending jobs; once the job runner has picked
+			// up a job, its status is already InProgress
+			if job.Status == models.InProgressJobStatus {
 				var req models.CreateTaskRequest
 				if err := json.Unmarshal([]byte(job.Request), &req); err != nil {
 					return nil, err
