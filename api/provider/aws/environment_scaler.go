@@ -359,7 +359,7 @@ func (e *EnvironmentScaler) getResourceConsumers_PendingServices(clusterName str
 	services := []*ecs.Service{}
 	if len(serviceARNs) > 0 {
 		// The SDK states that you can specify up to 10 services in one DescribeServices operation:
-		// https://github.com/aws/aws-sdk-go/blob/ee1f179877b2daf2aaabf71fa900773bf8842253/service/ecs/api.go#L5420
+		// https://github.com/aws/aws-sdk-go/blob/v1.12.19/service/ecs/api.go#L5420
 		// (aws-sdk-go version 1.12.19, as stated in layer0/Gopkg.toml)
 		for i := 0; i < len(serviceARNs); i += 10 {
 			end := i + 10
