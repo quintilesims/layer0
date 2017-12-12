@@ -27,11 +27,10 @@ func TestImport(t *testing.T) {
 
 	log.Printf("[DEBUG] Creating test resources")
 	createEnvironmentReq := models.CreateEnvironmentRequest{
-		EnvironmentName:  "import",
-		InstanceSize:     "t2.micro",
-		UserDataTemplate: nil,
-		MinClusterCount:  0,
-		OperatingSystem:  "linux",
+		EnvironmentName: "import",
+		InstanceSize:    "t2.micro",
+		MinClusterCount: 0,
+		OperatingSystem: "linux",
 	}
 
 	environmentID := s.Layer0.CreateEnvironment(createEnvironmentReq)
