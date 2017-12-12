@@ -103,9 +103,32 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 func (e *EnvironmentScaler) Scale(environmentID string) error {
 	clusterName := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	resourceProviders, err := e.getResourceProviders(clusterName)
+	resourceConsumers, resourceProviders, err := e.GetCurrentState(clusterName)
 	if err != nil {
 		return err
+	}
+
+	resourceProviders, unusedProviders, calcErrs, err := e.CalculateOptimizedState(clusterName, resourceConsumers, resourceProviders)
+	if err != nil {
+		return err
+	}
+
+	desiredScale := len(resourceProviders) - len(unusedProviders)
+	if err := e.ScaleToState(clusterName, desiredScale, unusedProviders); err != nil {
+		return err
+	}
+
+	if len(calcErrs) > 0 {
+		return errors.MultiError(calcErrs)
+	}
+
+	return nil
+}
+
+func (e *EnvironmentScaler) GetCurrentState(clusterName string) ([]ResourceConsumer, []*ResourceProvider, error) {
+	resourceProviders, err := e.getResourceProviders(clusterName)
+	if err != nil {
+		return nil, nil, err
 	}
 
 	humanReadableProviders := ""
@@ -113,54 +136,75 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		humanReadableProviders += fmt.Sprintf("\n    %#v", r)
 	}
 
-	log.Printf("[DEBUG] [EnvironmentScaler] resourceProviders for env '%s': %s", environmentID, humanReadableProviders)
+	log.Printf("[DEBUG] [EnvironmentScaler] resourceProviders for env '%s': %s", clusterName, humanReadableProviders)
 
 	var resourceConsumers []ResourceConsumer
 
-	// get pending service resource consumers
 	serviceConsumers, err := e.getResourceConsumers_PendingServices(clusterName)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 
 	resourceConsumers = append(resourceConsumers, serviceConsumers...)
 
-	// get pending task resource consumers in ECS
 	ecsTaskConsumers, err := e.getResourceConsumers_TasksInECS(clusterName)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 
 	resourceConsumers = append(resourceConsumers, ecsTaskConsumers...)
 
-	// get pending task resource consumers in jobs
 	jobTaskConsumers, err := e.getResourceConsumers_TasksInJobs(clusterName)
 	if err != nil {
-		return err
+		return nil, nil, err
 	}
 
 	resourceConsumers = append(resourceConsumers, jobTaskConsumers...)
 
-	log.Printf("[DEBUG] [EnvironmentScaler] resourceConsumers for env '%s': %#v", environmentID, resourceConsumers)
+	log.Printf("[DEBUG] [EnvironmentScaler] resourceConsumers for env '%s': %#v", clusterName, resourceConsumers)
 
-	var errs []error
+	return resourceConsumers, resourceProviders, nil
+}
 
+func (e *EnvironmentScaler) CalculateOptimizedState(clusterName string, resourceConsumers []ResourceConsumer, resourceProviders []*ResourceProvider) ([]*ResourceProvider, []*ResourceProvider, []error, error) {
 	// calculate for scaling up
-	resourceProviders, scaleUpErrs := e.calculateScaleUp(clusterName, resourceProviders, resourceConsumers)
-
-	errs = append(errs, scaleUpErrs...)
+	resourceProviders, scaleUpErrs, err := e.calculateScaleUp(clusterName, resourceProviders, resourceConsumers)
+	if err != nil {
+		return nil, nil, nil, err
+	}
 
 	// calculate for scaling down
 	unusedProviders := e.calculateScaleDown(clusterName, resourceProviders)
 
-	// do the scaling
-	desiredScale := len(resourceProviders) - len(unusedProviders)
+	return resourceProviders, unusedProviders, scaleUpErrs, nil
+}
 
-	if err := e.scaleTo(clusterName, desiredScale, unusedProviders); err != nil {
-		errs = append(errs, err)
+func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, unusedProviders []*ResourceProvider) error {
+	input := &autoscaling.DescribeAutoScalingGroupsInput{}
+	input.SetAutoScalingGroupNames([]*string{&clusterName})
+
+	asgs, err := e.Client.AutoScaling.DescribeAutoScalingGroups(input)
+	if err != nil {
+		return err
 	}
 
-	return errors.MultiError(errs)
+	asg := asgs.AutoScalingGroups[0]
+
+	currentCapacity := int(aws.Int64Value(asg.DesiredCapacity))
+
+	switch {
+	case desiredScale > currentCapacity:
+		log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentCapacity, desiredScale)
+		return e.scaleUp(clusterName, desiredScale, asg)
+
+	case desiredScale < currentCapacity:
+		log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentCapacity, desiredScale)
+		return e.scaleDown(clusterName, desiredScale, asg, unusedProviders)
+
+	default:
+		log.Printf("[DEBUG] [EnvironmentScaler] Environment '%s' is at desired scale of '%d'. No scaling action required.", clusterName, currentCapacity)
+		return nil
+	}
 }
 
 func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*ResourceProvider, error) {
@@ -190,7 +234,7 @@ func (e *EnvironmentScaler) calculateScaleDown(clusterName string, resourceProvi
 	return unusedProviders
 }
 
-func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProviders []*ResourceProvider, resourceConsumers []ResourceConsumer) ([]*ResourceProvider, []error) {
+func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProviders []*ResourceProvider, resourceConsumers []ResourceConsumer) ([]*ResourceProvider, []error, error) {
 	sorts := []struct {
 		Errs      []error
 		Providers []*ResourceProvider
@@ -227,8 +271,7 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 			if !hasRoom {
 				newProvider, err := e.calculateNewProvider(clusterName)
 				if err != nil {
-					s.Errs = append(s.Errs, err)
-					continue
+					return nil, nil, err
 				}
 
 				if !newProvider.HasResourcesFor(consumer) {
@@ -247,10 +290,10 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 	}
 
 	if len(sorts[0].Providers) > len(sorts[1].Providers) {
-		return sorts[0].Providers, sorts[0].Errs
+		return sorts[0].Providers, sorts[0].Errs, nil
 	}
 
-	return sorts[1].Providers, sorts[1].Errs
+	return sorts[1].Providers, sorts[1].Errs, nil
 }
 
 func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]ResourceConsumer, error) {
@@ -530,7 +573,7 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*Resourc
 func (e *EnvironmentScaler) scaleDown(clusterName string, desiredScale int, asg *autoscaling.Group, unusedProviders []*ResourceProvider) error {
 	minCapacity := int(aws.Int64Value(asg.MinSize))
 	if desiredScale < minCapacity {
-		log.Printf("[DEBUG] [EnvironmentScaler] Minimum capacity is '%d'. Aborting scaling action for environment '%s'.", minCapacity, clusterName)
+		log.Printf("[DEBUG] [EnvironmentScaler] Will not scale below minimum capacity of '%d'. Aborting scaling action for environment '%s'.", minCapacity, clusterName)
 		return nil
 	}
 
@@ -576,38 +619,10 @@ func (e *EnvironmentScaler) scaleDown(clusterName string, desiredScale int, asg 
 	return nil
 }
 
-func (e *EnvironmentScaler) scaleTo(clusterName string, desiredScale int, unusedProviders []*ResourceProvider) error {
-	input := &autoscaling.DescribeAutoScalingGroupsInput{}
-	input.SetAutoScalingGroupNames([]*string{&clusterName})
-
-	asgs, err := e.Client.AutoScaling.DescribeAutoScalingGroups(input)
-	if err != nil {
-		return err
-	}
-
-	asg := asgs.AutoScalingGroups[0]
-
-	currentCapacity := int(aws.Int64Value(asg.DesiredCapacity))
-
-	switch {
-	case desiredScale > currentCapacity:
-		log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentCapacity, desiredScale)
-		return e.scaleUp(clusterName, desiredScale, asg)
-
-	case desiredScale < currentCapacity:
-		log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentCapacity, desiredScale)
-		return e.scaleDown(clusterName, desiredScale, asg, unusedProviders)
-
-	default:
-		log.Printf("[DEBUG] [EnvironmentScaler] Environment '%s' is at desired scale of '%d'. No scaling action required.", clusterName, currentCapacity)
-		return nil
-	}
-}
-
 func (e *EnvironmentScaler) scaleUp(clusterName string, desiredScale int, asg *autoscaling.Group) error {
 	maxCapacity := int(aws.Int64Value(asg.MaxSize))
 	if desiredScale > maxCapacity {
-		log.Printf("[DEBUG] [EnvironmentScaler] Maximum capacity is '%d'. Aborting scaling action for environment '%s'.", maxCapacity, clusterName)
+		log.Printf("[DEBUG] [EnvironmentScaler] Will not scale above maximum capacity of '%d'. Aborting scaling action for environment '%s'.", maxCapacity, clusterName)
 		return nil
 	}
 
