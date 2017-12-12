@@ -83,11 +83,6 @@ type EnvironmentScaler struct {
 	deployCache         map[string][]ResourceConsumer
 }
 
-const (
-	Memory = iota
-	CPU
-)
-
 func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s provider.ServiceProvider, t provider.TaskProvider, j job.Store, c config.APIConfig) *EnvironmentScaler {
 	return &EnvironmentScaler{
 		Client:              a,
