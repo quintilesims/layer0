@@ -1,6 +1,7 @@
 package system
 
 import (
+	"flag"
 	"io/ioutil"
 	"log"
 	"testing"
@@ -19,7 +20,7 @@ func TestImport(t *testing.T) {
 
 	// Don't actually run this test if dryrun is specified
 	// as it will first create resources then test imports
-	if s.Terraform.DryRun() {
+	if dry := flag.Lookup("dry"); dry != nil {
 		t.Skipf("Test cannot execute during a dry run")
 	}
 
@@ -71,6 +72,5 @@ func TestImport(t *testing.T) {
 	s.Terraform.Import("module.sts.layer0_deploy.sts", deployID)
 	s.Terraform.Import("module.sts.layer0_service.sts", serviceID)
 
-	s.Terraform.Init()
 	s.Terraform.Apply()
 }

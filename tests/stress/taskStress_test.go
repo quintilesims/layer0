@@ -40,10 +40,9 @@ func TestTaskStress(t *testing.T) {
 		go func(taskName string) {
 			log.Printf("[DEBUG] Creating task %s", taskName)
 			req := models.CreateTaskRequest{
-				ContainerOverrides: nil,
-				TaskName:           taskName,
-				EnvironmentID:      environmentID,
-				DeployID:           deployID,
+				TaskName:      taskName,
+				EnvironmentID: environmentID,
+				DeployID:      deployID,
 			}
 
 			s.Layer0.CreateTask(req)

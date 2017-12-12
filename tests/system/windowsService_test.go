@@ -20,7 +20,6 @@ func TestWindowsService(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/windows_service", nil)
-	s.Terraform.Init()
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 

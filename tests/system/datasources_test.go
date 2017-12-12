@@ -15,7 +15,6 @@ func TestDataSources(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/datasources", nil)
-	s.Terraform.Init()
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 

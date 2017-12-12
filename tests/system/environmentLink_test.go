@@ -18,7 +18,6 @@ func TestEnvironmentLink(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/environment_link", nil)
-	s.Terraform.Init()
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 

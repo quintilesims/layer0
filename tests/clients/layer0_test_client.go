@@ -2,13 +2,11 @@ package clients
 
 import (
 	"testing"
-	"time"
 
 	"github.com/quintilesims/layer0/client"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
-
-var defaultTimeout = time.Minute * 5
 
 type Layer0TestClient struct {
 	T      *testing.T
@@ -31,7 +29,7 @@ func (l *Layer0TestClient) jobHelper(fn func() (string, error)) string {
 		l.T.Fatal(err)
 	}
 
-	job, err := client.WaitForJob(l.Client, jobID, defaultTimeout)
+	job, err := client.WaitForJob(l.Client, jobID, config.DEFAULT_JOB_EXPIRY)
 	if err != nil {
 		l.T.Fatal(err)
 	}
@@ -124,19 +122,13 @@ func (l *Layer0TestClient) ListTasks() []*models.TaskSummary {
 }
 
 func (l *Layer0TestClient) UpdateEnvironment(environmentID string, req models.UpdateEnvironmentRequest) string {
-	jobID, err := l.Client.UpdateEnvironment(environmentID, req)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	return jobID
+	return l.jobHelper(func() (string, error) {
+		return l.Client.UpdateEnvironment(environmentID, req)
+	})
 }
 
 func (l *Layer0TestClient) UpdateService(serviceID string, req models.UpdateServiceRequest) string {
-	jobID, err := l.Client.UpdateService(serviceID, req)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	return jobID
+	return l.jobHelper(func() (string, error) {
+		return l.Client.UpdateService(serviceID, req)
+	})
 }
