@@ -20,7 +20,7 @@ func TestImport(t *testing.T) {
 	// Don't actually run this test if dryrun is specified
 	// as it will first create resources then test imports
 	if s.Terraform.DryRun() {
-		return
+		t.Skipf("Test cannot execute during a dry run")
 	}
 
 	defer s.Terraform.Destroy()
