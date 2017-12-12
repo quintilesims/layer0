@@ -16,16 +16,15 @@ func TestServiceScale(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/service_scale", nil)
+	s.Terraform.Init()
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 
 	serviceID := s.Terraform.Output("service_id")
-	deployID := s.Terraform.Output("deploy_id")
 	scale := 3
 
 	req := models.UpdateServiceRequest{
-		DeployID: &deployID,
-		Scale:    &scale,
+		Scale: &scale,
 	}
 
 	s.Layer0.UpdateService(serviceID, req)
@@ -38,8 +37,7 @@ func TestServiceScale(t *testing.T) {
 	scale = 1
 
 	req = models.UpdateServiceRequest{
-		DeployID: &deployID,
-		Scale:    &scale,
+		Scale: &scale,
 	}
 
 	s.Layer0.UpdateService(serviceID, req)

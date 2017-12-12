@@ -31,13 +31,12 @@ func (s *STSTestClient) WaitForHealthy(timeout time.Duration) {
 	testutils.WaitFor(s.T, time.Second*10, timeout, func() bool {
 		log.Printf("[DEBUG] Waiting for sts service to be healthy")
 		if _, err := s.Client.GetHealth(); err != nil {
-			s.T.Fatalf("Error checking health: %v", err)
+			log.Printf("[ERROR] Error checking health: %v", err)
+			return false
 		}
 
 		return true
 	})
-
-	s.T.Fatalf("Timeout reached after %v", timeout)
 }
 
 func (s *STSTestClient) GetHealth() *models.Health {

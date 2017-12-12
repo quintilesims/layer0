@@ -20,6 +20,7 @@ func TestWindowsService(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/windows_service", nil)
+	s.Terraform.Init()
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 
@@ -36,13 +37,13 @@ func TestWindowsService(t *testing.T) {
 		log.Printf("[DEBUG] Waiting for service to be healthy")
 		resp, err := http.Get(serviceURL)
 		if err != nil {
-			t.Fatalf("There was an error checking the Windows service's URL: %v", err)
+			log.Printf("[ERROR] There was an error checking the Windows service's URL: %v", err)
 			return false
 		}
 
 		defer resp.Body.Close()
 		if resp.StatusCode < 200 || resp.StatusCode > 299 {
-			t.Fatalf("Windows service returned non-200 status: %d", resp.StatusCode)
+			log.Printf("[ERROR] Windows service returned non-200 status: %d", resp.StatusCode)
 			return false
 		}
 

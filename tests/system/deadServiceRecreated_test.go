@@ -16,6 +16,7 @@ func TestDeadServiceRecreated(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/dead_service_recreated", nil)
+	s.Terraform.Init()
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 

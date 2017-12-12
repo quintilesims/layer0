@@ -5,6 +5,7 @@ import (
 	"log"
 	"testing"
 
+	"github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -24,11 +25,6 @@ func TestImport(t *testing.T) {
 
 	defer s.Terraform.Destroy()
 
-	data, err := ioutil.ReadFile("cases/modules/sts/Dockerrun.aws.json")
-	if err != nil {
-		t.Fatalf("Failed to read dockerrun: %v", err)
-	}
-
 	log.Printf("[DEBUG] Creating test resources")
 	createEnvironmentReq := models.CreateEnvironmentRequest{
 		EnvironmentName:  "import",
@@ -40,25 +36,20 @@ func TestImport(t *testing.T) {
 
 	environmentID := s.Layer0.CreateEnvironment(createEnvironmentReq)
 
-	hc := models.HealthCheck{
-		Target:             "TCP:80",
-		Interval:           10,
-		Timeout:            5,
-		HealthyThreshold:   2,
-		UnhealthyThreshold: 2,
-	}
-
-	ports := []models.Port{{HostPort: 80, ContainerPort: 80, Protocol: "http"}}
-
 	createLoadBalancerReq := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "sts",
 		EnvironmentID:    environmentID,
 		IsPublic:         true,
-		Ports:            ports,
-		HealthCheck:      hc,
+		Ports:            []models.Port{aws.DefaultLoadBalancerPort},
+		HealthCheck:      aws.DefaultHealthCheck,
 	}
 
 	loadBalancerID := s.Layer0.CreateLoadBalancer(createLoadBalancerReq)
+
+	data, err := ioutil.ReadFile("cases/modules/sts/Dockerrun.aws.json")
+	if err != nil {
+		t.Fatalf("Failed to read dockerrun: %v", err)
+	}
 
 	createDeployReq := models.CreateDeployRequest{
 		DeployName: "sts",
@@ -81,5 +72,6 @@ func TestImport(t *testing.T) {
 	s.Terraform.Import("module.sts.layer0_deploy.sts", deployID)
 	s.Terraform.Import("module.sts.layer0_service.sts", serviceID)
 
+	s.Terraform.Init()
 	s.Terraform.Apply()
 }

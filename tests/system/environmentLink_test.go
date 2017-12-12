@@ -18,6 +18,7 @@ func TestEnvironmentLink(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/environment_link", nil)
+	s.Terraform.Init()
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 
@@ -34,12 +35,12 @@ func TestEnvironmentLink(t *testing.T) {
 		log.Printf("[DEBUG] Running curl while link exists")
 		output, err := publicService.RunCommand("curl", "-m", "10", "-s", privateServiceURL)
 		if err != nil {
-			t.Fatalf("Error running curl: %v", err)
+			log.Printf("[ERROR] Error running curl: %v", err)
 			return false
 		}
 
 		if expected := "Hello, World!"; output != expected {
-			t.Fatalf("Output from curl was '%s', expected '%s'", output, expected)
+			log.Printf("[ERROR] Output from curl was '%s', expected '%s'", output, expected)
 			return false
 		}
 
@@ -57,12 +58,12 @@ func TestEnvironmentLink(t *testing.T) {
 		log.Printf("[DEBUG] Running curl without link")
 		output, err := publicService.RunCommand("curl", "-m", "10", "-s", privateServiceURL)
 		if err != nil {
-			t.Fatalf("Error running curl: %v", err)
+			log.Printf("[ERROR] Error running curl: %v", err)
 			return false
 		}
 
 		if output != "" {
-			t.Fatalf("Output from curl was '%s', expected no output", output)
+			log.Printf("[ERROR] Output from curl was '%s', expected no output", output)
 			return false
 		}
 
