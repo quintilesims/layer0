@@ -25,8 +25,8 @@ func NewLayer0TestClient(t *testing.T, endpoint, token string) *Layer0TestClient
 	}
 }
 
-func (l *Layer0TestClient) CreateTask(req models.CreateTaskRequest) string {
-	jobID, err := l.Client.CreateTask(req)
+func (l *Layer0TestClient) jobHelper(fn func() (string, error)) string {
+	jobID, err := fn()
 	if err != nil {
 		l.T.Fatal(err)
 	}
@@ -37,62 +37,36 @@ func (l *Layer0TestClient) CreateTask(req models.CreateTaskRequest) string {
 	}
 
 	return job.Result
+}
+
+func (l *Layer0TestClient) CreateTask(req models.CreateTaskRequest) string {
+	return l.jobHelper(func() (string, error) {
+		return l.Client.CreateTask(req)
+	})
 }
 
 func (l *Layer0TestClient) CreateEnvironment(req models.CreateEnvironmentRequest) string {
-	jobID, err := l.Client.CreateEnvironment(req)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	job, err := client.WaitForJob(l.Client, jobID, defaultTimeout)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	return job.Result
+	return l.jobHelper(func() (string, error) {
+		return l.Client.CreateEnvironment(req)
+	})
 }
 
 func (l *Layer0TestClient) CreateDeploy(req models.CreateDeployRequest) string {
-	jobID, err := l.Client.CreateDeploy(req)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	job, err := client.WaitForJob(l.Client, jobID, defaultTimeout)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	return job.Result
+	return l.jobHelper(func() (string, error) {
+		return l.Client.CreateDeploy(req)
+	})
 }
 
 func (l *Layer0TestClient) CreateLoadBalancer(req models.CreateLoadBalancerRequest) string {
-	jobID, err := l.Client.CreateLoadBalancer(req)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	job, err := client.WaitForJob(l.Client, jobID, defaultTimeout)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	return job.Result
+	return l.jobHelper(func() (string, error) {
+		return l.Client.CreateLoadBalancer(req)
+	})
 }
 
 func (l *Layer0TestClient) CreateService(req models.CreateServiceRequest) string {
-	jobID, err := l.Client.CreateService(req)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	job, err := client.WaitForJob(l.Client, jobID, defaultTimeout)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	return job.Result
+	return l.jobHelper(func() (string, error) {
+		return l.Client.CreateService(req)
+	})
 }
 
 func (l *Layer0TestClient) ReadDeploy(deployID string) *models.Deploy {
