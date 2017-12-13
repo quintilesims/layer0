@@ -465,6 +465,9 @@ func (e *EnvironmentScaler) getResourceConsumers_PendingServices(clusterName str
 
 	for _, service := range services {
 		deployIDCopies := map[string]int64{}
+		// deployment.RunningCount is the number of containers already running on an instance
+		// deployment.PendingCount is the number of containers that are alraedy on an instance, but are being pulled
+		// we only care about containers that are not on instances yet
 		for _, d := range service.Deployments {
 			desiredCount := aws.Int64Value(d.DesiredCount)
 			runningCount := aws.Int64Value(d.RunningCount)
