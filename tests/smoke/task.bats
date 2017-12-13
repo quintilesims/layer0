@@ -1,7 +1,7 @@
 #!/usr/bin/env bats
 
 @test "environment create test" {
-    l0 environment create test
+    l0 environment create 1 test
 }
 
 @test "deploy create alpine" {

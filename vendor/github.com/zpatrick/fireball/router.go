@@ -3,8 +3,6 @@ package fireball
 import (
 	"net/http"
 	"strings"
-
-	"github.com/zpatrick/go-cache"
 )
 
 // Router is an interface that matches an *http.Request to a RouteMatch.
@@ -33,29 +31,28 @@ func (rf RouterFunc) Match(r *http.Request) (*RouteMatch, error) {
 //  }
 type BasicRouter struct {
 	Routes []*Route
-	cache  *cache.Cache
+	cache  map[string]*RouteMatch
 }
 
 // NewBasicRouter returns a new BasicRouter with the specified Routes
 func NewBasicRouter(routes []*Route) *BasicRouter {
 	return &BasicRouter{
 		Routes: routes,
-		cache:  cache.New(),
+		cache:  map[string]*RouteMatch{},
 	}
 }
 
 // Match attempts to match the *http.Request to a Route.
 // Successful matches are cached for improved performance.
 func (r *BasicRouter) Match(req *http.Request) (*RouteMatch, error) {
-	key := r.cacheKey(req)
-	if rm, ok := r.cache.Getf(key); ok {
-		return rm.(*RouteMatch), nil
+	if routeMatch, ok := r.cache[r.cacheKey(req)]; ok {
+		return routeMatch, nil
 	}
 
 	for _, route := range r.Routes {
-		if rm := r.matchRoute(route, req); rm != nil {
-			r.cache.Add(key, rm)
-			return rm, nil
+		if routeMatch := r.matchRoute(route, req); routeMatch != nil {
+			r.cache[r.cacheKey(req)] = routeMatch
+			return routeMatch, nil
 		}
 	}
 

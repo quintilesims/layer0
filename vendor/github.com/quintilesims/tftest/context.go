@@ -2,12 +2,13 @@ package tftest
 
 import (
 	"fmt"
-	"log"
+	"os"
 	"os/exec"
 	"strings"
 )
 
 type Context struct {
+	Logger Logger
 	Vars   map[string]string
 	dir    string
 	dryRun bool
@@ -15,8 +16,9 @@ type Context struct {
 
 func NewContext(options ...ContextOption) *Context {
 	context := &Context{
-		Vars: map[string]string{},
-		dir:  ".",
+		Logger: NewIOLogger(os.Stdout),
+		Vars:   map[string]string{},
+		dir:    ".",
 	}
 
 	for _, option := range options {
@@ -80,12 +82,16 @@ func (c *Context) Terraformf(command string, args ...string) ([]byte, error) {
 	cmd.Env = env
 	cmd.Dir = c.dir
 
-	log.Printf("[DEBUG] Running %v from %s", cmd.Args, cmd.Dir)
+	c.Logger.Logf("Running %v from %s", cmd.Args, cmd.Dir)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		log.Printf("[ERROR] Error running %v from %s: %v\n", cmd.Args, cmd.Dir, err)
-		return nil, err
+		text := fmt.Sprintf("Error running %v from %s: %v\n", cmd.Args, cmd.Dir, err)
+		for _, line := range strings.Split(string(output), "\n") {
+			text += line + "\n"
+		}
+
+		return nil, fmt.Errorf(text)
 	}
 
 	return output, nil

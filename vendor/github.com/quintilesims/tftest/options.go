@@ -2,6 +2,12 @@ package tftest
 
 type ContextOption func(*Context)
 
+func Log(logger Logger) ContextOption {
+	return func(c *Context) {
+		c.Logger = logger
+	}
+}
+
 func Dir(dir string) ContextOption {
 	return func(c *Context) {
 		c.dir = dir

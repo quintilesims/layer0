@@ -47,7 +47,7 @@ func (t *TaskCommand) Command() cli.Command {
 				ArgsUsage: " ",
 			},
 			{
-				Name:      "read",
+				Name:      "get",
 				Usage:     "describe a Task",
 				Action:    t.read,
 				ArgsUsage: "TASK_NAME",
