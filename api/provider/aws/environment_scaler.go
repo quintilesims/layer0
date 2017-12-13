@@ -329,7 +329,10 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 			for _, provider := range s.Providers {
 				if provider.HasResourcesFor(consumer) {
 					hasRoom = true
-					provider.SubtractResourcesFor(consumer)
+					if err := provider.SubtractResourcesFor(consumer); err != nil {
+						s.Errs = append(s.Errs, err)
+					}
+
 					break
 				}
 			}
@@ -349,7 +352,10 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 					continue
 				}
 
-				newProvider.SubtractResourcesFor(consumer)
+				if err := newProvider.SubtractResourcesFor(consumer); err != nil {
+					s.Errs = append(s.Errs, err)
+				}
+
 				s.Providers = append(s.Providers, newProvider)
 			}
 		}
