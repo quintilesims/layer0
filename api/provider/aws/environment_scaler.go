@@ -399,28 +399,30 @@ func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]s
 
 	consumers := make([]scaler.ResourceConsumer, len(output.TaskDefinition.ContainerDefinitions))
 	for i, d := range output.TaskDefinition.ContainerDefinitions {
+		var cpu int
 		var memory bytesize.Bytesize
 
-		if aws.Int64Value(d.MemoryReservation) != 0 {
-			memory = bytesize.MiB * bytesize.Bytesize(aws.Int64Value(d.MemoryReservation))
+		if c := int(aws.Int64Value(d.Cpu)); c != 0 {
+			cpu = c
 		}
 
-		if aws.Int64Value(d.Memory) != 0 {
-			memory = bytesize.MiB * bytesize.Bytesize(aws.Int64Value(d.Memory))
+		if m := aws.Int64Value(d.MemoryReservation); m != 0 {
+			memory = bytesize.MiB * bytesize.Bytesize(m)
+		}
+
+		if m := aws.Int64Value(d.Memory); m != 0 {
+			memory = bytesize.MiB * bytesize.Bytesize(m)
 		}
 
 		ports := []int{}
 		for _, p := range d.PortMappings {
-			if aws.Int64Value(p.HostPort) != 0 {
-				ports = append(ports, int(aws.Int64Value(p.HostPort)))
+			if hostPort := int(aws.Int64Value(p.HostPort)); hostPort != 0 {
+				ports = append(ports, hostPort)
 			}
 		}
 
-		consumers[i] = scaler.ResourceConsumer{
-			ID:     "",
-			Memory: memory,
-			Ports:  ports,
-		}
+		id := "NewConsumerFromDeploy" + deployID
+		consumers[i] = scaler.NewResourceConsumer(cpu, id, memory, ports)
 	}
 
 	e.deployCache.Add(deployID, consumers)

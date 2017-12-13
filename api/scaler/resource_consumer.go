@@ -8,3 +8,12 @@ type ResourceConsumer struct {
 	Memory bytesize.Bytesize `json:"memory"`
 	Ports  []int             `json:"ports"`
 }
+
+func NewResourceConsumer(cpu int, id string, memory bytesize.Bytesize, ports []int) ResourceConsumer {
+	return ResourceConsumer{
+		CPU:    cpu,
+		ID:     id,
+		Memory: memory,
+		Ports:  ports,
+	}
+}
