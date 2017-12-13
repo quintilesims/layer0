@@ -155,6 +155,12 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 	}
 }
 
+type ProviderDistribution struct {
+	Errs      []error
+	Providers []*scaler.ResourceProvider
+	SortBy    string
+}
+
 // Scale determines whether or not instances need to be added to or removed from a Layer0 environment, and makes any necessary changes.
 // It consists of three primary logical groupings:
 // 1. Gather all providers (instances) and consumers (tasks/services) of resources.
@@ -298,11 +304,7 @@ func (e *EnvironmentScaler) calculateScaleDown(clusterName string, resourceProvi
 }
 
 func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProviders []*scaler.ResourceProvider, resourceConsumers []scaler.ResourceConsumer) ([]*scaler.ResourceProvider, []error, error) {
-	sorts := []struct {
-		Errs      []error
-		Providers []*scaler.ResourceProvider
-		SortBy    string
-	}{
+	sorts := []ProviderDistribution{
 		{[]error{}, resourceProviders, "cpu"},
 		{[]error{}, resourceProviders, "mem"},
 	}
@@ -352,11 +354,28 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 		}
 	}
 
-	if len(sorts[0].Providers) > len(sorts[1].Providers) {
-		return sorts[0].Providers, sorts[0].Errs, nil
+	p := findOptimalProviderDistribution(sorts)
+
+	return p.Providers, p.Errs, nil
+}
+
+func findOptimalProviderDistribution(providerDistributions []ProviderDistribution) ProviderDistribution {
+	if len(providerDistributions) == 1 {
+		return providerDistributions[0]
 	}
 
-	return sorts[1].Providers, sorts[1].Errs, nil
+	shortestLength := len(providerDistributions[0].Providers)
+	shortestDistribution := providerDistributions[0]
+
+	for _, p := range providerDistributions[1:] {
+		l := len(p.Providers)
+		if l < shortestLength {
+			shortestLength = l
+			shortestDistribution = p
+		}
+	}
+
+	return shortestDistribution
 }
 
 func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]scaler.ResourceConsumer, error) {
