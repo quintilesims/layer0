@@ -5,7 +5,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/quintilesims/layer0/api/provider/aws"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -28,8 +28,9 @@ func TestImport(t *testing.T) {
 	log.Printf("[DEBUG] Creating test resources")
 	createEnvironmentReq := models.CreateEnvironmentRequest{
 		EnvironmentName: "import",
-		InstanceSize:    "t2.micro",
-		MinClusterCount: 0,
+		InstanceType:    "t2.micro",
+		MinScale:        1,
+		MaxScale:        2,
 		OperatingSystem: "linux",
 	}
 
@@ -39,8 +40,8 @@ func TestImport(t *testing.T) {
 		LoadBalancerName: "sts",
 		EnvironmentID:    environmentID,
 		IsPublic:         true,
-		Ports:            []models.Port{aws.DefaultLoadBalancerPort},
-		HealthCheck:      aws.DefaultHealthCheck,
+		Ports:            []models.Port{config.DefaultLoadBalancerPort},
+		HealthCheck:      config.DefaultLoadBalancerHealthCheck,
 	}
 
 	loadBalancerID := s.Layer0.CreateLoadBalancer(createLoadBalancerReq)
