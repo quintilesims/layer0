@@ -21,57 +21,116 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-var defaultPorts = []int{
-	22,
-	2376,
-	2375,
-	51678,
-	51679,
+func defaultPorts() []int {
+	return []int{
+		22,
+		2376,
+		2375,
+		51678,
+		51679,
+	}
+}
+
+type InstanceSpec struct {
+	CPU    int
+	Memory bytesize.Bytesize
+}
+
+func NewInstanceSpec(virtualCPUCores int, gibibytesMemory float64) InstanceSpec {
+	return InstanceSpec{
+		virtualCPUCores,
+		bytesize.GiB * bytesize.Bytesize(gibibytesMemory),
+	}
 }
 
 // https://aws.amazon.com/ec2/instance-types/
-var InstanceSizes = map[string]bytesize.Bytesize{
-	"t2.nano":     0.5 * bytesize.GiB,
-	"t2.micro":    1 * bytesize.GiB,
-	"t2.small":    2 * bytesize.GiB,
-	"t2.medium":   4 * bytesize.GiB,
-	"t2.large":    8 * bytesize.GiB,
-	"m4.large":    8 * bytesize.GiB,
-	"m4.xlarge":   16 * bytesize.GiB,
-	"m4.2xlarge":  32 * bytesize.GiB,
-	"m4.4xlarge":  64 * bytesize.GiB,
-	"m4.10xlarge": 160 * bytesize.GiB,
-	"m3.medium":   3.75 * bytesize.GiB,
-	"m3.large":    7.5 * bytesize.GiB,
-	"m3.xlarge":   15 * bytesize.GiB,
-	"m3.2xlarge":  30 * bytesize.GiB,
-	"c4.large":    3.75 * bytesize.GiB,
-	"c4.xlarge":   7.5 * bytesize.GiB,
-	"c4.2xlarge":  15 * bytesize.GiB,
-	"c4.4xlarge":  30 * bytesize.GiB,
-	"c4.8xlarge":  60 * bytesize.GiB,
-	"c3.large":    3.75 * bytesize.GiB,
-	"c3.xlarge":   7.5 * bytesize.GiB,
-	"c3.2xlarge":  15 * bytesize.GiB,
-	"c3.4xlarge":  30 * bytesize.GiB,
-	"c3.8xlarge":  60 * bytesize.GiB,
-	"g2.2xlarge":  15 * bytesize.GiB,
-	"g2.8xlarge":  60 * bytesize.GiB,
-	"x1.32xlarge": 1952 * bytesize.GiB,
-	"r3.large":    15.25 * bytesize.GiB,
-	"r3.xlarge":   30.5 * bytesize.GiB,
-	"r3.2xlarge":  61 * bytesize.GiB,
-	"r3.4xlarge":  122 * bytesize.GiB,
-	"r3.8xlarge":  244 * bytesize.GiB,
-	"i3.large":    15.25 * bytesize.GiB,
-	"i3.xlarge":   30.5 * bytesize.GiB,
-	"i3.2xlarge":  61 * bytesize.GiB,
-	"i3.4xlarge":  122 * bytesize.GiB,
-	"i3.8xlarge":  244 * bytesize.GiB,
-	"d2.xlarge":   30.5 * bytesize.GiB,
-	"d2.2xlarge":  61 * bytesize.GiB,
-	"d2.4xlarge":  122 * bytesize.GiB,
-	"d2.8xlarge":  244 * bytesize.GiB,
+func instanceSpecs() map[string]InstanceSpec {
+	return map[string]InstanceSpec{
+		"t2.nano":      NewInstanceSpec(1, 0.5),
+		"t2.micro":     NewInstanceSpec(1, 1),
+		"t2.small":     NewInstanceSpec(1, 2),
+		"t2.medium":    NewInstanceSpec(2, 4),
+		"t2.large":     NewInstanceSpec(2, 8),
+		"t2.xlarge":    NewInstanceSpec(4, 16),
+		"t2.2xlarge":   NewInstanceSpec(8, 32),
+		"m5.large":     NewInstanceSpec(2, 8),
+		"m5.xlarge":    NewInstanceSpec(4, 16),
+		"m5.2xlarge":   NewInstanceSpec(8, 32),
+		"m5.4xlarge":   NewInstanceSpec(16, 64),
+		"m5.12xlarge":  NewInstanceSpec(48, 192),
+		"m5.24xlarge":  NewInstanceSpec(96, 384),
+		"m4.large":     NewInstanceSpec(2, 8),
+		"m4.xlarge":    NewInstanceSpec(4, 16),
+		"m4.2xlarge":   NewInstanceSpec(8, 32),
+		"m4.4xlarge":   NewInstanceSpec(16, 64),
+		"m4.10xlarge":  NewInstanceSpec(40, 160),
+		"m4.16xlarge":  NewInstanceSpec(64, 256),
+		"m3.medium":    NewInstanceSpec(1, 3.75),
+		"m3.large":     NewInstanceSpec(2, 7.5),
+		"m3.xlarge":    NewInstanceSpec(4, 15),
+		"m3.2xlarge":   NewInstanceSpec(8, 30),
+		"c5.large":     NewInstanceSpec(2, 4),
+		"c5.xlarge":    NewInstanceSpec(4, 8),
+		"c5.2xlarge":   NewInstanceSpec(8, 16),
+		"c5.4xlarge":   NewInstanceSpec(16, 32),
+		"c5.9xlarge":   NewInstanceSpec(36, 72),
+		"c5.18xlarge":  NewInstanceSpec(72, 144),
+		"c4.large":     NewInstanceSpec(2, 3.75),
+		"c4.xlarge":    NewInstanceSpec(4, 7.5),
+		"c4.2xlarge":   NewInstanceSpec(8, 15),
+		"c4.4xlarge":   NewInstanceSpec(16, 30),
+		"c4.8xlarge":   NewInstanceSpec(36, 60),
+		"c3.large":     NewInstanceSpec(2, 3.75),
+		"c3.xlarge":    NewInstanceSpec(4, 7.5),
+		"c3.2xlarge":   NewInstanceSpec(8, 15),
+		"c3.4xlarge":   NewInstanceSpec(16, 30),
+		"c3.8xlarge":   NewInstanceSpec(32, 60),
+		"x1.16large":   NewInstanceSpec(64, 976),
+		"x1.32xlarge":  NewInstanceSpec(128, 1952),
+		"x1e.xlarge":   NewInstanceSpec(4, 122),
+		"x1e.2xlarge":  NewInstanceSpec(8, 244),
+		"x1e.4xlarge":  NewInstanceSpec(16, 488),
+		"x1e.8xlarge":  NewInstanceSpec(32, 976),
+		"x1e.16xlarge": NewInstanceSpec(64, 1952),
+		"x1e.32xlarge": NewInstanceSpec(128, 3904),
+		"r4.large":     NewInstanceSpec(2, 15.25),
+		"r4.xlarge":    NewInstanceSpec(4, 30.5),
+		"r4.2xlarge":   NewInstanceSpec(8, 61),
+		"r4.4xlarge":   NewInstanceSpec(16, 122),
+		"r4.8xlarge":   NewInstanceSpec(32, 244),
+		"r4.16xlarge":  NewInstanceSpec(64, 488),
+		"r3.large":     NewInstanceSpec(2, 15.25),
+		"r3.xlarge":    NewInstanceSpec(4, 30.5),
+		"r3.2xlarge":   NewInstanceSpec(8, 61),
+		"r3.4xlarge":   NewInstanceSpec(16, 122),
+		"r3.8xlarge":   NewInstanceSpec(32, 244),
+		"p3.2xlarge":   NewInstanceSpec(8, 61),
+		"p3.8xlarge":   NewInstanceSpec(32, 244),
+		"p3.16xlarge":  NewInstanceSpec(64, 488),
+		"p2.xlarge":    NewInstanceSpec(4, 61),
+		"p2.8xlarge":   NewInstanceSpec(32, 488),
+		"p2.16xlarge":  NewInstanceSpec(64, 732),
+		"g3.4xlarge":   NewInstanceSpec(16, 122),
+		"g3.8xlarge":   NewInstanceSpec(32, 244),
+		"g3.16xlarge":  NewInstanceSpec(64, 488),
+		"f1.2xlarge":   NewInstanceSpec(8, 122),
+		"f1.16xlarge":  NewInstanceSpec(64, 976),
+		"h1.2xlarge":   NewInstanceSpec(8, 32),
+		"h1.4xlarge":   NewInstanceSpec(16, 64),
+		"h1.8xlarge":   NewInstanceSpec(32, 128),
+		"h1.16xlarge":  NewInstanceSpec(64, 256),
+		"i3.large":     NewInstanceSpec(2, 15.25),
+		"i3.xlarge":    NewInstanceSpec(4, 30.5),
+		"i3.2xlarge":   NewInstanceSpec(8, 61),
+		"i3.4xlarge":   NewInstanceSpec(16, 122),
+		"i3.8xlarge":   NewInstanceSpec(32, 244),
+		"i3.16xlarge":  NewInstanceSpec(64, 488),
+		"i3.metal":     NewInstanceSpec(0, 512),
+		"d2.xlarge":    NewInstanceSpec(4, 30.5),
+		"d2.2xlarge":   NewInstanceSpec(8, 61),
+		"d2.4xlarge":   NewInstanceSpec(16, 122),
+		"d2.8xlarge":   NewInstanceSpec(36, 244),
+	}
 }
 
 type EnvironmentScaler struct {
@@ -209,11 +268,14 @@ func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*scaler.Re
 		return nil, err
 	}
 
+	instanceSpec := instanceSpecs()[env.InstanceSize]
+
 	resource := &scaler.ResourceProvider{}
-	resource.AvailableMemory = InstanceSizes[env.InstanceSize]
+	resource.AvailableCPU = instanceSpec.CPU
+	resource.AvailableMemory = instanceSpec.Memory
 	resource.ID = "<new instance>"
 	resource.InUse = false
-	resource.UsedPorts = defaultPorts
+	resource.UsedPorts = defaultPorts()
 
 	return resource, nil
 }
