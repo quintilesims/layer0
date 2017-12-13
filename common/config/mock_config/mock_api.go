@@ -5,9 +5,10 @@
 package mock_config
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 	time "time"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockAPIConfig is a mock of APIConfig interface

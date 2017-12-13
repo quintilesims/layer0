@@ -1,13 +1,5 @@
 package aws
 
-import "github.com/quintilesims/layer0/common/models"
-
-const (
-	DefaultInstanceSize  = "m3.medium"
-	DefaultEnvironmentOS = "linux"
-	DefaultServiceScale  = 1
-)
-
 const DefaultLinuxUserdataTemplate = `
 #!/bin/bash
 echo ECS_CLUSTER={{ .ECSEnvironmentID }} >> /etc/ecs/ecs.config
@@ -124,17 +116,3 @@ const DefaultLBRolePolicyTemplate = `{
         }
     ]
 }`
-
-var DefaultLoadBalancerPort = models.Port{
-	ContainerPort: 80,
-	HostPort:      80,
-	Protocol:      "tcp",
-}
-
-var DefaultHealthCheck = models.HealthCheck{
-	Target:             "TCP:80",
-	Interval:           30,
-	Timeout:            5,
-	HealthyThreshold:   2,
-	UnhealthyThreshold: 2,
-}

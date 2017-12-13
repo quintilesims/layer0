@@ -3,6 +3,7 @@ package command
 import (
 	"testing"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -106,7 +107,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 			},
 		}
 
-		healthCheck := models.HealthCheck{Target: "TCP:80"}
+		healthCheck := config.DefaultLoadBalancerHealthCheck
 
 		req := models.CreateLoadBalancerRequest{
 			LoadBalancerName: "lb_name",
@@ -137,8 +138,12 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 		args := Args{"ename", "lb_name"}
 		flags := Flags{
-			"healthcheck-target": "TCP:80",
-			"port":               []string{"80:80/tcp"},
+			"healthcheck-target":              healthCheck.Target,
+			"healthcheck-interval":            healthCheck.Interval,
+			"healthcheck-timeout":             healthCheck.Timeout,
+			"healthcheck-healthy-threshold":   healthCheck.HealthyThreshold,
+			"healthcheck-unhealthy-threshold": healthCheck.UnhealthyThreshold,
+			"port": []string{"80:80/tcp"},
 		}
 
 		c := NewContext(t, args, flags, SetNoWait(!wait))

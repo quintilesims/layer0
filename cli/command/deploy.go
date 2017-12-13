@@ -74,6 +74,10 @@ func (d *DeployCommand) create(c *cli.Context) error {
 		DeployFile: content,
 	}
 
+	if err := req.Validate(); err != nil {
+		return err
+	}
+
 	jobID, err := d.client.CreateDeploy(req)
 	if err != nil {
 		return err

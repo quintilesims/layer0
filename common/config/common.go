@@ -1,7 +1,5 @@
 package config
 
-import "time"
-
 const (
 	FLAG_PORT                      = "port"
 	FLAG_JOB_EXPIRY                = "job-expiry"
@@ -66,12 +64,4 @@ const (
 	ENVVAR_AWS_LOG_GROUP_NAME        = "LAYER0_AWS_LOG_GROUP_NAME"
 	ENVVAR_AWS_TIME_BETWEEN_REQUESTS = "LAYER0_AWS_TIME_BETWEEN_REQUESTS"
 	ENVVAR_AWS_MAX_RETRIES           = "LAYER0_AWS_MAX_RETRIES"
-)
-
-const (
-	DefaultAWSRegion           = "us-west-2"
-	DefaultTimeBetweenRequests = time.Millisecond * 10
-	DefaultJobExpiry           = time.Hour * 1
-	DefaultLockExpiry          = time.Hour * 1
-	DefaultPort                = 9090
 )

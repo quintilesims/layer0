@@ -12,15 +12,22 @@ type UpdateEnvironmentRequestJob struct {
 }
 
 type UpdateEnvironmentRequest struct {
-	MinClusterCount *int      `json:"min_cluster_count"`
-	Links           *[]string `json:"links"`
+	MinScale *int      `json:"min_scale"`
+	MaxScale *int      `json:"max_scale"`
+	Links    *[]string `json:"links"`
 }
 
 func (u UpdateEnvironmentRequest) Validate() error {
-	if u.MinClusterCount != nil {
-		if *u.MinClusterCount < 0 {
-			return fmt.Errorf("MinClusterCount must be a positive integer")
-		}
+	if u.MinScale != nil && *u.MinScale < 0 {
+		return fmt.Errorf("MinScale must be a positive integer")
+	}
+
+	if u.MaxScale != nil && *u.MaxScale < 0 {
+		return fmt.Errorf("MaxScale must be a positive integer")
+	}
+
+	if u.MaxScale != nil && u.MinScale != nil && *u.MaxScale < *u.MinScale {
+		return fmt.Errorf("MaxScale must be greater than or equal to MinScale")
 	}
 
 	return nil
@@ -30,8 +37,9 @@ func (u UpdateEnvironmentRequest) Definition() swagger.Definition {
 	return swagger.Definition{
 		Type: "object",
 		Properties: map[string]swagger.Property{
-			"min_cluster_count": swagger.NewIntProperty(),
-			"links":             swagger.NewStringSliceProperty(),
+			"min_scale": swagger.NewIntProperty(),
+			"max_scale": swagger.NewIntProperty(),
+			"links":     swagger.NewStringSliceProperty(),
 		},
 	}
 }

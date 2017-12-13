@@ -8,7 +8,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/hashcode"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
@@ -79,27 +78,27 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 						"target": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  aws.DefaultHealthCheck.Target,
+							Default:  config.DefaultLoadBalancerHealthCheck.Target,
 						},
 						"interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  aws.DefaultHealthCheck.Interval,
+							Default:  config.DefaultLoadBalancerHealthCheck.Interval,
 						},
 						"timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  aws.DefaultHealthCheck.Timeout,
+							Default:  config.DefaultLoadBalancerHealthCheck.Timeout,
 						},
 						"healthy_threshold": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  aws.DefaultHealthCheck.HealthyThreshold,
+							Default:  config.DefaultLoadBalancerHealthCheck.HealthyThreshold,
 						},
 						"unhealthy_threshold": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  aws.DefaultHealthCheck.UnhealthyThreshold,
+							Default:  config.DefaultLoadBalancerHealthCheck.UnhealthyThreshold,
 						},
 					},
 				},
@@ -113,7 +112,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 
 	ports := expandPorts(d.Get("port").(*schema.Set).List())
 	if len(ports) == 0 {
-		ports = []models.Port{aws.DefaultLoadBalancerPort}
+		ports = []models.Port{config.DefaultLoadBalancerPort}
 	}
 
 	req := models.CreateLoadBalancerRequest{
@@ -249,7 +248,7 @@ func expandHealthCheck(flattened interface{}) models.HealthCheck {
 		}
 	}
 
-	return aws.DefaultHealthCheck
+	return config.DefaultLoadBalancerHealthCheck
 }
 
 func flattenHealthCheck(healthCheck models.HealthCheck) []map[string]interface{} {

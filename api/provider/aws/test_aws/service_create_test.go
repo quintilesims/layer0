@@ -10,6 +10,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -47,7 +48,7 @@ func TestServiceCreate(t *testing.T) {
 	loadBalancerInput.SetPageSize(1)
 
 	listener := &elb.Listener{}
-	listener.SetInstancePort(provider.DefaultLoadBalancerPort.HostPort)
+	listener.SetInstancePort(config.DefaultLoadBalancerPort.HostPort)
 
 	listenerDescription := &elb.ListenerDescription{}
 	listenerDescription.SetListener(listener)

@@ -22,13 +22,16 @@ func NewContext(t *testing.T, args Args, flags Flags, options ...Option) *cli.Co
 		switch v := val.(type) {
 		case bool:
 			flagSet.Bool(key, v, "")
+			c.Set(key, strconv.FormatBool(v))
+		case int:
+			flagSet.Int(key, v, "")
+			c.Set(key, strconv.Itoa(v))
 		case string:
 			flagSet.String(key, v, "")
+			c.Set(key, v)
 		case []string:
 			slice := cli.StringSlice(v)
 			flagSet.Var(&slice, key, "")
-		case int:
-			flagSet.Int(key, v, "")
 		default:
 			t.Fatalf("Unexpected flag type for '%s'", key)
 		}

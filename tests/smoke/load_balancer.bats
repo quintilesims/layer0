@@ -1,6 +1,6 @@
 #!/usr/bin/env bats
 
-certificate_name="l0-$LAYER0_PREFIX-api"
+certificate_name="l0-$LAYER0_INSTANCE-api"
 
 @test "create environment test" {
     l0 environment create test
@@ -26,8 +26,8 @@ certificate_name="l0-$LAYER0_PREFIX-api"
     l0 loadbalancer dropport loadbalancer1 8000
 }
 
-@test "loadbalancer delete --wait loadbalancer1" {
-    l0 loadbalancer delete --wait loadbalancer1
+@test "loadbalancer delete loadbalancer1" {
+    l0 loadbalancer delete loadbalancer1
 }
 
 @test "loadbalancer create --port 80:80/http --port 443:443/https --private --certificate $certificate_name loadbalancer2" {
@@ -46,8 +46,8 @@ certificate_name="l0-$LAYER0_PREFIX-api"
     l0 loadbalancer get l\*
 }
 
-@test "loadbalancer delete --wait loadbalancer2" {
-    l0 loadbalancer delete --wait loadbalancer2
+@test "loadbalancer delete loadbalancer2" {
+    l0 loadbalancer delete loadbalancer2
 }
 
 @test "loadbalancer create --healthcheck-target TCP:80 --healthcheck-interval 30 --healthcheck-timeout 5 --healthcheck-healthy-threshold 2 --healthcheck-unhealthy-threshold 2 loadbalancer3" {
@@ -58,12 +58,12 @@ certificate_name="l0-$LAYER0_PREFIX-api"
     l0 loadbalancer healthcheck loadbalancer3
 }
 
-@test "loadbalancer healthcheck --set-target TCP:88 --set-interval 45 --set-timeout 10 --set-healthy-threshold 5 --set-unhealthy-threshold 3 loadbalancer3" {
-    l0 loadbalancer healthcheck --set-target TCP:88 --set-interval 45 --set-timeout 10 --set-healthy-threshold 5 --set-unhealthy-threshold 3 loadbalancer3
+@test "loadbalancer healthcheck --healthcheck-target TCP:88 --healthcheck-interval 45 --healthcheck-timeout 10 --healthy-threshold 5 --unhealthy-threshold 3 loadbalancer3" {
+    l0 loadbalancer healthcheck --healthcheck-target TCP:88 --healthcheck-interval 45 --healthcheck-timeout 10 --healthy-threshold 5 --unhealthy-threshold 3 loadbalancer3
 }
 
-@test "loadbalancer delete --wait loadbalancer3" {
-    l0 loadbalancer delete --wait loadbalancer3
+@test "loadbalancer delete loadbalancer3" {
+    l0 loadbalancer delete loadbalancer3
 }
 
 @test "loadbalancer create --port 80:80/http test loadbalancer4" {
@@ -90,7 +90,7 @@ certificate_name="l0-$LAYER0_PREFIX-api"
     l0 deploy delete guestbook:latest
 }
 
-# this deletes the remaining service(s) and loadbalancer(s)
-@test "environment delete --wait test" {
-    l0 environment delete --wait test
+# this deletes the remaining service(s), load balancer(s), and task(s)
+@test "environment delete test" {
+    l0 environment delete test
 }

@@ -20,11 +20,19 @@ func dataSourceLayer0Environment() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"size": {
+			"instance_type": {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"cluster_count": {
+			"min_scale": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"current_scale": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"max_scale": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
@@ -68,8 +76,10 @@ func dataSourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) e
 
 	d.SetId(environment.EnvironmentID)
 	d.Set("name", environment.EnvironmentName)
-	d.Set("size", environment.InstanceSize)
-	d.Set("cluster_count", environment.ClusterCount)
+	d.Set("instance_type", environment.InstanceType)
+	d.Set("min_scale", environment.MinScale)
+	d.Set("current_scale", environment.CurrentScale)
+	d.Set("max_scale", environment.MaxScale)
 	d.Set("security_group_id", environment.SecurityGroupID)
 	d.Set("os", environment.OperatingSystem)
 	d.Set("ami", environment.AMIID)

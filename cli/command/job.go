@@ -25,7 +25,7 @@ func (j *JobCommand) Command() cli.Command {
 				ArgsUsage: "NAME",
 			},
 			{
-				Name:      "read",
+				Name:      "get",
 				Usage:     "describe a job",
 				Action:    j.read,
 				ArgsUsage: "NAME",

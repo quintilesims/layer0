@@ -11,6 +11,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -211,7 +212,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		PutRolePolicy(gomock.Any()).
 		Return(&iam.PutRolePolicyOutput{}, nil)
 
-	listeners := []*elb.Listener{listenerHelper(provider.DefaultLoadBalancerPort)}
+	listeners := []*elb.Listener{listenerHelper(config.DefaultLoadBalancerPort)}
 	createLoadBalancerInput := &elb.CreateLoadBalancerInput{}
 	createLoadBalancerInput.SetLoadBalancerName("l0-test-lb_id")
 	createLoadBalancerInput.SetScheme("internal")
@@ -223,7 +224,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		CreateLoadBalancer(createLoadBalancerInput).
 		Return(&elb.CreateLoadBalancerOutput{}, nil)
 
-	healthCheck := healthCheckHelper(&provider.DefaultHealthCheck)
+	healthCheck := healthCheckHelper(&config.DefaultLoadBalancerHealthCheck)
 	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
 	configureHealthCheckInput.SetLoadBalancerName("l0-test-lb_id")
 	configureHealthCheckInput.SetHealthCheck(healthCheck)
