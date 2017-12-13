@@ -4,24 +4,26 @@ import (
 	"log"
 	"time"
 
+	"github.com/quintilesims/layer0/api/lock"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 const (
 	// dynamodb allows a burst-read/write every 5 minutes
 	// matching that value here to try and avoid hitting that limit
-	DISPATCHER_PERIOD = time.Minute * 5
+	dispatcherPeriod = time.Minute * 5
 )
 
-func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner) *time.Ticker {
+func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner, lock lock.Lock) (*time.Ticker, func()) {
+	quitFNs := make([]func(), numWorkers)
 	queue := make(chan string)
 	for i := 0; i < numWorkers; i++ {
-		worker := NewWorker(i+1, store, queue, runner)
-		worker.Start()
+		worker := NewWorker(i+1, store, queue, runner, lock)
+		quitFNs[i] = worker.Start()
 	}
 
 	dispatcher := NewDispatcher(store, queue)
-	ticker := time.NewTicker(DISPATCHER_PERIOD)
+	ticker := time.NewTicker(dispatcherPeriod)
 	go func() {
 		for range ticker.C {
 			log.Printf("[INFO] [JobDispatcher] Starting dispatcher")
@@ -31,11 +33,18 @@ func RunWorkersAndDispatcher(numWorkers int, store Store, runner Runner) *time.T
 		}
 	}()
 
+	// todo: this feels like a hacky solution; should investigate alternative
 	store.SetInsertHook(func(jobID string) {
 		go func() { queue <- jobID }()
 	})
 
-	return ticker
+	quitFN := func() {
+		for _, quitFN := range quitFNs {
+			quitFN()
+		}
+	}
+
+	return ticker, quitFN
 }
 
 type Dispatcher struct {
@@ -57,7 +66,6 @@ func (d *Dispatcher) Run() error {
 	}
 
 	for _, job := range jobs {
-
 		if models.JobStatus(job.Status) == models.PendingJobStatus {
 			d.queue <- job.JobID
 		}

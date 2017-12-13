@@ -6,7 +6,6 @@ import (
 
 type Store interface {
 	Delete(jobID string) error
-	AcquireJob(jobID string) (bool, error)
 	Insert(jobType models.JobType, req string) (string, error)
 	SetInsertHook(hook func(jobID string))
 	SelectAll() ([]*models.Job, error)

@@ -18,7 +18,8 @@ type JobRunner struct {
 	loadBalancerProvider provider.LoadBalancerProvider
 	serviceProvider      provider.ServiceProvider
 	taskProvider         provider.TaskProvider
-	scaler               *scaler.Dispatcher
+	scaler               scaler.Scaler
+	dispatcher           *scaler.Dispatcher
 }
 
 func NewJobRunner(
@@ -27,7 +28,8 @@ func NewJobRunner(
 	l provider.LoadBalancerProvider,
 	s provider.ServiceProvider,
 	t provider.TaskProvider,
-	scaler *scaler.Dispatcher,
+	ss scaler.Scaler,
+	sd *scaler.Dispatcher,
 ) *JobRunner {
 	return &JobRunner{
 		deployProvider:       d,
@@ -35,7 +37,8 @@ func NewJobRunner(
 		loadBalancerProvider: l,
 		serviceProvider:      s,
 		taskProvider:         t,
-		scaler:               scaler,
+		scaler:               ss,
+		dispatcher:           sd,
 	}
 }
 
@@ -62,6 +65,8 @@ func (r *JobRunner) Run(j models.Job) (string, error) {
 		return r.deleteService(j.JobID, j.Request)
 	case models.DeleteTaskJob:
 		return r.deleteTask(j.JobID, j.Request)
+	case models.ScaleEnvironmentJob:
+		return r.scaleEnvironment(j.JobID, j.Request)
 	case models.UpdateEnvironmentJob:
 		return r.updateEnvironment(j.JobID, j.Request)
 	case models.UpdateLoadBalancerJob:
@@ -136,7 +141,7 @@ func (r *JobRunner) createService(jobID, request string) (string, error) {
 	}
 
 	// scale up after the service has been added into the ecs service scheduler
-	r.scaler.ScheduleRun(req.EnvironmentID)
+	r.dispatcher.Dispatch(req.EnvironmentID)
 	return serviceID, nil
 }
 
@@ -147,7 +152,7 @@ func (r *JobRunner) createTask(jobID, request string) (string, error) {
 	}
 
 	// scale up prior to creating the task so we have room in the cluster
-	r.scaler.ScheduleRun(req.EnvironmentID)
+	r.dispatcher.Dispatch(req.EnvironmentID)
 
 	return catchAndRetry(time.Hour*24, func() (result string, err error, shouldRetry bool) {
 		log.Printf("[DEBUG] [JobRunner] Creating task %s", req.TaskName)
@@ -235,6 +240,10 @@ func (r *JobRunner) deleteTask(jobID, taskID string) (string, error) {
 	return "", r.taskProvider.Delete(taskID)
 }
 
+func (r *JobRunner) scaleEnvironment(jobID, request string) (string, error) {
+	return "", r.scaler.Scale(request)
+}
+
 func (r *JobRunner) updateEnvironment(jobID, request string) (string, error) {
 	var req models.UpdateEnvironmentRequestJob
 	if err := json.Unmarshal([]byte(request), &req); err != nil {
@@ -259,6 +268,12 @@ func (r *JobRunner) updateService(jobID, request string) (string, error) {
 		return "", errors.New(errors.InvalidRequest, err)
 	}
 
+	service, err := r.serviceProvider.Read(req.ServiceID)
+	if err != nil {
+		return "", err
+	}
+
+	r.dispatcher.Dispatch(service.EnvironmentID)
 	return req.ServiceID, r.serviceProvider.Update(req.ServiceID, req.UpdateServiceRequest)
 }
 

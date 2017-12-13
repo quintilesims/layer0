@@ -1,12 +1,13 @@
 package tag
 
 import (
-	"github.com/quintilesims/layer0/api/janitor"
+	"log"
+
 	"github.com/quintilesims/layer0/api/provider"
 )
 
-func NewJanitor(tagStore Store, taskProvider provider.TaskProvider) *janitor.Janitor {
-	return janitor.NewJanitor("Tag", func() error {
+func NewDaemonFN(tagStore Store, taskProvider provider.TaskProvider) func() error {
+	return func() error {
 		tasks, err := taskProvider.List()
 		if err != nil {
 			return err
@@ -24,6 +25,7 @@ func NewJanitor(tagStore Store, taskProvider provider.TaskProvider) *janitor.Jan
 
 		for _, tag := range tags {
 			if !m[tag.EntityID] {
+				log.Printf("[DEBUG] [TagDaemon] Deleting tag %#v", tag)
 				if err := tagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
 					return err
 				}
@@ -31,5 +33,5 @@ func NewJanitor(tagStore Store, taskProvider provider.TaskProvider) *janitor.Jan
 		}
 
 		return nil
-	})
+	}
 }

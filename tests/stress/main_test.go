@@ -3,19 +3,18 @@ package system
 import (
 	"flag"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"strings"
 	"testing"
 
-	"github.com/Sirupsen/logrus"
-	"github.com/quintilesims/layer0/common/logutils"
+	"github.com/quintilesims/layer0/common/logging"
 )
 
 var (
 	dry   = flag.Bool("dry", false, "Perform a dry run - don't execute terraform 'apply' commands")
 	debug = flag.Bool("debug", false, "Print debug statements")
-	log   = logutils.NewStandardLogger("Test")
 )
 
 func TestMain(m *testing.M) {
@@ -27,17 +26,11 @@ func TestMain(m *testing.M) {
 
 func setup() {
 	flag.Parse()
-
-	log.Level = logrus.ErrorLevel
-	if *debug {
-		log.Level = logrus.DebugLevel
-	}
-
-	logutils.SetGlobalLogger(log)
-
+	logger := logging.NewLogWriter(*debug)
+	log.SetOutput(logger)
 	if !*dry {
 		if err := filepath.Walk("cases", deleteStateFiles); err != nil {
-			fmt.Println("Error occurred during setup: ", err)
+			log.Println("[ERROR] Error occurred during setup: ", err)
 			os.Exit(1)
 		}
 	}
@@ -46,7 +39,7 @@ func setup() {
 func teardown() {
 	if !*dry {
 		if err := filepath.Walk("cases", deleteStateFiles); err != nil {
-			fmt.Println("Error occurred during teardown: ", err)
+			log.Println("[ERROR] Error occurred during teardown: ", err)
 			os.Exit(1)
 		}
 	}

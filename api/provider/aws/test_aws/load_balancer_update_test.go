@@ -11,6 +11,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -80,11 +81,11 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	readSGHelper(mockAWS, "l0-test-lb_name-lb", "lb_sg")
 	listenerDescription := &elb.ListenerDescription{}
-	listenerDescription.SetListener(listenerHelper(provider.DefaultLoadBalancerPort))
+	listenerDescription.SetListener(listenerHelper(config.DefaultLoadBalancerPort))
 
 	lb := &elb.LoadBalancerDescription{}
 	lb.SetLoadBalancerName("l0-test-lb_name")
-	lb.SetHealthCheck(healthCheckHelper(&provider.DefaultHealthCheck))
+	lb.SetHealthCheck(healthCheckHelper(&config.DefaultLoadBalancerHealthCheck))
 	lb.SetListenerDescriptions([]*elb.ListenerDescription{listenerDescription})
 
 	describeLoadBalancersInput := &elb.DescribeLoadBalancersInput{}
@@ -98,14 +99,14 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		DescribeLoadBalancers(describeLoadBalancersInput).
 		Return(describeLoadBalancersOutput, nil)
 
-	revokeIngressInput := revokeSGIngressHelper(provider.DefaultLoadBalancerPort)
+	revokeIngressInput := revokeSGIngressHelper(config.DefaultLoadBalancerPort)
 	revokeIngressInput.SetGroupId("lb_sg")
 
 	mockAWS.EC2.EXPECT().
 		RevokeSecurityGroupIngress(revokeIngressInput).
 		Return(&ec2.RevokeSecurityGroupIngressOutput{}, nil)
 
-	port := int64(provider.DefaultLoadBalancerPort.HostPort)
+	port := int64(config.DefaultLoadBalancerPort.HostPort)
 	deleteLoadBalancerListenersInput := &elb.DeleteLoadBalancerListenersInput{}
 	deleteLoadBalancerListenersInput.SetLoadBalancerName("l0-test-lb_name")
 	deleteLoadBalancerListenersInput.SetLoadBalancerPorts([]*int64{&port})

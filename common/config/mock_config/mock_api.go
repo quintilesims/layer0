@@ -70,6 +70,18 @@ func (mr *MockAPIConfigMockRecorder) DynamoJobTable() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DynamoJobTable", reflect.TypeOf((*MockAPIConfig)(nil).DynamoJobTable))
 }
 
+// DynamoLockTable mocks base method
+func (m *MockAPIConfig) DynamoLockTable() string {
+	ret := m.ctrl.Call(m, "DynamoLockTable")
+	ret0, _ := ret[0].(string)
+	return ret0
+}
+
+// DynamoLockTable indicates an expected call of DynamoLockTable
+func (mr *MockAPIConfigMockRecorder) DynamoLockTable() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DynamoLockTable", reflect.TypeOf((*MockAPIConfig)(nil).DynamoLockTable))
+}
+
 // DynamoTagTable mocks base method
 func (m *MockAPIConfig) DynamoTagTable() string {
 	ret := m.ctrl.Call(m, "DynamoTagTable")
@@ -130,6 +142,18 @@ func (mr *MockAPIConfigMockRecorder) LinuxAMI() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LinuxAMI", reflect.TypeOf((*MockAPIConfig)(nil).LinuxAMI))
 }
 
+// LockExpiry mocks base method
+func (m *MockAPIConfig) LockExpiry() time.Duration {
+	ret := m.ctrl.Call(m, "LockExpiry")
+	ret0, _ := ret[0].(time.Duration)
+	return ret0
+}
+
+// LockExpiry indicates an expected call of LockExpiry
+func (mr *MockAPIConfigMockRecorder) LockExpiry() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "LockExpiry", reflect.TypeOf((*MockAPIConfig)(nil).LockExpiry))
+}
+
 // LogGroupName mocks base method
 func (m *MockAPIConfig) LogGroupName() string {
 	ret := m.ctrl.Call(m, "LogGroupName")
@@ -152,6 +176,20 @@ func (m *MockAPIConfig) MaxRetries() int {
 // MaxRetries indicates an expected call of MaxRetries
 func (mr *MockAPIConfigMockRecorder) MaxRetries() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "MaxRetries", reflect.TypeOf((*MockAPIConfig)(nil).MaxRetries))
+}
+
+// ParseAuthToken mocks base method
+func (m *MockAPIConfig) ParseAuthToken() (string, string, error) {
+	ret := m.ctrl.Call(m, "ParseAuthToken")
+	ret0, _ := ret[0].(string)
+	ret1, _ := ret[1].(string)
+	ret2, _ := ret[2].(error)
+	return ret0, ret1, ret2
+}
+
+// ParseAuthToken indicates an expected call of ParseAuthToken
+func (mr *MockAPIConfigMockRecorder) ParseAuthToken() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ParseAuthToken", reflect.TypeOf((*MockAPIConfig)(nil).ParseAuthToken))
 }
 
 // Port mocks base method

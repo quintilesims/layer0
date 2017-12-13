@@ -2,7 +2,6 @@ package job
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -60,21 +59,6 @@ func (d *DynamoStore) Insert(jobType models.JobType, req string) (string, error)
 
 func (d *DynamoStore) SetInsertHook(hook func(jobID string)) {
 	d.insertHook = hook
-}
-
-func (d *DynamoStore) AcquireJob(jobID string) (bool, error) {
-	if err := d.table.Update("JobID", jobID).
-		Set("Status", models.InProgressJobStatus).
-		If("'Status' = ?", models.PendingJobStatus).
-		Run(); err != nil {
-		if strings.Contains(err.Error(), "ConditionalCheckFailedException") {
-			return false, nil
-		}
-
-		return false, err
-	}
-
-	return true, nil
 }
 
 func (d *DynamoStore) Delete(jobID string) error {

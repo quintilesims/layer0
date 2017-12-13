@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -25,16 +26,16 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	environmentID := entityIDGenerator(req.EnvironmentName)
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	instanceType := DefaultInstanceSize
-	if req.InstanceSize != "" {
-		instanceType = req.InstanceSize
+	instanceType := config.DefaultEnvironmentInstanceType
+	if req.InstanceType != "" {
+		instanceType = req.InstanceType
 	}
 
 	var userDataTemplate []byte
 	var amiID string
 
 	if req.OperatingSystem == "" {
-		req.OperatingSystem = DefaultEnvironmentOS
+		req.OperatingSystem = config.DefaultEnvironmentOS
 	}
 
 	switch strings.ToLower(req.OperatingSystem) {
@@ -92,11 +93,17 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		return "", err
 	}
 
+	maxScale := config.DefaultEnvironmentMaxScale
+	if req.MaxScale != 0 {
+		maxScale = req.MaxScale
+	}
+
 	autoScalingGroupName := fqEnvironmentID
 	if err := e.createASG(
 		autoScalingGroupName,
 		launchConfigName,
-		int64(req.MinClusterCount),
+		int64(req.MinScale),
+		int64(maxScale),
 		e.Config.PrivateSubnets()); err != nil {
 		return "", err
 	}
@@ -162,7 +169,13 @@ func (e *EnvironmentProvider) createLC(
 	return nil
 }
 
-func (e *EnvironmentProvider) createASG(autoScalingGroupName, launchConfigName string, minSize int64, privateSubnets []string) error {
+func (e *EnvironmentProvider) createASG(
+	autoScalingGroupName string,
+	launchConfigName string,
+	minSize int64,
+	maxSize int64,
+	privateSubnets []string,
+) error {
 	tag := &autoscaling.Tag{}
 	tag.SetKey("Name")
 	tag.SetValue(autoScalingGroupName)
@@ -175,7 +188,7 @@ func (e *EnvironmentProvider) createASG(autoScalingGroupName, launchConfigName s
 	input.SetLaunchConfigurationName(launchConfigName)
 	input.SetVPCZoneIdentifier(subnetIdentifier)
 	input.SetMinSize(minSize)
-	input.SetMaxSize(minSize)
+	input.SetMaxSize(maxSize)
 	input.SetTags([]*autoscaling.Tag{tag})
 
 	if err := input.Validate(); err != nil {

@@ -35,7 +35,7 @@ func (s *ServiceCommand) Command() cli.Command {
 					},
 					cli.IntFlag{
 						Name:  "scale",
-						Value: 1,
+						Value: config.DefaultServiceScale,
 						Usage: "The desired scale of the service",
 					},
 				},
@@ -125,6 +125,10 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 		LoadBalancerID: loadBalancerID,
 		ServiceName:    args["SERVICE_NAME"],
 		Scale:          c.Int("scale"),
+	}
+
+	if err := req.Validate(); err != nil {
+		return err
 	}
 
 	jobID, err := s.client.CreateService(req)

@@ -1,7 +1,9 @@
 package config
 
 import (
+	"encoding/base64"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/urfave/cli"
@@ -10,18 +12,25 @@ import (
 func APIFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.IntFlag{
-			// todo: renamed from 'LAYER0_API_PORT'
 			Name:   FLAG_PORT,
-			Value:  DEFAULT_PORT,
+			Value:  DefaultPort,
 			EnvVar: ENVVAR_PORT,
+		},
+		cli.StringFlag{
+			Name:   FLAG_TOKEN,
+			EnvVar: ENVVAR_TOKEN,
 		},
 		cli.DurationFlag{
 			Name:   FLAG_JOB_EXPIRY,
-			Value:  DEFAULT_JOB_EXPIRY,
+			Value:  DefaultJobExpiry,
 			EnvVar: ENVVAR_JOB_EXPIRY,
 		},
+		cli.DurationFlag{
+			Name:   FLAG_LOCK_EXPIRY,
+			Value:  DefaultLockExpiry,
+			EnvVar: ENVVAR_LOCK_EXPIRY,
+		},
 		cli.BoolFlag{
-			// todo: renamed from 'LAYER0_LOG_LEVEL'
 			Name:   FLAG_DEBUG,
 			EnvVar: ENVVAR_DEBUG,
 		},
@@ -74,6 +83,10 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_DYNAMO_TAG_TABLE,
 			EnvVar: ENVVAR_AWS_DYNAMO_TAG_TABLE,
 		},
+		cli.StringFlag{
+			Name:   FLAG_AWS_DYNAMO_LOCK_TABLE,
+			EnvVar: ENVVAR_AWS_DYNAMO_LOCK_TABLE,
+		},
 		cli.StringSliceFlag{
 			Name:   FLAG_AWS_PUBLIC_SUBNETS,
 			EnvVar: ENVVAR_AWS_PUBLIC_SUBNETS,
@@ -90,7 +103,7 @@ func APIFlags() []cli.Flag {
 			Name:   FLAG_AWS_TIME_BETWEEN_REQUESTS,
 			Value:  DefaultTimeBetweenRequests,
 			EnvVar: ENVVAR_AWS_TIME_BETWEEN_REQUESTS,
-			Usage: "duration [h,m,s,ms,ns]",
+			Usage:  "duration [h,m,s,ms,ns]",
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_SSH_KEY_PAIR,
@@ -106,6 +119,7 @@ func APIFlags() []cli.Flag {
 
 type APIConfig interface {
 	Port() int
+	ParseAuthToken() (string, string, error)
 	AccountID() string
 	AccessKey() string
 	SecretKey() string
@@ -120,9 +134,11 @@ type APIConfig interface {
 	PrivateSubnets() []string
 	DynamoJobTable() string
 	DynamoTagTable() string
+	DynamoLockTable() string
 	LogGroupName() string
 	SSHKeyPair() string
 	JobExpiry() time.Duration
+	LockExpiry() time.Duration
 	TimeBetweenRequests() time.Duration
 	MaxRetries() int
 }
@@ -140,6 +156,7 @@ func NewContextAPIConfig(c *cli.Context) *ContextAPIConfig {
 func (c *ContextAPIConfig) Validate() error {
 	requiredVars := []string{
 		FLAG_INSTANCE,
+		FLAG_TOKEN,
 		FLAG_AWS_ACCOUNT_ID,
 		FLAG_AWS_ACCESS_KEY,
 		FLAG_AWS_SECRET_KEY,
@@ -150,6 +167,7 @@ func (c *ContextAPIConfig) Validate() error {
 		FLAG_AWS_INSTANCE_PROFILE,
 		FLAG_AWS_DYNAMO_JOB_TABLE,
 		FLAG_AWS_DYNAMO_TAG_TABLE,
+		FLAG_AWS_DYNAMO_LOCK_TABLE,
 		FLAG_AWS_PUBLIC_SUBNETS,
 		FLAG_AWS_PRIVATE_SUBNETS,
 		FLAG_AWS_LOG_GROUP_NAME,
@@ -167,6 +185,24 @@ func (c *ContextAPIConfig) Validate() error {
 
 func (c *ContextAPIConfig) Port() int {
 	return c.C.Int(FLAG_PORT)
+}
+
+func (c *ContextAPIConfig) AuthToken() string {
+	return c.C.String(FLAG_TOKEN)
+}
+
+func (c *ContextAPIConfig) ParseAuthToken() (string, string, error) {
+	token, err := base64.StdEncoding.DecodeString(c.AuthToken())
+	if err != nil {
+		return "", "", fmt.Errorf("Auth Token is not in valid base64 format: %v", err)
+	}
+
+	split := strings.Split(string(token), ":")
+	if len(split) != 2 {
+		return "", "", fmt.Errorf("Auth Token must be in format 'user:pass' and base64 encoded")
+	}
+
+	return split[0], split[1], nil
 }
 
 func (c *ContextAPIConfig) Instance() string {
@@ -221,6 +257,10 @@ func (c *ContextAPIConfig) DynamoTagTable() string {
 	return c.C.String(FLAG_AWS_DYNAMO_TAG_TABLE)
 }
 
+func (c *ContextAPIConfig) DynamoLockTable() string {
+	return c.C.String(FLAG_AWS_DYNAMO_LOCK_TABLE)
+}
+
 func (c *ContextAPIConfig) PublicSubnets() []string {
 	return c.C.StringSlice(FLAG_AWS_PUBLIC_SUBNETS)
 }
@@ -235,6 +275,10 @@ func (c *ContextAPIConfig) LogGroupName() string {
 
 func (c *ContextAPIConfig) JobExpiry() time.Duration {
 	return c.C.Duration(FLAG_JOB_EXPIRY)
+}
+
+func (c *ContextAPIConfig) LockExpiry() time.Duration {
+	return c.C.Duration(FLAG_LOCK_EXPIRY)
 }
 
 func (c *ContextAPIConfig) TimeBetweenRequests() time.Duration {

@@ -4,8 +4,8 @@ type Scaler interface {
 	Scale(environmentID string) error
 }
 
-type ScalerFunc func(environmentID string) error
+type ScalerFunc func(string) error
 
-func (r ScalerFunc) Scale(environmentID string) error {
-	return r(environmentID)
+func (s ScalerFunc) Scale(environmentID string) error {
+	return s(environmentID)
 }

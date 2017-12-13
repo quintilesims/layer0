@@ -104,6 +104,10 @@ func (t *TaskCommand) create(c *cli.Context) error {
 		ContainerOverrides: overrides,
 	}
 
+	if err := req.Validate(); err != nil {
+		return err
+	}
+
 	jobID, err := t.client.CreateTask(req)
 	if err != nil {
 		return err

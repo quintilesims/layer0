@@ -4,7 +4,6 @@ import (
 	"log"
 
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
@@ -26,14 +25,20 @@ func resourceLayer0Environment() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"size": {
+			"instance_type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  aws.DefaultInstanceSize,
+				Default:  config.DefaultEnvironmentInstanceType,
 				ForceNew: true,
 			},
-			"min_count": {
+			"min_scale": {
 				Type:     schema.TypeInt,
+				Default:  0,
+				Optional: true,
+			},
+			"max_scale": {
+				Type:     schema.TypeInt,
+				Default:  config.DefaultEnvironmentMaxScale,
 				Optional: true,
 			},
 			"user_data": {
@@ -44,7 +49,7 @@ func resourceLayer0Environment() *schema.Resource {
 			"os": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  aws.DefaultEnvironmentOS,
+				Default:  config.DefaultEnvironmentOS,
 				ForceNew: true,
 			},
 			"ami": {
@@ -53,7 +58,7 @@ func resourceLayer0Environment() *schema.Resource {
 				ForceNew: true,
 				Computed: true,
 			},
-			"cluster_count": {
+			"current_scale": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
@@ -70,9 +75,10 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  d.Get("name").(string),
-		InstanceSize:     d.Get("size").(string),
+		InstanceType:     d.Get("instance_type").(string),
 		UserDataTemplate: []byte(d.Get("user_data").(string)),
-		MinClusterCount:  d.Get("min_count").(int),
+		MinScale:         d.Get("min_scale").(int),
+		MaxScale:         d.Get("max_scale").(int),
 		OperatingSystem:  d.Get("os").(string),
 		AMIID:            d.Get("ami").(string),
 	}
@@ -109,8 +115,10 @@ func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) err
 	}
 
 	d.Set("name", environment.EnvironmentName)
-	d.Set("size", environment.InstanceSize)
-	d.Set("cluster_count", environment.ClusterCount)
+	d.Set("instance_type", environment.InstanceType)
+	d.Set("min_scale", environment.MinScale)
+	d.Set("current_scale", environment.CurrentScale)
+	d.Set("max_scale", environment.MaxScale)
 	d.Set("security_group_id", environment.SecurityGroupID)
 	d.Set("os", environment.OperatingSystem)
 	d.Set("ami", environment.AMIID)
@@ -122,13 +130,18 @@ func resourceLayer0EnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	apiClient := meta.(client.Client)
 	environmentID := d.Id()
 
-	if d.HasChange("min_count") {
-		minCount := d.Get("min_count").(int)
+	req := models.UpdateEnvironmentRequest{}
+	if d.HasChange("min_scale") {
+		minScale := d.Get("min_scale").(int)
+		req.MinScale = &minScale
+	}
 
-		req := models.UpdateEnvironmentRequest{
-			MinClusterCount: &minCount,
-		}
+	if d.HasChange("max_scale") {
+		maxScale := d.Get("max_scale").(int)
+		req.MaxScale = &maxScale
+	}
 
+	if req.MinScale != nil || req.MaxScale != nil {
 		jobID, err := apiClient.UpdateEnvironment(environmentID, req)
 		if err != nil {
 			return err

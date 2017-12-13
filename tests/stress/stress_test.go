@@ -1,6 +1,7 @@
 package system
 
 import (
+	"os"
 	"testing"
 
 	"github.com/quintilesims/layer0/common/config"
@@ -18,14 +19,13 @@ func NewStressTest(t *testing.T, dir string, vars map[string]string) *StressTest
 		vars = map[string]string{}
 	}
 
-	vars["endpoint"] = config.APIEndpoint()
-	vars["token"] = config.AuthToken()
+	vars["endpoint"] = os.Getenv(config.ENVVAR_ENDPOINT)
+	vars["token"] = os.Getenv(config.ENVVAR_TOKEN)
 
 	tfContext := tftest.NewTestContext(t,
 		tftest.Dir(dir),
 		tftest.Vars(vars),
-		tftest.DryRun(*dry),
-		tftest.Log(log))
+		tftest.DryRun(*dry))
 
 	layer0 := clients.NewLayer0TestClient(t, vars["endpoint"], vars["token"])
 

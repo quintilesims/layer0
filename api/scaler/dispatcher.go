@@ -2,85 +2,60 @@ package scaler
 
 import (
 	"log"
-	"sync"
 	"time"
 
-	"github.com/quintilesims/layer0/api/provider"
-)
-
-const (
-	SCALE_GRACE_PERIOD = time.Second * 15
-)
-
-var (
-	timeMultiplier time.Duration = 1
+	"github.com/quintilesims/layer0/api/job"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 type Dispatcher struct {
-	environmentProvider provider.EnvironmentProvider
-	scaler              Scaler
-	schedule            map[string]*time.Timer
-	lock                *sync.Mutex
+	jobStore    job.Store
+	gracePeriod time.Duration
+	scheduleOps chan func(map[string]*time.Timer)
 }
 
-func NewDispatcher(e provider.EnvironmentProvider, s Scaler) *Dispatcher {
-	return &Dispatcher{
-		environmentProvider: e,
-		scaler:              s,
-		schedule:            map[string]*time.Timer{},
-		lock:                &sync.Mutex{},
+func NewDispatcher(jobStore job.Store, gracePeriod time.Duration) *Dispatcher {
+	d := &Dispatcher{
+		jobStore:    jobStore,
+		gracePeriod: gracePeriod,
+		scheduleOps: make(chan func(map[string]*time.Timer)),
+	}
+
+	go d.loop()
+	return d
+}
+
+func (d *Dispatcher) loop() {
+	schedule := map[string]*time.Timer{}
+	for op := range d.scheduleOps {
+		op(schedule)
 	}
 }
 
-func (d *Dispatcher) ScheduleRun(environmentID string) {
-	d.lock.Lock()
-	defer d.lock.Unlock()
-
-	if timer, ok := d.schedule[environmentID]; ok {
-		log.Printf("[DEBUG] [ScalerDispatcher] Pushing back scheduled run for environment %s", environmentID)
-		timer.Stop()
-	}
-
-	log.Printf("[DEBUG] [ScalerDispatcher] Scaling environment %s in %v", environmentID, SCALE_GRACE_PERIOD)
-	d.schedule[environmentID] = time.AfterFunc(SCALE_GRACE_PERIOD*timeMultiplier, func() {
-		// remove this run from the schedule
-		d.lock.Lock()
-		if _, ok := d.schedule[environmentID]; ok {
-			delete(d.schedule, environmentID)
-		}
-		d.lock.Unlock()
-
-		log.Printf("[DEBUG] [ScalerDispatcher] Scaling environment %s", environmentID)
-		if err := d.scaler.Scale(environmentID); err != nil {
-			log.Printf("[ERROR] [ScalerDispatcher] Failed to scale environment %s: %v", environmentID, err)
+func (d *Dispatcher) Dispatch(environmentID string) {
+	d.scheduleOps <- func(schedule map[string]*time.Timer) {
+		timer, ok := schedule[environmentID]
+		if ok {
+			log.Printf("[DEBUG] [ScalerDispatcher] Scaling environment %s in %v", environmentID, d.gracePeriod)
+			timer.Reset(d.gracePeriod)
 			return
 		}
 
-		log.Printf("[DEBUG] [ScalerDispatcher] Finished scaling environment %s", environmentID)
-	})
-}
+		schedule[environmentID] = time.AfterFunc(d.gracePeriod, func() {
+			d.Unschedule(environmentID)
 
-func (d *Dispatcher) RunEvery(period time.Duration) *time.Ticker {
-	ticker := time.NewTicker(period)
-	go func() {
-		for range ticker.C {
-			d.RunAll()
-		}
-	}()
-
-	return ticker
-}
-
-func (d *Dispatcher) RunAll() {
-	log.Printf("[DEBUG] [ScalerDispatcher] Scaling all environments")
-
-	environments, err := d.environmentProvider.List()
-	if err != nil {
-		log.Printf("[ERROR] [ScalerDispatcher] Failed to list environments: %v", err)
-		return
+			log.Printf("[DEBUG] [ScalerDispatcher] Creating scale job for environment %s", environmentID)
+			if _, err := d.jobStore.Insert(models.ScaleEnvironmentJob, environmentID); err != nil {
+				log.Printf("[ERROR] [ScalerDispatcer] Failed to create scale job for environment %s: %v", environmentID, err)
+			}
+		})
 	}
+}
 
-	for _, environment := range environments {
-		d.ScheduleRun(environment.EnvironmentID)
+func (d *Dispatcher) Unschedule(environmentID string) {
+	d.scheduleOps <- func(schedule map[string]*time.Timer) {
+		if _, ok := schedule[environmentID]; ok {
+			delete(schedule, environmentID)
+		}
 	}
 }

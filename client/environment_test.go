@@ -11,8 +11,9 @@ import (
 func TestCreateEnvironment(t *testing.T) {
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "name",
-		InstanceSize:     "size",
-		MinClusterCount:  1,
+		InstanceType:     "t2.small",
+		MinScale:         1,
+		MaxScale:         5,
 		UserDataTemplate: []byte("user_data"),
 		OperatingSystem:  "os",
 		AMIID:            "ami",
@@ -108,10 +109,15 @@ func TestReadEnvironment(t *testing.T) {
 }
 
 func TestUpdateEnvironment(t *testing.T) {
-	count := 1
-	links := []string{}
-	req := models.UpdateEnvironmentRequest{MinClusterCount: &count}
-	req.Links = &links
+	minScale := 1
+	maxScale := 5
+	links := []string{"env_id2"}
+
+	req := models.UpdateEnvironmentRequest{
+		MinScale: &minScale,
+		MaxScale: &maxScale,
+		Links:    &links,
+	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "PATCH")

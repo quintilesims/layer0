@@ -19,6 +19,10 @@ func NewMemoryStore() *MemoryStore {
 	}
 }
 
+func (m *MemoryStore) Jobs() []*models.Job {
+	return m.jobs
+}
+
 func (m *MemoryStore) Insert(jobType models.JobType, req string) (string, error) {
 	job := &models.Job{
 		JobID:   fmt.Sprintf("%v", time.Now().UnixNano()),
