@@ -8,6 +8,7 @@ import (
 	"strconv"
 
 	"github.com/zpatrick/go-bytesize"
+	cache "github.com/zpatrick/go-cache"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
@@ -140,7 +141,7 @@ type EnvironmentScaler struct {
 	TaskProvider        provider.TaskProvider
 	JobStore            job.Store
 	Config              config.APIConfig
-	deployCache         map[string][]scaler.ResourceConsumer
+	deployCache         *cache.Cache
 }
 
 func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s provider.ServiceProvider, t provider.TaskProvider, j job.Store, c config.APIConfig) *EnvironmentScaler {
@@ -151,7 +152,7 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 		TaskProvider:        t,
 		JobStore:            j,
 		Config:              c,
-		// deployCache: map[string][]*Resource,
+		deployCache:         cache.New(),
 	}
 }
 
@@ -379,9 +380,8 @@ func findOptimalProviderDistribution(providerDistributions []ProviderDistributio
 }
 
 func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]scaler.ResourceConsumer, error) {
-	// use some kind of deploy cache
-	if consumers, ok := e.deployCache[deployID]; ok {
-		return consumers, nil
+	if consumers, ok := e.deployCache.Getf(deployID); ok {
+		return consumers.([]scaler.ResourceConsumer), nil
 	}
 
 	input := &ecs.DescribeTaskDefinitionInput{}
@@ -417,7 +417,7 @@ func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]s
 		}
 	}
 
-	e.deployCache[deployID] = consumers
+	e.deployCache.Add(deployID, consumers)
 	return consumers, nil
 }
 
