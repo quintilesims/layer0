@@ -155,6 +155,11 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 	}
 }
 
+// Scale determines whether or not instances need to be added to or removed from a Layer0 environment, and makes any necessary changes.
+// It consists of three primary logical groupings:
+// 1. Gather all providers (instances) and consumers (tasks/services) of resources.
+// 2. Calculate the optimal distribution of consumers among providers, including whether instances should be added or removed.
+// 3. Update the AutoScaling Group to realize the changes calculated previously.
 func (e *EnvironmentScaler) Scale(environmentID string) error {
 	clusterName := addLayer0Prefix(e.Config.Instance(), environmentID)
 
