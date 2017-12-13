@@ -74,7 +74,7 @@ func TestEnvironmentRead(t *testing.T) {
 
 	lc := &autoscaling.LaunchConfiguration{}
 	lc.SetLaunchConfigurationName("lc_name")
-	lc.SetInstanceType("m3.small")
+	lc.SetInstanceType("t2.small")
 	lc.SetImageId("ami_id")
 
 	describeLCOutput := &autoscaling.DescribeLaunchConfigurationsOutput{}
@@ -95,7 +95,7 @@ func TestEnvironmentRead(t *testing.T) {
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
 		OperatingSystem: "linux",
-		InstanceType:    "m3.small",
+		InstanceType:    "t2.small",
 		SecurityGroupID: "sg_id",
 		MinScale:        1,
 		CurrentScale:    2,

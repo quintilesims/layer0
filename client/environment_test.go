@@ -11,7 +11,7 @@ import (
 func TestCreateEnvironment(t *testing.T) {
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "name",
-		InstanceType:     "m3.medium",
+		InstanceType:     "t2.small",
 		MinScale:         1,
 		MaxScale:         5,
 		UserDataTemplate: []byte("user_data"),

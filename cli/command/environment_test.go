@@ -133,7 +133,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 		req := models.CreateEnvironmentRequest{
 			EnvironmentName:  "env_name",
-			InstanceType:     "m3.large",
+			InstanceType:     "t2.small",
 			MinScale:         2,
 			MaxScale:         5,
 			UserDataTemplate: []byte(userData),

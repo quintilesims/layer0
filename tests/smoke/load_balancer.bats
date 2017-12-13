@@ -58,8 +58,8 @@ certificate_name="l0-$LAYER0_INSTANCE-api"
     l0 loadbalancer healthcheck loadbalancer3
 }
 
-@test "loadbalancer healthcheck --set-target TCP:88 --set-interval 45 --set-timeout 10 --set-healthy-threshold 5 --set-unhealthy-threshold 3 loadbalancer3" {
-    l0 loadbalancer healthcheck --set-target TCP:88 --set-interval 45 --set-timeout 10 --set-healthy-threshold 5 --set-unhealthy-threshold 3 loadbalancer3
+@test "loadbalancer healthcheck --healthcheck-target TCP:88 --healthcheck-interval 45 --healthcheck-timeout 10 --healthy-threshold 5 --unhealthy-threshold 3 loadbalancer3" {
+    l0 loadbalancer healthcheck --healthcheck-target TCP:88 --healthcheck-interval 45 --healthcheck-timeout 10 --healthy-threshold 5 --unhealthy-threshold 3 loadbalancer3
 }
 
 @test "loadbalancer delete loadbalancer3" {

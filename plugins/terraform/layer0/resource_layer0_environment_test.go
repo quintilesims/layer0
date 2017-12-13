@@ -18,7 +18,7 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "env_name",
-		InstanceType:     "m3.large",
+		InstanceType:     "t2.small",
 		UserDataTemplate: []byte("template"),
 		MinScale:         1,
 		MaxScale:         3,
@@ -45,7 +45,7 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 		MinScale:        1,
 		CurrentScale:    2,
 		MaxScale:        3,
-		InstanceType:    "m3.large",
+		InstanceType:    "t2.small",
 		SecurityGroupID: "sgid",
 		OperatingSystem: "linux",
 		AMIID:           "ami123",
@@ -58,7 +58,7 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 	environmentResource := Provider().(*schema.Provider).ResourcesMap["layer0_environment"]
 	d := schema.TestResourceDataRaw(t, environmentResource.Schema, map[string]interface{}{
 		"name":          "env_name",
-		"instance_type": "m3.large",
+		"instance_type": "t2.small",
 		"user_data":     "template",
 		"min_scale":     1,
 		"max_scale":     3,
@@ -72,7 +72,7 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 
 	assert.Equal(t, "env_id", d.Id())
 	assert.Equal(t, "env_name", d.Get("name").(string))
-	assert.Equal(t, "m3.large", d.Get("instance_type").(string))
+	assert.Equal(t, "t2.small", d.Get("instance_type").(string))
 	assert.Equal(t, 1, d.Get("min_scale").(int))
 	assert.Equal(t, 2, d.Get("current_scale").(int))
 	assert.Equal(t, 3, d.Get("max_scale").(int))

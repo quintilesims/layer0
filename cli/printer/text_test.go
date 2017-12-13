@@ -46,7 +46,7 @@ func ExampleTextPrintEnvironments() {
 			MinScale:        1,
 			CurrentScale:    2,
 			MaxScale:        3,
-			InstanceType:    "m3.medium",
+			InstanceType:    "t2.small",
 			Links:           []string{"id2"},
 		},
 		{
@@ -56,7 +56,7 @@ func ExampleTextPrintEnvironments() {
 			MinScale:        2,
 			CurrentScale:    5,
 			MaxScale:        50,
-			InstanceType:    "m3.xlarge",
+			InstanceType:    "t2.small",
 			Links:           []string{"id1", "api"},
 		},
 	}
@@ -64,8 +64,8 @@ func ExampleTextPrintEnvironments() {
 	printer.PrintEnvironments(environments...)
 	// Output:
 	// ENVIRONMENT ID  ENVIRONMENT NAME  OS       SCALE   INSTANCE TYPE  LINKS
-	// id1             name1             linux    1:2:3   m3.medium      id2
-	// id2             name2             windows  2:5:50  m3.xlarge      id1
+	// id1             name1             linux    1:2:3   t2.small       id2
+	// id2             name2             windows  2:5:50  t2.small       id1
 	//                                                                   api
 }
 

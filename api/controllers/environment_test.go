@@ -22,7 +22,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName: "env",
-		InstanceType:    "m3.medium",
+		InstanceType:    "t2.small",
 		MinScale:        1,
 		MaxScale:        3,
 		OperatingSystem: "linux",
@@ -84,7 +84,7 @@ func TestGetEnvironment(t *testing.T) {
 	environmentModel := models.Environment{
 		EnvironmentID:   "e1",
 		EnvironmentName: "env",
-		InstanceType:    "m3.medium",
+		InstanceType:    "t2.small",
 		MinScale:        1,
 		CurrentScale:    2,
 		MaxScale:        3,

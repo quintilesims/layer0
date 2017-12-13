@@ -40,7 +40,7 @@ func TestEnvironmentCreate(t *testing.T) {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "env_name",
-		InstanceType:     "m3.small",
+		InstanceType:     "t2.small",
 		UserDataTemplate: []byte("some user data"),
 		AMIID:            "some ami",
 		MinScale:         2,
@@ -71,7 +71,7 @@ func TestEnvironmentCreate(t *testing.T) {
 	createLCInput := &autoscaling.CreateLaunchConfigurationInput{}
 	createLCInput.SetLaunchConfigurationName("l0-test-env_id")
 	createLCInput.SetSecurityGroups([]*string{aws.String("sg_id")})
-	createLCInput.SetInstanceType("m3.small")
+	createLCInput.SetInstanceType("t2.small")
 	createLCInput.SetIamInstanceProfile("profile")
 	createLCInput.SetImageId("some ami")
 	createLCInput.SetKeyName("keypair")
