@@ -1,9 +1,11 @@
 package system
 
 import (
+	"log"
 	"testing"
 	"time"
 
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 )
 
@@ -34,16 +36,21 @@ func TestTaskStress(t *testing.T) {
 		"TaskJ": 1,
 	}
 
-	for taskName, copies := range taskNameCopies {
-		go func(taskName string, copies int) {
-			log.Debugf("Creating task %s (copies: %d)", taskName, copies)
-			s.Layer0.CreateTask(taskName, environmentID, deployID, copies, nil)
-		}(taskName, copies)
+	for taskName := range taskNameCopies {
+		go func(taskName string) {
+			log.Printf("[DEBUG] Creating task %s", taskName)
+			req := models.CreateTaskRequest{
+				TaskName:      taskName,
+				EnvironmentID: environmentID,
+				DeployID:      deployID,
+			}
+
+			s.Layer0.CreateTask(req)
+		}(taskName)
 	}
 
 	testutils.WaitFor(t, time.Second*30, time.Minute*10, func() bool {
-		log.Debugf("Waiting for all tasks to run")
-
+		log.Printf("[DEBUG] Waiting for all tasks tun run")
 		var numTasks int
 		for _, taskSummary := range s.Layer0.ListTasks() {
 			if taskSummary.EnvironmentID == environmentID {
@@ -51,7 +58,7 @@ func TestTaskStress(t *testing.T) {
 			}
 		}
 
-		log.Debugf("%d/100 tasks have ran", numTasks)
+		log.Printf("[DEBUG] %d/100 tasks have run", numTasks)
 		return numTasks >= 100
 	})
 
@@ -59,14 +66,14 @@ func TestTaskStress(t *testing.T) {
 	// wait for all of them to complete
 	time.Sleep(time.Second * 10)
 
-	log.Debugf("Checking task exit codes")
+	log.Printf("[DEBUG] Checking task exit codes")
 	for _, taskSummary := range s.Layer0.ListTasks() {
 		if taskSummary.EnvironmentID == environmentID {
-			task := s.Layer0.GetTask(taskSummary.TaskID)
-			detail := task.Copies[0].Details[0]
+			task := s.Layer0.ReadTask(taskSummary.TaskID)
+			container := task.Containers[0]
 
-			if detail.ExitCode != 0 {
-				t.Fatalf("Task %s has unexpected exit code: %#v", task.TaskID, detail)
+			if container.ExitCode != 0 {
+				t.Fatalf("Task %s has unexpected exit code: %#v", task.TaskID, container)
 			}
 		}
 	}

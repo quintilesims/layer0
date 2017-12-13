@@ -1,6 +1,7 @@
 package system
 
 import (
+	"log"
 	"net/http"
 	"testing"
 	"time"
@@ -26,22 +27,22 @@ func TestWindowsService(t *testing.T) {
 	serviceURL := s.Terraform.Output("service_url")
 
 	testutils.WaitFor(t, time.Second*30, time.Minute*45, func() bool {
-		log.Debugf("Waiting for windows service to run")
-		service := s.Layer0.GetService(serviceID)
+		log.Printf("[DEBUG] Waiting for windows service to run")
+		service := s.Layer0.ReadService(serviceID)
 		return service.RunningCount == 1
 	})
 
 	testutils.WaitFor(t, time.Second*30, time.Minute*10, func() bool {
-		log.Debugf("Waiting for service to be healthy")
+		log.Printf("[DEBUG] Waiting for service to be healthy")
 		resp, err := http.Get(serviceURL)
 		if err != nil {
-			log.Debugf("There was an error checking the window service's url: %v", err)
+			log.Printf("[ERROR] There was an error checking the Windows service's URL: %v", err)
 			return false
 		}
 
 		defer resp.Body.Close()
 		if resp.StatusCode < 200 || resp.StatusCode > 299 {
-			log.Debugf("Windows service returned non-200 status: %d", resp.StatusCode)
+			log.Printf("[ERROR] Windows service returned non-200 status: %d", resp.StatusCode)
 			return false
 		}
 

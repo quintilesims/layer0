@@ -1,9 +1,11 @@
 package system
 
 import (
+	"log"
 	"testing"
 	"time"
 
+	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/tests/clients"
 )
@@ -20,7 +22,6 @@ func TestEnvironmentLink(t *testing.T) {
 	defer s.Terraform.Destroy()
 
 	publicEnvironmentID := s.Terraform.Output("public_environment_id")
-	privateEnvironmentID := s.Terraform.Output("private_environment_id")
 	publicServiceURL := s.Terraform.Output("public_service_url")
 	privateServiceURL := s.Terraform.Output("private_service_url")
 
@@ -30,34 +31,38 @@ func TestEnvironmentLink(t *testing.T) {
 	// curl the private service in the private environment from the public service in the public environment
 	// the private service returns "Hello, World!" from its root path
 	testutils.WaitFor(t, time.Second*10, time.Minute*5, func() bool {
-		log.Printf("Running curl while link exists")
+		log.Printf("[DEBUG] Running curl while link exists")
 		output, err := publicService.RunCommand("curl", "-m", "10", "-s", privateServiceURL)
 		if err != nil {
-			log.Printf("Error running curl: %v", err)
+			log.Printf("[ERROR] Error running curl: %v", err)
 			return false
 		}
 
 		if expected := "Hello, World!"; output != expected {
-			log.Printf("Output from curl was '%s', expected '%s'", output, expected)
+			log.Printf("[ERROR] Output from curl was '%s', expected '%s'", output, expected)
 			return false
 		}
 
 		return true
 	})
 
-	log.Printf("Removing environment link")
-	s.Layer0.DeleteLink(publicEnvironmentID, privateEnvironmentID)
+	log.Printf("[DEBUG] Removing environment link")
+	req := models.UpdateEnvironmentRequest{
+		Links: &[]string{},
+	}
+
+	s.Layer0.UpdateEnvironment(publicEnvironmentID, req)
 
 	testutils.WaitFor(t, time.Second*10, time.Minute*2, func() bool {
-		log.Println("Running curl without link")
+		log.Printf("[DEBUG] Running curl without link")
 		output, err := publicService.RunCommand("curl", "-m", "10", "-s", privateServiceURL)
 		if err != nil {
-			log.Printf("Error running curl: %v", err)
+			log.Printf("[ERROR] Error running curl: %v", err)
 			return false
 		}
 
 		if output != "" {
-			log.Printf("Output from curl was '%s', expected no output", output)
+			log.Printf("[ERROR] Output from curl was '%s', expected no output", output)
 			return false
 		}
 
