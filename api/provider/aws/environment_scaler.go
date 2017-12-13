@@ -207,21 +207,21 @@ func (e *EnvironmentScaler) GetCurrentState(clusterName string) ([]scaler.Resour
 
 	var resourceConsumers []scaler.ResourceConsumer
 
-	serviceConsumers, err := e.getResourceConsumers_PendingServices(clusterName)
+	serviceConsumers, err := e.getServiceResourceConsumers(clusterName)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	resourceConsumers = append(resourceConsumers, serviceConsumers...)
 
-	ecsTaskConsumers, err := e.getResourceConsumers_TasksInECS(clusterName)
+	ecsTaskConsumers, err := e.getECSTaskResourceConsumers(clusterName)
 	if err != nil {
 		return nil, nil, err
 	}
 
 	resourceConsumers = append(resourceConsumers, ecsTaskConsumers...)
 
-	jobTaskConsumers, err := e.getResourceConsumers_TasksInJobs(clusterName)
+	jobTaskConsumers, err := e.getJobTaskResourceConsumers(clusterName)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -429,7 +429,7 @@ func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]s
 	return consumers, nil
 }
 
-func (e *EnvironmentScaler) getResourceConsumers_PendingServices(clusterName string) ([]scaler.ResourceConsumer, error) {
+func (e *EnvironmentScaler) getServiceResourceConsumers(clusterName string) ([]scaler.ResourceConsumer, error) {
 	var resourceConsumers []scaler.ResourceConsumer
 
 	listServicesInput := &ecs.ListServicesInput{}
@@ -503,7 +503,7 @@ func (e *EnvironmentScaler) getResourceConsumers_PendingServices(clusterName str
 	return resourceConsumers, nil
 }
 
-func (e *EnvironmentScaler) getResourceConsumers_TasksInECS(clusterName string) ([]scaler.ResourceConsumer, error) {
+func (e *EnvironmentScaler) getECSTaskResourceConsumers(clusterName string) ([]scaler.ResourceConsumer, error) {
 	var (
 		taskARNs          []string
 		resourceConsumers []scaler.ResourceConsumer
@@ -546,7 +546,7 @@ func (e *EnvironmentScaler) getResourceConsumers_TasksInECS(clusterName string) 
 	return resourceConsumers, nil
 }
 
-func (e *EnvironmentScaler) getResourceConsumers_TasksInJobs(clusterName string) ([]scaler.ResourceConsumer, error) {
+func (e *EnvironmentScaler) getJobTaskResourceConsumers(clusterName string) ([]scaler.ResourceConsumer, error) {
 	var resourceConsumers []scaler.ResourceConsumer
 	jobs, err := e.JobStore.SelectAll()
 	if err != nil {
