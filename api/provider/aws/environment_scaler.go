@@ -64,20 +64,21 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		return err
 	}
 
-	resourceProviders, unusedProviders, desiredScale, calcErrs, err := e.CalculateOptimizedState(clusterName, resourceConsumers, resourceProviders)
+	var incompatibilityError error
+	resourceProviders, unusedProviders, desiredScale, err := e.CalculateOptimizedState(clusterName, resourceConsumers, resourceProviders)
 	if err != nil {
-		return err
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.IncompatibleConsumerAndProvider {
+			incompatibilityError = err
+		} else {
+			return err
+		}
 	}
 
 	if err := e.ScaleToState(clusterName, desiredScale, unusedProviders); err != nil {
 		return err
 	}
 
-	if len(calcErrs) > 0 {
-		return errors.MultiError(calcErrs)
-	}
-
-	return nil
+	return incompatibilityError
 }
 
 func (e *EnvironmentScaler) GetCurrentState(clusterName string) ([]scaler.ResourceConsumer, []*scaler.ResourceProvider, error) {
@@ -116,19 +117,35 @@ func (e *EnvironmentScaler) GetCurrentState(clusterName string) ([]scaler.Resour
 	return resourceConsumers, resourceProviders, nil
 }
 
-func (e *EnvironmentScaler) CalculateOptimizedState(clusterName string, resourceConsumers []scaler.ResourceConsumer, resourceProviders []*scaler.ResourceProvider) ([]*scaler.ResourceProvider, []*scaler.ResourceProvider, int, []error, error) {
+func (e *EnvironmentScaler) CalculateOptimizedState(clusterName string, resourceConsumers []scaler.ResourceConsumer, resourceProviders []*scaler.ResourceProvider) ([]*scaler.ResourceProvider, []*scaler.ResourceProvider, int, error) {
+	var incompatibilityErrs []error
+	var multiError error
+
 	// calculate for scaling up
-	resourceProviders, scaleUpErrs, err := e.calculateScaleUp(clusterName, resourceProviders, resourceConsumers)
-	if err != nil {
-		return nil, nil, 0, nil, err
+	resourceProviders, errs := e.calculateScaleUp(clusterName, resourceProviders, resourceConsumers)
+	for _, err := range errs {
+		// the IncompatibleConsumerAndProvider error is returned in situations where
+		// a resource consumer is too large to fit into an empty, brand-new resource
+		// provider; this means that the environment's instance size is too small
+		// for the consumer. in such a scenario, we want to perform scaling actions
+		// for other providers and consumers, but also log that there is a problem.
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.IncompatibleConsumerAndProvider {
+			incompatibilityErrs = append(incompatibilityErrs, err)
+			continue
+		}
+
+		return nil, nil, 0, err
+	}
+
+	if len(incompatibilityErrs) > 0 {
+		multiError = errors.New(errors.IncompatibleConsumerAndProvider, errors.MultiError(incompatibilityErrs))
 	}
 
 	// calculate for scaling down
 	unusedProviders := e.calculateScaleDown(clusterName, resourceProviders)
-
 	desiredScale := len(resourceProviders) - len(unusedProviders)
 
-	return resourceProviders, unusedProviders, desiredScale, scaleUpErrs, nil
+	return resourceProviders, unusedProviders, desiredScale, multiError
 }
 
 func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, unusedProviders []*scaler.ResourceProvider) error {
@@ -235,13 +252,13 @@ func (e *EnvironmentScaler) calculateScaleDown(clusterName string, resourceProvi
 	return unusedProviders
 }
 
-func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProviders []*scaler.ResourceProvider, resourceConsumers []scaler.ResourceConsumer) ([]*scaler.ResourceProvider, []error, error) {
-	sorts := []ProviderDistribution{
+func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProviders []*scaler.ResourceProvider, resourceConsumers []scaler.ResourceConsumer) ([]*scaler.ResourceProvider, []error) {
+	providerDistributions := []ProviderDistribution{
 		{[]error{}, resourceProviders, "cpu"},
 		{[]error{}, resourceProviders, "mem"},
 	}
 
-	for _, s := range sorts {
+	for _, s := range providerDistributions {
 		switch s.SortBy {
 		case "cpu":
 			sortProvidersByCPU(s.Providers)
@@ -261,7 +278,7 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 				if provider.HasResourcesFor(consumer) {
 					hasRoom = true
 					if err := provider.SubtractResourcesFor(consumer); err != nil {
-						s.Errs = append(s.Errs, err)
+						return nil, []error{err}
 					}
 
 					break
@@ -271,20 +288,20 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 			if !hasRoom {
 				newProvider, err := e.calculateNewProvider(clusterName)
 				if err != nil {
-					return nil, nil, err
+					return nil, []error{err}
 				}
 
 				if !newProvider.HasResourcesFor(consumer) {
 					text := fmt.Sprintf("Resource '%s' cannot fit into an empty provider!", consumer.ID)
 					text += "\nThe instance size in your environment is too small to run this resource."
-					text += "\n Please increase the instance size for your environment."
-					err := fmt.Errorf(text)
+					text += "\n Please increase the instance size for your environment or remove this resource."
+					err := errors.Newf(errors.IncompatibleConsumerAndProvider, text)
 					s.Errs = append(s.Errs, err)
 					continue
 				}
 
 				if err := newProvider.SubtractResourcesFor(consumer); err != nil {
-					s.Errs = append(s.Errs, err)
+					return nil, []error{err}
 				}
 
 				s.Providers = append(s.Providers, newProvider)
@@ -292,9 +309,9 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 		}
 	}
 
-	p := findOptimalProviderDistribution(sorts)
+	p := findOptimalProviderDistribution(providerDistributions)
 
-	return p.Providers, p.Errs, nil
+	return p.Providers, p.Errs
 }
 
 func findOptimalProviderDistribution(providerDistributions []ProviderDistribution) ProviderDistribution {
