@@ -452,7 +452,6 @@ func (e *EnvironmentScaler) getJobTaskResourceConsumers(clusterName string) ([]s
 				}
 
 				if req.EnvironmentID == clusterName {
-					// note that this isn't exact if the job has started some, but not all of the tasks
 					taskResourceConsumers, err := e.getContainerResourceFromDeploy(req.DeployID)
 					if err != nil {
 						return nil, err
