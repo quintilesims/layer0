@@ -4,6 +4,7 @@ const DefaultLinuxUserdataTemplate = `
 #!/bin/bash
 echo ECS_CLUSTER={{ .ECSEnvironmentID }} >> /etc/ecs/ecs.config
 echo ECS_ENGINE_AUTH_TYPE=dockercfg >> /etc/ecs/ecs.config
+echo ECS_LOGLEVEL=debug >> /etc/ecs/ecs.config
 yum install -y aws-cli awslogs jq
 aws s3 cp s3://{{ .S3Bucket }}/bootstrap/dockercfg dockercfg
 cfg=$(cat dockercfg)
@@ -20,6 +21,7 @@ Write-Host Cluster name set as: $clusterName -foreground green
 
 [Environment]::SetEnvironmentVariable("ECS_CLUSTER", $clusterName, "Machine")
 [Environment]::SetEnvironmentVariable("ECS_ENABLE_TASK_IAM_ROLE", "false", "Machine")
+[Environment]::SetEnvironmentVariable("ECS_LOGLEVEL", "debug", "Machine")
 $agentVersion = 'v1.14.0-1.windows.1'
 $agentZipUri = "https://s3.amazonaws.com/amazon-ecs-agent/ecs-agent-windows-$agentVersion.zip"
 $agentZipMD5Uri = "$agentZipUri.md5"
