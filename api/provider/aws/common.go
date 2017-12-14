@@ -6,6 +6,8 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/service/autoscaling"
+	"github.com/aws/aws-sdk-go/service/autoscaling/autoscalingiface"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ec2/ec2iface"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -145,6 +147,51 @@ func createSG(ec2api ec2iface.EC2API, groupName, description, vpcID string) erro
 	}
 
 	if _, err := ec2api.CreateSecurityGroup(input); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func readASG(autoscalingapi autoscalingiface.AutoScalingAPI, autoScalingGroupName string) (*autoscaling.Group, error) {
+	input := &autoscaling.DescribeAutoScalingGroupsInput{}
+	input.SetAutoScalingGroupNames([]*string{aws.String(autoScalingGroupName)})
+
+	output, err := autoscalingapi.DescribeAutoScalingGroups(input)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, asg := range output.AutoScalingGroups {
+		if aws.StringValue(asg.AutoScalingGroupName) == autoScalingGroupName {
+			return asg, nil
+		}
+	}
+
+	message := fmt.Sprintf("AutoScalingGroup '%s' does not exist", autoScalingGroupName)
+	return nil, awserr.New("DoesNotExist", message, nil)
+}
+
+func updateASG(autoscalingapi autoscalingiface.AutoScalingAPI, autoScalingGroupName string, minSize, maxSize, desiredCapacity *int64) error {
+	input := &autoscaling.UpdateAutoScalingGroupInput{}
+	input.SetAutoScalingGroupName(autoScalingGroupName)
+	if minSize != nil {
+		input.SetMinSize(*minSize)
+	}
+
+	if maxSize != nil {
+		input.SetMaxSize(*maxSize)
+	}
+
+	if desiredCapacity != nil {
+		input.SetDesiredCapacity(*desiredCapacity)
+	}
+
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	if _, err := autoscalingapi.UpdateAutoScalingGroup(input); err != nil {
 		return err
 	}
 

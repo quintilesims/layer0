@@ -25,18 +25,6 @@ func (e *EnvironmentScaler) getActiveContainerInstanceARNsForCluster(clusterName
 	return containerInstanceARNs, nil
 }
 
-func (e *EnvironmentScaler) getAutoScalingGroupForCluster(clusterName string) (*autoscaling.Group, error) {
-	input := &autoscaling.DescribeAutoScalingGroupsInput{}
-	input.SetAutoScalingGroupNames([]*string{&clusterName})
-
-	asgs, err := e.Client.AutoScaling.DescribeAutoScalingGroups(input)
-	if err != nil {
-		return nil, err
-	}
-
-	return asgs.AutoScalingGroups[0], nil
-}
-
 func (e *EnvironmentScaler) getContainerInstancesFromARNs(clusterName string, containerInstanceARNs []*string) ([]*ecs.ContainerInstance, error) {
 	describeContainerInstancesInput := &ecs.DescribeContainerInstancesInput{}
 	describeContainerInstancesInput.SetCluster(clusterName)
@@ -130,17 +118,6 @@ func (e *EnvironmentScaler) getTaskDefinitionFromDeployID(deployID string) (*ecs
 	return output.TaskDefinition, nil
 }
 
-func (e *EnvironmentScaler) setDesiredCapacityForAutoScalingGroup(asgName string, desiredScale int) error {
-	input := &autoscaling.SetDesiredCapacityInput{}
-	input.SetAutoScalingGroupName(asgName)
-	input.SetDesiredCapacity(int64(desiredScale))
-
-	if _, err := e.Client.AutoScaling.SetDesiredCapacity(input); err != nil {
-		return err
-	}
-
-	return nil
-}
 func (e *EnvironmentScaler) terminateInstanceInAutoScalingGroup(instanceID string) error {
 	input := &autoscaling.TerminateInstanceInAutoScalingGroupInput{}
 	input.SetInstanceId(instanceID)

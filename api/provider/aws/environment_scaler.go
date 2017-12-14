@@ -131,7 +131,7 @@ func (e *EnvironmentScaler) CalculateOptimizedState(clusterName string, resource
 }
 
 func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, unusedProviders []*scaler.ResourceProvider) error {
-	asg, err := e.getAutoScalingGroupForCluster(clusterName)
+	asg, err := readASG(e.Client.AutoScaling, clusterName)
 	if err != nil {
 		return err
 	}
@@ -157,7 +157,8 @@ func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, u
 	}
 
 	asgName := aws.StringValue(asg.AutoScalingGroupName)
-	if err := e.setDesiredCapacityForAutoScalingGroup(asgName, desiredScale); err != nil {
+	desiredScale64 := int64(desiredScale)
+	if err := updateASG(e.Client.AutoScaling, asgName, nil, nil, &desiredScale64); err != nil {
 		return err
 	}
 
