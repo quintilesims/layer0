@@ -327,24 +327,24 @@ func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]s
 	}
 
 	consumers := make([]scaler.ResourceConsumer, len(taskDefinition.ContainerDefinitions))
-	for i, d := range taskDefinition.ContainerDefinitions {
+	for i, taskDefinition := range taskDefinition.ContainerDefinitions {
 		var cpu int
 		var memory bytesize.Bytesize
 
-		if c := int(aws.Int64Value(d.Cpu)); c != 0 {
+		if c := int(aws.Int64Value(taskDefinition.Cpu)); c != 0 {
 			cpu = c
 		}
 
-		if m := aws.Int64Value(d.MemoryReservation); m != 0 {
+		if m := aws.Int64Value(taskDefinition.MemoryReservation); m != 0 {
 			memory = bytesize.MiB * bytesize.Bytesize(m)
 		}
 
-		if m := aws.Int64Value(d.Memory); m != 0 {
+		if m := aws.Int64Value(taskDefinition.Memory); m != 0 {
 			memory = bytesize.MiB * bytesize.Bytesize(m)
 		}
 
 		ports := []int{}
-		for _, p := range d.PortMappings {
+		for _, p := range taskDefinition.PortMappings {
 			if hostPort := int(aws.Int64Value(p.HostPort)); hostPort != 0 {
 				ports = append(ports, hostPort)
 			}
