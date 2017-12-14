@@ -104,3 +104,31 @@ resource "aws_iam_group_policy" "mod" {
   group  = "${aws_iam_group.mod.id}"
   policy = "${element(data.template_file.group_policy.*.rendered, count.index)}"
 }
+
+data "aws_ami" "linux" {
+  most_recent = true
+  executable_users = ["self"]
+  filter {
+    name   = "owner-alias"
+    values = ["amazon"]
+  }
+
+  filter {
+    name = "name"
+    values = ["amzn-ami-2017.09.d-amazon-ecs-optimized"]
+  }
+}
+
+data "aws_ami" "windows" {
+  most_recent = true
+  executable_users = ["self"]
+  filter {
+    name   = "owner-alias"
+    values = ["amazon"]
+  }
+
+  filter {
+    name = "name"
+    values = ["Windows_Server-2016-English-Full-ECS_Optimized-2017.11.24"]
+  }
+}
