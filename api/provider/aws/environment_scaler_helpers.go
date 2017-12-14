@@ -85,7 +85,7 @@ func (e *EnvironmentScaler) getServicesFromServiceARNs(clusterName string, servi
 	return services, nil
 }
 
-func (e *EnvironmentScaler) getTaskARNsForCluster(clusterName, startedBy, status string) ([]string, error) {
+func (e *EnvironmentScaler) getTaskARNsForCluster(clusterName, status, startedBy string) ([]string, error) {
 	var taskARNs []string
 
 	fn := func(output *ecs.ListTasksOutput, lastPage bool) bool {
