@@ -243,3 +243,26 @@ func listClusterTaskARNs(ecsapi ecsiface.ECSAPI, clusterName, startedBy, status 
 
 	return taskARNs, nil
 }
+
+func readService(ecsapi ecsiface.ECSAPI, clusterName, serviceID string) (*ecs.Service, error) {
+	input := &ecs.DescribeServicesInput{}
+	input.SetCluster(clusterName)
+	input.SetServices([]*string{
+		aws.String(serviceID),
+	})
+
+	output, err := ecsapi.DescribeServices(input)
+	if err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "ServiceNotFoundException" {
+			return nil, errors.Newf(errors.ServiceDoesNotExist, "Service '%s' does not exist", serviceID)
+		}
+
+		return nil, err
+	}
+
+	if len(output.Services) == 0 {
+		return nil, errors.Newf(errors.ServiceDoesNotExist, "Service '%s' does not exist", serviceID)
+	}
+
+	return output.Services[0], nil
+}

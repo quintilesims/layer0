@@ -2,9 +2,6 @@ package aws
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/ecs"
-	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -22,7 +19,7 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
 
-	ecsService, err := s.readService(clusterName, fqServiceID)
+	ecsService, err := readService(s.AWS.ECS, clusterName, fqServiceID)
 	if err != nil {
 		return nil, err
 	}
@@ -69,29 +66,6 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 	model.RunningCount = int(aws.Int64Value(ecsService.RunningCount))
 
 	return model, nil
-}
-
-func (s *ServiceProvider) readService(clusterName, serviceID string) (*ecs.Service, error) {
-	input := &ecs.DescribeServicesInput{}
-	input.SetCluster(clusterName)
-	input.SetServices([]*string{
-		aws.String(serviceID),
-	})
-
-	output, err := s.AWS.ECS.DescribeServices(input)
-	if err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "ServiceNotFoundException" {
-			return nil, errors.Newf(errors.ServiceDoesNotExist, "Service '%s' does not exist", serviceID)
-		}
-
-		return nil, err
-	}
-
-	if len(output.Services) == 0 {
-		return nil, errors.Newf(errors.ServiceDoesNotExist, "Service '%s' does not exist", serviceID)
-	}
-
-	return output.Services[0], nil
 }
 
 func (s *ServiceProvider) makeDeploymentModel(deployID string) (*models.Deployment, error) {
