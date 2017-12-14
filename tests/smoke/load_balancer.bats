@@ -70,24 +70,12 @@ certificate_name="l0-$LAYER0_INSTANCE-api"
     l0 loadbalancer create --port 80:80/http test loadbalancer4
 }
 
-@test "deploy create guestbook" {
-    l0 deploy create ./common/Service.Dockerrun.aws.json guestbook
-}
-
-@test "service create --loadbalancer loadbalancer4 test service1 guestbook:latest" {
-    l0 service create --loadbalancer loadbalancer4 test service1 guestbook:latest
-}
-
 @test "loadbalancer list" {
     l0 loadbalancer list
 }
 
 @test "loadbalancer get loadbalancer4" {
     l0 loadbalancer get loadbalancer4
-}
-
-@test "deploy delete guestbook:latest" {
-    l0 deploy delete guestbook:latest
 }
 
 # this deletes the remaining service(s), load balancer(s), and task(s)
