@@ -17,6 +17,15 @@ type ResourceProvider struct {
 	UsedPorts        []int             `json:"used_ports"`
 }
 
+func NewResourceProvider(cpu int, id string, memory bytesize.Bytesize) *ResourceProvider {
+	return &ResourceProvider{
+		AvailableCPU:    cpu,
+		AvailableMemory: memory,
+		ID:              id,
+		UsedPorts:       defaultPorts(),
+	}
+}
+
 func (r *ResourceProvider) HasResourcesFor(consumer ResourceConsumer) bool {
 	if !r.AgentIsConnected || r.Status != ecs.ContainerInstanceStatusActive {
 		return false

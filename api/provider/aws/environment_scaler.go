@@ -21,16 +21,6 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func defaultPorts() []int {
-	return []int{
-		22,
-		2376,
-		2375,
-		51678,
-		51679,
-	}
-}
-
 type EnvironmentScaler struct {
 	Client              *awsc.Client
 	EnvironmentProvider provider.EnvironmentProvider
@@ -229,15 +219,7 @@ func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*scaler.Re
 	}
 
 	instanceSpec := instanceSpecifications()[environment.InstanceSize]
-
-	resource := &scaler.ResourceProvider{}
-	resource.AvailableCPU = instanceSpec.CPU
-	resource.AvailableMemory = instanceSpec.Memory
-	resource.ID = "<new instance>"
-	resource.InUse = false
-	resource.UsedPorts = defaultPorts()
-
-	return resource, nil
+	return scaler.NewResourceProvider(instanceSpec.CPU, "<new instance>", instanceSpec.Memory), nil
 }
 
 func (e *EnvironmentScaler) calculateScaleDown(clusterName string, resourceProviders []*scaler.ResourceProvider) []*scaler.ResourceProvider {
