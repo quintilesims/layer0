@@ -231,9 +231,9 @@ func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*scaler.Re
 		environment = env
 	}
 
-	instanceSpec, ok := instanceSpecifications()[environment.InstanceSize]
+	instanceSpec, ok := instanceSpecifications()[environment.InstanceType]
 	if !ok {
-		return nil, fmt.Errorf("[EnvironmentScaler] Instance size '%s' is not valid!", environment.InstanceSize)
+		return nil, fmt.Errorf("[EnvironmentScaler] Instance size '%s' is not valid!", environment.InstanceType)
 	}
 
 	return scaler.NewResourceProvider(instanceSpec.CPU, "<new instance>", instanceSpec.Memory), nil
