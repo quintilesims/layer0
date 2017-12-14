@@ -1,7 +1,7 @@
 #!/bin/bash
 echo ECS_CLUSTER=${cluster_id} >> /etc/ecs/ecs.config
 echo ECS_ENGINE_AUTH_TYPE=dockercfg >> /etc/ecs/ecs.config
-echo ECS_LOGLEVEL=ECS_LOGLEVEL >> /etc/ecs/ecs.config
+echo ECS_LOGLEVEL=debug >> /etc/ecs/ecs.config
 yum install -y aws-cli awslogs
 aws s3 cp s3://${s3_bucket}/bootstrap/dockercfg dockercfg
 cfg=$(cat dockercfg)
