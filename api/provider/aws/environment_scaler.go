@@ -39,6 +39,7 @@ type EnvironmentScaler struct {
 	JobStore            job.Store
 	Config              config.APIConfig
 	deployCache         *cache.Cache
+	environmentCache    *cache.Cache
 }
 
 func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s provider.ServiceProvider, t provider.TaskProvider, j job.Store, c config.APIConfig) *EnvironmentScaler {
@@ -50,6 +51,7 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 		JobStore:            j,
 		Config:              c,
 		deployCache:         cache.New(),
+		environmentCache:    cache.New(),
 	}
 }
 
@@ -208,12 +210,25 @@ func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, u
 }
 
 func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*scaler.ResourceProvider, error) {
-	env, err := e.EnvironmentProvider.Read(clusterName)
-	if err != nil {
-		return nil, err
+	var environment *models.Environment
+
+	val, ok := e.environmentCache.Getf(clusterName)
+
+	switch ok {
+	case true:
+		environment = val.(*models.Environment)
+
+	case false:
+		env, err := e.EnvironmentProvider.Read(clusterName)
+		if err != nil {
+			return nil, err
+		}
+
+		e.environmentCache.Add(clusterName, env)
+		environment = env
 	}
 
-	instanceSpec := instanceSpecifications()[env.InstanceSize]
+	instanceSpec := instanceSpecifications()[environment.InstanceSize]
 
 	resource := &scaler.ResourceProvider{}
 	resource.AvailableCPU = instanceSpec.CPU
@@ -446,8 +461,9 @@ func (e *EnvironmentScaler) getJobTaskResourceConsumers(clusterName string) ([]s
 
 	for _, job := range jobs {
 		if job.Type == models.CreateTaskJob {
-			// don't check for Pending jobs; once the job runner has picked
-			// up a job, its status is already InProgress
+			// Don't check for Pending jobs.
+			// It's more efficient and cost-effective to only scale for jobs that are InProgress.
+			// Jobs could be stuck in the Pending state for hours waiting for a worker to pick them up.
 			if job.Status == models.InProgressJobStatus {
 				var req models.CreateTaskRequest
 				if err := json.Unmarshal([]byte(job.Request), &req); err != nil {
