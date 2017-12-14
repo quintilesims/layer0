@@ -11,7 +11,6 @@ import (
 	cache "github.com/zpatrick/go-cache"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
@@ -29,108 +28,6 @@ func defaultPorts() []int {
 		2375,
 		51678,
 		51679,
-	}
-}
-
-type InstanceSpec struct {
-	CPU    int
-	Memory bytesize.Bytesize
-}
-
-func NewInstanceSpec(virtualCPUCores int, gibibytesMemory float64) InstanceSpec {
-	return InstanceSpec{
-		virtualCPUCores,
-		bytesize.GiB * bytesize.Bytesize(gibibytesMemory),
-	}
-}
-
-// https://aws.amazon.com/ec2/instance-types/
-func instanceSpecs() map[string]InstanceSpec {
-	return map[string]InstanceSpec{
-		"t2.nano":      NewInstanceSpec(1, 0.5),
-		"t2.micro":     NewInstanceSpec(1, 1),
-		"t2.small":     NewInstanceSpec(1, 2),
-		"t2.medium":    NewInstanceSpec(2, 4),
-		"t2.large":     NewInstanceSpec(2, 8),
-		"t2.xlarge":    NewInstanceSpec(4, 16),
-		"t2.2xlarge":   NewInstanceSpec(8, 32),
-		"m5.large":     NewInstanceSpec(2, 8),
-		"m5.xlarge":    NewInstanceSpec(4, 16),
-		"m5.2xlarge":   NewInstanceSpec(8, 32),
-		"m5.4xlarge":   NewInstanceSpec(16, 64),
-		"m5.12xlarge":  NewInstanceSpec(48, 192),
-		"m5.24xlarge":  NewInstanceSpec(96, 384),
-		"m4.large":     NewInstanceSpec(2, 8),
-		"m4.xlarge":    NewInstanceSpec(4, 16),
-		"m4.2xlarge":   NewInstanceSpec(8, 32),
-		"m4.4xlarge":   NewInstanceSpec(16, 64),
-		"m4.10xlarge":  NewInstanceSpec(40, 160),
-		"m4.16xlarge":  NewInstanceSpec(64, 256),
-		"m3.medium":    NewInstanceSpec(1, 3.75),
-		"m3.large":     NewInstanceSpec(2, 7.5),
-		"m3.xlarge":    NewInstanceSpec(4, 15),
-		"m3.2xlarge":   NewInstanceSpec(8, 30),
-		"c5.large":     NewInstanceSpec(2, 4),
-		"c5.xlarge":    NewInstanceSpec(4, 8),
-		"c5.2xlarge":   NewInstanceSpec(8, 16),
-		"c5.4xlarge":   NewInstanceSpec(16, 32),
-		"c5.9xlarge":   NewInstanceSpec(36, 72),
-		"c5.18xlarge":  NewInstanceSpec(72, 144),
-		"c4.large":     NewInstanceSpec(2, 3.75),
-		"c4.xlarge":    NewInstanceSpec(4, 7.5),
-		"c4.2xlarge":   NewInstanceSpec(8, 15),
-		"c4.4xlarge":   NewInstanceSpec(16, 30),
-		"c4.8xlarge":   NewInstanceSpec(36, 60),
-		"c3.large":     NewInstanceSpec(2, 3.75),
-		"c3.xlarge":    NewInstanceSpec(4, 7.5),
-		"c3.2xlarge":   NewInstanceSpec(8, 15),
-		"c3.4xlarge":   NewInstanceSpec(16, 30),
-		"c3.8xlarge":   NewInstanceSpec(32, 60),
-		"x1.16large":   NewInstanceSpec(64, 976),
-		"x1.32xlarge":  NewInstanceSpec(128, 1952),
-		"x1e.xlarge":   NewInstanceSpec(4, 122),
-		"x1e.2xlarge":  NewInstanceSpec(8, 244),
-		"x1e.4xlarge":  NewInstanceSpec(16, 488),
-		"x1e.8xlarge":  NewInstanceSpec(32, 976),
-		"x1e.16xlarge": NewInstanceSpec(64, 1952),
-		"x1e.32xlarge": NewInstanceSpec(128, 3904),
-		"r4.large":     NewInstanceSpec(2, 15.25),
-		"r4.xlarge":    NewInstanceSpec(4, 30.5),
-		"r4.2xlarge":   NewInstanceSpec(8, 61),
-		"r4.4xlarge":   NewInstanceSpec(16, 122),
-		"r4.8xlarge":   NewInstanceSpec(32, 244),
-		"r4.16xlarge":  NewInstanceSpec(64, 488),
-		"r3.large":     NewInstanceSpec(2, 15.25),
-		"r3.xlarge":    NewInstanceSpec(4, 30.5),
-		"r3.2xlarge":   NewInstanceSpec(8, 61),
-		"r3.4xlarge":   NewInstanceSpec(16, 122),
-		"r3.8xlarge":   NewInstanceSpec(32, 244),
-		"p3.2xlarge":   NewInstanceSpec(8, 61),
-		"p3.8xlarge":   NewInstanceSpec(32, 244),
-		"p3.16xlarge":  NewInstanceSpec(64, 488),
-		"p2.xlarge":    NewInstanceSpec(4, 61),
-		"p2.8xlarge":   NewInstanceSpec(32, 488),
-		"p2.16xlarge":  NewInstanceSpec(64, 732),
-		"g3.4xlarge":   NewInstanceSpec(16, 122),
-		"g3.8xlarge":   NewInstanceSpec(32, 244),
-		"g3.16xlarge":  NewInstanceSpec(64, 488),
-		"f1.2xlarge":   NewInstanceSpec(8, 122),
-		"f1.16xlarge":  NewInstanceSpec(64, 976),
-		"h1.2xlarge":   NewInstanceSpec(8, 32),
-		"h1.4xlarge":   NewInstanceSpec(16, 64),
-		"h1.8xlarge":   NewInstanceSpec(32, 128),
-		"h1.16xlarge":  NewInstanceSpec(64, 256),
-		"i3.large":     NewInstanceSpec(2, 15.25),
-		"i3.xlarge":    NewInstanceSpec(4, 30.5),
-		"i3.2xlarge":   NewInstanceSpec(8, 61),
-		"i3.4xlarge":   NewInstanceSpec(16, 122),
-		"i3.8xlarge":   NewInstanceSpec(32, 244),
-		"i3.16xlarge":  NewInstanceSpec(64, 488),
-		"i3.metal":     NewInstanceSpec(0, 512),
-		"d2.xlarge":    NewInstanceSpec(4, 30.5),
-		"d2.2xlarge":   NewInstanceSpec(8, 61),
-		"d2.4xlarge":   NewInstanceSpec(16, 122),
-		"d2.8xlarge":   NewInstanceSpec(36, 244),
 	}
 }
 
@@ -247,31 +144,67 @@ func (e *EnvironmentScaler) CalculateOptimizedState(clusterName string, resource
 }
 
 func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, unusedProviders []*scaler.ResourceProvider) error {
-	input := &autoscaling.DescribeAutoScalingGroupsInput{}
-	input.SetAutoScalingGroupNames([]*string{&clusterName})
-
-	asgs, err := e.Client.AutoScaling.DescribeAutoScalingGroups(input)
+	asg, err := e.getAutoScalingGroupForCluster(clusterName)
 	if err != nil {
 		return err
 	}
 
-	asg := asgs.AutoScalingGroups[0]
-
 	currentCapacity := int(aws.Int64Value(asg.DesiredCapacity))
-
-	switch {
-	case desiredScale > currentCapacity:
-		log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentCapacity, desiredScale)
-		return e.scaleUp(clusterName, desiredScale, asg)
-
-	case desiredScale < currentCapacity:
-		log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentCapacity, desiredScale)
-		return e.scaleDown(clusterName, desiredScale, asg, unusedProviders)
-
-	default:
-		log.Printf("[DEBUG] [EnvironmentScaler] Environment '%s' is at desired scale of '%d'. No scaling action required.", clusterName, currentCapacity)
+	if desiredScale == currentCapacity {
+		log.Printf("[DEBUG] {EnvironmentScaler] Environment '%s' is at desired scale of '%d'. No scaling action required.", clusterName, currentCapacity)
 		return nil
 	}
+
+	log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentCapacity, desiredScale)
+
+	minCapacity := int(aws.Int64Value(asg.MinSize))
+	if desiredScale < minCapacity {
+		log.Printf("[DEBUG] [EnvironmentScaler] Will not scale below minimum capacity of '%d'. Aborting scaling action for environment '%s'.", minCapacity, clusterName)
+		return nil
+	}
+
+	maxCapacity := int(aws.Int64Value(asg.MaxSize))
+	if desiredScale > maxCapacity {
+		log.Printf("[DEBUG] [EnvironmentScaler] Will not scale above maximum capacity of '%d'. Aborting scaling action for environment '%s'.", maxCapacity, clusterName)
+		return nil
+	}
+
+	asgName := aws.StringValue(asg.AutoScalingGroupName)
+	if err := e.setDesiredCapacityForAutoScalingGroup(asgName, desiredScale); err != nil {
+		return err
+	}
+
+	// choose which instances to terminate during our scale-down process
+	// instead of having asg randomly select instances
+	// e.g. if we scale from 5 to 3, we can terminate up to 2 unused instances
+	if currentCapacity > desiredScale {
+		maxNumberOfInstancesToTerminate := currentCapacity - desiredScale
+
+		canTerminate := func(i int) bool {
+			if i+1 > maxNumberOfInstancesToTerminate {
+				return false
+			}
+
+			if i > len(unusedProviders)-1 {
+				return false
+			}
+
+			return true
+		}
+
+		for i := 0; canTerminate(i); i++ {
+			unusedProvider := unusedProviders[i]
+			instanceID := unusedProvider.ID
+
+			log.Printf("[DEBUG] [EnvironmentScaler] Terminating unused instance '%s' from environment '%s'.", instanceID, clusterName)
+
+			if err := e.terminateInstanceInAutoScalingGroup(instanceID); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
 }
 
 func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*scaler.ResourceProvider, error) {
@@ -280,7 +213,7 @@ func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*scaler.Re
 		return nil, err
 	}
 
-	instanceSpec := instanceSpecs()[env.InstanceSize]
+	instanceSpec := instanceSpecifications()[env.InstanceSize]
 
 	resource := &scaler.ResourceProvider{}
 	resource.AvailableCPU = instanceSpec.CPU
@@ -390,15 +323,13 @@ func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]s
 		return consumers.([]scaler.ResourceConsumer), nil
 	}
 
-	input := &ecs.DescribeTaskDefinitionInput{}
-	input.SetTaskDefinition(deployID)
-	output, err := e.Client.ECS.DescribeTaskDefinition(input)
+	taskDefinition, err := e.getTaskDefinitionFromDeployID(deployID)
 	if err != nil {
 		return nil, err
 	}
 
-	consumers := make([]scaler.ResourceConsumer, len(output.TaskDefinition.ContainerDefinitions))
-	for i, d := range output.TaskDefinition.ContainerDefinitions {
+	consumers := make([]scaler.ResourceConsumer, len(taskDefinition.ContainerDefinitions))
+	for i, d := range taskDefinition.ContainerDefinitions {
 		var cpu int
 		var memory bytesize.Bytesize
 
@@ -432,43 +363,14 @@ func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]s
 func (e *EnvironmentScaler) getServiceResourceConsumers(clusterName string) ([]scaler.ResourceConsumer, error) {
 	var resourceConsumers []scaler.ResourceConsumer
 
-	listServicesInput := &ecs.ListServicesInput{}
-	listServicesInput.SetCluster(clusterName)
-
-	serviceARNs := []*string{}
-	listServicesPagesFN := func(output *ecs.ListServicesOutput, lastPage bool) bool {
-		serviceARNs = append(serviceARNs, output.ServiceArns...)
-
-		return !lastPage
-	}
-
-	if err := e.Client.ECS.ListServicesPages(listServicesInput, listServicesPagesFN); err != nil {
+	serviceARNs, err := e.getServiceARNsForCluster(clusterName)
+	if err != nil {
 		return nil, err
 	}
 
-	services := []*ecs.Service{}
-	if len(serviceARNs) > 0 {
-		// The SDK states that you can specify up to 10 services in one DescribeServices operation:
-		// https://github.com/aws/aws-sdk-go/blob/v1.12.19/service/ecs/api.go#L5420
-		// (aws-sdk-go version 1.12.19, as stated in layer0/Gopkg.toml)
-		for i := 0; i < len(serviceARNs); i += 10 {
-			end := i + 10
-
-			if end > len(serviceARNs) {
-				end = len(serviceARNs)
-			}
-
-			describeServicesInput := &ecs.DescribeServicesInput{}
-			describeServicesInput.SetCluster(clusterName)
-			describeServicesInput.SetServices(serviceARNs[i:end])
-
-			output, err := e.Client.ECS.DescribeServices(describeServicesInput)
-			if err != nil {
-				return nil, err
-			}
-
-			services = append(services, output.Services...)
-		}
+	services, err := e.getServicesFromServiceARNs(clusterName, serviceARNs)
+	if err != nil {
+		return nil, err
 	}
 
 	for _, service := range services {
@@ -504,30 +406,19 @@ func (e *EnvironmentScaler) getServiceResourceConsumers(clusterName string) ([]s
 }
 
 func (e *EnvironmentScaler) getECSTaskResourceConsumers(clusterName string) ([]scaler.ResourceConsumer, error) {
-	var (
-		taskARNs          []string
-		resourceConsumers []scaler.ResourceConsumer
-	)
-
-	fn := func(output *ecs.ListTasksOutput, lastPage bool) bool {
-
-		for _, taskARN := range output.TaskArns {
-			taskARNs = append(taskARNs, aws.StringValue(taskARN))
-		}
-
-		return !lastPage
-	}
+	var taskARNs []string
 
 	startedBy := e.Config.Instance()
 	for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
-		input := &ecs.ListTasksInput{}
-		input.SetCluster(clusterName)
-		input.SetDesiredStatus(status)
-		input.SetStartedBy(startedBy)
-		if err := e.Client.ECS.ListTasksPages(input, fn); err != nil {
+		arns, err := e.getTaskARNsForCluster(clusterName, status, startedBy)
+		if err != nil {
 			return nil, err
 		}
+
+		taskARNs = append(taskARNs, arns...)
 	}
+
+	var resourceConsumers []scaler.ResourceConsumer
 
 	for _, taskARN := range taskARNs {
 		task, err := e.TaskProvider.Read(taskARN)
@@ -582,18 +473,8 @@ func (e *EnvironmentScaler) getJobTaskResourceConsumers(clusterName string) ([]s
 func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*scaler.ResourceProvider, error) {
 	var result []*scaler.ResourceProvider
 
-	listContainerInstancesInput := &ecs.ListContainerInstancesInput{}
-	listContainerInstancesInput.SetCluster(clusterName)
-	listContainerInstancesInput.SetStatus(ecs.ContainerInstanceStatusActive)
-
-	containerInstanceARNs := []*string{}
-	listContainerInstancesPagesFN := func(output *ecs.ListContainerInstancesOutput, lastPage bool) bool {
-		containerInstanceARNs = append(containerInstanceARNs, output.ContainerInstanceArns...)
-
-		return !lastPage
-	}
-
-	if err := e.Client.ECS.ListContainerInstancesPages(listContainerInstancesInput, listContainerInstancesPagesFN); err != nil {
+	containerInstanceARNs, err := e.getActiveContainerInstanceARNsForCluster(clusterName)
+	if err != nil {
 		return nil, err
 	}
 
@@ -601,20 +482,16 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*scaler.
 		return result, nil
 	}
 
-	describeContainerInstancesInput := &ecs.DescribeContainerInstancesInput{}
-	describeContainerInstancesInput.SetCluster(clusterName)
-	describeContainerInstancesInput.SetContainerInstances(containerInstanceARNs)
-
-	output, err := e.Client.ECS.DescribeContainerInstances(describeContainerInstancesInput)
+	containerInstances, err := e.getContainerInstancesFromARNs(clusterName, containerInstanceARNs)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(output.ContainerInstances) == 0 {
+	if len(containerInstances) == 0 {
 		return result, nil
 	}
 
-	for _, instance := range output.ContainerInstances {
+	for _, instance := range containerInstances {
 		// it's non-intuitive, but the ports being used by the tasks live in
 		// instance.RemainingResources, not instance.RegisteredResources
 		var (
@@ -661,73 +538,6 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*scaler.
 	}
 
 	return result, nil
-}
-
-func (e *EnvironmentScaler) scaleDown(clusterName string, desiredScale int, asg *autoscaling.Group, unusedProviders []*scaler.ResourceProvider) error {
-	minCapacity := int(aws.Int64Value(asg.MinSize))
-	if desiredScale < minCapacity {
-		log.Printf("[DEBUG] [EnvironmentScaler] Will not scale below minimum capacity of '%d'. Aborting scaling action for environment '%s'.", minCapacity, clusterName)
-		return nil
-	}
-
-	input := &autoscaling.SetDesiredCapacityInput{}
-	input.SetAutoScalingGroupName(aws.StringValue(asg.AutoScalingGroupName))
-	input.SetDesiredCapacity(int64(desiredScale))
-
-	if _, err := e.Client.AutoScaling.SetDesiredCapacity(input); err != nil {
-		return err
-	}
-
-	// choose which instances to terminate during our scale-down process
-	// instead of having asg randomly select instances
-	// e.g. if we scale from 5 to 3, we can terminate up to 2 unused instances
-	currentCapacity := int(aws.Int64Value(asg.DesiredCapacity))
-	maxNumberOfInstancesToTerminate := currentCapacity - desiredScale
-
-	canTerminate := func(i int) bool {
-		if i+1 > maxNumberOfInstancesToTerminate {
-			return false
-		}
-
-		if i > len(unusedProviders)-1 {
-			return false
-		}
-
-		return true
-	}
-
-	for i := 0; canTerminate(i); i++ {
-		unusedProvider := unusedProviders[i]
-		log.Printf("[DEBUG] [EnvironmentScaler] Terminating unused instance '%s' from environment '%s'.", unusedProvider.ID, clusterName)
-
-		input := &autoscaling.TerminateInstanceInAutoScalingGroupInput{}
-		input.SetInstanceId(unusedProvider.ID)
-		input.SetShouldDecrementDesiredCapacity(false)
-
-		if _, err := e.Client.AutoScaling.TerminateInstanceInAutoScalingGroup(input); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-func (e *EnvironmentScaler) scaleUp(clusterName string, desiredScale int, asg *autoscaling.Group) error {
-	maxCapacity := int(aws.Int64Value(asg.MaxSize))
-	if desiredScale > maxCapacity {
-		log.Printf("[DEBUG] [EnvironmentScaler] Will not scale above maximum capacity of '%d'. Aborting scaling action for environment '%s'.", maxCapacity, clusterName)
-		return nil
-	}
-
-	input := &autoscaling.SetDesiredCapacityInput{}
-	input.SetAutoScalingGroupName(aws.StringValue(asg.AutoScalingGroupName))
-	input.SetDesiredCapacity(int64(desiredScale))
-
-	if _, err := e.Client.AutoScaling.SetDesiredCapacity(input); err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func sortConsumersByCPU(c []scaler.ResourceConsumer) {
