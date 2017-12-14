@@ -372,7 +372,7 @@ func (e *EnvironmentScaler) getServiceResourceConsumers(clusterName string) ([]s
 	}
 
 	for _, service := range services {
-		deployIDCopies := map[string]int64{}
+		deployIDCopies := map[string]int{}
 		// deployment.RunningCount is the number of containers already running on an instance
 		// deployment.PendingCount is the number of containers that are alraedy on an instance, but are being pulled
 		// we only care about containers that are not on instances yet
@@ -381,7 +381,7 @@ func (e *EnvironmentScaler) getServiceResourceConsumers(clusterName string) ([]s
 			runningCount := aws.Int64Value(d.RunningCount)
 			pendingCount := aws.Int64Value(d.PendingCount)
 			if numPending := desiredCount - (runningCount + pendingCount); numPending > 0 {
-				deployIDCopies[aws.StringValue(d.Id)] = numPending
+				deployIDCopies[aws.StringValue(d.Id)] = int(numPending)
 			}
 		}
 
@@ -389,14 +389,16 @@ func (e *EnvironmentScaler) getServiceResourceConsumers(clusterName string) ([]s
 			continue
 		}
 
-		// iterate through deploys
-		for deployID := range deployIDCopies {
-			c, err := e.getContainerResourceFromDeploy(deployID)
-			if err != nil {
-				return nil, err
-			}
+		// iterate through deploys and their copies
+		for deployID, numCopies := range deployIDCopies {
+			for i := 0; i < numCopies; i++ {
+				consumers, err := e.getContainerResourceFromDeploy(deployID)
+				if err != nil {
+					return nil, err
+				}
 
-			resourceConsumers = append(resourceConsumers, c...)
+				resourceConsumers = append(resourceConsumers, consumers...)
+			}
 		}
 	}
 
