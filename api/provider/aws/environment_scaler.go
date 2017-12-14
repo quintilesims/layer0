@@ -496,11 +496,9 @@ func (e *EnvironmentScaler) getResourceProviders(clusterName string) ([]*scaler.
 	for _, instance := range containerInstances {
 		// it's non-intuitive, but the ports being used by the tasks live in
 		// instance.RemainingResources, not instance.RegisteredResources
-		var (
-			usedPorts       []int
-			availableCPU    int
-			availableMemory bytesize.Bytesize
-		)
+		var usedPorts []int
+		var availableCPU int
+		var availableMemory bytesize.Bytesize
 
 		for _, resource := range instance.RemainingResources {
 			switch aws.StringValue(resource.Name) {
