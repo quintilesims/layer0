@@ -48,7 +48,6 @@ func NewEnvironmentScaler(a *awsc.Client, e provider.EnvironmentProvider, s prov
 type ProviderDistribution struct {
 	Errs      []error
 	Providers []*scaler.ResourceProvider
-	SortBy    string
 }
 
 // Scale determines whether or not instances need to be added to or removed from a Layer0 environment, and makes any necessary changes.
@@ -253,28 +252,31 @@ func (e *EnvironmentScaler) calculateScaleDown(clusterName string, resourceProvi
 }
 
 func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProviders []*scaler.ResourceProvider, resourceConsumers []scaler.ResourceConsumer) ([]*scaler.ResourceProvider, []error) {
-	providerDistributions := []ProviderDistribution{
-		{[]error{}, resourceProviders, "cpu"},
-		{[]error{}, resourceProviders, "mem"},
+	providerDistributions := []ProviderDistribution{}
+
+	sorters := []func([]*scaler.ResourceProvider, []scaler.ResourceConsumer){
+		func(p []*scaler.ResourceProvider, c []scaler.ResourceConsumer) {
+			sortProvidersByCPU(p)
+			sortProvidersByUsage(p)
+			sortConsumersByCPU(c)
+		},
+		func(p []*scaler.ResourceProvider, c []scaler.ResourceConsumer) {
+			sortProvidersByMemory(p)
+			sortProvidersByUsage(p)
+			sortConsumersByMemory(c)
+		},
 	}
 
-	for _, s := range providerDistributions {
-		switch s.SortBy {
-		case "cpu":
-			sortProvidersByCPU(s.Providers)
-			sortConsumersByCPU(resourceConsumers)
+	for _, sort := range sorters {
+		providerDistribution := ProviderDistribution{}
+		providerDistribution.Providers = resourceProviders
 
-		case "mem":
-			sortProvidersByMemory(s.Providers)
-			sortConsumersByMemory(resourceConsumers)
-		}
-
-		sortProvidersByUsage(s.Providers)
+		sort(providerDistribution.Providers, resourceConsumers)
 
 		for _, consumer := range resourceConsumers {
 			hasRoom := false
 
-			for _, provider := range s.Providers {
+			for _, provider := range providerDistribution.Providers {
 				if provider.HasResourcesFor(consumer) {
 					hasRoom = true
 					if err := provider.SubtractResourcesFor(consumer); err != nil {
@@ -296,7 +298,7 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 					text += "\nThe instance size in your environment is too small to run this resource."
 					text += "\n Please increase the instance size for your environment or remove this resource."
 					err := errors.Newf(errors.IncompatibleConsumerAndProvider, text)
-					s.Errs = append(s.Errs, err)
+					providerDistribution.Errs = append(providerDistribution.Errs, err)
 					continue
 				}
 
@@ -304,13 +306,12 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 					return nil, []error{err}
 				}
 
-				s.Providers = append(s.Providers, newProvider)
+				providerDistribution.Providers = append(providerDistribution.Providers, newProvider)
 			}
 		}
 	}
 
 	p := findOptimalProviderDistribution(providerDistributions)
-
 	return p.Providers, p.Errs
 }
 
