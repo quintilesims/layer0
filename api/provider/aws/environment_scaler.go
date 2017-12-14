@@ -64,12 +64,11 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 		return err
 	}
 
-	resourceProviders, unusedProviders, calcErrs, err := e.CalculateOptimizedState(clusterName, resourceConsumers, resourceProviders)
+	resourceProviders, unusedProviders, desiredScale, calcErrs, err := e.CalculateOptimizedState(clusterName, resourceConsumers, resourceProviders)
 	if err != nil {
 		return err
 	}
 
-	desiredScale := len(resourceProviders) - len(unusedProviders)
 	if err := e.ScaleToState(clusterName, desiredScale, unusedProviders); err != nil {
 		return err
 	}
@@ -117,17 +116,19 @@ func (e *EnvironmentScaler) GetCurrentState(clusterName string) ([]scaler.Resour
 	return resourceConsumers, resourceProviders, nil
 }
 
-func (e *EnvironmentScaler) CalculateOptimizedState(clusterName string, resourceConsumers []scaler.ResourceConsumer, resourceProviders []*scaler.ResourceProvider) ([]*scaler.ResourceProvider, []*scaler.ResourceProvider, []error, error) {
+func (e *EnvironmentScaler) CalculateOptimizedState(clusterName string, resourceConsumers []scaler.ResourceConsumer, resourceProviders []*scaler.ResourceProvider) ([]*scaler.ResourceProvider, []*scaler.ResourceProvider, int, []error, error) {
 	// calculate for scaling up
 	resourceProviders, scaleUpErrs, err := e.calculateScaleUp(clusterName, resourceProviders, resourceConsumers)
 	if err != nil {
-		return nil, nil, nil, err
+		return nil, nil, 0, nil, err
 	}
 
 	// calculate for scaling down
 	unusedProviders := e.calculateScaleDown(clusterName, resourceProviders)
 
-	return resourceProviders, unusedProviders, scaleUpErrs, nil
+	desiredScale := len(resourceProviders) - len(unusedProviders)
+
+	return resourceProviders, unusedProviders, desiredScale, scaleUpErrs, nil
 }
 
 func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, unusedProviders []*scaler.ResourceProvider) error {
