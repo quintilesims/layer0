@@ -35,9 +35,9 @@ func NewContext(t *testing.T, args Args, flags Flags, options ...Option) *cli.Co
 	}
 
 	// add default global flags
-	flagSet.String(config.FLAG_OUTPUT, "text", "")
-	flagSet.String(config.FLAG_TIMEOUT, "15m", "")
-	flagSet.Bool(config.FLAG_NO_WAIT, false, "")
+	flagSet.String(config.FlagOutput.GetName(), "text", "")
+	flagSet.String(config.FlagTimeout.GetName(), "15m", "")
+	flagSet.Bool(config.FlagNoWait.GetName(), false, "")
 
 	for _, option := range options {
 		option(t, c, flagSet)
@@ -59,11 +59,11 @@ func SetGlobalFlag(key, val string) Option {
 }
 
 func SetNoWait(b bool) Option {
-	return SetGlobalFlag(config.FLAG_NO_WAIT, strconv.FormatBool(b))
+	return SetGlobalFlag(config.FlagNoWait.GetName(), strconv.FormatBool(b))
 }
 
 func SetTimeout(d time.Duration) Option {
-	return SetGlobalFlag(config.FLAG_TIMEOUT, d.String())
+	return SetGlobalFlag(config.FlagTimeout.GetName(), d.String())
 }
 
 func SetVersion(v string) Option {

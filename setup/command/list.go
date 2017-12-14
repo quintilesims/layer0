@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
@@ -17,7 +18,10 @@ func (f *CommandFactory) List() cli.Command {
 	return cli.Command{
 		Name:  "list",
 		Usage: "list local and/or remote Layer0 instances",
-		Flags: append(awsFlags,
+		Flags: []cli.Flag{
+			config.FlagAWSAccessKey,
+			config.FlagAWSSecretKey,
+			config.FlagAWSRegion,
 			cli.BoolFlag{
 				Name:  "l, local",
 				Usage: "only show local Layer0 instances, denoted by 'l'",
@@ -25,7 +29,8 @@ func (f *CommandFactory) List() cli.Command {
 			cli.BoolFlag{
 				Name:  "r, remote",
 				Usage: "only show remote Layer0 instances, denoted by 'r'",
-			}),
+			},
+		},
 		Action: func(c *cli.Context) error {
 			instances := map[string]status{}
 			if !c.Bool("local") {

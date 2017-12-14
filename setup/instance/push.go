@@ -18,7 +18,7 @@ func (l *LocalInstance) Push(s s3iface.S3API) error {
 		return err
 	}
 
-	bucket, err := l.Output(OUTPUT_S3_BUCKET)
+	bucket, err := l.Output("s3_bucket")
 	if err != nil {
 		return err
 	}

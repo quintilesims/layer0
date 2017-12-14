@@ -137,7 +137,7 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 	}
 
 	return s.waitOnJobHelper(c, jobID, "creating", func(serviceID string) error {
-		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
+		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FlagTimeout.GetName()))
 		if err != nil {
 			return err
 		}
@@ -232,7 +232,7 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 	}
 
 	return s.waitOnJobHelper(c, jobID, "scaling", func(serviceID string) error {
-		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
+		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FlagTimeout.GetName()))
 		if err != nil {
 			return err
 		}
@@ -267,7 +267,7 @@ func (s *ServiceCommand) update(c *cli.Context) error {
 	}
 
 	return s.waitOnJobHelper(c, jobID, "updating", func(serviceID string) error {
-		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
+		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FlagTimeout.GetName()))
 		if err != nil {
 			return err
 		}

@@ -17,7 +17,7 @@ func (l *LocalInstance) Apply(wait bool) error {
 		return err
 	}
 
-	endpoint, err := l.Output(OUTPUT_ENDPOINT)
+	endpoint, err := l.Output("endpoint")
 	if err != nil {
 		return err
 	}

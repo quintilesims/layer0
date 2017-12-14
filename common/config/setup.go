@@ -8,9 +8,19 @@ import (
 
 func SetupFlags() []cli.Flag {
 	return []cli.Flag{
-		cli.BoolFlag{
-			Name:   fmt.Sprintf("d, %s", FLAG_DEBUG),
-			EnvVar: ENVVAR_DEBUG,
-		},
+		FlagDebug,
 	}
+}
+
+func ValidateSetupContext(c *cli.Context) error {
+	requiredFlags := []cli.Flag{}
+
+	for _, flag := range requiredFlags {
+		name := flag.GetName()
+		if !c.IsSet(name) {
+			return fmt.Errorf("Required Variable %s is not set!", name)
+		}
+	}
+
+	return nil
 }

@@ -107,7 +107,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 			},
 		}
 
-		healthCheck := config.DefaultLoadBalancerHealthCheck
+		healthCheck := config.DefaultLoadBalancerHealthCheck()
 
 		req := models.CreateLoadBalancerRequest{
 			LoadBalancerName: "lb_name",

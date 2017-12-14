@@ -4,9 +4,13 @@ import (
 	"fmt"
 
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
+
+type output struct {
+	TerraformOutput string
+	EnvVar          string
+}
 
 func (f *CommandFactory) Endpoint() cli.Command {
 	return cli.Command{
@@ -34,50 +38,56 @@ func (f *CommandFactory) Endpoint() cli.Command {
 				return err
 			}
 
-			outputEnvvars := map[string]string{
-				instance.OUTPUT_ENDPOINT: config.ENVVAR_ENDPOINT,
-				instance.OUTPUT_TOKEN:    config.ENVVAR_TOKEN,
+			instance := f.NewInstance(args["NAME"])
+			outputs := []output{
+				{"endpoint", config.FlagEndpoint.EnvVar},
+				{"token", config.FlagToken.EnvVar},
 			}
 
+			// todo: update unit test
+			// todo: not use hardocded strings in instance.Apply and instance.Push
+			// todo: ensure module outputs match
 			if c.Bool("dev") {
-				outputEnvvars[instance.OUTPUT_NAME] = config.ENVVAR_INSTANCE
-				outputEnvvars[instance.OUTPUT_ACCOUNT_ID] = config.ENVVAR_AWS_ACCOUNT_ID
-				outputEnvvars[instance.OUTPUT_ACCESS_KEY] = config.ENVVAR_AWS_ACCESS_KEY
-				outputEnvvars[instance.OUTPUT_SECRET_KEY] = config.ENVVAR_AWS_SECRET_KEY
-				outputEnvvars[instance.OUTPUT_VPC_ID] = config.ENVVAR_AWS_VPC
-				outputEnvvars[instance.OUTPUT_PRIVATE_SUBNETS] = config.ENVVAR_AWS_PRIVATE_SUBNETS
-				outputEnvvars[instance.OUTPUT_PUBLIC_SUBNETS] = config.ENVVAR_AWS_PUBLIC_SUBNETS
-				outputEnvvars[instance.OUTPUT_S3_BUCKET] = config.ENVVAR_AWS_S3_BUCKET
-				outputEnvvars[instance.OUTPUT_SSH_KEY_PAIR] = config.ENVVAR_AWS_SSH_KEY_PAIR
-				outputEnvvars[instance.OUTPUT_AWS_LOG_GROUP_NAME] = config.ENVVAR_AWS_LOG_GROUP_NAME
-				outputEnvvars[instance.OUTPUT_ECS_INSTANCE_PROFILE] = config.ENVVAR_AWS_INSTANCE_PROFILE
-				outputEnvvars[instance.OUTPUT_AWS_LINUX_SERVICE_AMI] = config.ENVVAR_AWS_LINUX_AMI
-				outputEnvvars[instance.OUTPUT_WINDOWS_SERVICE_AMI] = config.ENVVAR_AWS_WINDOWS_AMI
-				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_TAG_TABLE] = config.ENVVAR_AWS_DYNAMO_TAG_TABLE
-				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_JOB_TABLE] = config.ENVVAR_AWS_DYNAMO_JOB_TABLE
-				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_LOCK_TABLE] = config.ENVVAR_AWS_DYNAMO_LOCK_TABLE
+				devOutputs := []output{
+					{"instance", config.FlagInstance.EnvVar},
+					{"aws_account_id", config.FlagAWSAccountID.EnvVar},
+					{"aws_access_key", config.FlagAWSAccessKey.EnvVar},
+					{"aws_secret_key", config.FlagAWSSecretKey.EnvVar},
+					{"aws_vpc", config.FlagAWSVPC.EnvVar},
+					{"aws_linux_ami", config.FlagAWSLinuxAMI.EnvVar},
+					{"aws_windows_ami", config.FlagAWSWindowsAMI.EnvVar},
+					{"aws_s3_bucket", config.FlagAWSS3Bucket.EnvVar},
+					{"aws_instance_profile", config.FlagAWSInstanceProfile.EnvVar},
+					{"aws_job_table", config.FlagAWSJobTable.EnvVar},
+					{"aws_tag_table", config.FlagAWSTagTable.EnvVar},
+					{"aws_lock_table", config.FlagAWSLockTable.EnvVar},
+					{"aws_public_subnets", config.FlagAWSPublicSubnets.EnvVar},
+					{"aws_private_subnets", config.FlagAWSPrivateSubnets.EnvVar},
+					{"aws_log_group", config.FlagAWSLogGroup.EnvVar},
+					{"aws_ssh_key", config.FlagAWSSSHKey.EnvVar},
+				}
+
+				outputs = append(outputs, devOutputs...)
 			}
 
 			fmt.Println("# set the following environment variables in your current session: ")
-
-			instance := f.NewInstance(args["NAME"])
-			for output, envvar := range outputEnvvars {
-				v, err := instance.Output(output)
+			for _, o := range outputs {
+				v, err := instance.Output(o.TerraformOutput)
 				if err != nil {
 					return err
 				}
 
-				if err := printOutput(c.String("syntax"), envvar, v); err != nil {
+				if err := printOutput(c.String("syntax"), o.EnvVar, v); err != nil {
 					return err
 				}
 			}
 
 			if c.Bool("insecure") {
-				if err := printOutput(c.String("syntax"), config.ENVVAR_SKIP_VERIFY_SSL, "1"); err != nil {
+				if err := printOutput(c.String("syntax"), config.FlagSkipVerifySSL.EnvVar, "true"); err != nil {
 					return err
 				}
 
-				if err := printOutput(c.String("syntax"), config.ENVVAR_SKIP_VERIFY_VERSION, "1"); err != nil {
+				if err := printOutput(c.String("syntax"), config.FlagSkipVerifyVersion.EnvVar, "true"); err != nil {
 					return err
 				}
 			}
