@@ -271,6 +271,8 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 		providerDistribution := ProviderDistribution{}
 		providerDistribution.Providers = resourceProviders
 
+		providerDistributions = append(providerDistributions, providerDistribution)
+
 		sort(providerDistribution.Providers, resourceConsumers)
 
 		for _, consumer := range resourceConsumers {
