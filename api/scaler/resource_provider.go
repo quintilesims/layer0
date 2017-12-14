@@ -54,3 +54,7 @@ func (r *ResourceProvider) SubtractResourcesFor(consumer ResourceConsumer) error
 
 	return nil
 }
+
+func (r *ResourceProvider) String() string {
+	return fmt.Sprintf("%#v", r)
+}

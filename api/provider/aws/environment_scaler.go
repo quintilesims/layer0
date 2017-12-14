@@ -87,12 +87,7 @@ func (e *EnvironmentScaler) GetCurrentState(clusterName string) ([]scaler.Resour
 		return nil, nil, err
 	}
 
-	humanReadableProviders := ""
-	for _, r := range resourceProviders {
-		humanReadableProviders += fmt.Sprintf("\n    %#v", r)
-	}
-
-	log.Printf("[DEBUG] [EnvironmentScaler] resourceProviders for env '%s': %s", clusterName, humanReadableProviders)
+	log.Printf("[DEBUG] [EnvironmentScaler] resourceProviders for env '%s': %v", clusterName, resourceProviders)
 
 	var resourceConsumers []scaler.ResourceConsumer
 
