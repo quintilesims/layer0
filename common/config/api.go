@@ -1,7 +1,9 @@
 package config
 
 import (
+	"encoding/base64"
 	"fmt"
+	"strings"
 
 	"github.com/urfave/cli"
 )
@@ -64,4 +66,19 @@ func ValidateAPIContext(c *cli.Context) error {
 	}
 
 	return nil
+}
+
+func ParseAuthToken(c *cli.Context) (string, string, error) {
+	encoded := c.String(FlagToken.GetName())
+	token, err := base64.StdEncoding.DecodeString(encoded)
+	if err != nil {
+		return "", "", fmt.Errorf("Auth Token is not in valid base64 format: %v", err)
+	}
+
+	split := strings.Split(string(token), ":")
+	if len(split) != 2 {
+		return "", "", fmt.Errorf("Auth Token must be in format 'user:pass' and base64 encoded")
+	}
+
+	return split[0], split[1], nil
 }

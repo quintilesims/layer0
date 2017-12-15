@@ -54,7 +54,7 @@ func TestDeploy_createTags(t *testing.T) {
 func TestDeploy_renderTaskDefinition(t *testing.T) {
 	c := config.NewTestContext(t, nil, map[string]interface{}{
 		config.FlagAWSLogGroup.GetName(): "test_group",
-		config.FlagAWSRegion.GetName(): "test_region",
+		config.FlagAWSRegion.GetName():   "test_region",
 	})
 
 	deploy := NewDeployProvider(nil, nil, c)

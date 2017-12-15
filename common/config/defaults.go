@@ -20,6 +20,7 @@ const (
 	DefaultEnvironmentMaxScale     = 100
 	DefaultEnvironmentOS           = "linux"
 	DefaultServiceScale            = 1
+	DefaultMaxRetries              = 999
 )
 
 func DefaultLoadBalancerHealthCheck() models.HealthCheck {

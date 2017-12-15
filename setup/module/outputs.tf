@@ -1,8 +1,8 @@
-output "name" {
+output "instance" {
   value = "${var.name}"
 }
 
-output "account_id" {
+output "aws-account-id" {
   value = "${data.aws_caller_identity.current.account_id}"
 }
 
@@ -14,62 +14,62 @@ output "token" {
   value = "${module.api.token}"
 }
 
-output "s3_bucket" {
+output "aws-s3-bucket" {
   value = "${module.api.bucket_name}"
 }
 
-output "access_key" {
+output "aws-access-key" {
   value = "${module.api.user_access_key}"
 }
 
-output "secret_key" {
+output "aws-secret-key" {
   value = "${module.api.user_secret_key}"
 }
 
-output "vpc_id" {
+output "aws-vpc" {
   value = "${ var.vpc_id == "" ? module.vpc.vpc_id : var.vpc_id }"
 }
 
-output "public_subnets" {
+output "aws-public-subnets" {
   value = "${module.api.public_subnets}"
 }
 
-output "private_subnets" {
+output "aws-private-subnets" {
   value = "${module.api.private_subnets}"
 }
 
-output "ecs_role" {
+output "aws-ecs-role" {
   value = "${module.api.iam_role}"
 }
 
-output "ssh_key_pair" {
+output "aws-ssh-key" {
   value = "${var.ssh_key_pair}"
 }
 
-output "ecs_agent_instance_profile" {
+output "aws-instance-profile" {
   value = "${module.api.instance_profile}"
 }
 
-output "linux_service_ami" {
+output "aws-linux-ami" {
   value = "${module.api.linux_service_ami}"
 }
 
-output "windows_service_ami" {
+output "aws-windows-ami" {
   value = "${module.api.windows_service_ami}"
 }
 
-output "dynamo_tag_table" {
+output "aws-tag-table" {
   value = "${module.api.dynamo_tag_table}"
 }
 
-output "dynamo_job_table" {
+output "aws-job-table" {
   value = "${module.api.dynamo_job_table}"
 }
 
-output "dynamo_lock_table" {
+output "aws-lock-table" {
   value = "${module.api.dynamo_lock_table}"
 }
 
-output "log_group_name" {
+output "aws-log-group" {
   value = "${module.api.log_group}"
 }

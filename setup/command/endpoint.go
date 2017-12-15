@@ -7,11 +7,6 @@ import (
 	"github.com/urfave/cli"
 )
 
-type output struct {
-	TerraformOutput string
-	EnvVar          string
-}
-
 func (f *CommandFactory) Endpoint() cli.Command {
 	return cli.Command{
 		Name:      "endpoint",
@@ -39,44 +34,41 @@ func (f *CommandFactory) Endpoint() cli.Command {
 			}
 
 			instance := f.NewInstance(args["NAME"])
-			outputs := []output{
-				{"endpoint", config.FlagEndpoint.EnvVar},
-				{"token", config.FlagToken.EnvVar},
+			outputEnvVars := map[string]string{
+				config.FlagEndpoint.GetName(): config.FlagEndpoint.EnvVar,
+				config.FlagToken.GetName():    config.FlagToken.EnvVar,
 			}
 
-			// todo: not use hardocded strings in instance.Apply and instance.Push
-			// todo: ensure module outputs match
 			if c.Bool("dev") {
-				devOutputs := []output{
-					{"instance", config.FlagInstance.EnvVar},
-					{"aws_account_id", config.FlagAWSAccountID.EnvVar},
-					{"aws_access_key", config.FlagAWSAccessKey.EnvVar},
-					{"aws_secret_key", config.FlagAWSSecretKey.EnvVar},
-					{"aws_vpc", config.FlagAWSVPC.EnvVar},
-					{"aws_linux_ami", config.FlagAWSLinuxAMI.EnvVar},
-					{"aws_windows_ami", config.FlagAWSWindowsAMI.EnvVar},
-					{"aws_s3_bucket", config.FlagAWSS3Bucket.EnvVar},
-					{"aws_instance_profile", config.FlagAWSInstanceProfile.EnvVar},
-					{"aws_job_table", config.FlagAWSJobTable.EnvVar},
-					{"aws_tag_table", config.FlagAWSTagTable.EnvVar},
-					{"aws_lock_table", config.FlagAWSLockTable.EnvVar},
-					{"aws_public_subnets", config.FlagAWSPublicSubnets.EnvVar},
-					{"aws_private_subnets", config.FlagAWSPrivateSubnets.EnvVar},
-					{"aws_log_group", config.FlagAWSLogGroup.EnvVar},
-					{"aws_ssh_key", config.FlagAWSSSHKey.EnvVar},
-				}
-
-				outputs = append(outputs, devOutputs...)
+				outputEnvVars[config.FlagInstance.GetName()] = config.FlagInstance.EnvVar
+				outputEnvVars[config.FlagAWSAccountID.GetName()] = config.FlagAWSAccountID.EnvVar
+				outputEnvVars[config.FlagAWSAccessKey.GetName()] = config.FlagAWSAccessKey.EnvVar
+				outputEnvVars[config.FlagAWSSecretKey.GetName()] = config.FlagAWSSecretKey.EnvVar
+				outputEnvVars[config.FlagAWSVPC.GetName()] = config.FlagAWSVPC.EnvVar
+				outputEnvVars[config.FlagAWSLinuxAMI.GetName()] = config.FlagAWSLinuxAMI.EnvVar
+				outputEnvVars[config.FlagAWSWindowsAMI.GetName()] = config.FlagAWSWindowsAMI.EnvVar
+				outputEnvVars[config.FlagAWSInstanceProfile.GetName()] = config.FlagAWSInstanceProfile.EnvVar
+				outputEnvVars[config.FlagAWSJobTable.GetName()] = config.FlagAWSJobTable.EnvVar
+				outputEnvVars[config.FlagAWSTagTable.GetName()] = config.FlagAWSTagTable.EnvVar
+				outputEnvVars[config.FlagAWSLockTable.GetName()] = config.FlagAWSLockTable.EnvVar
+				outputEnvVars[config.FlagAWSPublicSubnets.GetName()] = config.FlagAWSPublicSubnets.EnvVar
+				outputEnvVars[config.FlagAWSPrivateSubnets.GetName()] = config.FlagAWSPrivateSubnets.EnvVar
+				outputEnvVars[config.FlagAWSLogGroup.GetName()] = config.FlagAWSLogGroup.EnvVar
+				outputEnvVars[config.FlagAWSSSHKey.GetName()] = config.FlagAWSSSHKey.EnvVar
+				outputEnvVars[config.FlagAWSS3Bucket.GetName()] = config.FlagAWSS3Bucket.EnvVar
 			}
+
+			// note that this requires the following relationship:
+			// layer0 terraform module output name == layer0 api flag name
 
 			fmt.Println("# set the following environment variables in your current session: ")
-			for _, o := range outputs {
-				v, err := instance.Output(o.TerraformOutput)
+			for output, envVar := range outputEnvVars {
+				v, err := instance.Output(output)
 				if err != nil {
 					return err
 				}
 
-				if err := printOutput(c.String("syntax"), o.EnvVar, v); err != nil {
+				if err := printOutput(c.String("syntax"), envVar, v); err != nil {
 					return err
 				}
 			}

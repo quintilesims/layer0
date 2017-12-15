@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/quintilesims/layer0/common/config"
 )
 
 func (l *LocalInstance) Apply(wait bool) error {
@@ -17,7 +19,7 @@ func (l *LocalInstance) Apply(wait bool) error {
 		return err
 	}
 
-	endpoint, err := l.Output("endpoint")
+	endpoint, err := l.Output(config.FlagEndpoint.GetName())
 	if err != nil {
 		return err
 	}

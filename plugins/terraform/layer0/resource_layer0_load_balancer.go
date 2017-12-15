@@ -78,27 +78,27 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 						"target": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  config.DefaultLoadBalancerHealthCheck.Target,
+							Default:  config.DefaultLoadBalancerHealthCheck().Target,
 						},
 						"interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  config.DefaultLoadBalancerHealthCheck.Interval,
+							Default:  config.DefaultLoadBalancerHealthCheck().Interval,
 						},
 						"timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  config.DefaultLoadBalancerHealthCheck.Timeout,
+							Default:  config.DefaultLoadBalancerHealthCheck().Timeout,
 						},
 						"healthy_threshold": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  config.DefaultLoadBalancerHealthCheck.HealthyThreshold,
+							Default:  config.DefaultLoadBalancerHealthCheck().HealthyThreshold,
 						},
 						"unhealthy_threshold": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  config.DefaultLoadBalancerHealthCheck.UnhealthyThreshold,
+							Default:  config.DefaultLoadBalancerHealthCheck().UnhealthyThreshold,
 						},
 					},
 				},
@@ -112,7 +112,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 
 	ports := expandPorts(d.Get("port").(*schema.Set).List())
 	if len(ports) == 0 {
-		ports = []models.Port{config.DefaultLoadBalancerPort}
+		ports = []models.Port{config.DefaultLoadBalancerPort()}
 	}
 
 	req := models.CreateLoadBalancerRequest{
@@ -248,7 +248,7 @@ func expandHealthCheck(flattened interface{}) models.HealthCheck {
 		}
 	}
 
-	return config.DefaultLoadBalancerHealthCheck
+	return config.DefaultLoadBalancerHealthCheck()
 }
 
 func flattenHealthCheck(healthCheck models.HealthCheck) []map[string]interface{} {

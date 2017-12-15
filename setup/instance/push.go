@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 func (l *LocalInstance) Push(s s3iface.S3API) error {
@@ -18,7 +19,7 @@ func (l *LocalInstance) Push(s s3iface.S3API) error {
 		return err
 	}
 
-	bucket, err := l.Output("s3_bucket")
+	bucket, err := l.Output(config.FlagAWSS3Bucket.GetName())
 	if err != nil {
 		return err
 	}

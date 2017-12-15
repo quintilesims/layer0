@@ -4,10 +4,13 @@ import (
 	"github.com/urfave/cli"
 )
 
+// todo: create a PR to https://github.com/urfave/cli or create a helper function
+// to parse the canonical name of a flag, e.g. "p, port" is "port".
+
 // common flags
 var (
 	FlagDebug = cli.BoolFlag{
-		Name:   "d, debug",
+		Name:   "debug",
 		EnvVar: "LAYER0_DEBUG",
 		Usage:  "show debug output",
 	}
@@ -46,7 +49,7 @@ var (
 		EnvVar: "LAYER0_INSTANCE",
 	}
 	FlagPort = cli.IntFlag{
-		Name:   "p, port",
+		Name:   "port",
 		Value:  DefaultPort,
 		EnvVar: "LAYER0_PORT",
 	}
@@ -127,13 +130,13 @@ var (
 // cli flags
 var (
 	FlagOutput = cli.StringFlag{
-		Name:   "o, output",
+		Name:   "output",
 		Value:  DefaultOutput,
 		EnvVar: "LAYER0_OUTPUT",
 		Usage:  "output format [text,json]",
 	}
 	FlagTimeout = cli.DurationFlag{
-		Name:   "t, timeout",
+		Name:   "timeout",
 		Value:  DefaultTimeout,
 		EnvVar: "LAYER0_TIMEOUT",
 		Usage:  "timeout [h,m,s,ms]",
@@ -152,5 +155,21 @@ var (
 		Name:   "no-wait",
 		EnvVar: "LAYER0_NO_WAIT",
 		Usage:  "if set, will not wait for job operations to complete",
+	}
+)
+
+// testing flags
+var (
+	FlagTestAWSLockTable = cli.StringFlag{
+		Name:   "test-aws-lock-table",
+		EnvVar: "LAYER0_TEST_AWS_LOCK_TABLE",
+	}
+	FlagTestAWSTagTable = cli.StringFlag{
+		Name:   "test-aws-tag-table",
+		EnvVar: "LAYER0_TEST_AWS_TAG_TABLE",
+	}
+	FlagTestAWSJobTable = cli.StringFlag{
+		Name:   "test-aws-job-table",
+		EnvVar: "LAYER0_TEST_AWS_JOB_TABLE",
 	}
 )

@@ -16,8 +16,8 @@ variable "username" {}
 
 variable "password" {}
 
-variable "time_between_requests" {
-  default = "10ms"
+variable "request_delay" {
+  default = "1ms"
 }
 
 variable "vpc_id" {
