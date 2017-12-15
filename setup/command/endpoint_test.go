@@ -12,12 +12,12 @@ import (
 func TestEndpoint(t *testing.T) {
 	cases := []struct {
 		Name            string
-		Flags           Flags
+		Flags           map[string]interface{}
 		ExpectedOutputs []output
 	}{
 		{
 			Name:  "no flags",
-			Flags: Flags{},
+			Flags: map[string]interface{}{},
 			ExpectedOutputs: []output{
 				{"endpoint", config.FlagEndpoint.EnvVar},
 				{"token", config.FlagToken.EnvVar},
@@ -25,7 +25,7 @@ func TestEndpoint(t *testing.T) {
 		},
 		{
 			Name:  "dev flag",
-			Flags: Flags{"dev": true},
+			Flags: map[string]interface{}{"dev": true},
 			ExpectedOutputs: []output{
 				{"endpoint", config.FlagEndpoint.EnvVar},
 				{"token", config.FlagToken.EnvVar},
@@ -58,7 +58,7 @@ func TestEndpoint(t *testing.T) {
 	}
 }
 
-func testEndpointHelper(t *testing.T, expectedOutputs []output, flags Flags) {
+func testEndpointHelper(t *testing.T, expectedOutputs []output, flags map[string]interface{}) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -76,7 +76,7 @@ func testEndpointHelper(t *testing.T, expectedOutputs []output, flags Flags) {
 
 	commandFactory := NewCommandFactory(instanceFactory, nil)
 	action := extractAction(t, commandFactory.Endpoint())
-	c := NewContext(t, []string{"name"}, flags)
+	c := config.NewTestContext(t, []string{"name"}, flags)
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}

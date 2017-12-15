@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/quintilesims/layer0/setup/instance/mock_instance"
 )
@@ -24,7 +25,7 @@ func TestPlan(t *testing.T) {
 	commandFactory := NewCommandFactory(instanceFactory, nil)
 	action := extractAction(t, commandFactory.Plan())
 
-	c := NewContext(t, []string{"name"}, nil)
+	c := config.NewTestContext(t, []string{"name"}, nil)
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}
