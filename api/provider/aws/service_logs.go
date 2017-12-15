@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -14,8 +15,8 @@ func (s *ServiceProvider) Logs(serviceID string, tail int, start, end time.Time)
 		return nil, err
 	}
 
-	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), environmentID)
-	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
+	fqEnvironmentID := addLayer0Prefix(s.Context, environmentID)
+	fqServiceID := addLayer0Prefix(s.Context, serviceID)
 	clusterName := fqEnvironmentID
 	service, err := s.readService(clusterName, fqServiceID)
 	if err != nil {
@@ -39,6 +40,6 @@ func (s *ServiceProvider) Logs(serviceID string, tail int, start, end time.Time)
 		taskARNs = append(taskARNs, clusterTaskARNsRunning...)
 	}
 
-	logGroupName := s.Config.LogGroupName()
+	logGroupName := s.Context.String(config.FlagAWSLogGroup.GetName())
 	return GetLogsFromTaskARNs(s.AWS.CloudWatchLogs, logGroupName, taskARNs, tail, start, end)
 }

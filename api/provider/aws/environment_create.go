@@ -24,7 +24,7 @@ import (
 func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (string, error) {
 	// TODO: Ensure environment name is unique
 	environmentID := entityIDGenerator(req.EnvironmentName)
-	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
+	fqEnvironmentID := addLayer0Prefix(e.Context, environmentID)
 
 	instanceType := config.DefaultEnvironmentInstanceType
 	if req.InstanceType != "" {
@@ -41,10 +41,10 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	switch strings.ToLower(req.OperatingSystem) {
 	case "linux":
 		userDataTemplate = []byte(DefaultLinuxUserdataTemplate)
-		amiID = e.Config.LinuxAMI()
+		amiID = e.Context.String(config.FlagAWSLinuxAMI.GetName())
 	case "windows":
 		userDataTemplate = []byte(DefaultWindowsUserdataTemplate)
-		amiID = e.Config.WindowsAMI()
+		amiID = e.Context.String(config.FlagAWSWindowsAMI.GetName())
 	default:
 		return "", fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)
 	}
@@ -57,17 +57,19 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		userDataTemplate = req.UserDataTemplate
 	}
 
-	userData, err := RenderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
+	s3Bucket := e.Context.String(config.FlagAWSS3Bucket.GetName())
+	userData, err := RenderUserData(fqEnvironmentID, s3Bucket, userDataTemplate)
 	if err != nil {
 		return "", err
 	}
 
+	vpcID := e.Context.String(config.FlagAWSVPC.GetName())
 	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
 	if err := createSG(
 		e.AWS.EC2,
 		securityGroupName,
 		fmt.Sprintf("SG for Layer0 environment %s", environmentID),
-		e.Config.VPC()); err != nil {
+		vpcID); err != nil {
 		return "", err
 	}
 
@@ -81,13 +83,15 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		return "", err
 	}
 
-	launchConfigName := fqEnvironmentID
+	launchContextName := fqEnvironmentID
+	instanceProfile := e.Context.String(config.FlagAWSInstanceProfile.GetName())
+	sshKeyPair := e.Context.String(config.FlagAWSSSHKey.GetName())
 	if err := e.createLC(
-		launchConfigName,
+		launchContextName,
 		aws.StringValue(securityGroup.GroupId),
 		instanceType,
-		e.Config.InstanceProfile(),
-		e.Config.SSHKeyPair(),
+		instanceProfile,
+		sshKeyPair,
 		amiID,
 		userData); err != nil {
 		return "", err
@@ -99,12 +103,13 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	}
 
 	autoScalingGroupName := fqEnvironmentID
+	privateSubnets := e.Context.StringSlice(config.FlagAWSPrivateSubnets.GetName())
 	if err := e.createASG(
 		autoScalingGroupName,
-		launchConfigName,
+		launchContextName,
 		int64(req.MinScale),
 		int64(maxScale),
-		e.Config.PrivateSubnets()); err != nil {
+		privateSubnets); err != nil {
 		return "", err
 	}
 
@@ -141,7 +146,7 @@ func (e *EnvironmentProvider) authorizeSGSelfIngress(groupID string) error {
 }
 
 func (e *EnvironmentProvider) createLC(
-	launchConfigName string,
+	launchContextName string,
 	securityGroupID string,
 	instanceType string,
 	instanceProfile string,
@@ -150,7 +155,7 @@ func (e *EnvironmentProvider) createLC(
 	userData string,
 ) error {
 	input := &autoscaling.CreateLaunchConfigurationInput{}
-	input.SetLaunchConfigurationName(launchConfigName)
+	input.SetLaunchConfigurationName(launchContextName)
 	input.SetSecurityGroups([]*string{aws.String(securityGroupID)})
 	input.SetInstanceType(instanceType)
 	input.SetIamInstanceProfile(instanceProfile)
@@ -171,7 +176,7 @@ func (e *EnvironmentProvider) createLC(
 
 func (e *EnvironmentProvider) createASG(
 	autoScalingGroupName string,
-	launchConfigName string,
+	launchContextName string,
 	minSize int64,
 	maxSize int64,
 	privateSubnets []string,
@@ -185,7 +190,7 @@ func (e *EnvironmentProvider) createASG(
 
 	input := &autoscaling.CreateAutoScalingGroupInput{}
 	input.SetAutoScalingGroupName(autoScalingGroupName)
-	input.SetLaunchConfigurationName(launchConfigName)
+	input.SetLaunchConfigurationName(launchContextName)
 	input.SetVPCZoneIdentifier(subnetIdentifier)
 	input.SetMinSize(minSize)
 	input.SetMaxSize(maxSize)

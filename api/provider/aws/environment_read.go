@@ -16,7 +16,7 @@ import (
 // DescribeLaunchConfigurations requests respectively are made to AWS.
 func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, error) {
 	// todo: catch 'EntityDoesNotExist' errors
-	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
+	fqEnvironmentID := addLayer0Prefix(e.Context, environmentID)
 
 	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
 	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
@@ -30,8 +30,8 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 		return nil, err
 	}
 
-	launchConfigName := aws.StringValue(autoScalingGroup.LaunchConfigurationName)
-	launchConfig, err := e.readLC(launchConfigName)
+	launchContextName := aws.StringValue(autoScalingGroup.LaunchConfigurationName)
+	launchContext, err := e.readLC(launchContextName)
 	if err != nil {
 		return nil, err
 	}
@@ -44,16 +44,16 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 	model.MinScale = int(aws.Int64Value(autoScalingGroup.MinSize))
 	model.CurrentScale = int(aws.Int64Value(autoScalingGroup.DesiredCapacity))
 	model.MaxScale = int(aws.Int64Value(autoScalingGroup.MaxSize))
-	model.InstanceType = aws.StringValue(launchConfig.InstanceType)
+	model.InstanceType = aws.StringValue(launchContext.InstanceType)
 	model.SecurityGroupID = aws.StringValue(securityGroup.GroupId)
-	model.AMIID = aws.StringValue(launchConfig.ImageId)
+	model.AMIID = aws.StringValue(launchContext.ImageId)
 
 	return model, nil
 }
 
-func (e *EnvironmentProvider) readLC(launchConfigName string) (*autoscaling.LaunchConfiguration, error) {
+func (e *EnvironmentProvider) readLC(launchContextName string) (*autoscaling.LaunchConfiguration, error) {
 	input := &autoscaling.DescribeLaunchConfigurationsInput{}
-	input.SetLaunchConfigurationNames([]*string{aws.String(launchConfigName)})
+	input.SetLaunchConfigurationNames([]*string{aws.String(launchContextName)})
 
 	output, err := e.AWS.AutoScaling.DescribeLaunchConfigurations(input)
 	if err != nil {
@@ -61,12 +61,12 @@ func (e *EnvironmentProvider) readLC(launchConfigName string) (*autoscaling.Laun
 	}
 
 	for _, lc := range output.LaunchConfigurations {
-		if aws.StringValue(lc.LaunchConfigurationName) == launchConfigName {
+		if aws.StringValue(lc.LaunchConfigurationName) == launchContextName {
 			return lc, nil
 		}
 	}
 
-	message := fmt.Sprintf("Launch Configuration '%s' does not exist", launchConfigName)
+	message := fmt.Sprintf("Launch Configuration '%s' does not exist", launchContextName)
 	return nil, awserr.New("DoesNotExist", message, nil)
 }
 

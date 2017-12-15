@@ -31,7 +31,7 @@ func (t *TaskProvider) Delete(taskID string) error {
 		return err
 	}
 
-	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), environmentID)
+	fqEnvironmentID := addLayer0Prefix(t.Context, environmentID)
 	clusterName := fqEnvironmentID
 	if err := t.stopTask(clusterName, taskARN); err != nil {
 		return err

@@ -15,7 +15,7 @@ import (
 // DeleteSecurityGroup requests to AWS, respectively. The Load Balancer is deleted
 // by making a DeleteLoadBalancer request to AWS.
 func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
-	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
+	fqLoadBalancerID := addLayer0Prefix(l.Context, loadBalancerID)
 
 	if err := l.deleteLoadBalancer(fqLoadBalancerID); err != nil {
 		return err

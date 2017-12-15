@@ -16,7 +16,7 @@ import (
 // minimum size of the Cluster's Auto Scaling Group. The Cluster's Auto Scaling
 // Group size is updated by making an UpdateAutoScalingGroup request to AWS.
 func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvironmentRequest) error {
-	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
+	fqEnvironmentID := addLayer0Prefix(e.Context, environmentID)
 
 	if req.MinScale != nil || req.MaxScale != nil {
 		autoScalingGroupName := fqEnvironmentID
@@ -64,7 +64,7 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 				continue
 			}
 
-			fqDestEnvID := addLayer0Prefix(e.Config.Instance(), destEnvironmentID)
+			fqDestEnvID := addLayer0Prefix(e.Context, destEnvironmentID)
 			sg, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqDestEnvID))
 			if err != nil {
 				return err
@@ -84,7 +84,7 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 				continue
 			}
 
-			fqDestEnvID := addLayer0Prefix(e.Config.Instance(), destEnvironmentID)
+			fqDestEnvID := addLayer0Prefix(e.Context, destEnvironmentID)
 			sg, err := readSG(e.AWS.EC2, getEnvironmentSGName(fqDestEnvID))
 			if err != nil {
 				if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "DoesNotExist" {

@@ -3,19 +3,19 @@ package aws
 import (
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/config"
+	"github.com/urfave/cli"
 )
 
 type LoadBalancerProvider struct {
 	AWS      *awsc.Client
 	TagStore tag.Store
-	Config   config.APIConfig
+	Context  *cli.Context
 }
 
-func NewLoadBalancerProvider(a *awsc.Client, t tag.Store, c config.APIConfig) *LoadBalancerProvider {
+func NewLoadBalancerProvider(a *awsc.Client, t tag.Store, c *cli.Context) *LoadBalancerProvider {
 	return &LoadBalancerProvider{
 		AWS:      a,
 		TagStore: t,
-		Config:   c,
+		Context:  c,
 	}
 }

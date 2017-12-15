@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -14,7 +15,7 @@ import (
 // Task to run.
 func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskID := entityIDGenerator(req.TaskName)
-	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
+	fqEnvironmentID := addLayer0Prefix(t.Context, req.EnvironmentID)
 
 	deployName, deployVersion, err := lookupDeployNameAndVersion(t.TagStore, req.DeployID)
 	if err != nil {
@@ -22,8 +23,8 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	}
 
 	clusterName := fqEnvironmentID
-	startedBy := t.Config.Instance()
-	taskDefinitionFamily := addLayer0Prefix(t.Config.Instance(), deployName)
+	startedBy := t.Context.String(config.FlagInstance.GetName())
+	taskDefinitionFamily := addLayer0Prefix(t.Context, deployName)
 	taskDefinitionVersion := deployVersion
 	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
 

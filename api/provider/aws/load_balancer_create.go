@@ -26,8 +26,8 @@ import (
 // Security Group is then attached to the created Load Balancer.
 func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (string, error) {
 	loadBalancerID := entityIDGenerator(req.LoadBalancerName)
-	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
-	fqEnvironmentID := addLayer0Prefix(l.Config.Instance(), req.EnvironmentID)
+	fqLoadBalancerID := addLayer0Prefix(l.Context, loadBalancerID)
+	fqEnvironmentID := addLayer0Prefix(l.Context, req.EnvironmentID)
 
 	environmentSGName := getEnvironmentSGName(fqEnvironmentID)
 	environmentSG, err := readSG(l.AWS.EC2, environmentSGName)
@@ -36,20 +36,21 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	}
 
 	scheme := "internal"
-	subnets := l.Config.PrivateSubnets()
+	subnets := l.Context.StringSlice(config.FlagAWSPrivateSubnets.GetName())
 	securityGroupIDs := []string{aws.StringValue(environmentSG.GroupId)}
 
 	if req.IsPublic {
 		scheme = "internet-facing"
-		subnets = l.Config.PublicSubnets()
+		subnets = l.Context.StringSlice(config.FlagAWSPublicSubnets.GetName())
 	}
 
 	loadBalancerSGName := getLoadBalancerSGName(fqLoadBalancerID)
+	vpcID := l.Context.String(config.FlagAWSVPC.GetName())
 	if err := createSG(
 		l.AWS.EC2,
 		loadBalancerSGName,
 		fmt.Sprintf("SG for Layer0 load balancer %s", loadBalancerID),
-		l.Config.VPC()); err != nil {
+		vpcID); err != nil {
 		return "", err
 	}
 
@@ -60,7 +61,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 
 	loadBalancerSGID := aws.StringValue(loadBalancerSG.GroupId)
 	if len(req.Ports) == 0 {
-		req.Ports = []models.Port{config.DefaultLoadBalancerPort}
+		req.Ports = []models.Port{config.DefaultLoadBalancerPort()}
 	}
 
 	for _, port := range req.Ports {
@@ -76,9 +77,11 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		return "", err
 	}
 
+	region := l.Context.String(config.FlagAWSRegion.GetName())
+	accountID := l.Context.String(config.FlagAWSAccountID.GetName())
 	policy, err := RenderLoadBalancerRolePolicy(
-		l.Config.Region(),
-		l.Config.AccountID(),
+		region,
+		accountID,
 		fqLoadBalancerID,
 		DefaultLBRolePolicyTemplate)
 	if err != nil {
@@ -105,7 +108,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	}
 
 	if req.HealthCheck == (models.HealthCheck{}) {
-		req.HealthCheck = config.DefaultLoadBalancerHealthCheck
+		req.HealthCheck = config.DefaultLoadBalancerHealthCheck()
 	}
 
 	healthCheck := &elb.HealthCheck{

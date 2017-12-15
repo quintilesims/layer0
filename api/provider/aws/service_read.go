@@ -17,10 +17,10 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 		return nil, err
 	}
 
-	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), environmentID)
+	fqEnvironmentID := addLayer0Prefix(s.Context, environmentID)
 	clusterName := fqEnvironmentID
 
-	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
+	fqServiceID := addLayer0Prefix(s.Context, serviceID)
 
 	ecsService, err := s.readService(clusterName, fqServiceID)
 	if err != nil {
@@ -55,7 +55,7 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 		loadBalancer := ecsService.LoadBalancers[0]
 		loadBalancerName := aws.StringValue(loadBalancer.LoadBalancerName)
 		fqLoadBalancerID := loadBalancerName
-		loadBalancerID = delLayer0Prefix(s.Config.Instance(), fqLoadBalancerID)
+		loadBalancerID = delLayer0Prefix(s.Context, fqLoadBalancerID)
 	}
 
 	model, err := s.makeServiceModel(environmentID, loadBalancerID, serviceID)

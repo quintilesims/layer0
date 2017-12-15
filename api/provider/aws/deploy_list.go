@@ -32,7 +32,7 @@ func (d *DeployProvider) listTaskDefinitionARNs() ([]string, error) {
 		return !lastPage
 	}
 
-	familyPrefix := addLayer0Prefix(d.Config.Instance(), "")
+	familyPrefix := addLayer0Prefix(d.Context, "")
 	input := &ecs.ListTaskDefinitionFamiliesInput{}
 	input.SetFamilyPrefix(familyPrefix)
 	input.SetStatus(ecs.TaskDefinitionFamilyStatusActive)
