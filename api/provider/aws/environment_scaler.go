@@ -113,7 +113,7 @@ func (e *EnvironmentScaler) CalculateOptimizedState(clusterName string, resource
 		// the IncompatibleConsumerAndProvider error is returned in situations where
 		// a resource consumer is too large to fit into an empty, brand-new resource
 		// provider; this means that the environment's instance size is too small
-		// for the consumer. in such a scenario, we want to perform scaling actions
+		// for the consumer. In such a scenario, we want to perform scaling actions
 		// for other providers and consumers, but also log that there is a problem.
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.IncompatibleConsumerAndProvider {
 			incompatibilityErrs = append(incompatibilityErrs, err)
