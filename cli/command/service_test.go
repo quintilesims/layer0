@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/quintilesims/layer0/client"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -69,9 +70,9 @@ func TestCreateService(t *testing.T) {
 				AnyTimes()
 		}
 
-		args := Args{"env_name", "svc_name", "dpl_name"}
-		flags := Flags{"loadbalancer": "lb_name", "scale": 3}
-		c := NewContext(t, args, flags, SetNoWait(!wait))
+		args := []string{"env_name", "svc_name", "dpl_name"}
+		flags := map[string]interface{}{"loadbalancer": "lb_name", "scale": 3}
+		c := config.NewTestContext(t, args, flags, config.SetNoWait(!wait))
 
 		serviceCommand := NewServiceCommand(base.Command())
 		if err := serviceCommand.create(c); err != nil {
@@ -85,9 +86,9 @@ func TestCreateService_userInputErrors(t *testing.T) {
 	defer ctrl.Finish()
 
 	contexts := map[string]*cli.Context{
-		"Missing ENVIRONMENT arg": NewContext(t, nil, nil),
-		"Missing NAME arg":        NewContext(t, Args{"env_name"}, nil),
-		"Missing DEPLOY arg":      NewContext(t, Args{"env_name", "svc_name"}, nil),
+		"Missing ENVIRONMENT arg": config.NewTestContext(t, nil, nil),
+		"Missing NAME arg":        config.NewTestContext(t, []string{"env_name"}, nil),
+		"Missing DEPLOY arg":      config.NewTestContext(t, []string{"env_name", "svc_name"}, nil),
 	}
 
 	serviceCommand := NewServiceCommand(base.Command())
@@ -124,8 +125,8 @@ func TestDeleteService(t *testing.T) {
 				Return(job, nil)
 		}
 
-		args := Args{"svc_name"}
-		c := NewContext(t, args, nil, SetNoWait(!wait))
+		args := []string{"svc_name"}
+		c := config.NewTestContext(t, args, nil, config.SetNoWait(!wait))
 
 		serviceCommand := NewServiceCommand(base.Command())
 		if err := serviceCommand.delete(c); err != nil {
@@ -139,7 +140,7 @@ func TestDeleteService_userInputError(t *testing.T) {
 	defer ctrl.Finish()
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	serviceCommand := NewServiceCommand(base.Command())
@@ -160,7 +161,7 @@ func TestListServices(t *testing.T) {
 		ListServices().
 		Return([]*models.ServiceSummary{}, nil)
 
-	c := NewContext(t, nil, nil)
+	c := config.NewTestContext(t, nil, nil)
 
 	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.list(c); err != nil {
@@ -186,9 +187,9 @@ func TestServiceLogs(t *testing.T) {
 		ReadServiceLogs("svc_id", query).
 		Return([]*models.LogFile{}, nil)
 
-	args := Args{"svc_name"}
-	flags := Flags{"tail": 100, "start": "start", "end": "end"}
-	c := NewContext(t, args, flags)
+	args := []string{"svc_name"}
+	flags := map[string]interface{}{"tail": 100, "start": "start", "end": "end"}
+	c := config.NewTestContext(t, args, flags)
 
 	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.logs(c); err != nil {
@@ -201,7 +202,7 @@ func TestServiceLogs_userInputError(t *testing.T) {
 	defer ctrl.Finish()
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	serviceCommand := NewServiceCommand(base.Command())
@@ -226,8 +227,8 @@ func TestReadService(t *testing.T) {
 		ReadService("svc_id").
 		Return(&models.Service{}, nil)
 
-	args := Args{"svc_name"}
-	c := NewContext(t, args, nil)
+	args := []string{"svc_name"}
+	c := config.NewTestContext(t, args, nil)
 
 	serviceCommand := NewServiceCommand(base.Command())
 	if err := serviceCommand.read(c); err != nil {
@@ -240,7 +241,7 @@ func TestReadService_userInputError(t *testing.T) {
 	defer ctrl.Finish()
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	serviceCommand := NewServiceCommand(base.Command())
@@ -298,8 +299,8 @@ func TestScaleService(t *testing.T) {
 				AnyTimes()
 		}
 
-		args := Args{"svc_name", "2"}
-		c := NewContext(t, args, nil, SetNoWait(!wait))
+		args := []string{"svc_name", "2"}
+		c := config.NewTestContext(t, args, nil, config.SetNoWait(!wait))
 		serviceCommand := NewServiceCommand(base.Command())
 		if err := serviceCommand.scale(c); err != nil {
 			t.Fatal(err)
@@ -317,9 +318,9 @@ func TestScaleService_userInputError(t *testing.T) {
 		AnyTimes()
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg":      NewContext(t, nil, nil),
-		"Missing COUNT arg":     NewContext(t, Args{"svc_name"}, nil),
-		"Non-integer COUNT arg": NewContext(t, Args{"svc_name", "string"}, nil),
+		"Missing NAME arg":      config.NewTestContext(t, nil, nil),
+		"Missing COUNT arg":     config.NewTestContext(t, []string{"svc_name"}, nil),
+		"Non-integer COUNT arg": config.NewTestContext(t, []string{"svc_name", "string"}, nil),
 	}
 
 	serviceCommand := NewServiceCommand(base.Command())
@@ -383,8 +384,8 @@ func TestUpdateService(t *testing.T) {
 				AnyTimes()
 		}
 
-		args := Args{"svc_name", "dpl_name"}
-		c := NewContext(t, args, nil, SetNoWait(!wait))
+		args := []string{"svc_name", "dpl_name"}
+		c := config.NewTestContext(t, args, nil, config.SetNoWait(!wait))
 
 		serviceCommand := NewServiceCommand(base.Command())
 		if err := serviceCommand.update(c); err != nil {
@@ -398,8 +399,8 @@ func TestUpdateService_userInputError(t *testing.T) {
 	defer ctrl.Finish()
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg":   NewContext(t, nil, nil),
-		"Missing DEPLOY arg": NewContext(t, Args{"svc_name"}, nil),
+		"Missing NAME arg":   config.NewTestContext(t, nil, nil),
+		"Missing DEPLOY arg": config.NewTestContext(t, []string{"svc_name"}, nil),
 	}
 
 	serviceCommand := NewServiceCommand(base.Command())

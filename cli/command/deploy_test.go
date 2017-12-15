@@ -3,6 +3,7 @@ package command
 import (
 	"testing"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -41,7 +42,7 @@ func TestCreateDeploy(t *testing.T) {
 				Return(&models.Deploy{}, nil)
 		}
 
-		c := NewContext(t, []string{file.Name(), "dpl_name"}, nil, SetNoWait(!wait))
+		c := config.NewTestContext(t, []string{file.Name(), "dpl_name"}, nil, config.SetNoWait(!wait))
 		if err := command.create(c); err != nil {
 			t.Fatal(err)
 		}
@@ -54,8 +55,8 @@ func TestCreateDeploy_userInputErrors(t *testing.T) {
 	command := NewDeployCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing PATH arg": NewContext(t, nil, nil),
-		"Missing NAME arg": NewContext(t, []string{"path"}, nil),
+		"Missing PATH arg": config.NewTestContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, []string{"path"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -89,8 +90,8 @@ func TestDeleteDeploy(t *testing.T) {
 				Return(job, nil)
 		}
 
-		args := Args{"dpl_name"}
-		c := NewContext(t, args, nil, SetNoWait(!wait))
+		args := []string{"dpl_name"}
+		c := config.NewTestContext(t, args, nil, config.SetNoWait(!wait))
 
 		command := NewDeployCommand(base.Command())
 		if err := command.delete(c); err != nil {
@@ -105,7 +106,7 @@ func TestDeleteDeploy_userInputErrors(t *testing.T) {
 	command := NewDeployCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -128,7 +129,7 @@ func TestReadDeploy(t *testing.T) {
 		ReadDeploy("id").
 		Return(&models.Deploy{}, nil)
 
-	c := NewContext(t, []string{"dpl_name"}, nil)
+	c := config.NewTestContext(t, []string{"dpl_name"}, nil)
 	if err := command.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -140,7 +141,7 @@ func TestReadDeploy_userInputErrors(t *testing.T) {
 	command := NewDeployCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -159,7 +160,7 @@ func TestListDeploys(t *testing.T) {
 		ListDeploys().
 		Return([]*models.DeploySummary{}, nil)
 
-	c := NewContext(t, nil, map[string]interface{}{"all": true})
+	c := config.NewTestContext(t, nil, map[string]interface{}{"all": true})
 	if err := command.list(c); err != nil {
 		t.Fatal(err)
 	}

@@ -3,6 +3,7 @@ package command
 import (
 	"testing"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -14,7 +15,7 @@ func TestJobDelete_userInputErrors(t *testing.T) {
 	command := NewJobCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -33,7 +34,7 @@ func TestJobRead_userInputErrors(t *testing.T) {
 	command := NewJobCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -59,7 +60,7 @@ func TestDeleteJob(t *testing.T) {
 		DeleteJob("job_id").
 		Return(nil)
 
-	c := NewContext(t, []string{"job_name"}, nil)
+	c := config.NewTestContext(t, []string{"job_name"}, nil)
 	if err := command.delete(c); err != nil {
 		t.Fatal(err)
 	}
@@ -83,7 +84,7 @@ func TestReadJob(t *testing.T) {
 			Return(&models.Job{}, nil)
 	}
 
-	c := NewContext(t, []string{"job_*"}, nil)
+	c := config.NewTestContext(t, []string{"job_*"}, nil)
 	if err := command.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -99,7 +100,7 @@ func TestListJobs(t *testing.T) {
 		ListJobs().
 		Return([]*models.Job{}, nil)
 
-	c := NewContext(t, nil, nil)
+	c := config.NewTestContext(t, nil, nil)
 	if err := command.list(c); err != nil {
 		t.Fatal(err)
 	}

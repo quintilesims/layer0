@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 )
@@ -15,9 +16,9 @@ func TestEnvironmentCreate_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg":  NewContext(t, nil, nil),
-		"Negative MinScale": NewContext(t, Args{"env_name"}, Flags{"min-scale": "-1"}),
-		"Negative MaxScale": NewContext(t, Args{"env_name"}, Flags{"max-scale": "-1"}),
+		"Missing NAME arg":  config.NewTestContext(t, nil, nil),
+		"Negative MinScale": config.NewTestContext(t, []string{"env_name"}, map[string]interface{}{"min-scale": "-1"}),
+		"Negative MaxScale": config.NewTestContext(t, []string{"env_name"}, map[string]interface{}{"max-scale": "-1"}),
 	}
 
 	for name, c := range contexts {
@@ -36,7 +37,7 @@ func TestEnvironmentDelete_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -55,7 +56,7 @@ func TestEnvironmentRead_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -74,7 +75,7 @@ func TestEnvironmentSetScale_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -97,7 +98,7 @@ func TestEnvironmentLink_duplicateEnvironmentID(t *testing.T) {
 		Return([]string{"env_id1"}, nil).
 		Times(2)
 
-	c := NewContext(t, []string{"env_name1", "env_name1"}, nil)
+	c := config.NewTestContext(t, []string{"env_name1", "env_name1"}, nil)
 	if err := command.link(c); err == nil {
 		t.Fatal("error was nil!")
 	}
@@ -114,7 +115,7 @@ func TestEnvironmentUnlink_duplicateEnvironmentID(t *testing.T) {
 		Return([]string{"env_id1"}, nil).
 		Times(2)
 
-	c := NewContext(t, []string{"env_name1", "env_name1"}, nil)
+	c := config.NewTestContext(t, []string{"env_name1", "env_name1"}, nil)
 	if err := command.unlink(c); err == nil {
 		t.Fatal("error was nil!")
 	}
@@ -171,7 +172,7 @@ func TestCreateEnvironment(t *testing.T) {
 			"ami":       req.AMIID,
 		}
 
-		c := NewContext(t, []string{"env_name"}, flags, SetNoWait(!wait))
+		c := config.NewTestContext(t, []string{"env_name"}, flags, config.SetNoWait(!wait))
 		if err := command.create(c); err != nil {
 			t.Fatal(err)
 		}
@@ -205,7 +206,7 @@ func TestDeleteEnvironment(t *testing.T) {
 				Return(job, nil)
 		}
 
-		c := NewContext(t, []string{"env_name"}, nil, SetNoWait(!wait))
+		c := config.NewTestContext(t, []string{"env_name"}, nil, config.SetNoWait(!wait))
 		if err := command.delete(c); err != nil {
 			t.Fatal(err)
 		}
@@ -230,7 +231,7 @@ func TestGetEnvironment(t *testing.T) {
 		ReadEnvironment("env_id2").
 		Return(&models.Environment{}, nil)
 
-	c := NewContext(t, []string{"env_name*"}, nil)
+	c := config.NewTestContext(t, []string{"env_name*"}, nil)
 	if err := command.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -246,7 +247,7 @@ func TestListEnvironments(t *testing.T) {
 		ListEnvironments().
 		Return([]*models.EnvironmentSummary{}, nil)
 
-	c := NewContext(t, nil, nil)
+	c := config.NewTestContext(t, nil, nil)
 	if err := command.list(c); err != nil {
 		t.Fatal(err)
 	}
@@ -290,12 +291,12 @@ func TestEnvironmentSetScale(t *testing.T) {
 				Return(&models.Environment{}, nil)
 		}
 
-		flags := Flags{
+		flags := map[string]interface{}{
 			"min-scale": 2,
 			"max-scale": 5,
 		}
 
-		c := NewContext(t, []string{"env_name"}, flags, SetNoWait(!wait))
+		c := config.NewTestContext(t, []string{"env_name"}, flags, config.SetNoWait(!wait))
 		if err := command.setScale(c); err != nil {
 			t.Fatal(err)
 		}
@@ -371,11 +372,11 @@ func TestEnvironmentLinkBiDirectional(t *testing.T) {
 				Return(job2, nil)
 		}
 
-		f := Flags{
+		f := map[string]interface{}{
 			"bi-directional": true,
 		}
 
-		c := NewContext(t, []string{"env_name1", "env_name2"}, f, SetNoWait(!wait))
+		c := config.NewTestContext(t, []string{"env_name1", "env_name2"}, f, config.SetNoWait(!wait))
 		if err := command.link(c); err != nil {
 			t.Fatal(err)
 		}
@@ -425,7 +426,7 @@ func TestEnvironmentLinkUniDirectional(t *testing.T) {
 				Return(job1, nil)
 		}
 
-		c := NewContext(t, []string{"env_name1", "env_name2"}, nil, SetNoWait(!wait))
+		c := config.NewTestContext(t, []string{"env_name1", "env_name2"}, nil, config.SetNoWait(!wait))
 		if err := command.link(c); err != nil {
 			t.Fatal(err)
 		}
@@ -500,11 +501,11 @@ func TestEnvironmentUnlinkBiDirectional(t *testing.T) {
 				Return(job2, nil)
 		}
 
-		f := Flags{
+		f := map[string]interface{}{
 			"bi-directional": true,
 		}
 
-		c := NewContext(t, []string{"env_name1", "env_name2"}, f, SetNoWait(!wait))
+		c := config.NewTestContext(t, []string{"env_name1", "env_name2"}, f, config.SetNoWait(!wait))
 		if err := command.unlink(c); err != nil {
 			t.Fatal(err)
 		}
@@ -553,7 +554,7 @@ func TestEnvironmentUnlinkUnidirectional(t *testing.T) {
 				Return(job1, nil)
 		}
 
-		c := NewContext(t, []string{"env_name1", "env_name2"}, nil, SetNoWait(!wait))
+		c := config.NewTestContext(t, []string{"env_name1", "env_name2"}, nil, config.SetNoWait(!wait))
 		if err := command.unlink(c); err != nil {
 			t.Fatal(err)
 		}
