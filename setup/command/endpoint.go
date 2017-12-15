@@ -44,7 +44,6 @@ func (f *CommandFactory) Endpoint() cli.Command {
 				{"token", config.FlagToken.EnvVar},
 			}
 
-			// todo: update unit test
 			// todo: not use hardocded strings in instance.Apply and instance.Push
 			// todo: ensure module outputs match
 			if c.Bool("dev") {

@@ -1,71 +1,73 @@
 package command
 
-/*
+import (
+	"testing"
+
+	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/setup/instance"
+	"github.com/quintilesims/layer0/setup/instance/mock_instance"
+)
+
 func TestEndpoint(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	instanceFactory := func(name string) instance.Instance {
-		mockInstance := mock_instance.NewMockInstance(ctrl)
-
-		outputs := []string{
-			instance.OUTPUT_ENDPOINT,
-			instance.OUTPUT_TOKEN,
-		}
-
-		for _, output := range outputs {
-			mockInstance.EXPECT().
-				Output(output).
-				Return("", nil)
-		}
-
-		return mockInstance
+	cases := []struct {
+		Name            string
+		Flags           Flags
+		ExpectedOutputs []output
+	}{
+		{
+			Name:  "no flags",
+			Flags: Flags{},
+			ExpectedOutputs: []output{
+				{"endpoint", config.FlagEndpoint.EnvVar},
+				{"token", config.FlagToken.EnvVar},
+			},
+		},
+		{
+			Name:  "dev flag",
+			Flags: Flags{"dev": true},
+			ExpectedOutputs: []output{
+				{"endpoint", config.FlagEndpoint.EnvVar},
+				{"token", config.FlagToken.EnvVar},
+				{"instance", config.FlagInstance.EnvVar},
+				{"aws_account_id", config.FlagAWSAccountID.EnvVar},
+				{"aws_access_key", config.FlagAWSAccessKey.EnvVar},
+				{"aws_secret_key", config.FlagAWSSecretKey.EnvVar},
+				{"aws_vpc", config.FlagAWSVPC.EnvVar},
+				{"aws_linux_ami", config.FlagAWSLinuxAMI.EnvVar},
+				{"aws_windows_ami", config.FlagAWSWindowsAMI.EnvVar},
+				{"aws_s3_bucket", config.FlagAWSS3Bucket.EnvVar},
+				{"aws_instance_profile", config.FlagAWSInstanceProfile.EnvVar},
+				{"aws_job_table", config.FlagAWSJobTable.EnvVar},
+				{"aws_tag_table", config.FlagAWSTagTable.EnvVar},
+				{"aws_lock_table", config.FlagAWSLockTable.EnvVar},
+				{"aws_public_subnets", config.FlagAWSPublicSubnets.EnvVar},
+				{"aws_private_subnets", config.FlagAWSPrivateSubnets.EnvVar},
+				{"aws_log_group", config.FlagAWSLogGroup.EnvVar},
+				{"aws_ssh_key", config.FlagAWSSSHKey.EnvVar},
+			},
+		},
 	}
 
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Endpoint())
+	for _, c := range cases {
+		c.Flags["syntax"] = "bash"
 
-	flags := map[string]interface{}{
-		"syntax": "bash",
+		t.Run(c.Name, func(t *testing.T) {
+			testEndpointHelper(t, c.ExpectedOutputs, c.Flags)
+		})
 	}
-
-	c := NewContext(t, []string{"name"}, flags)
-	if err := action(c); err != nil {
-		t.Fatal(err)
-	}
-
 }
 
-func TestEndpointDev(t *testing.T) {
+func testEndpointHelper(t *testing.T, expectedOutputs []output, flags Flags) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	instanceFactory := func(name string) instance.Instance {
 		mockInstance := mock_instance.NewMockInstance(ctrl)
 
-		outputs := []string{
-			instance.OUTPUT_ENDPOINT,
-			instance.OUTPUT_TOKEN,
-			instance.OUTPUT_NAME,
-			instance.OUTPUT_ACCOUNT_ID,
-			instance.OUTPUT_ACCESS_KEY,
-			instance.OUTPUT_SECRET_KEY,
-			instance.OUTPUT_SSH_KEY_PAIR,
-			instance.OUTPUT_AWS_LOG_GROUP_NAME,
-			instance.OUTPUT_VPC_ID,
-			instance.OUTPUT_PRIVATE_SUBNETS,
-			instance.OUTPUT_PUBLIC_SUBNETS,
-			instance.OUTPUT_S3_BUCKET,
-			instance.OUTPUT_ECS_INSTANCE_PROFILE,
-			instance.OUTPUT_AWS_LINUX_SERVICE_AMI,
-			instance.OUTPUT_WINDOWS_SERVICE_AMI,
-			instance.OUTPUT_AWS_DYNAMO_TAG_TABLE,
-			instance.OUTPUT_AWS_DYNAMO_JOB_TABLE,
-			instance.OUTPUT_AWS_DYNAMO_LOCK_TABLE,
-		}
-
-		for _, output := range outputs {
+		for _, o := range expectedOutputs {
 			mockInstance.EXPECT().
-				Output(output).
+				Output(o.TerraformOutput).
 				Return("", nil)
 		}
 
@@ -74,14 +76,8 @@ func TestEndpointDev(t *testing.T) {
 
 	commandFactory := NewCommandFactory(instanceFactory, nil)
 	action := extractAction(t, commandFactory.Endpoint())
-
-	flags := map[string]interface{}{
-		"syntax": "bash",
-		"dev":    "true",
-	}
-
 	c := NewContext(t, []string{"name"}, flags)
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}
-}*/
+}
