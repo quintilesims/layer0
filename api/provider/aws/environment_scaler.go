@@ -167,30 +167,13 @@ func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, u
 	// choose which instances to terminate during our scale-down process
 	// instead of having asg randomly select instances
 	// e.g. if we scale from 5 to 3, we can terminate up to 2 unused instances
-	if currentScale > desiredScale {
-		maxNumberOfInstancesToTerminate := currentScale - desiredScale
+	for i, max := 0, currentScale-desiredScale; i < max && i < len(unusedProviders); i++ {
+		instanceID := unusedProviders[i].ID
 
-		canTerminate := func(i int) bool {
-			if i+1 > maxNumberOfInstancesToTerminate {
-				return false
-			}
+		log.Printf("[DEBUG] [EnvironmentScaler] Terminating unused instance '%s' from environment '%s'.", instanceID, clusterName)
 
-			if i > len(unusedProviders)-1 {
-				return false
-			}
-
-			return true
-		}
-
-		for i := 0; canTerminate(i); i++ {
-			unusedProvider := unusedProviders[i]
-			instanceID := unusedProvider.ID
-
-			log.Printf("[DEBUG] [EnvironmentScaler] Terminating unused instance '%s' from environment '%s'.", instanceID, clusterName)
-
-			if err := e.terminateInstanceInAutoScalingGroup(instanceID); err != nil {
-				return err
-			}
+		if err := e.terminateInstanceInAutoScalingGroup(instanceID); err != nil {
+			return err
 		}
 	}
 
