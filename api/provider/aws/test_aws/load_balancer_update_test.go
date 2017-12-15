@@ -80,11 +80,12 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	readSGHelper(mockAWS, "l0-test-lb_name-lb", "lb_sg")
 	listenerDescription := &elb.ListenerDescription{}
-	listenerDescription.SetListener(listenerHelper(config.DefaultLoadBalancerPort))
+	listenerDescription.SetListener(listenerHelper(config.DefaultLoadBalancerPort()))
 
 	lb := &elb.LoadBalancerDescription{}
 	lb.SetLoadBalancerName("l0-test-lb_name")
-	lb.SetHealthCheck(healthCheckHelper(&config.DefaultLoadBalancerHealthCheck))
+	defaultHC := config.DefaultLoadBalancerHealthCheck()
+	lb.SetHealthCheck(healthCheckHelper(&defaultHC))
 	lb.SetListenerDescriptions([]*elb.ListenerDescription{listenerDescription})
 
 	describeLoadBalancersInput := &elb.DescribeLoadBalancersInput{}
@@ -98,14 +99,14 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		DescribeLoadBalancers(describeLoadBalancersInput).
 		Return(describeLoadBalancersOutput, nil)
 
-	revokeIngressInput := revokeSGIngressHelper(config.DefaultLoadBalancerPort)
+	revokeIngressInput := revokeSGIngressHelper(config.DefaultLoadBalancerPort())
 	revokeIngressInput.SetGroupId("lb_sg")
 
 	mockAWS.EC2.EXPECT().
 		RevokeSecurityGroupIngress(revokeIngressInput).
 		Return(&ec2.RevokeSecurityGroupIngressOutput{}, nil)
 
-	port := int64(config.DefaultLoadBalancerPort.HostPort)
+	port := int64(config.DefaultLoadBalancerPort().HostPort)
 	deleteLoadBalancerListenersInput := &elb.DeleteLoadBalancerListenersInput{}
 	deleteLoadBalancerListenersInput.SetLoadBalancerName("l0-test-lb_name")
 	deleteLoadBalancerListenersInput.SetLoadBalancerPorts([]*int64{&port})

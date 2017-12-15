@@ -26,7 +26,7 @@ func TestEnvironmentCreate(t *testing.T) {
 	c := config.NewTestContext(t, nil, map[string]interface{}{
 		config.FlagInstance.GetName():           "test",
 		config.FlagAWSLinuxAMI.GetName():        "lx_ami",
-		config.FlagAWSWindowAMI.GetName():       "win_ami",
+		config.FlagAWSWindowsAMI.GetName():      "win_ami",
 		config.FlagAWSS3Bucket.GetName():        "bucket",
 		config.FlagAWSVPC.GetName():             "vpc_id",
 		config.FlagAWSInstanceProfile.GetName(): "profile",
@@ -143,7 +143,7 @@ func TestEnvironmentCreateDefaults(t *testing.T) {
 	c := config.NewTestContext(t, nil, map[string]interface{}{
 		config.FlagInstance.GetName():           "test",
 		config.FlagAWSLinuxAMI.GetName():        "lx_ami",
-		config.FlagAWSWindowAMI.GetName():       "win_ami",
+		config.FlagAWSWindowsAMI.GetName():      "win_ami",
 		config.FlagAWSS3Bucket.GetName():        "bucket",
 		config.FlagAWSVPC.GetName():             "vpc_id",
 		config.FlagAWSInstanceProfile.GetName(): "profile",

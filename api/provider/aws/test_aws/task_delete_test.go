@@ -9,7 +9,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/config/mock_config"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,9 +20,9 @@ func TestTaskDelete(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	c := mock_config.NewMockAPIConfig(ctrl)
-
-	c.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	tags := models.Tags{
 		{
@@ -73,9 +73,9 @@ func TestDeleteTaskIdempotence(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	c := mock_config.NewMockAPIConfig(ctrl)
-
-	c.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	tags := models.Tags{
 		{
@@ -120,7 +120,9 @@ func TestDeleteTaskIdempotenceWithoutTags(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	c := mock_config.NewMockAPIConfig(ctrl)
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("tsk_id"); err != nil {

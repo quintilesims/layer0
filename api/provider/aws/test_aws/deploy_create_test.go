@@ -24,8 +24,8 @@ func TestDeployCreate(t *testing.T) {
 
 	c := config.NewTestContext(t, nil, map[string]interface{}{
 		config.FlagInstance.GetName():    "test",
-		config.FlagAWSLogGroup.GetName(): "test_group",
-		config.FlagAWSRegion.GetName():   "test_region",
+		config.FlagAWSLogGroup.GetName(): "l0-test",
+		config.FlagAWSRegion.GetName():   "us-west-2",
 	})
 
 	defer provider.SetEntityIDGenerator("dpl_id")()
