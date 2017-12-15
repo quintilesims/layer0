@@ -12,6 +12,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
 	"github.com/quintilesims/layer0/api/scaler"
@@ -128,8 +129,8 @@ func (e *EnvironmentScaler) CalculateOptimizedState(clusterName string, resource
 
 	// calculate for scaling down
 	unusedProviders := e.calculateScaleDown(clusterName, resourceProviders)
-	desiredScale := len(resourceProviders) - len(unusedProviders)
 
+	desiredScale := len(resourceProviders) - len(unusedProviders)
 	return resourceProviders, unusedProviders, desiredScale, multiError
 }
 
@@ -139,35 +140,35 @@ func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, u
 		return err
 	}
 
-	currentCapacity := int(aws.Int64Value(asg.DesiredCapacity))
+	currentScale := int(aws.Int64Value(asg.DesiredCapacity))
 
-	log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentCapacity, desiredScale)
+	if currentScale != desiredScale {
+		log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentScale, desiredScale)
 
-	asgName := aws.StringValue(asg.AutoScalingGroupName)
-	desiredScale64 := int64(desiredScale)
+		asgName := aws.StringValue(asg.AutoScalingGroupName)
+		desiredScale64 := int64(desiredScale)
 
-	minCapacity := int(aws.Int64Value(asg.MinSize))
-	maxCapacity := int(aws.Int64Value(asg.MaxSize))
+		minScale := aws.Int64Value(asg.MinSize)
+		maxScale := aws.Int64Value(asg.MaxSize)
 
-	// sample error returned when desired < min || desired > max:
-	//
-	// 2017/12/14 23:04:39 [ERROR] [Worker] [3]: Failed to run job 1513321478660496503: ValidationError: Desired capacity:1 must be between the specified min size:2 and max size:2
-	//         status code: 400, request id: ed313128-e165-11e7-ab64-c9c2b806a2ed
-	if err := updateASG(e.Client.AutoScaling, asgName, nil, nil, &desiredScale64); err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "ValidationError" {
-			text := fmt.Sprintf("[INFO] [EnvironmentScaler] Tried to scale above/below max/min scale for environment '%s'. ", clusterName)
-			text += fmt.Sprintf("(Desired: %d, Min: %d, Max: %d)", desiredScale, minCapacity, maxCapacity)
-			log.Print(text)
-		} else {
-			return err
+		if err := updateASG(e.Client.AutoScaling, asgName, nil, nil, &desiredScale64); err != nil {
+			if err, ok := err.(awserr.Error); ok && err.Code() == "ValidationError" {
+				text := fmt.Sprintf("[INFO] [EnvironmentScaler] Tried to scale environment '%s' above/below max/min scale. ", clusterName)
+				text += fmt.Sprintf("(Desired: %d, Min: %d, Max: %d)", desiredScale, minScale, maxScale)
+				log.Print(text)
+			} else {
+				return err
+			}
 		}
+	} else {
+		log.Printf("[DEBUG] [EnvironmentScaler] Environment '%s' is already at desired scale of '%d'.", clusterName, desiredScale)
 	}
 
 	// choose which instances to terminate during our scale-down process
 	// instead of having asg randomly select instances
 	// e.g. if we scale from 5 to 3, we can terminate up to 2 unused instances
-	if currentCapacity > desiredScale {
-		maxNumberOfInstancesToTerminate := currentCapacity - desiredScale
+	if currentScale > desiredScale {
+		maxNumberOfInstancesToTerminate := currentScale - desiredScale
 
 		canTerminate := func(i int) bool {
 			if i+1 > maxNumberOfInstancesToTerminate {
@@ -217,7 +218,7 @@ func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*scaler.Re
 
 	instanceSpec, ok := instanceSpecifications()[environment.InstanceType]
 	if !ok {
-		return nil, fmt.Errorf("[EnvironmentScaler] Instance size '%s' is not valid!", environment.InstanceType)
+		return nil, fmt.Errorf("[EnvironmentScaler] Instance type '%s' is not valid!", environment.InstanceType)
 	}
 
 	return scaler.NewResourceProvider(instanceSpec.CPU, "<new instance>", instanceSpec.Memory), nil
@@ -251,6 +252,18 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 		},
 	}
 
+	if len(resourceProviders) == 0 && len(resourceConsumers) > 0 {
+		newProvider, err := e.calculateNewProvider(clusterName)
+		if err != nil {
+			return nil, []error{err}
+		}
+
+		newProvider.AgentIsConnected = true
+		newProvider.Status = ecs.ContainerInstanceStatusActive
+
+		resourceProviders = append(resourceProviders, newProvider)
+	}
+
 	for _, sort := range sorters {
 		providerDistribution := ProviderDistribution{}
 		providerDistribution.Providers = resourceProviders
@@ -268,7 +281,6 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 					if err := provider.SubtractResourcesFor(consumer); err != nil {
 						return nil, []error{err}
 					}
-
 					break
 				}
 			}
@@ -278,6 +290,9 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 				if err != nil {
 					return nil, []error{err}
 				}
+
+				newProvider.AgentIsConnected = true
+				newProvider.Status = ecs.ContainerInstanceStatusActive
 
 				if !newProvider.HasResourcesFor(consumer) {
 					text := fmt.Sprintf("Resource '%s' cannot fit into an empty provider!", consumer.ID)
@@ -354,7 +369,7 @@ func (e *EnvironmentScaler) getContainerResourceFromDeploy(deployID string) ([]s
 			}
 		}
 
-		id := "NewConsumerFromDeploy" + deployID
+		id := "NewConsumerFromDeploy::" + deployID
 		consumers[i] = scaler.NewResourceConsumer(cpu, id, memory, ports)
 	}
 
