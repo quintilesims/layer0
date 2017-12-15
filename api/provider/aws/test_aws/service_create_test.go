@@ -22,9 +22,9 @@ func TestServiceCreate(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c.EXPECT().Instance().Return("test").AnyTimes()
 
 	tags := models.Tags{
 		{
@@ -128,7 +128,7 @@ func TestServiceCreate(t *testing.T) {
 		ServiceName:    "svc_name",
 	}
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	result, err := target.Create(req)
 	if err != nil {
 		t.Fatal(err)
@@ -168,9 +168,9 @@ func TestServiceCreate_defaults(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c.EXPECT().Instance().Return("test").AnyTimes()
 
 	tags := models.Tags{
 		{
@@ -205,7 +205,7 @@ func TestServiceCreate_defaults(t *testing.T) {
 		ServiceName:   "svc_name",
 	}
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	if _, err := target.Create(req); err != nil {
 		t.Fatal(err)
 	}

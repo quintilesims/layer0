@@ -9,7 +9,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/config/mock_config"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -19,10 +19,9 @@ func TestEnvironmentUpdate(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	// todo: setup helper for config
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	req := models.UpdateEnvironmentRequest{
 		MinScale: aws.Int(2),
@@ -53,7 +52,7 @@ func TestEnvironmentUpdate(t *testing.T) {
 		UpdateAutoScalingGroup(updateASGInput).
 		Return(&autoscaling.UpdateAutoScalingGroupOutput{}, nil)
 
-	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Update("env_id", req); err != nil {
 		t.Fatal(err)
 	}

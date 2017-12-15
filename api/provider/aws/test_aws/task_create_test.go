@@ -19,9 +19,9 @@ func TestTaskCreate(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c.EXPECT().Instance().Return("test").AnyTimes()
 	defer provider.SetEntityIDGenerator("tsk_id")()
 
 	tags := models.Tags{
@@ -86,7 +86,7 @@ func TestTaskCreate(t *testing.T) {
 		RunTask(runTaskInput).
 		Return(runTaskOutput, nil)
 
-	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, c)
 	result, err := target.Create(req)
 	if err != nil {
 		t.Fatal(err)

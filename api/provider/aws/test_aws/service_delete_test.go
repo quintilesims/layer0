@@ -21,9 +21,9 @@ func TestServiceDelete(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c.EXPECT().Instance().Return("test").AnyTimes()
 
 	tags := models.Tags{
 		{
@@ -134,7 +134,7 @@ func TestServiceDelete(t *testing.T) {
 		DeleteService(deleteServiceInput).
 		Return(deleteServiceOutput, nil)
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("svc_id"); err != nil {
 		t.Fatal(err)
 	}
@@ -148,9 +148,9 @@ func TestServiceDelete_idempotenceViaTags(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("svc_id"); err != nil {
 		t.Fatal(err)
 	}
@@ -162,9 +162,9 @@ func TestServiceDelete_idempotenceViaAWS(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c.EXPECT().Instance().Return("test").AnyTimes()
 
 	tags := models.Tags{
 		{
@@ -213,7 +213,7 @@ func TestServiceDelete_idempotenceViaAWS(t *testing.T) {
 		DeleteService(deleteServiceInput).
 		Return(&ecs.DeleteServiceOutput{}, awserr.New("ServiceNotFoundException", "", nil))
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("svc_id"); err != nil {
 		t.Fatal(err)
 	}

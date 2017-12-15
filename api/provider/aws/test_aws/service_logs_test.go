@@ -22,9 +22,9 @@ package test_aws
 //
 // 	mockAWS := awsc.NewMockClient(ctrl)
 // 	tagStore := tag.NewMemoryStore()
-// 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+// 	c := mock_config.NewMockAPIConfig(ctrl)
 //
-// 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+// 	c.EXPECT().Instance().Return("test").AnyTimes()
 //
 // 	tags := models.Tags{
 // 		{
@@ -134,7 +134,7 @@ package test_aws
 // 		}
 // 	}
 //
-// 	mockConfig.EXPECT().
+// 	c.EXPECT().
 // 		LogGroupName().
 // 		Return("l0-test")
 //
@@ -186,7 +186,7 @@ package test_aws
 // 		Return(nil).
 // 		Times(2)
 //
-// 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+// 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 // 	result, err := target.Logs("svc_id", 0, time.Time{}, time.Time{})
 // 	if err != nil {
 // 		t.Fatal(err)

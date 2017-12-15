@@ -9,7 +9,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/config/mock_config"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,9 +20,9 @@ func TestDeployDelete(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	tags := models.Tags{
 		{
@@ -58,7 +58,7 @@ func TestDeployDelete(t *testing.T) {
 		DeregisterTaskDefinition(deregisterTaskInput).
 		Return(&ecs.DeregisterTaskDefinitionOutput{}, nil)
 
-	target := provider.NewDeployProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewDeployProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("dpl_id"); err != nil {
 		t.Fatal(err)
 	}
@@ -72,9 +72,9 @@ func TestDeleteDeployIdempotence(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	tags := models.Tags{
 		{
@@ -107,7 +107,7 @@ func TestDeleteDeployIdempotence(t *testing.T) {
 		DeregisterTaskDefinition(gomock.Any()).
 		Return(nil, awserr.New("", "task definition does not exist", nil))
 
-	target := provider.NewDeployProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewDeployProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("dpl_id"); err != nil {
 		t.Fatal(err)
 	}
@@ -119,9 +119,9 @@ func TestDeployDelete_idempotenceViaTags(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := config.NewTestContext(t, nil, nil)
 
-	target := provider.NewDeployProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewDeployProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("dpl_id"); err != nil {
 		t.Fatal(err)
 	}

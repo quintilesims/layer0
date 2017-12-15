@@ -12,7 +12,6 @@ import (
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -22,9 +21,9 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	requestPorts := []models.Port{
 		models.Port{
@@ -142,7 +141,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		AuthorizeSecurityGroupIngress(authorizeIngressInput).
 		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
 
-	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Update("lb_name", req); err != nil {
 		t.Fatal(err)
 	}

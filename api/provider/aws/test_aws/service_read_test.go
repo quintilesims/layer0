@@ -23,9 +23,9 @@ func TestServiceRead(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c.EXPECT().Instance().Return("test").AnyTimes()
 
 	tags := models.Tags{
 		{
@@ -123,7 +123,7 @@ func TestServiceRead(t *testing.T) {
 		DescribeServices(describeServicesInput).
 		Return(describeServicesOutput, nil)
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	result, err := target.Read("svc_id")
 	if err != nil {
 		t.Fatal(err)
@@ -165,9 +165,9 @@ func TestServiceRead_serviceNotFoundError(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c.EXPECT().Instance().Return("test").AnyTimes()
 
 	tags := models.Tags{
 		{
@@ -190,7 +190,7 @@ func TestServiceRead_serviceNotFoundError(t *testing.T) {
 		DescribeServices(gomock.Any()).
 		Return(nil, awsError)
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	_, err := target.Read("svc_id")
 	assert.Equal(t, errors.ServiceDoesNotExist, err.(*errors.ServerError).Code)
 }

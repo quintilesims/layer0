@@ -9,7 +9,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/config/mock_config"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,10 +20,9 @@ func TestEnvironmentRead(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	// todo: setup helper for config
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	tags := models.Tags{
 		{
@@ -84,7 +83,7 @@ func TestEnvironmentRead(t *testing.T) {
 		DescribeLaunchConfigurations(describeLCInput).
 		Return(describeLCOutput, nil)
 
-	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, c)
 	result, err := target.Read("env_id")
 	if err != nil {
 		t.Fatal(err)

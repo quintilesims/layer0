@@ -20,9 +20,9 @@ func TestTaskDelete(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c.EXPECT().Instance().Return("test").AnyTimes()
 
 	tags := models.Tags{
 		{
@@ -59,7 +59,7 @@ func TestTaskDelete(t *testing.T) {
 		StopTask(stopTaskInput).
 		Return(&ecs.StopTaskOutput{}, nil)
 
-	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("tsk_id"); err != nil {
 		t.Fatal(err)
 	}
@@ -73,9 +73,9 @@ func TestDeleteTaskIdempotence(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c.EXPECT().Instance().Return("test").AnyTimes()
 
 	tags := models.Tags{
 		{
@@ -108,7 +108,7 @@ func TestDeleteTaskIdempotence(t *testing.T) {
 		StopTask(gomock.Any()).
 		Return(nil, awserr.New("", "task was not found", nil))
 
-	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("tsk_id"); err != nil {
 		t.Fatal(err)
 	}
@@ -120,9 +120,9 @@ func TestDeleteTaskIdempotenceWithoutTags(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("tsk_id"); err != nil {
 		t.Fatal(err)
 	}

@@ -21,9 +21,9 @@ func TestTaskList(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c.EXPECT().Instance().Return("test").AnyTimes()
 
 	tags := models.Tags{
 		{
@@ -168,7 +168,7 @@ func TestTaskList(t *testing.T) {
 		}
 	}
 
-	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, c)
 	result, err := target.List()
 	if err != nil {
 		t.Fatal(err)
