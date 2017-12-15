@@ -19,8 +19,8 @@
                 }
          },
         "environment": [
-            { "name": "LAYER0_AWS_ACCESS_KEY_ID", "value": "${access_key}" },
-            { "name": "LAYER0_AWS_SECRET_ACCESS_KEY", "value": "${secret_key}" },
+            { "name": "LAYER0_AWS_ACCESS_KEY", "value": "${access_key}" },
+            { "name": "LAYER0_AWS_SECRET_KEY", "value": "${secret_key}" },
             { "name": "LAYER0_AWS_REGION", "value": "${region}" },
             { "name": "LAYER0_AWS_PUBLIC_SUBNETS", "value": "${public_subnets}" },
             { "name": "LAYER0_AWS_PRIVATE_SUBNETS", "value": "${private_subnets}" },
