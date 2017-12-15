@@ -107,7 +107,6 @@ resource "aws_iam_group_policy" "mod" {
 
 data "aws_ami" "linux" {
   most_recent = true
-  executable_users = ["self"]
   filter {
     name   = "owner-alias"
     values = ["amazon"]
@@ -121,7 +120,6 @@ data "aws_ami" "linux" {
 
 data "aws_ami" "windows" {
   most_recent = true
-  executable_users = ["self"]
   filter {
     name   = "owner-alias"
     values = ["amazon"]
