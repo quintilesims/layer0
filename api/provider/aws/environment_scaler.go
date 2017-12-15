@@ -385,7 +385,7 @@ func (e *EnvironmentScaler) getServiceResourceConsumers(clusterName string) ([]s
 			runningCount := aws.Int64Value(d.RunningCount)
 			pendingCount := aws.Int64Value(d.PendingCount)
 			if numPending := desiredCount - (runningCount + pendingCount); numPending > 0 {
-				deployIDCopies[aws.StringValue(d.Id)] = int(numPending)
+				deployIDCopies[aws.StringValue(d.TaskDefinition)] = int(numPending)
 			}
 		}
 
