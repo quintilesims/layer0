@@ -11,7 +11,7 @@ import (
 	cache "github.com/zpatrick/go-cache"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
 	"github.com/quintilesims/layer0/api/scaler"
@@ -54,7 +54,7 @@ type ProviderDistribution struct {
 // It consists of three primary logical groupings:
 // 1. Gather all providers (instances) and consumers (tasks/services) of resources.
 // 2. Calculate the optimal distribution of consumers among providers, including whether instances should be added or removed.
-// 3. Update the AutoScaling Group to realize the changes calculated previously.
+// 3. Update the AutoScaling Group to realize the calculated changes.
 func (e *EnvironmentScaler) Scale(environmentID string) error {
 	clusterName := addLayer0Prefix(e.Config.Instance(), environmentID)
 
@@ -65,6 +65,7 @@ func (e *EnvironmentScaler) Scale(environmentID string) error {
 
 	var incompatibilityError error
 	resourceProviders, unusedProviders, desiredScale, err := e.CalculateOptimizedState(clusterName, resourceConsumers, resourceProviders)
+
 	if err != nil {
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.IncompatibleConsumerAndProvider {
 			incompatibilityError = err
@@ -86,32 +87,17 @@ func (e *EnvironmentScaler) GetCurrentState(clusterName string) ([]scaler.Resour
 		return nil, nil, err
 	}
 
-	log.Printf("[DEBUG] [EnvironmentScaler] resourceProviders for env '%s': %v", clusterName, resourceProviders)
-
-	var resourceConsumers []scaler.ResourceConsumer
-
 	serviceConsumers, err := e.getServiceResourceConsumers(clusterName)
 	if err != nil {
 		return nil, nil, err
 	}
-
-	resourceConsumers = append(resourceConsumers, serviceConsumers...)
-
-	ecsTaskConsumers, err := e.getECSTaskResourceConsumers(clusterName)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	resourceConsumers = append(resourceConsumers, ecsTaskConsumers...)
 
 	jobTaskConsumers, err := e.getJobTaskResourceConsumers(clusterName)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	resourceConsumers = append(resourceConsumers, jobTaskConsumers...)
-
-	log.Printf("[DEBUG] [EnvironmentScaler] resourceConsumers for env '%s': %#v", clusterName, resourceConsumers)
+	resourceConsumers := append(serviceConsumers, jobTaskConsumers...)
 
 	return resourceConsumers, resourceProviders, nil
 }
@@ -154,29 +140,27 @@ func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, u
 	}
 
 	currentCapacity := int(aws.Int64Value(asg.DesiredCapacity))
-	if desiredScale == currentCapacity {
-		log.Printf("[DEBUG] {EnvironmentScaler] Environment '%s' is at desired scale of '%d'. No scaling action required.", clusterName, currentCapacity)
-		return nil
-	}
 
 	log.Printf("[DEBUG] [EnvironmentScaler] Attempting to scale environment '%s' from current scale of '%d' to desired scale of '%d'.", clusterName, currentCapacity, desiredScale)
 
-	minCapacity := int(aws.Int64Value(asg.MinSize))
-	if desiredScale < minCapacity {
-		log.Printf("[DEBUG] [EnvironmentScaler] Will not scale below minimum capacity of '%d'. Aborting scaling action for environment '%s'.", minCapacity, clusterName)
-		return nil
-	}
-
-	maxCapacity := int(aws.Int64Value(asg.MaxSize))
-	if desiredScale > maxCapacity {
-		log.Printf("[DEBUG] [EnvironmentScaler] Will not scale above maximum capacity of '%d'. Aborting scaling action for environment '%s'.", maxCapacity, clusterName)
-		return nil
-	}
-
 	asgName := aws.StringValue(asg.AutoScalingGroupName)
 	desiredScale64 := int64(desiredScale)
+
+	minCapacity := int(aws.Int64Value(asg.MinSize))
+	maxCapacity := int(aws.Int64Value(asg.MaxSize))
+
+	// sample error returned when desired < min || desired > max:
+	//
+	// 2017/12/14 23:04:39 [ERROR] [Worker] [3]: Failed to run job 1513321478660496503: ValidationError: Desired capacity:1 must be between the specified min size:2 and max size:2
+	//         status code: 400, request id: ed313128-e165-11e7-ab64-c9c2b806a2ed
 	if err := updateASG(e.Client.AutoScaling, asgName, nil, nil, &desiredScale64); err != nil {
-		return err
+		if err, ok := err.(awserr.Error); ok && err.Code() == "ValidationError" {
+			text := fmt.Sprintf("[INFO] [EnvironmentScaler] Tried to scale above/below max/min scale for environment '%s'. ", clusterName)
+			text += fmt.Sprintf("(Desired: %d, Min: %d, Max: %d)", desiredScale, minCapacity, maxCapacity)
+			log.Print(text)
+		} else {
+			return err
+		}
 	}
 
 	// choose which instances to terminate during our scale-down process
@@ -420,38 +404,6 @@ func (e *EnvironmentScaler) getServiceResourceConsumers(clusterName string) ([]s
 				resourceConsumers = append(resourceConsumers, consumers...)
 			}
 		}
-	}
-
-	return resourceConsumers, nil
-}
-
-func (e *EnvironmentScaler) getECSTaskResourceConsumers(clusterName string) ([]scaler.ResourceConsumer, error) {
-	var taskARNs []string
-
-	startedBy := e.Config.Instance()
-	for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
-		arns, err := e.getTaskARNsForCluster(clusterName, status, startedBy)
-		if err != nil {
-			return nil, err
-		}
-
-		taskARNs = append(taskARNs, arns...)
-	}
-
-	var resourceConsumers []scaler.ResourceConsumer
-
-	for _, taskARN := range taskARNs {
-		task, err := e.TaskProvider.Read(taskARN)
-		if err != nil {
-			return nil, err
-		}
-
-		taskResourceConsumers, err := e.getContainerResourceFromDeploy(task.DeployID)
-		if err != nil {
-			return nil, err
-		}
-
-		resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
 	}
 
 	return resourceConsumers, nil
