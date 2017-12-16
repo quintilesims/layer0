@@ -1,6 +1,10 @@
 package scaler
 
-import bytesize "github.com/zpatrick/go-bytesize"
+import (
+	"fmt"
+
+	bytesize "github.com/zpatrick/go-bytesize"
+)
 
 type ResourceConsumer struct {
 	CPU    int               `json:"cpu"`
@@ -16,4 +20,9 @@ func NewResourceConsumer(cpu int, id string, memory bytesize.Bytesize, ports []i
 		Memory: memory,
 		Ports:  ports,
 	}
+}
+
+func (r ResourceConsumer) String() string {
+	s := "scaler.ResourceConsumer{CPU:%d, ID:%s, Memory:%v, Ports:%v}"
+	return fmt.Sprintf(s, r.CPU, r.ID, r.Memory.Format("mib"), r.Ports)
 }
