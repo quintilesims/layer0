@@ -17,13 +17,36 @@ type ResourceProvider struct {
 	UsedPorts        []int             `json:"used_ports"`
 }
 
-func NewResourceProvider(cpu int, id string, memory bytesize.Bytesize) *ResourceProvider {
-	return &ResourceProvider{
+func NewResourceProvider(agent *bool, cpu int, memory bytesize.Bytesize, id string, inUse *bool, status *string, ports *[]int) *ResourceProvider {
+	r := &ResourceProvider{
 		AvailableCPU:    cpu,
 		AvailableMemory: memory,
 		ID:              id,
 		UsedPorts:       defaultPorts(),
 	}
+
+	if agent != nil {
+		r.AgentIsConnected = *agent
+	}
+
+	if inUse != nil {
+		r.InUse = *inUse
+	}
+
+	if status != nil {
+		r.Status = *status
+	}
+
+	if ports != nil {
+		r.UsedPorts = append(r.UsedPorts, *ports...)
+	}
+
+	return r
+}
+
+func (r *ResourceProvider) String() string {
+	s := "&scaler.ResourceProvider{AgentIsConnected:%t, AvailableCPU:%d, AvailableMemory:%v, ID:%s, InUse:%t, Status:%s, UsedPorts:%v}"
+	return fmt.Sprintf(s, r.AgentIsConnected, r.AvailableCPU, r.AvailableMemory.Format("mib"), r.ID, r.InUse, r.Status, r.UsedPorts)
 }
 
 func (r *ResourceProvider) HasResourcesFor(consumer ResourceConsumer) bool {
@@ -53,8 +76,4 @@ func (r *ResourceProvider) SubtractResourcesFor(consumer ResourceConsumer) error
 	r.UsedPorts = append(r.UsedPorts, consumer.Ports...)
 
 	return nil
-}
-
-func (r *ResourceProvider) String() string {
-	return fmt.Sprintf("%#v", r)
 }

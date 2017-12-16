@@ -140,6 +140,8 @@ func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, u
 		return err
 	}
 
+	minScale := int(aws.Int64Value(asg.MinSize))
+	maxScale := int(aws.Int64Value(asg.MaxSize))
 	currentScale := int(aws.Int64Value(asg.DesiredCapacity))
 
 	if currentScale != desiredScale {
@@ -148,12 +150,9 @@ func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, u
 		asgName := aws.StringValue(asg.AutoScalingGroupName)
 		desiredScale64 := int64(desiredScale)
 
-		minScale := aws.Int64Value(asg.MinSize)
-		maxScale := aws.Int64Value(asg.MaxSize)
-
 		if err := updateASG(e.Client.AutoScaling, asgName, nil, nil, &desiredScale64); err != nil {
 			if err, ok := err.(awserr.Error); ok && err.Code() == "ValidationError" {
-				text := fmt.Sprintf("[INFO] [EnvironmentScaler] Tried to scale environment '%s' above/below max/min scale. ", clusterName)
+				text := fmt.Sprintf("[INFO] [EnvironmentScaler] Cannot scale environment '%s' above/below max/min scale. ", clusterName)
 				text += fmt.Sprintf("(Desired: %d, Min: %d, Max: %d)", desiredScale, minScale, maxScale)
 				log.Print(text)
 			} else {
@@ -167,13 +166,15 @@ func (e *EnvironmentScaler) ScaleToState(clusterName string, desiredScale int, u
 	// choose which instances to terminate during our scale-down process
 	// instead of having asg randomly select instances
 	// e.g. if we scale from 5 to 3, we can terminate up to 2 unused instances
-	for i, max := 0, currentScale-desiredScale; i < max && i < len(unusedProviders); i++ {
-		instanceID := unusedProviders[i].ID
+	if desiredScale > minScale {
+		for i, max := 0, currentScale-desiredScale; i < max && i < len(unusedProviders); i++ {
+			instanceID := unusedProviders[i].ID
 
-		log.Printf("[DEBUG] [EnvironmentScaler] Terminating unused instance '%s' from environment '%s'.", instanceID, clusterName)
+			log.Printf("[DEBUG] [EnvironmentScaler] Terminating unused instance '%s' from environment '%s'.", instanceID, clusterName)
 
-		if err := e.terminateInstanceInAutoScalingGroup(instanceID); err != nil {
-			return err
+			if err := e.terminateInstanceInAutoScalingGroup(instanceID); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -204,7 +205,7 @@ func (e *EnvironmentScaler) calculateNewProvider(clusterName string) (*scaler.Re
 		return nil, fmt.Errorf("[EnvironmentScaler] Instance type '%s' is not valid!", environment.InstanceType)
 	}
 
-	return scaler.NewResourceProvider(instanceSpec.CPU, "<new instance>", instanceSpec.Memory), nil
+	return scaler.NewResourceProvider(nil, instanceSpec.CPU, instanceSpec.Memory, "<new instance>", nil, nil, nil), nil
 }
 
 func (e *EnvironmentScaler) calculateScaleDown(clusterName string, resourceProviders []*scaler.ResourceProvider) []*scaler.ResourceProvider {
@@ -235,21 +236,38 @@ func (e *EnvironmentScaler) calculateScaleUp(clusterName string, resourceProvide
 		},
 	}
 
-	if len(resourceProviders) == 0 && len(resourceConsumers) > 0 {
-		newProvider, err := e.calculateNewProvider(clusterName)
-		if err != nil {
-			return nil, []error{err}
+	for _, sort := range sorters {
+
+		// Because *ResourceProvider.SubtractResourcesFor() actually modifies the underlying
+		// provider object, we need to make a fresh copy of the list of providers for each
+		// pass through a sort-and-allocate operation.
+		resourceProvidersCopy := make([]*scaler.ResourceProvider, len(resourceProviders))
+		for i, provider := range resourceProviders {
+			resourceProvidersCopy[i] = scaler.NewResourceProvider(
+				&provider.AgentIsConnected,
+				provider.AvailableCPU,
+				provider.AvailableMemory,
+				provider.ID,
+				&provider.InUse,
+				&provider.Status,
+				&provider.UsedPorts,
+			)
 		}
 
-		newProvider.AgentIsConnected = true
-		newProvider.Status = ecs.ContainerInstanceStatusActive
+		if len(resourceProvidersCopy) == 0 && len(resourceConsumers) > 0 {
+			newProvider, err := e.calculateNewProvider(clusterName)
+			if err != nil {
+				return nil, []error{err}
+			}
 
-		resourceProviders = append(resourceProviders, newProvider)
-	}
+			newProvider.AgentIsConnected = true
+			newProvider.Status = ecs.ContainerInstanceStatusActive
 
-	for _, sort := range sorters {
+			resourceProvidersCopy = append(resourceProvidersCopy, newProvider)
+		}
+
 		providerDistribution := ProviderDistribution{}
-		providerDistribution.Providers = resourceProviders
+		providerDistribution.Providers = resourceProvidersCopy
 
 		providerDistributions = append(providerDistributions, providerDistribution)
 
