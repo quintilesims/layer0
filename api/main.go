@@ -21,7 +21,6 @@ import (
 	awsclient "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logging"
-	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
 	"github.com/zpatrick/fireball"
 )
@@ -81,6 +80,7 @@ func main() {
 			return err
 		}
 
+		adminProvider := aws.NewAdminProvider(client, tagStore, c)
 		deployProvider := aws.NewDeployProvider(client, tagStore, c)
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, c)
 		loadBalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, c)
@@ -88,6 +88,10 @@ func main() {
 		taskProvider := aws.NewTaskProvider(client, tagStore, c)
 		environmentScaler := aws.NewEnvironmentScaler()
 		scalerDispatcher := scaler.NewDispatcher(jobStore, time.Second*15)
+
+		if err := adminProvider.Init(); err != nil {
+			return err
+		}
 
 		jobRunner := aws.NewJobRunner(
 			deployProvider,
@@ -162,45 +166,4 @@ func main() {
 	if err := app.Run(os.Args); err != nil {
 		log.Fatal(err)
 	}
-}
-
-// todo: add 'arn' tags for all active task definitions for the api
-func addAPIEntityTags(store tag.Store) error {
-	for _, entityType := range []string{
-		"deploy",
-		"environment",
-		"load_balancer",
-		"service"} {
-
-		t := models.Tag{
-			EntityID:   "api",
-			EntityType: entityType,
-			Key:        "name",
-			Value:      "api",
-		}
-
-		if err := store.Insert(t); err != nil {
-			return err
-		}
-
-		if entityType == "environment" {
-			t.Key = "os"
-			t.Value = "linux"
-
-			if err := store.Insert(t); err != nil {
-				return err
-			}
-		}
-
-		if entityType == "load_balancer" || entityType == "service" {
-			t.Key = "environment_id"
-			t.Value = "api"
-
-			if err := store.Insert(t); err != nil {
-				return err
-			}
-		}
-	}
-
-	return nil
 }

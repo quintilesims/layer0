@@ -23,7 +23,7 @@ func (s *ServiceProvider) Delete(serviceID string) error {
 	clusterName := addLayer0Prefix(s.Context, environmentID)
 	fqServiceID := addLayer0Prefix(s.Context, serviceID)
 
-	service, err := s.readService(clusterName, fqServiceID)
+	service, err := readService(s.AWS.ECS, clusterName, fqServiceID)
 	if err != nil {
 		return err
 	}
