@@ -58,14 +58,7 @@ func ValidateAPIContext(c *cli.Context) error {
 		FlagAWSSSHKey,
 	}
 
-	for _, flag := range requiredFlags {
-		name := flag.GetName()
-		if !c.IsSet(name) {
-			return fmt.Errorf("Required Variable %s is not set!", name)
-		}
-	}
-
-	return nil
+	return ValidateContext(c, requiredFlags)
 }
 
 func ParseAuthToken(c *cli.Context) (string, string, error) {

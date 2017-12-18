@@ -1,6 +1,8 @@
 package config
 
 import (
+	"fmt"
+
 	"github.com/urfave/cli"
 )
 
@@ -173,3 +175,14 @@ var (
 		EnvVar: "LAYER0_TEST_AWS_JOB_TABLE",
 	}
 )
+
+func ValidateContext(c *cli.Context, requiredFlags []cli.Flag) error {
+	for _, flag := range requiredFlags {
+		name := flag.GetName()
+		if !c.IsSet(name) {
+			return fmt.Errorf("Required Variable %s is not set!", name)
+		}
+	}
+
+	return nil
+}
