@@ -34,7 +34,7 @@
             { "name": "LAYER0_AWS_TAG_TABLE", "value": "${dynamo_tag_table}" },
             { "name": "LAYER0_AWS_JOB_TABLE", "value": "${dynamo_job_table}" },
             { "name": "LAYER0_AWS_LOCK_TABLE", "value": "${dynamo_lock_table}" },
-	    { "name": "LAYER0_TOKEN", "value": "${api_auth_token}" },
+            { "name": "LAYER0_TOKEN", "value": "${api_auth_token}" },
             { "name": "LAYER0_AWS_ACCOUNT_ID", "value": "${account_id}" },
             { "name": "LAYER0_AWS_LOG_GROUP", "value": "${log_group_name}" },
             { "name": "LAYER0_AWS_REQUEST_DELAY", "value": "${request_delay}" },
