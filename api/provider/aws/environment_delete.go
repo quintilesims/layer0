@@ -23,8 +23,8 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 		return err
 	}
 
-	launchContextName := fqEnvironmentID
-	if err := e.deleteLC(launchContextName); err != nil {
+	launchConfigName := fqEnvironmentID
+	if err := e.deleteLC(launchConfigName); err != nil {
 		return err
 	}
 
@@ -73,9 +73,9 @@ func (e *EnvironmentProvider) deleteASG(autoScalingGroupName string) error {
 	return nil
 }
 
-func (e *EnvironmentProvider) deleteLC(launchContextName string) error {
+func (e *EnvironmentProvider) deleteLC(launchConfigName string) error {
 	input := &autoscaling.DeleteLaunchConfigurationInput{}
-	input.SetLaunchConfigurationName(launchContextName)
+	input.SetLaunchConfigurationName(launchConfigName)
 
 	if err := input.Validate(); err != nil {
 		return err

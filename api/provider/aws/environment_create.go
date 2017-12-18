@@ -83,11 +83,11 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		return "", err
 	}
 
-	launchContextName := fqEnvironmentID
+	launchConfigName := fqEnvironmentID
 	instanceProfile := e.Context.String(config.FlagAWSInstanceProfile.GetName())
 	sshKeyPair := e.Context.String(config.FlagAWSSSHKey.GetName())
 	if err := e.createLC(
-		launchContextName,
+		launchConfigName,
 		aws.StringValue(securityGroup.GroupId),
 		instanceType,
 		instanceProfile,
@@ -106,7 +106,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	privateSubnets := e.Context.StringSlice(config.FlagAWSPrivateSubnets.GetName())
 	if err := e.createASG(
 		autoScalingGroupName,
-		launchContextName,
+		launchConfigName,
 		int64(req.MinScale),
 		int64(maxScale),
 		privateSubnets); err != nil {
@@ -146,7 +146,7 @@ func (e *EnvironmentProvider) authorizeSGSelfIngress(groupID string) error {
 }
 
 func (e *EnvironmentProvider) createLC(
-	launchContextName string,
+	launchConfigName string,
 	securityGroupID string,
 	instanceType string,
 	instanceProfile string,
@@ -155,7 +155,7 @@ func (e *EnvironmentProvider) createLC(
 	userData string,
 ) error {
 	input := &autoscaling.CreateLaunchConfigurationInput{}
-	input.SetLaunchConfigurationName(launchContextName)
+	input.SetLaunchConfigurationName(launchConfigName)
 	input.SetSecurityGroups([]*string{aws.String(securityGroupID)})
 	input.SetInstanceType(instanceType)
 	input.SetIamInstanceProfile(instanceProfile)
@@ -176,7 +176,7 @@ func (e *EnvironmentProvider) createLC(
 
 func (e *EnvironmentProvider) createASG(
 	autoScalingGroupName string,
-	launchContextName string,
+	launchConfigName string,
 	minSize int64,
 	maxSize int64,
 	privateSubnets []string,
@@ -190,7 +190,7 @@ func (e *EnvironmentProvider) createASG(
 
 	input := &autoscaling.CreateAutoScalingGroupInput{}
 	input.SetAutoScalingGroupName(autoScalingGroupName)
-	input.SetLaunchConfigurationName(launchContextName)
+	input.SetLaunchConfigurationName(launchConfigName)
 	input.SetVPCZoneIdentifier(subnetIdentifier)
 	input.SetMinSize(minSize)
 	input.SetMaxSize(maxSize)
