@@ -17,7 +17,7 @@ func (s *ServiceProvider) Logs(serviceID string, tail int, start, end time.Time)
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), environmentID)
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
 	clusterName := fqEnvironmentID
-	service, err := s.readService(clusterName, fqServiceID)
+	service, err := readService(s.AWS.ECS, clusterName, fqServiceID)
 	if err != nil {
 		return nil, err
 	}
