@@ -56,12 +56,13 @@ Layer0 API will use its own key with limited permissions to provision AWS resour
 
 const INPUT_AWS_REGION_DESCRIPTION = `
 AWS Region: The region input variable specifies which region to provision the
-AWS resources required for Layer0. The following regions can be used: 
+AWS resources required for Layer0. Regions that support the following services 
+can be used: 
 
-    - us-west-1
-    - us-west-2
-    - us-east-1
-    - eu-west-1
+    - ECS
+    - VPC
+    - S3
+    - DynamoDB
 
 Note that changing this value will destroy and recreate any existing resources.
 `
