@@ -96,14 +96,21 @@ func main() {
 			scalerDispatcher)
 
 		routes := controllers.NewSwaggerController(Version).Routes()
-		routes = append(routes, controllers.NewAdminController(cfg, Version).Routes()...)
-		routes = append(routes, controllers.NewDeployController(deployProvider, jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewJobController(jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider, jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewServiceController(serviceProvider, jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewTagController(tagStore).Routes()...)
 		routes = append(routes, controllers.NewTaskController(taskProvider, jobStore, tagStore).Routes()...)
+
+		adminRoutes := controllers.NewAdminController(cfg, Version).Routes()
+
+		// Admin health check should be safe to not require basic auth
+		for i, v := range adminRoutes {
+			if v.Path != "/admin/health" {
+				routes = append(routes, adminRoutes[i])
+			}
+		}
 
 		user, pass, err := cfg.ParseAuthToken()
 		if err != nil {
@@ -113,6 +120,12 @@ func main() {
 		routes = fireball.Decorate(routes,
 			fireball.LogDecorator(),
 			fireball.BasicAuthDecorator(user, pass))
+
+		for i, v := range adminRoutes {
+			if v.Path == "/admin/health" {
+				routes = append(routes, adminRoutes[i])
+			}
+		}
 
 		server := fireball.NewApp(routes)
 		server.ErrorHandler = controllers.ErrorHandler
