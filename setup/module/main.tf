@@ -10,9 +10,9 @@ module "vpc" {
   # todo: count_hack is workaround for https://github.com/hashicorp/terraform/issues/953
   count_hack = "${ var.vpc_id == "" ? 1 : 0 }"
 
-  source              = "./vpc"
-  name                = "${var.name}"
-  cidr                = "10.100.0.0/16"
+  source = "./vpc"
+  name   = "${var.name}"
+  cidr   = "10.100.0.0/16"
 
   tags {
     "layer0" = "${var.name}"

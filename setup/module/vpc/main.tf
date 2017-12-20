@@ -48,7 +48,7 @@ resource "aws_route_table" "private" {
 
 resource "aws_subnet" "private" {
   vpc_id            = "${aws_vpc.mod.id}"
-  cidr_block        = "${cidrsubnet(aws_vpc.mod.cidr_block, 8, count.index + 1)}" 
+  cidr_block        = "${cidrsubnet(aws_vpc.mod.cidr_block, 8, count.index + 1)}"
   availability_zone = "${element(data.aws_availability_zones.available.names, count.index)}"
   count             = "${length(data.aws_availability_zones.available.names) * var.count_hack}"
   tags              = "${merge(var.tags, map("Tier", "Private"), map("Name", format("l0-%s-subnet-private-%s", var.name, element(data.aws_availability_zones.available.names, count.index))))}"
