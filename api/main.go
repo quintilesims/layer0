@@ -96,6 +96,7 @@ func main() {
 			scalerDispatcher)
 
 		routes := controllers.NewSwaggerController(Version).Routes()
+		routes = append(routes, controllers.NewDeployController(deployProvider, jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewJobController(jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider, jobStore, tagStore).Routes()...)
