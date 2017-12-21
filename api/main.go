@@ -76,10 +76,6 @@ func main() {
 		tagStore := tag.NewDynamoStore(session, c.String(config.FlagAWSTagTable.GetName()))
 		jobStore := job.NewDynamoStore(session, c.String(config.FlagAWSJobTable.GetName()))
 
-		if err := addAPIEntityTags(tagStore); err != nil {
-			return err
-		}
-
 		adminProvider := aws.NewAdminProvider(client, tagStore, c)
 		deployProvider := aws.NewDeployProvider(client, tagStore, c)
 		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, c)

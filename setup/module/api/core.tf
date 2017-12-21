@@ -107,26 +107,28 @@ resource "aws_iam_group_policy" "mod" {
 
 data "aws_ami" "linux" {
   most_recent = true
+
   filter {
     name   = "owner-alias"
     values = ["amazon"]
   }
 
   filter {
-    name = "name"
+    name   = "name"
     values = ["amzn-ami-2017.09.d-amazon-ecs-optimized"]
   }
 }
 
 data "aws_ami" "windows" {
   most_recent = true
+
   filter {
     name   = "owner-alias"
     values = ["amazon"]
   }
 
   filter {
-    name = "name"
+    name   = "name"
     values = ["Windows_Server-2016-English-Full-ECS_Optimized-2017.11.24"]
   }
 }
