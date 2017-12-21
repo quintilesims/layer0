@@ -6,8 +6,16 @@ MIME-Version: 1.0
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 echo ECS_CLUSTER=${cluster_id} >> /etc/ecs/ecs.config
 echo ECS_ENGINE_AUTH_TYPE=dockercfg >> /etc/ecs/ecs.config
-echo ECS_LOGLEVEL=debug >> /etc/ecs/ecs.config
-yum install -y aws-cli awslogs jq
+echo ECS_LOGLEVEL=info >> /etc/ecs/ecs.config
+
+# Known issue where packages will sometimes not install on the first try
+n=0
+until [ $n -ge 5 ]
+do
+    yum install -y aws-cli awslogs jq && break
+    n=$[$n+1]
+    sleep 5
+done
 
 # Inject the CloudWatch Logs configuration file contents
 cat > /etc/awslogs/awslogs.conf <<- EOF
@@ -52,7 +60,6 @@ datetime_format = %Y-%m-%dT%H:%M:%SZ
 
 EOF
 
-echo "{\"debug\": true}" > /etc/docker/daemon.json
 aws s3 cp s3://${s3_bucket}/bootstrap/dockercfg dockercfg
 cfg=$(cat dockercfg)
 echo ECS_ENGINE_AUTH_DATA=$cfg >> /etc/ecs/ecs.config
