@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -12,7 +13,8 @@ import (
 // A Service Summary consists of the Service ID, Service name, Environment ID, and
 // Environment name.
 func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
-	clusterNames, err := listClusterNames(s.AWS.ECS, s.Config.Instance())
+	instance := s.Context.String(config.FlagInstance.GetName())
+	clusterNames, err := listClusterNames(s.AWS.ECS, instance)
 	if err != nil {
 		return nil, err
 	}
@@ -24,7 +26,7 @@ func (s *ServiceProvider) List() ([]models.ServiceSummary, error) {
 
 	serviceIDs := make([]string, len(serviceNames))
 	for i, serviceName := range serviceNames {
-		serviceID := delLayer0Prefix(s.Config.Instance(), serviceName)
+		serviceID := delLayer0Prefix(s.Context, serviceName)
 		serviceIDs[i] = serviceID
 	}
 

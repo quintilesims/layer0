@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/urfave/cli"
 )
 
@@ -11,7 +12,11 @@ func (f *CommandFactory) Pull() cli.Command {
 		Name:      "pull",
 		Usage:     "pull a Layer0 instance configuration from S3",
 		ArgsUsage: "NAME",
-		Flags:     awsFlags,
+		Flags: []cli.Flag{
+			config.FlagAWSAccessKey,
+			config.FlagAWSSecretKey,
+			config.FlagAWSRegion,
+		},
 		Action: func(c *cli.Context) error {
 			args, err := extractArgs(c.Args(), "NAME")
 			if err != nil {

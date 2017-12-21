@@ -19,8 +19,8 @@ func NewLoadBalancerCommand(b *CommandBase) *LoadBalancerCommand {
 }
 
 func (l *LoadBalancerCommand) Command() cli.Command {
-	dhc := config.DefaultLoadBalancerHealthCheck
-	dp := config.DefaultLoadBalancerPort
+	dhc := config.DefaultLoadBalancerHealthCheck()
+	dp := config.DefaultLoadBalancerPort()
 	defaultPortString := fmt.Sprintf("%d:%d/%s", dp.HostPort, dp.ContainerPort, dp.Protocol)
 	defaultPortFlag := cli.StringSlice([]string{defaultPortString})
 

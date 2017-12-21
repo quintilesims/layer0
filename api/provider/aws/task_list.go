@@ -3,6 +3,7 @@ package aws
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -10,14 +11,15 @@ import (
 // from ECS and returns a list of Task summaries. A Task summary consists of the Task ID,
 // Task name, Environment ID, and Environment name.
 func (t *TaskProvider) List() ([]models.TaskSummary, error) {
-	clusterNames, err := listClusterNames(t.AWS.ECS, t.Config.Instance())
+	instance := t.Context.String(config.FlagInstance.GetName())
+	clusterNames, err := listClusterNames(t.AWS.ECS, instance)
 	if err != nil {
 		return nil, err
 	}
 
 	taskARNs := []string{}
 	for _, clusterName := range clusterNames {
-		startedBy := t.Config.Instance()
+		startedBy := t.Context.String(config.FlagInstance.GetName())
 		clusterTaskARNs, err := t.listClusterTaskARNs(clusterName, startedBy)
 		if err != nil {
 			return nil, err

@@ -3,6 +3,7 @@ package command
 import (
 	"testing"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -15,7 +16,7 @@ func TestDebugAdmin(t *testing.T) {
 		Return(&models.APIConfig{}, nil)
 
 	adminCommand := NewAdminCommand(base.Command())
-	c := NewContext(t, nil, nil)
+	c := config.NewTestContext(t, nil, nil)
 
 	if err := adminCommand.debug(c); err != nil {
 		t.Fatal(err)

@@ -10,9 +10,9 @@ module "vpc" {
   # todo: count_hack is workaround for https://github.com/hashicorp/terraform/issues/953
   count_hack = "${ var.vpc_id == "" ? 1 : 0 }"
 
-  source              = "./vpc"
-  name                = "${var.name}"
-  cidr                = "10.100.0.0/16"
+  source = "./vpc"
+  name   = "${var.name}"
+  cidr   = "10.100.0.0/16"
 
   tags {
     "layer0" = "${var.name}"
@@ -30,9 +30,9 @@ module "api" {
   # todo: format hack is a workaround for https://github.com/hashicorp/terraform/issues/14399
   vpc_id = "${ var.vpc_id == "" ? format("%s", module.vpc.vpc_id) : var.vpc_id }"
 
-  ssh_key_pair          = "${var.ssh_key_pair}"
-  dockercfg             = "${var.dockercfg}"
-  time_between_requests = "${var.time_between_requests}"
+  ssh_key_pair  = "${var.ssh_key_pair}"
+  dockercfg     = "${var.dockercfg}"
+  request_delay = "${var.request_delay}"
 
   tags {
     "layer0" = "${var.name}"

@@ -11,7 +11,6 @@ import (
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -22,9 +21,9 @@ func TestServiceCreate(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	tags := models.Tags{
 		{
@@ -48,7 +47,7 @@ func TestServiceCreate(t *testing.T) {
 	loadBalancerInput.SetPageSize(1)
 
 	listener := &elb.Listener{}
-	listener.SetInstancePort(config.DefaultLoadBalancerPort.HostPort)
+	listener.SetInstancePort(config.DefaultLoadBalancerPort().HostPort)
 
 	listenerDescription := &elb.ListenerDescription{}
 	listenerDescription.SetListener(listener)
@@ -128,7 +127,7 @@ func TestServiceCreate(t *testing.T) {
 		ServiceName:    "svc_name",
 	}
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	result, err := target.Create(req)
 	if err != nil {
 		t.Fatal(err)
@@ -168,9 +167,9 @@ func TestServiceCreate_defaults(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	tags := models.Tags{
 		{
@@ -205,7 +204,7 @@ func TestServiceCreate_defaults(t *testing.T) {
 		ServiceName:   "svc_name",
 	}
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	if _, err := target.Create(req); err != nil {
 		t.Fatal(err)
 	}

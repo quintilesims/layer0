@@ -12,9 +12,9 @@ import (
 
 func newTestLock(t *testing.T, expiry time.Duration) *DynamoLock {
 	session := config.GetTestAWSSession()
-	table := os.Getenv(config.ENVVAR_TEST_AWS_DYNAMO_LOCK_TABLE)
+	table := os.Getenv(config.FlagTestAWSLockTable.EnvVar)
 	if table == "" {
-		t.Skipf("Test table not set (envvar: %s)", config.ENVVAR_TEST_AWS_DYNAMO_LOCK_TABLE)
+		t.Skipf("Test table not set (envvar: %s)", config.FlagTestAWSLockTable.EnvVar)
 	}
 
 	lock := NewDynamoLock(session, table, expiry)

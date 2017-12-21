@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
 
@@ -34,50 +33,52 @@ func (f *CommandFactory) Endpoint() cli.Command {
 				return err
 			}
 
-			outputEnvvars := map[string]string{
-				instance.OUTPUT_ENDPOINT: config.ENVVAR_ENDPOINT,
-				instance.OUTPUT_TOKEN:    config.ENVVAR_TOKEN,
+			instance := f.NewInstance(args["NAME"])
+			outputEnvVars := map[string]string{
+				config.FlagEndpoint.GetName(): config.FlagEndpoint.EnvVar,
+				config.FlagToken.GetName():    config.FlagToken.EnvVar,
 			}
 
 			if c.Bool("dev") {
-				outputEnvvars[instance.OUTPUT_NAME] = config.ENVVAR_INSTANCE
-				outputEnvvars[instance.OUTPUT_ACCOUNT_ID] = config.ENVVAR_AWS_ACCOUNT_ID
-				outputEnvvars[instance.OUTPUT_ACCESS_KEY] = config.ENVVAR_AWS_ACCESS_KEY
-				outputEnvvars[instance.OUTPUT_SECRET_KEY] = config.ENVVAR_AWS_SECRET_KEY
-				outputEnvvars[instance.OUTPUT_VPC_ID] = config.ENVVAR_AWS_VPC
-				outputEnvvars[instance.OUTPUT_PRIVATE_SUBNETS] = config.ENVVAR_AWS_PRIVATE_SUBNETS
-				outputEnvvars[instance.OUTPUT_PUBLIC_SUBNETS] = config.ENVVAR_AWS_PUBLIC_SUBNETS
-				outputEnvvars[instance.OUTPUT_S3_BUCKET] = config.ENVVAR_AWS_S3_BUCKET
-				outputEnvvars[instance.OUTPUT_SSH_KEY_PAIR] = config.ENVVAR_AWS_SSH_KEY_PAIR
-				outputEnvvars[instance.OUTPUT_AWS_LOG_GROUP_NAME] = config.ENVVAR_AWS_LOG_GROUP_NAME
-				outputEnvvars[instance.OUTPUT_ECS_INSTANCE_PROFILE] = config.ENVVAR_AWS_INSTANCE_PROFILE
-				outputEnvvars[instance.OUTPUT_AWS_LINUX_SERVICE_AMI] = config.ENVVAR_AWS_LINUX_AMI
-				outputEnvvars[instance.OUTPUT_WINDOWS_SERVICE_AMI] = config.ENVVAR_AWS_WINDOWS_AMI
-				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_TAG_TABLE] = config.ENVVAR_AWS_DYNAMO_TAG_TABLE
-				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_JOB_TABLE] = config.ENVVAR_AWS_DYNAMO_JOB_TABLE
-				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_LOCK_TABLE] = config.ENVVAR_AWS_DYNAMO_LOCK_TABLE
+				outputEnvVars[config.FlagInstance.GetName()] = config.FlagInstance.EnvVar
+				outputEnvVars[config.FlagAWSAccountID.GetName()] = config.FlagAWSAccountID.EnvVar
+				outputEnvVars[config.FlagAWSAccessKey.GetName()] = config.FlagAWSAccessKey.EnvVar
+				outputEnvVars[config.FlagAWSSecretKey.GetName()] = config.FlagAWSSecretKey.EnvVar
+				outputEnvVars[config.FlagAWSVPC.GetName()] = config.FlagAWSVPC.EnvVar
+				outputEnvVars[config.FlagAWSLinuxAMI.GetName()] = config.FlagAWSLinuxAMI.EnvVar
+				outputEnvVars[config.FlagAWSWindowsAMI.GetName()] = config.FlagAWSWindowsAMI.EnvVar
+				outputEnvVars[config.FlagAWSInstanceProfile.GetName()] = config.FlagAWSInstanceProfile.EnvVar
+				outputEnvVars[config.FlagAWSJobTable.GetName()] = config.FlagAWSJobTable.EnvVar
+				outputEnvVars[config.FlagAWSTagTable.GetName()] = config.FlagAWSTagTable.EnvVar
+				outputEnvVars[config.FlagAWSLockTable.GetName()] = config.FlagAWSLockTable.EnvVar
+				outputEnvVars[config.FlagAWSPublicSubnets.GetName()] = config.FlagAWSPublicSubnets.EnvVar
+				outputEnvVars[config.FlagAWSPrivateSubnets.GetName()] = config.FlagAWSPrivateSubnets.EnvVar
+				outputEnvVars[config.FlagAWSLogGroup.GetName()] = config.FlagAWSLogGroup.EnvVar
+				outputEnvVars[config.FlagAWSSSHKey.GetName()] = config.FlagAWSSSHKey.EnvVar
+				outputEnvVars[config.FlagAWSS3Bucket.GetName()] = config.FlagAWSS3Bucket.EnvVar
 			}
 
-			fmt.Println("# set the following environment variables in your current session: ")
+			// note that this requires the following relationship:
+			// layer0 terraform module output name == layer0 api flag name
 
-			instance := f.NewInstance(args["NAME"])
-			for output, envvar := range outputEnvvars {
+			fmt.Println("# set the following environment variables in your current session: ")
+			for output, envVar := range outputEnvVars {
 				v, err := instance.Output(output)
 				if err != nil {
 					return err
 				}
 
-				if err := printOutput(c.String("syntax"), envvar, v); err != nil {
+				if err := printOutput(c.String("syntax"), envVar, v); err != nil {
 					return err
 				}
 			}
 
 			if c.Bool("insecure") {
-				if err := printOutput(c.String("syntax"), config.ENVVAR_SKIP_VERIFY_SSL, "1"); err != nil {
+				if err := printOutput(c.String("syntax"), config.FlagSkipVerifySSL.EnvVar, "true"); err != nil {
 					return err
 				}
 
-				if err := printOutput(c.String("syntax"), config.ENVVAR_SKIP_VERIFY_VERSION, "1"); err != nil {
+				if err := printOutput(c.String("syntax"), config.FlagSkipVerifyVersion.EnvVar, "true"); err != nil {
 					return err
 				}
 			}

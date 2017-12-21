@@ -6,7 +6,7 @@ all: api cli setup common
 api: provider job lock
 cli: command client
 setup: instance
-common: aws config
+common: aws
 
 provider:
 	mockgen github.com/quintilesims/layer0/api/provider EnvironmentProvider > ../api/provider/mock_provider/mock_environment.go &
@@ -36,9 +36,6 @@ aws:
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/iam/iamiface IAMAPI > ../common/aws/mock_aws/mock_iam.go &
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/s3/s3iface S3API > ../common/aws/mock_aws/mock_s3.go &
 
-config:
-	mockgen github.com/quintilesims/layer0/common/config APIConfig > ../common/config/mock_config/mock_api.go &
-
 # for some reason, this mock imports s3iface from the vendor/ dir. Using sed as workaround until
 # bug is fixed: https://github.com/golang/mock/pull/28
 instance: 
@@ -46,4 +43,4 @@ instance:
 	sed -i '.tmp' s/github.com\\/quintilesims\\/layer0\\/vendor\\/// ../setup/instance/mock_instance/mock_instance.go && \
 	rm -f ../setup/instance/mock_instance/mock_instance.go.tmp
 
-.PHONY: deps all api common provider job aws config setup instance
+.PHONY: deps all api common provider job aws setup instance

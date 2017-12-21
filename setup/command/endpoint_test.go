@@ -4,75 +4,51 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/quintilesims/layer0/setup/instance/mock_instance"
+	"github.com/urfave/cli"
 )
 
 func TestEndpoint(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	instanceFactory := func(name string) instance.Instance {
-		mockInstance := mock_instance.NewMockInstance(ctrl)
-
-		outputs := []string{
-			instance.OUTPUT_ENDPOINT,
-			instance.OUTPUT_TOKEN,
-		}
-
-		for _, output := range outputs {
-			mockInstance.EXPECT().
-				Output(output).
-				Return("", nil)
-		}
-
-		return mockInstance
-	}
-
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Endpoint())
-
-	flags := map[string]interface{}{
-		"syntax": "bash",
-	}
-
-	c := NewContext(t, []string{"name"}, flags)
-	if err := action(c); err != nil {
-		t.Fatal(err)
-	}
+	testEndpointHelper(t, map[string]interface{}{"syntax": "bash"}, []cli.Flag{
+		config.FlagEndpoint,
+		config.FlagToken,
+	})
 }
 
 func TestEndpointDev(t *testing.T) {
+	testEndpointHelper(t, map[string]interface{}{"syntax": "bash", "dev": true}, []cli.Flag{
+		config.FlagEndpoint,
+		config.FlagToken,
+		config.FlagInstance,
+		config.FlagAWSAccountID,
+		config.FlagAWSAccessKey,
+		config.FlagAWSSecretKey,
+		config.FlagAWSVPC,
+		config.FlagAWSLinuxAMI,
+		config.FlagAWSWindowsAMI,
+		config.FlagAWSInstanceProfile,
+		config.FlagAWSJobTable,
+		config.FlagAWSTagTable,
+		config.FlagAWSLockTable,
+		config.FlagAWSPublicSubnets,
+		config.FlagAWSPrivateSubnets,
+		config.FlagAWSLogGroup,
+		config.FlagAWSSSHKey,
+		config.FlagAWSS3Bucket,
+	})
+}
+
+func testEndpointHelper(t *testing.T, flags map[string]interface{}, expectedOutputFlags []cli.Flag) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
 	instanceFactory := func(name string) instance.Instance {
 		mockInstance := mock_instance.NewMockInstance(ctrl)
-
-		outputs := []string{
-			instance.OUTPUT_ENDPOINT,
-			instance.OUTPUT_TOKEN,
-			instance.OUTPUT_NAME,
-			instance.OUTPUT_ACCOUNT_ID,
-			instance.OUTPUT_ACCESS_KEY,
-			instance.OUTPUT_SECRET_KEY,
-			instance.OUTPUT_SSH_KEY_PAIR,
-			instance.OUTPUT_AWS_LOG_GROUP_NAME,
-			instance.OUTPUT_VPC_ID,
-			instance.OUTPUT_PRIVATE_SUBNETS,
-			instance.OUTPUT_PUBLIC_SUBNETS,
-			instance.OUTPUT_S3_BUCKET,
-			instance.OUTPUT_ECS_INSTANCE_PROFILE,
-			instance.OUTPUT_AWS_LINUX_SERVICE_AMI,
-			instance.OUTPUT_WINDOWS_SERVICE_AMI,
-			instance.OUTPUT_AWS_DYNAMO_TAG_TABLE,
-			instance.OUTPUT_AWS_DYNAMO_JOB_TABLE,
-			instance.OUTPUT_AWS_DYNAMO_LOCK_TABLE,
-		}
-
-		for _, output := range outputs {
+		for _, flag := range expectedOutputFlags {
 			mockInstance.EXPECT().
-				Output(output).
+				Output(flag.GetName()).
 				Return("", nil)
 		}
 
@@ -81,13 +57,7 @@ func TestEndpointDev(t *testing.T) {
 
 	commandFactory := NewCommandFactory(instanceFactory, nil)
 	action := extractAction(t, commandFactory.Endpoint())
-
-	flags := map[string]interface{}{
-		"syntax": "bash",
-		"dev":    "true",
-	}
-
-	c := NewContext(t, []string{"name"}, flags)
+	c := config.NewTestContext(t, []string{"name"}, flags)
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}

@@ -10,7 +10,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/config/mock_config"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,9 +21,9 @@ func TestServiceDelete(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	tags := models.Tags{
 		{
@@ -134,7 +134,7 @@ func TestServiceDelete(t *testing.T) {
 		DeleteService(deleteServiceInput).
 		Return(deleteServiceOutput, nil)
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("svc_id"); err != nil {
 		t.Fatal(err)
 	}
@@ -148,9 +148,11 @@ func TestServiceDelete_idempotenceViaTags(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("svc_id"); err != nil {
 		t.Fatal(err)
 	}
@@ -162,9 +164,9 @@ func TestServiceDelete_idempotenceViaAWS(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	tags := models.Tags{
 		{
@@ -213,7 +215,7 @@ func TestServiceDelete_idempotenceViaAWS(t *testing.T) {
 		DeleteService(deleteServiceInput).
 		Return(&ecs.DeleteServiceOutput{}, awserr.New("ServiceNotFoundException", "", nil))
 
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("svc_id"); err != nil {
 		t.Fatal(err)
 	}

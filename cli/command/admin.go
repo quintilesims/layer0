@@ -30,7 +30,7 @@ func (a *AdminCommand) Command() cli.Command {
 }
 
 func (a *AdminCommand) debug(c *cli.Context) error {
-	apiEndpoint := c.GlobalString(config.FLAG_ENDPOINT)
+	apiEndpoint := c.GlobalString(config.FlagEndpoint.GetName())
 	cliVersion := c.App.Version
 
 	debugInfo, err := a.client.ReadConfig()
@@ -39,12 +39,12 @@ func (a *AdminCommand) debug(c *cli.Context) error {
 	}
 
 	sslVerify := "enabled"
-	if c.GlobalBool(config.FLAG_SKIP_VERIFY_SSL) {
+	if c.GlobalBool(config.FlagSkipVerifySSL.GetName()) {
 		sslVerify = "disabled"
 	}
 
 	versionVerify := "enabled"
-	if c.GlobalBool(config.FLAG_SKIP_VERIFY_VERSION) {
+	if c.GlobalBool(config.FlagSkipVerifySSL.GetName()) {
 		versionVerify = "disabled"
 	}
 

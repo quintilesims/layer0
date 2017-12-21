@@ -3,6 +3,7 @@ package command
 import (
 	"testing"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
@@ -15,9 +16,9 @@ func TestCreateTask(t *testing.T) {
 
 		taskCommand := NewTaskCommand(base.Command())
 
-		args := Args{"env_name", "tsk_name", "dpl_name"}
+		args := []string{"env_name", "tsk_name", "dpl_name"}
 
-		flags := Flags{
+		flags := map[string]interface{}{
 			"copies": 1,
 			"env":    []string{"container:key=val"},
 		}
@@ -36,11 +37,11 @@ func TestCreateTask(t *testing.T) {
 
 		base.Resolver.EXPECT().
 			Resolve("deploy", "dpl_name").
-			Return(Args{"dpl_id"}, nil)
+			Return([]string{"dpl_id"}, nil)
 
 		base.Resolver.EXPECT().
 			Resolve("environment", "env_name").
-			Return(Args{"env_id"}, nil)
+			Return([]string{"env_id"}, nil)
 
 		base.Client.EXPECT().
 			CreateTask(req).
@@ -61,7 +62,7 @@ func TestCreateTask(t *testing.T) {
 				Return(&models.Task{}, nil)
 		}
 
-		c := NewContext(t, args, flags, SetNoWait(!wait))
+		c := config.NewTestContext(t, args, flags, config.SetNoWait(!wait))
 		if err := taskCommand.create(c); err != nil {
 			t.Fatal(err)
 		}
@@ -75,9 +76,9 @@ func TestCreateTask_userInputErrors(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing ENVIRONMENT arg": NewContext(t, nil, nil),
-		"Missing TASK_NAME arg":   NewContext(t, Args{"environment"}, nil),
-		"Missing DEPLOY arg":      NewContext(t, Args{"environment", "name"}, nil),
+		"Missing ENVIRONMENT arg": config.NewTestContext(t, nil, nil),
+		"Missing TASK_NAME arg":   config.NewTestContext(t, []string{"environment"}, nil),
+		"Missing DEPLOY arg":      config.NewTestContext(t, []string{"environment", "name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -98,7 +99,7 @@ func TestDeleteTask(t *testing.T) {
 
 		base.Resolver.EXPECT().
 			Resolve("task", "task_name").
-			Return(Args{"tsk_id"}, nil)
+			Return([]string{"tsk_id"}, nil)
 
 		base.Client.EXPECT().
 			DeleteTask("tsk_id").
@@ -115,7 +116,7 @@ func TestDeleteTask(t *testing.T) {
 				Return(job, nil)
 		}
 
-		c := NewContext(t, Args{"task_name"}, nil, SetNoWait(!wait))
+		c := config.NewTestContext(t, []string{"task_name"}, nil, config.SetNoWait(!wait))
 		if err := taskCommand.delete(c); err != nil {
 			t.Fatal(err)
 		}
@@ -129,7 +130,7 @@ func TestDeleteTask_userInputErrors(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing TASK_NAME arg": NewContext(t, nil, nil),
+		"Missing TASK_NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -153,7 +154,7 @@ func TestReadTask(t *testing.T) {
 
 	base.Resolver.EXPECT().
 		Resolve("task", "tsk_name").
-		Return(Args{"tsk_id"}, nil)
+		Return([]string{"tsk_id"}, nil)
 
 	base.Client.EXPECT().
 		ListTasks().
@@ -163,7 +164,7 @@ func TestReadTask(t *testing.T) {
 		ReadTask("tsk_id").
 		Return(&models.Task{}, nil)
 
-	c := NewContext(t, Args{"tsk_name"}, nil)
+	c := config.NewTestContext(t, []string{"tsk_name"}, nil)
 	if err := taskCommand.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -176,7 +177,7 @@ func TestReadTask_userInputErrors(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing TASK_NAME arg": NewContext(t, nil, nil),
+		"Missing TASK_NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -210,7 +211,7 @@ func TestReadTask_expiredTasks(t *testing.T) {
 		ReadTask("tsk_id1").
 		Return(&models.Task{}, nil)
 
-	c := NewContext(t, Args{"tsk_name"}, nil)
+	c := config.NewTestContext(t, []string{"tsk_name"}, nil)
 	if err := taskCommand.read(c); err != nil {
 		t.Fatal(err)
 	}
@@ -227,7 +228,7 @@ func TestListTasks(t *testing.T) {
 		ListTasks().
 		Return([]*models.TaskSummary{}, nil)
 
-	c := NewContext(t, nil, nil)
+	c := config.NewTestContext(t, nil, nil)
 	if err := taskCommand.list(c); err != nil {
 		t.Fatal(err)
 	}
@@ -248,13 +249,13 @@ func TestReadTaskLogs(t *testing.T) {
 		ReadTaskLogs("tsk_id", query).
 		Return([]*models.LogFile{}, nil)
 
-	flags := Flags{
+	flags := map[string]interface{}{
 		"tail":  100,
 		"start": "start",
 		"end":   "end",
 	}
 
-	c := NewContext(t, Args{"tsk_name"}, flags)
+	c := config.NewTestContext(t, []string{"tsk_name"}, flags)
 	if err := taskCommand.logs(c); err != nil {
 		t.Fatal(err)
 	}
@@ -266,7 +267,7 @@ func TestReadTaskLogs_userInputErrors(t *testing.T) {
 	taskCommand := NewTaskCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing TASK_NAME arg": NewContext(t, nil, nil),
+		"Missing TASK_NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {

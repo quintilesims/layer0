@@ -36,9 +36,9 @@ var TestTags = models.Tags{
 
 func newTestStore(t *testing.T) *DynamoStore {
 	session := config.GetTestAWSSession()
-	table := os.Getenv(config.ENVVAR_TEST_AWS_DYNAMO_TAG_TABLE)
+	table := os.Getenv(config.FlagTestAWSTagTable.EnvVar)
 	if table == "" {
-		t.Skipf("Test table not set (envvar: %s)", config.ENVVAR_TEST_AWS_DYNAMO_TAG_TABLE)
+		t.Skipf("Test table not set (envvar: %s)", config.FlagTestAWSTagTable.EnvVar)
 	}
 
 	store := NewDynamoStore(session, table)

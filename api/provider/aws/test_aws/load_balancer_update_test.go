@@ -12,7 +12,6 @@ import (
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -22,9 +21,9 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	requestPorts := []models.Port{
 		models.Port{
@@ -81,11 +80,12 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	readSGHelper(mockAWS, "l0-test-lb_name-lb", "lb_sg")
 	listenerDescription := &elb.ListenerDescription{}
-	listenerDescription.SetListener(listenerHelper(config.DefaultLoadBalancerPort))
+	listenerDescription.SetListener(listenerHelper(config.DefaultLoadBalancerPort()))
 
 	lb := &elb.LoadBalancerDescription{}
 	lb.SetLoadBalancerName("l0-test-lb_name")
-	lb.SetHealthCheck(healthCheckHelper(&config.DefaultLoadBalancerHealthCheck))
+	defaultHC := config.DefaultLoadBalancerHealthCheck()
+	lb.SetHealthCheck(healthCheckHelper(&defaultHC))
 	lb.SetListenerDescriptions([]*elb.ListenerDescription{listenerDescription})
 
 	describeLoadBalancersInput := &elb.DescribeLoadBalancersInput{}
@@ -99,14 +99,14 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		DescribeLoadBalancers(describeLoadBalancersInput).
 		Return(describeLoadBalancersOutput, nil)
 
-	revokeIngressInput := revokeSGIngressHelper(config.DefaultLoadBalancerPort)
+	revokeIngressInput := revokeSGIngressHelper(config.DefaultLoadBalancerPort())
 	revokeIngressInput.SetGroupId("lb_sg")
 
 	mockAWS.EC2.EXPECT().
 		RevokeSecurityGroupIngress(revokeIngressInput).
 		Return(&ec2.RevokeSecurityGroupIngressOutput{}, nil)
 
-	port := int64(config.DefaultLoadBalancerPort.HostPort)
+	port := int64(config.DefaultLoadBalancerPort().HostPort)
 	deleteLoadBalancerListenersInput := &elb.DeleteLoadBalancerListenersInput{}
 	deleteLoadBalancerListenersInput.SetLoadBalancerName("l0-test-lb_name")
 	deleteLoadBalancerListenersInput.SetLoadBalancerPorts([]*int64{&port})
@@ -142,7 +142,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		AuthorizeSecurityGroupIngress(authorizeIngressInput).
 		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
 
-	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Update("lb_name", req); err != nil {
 		t.Fatal(err)
 	}

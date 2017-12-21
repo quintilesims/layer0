@@ -16,7 +16,7 @@ import (
 // is subsequently used when the DeleteSecurityGroup request is made to AWS. The ECS Cluster is deleted
 // by making a DeleteCluster request to AWS.
 func (e *EnvironmentProvider) Delete(environmentID string) error {
-	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
+	fqEnvironmentID := addLayer0Prefix(e.Context, environmentID)
 
 	autoScalingGroupName := fqEnvironmentID
 	if err := e.deleteASG(autoScalingGroupName); err != nil {

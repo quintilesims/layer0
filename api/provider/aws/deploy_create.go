@@ -7,6 +7,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -15,7 +16,7 @@ import (
 // representation of the Task Definition to create.
 func (d *DeployProvider) Create(req models.CreateDeployRequest) (string, error) {
 	deployID := entityIDGenerator(req.DeployName)
-	familyName := addLayer0Prefix(d.Config.Instance(), req.DeployName)
+	familyName := addLayer0Prefix(d.Context, req.DeployName)
 
 	renderedTaskDefinition, err := d.renderTaskDefinition(req.DeployFile, familyName)
 	if err != nil {
@@ -70,18 +71,21 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 		return nil, fmt.Errorf("Deploy must have at least one container definition")
 	}
 
+	logGroup := d.Context.String(config.FlagAWSLogGroup.GetName())
+	region := d.Context.String(config.FlagAWSRegion.GetName())
+
 	taskDefinition.SetFamily(familyName)
 	for _, container := range taskDefinition.ContainerDefinitions {
 		if container.LogConfiguration == nil {
-			logConfig := &ecs.LogConfiguration{}
-			logConfig.SetLogDriver("awslogs")
-			logConfig.SetOptions(map[string]*string{
-				"awslogs-group":         aws.String(d.Config.LogGroupName()),
-				"awslogs-region":        aws.String(d.Config.Region()),
+			logContext := &ecs.LogConfiguration{}
+			logContext.SetLogDriver("awslogs")
+			logContext.SetOptions(map[string]*string{
+				"awslogs-group":         aws.String(logGroup),
+				"awslogs-region":        aws.String(region),
 				"awslogs-stream-prefix": aws.String("l0"),
 			})
 
-			container.SetLogConfiguration(logConfig)
+			container.SetLogConfiguration(logContext)
 		}
 	}
 

@@ -9,11 +9,11 @@ import (
 )
 
 func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error) {
-	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
+	fqEnvironmentID := addLayer0Prefix(s.Context, req.EnvironmentID)
 	cluster := fqEnvironmentID
 
 	serviceID := entityIDGenerator(req.ServiceName)
-	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
+	fqServiceID := addLayer0Prefix(s.Context, serviceID)
 	serviceName := fqServiceID
 
 	taskDefinitionARN, err := lookupTaskDefinitionARNFromDeployID(s.TagStore, req.DeployID)
@@ -24,7 +24,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	var loadBalancer *ecs.LoadBalancer
 	var loadBalancerRole string
 	if req.LoadBalancerID != "" {
-		fqLoadBalancerID := addLayer0Prefix(s.Config.Instance(), req.LoadBalancerID)
+		fqLoadBalancerID := addLayer0Prefix(s.Context, req.LoadBalancerID)
 		loadBalancerDescription, err := describeLoadBalancer(s.AWS.ELB, fqLoadBalancerID)
 		if err != nil {
 			return "", err

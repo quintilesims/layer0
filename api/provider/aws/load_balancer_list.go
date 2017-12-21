@@ -3,6 +3,7 @@ package aws
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/elb"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -17,7 +18,7 @@ func (l *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 
 	loadBalancerIDs := make([]string, len(loadBalancerNames))
 	for i, loadBalancerName := range loadBalancerNames {
-		loadBalancerID := delLayer0Prefix(l.Config.Instance(), loadBalancerName)
+		loadBalancerID := delLayer0Prefix(l.Context, loadBalancerName)
 		loadBalancerIDs[i] = loadBalancerID
 	}
 
@@ -30,7 +31,8 @@ func (l *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 		for _, description := range output.LoadBalancerDescriptions {
 			loadBalancerName := aws.StringValue(description.LoadBalancerName)
 
-			if hasLayer0Prefix(l.Config.Instance(), loadBalancerName) {
+			instance := l.Context.String(config.FlagInstance.GetName())
+			if hasLayer0Prefix(instance, loadBalancerName) {
 				loadBalancerNames = append(loadBalancerNames, loadBalancerName)
 			}
 		}

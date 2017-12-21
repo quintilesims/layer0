@@ -10,7 +10,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/config/mock_config"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,11 +21,13 @@ func TestDeployCreate(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
-	mockConfig.EXPECT().LogGroupName().Return("l0-test").AnyTimes()
-	mockConfig.EXPECT().Region().Return("us-west-2").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName():    "test",
+		config.FlagAWSLogGroup.GetName(): "l0-test",
+		config.FlagAWSRegion.GetName():   "us-west-2",
+	})
+
 	defer provider.SetEntityIDGenerator("dpl_id")()
 
 	// define container defaults
@@ -92,7 +94,7 @@ func TestDeployCreate(t *testing.T) {
 		RegisterTaskDefinition(registerTaskDefinitionInput).
 		Return(registerTaskDefinitionOutput, nil)
 
-	target := provider.NewDeployProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewDeployProvider(mockAWS.Client(), tagStore, c)
 	result, err := target.Create(req)
 	if err != nil {
 		t.Fatal(err)

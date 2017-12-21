@@ -13,7 +13,6 @@ import (
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -24,17 +23,16 @@ func TestEnvironmentCreate(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	// todo: setup helper for config
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
-	mockConfig.EXPECT().LinuxAMI().Return("lx_ami").AnyTimes()
-	mockConfig.EXPECT().WindowsAMI().Return("win_ami").AnyTimes()
-	mockConfig.EXPECT().S3Bucket().Return("bucket").AnyTimes()
-	mockConfig.EXPECT().VPC().Return("vpc_id").AnyTimes()
-	mockConfig.EXPECT().InstanceProfile().Return("profile").AnyTimes()
-	mockConfig.EXPECT().PrivateSubnets().Return([]string{"priv1", "priv2"}).AnyTimes()
-	mockConfig.EXPECT().SSHKeyPair().Return("keypair").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName():           "test",
+		config.FlagAWSLinuxAMI.GetName():        "lx_ami",
+		config.FlagAWSWindowsAMI.GetName():      "win_ami",
+		config.FlagAWSS3Bucket.GetName():        "bucket",
+		config.FlagAWSVPC.GetName():             "vpc_id",
+		config.FlagAWSInstanceProfile.GetName(): "profile",
+		config.FlagAWSPrivateSubnets.GetName():  []string{"priv1", "priv2"},
+		config.FlagAWSSSHKey.GetName():          "keypair",
+	})
 
 	defer provider.SetEntityIDGenerator("env_id")()
 
@@ -108,7 +106,7 @@ func TestEnvironmentCreate(t *testing.T) {
 		CreateCluster(createClusterInput).
 		Return(&ecs.CreateClusterOutput{}, nil)
 
-	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, c)
 	result, err := target.Create(req)
 	if err != nil {
 		t.Fatal(err)
@@ -142,17 +140,16 @@ func TestEnvironmentCreateDefaults(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	// todo: setup helper for config
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
-	mockConfig.EXPECT().LinuxAMI().Return("lx_ami").AnyTimes()
-	mockConfig.EXPECT().WindowsAMI().Return("win_ami").AnyTimes()
-	mockConfig.EXPECT().S3Bucket().Return("bucket").AnyTimes()
-	mockConfig.EXPECT().VPC().Return("vpc_id").AnyTimes()
-	mockConfig.EXPECT().InstanceProfile().Return("profile").AnyTimes()
-	mockConfig.EXPECT().PrivateSubnets().Return([]string{"priv1", "priv2"}).AnyTimes()
-	mockConfig.EXPECT().SSHKeyPair().Return("keypair").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName():           "test",
+		config.FlagAWSLinuxAMI.GetName():        "lx_ami",
+		config.FlagAWSWindowsAMI.GetName():      "win_ami",
+		config.FlagAWSS3Bucket.GetName():        "bucket",
+		config.FlagAWSVPC.GetName():             "vpc_id",
+		config.FlagAWSInstanceProfile.GetName(): "profile",
+		config.FlagAWSPrivateSubnets.GetName():  []string{"priv1", "priv2"},
+		config.FlagAWSSSHKey.GetName():          "keypair",
+	})
 
 	defer provider.SetEntityIDGenerator("env_id")()
 
@@ -196,7 +193,7 @@ func TestEnvironmentCreateDefaults(t *testing.T) {
 		CreateCluster(gomock.Any()).
 		Return(&ecs.CreateClusterOutput{}, nil)
 
-	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, c)
 	if _, err := target.Create(req); err != nil {
 		t.Fatal(err)
 	}

@@ -12,9 +12,9 @@ import (
 
 func newTestStore(t *testing.T) *DynamoStore {
 	session := config.GetTestAWSSession()
-	table := os.Getenv(config.ENVVAR_TEST_AWS_DYNAMO_JOB_TABLE)
+	table := os.Getenv(config.FlagTestAWSJobTable.EnvVar)
 	if table == "" {
-		t.Skipf("Test table not set (envvar: %s)", config.ENVVAR_TEST_AWS_DYNAMO_JOB_TABLE)
+		t.Skipf("Test table not set (envvar: %s)", config.FlagTestAWSJobTable.EnvVar)
 	}
 
 	store := NewDynamoStore(session, table)

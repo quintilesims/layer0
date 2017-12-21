@@ -6,6 +6,9 @@ import (
 	"regexp"
 	"strings"
 	"time"
+
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/urfave/cli"
 )
 
 const (
@@ -32,7 +35,8 @@ func hasLayer0Prefix(instance, v string) bool {
 	return strings.HasPrefix(v, prefix(instance))
 }
 
-func addLayer0Prefix(instance, v string) string {
+func addLayer0Prefix(c *cli.Context, v string) string {
+	instance := c.String(config.FlagInstance.GetName())
 	if !hasLayer0Prefix(instance, v) {
 		v = fmt.Sprintf("%s%s", prefix(instance), v)
 	}
@@ -40,7 +44,8 @@ func addLayer0Prefix(instance, v string) string {
 	return v
 }
 
-func delLayer0Prefix(instance, v string) string {
+func delLayer0Prefix(c *cli.Context, v string) string {
+	instance := c.String(config.FlagInstance.GetName())
 	return strings.TrimPrefix(v, prefix(instance))
 }
 

@@ -9,7 +9,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/config/mock_config"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -20,9 +20,9 @@ func TestTaskDelete(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	tags := models.Tags{
 		{
@@ -59,7 +59,7 @@ func TestTaskDelete(t *testing.T) {
 		StopTask(stopTaskInput).
 		Return(&ecs.StopTaskOutput{}, nil)
 
-	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("tsk_id"); err != nil {
 		t.Fatal(err)
 	}
@@ -73,9 +73,9 @@ func TestDeleteTaskIdempotence(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
 	tags := models.Tags{
 		{
@@ -108,7 +108,7 @@ func TestDeleteTaskIdempotence(t *testing.T) {
 		StopTask(gomock.Any()).
 		Return(nil, awserr.New("", "task was not found", nil))
 
-	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("tsk_id"); err != nil {
 		t.Fatal(err)
 	}
@@ -120,9 +120,11 @@ func TestDeleteTaskIdempotenceWithoutTags(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName(): "test",
+	})
 
-	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, c)
 	if err := target.Delete("tsk_id"); err != nil {
 		t.Fatal(err)
 	}

@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -8,14 +9,15 @@ import (
 // Summaries. An Environment Summary consists of the Environment ID, Environment name,
 // and Operating System.
 func (e *EnvironmentProvider) List() ([]models.EnvironmentSummary, error) {
-	clusterNames, err := listClusterNames(e.AWS.ECS, e.Config.Instance())
+	instance := e.Context.String(config.FlagInstance.GetName())
+	clusterNames, err := listClusterNames(e.AWS.ECS, instance)
 	if err != nil {
 		return nil, err
 	}
 
 	environmentIDs := make([]string, len(clusterNames))
 	for i, clusterName := range clusterNames {
-		environmentID := delLayer0Prefix(e.Config.Instance(), clusterName)
+		environmentID := delLayer0Prefix(e.Context, clusterName)
 		environmentIDs[i] = environmentID
 	}
 

@@ -15,10 +15,10 @@ func (s *ServiceProvider) Update(serviceID string, req models.UpdateServiceReque
 		return err
 	}
 
-	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), environmentID)
+	fqEnvironmentID := addLayer0Prefix(s.Context, environmentID)
 	clusterName := fqEnvironmentID
 
-	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
+	fqServiceID := addLayer0Prefix(s.Context, serviceID)
 	serviceName := fqServiceID
 
 	if req.DeployID != nil {

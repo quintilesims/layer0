@@ -16,7 +16,7 @@ import (
 // DescribeLaunchConfigurations requests respectively are made to AWS.
 func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, error) {
 	// todo: catch 'EntityDoesNotExist' errors
-	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
+	fqEnvironmentID := addLayer0Prefix(e.Context, environmentID)
 
 	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
 	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)

@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/api/tag"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -51,11 +52,16 @@ func TestDeploy_createTags(t *testing.T) {
 }
 
 func TestDeploy_renderTaskDefinition(t *testing.T) {
-	deploy := NewDeployProvider(nil, nil, nil)
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagAWSLogGroup.GetName(): "test_group",
+		config.FlagAWSRegion.GetName():   "test_region",
+	})
+
+	deploy := NewDeployProvider(nil, nil, c)
 
 	container := &ecs.ContainerDefinition{}
 	container.SetName("test_name")
-	logConfig := &ecs.LogConfiguration{
+	logContext := &ecs.LogConfiguration{
 		LogDriver: aws.String("awslogs"),
 		Options: map[string]*string{
 			"awslogs-group":         aws.String("test_group"),
@@ -63,7 +69,7 @@ func TestDeploy_renderTaskDefinition(t *testing.T) {
 			"awslogs-stream-prefix": aws.String("test_prefix"),
 		},
 	}
-	container.SetLogConfiguration(logConfig)
+	container.SetLogConfiguration(logContext)
 
 	containers := []*ecs.ContainerDefinition{}
 	containers = append(containers, container)

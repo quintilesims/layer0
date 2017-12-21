@@ -63,8 +63,8 @@ func TestAddPortToLoadBalancer(t *testing.T) {
 				Return(&models.LoadBalancer{}, nil)
 		}
 
-		args := Args{"lb_name", "81:81/tcp"}
-		c := NewContext(t, args, nil, SetNoWait(!wait))
+		args := []string{"lb_name", "81:81/tcp"}
+		c := config.NewTestContext(t, args, nil, config.SetNoWait(!wait))
 
 		loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 		if err := loadBalancerCommand.addport(c); err != nil {
@@ -79,8 +79,8 @@ func TestAddPortToLoadBalancer_UserInputError(t *testing.T) {
 	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
-		"Missing PORT arg": NewContext(t, Args{"name"}, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
+		"Missing PORT arg": config.NewTestContext(t, []string{"name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -107,7 +107,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 			},
 		}
 
-		healthCheck := config.DefaultLoadBalancerHealthCheck
+		healthCheck := config.DefaultLoadBalancerHealthCheck()
 
 		req := models.CreateLoadBalancerRequest{
 			LoadBalancerName: "lb_name",
@@ -136,8 +136,8 @@ func TestCreateLoadBalancer(t *testing.T) {
 				Return(&models.LoadBalancer{}, nil)
 		}
 
-		args := Args{"ename", "lb_name"}
-		flags := Flags{
+		args := []string{"ename", "lb_name"}
+		flags := map[string]interface{}{
 			"healthcheck-target":              healthCheck.Target,
 			"healthcheck-interval":            healthCheck.Interval,
 			"healthcheck-timeout":             healthCheck.Timeout,
@@ -146,7 +146,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 			"port": []string{"80:80/tcp"},
 		}
 
-		c := NewContext(t, args, flags, SetNoWait(!wait))
+		c := config.NewTestContext(t, args, flags, config.SetNoWait(!wait))
 
 		loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 		if err := loadBalancerCommand.create(c); err != nil {
@@ -161,8 +161,8 @@ func TestCreateLoadBalancer_UserInputError(t *testing.T) {
 	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing ENVIRONMENT arg": NewContext(t, nil, nil),
-		"Missing NAME arg":        NewContext(t, Args{"environment"}, nil),
+		"Missing ENVIRONMENT arg": config.NewTestContext(t, nil, nil),
+		"Missing NAME arg":        config.NewTestContext(t, []string{"environment"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -196,8 +196,8 @@ func TestDeleteLoadBalancer(t *testing.T) {
 				Return(job, nil)
 		}
 
-		args := Args{"lb_name"}
-		c := NewContext(t, args, nil, SetNoWait(!wait))
+		args := []string{"lb_name"}
+		c := config.NewTestContext(t, args, nil, config.SetNoWait(!wait))
 
 		loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 		if err := loadBalancerCommand.delete(c); err != nil {
@@ -212,7 +212,7 @@ func TestDeleteLoadBalancer_UserInputError(t *testing.T) {
 	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
@@ -277,8 +277,8 @@ func TestDropPortFromLoadBalancer(t *testing.T) {
 				Return(&models.LoadBalancer{}, nil)
 		}
 
-		args := Args{"lb_name", "81"}
-		c := NewContext(t, args, nil, SetNoWait(!wait))
+		args := []string{"lb_name", "81"}
+		c := config.NewTestContext(t, args, nil, config.SetNoWait(!wait))
 
 		loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 		if err := loadBalancerCommand.dropport(c); err != nil {
@@ -293,8 +293,8 @@ func TestDropPortFromLoadBalancer_UserInputError(t *testing.T) {
 	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
-		"Missing PORT arg": NewContext(t, Args{"name"}, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
+		"Missing PORT arg": config.NewTestContext(t, []string{"name"}, nil),
 	}
 
 	for name, c := range contexts {
@@ -321,8 +321,8 @@ func TestDisplayHealthCheck(t *testing.T) {
 		ReadLoadBalancer("lb_id").
 		Return(loadBalancer, nil)
 
-	args := Args{"lb_name"}
-	c := NewContext(t, args, nil)
+	args := []string{"lb_name"}
+	c := config.NewTestContext(t, args, nil)
 
 	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 	if err := loadBalancerCommand.healthcheck(c); err != nil {
@@ -372,9 +372,9 @@ func TestUpdateHealthCheck(t *testing.T) {
 				Return(&models.LoadBalancer{}, nil)
 		}
 
-		args := Args{"lb_name"}
-		flags := Flags{"healthcheck-target": "TCP:81"}
-		c := NewContext(t, args, flags, SetNoWait(!wait))
+		args := []string{"lb_name"}
+		flags := map[string]interface{}{"healthcheck-target": "TCP:81"}
+		c := config.NewTestContext(t, args, flags, config.SetNoWait(!wait))
 
 		loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 		if err := loadBalancerCommand.healthcheck(c); err != nil {
@@ -387,7 +387,7 @@ func TestUpdateHealthCheck_UserInputError(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 
-	contexts := map[string]*cli.Context{"Missing NAME arg": NewContext(t, nil, nil)}
+	contexts := map[string]*cli.Context{"Missing NAME arg": config.NewTestContext(t, nil, nil)}
 
 	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 	for name, c := range contexts {
@@ -406,7 +406,7 @@ func TestListLoadBalancers(t *testing.T) {
 	base.Client.EXPECT().
 		ListLoadBalancers()
 
-	c := NewContext(t, nil, nil)
+	c := config.NewTestContext(t, nil, nil)
 
 	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 	if err := loadBalancerCommand.list(c); err != nil {
@@ -430,8 +430,8 @@ func TestReadLoadBalancer(t *testing.T) {
 			Return(&models.LoadBalancer{}, nil)
 	}
 
-	args := Args{"*"}
-	c := NewContext(t, args, nil)
+	args := []string{"*"}
+	c := config.NewTestContext(t, args, nil)
 
 	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 	if err := loadBalancerCommand.read(c); err != nil {
@@ -444,7 +444,7 @@ func TestReadLoadBalancer_UserInputError(t *testing.T) {
 	defer ctrl.Finish()
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": config.NewTestContext(t, nil, nil),
 	}
 
 	loadBalancerCommand := NewLoadBalancerCommand(base.Command())

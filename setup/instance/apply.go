@@ -6,6 +6,8 @@ import (
 	"log"
 	"net/http"
 	"time"
+
+	"github.com/quintilesims/layer0/common/config"
 )
 
 func (l *LocalInstance) Apply(wait bool) error {
@@ -17,28 +19,39 @@ func (l *LocalInstance) Apply(wait bool) error {
 		return err
 	}
 
-	endpoint, err := l.Output(OUTPUT_ENDPOINT)
-	if err != nil {
-		return err
-	}
-
 	if wait {
-		return l.waitForHealthyAPI(endpoint, time.Minute*10)
+		endpoint, err := l.Output(config.FlagEndpoint.GetName())
+		if err != nil {
+			return err
+		}
+
+		token, err := l.Output(config.FlagToken.GetName())
+		if err != nil {
+			return err
+		}
+
+		return l.waitForHealthyAPI(endpoint, token, time.Minute*10)
 	}
 
 	return nil
 }
 
-func (l *LocalInstance) waitForHealthyAPI(endpoint string, timeout time.Duration) error {
+func (l *LocalInstance) waitForHealthyAPI(endpoint, token string, timeout time.Duration) error {
 	tr := &http.Transport{
 		TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 	}
 	client := &http.Client{Transport: tr}
 
+	req, err := http.NewRequest("GET", endpoint, nil)
+	if err != nil {
+		return err
+	}
+
+	req.Header.Add("Authorization", "Basic "+token)
 	for start := time.Now(); time.Since(start) < timeout; time.Sleep(time.Second * 15) {
 		log.Printf("[INFO] Waiting for API Service to be healthy... (%s)", time.Since(start).String())
 
-		resp, err := client.Get(endpoint)
+		resp, err := client.Do(req)
 		if err != nil {
 			log.Printf("[WARN] Error occurred during GET %s: %v", endpoint, err)
 			continue

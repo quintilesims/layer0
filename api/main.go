@@ -48,8 +48,7 @@ func main() {
 	app.Version = Version
 	app.Flags = config.APIFlags()
 	app.Action = func(c *cli.Context) error {
-		cfg := config.NewContextAPIConfig(c)
-		if err := cfg.Validate(); err != nil {
+		if err := config.ValidateAPIContext(c); err != nil {
 			return err
 		}
 
@@ -57,28 +56,32 @@ func main() {
 		log.SetOutput(logger)
 
 		awsConfig := defaults.Get().Config
-		staticCreds := credentials.NewStaticCredentials(cfg.AccessKey(), cfg.SecretKey(), "")
+		staticCreds := credentials.NewStaticCredentials(
+			c.String(config.FlagAWSAccessKey.GetName()),
+			c.String(config.FlagAWSSecretKey.GetName()),
+			"")
+
 		awsConfig.WithCredentials(staticCreds)
-		awsConfig.WithRegion(cfg.Region())
-		awsConfig.WithMaxRetries(cfg.MaxRetries())
+		awsConfig.WithRegion(c.String(config.FlagAWSRegion.GetName()))
+		awsConfig.WithMaxRetries(config.DefaultMaxRetries)
 		session := session.New(awsConfig)
 
-		delay := c.Duration(config.FLAG_AWS_TIME_BETWEEN_REQUESTS)
+		delay := c.Duration(config.FlagAWSRequestDelay.GetName())
 		ticker := time.Tick(delay)
 		session.Handlers.Send.PushBack(func(r *request.Request) {
 			<-ticker
 		})
 
 		client := awsclient.NewClient(session)
-		tagStore := tag.NewDynamoStore(session, cfg.DynamoTagTable())
-		jobStore := job.NewDynamoStore(session, cfg.DynamoJobTable())
+		tagStore := tag.NewDynamoStore(session, c.String(config.FlagAWSTagTable.GetName()))
+		jobStore := job.NewDynamoStore(session, c.String(config.FlagAWSJobTable.GetName()))
 
-		adminProvider := aws.NewAdminProvider(client, tagStore, cfg)
-		deployProvider := aws.NewDeployProvider(client, tagStore, cfg)
-		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, cfg)
-		loadBalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
-		serviceProvider := aws.NewServiceProvider(client, tagStore, cfg)
-		taskProvider := aws.NewTaskProvider(client, tagStore, cfg)
+		adminProvider := aws.NewAdminProvider(client, tagStore, c)
+		deployProvider := aws.NewDeployProvider(client, tagStore, c)
+		environmentProvider := aws.NewEnvironmentProvider(client, tagStore, c)
+		loadBalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, c)
+		serviceProvider := aws.NewServiceProvider(client, tagStore, c)
+		taskProvider := aws.NewTaskProvider(client, tagStore, c)
 		environmentScaler := aws.NewEnvironmentScaler()
 		scalerDispatcher := scaler.NewDispatcher(jobStore, time.Second*15)
 
@@ -96,7 +99,7 @@ func main() {
 			scalerDispatcher)
 
 		routes := controllers.NewSwaggerController(Version).Routes()
-		routes = append(routes, controllers.NewAdminController(cfg, Version).Routes()...)
+		routes = append(routes, controllers.NewAdminController(c, Version).Routes()...)
 		routes = append(routes, controllers.NewDeployController(deployProvider, jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore, tagStore).Routes()...)
 		routes = append(routes, controllers.NewJobController(jobStore, tagStore).Routes()...)
@@ -105,7 +108,7 @@ func main() {
 		routes = append(routes, controllers.NewTagController(tagStore).Routes()...)
 		routes = append(routes, controllers.NewTaskController(taskProvider, jobStore, tagStore).Routes()...)
 
-		user, pass, err := cfg.ParseAuthToken()
+		user, pass, err := config.ParseAuthToken(c)
 		if err != nil {
 			return err
 		}
@@ -117,8 +120,10 @@ func main() {
 		server := fireball.NewApp(routes)
 		server.ErrorHandler = controllers.ErrorHandler
 
-		jobLock := lock.NewDynamoLock(session, cfg.DynamoLockTable(), cfg.JobExpiry())
-		daemonLock := lock.NewDynamoLock(session, cfg.DynamoLockTable(), time.Minute*5)
+		lockTable := c.String(config.FlagAWSLockTable.GetName())
+		lockExpiry := c.Duration(config.FlagJobExpiry.GetName())
+		jobLock := lock.NewDynamoLock(session, lockTable, lockExpiry)
+		daemonLock := lock.NewDynamoLock(session, lockTable, time.Minute*5)
 
 		// todo: get num workers from config
 		jobTicker, stopWorkers := job.RunWorkersAndDispatcher(2, jobStore, jobRunner, jobLock)
@@ -130,7 +135,8 @@ func main() {
 		scalerDaemonTicker := scalerDaemon.RunEvery(time.Hour)
 		defer scalerDaemonTicker.Stop()
 
-		jdFN := job.NewDaemonFN(jobStore, cfg.JobExpiry())
+		jobExpiry := c.Duration(config.FlagJobExpiry.GetName())
+		jdFN := job.NewDaemonFN(jobStore, jobExpiry)
 		jobDaemon := daemon.NewDaemon("Job", "JobDaemon", daemonLock, jdFN)
 		jobDaemonTicker := jobDaemon.RunEvery(time.Hour)
 		defer jobDaemonTicker.Stop()
@@ -140,16 +146,17 @@ func main() {
 		tagDaemonTicker := tagDaemon.RunEvery(time.Hour)
 		defer tagDaemonTicker.Stop()
 
-		ldFN := lock.NewDaemonFN(daemonLock, cfg.LockExpiry())
+		ldFN := lock.NewDaemonFN(daemonLock, lockExpiry)
 		lockDaemon := daemon.NewDaemon("Lock", "LockDaemon", daemonLock, ldFN)
 		lockDaemonTicker := lockDaemon.RunEvery(time.Hour)
 		defer lockDaemonTicker.Stop()
 
-		log.Printf("[INFO] Listening on port %d", cfg.Port())
+		port := c.Int(config.FlagPort.GetName())
+		log.Printf("[INFO] Listening on port %d", port)
 		http.Handle("/", server)
 
 		http.HandleFunc(SWAGGER_URL, serveSwaggerUI)
-		return http.ListenAndServe(fmt.Sprintf(":%d", cfg.Port()), nil)
+		return http.ListenAndServe(fmt.Sprintf(":%d", port), nil)
 	}
 
 	if err := app.Run(os.Args); err != nil {

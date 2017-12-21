@@ -25,7 +25,7 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 		return nil, err
 	}
 
-	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), environmentID)
+	fqEnvironmentID := addLayer0Prefix(t.Context, environmentID)
 	clusterName := fqEnvironmentID
 	task, err := t.readTask(clusterName, taskARN)
 	if err != nil {
@@ -33,7 +33,7 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 	}
 
 	taskFamily, _ := taskFamilyRevisionFromARN(aws.StringValue(task.TaskDefinitionArn))
-	deployID := delLayer0Prefix(t.Config.Instance(), taskFamily)
+	deployID := delLayer0Prefix(t.Context, taskFamily)
 
 	model, err := t.makeTaskModel(taskID, environmentID, deployID)
 	if err != nil {

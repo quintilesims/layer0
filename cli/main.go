@@ -44,19 +44,20 @@ func main() {
 			return err
 		}
 
-		logger := logging.NewLogWriter(c.GlobalBool(config.FLAG_DEBUG))
+		debug := c.GlobalBool(config.FlagDebug.GetName())
+		logger := logging.NewLogWriter(debug)
 		log.SetOutput(logger)
 
 		apiClient := client.NewAPIClient(client.Config{
-			Endpoint:  c.GlobalString(config.FLAG_ENDPOINT),
-			Token:     c.GlobalString(config.FLAG_TOKEN),
-			VerifySSL: !c.GlobalBool(config.FLAG_SKIP_VERIFY_SSL),
+			Endpoint:  c.GlobalString(config.FlagEndpoint.GetName()),
+			Token:     c.GlobalString(config.FlagToken.GetName()),
+			VerifySSL: !c.GlobalBool(config.FlagSkipVerifySSL.GetName()),
 		})
 
 		tagResolver := resolver.NewTagResolver(apiClient)
 
 		var p printer.Printer
-		switch format := c.GlobalString(config.FLAG_OUTPUT); format {
+		switch format := c.GlobalString(config.FlagOutput.GetName()); format {
 		case "text":
 			p = &printer.TextPrinter{}
 		case "json":
@@ -69,7 +70,7 @@ func main() {
 		base.SetResolver(tagResolver)
 		base.SetPrinter(p)
 
-		if !c.GlobalBool(config.FLAG_SKIP_VERIFY_VERSION) {
+		if !c.GlobalBool(config.FlagSkipVerifyVersion.GetName()) {
 			apiConfig, err := apiClient.ReadConfig()
 			if err != nil {
 				return err
@@ -77,7 +78,7 @@ func main() {
 
 			if apiConfig.Version != Version {
 				text := fmt.Sprintf("API and CLI version mismatch (CLI: '%s', API: '%s')\n", Version, apiConfig.Version)
-				text += fmt.Sprintf("To disable this warning, set %s=\"1\"", config.ENVVAR_SKIP_VERIFY_VERSION)
+				text += fmt.Sprintf("To disable this warning, set %s=\"1\"", config.FlagSkipVerifyVersion.EnvVar)
 				return fmt.Errorf(text)
 			}
 		}

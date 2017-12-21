@@ -10,7 +10,7 @@ import (
 // Read returns a *models.LoadBalancer based on the provided loadBalancerID. The loadBalancerID
 // is used when the DescribeLoadBalancers request is made to AWS.
 func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer, error) {
-	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
+	fqLoadBalancerID := addLayer0Prefix(l.Context, loadBalancerID)
 	loadBalancer, err := describeLoadBalancer(l.AWS.ELB, fqLoadBalancerID)
 	if err != nil {
 		return nil, err

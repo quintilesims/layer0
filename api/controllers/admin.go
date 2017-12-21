@@ -3,17 +3,18 @@ package controllers
 import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/urfave/cli"
 	"github.com/zpatrick/fireball"
 )
 
 type AdminController struct {
-	Config  config.APIConfig
+	Context *cli.Context
 	Version string
 }
 
-func NewAdminController(c config.APIConfig, version string) *AdminController {
+func NewAdminController(c *cli.Context, version string) *AdminController {
 	return &AdminController{
-		Config:  c,
+		Context: c,
 		Version: version,
 	}
 }
@@ -37,11 +38,11 @@ func (a *AdminController) Routes() []*fireball.Route {
 
 func (a *AdminController) GetConfig(c *fireball.Context) (fireball.Response, error) {
 	model := models.APIConfig{
-		Instance:       a.Config.Instance(),
-		VPCID:          a.Config.VPC(),
+		Instance:       a.Context.String(config.FlagInstance.GetName()),
+		VPCID:          a.Context.String(config.FlagAWSVPC.GetName()),
 		Version:        a.Version,
-		PublicSubnets:  a.Config.PublicSubnets(),
-		PrivateSubnets: a.Config.PrivateSubnets(),
+		PublicSubnets:  a.Context.StringSlice(config.FlagAWSPublicSubnets.GetName()),
+		PrivateSubnets: a.Context.StringSlice(config.FlagAWSPrivateSubnets.GetName()),
 	}
 
 	return fireball.NewJSONResponse(200, model)

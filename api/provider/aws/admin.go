@@ -7,28 +7,28 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/urfave/cli"
 )
 
 type AdminProvider struct {
 	AWS      *awsc.Client
 	TagStore tag.Store
-	Config   config.APIConfig
+	Context  *cli.Context
 }
 
-func NewAdminProvider(a *awsc.Client, t tag.Store, c config.APIConfig) *AdminProvider {
+func NewAdminProvider(a *awsc.Client, t tag.Store, c *cli.Context) *AdminProvider {
 	return &AdminProvider{
 		AWS:      a,
 		TagStore: t,
-		Config:   c,
+		Context:  c,
 	}
 }
 
 func (a *AdminProvider) Init() error {
 	log.Printf("[DEBUG] Adding API tags")
 
-	fqAPI := addLayer0Prefix(a.Config.Instance(), "api")
+	fqAPI := addLayer0Prefix(a.Context, "api")
 	service, err := readService(a.AWS.ECS, fqAPI, fqAPI)
 	if err != nil {
 		return err

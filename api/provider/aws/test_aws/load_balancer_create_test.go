@@ -12,7 +12,6 @@ import (
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
-	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -23,14 +22,14 @@ func TestLoadBalancerCreate(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
-	mockConfig.EXPECT().VPC().Return("vpc_id").AnyTimes()
-	mockConfig.EXPECT().Region().Return("region").AnyTimes()
-	mockConfig.EXPECT().AccountID().Return("123456789012")
-	mockConfig.EXPECT().PrivateSubnets().Return([]string{"priv1", "priv2"}).AnyTimes()
-	mockConfig.EXPECT().PublicSubnets().Return([]string{"pub1", "pub2"}).AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName():          "test",
+		config.FlagAWSVPC.GetName():            "vpc_id",
+		config.FlagAWSRegion.GetName():         "region",
+		config.FlagAWSAccountID.GetName():      "123456789012",
+		config.FlagAWSPrivateSubnets.GetName(): []string{"priv1", "priv2"},
+		config.FlagAWSPublicSubnets.GetName():  []string{"pub1", "pub2"},
+	})
 
 	defer provider.SetEntityIDGenerator("lb_id")()
 
@@ -145,7 +144,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 		ConfigureHealthCheck(configureHealthCheckInput).
 		Return(&elb.ConfigureHealthCheckOutput{}, nil)
 
-	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, c)
 	result, err := target.Create(req)
 	if err != nil {
 		t.Fatal(err)
@@ -179,13 +178,14 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 
 	mockAWS := awsc.NewMockClient(ctrl)
 	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
-	mockConfig.EXPECT().VPC().Return("vpc_id").AnyTimes()
-	mockConfig.EXPECT().Region().Return("region").AnyTimes()
-	mockConfig.EXPECT().AccountID().Return("123456789012")
-	mockConfig.EXPECT().PrivateSubnets().Return([]string{"priv1", "priv2"}).AnyTimes()
+	c := config.NewTestContext(t, nil, map[string]interface{}{
+		config.FlagInstance.GetName():          "test",
+		config.FlagAWSVPC.GetName():            "vpc_id",
+		config.FlagAWSRegion.GetName():         "region",
+		config.FlagAWSAccountID.GetName():      "123456789012",
+		config.FlagAWSPrivateSubnets.GetName(): []string{"priv1", "priv2"},
+		config.FlagAWSPublicSubnets.GetName():  []string{"pub1", "pub2"},
+	})
 
 	defer provider.SetEntityIDGenerator("lb_id")()
 
@@ -212,7 +212,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		PutRolePolicy(gomock.Any()).
 		Return(&iam.PutRolePolicyOutput{}, nil)
 
-	listeners := []*elb.Listener{listenerHelper(config.DefaultLoadBalancerPort)}
+	listeners := []*elb.Listener{listenerHelper(config.DefaultLoadBalancerPort())}
 	createLoadBalancerInput := &elb.CreateLoadBalancerInput{}
 	createLoadBalancerInput.SetLoadBalancerName("l0-test-lb_id")
 	createLoadBalancerInput.SetScheme("internal")
@@ -224,7 +224,8 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		CreateLoadBalancer(createLoadBalancerInput).
 		Return(&elb.CreateLoadBalancerOutput{}, nil)
 
-	healthCheck := healthCheckHelper(&config.DefaultLoadBalancerHealthCheck)
+	defaultHC := config.DefaultLoadBalancerHealthCheck()
+	healthCheck := healthCheckHelper(&defaultHC)
 	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
 	configureHealthCheckInput.SetLoadBalancerName("l0-test-lb_id")
 	configureHealthCheckInput.SetHealthCheck(healthCheck)
@@ -233,7 +234,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		ConfigureHealthCheck(configureHealthCheckInput).
 		Return(&elb.ConfigureHealthCheckOutput{}, nil)
 
-	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
+	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, c)
 	result, err := target.Create(req)
 	if err != nil {
 		t.Fatal(err)
