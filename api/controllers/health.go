@@ -1,33 +1,26 @@
 package controllers
 
 import (
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/zpatrick/fireball"
 )
 
-type HealthController struct {
-	Config  config.APIConfig
-	Version string
+type HealthController struct{}
+
+func NewHealthController() *HealthController {
+	return &HealthController{}
 }
 
-func NewHealthController(c config.APIConfig, version string) *HealthController {
-	return &HealthController{
-		Config:  c,
-		Version: version,
-	}
-}
-
-func (a *HealthController) Routes() []*fireball.Route {
+func (h *HealthController) Routes() []*fireball.Route {
 	return []*fireball.Route{
 		{
 			Path: "/health",
 			Handlers: fireball.Handlers{
-				"GET": a.GetHealth,
+				"GET": h.GetHealth,
 			},
 		},
 	}
 }
 
-func (a *HealthController) GetHealth(c *fireball.Context) (fireball.Response, error) {
+func (h *HealthController) GetHealth(c *fireball.Context) (fireball.Response, error) {
 	return fireball.NewJSONResponse(200, "")
 }

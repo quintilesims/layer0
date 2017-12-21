@@ -114,7 +114,8 @@ func main() {
 			fireball.LogDecorator(),
 			fireball.BasicAuthDecorator(user, pass))
 
-		routes = append(routes, controllers.NewHealthController(cfg, Version).Routes()...)
+		// Health check endpoint should not require basic auth, append after decoration
+		routes = append(routes, controllers.NewHealthController().Routes()...)
 
 		server := fireball.NewApp(routes)
 		server.ErrorHandler = controllers.ErrorHandler
