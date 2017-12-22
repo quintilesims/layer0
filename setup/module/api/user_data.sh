@@ -65,7 +65,6 @@ cfg=$(cat dockercfg)
 echo ECS_ENGINE_AUTH_DATA=$cfg >> /etc/ecs/ecs.config
 docker pull amazon/amazon-ecs-agent:latest
 start ecs
-service docker restart
 
 --==BOUNDARY==
 Content-Type: text/x-shellscript; charset="us-ascii"
@@ -91,7 +90,7 @@ script
 		sleep 1	
 	done
 
-	# Grab container instance ARN from instance metadata
+	# Grab container instance id from instance metadata
 	cluster=$(curl -s http://localhost:51678/v1/metadata | jq -r '. | .Cluster' | cut -d '/' -f2 | cut -d '-' -f1,2)
 	container_instance_id=$(curl -s 169.254.169.254/latest/dynamic/instance-identity/document | jq -r .instanceId)
 
