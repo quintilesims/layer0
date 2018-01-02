@@ -1,12 +1,13 @@
 package logic
 
 import (
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 type EnvironmentLogic interface {
-	ListEnvironments() ([]*models.EnvironmentSummary, error)
+	ListEnvironments() ([]models.EnvironmentSummary, error)
 	GetEnvironment(id string) (*models.Environment, error)
 	DeleteEnvironment(id string) error
 	CanCreateEnvironment(req models.CreateEnvironmentRequest) (bool, error)
@@ -26,26 +27,13 @@ func NewL0EnvironmentLogic(logic Logic) *L0EnvironmentLogic {
 	}
 }
 
-func (e *L0EnvironmentLogic) ListEnvironments() ([]*models.EnvironmentSummary, error) {
-	environments, err := e.Backend.ListEnvironments()
+func (e *L0EnvironmentLogic) ListEnvironments() ([]models.EnvironmentSummary, error) {
+	environmentIDs, err := e.Backend.ListEnvironments()
 	if err != nil {
 		return nil, err
 	}
 
-	summaries := make([]*models.EnvironmentSummary, len(environments))
-	for i, environment := range environments {
-		if err := e.populateModel(environment); err != nil {
-			return nil, err
-		}
-
-		summaries[i] = &models.EnvironmentSummary{
-			EnvironmentID:   environment.EnvironmentID,
-			EnvironmentName: environment.EnvironmentName,
-			OperatingSystem: environment.OperatingSystem,
-		}
-	}
-
-	return summaries, nil
+	return e.makeEnvironmentSummaryModels(environmentIDs)
 }
 
 func (e *L0EnvironmentLogic) GetEnvironment(environmentID string) (*models.Environment, error) {
@@ -208,4 +196,27 @@ func (e *L0EnvironmentLogic) populateModel(model *models.Environment) error {
 	}
 
 	return nil
+}
+
+func (e *L0EnvironmentLogic) makeEnvironmentSummaryModels(environmentIDs []id.ECSEnvironmentID) ([]models.EnvironmentSummary, error) {
+	tags, err := e.TagStore.SelectByType("environment")
+	if err != nil {
+		return nil, err
+	}
+
+	summaries := make([]models.EnvironmentSummary, len(environmentIDs))
+	for i, ecsEnvironmentID := range environmentIDs {
+		environmentID := ecsEnvironmentID.L0EnvironmentID()
+		summaries[i].EnvironmentID = environmentID
+
+		if tag, ok := tags.WithID(environmentID).WithKey("name").First(); ok {
+			summaries[i].EnvironmentName = tag.Value
+		}
+
+		if tag, ok := tags.WithID(environmentID).WithKey("os").First(); ok {
+			summaries[i].OperatingSystem = tag.Value
+		}
+	}
+
+	return summaries, nil
 }

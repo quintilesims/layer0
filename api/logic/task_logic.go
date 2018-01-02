@@ -24,26 +24,12 @@ func NewL0TaskLogic(logic Logic) *L0TaskLogic {
 }
 
 func (this *L0TaskLogic) ListTasks() ([]*models.TaskSummary, error) {
-	tasks, err := this.Backend.ListTasks()
+	taskARNs, err := this.Backend.ListTasks()
 	if err != nil {
 		return nil, err
 	}
 
-	summaries := make([]*models.TaskSummary, len(tasks))
-	for i, task := range tasks {
-		if err := this.populateModel(task); err != nil {
-			return nil, err
-		}
-
-		summaries[i] = &models.TaskSummary{
-			TaskID:          task.TaskID,
-			TaskName:        task.TaskName,
-			EnvironmentID:   task.EnvironmentID,
-			EnvironmentName: task.EnvironmentName,
-		}
-	}
-
-	return summaries, nil
+	return this.makeTaskSummaryModels(taskARNs)
 }
 
 func (this *L0TaskLogic) GetTask(taskID string) (*models.Task, error) {
@@ -165,6 +151,48 @@ func (this *L0TaskLogic) getEnvironmentID(taskID string) (string, error) {
 	}
 
 	return "", errors.Newf(errors.TaskDoesNotExist, "Task %s does not exist", taskID)
+}
+
+func (t *L0TaskLogic) makeTaskSummaryModels(taskARNs []string) ([]*models.TaskSummary, error) {
+	environmentTags, err := t.TagStore.SelectByType("environment")
+	if err != nil {
+		return nil, err
+	}
+
+	taskTags, err := t.TagStore.SelectByType("task")
+	if err != nil {
+		return nil, err
+	}
+
+	taskARNMatches := map[string]bool{}
+	for _, taskARN := range taskARNs {
+		taskARNMatches[taskARN] = true
+	}
+
+	taskModels := make([]*models.TaskSummary, 0, len(taskARNs))
+	for _, tag := range taskTags.WithKey("arn") {
+		if taskARNMatches[tag.Value] {
+			model := &models.TaskSummary{
+				TaskID: tag.EntityID,
+			}
+
+			if tag, ok := taskTags.WithID(model.TaskID).WithKey("name").First(); ok {
+				model.TaskName = tag.Value
+			}
+
+			if tag, ok := taskTags.WithID(model.TaskID).WithKey("environment_id").First(); ok {
+				model.EnvironmentID = tag.Value
+
+				if t, ok := environmentTags.WithID(tag.Value).WithKey("name").First(); ok {
+					model.EnvironmentName = t.Value
+				}
+			}
+
+			taskModels = append(taskModels, model)
+		}
+	}
+
+	return taskModels, nil
 }
 
 func (this *L0TaskLogic) populateModel(model *models.Task) error {

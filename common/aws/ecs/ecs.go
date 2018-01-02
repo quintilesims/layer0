@@ -34,9 +34,12 @@ type Provider interface {
 	DescribeTasks(cluster string, taskArns []*string) ([]*Task, error)
 
 	ListClusters() ([]*string, error)
+	ListClusterNames(prefix string) ([]string, error)
 	ListContainerInstances(clusterName string) ([]*string, error)
 	ListServices(clusterName string) ([]*string, error)
 	Helper_ListServices(prefix string) ([]*string, error)
+
+	ListClusterTaskARNs(clusterName, startedBy string) ([]string, error)
 	ListTasks(clusterName string, serviceName, desiredStatus, startedBy, containerInstance *string) ([]*string, error)
 
 	ListTaskDefinitions(familyName string, nextToken *string) ([]*string, *string, error)
@@ -570,6 +573,27 @@ func (this *ECS) DescribeServices(cluster string, serviceIDs []*string) ([]*Serv
 	return services, nil
 }
 
+func (this *ECS) ListClusters() ([]*string, error) {
+	input := &ecs.ListClustersInput{}
+
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	output := []*string{}
+	save := func(p *ecs.ListClustersOutput, lastPage bool) (shouldContinue bool) {
+		output = append(output, p.ClusterArns...)
+		return !lastPage
+	}
+
+	if err := connection.ListClustersPages(input, save); err != nil {
+		return nil, err
+	}
+
+	return output, nil
+}
+
 func (this *ECS) Helper_ListServices(prefix string) ([]*string, error) {
 	clusterARNs, err := this.ListClusters()
 	if err != nil {
@@ -650,25 +674,60 @@ func (this *ECS) CreateCluster(clusterName string) (*Cluster, error) {
 	return &Cluster{output.Cluster}, err
 }
 
-func (this *ECS) ListClusters() ([]*string, error) {
-	input := &ecs.ListClustersInput{}
-
+func (this *ECS) ListClusterNames(prefix string) ([]string, error) {
 	connection, err := this.Connect()
 	if err != nil {
 		return nil, err
 	}
 
-	output := []*string{}
-	save := func(p *ecs.ListClustersOutput, lastPage bool) (shouldContinue bool) {
-		output = append(output, p.ClusterArns...)
+	clusterNames := []string{}
+	fn := func(output *ecs.ListClustersOutput, lastPage bool) bool {
+		for _, arn := range output.ClusterArns {
+			// cluster arn format: arn:aws:ecs:region:012345678910:cluster/name
+			clusterName := strings.Split(aws.StringValue(arn), "/")[1]
+
+			if strings.HasPrefix(clusterName, prefix) {
+				clusterNames = append(clusterNames, clusterName)
+			}
+		}
+
 		return !lastPage
 	}
 
-	if err := connection.ListClustersPages(input, save); err != nil {
+	if err := connection.ListClustersPages(&ecs.ListClustersInput{}, fn); err != nil {
 		return nil, err
 	}
 
-	return output, nil
+	return clusterNames, nil
+}
+
+func (this *ECS) ListClusterTaskARNs(clusterName, startedBy string) ([]string, error) {
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	taskARNs := []string{}
+	fn := func(output *ecs.ListTasksOutput, lastPage bool) bool {
+		for _, taskARN := range output.TaskArns {
+			taskARNs = append(taskARNs, aws.StringValue(taskARN))
+		}
+
+		return !lastPage
+	}
+
+	for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
+		input := &ecs.ListTasksInput{}
+		input.SetCluster(clusterName)
+		input.SetDesiredStatus(status)
+		input.SetStartedBy(startedBy)
+
+		if err := connection.ListTasksPages(input, fn); err != nil {
+			return nil, err
+		}
+	}
+
+	return taskARNs, nil
 }
 
 func (this *ECS) DescribeCluster(cluster string) (*Cluster, error) {
