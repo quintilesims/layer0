@@ -1,6 +1,8 @@
 package logic
 
 import (
+	"fmt"
+
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -33,12 +35,17 @@ func (this *L0TaskLogic) ListTasks() ([]*models.TaskSummary, error) {
 }
 
 func (this *L0TaskLogic) GetTask(taskID string) (*models.Task, error) {
-	environmentID, err := this.getEnvironmentID(taskID)
+	environmentID, err := this.lookupTaskEnvironmentID(taskID)
 	if err != nil {
 		return nil, err
 	}
 
-	task, err := this.Backend.GetTask(environmentID, taskID)
+	taskARN, err := this.lookupTaskARN(taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	task, err := this.Backend.GetTask(environmentID, taskARN)
 	if err != nil {
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.InvalidTaskID {
 			return nil, errors.Newf(errors.InvalidTaskID, "Task %s does not exist", taskID)
@@ -55,7 +62,7 @@ func (this *L0TaskLogic) GetTask(taskID string) (*models.Task, error) {
 }
 
 func (this *L0TaskLogic) DeleteTask(taskID string) error {
-	environmentID, err := this.getEnvironmentID(taskID)
+	environmentID, err := this.lookupTaskEnvironmentID(taskID)
 	if err != nil {
 		return err
 	}
@@ -116,7 +123,7 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 }
 
 func (this *L0TaskLogic) GetTaskLogs(taskID, start, end string, tail int) ([]*models.LogFile, error) {
-	environmentID, err := this.getEnvironmentID(taskID)
+	environmentID, err := this.lookupTaskEnvironmentID(taskID)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +136,7 @@ func (this *L0TaskLogic) GetTaskLogs(taskID, start, end string, tail int) ([]*mo
 	return logs, nil
 }
 
-func (this *L0TaskLogic) getEnvironmentID(taskID string) (string, error) {
+func (this *L0TaskLogic) lookupTaskEnvironmentID(taskID string) (string, error) {
 	tags, err := this.TagStore.SelectByTypeAndID("task", taskID)
 	if err != nil {
 		return "", err
@@ -139,18 +146,24 @@ func (this *L0TaskLogic) getEnvironmentID(taskID string) (string, error) {
 		return tag.Value, nil
 	}
 
-	tasks, err := this.ListTasks()
+	return "", errors.Newf(errors.TaskDoesNotExist, "Failed to find environment for task %s", taskID)
+}
+
+func (t *L0TaskLogic) lookupTaskARN(taskID string) (string, error) {
+	tags, err := t.TagStore.SelectByTypeAndID("task", taskID)
 	if err != nil {
 		return "", err
 	}
 
-	for _, task := range tasks {
-		if task.TaskID == taskID {
-			return task.EnvironmentID, nil
-		}
+	if len(tags) == 0 {
+		return "", errors.Newf(errors.TaskDoesNotExist, "Task '%s' does not exist", taskID)
 	}
 
-	return "", errors.Newf(errors.TaskDoesNotExist, "Task %s does not exist", taskID)
+	if tag, ok := tags.WithKey("arn").First(); ok {
+		return tag.Value, nil
+	}
+
+	return "", fmt.Errorf("Failed to find ARN for task '%s'", taskID)
 }
 
 func (t *L0TaskLogic) makeTaskSummaryModels(taskARNs []string) ([]*models.TaskSummary, error) {
