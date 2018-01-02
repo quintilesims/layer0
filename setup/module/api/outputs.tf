@@ -15,11 +15,11 @@ output "private_subnets" {
 }
 
 output "linux_service_ami" {
-  value = "${lookup(var.linux_region_amis, var.region)}"
+  value = "${data.aws_ami.linux.id}"
 }
 
 output "windows_service_ami" {
-  value = "${lookup(var.windows_region_amis, var.region)}"
+  value = "${data.aws_ami.windows.id}"
 }
 
 output "bucket_name" {
