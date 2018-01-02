@@ -14,7 +14,7 @@ import (
 )
 
 func TestListEnvironments(t *testing.T) {
-	environments := []*models.EnvironmentSummary{
+	environments := []models.EnvironmentSummary{
 		{
 			EnvironmentID: "some_id_1",
 		},
@@ -41,7 +41,7 @@ func TestListEnvironments(t *testing.T) {
 				handler := target.(*EnvironmentHandler)
 				handler.ListEnvironments(req, resp)
 
-				var response []*models.EnvironmentSummary
+				var response []models.EnvironmentSummary
 				read(&response)
 
 				reporter.AssertEqual(response, environments)

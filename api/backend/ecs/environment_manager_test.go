@@ -20,6 +20,7 @@ import (
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
+	"github.com/stretchr/testify/assert"
 )
 
 type MockECSEnvironmentManager struct {
@@ -146,55 +147,31 @@ func TestGetEnvironment(t *testing.T) {
 }
 
 func TestListEnvironments(t *testing.T) {
-	testCases := []testutils.TestCase{
-		{
-			Name: "Should return layer0-formatted environment ids and use proper params in aws calls",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockEnvironment := NewMockECSEnvironmentManager(ctrl)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
-				clusterName := ecsEnvironmentID.String()
+	mockEnvironment := NewMockECSEnvironmentManager(ctrl)
 
-				mockEnvironment.ECS.EXPECT().
-					Helper_DescribeClusters().
-					Return([]*ecs.Cluster{ecs.NewCluster(clusterName)}, nil)
-
-				return mockEnvironment.Environment()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSEnvironmentManager)
-
-				environments, err := manager.ListEnvironments()
-				if err != nil {
-					reporter.Fatal(err)
-				}
-
-				reporter.AssertEqual(len(environments), 1)
-				reporter.AssertEqual(environments[0].EnvironmentID, "envid")
-			},
-		},
-		{
-			Name: "Should propagate ecs.Helper_DescribeClusters error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockEnvironment := NewMockECSEnvironmentManager(ctrl)
-
-				mockEnvironment.ECS.EXPECT().
-					Helper_DescribeClusters().
-					Return(nil, fmt.Errorf("some_error"))
-
-				return mockEnvironment.Environment()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSEnvironmentManager)
-
-				if _, err := manager.ListEnvironments(); err == nil {
-					reporter.Errorf("Error was nil!")
-				}
-			},
-		},
+	clusterNames := []string{
+		"env_id1",
+		"env_id2",
 	}
 
-	testutils.RunTests(t, testCases)
+	mockEnvironment.ECS.EXPECT().
+		ListClusterNames(id.PREFIX).
+		Return(clusterNames, nil)
+
+	result, err := mockEnvironment.Environment().ListEnvironments()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := []id.ECSEnvironmentID{
+		id.ECSEnvironmentID("env_id1"),
+		id.ECSEnvironmentID("env_id2"),
+	}
+
+	assert.Equal(t, result, expected)
 }
 
 func TestDeleteEnvironment(t *testing.T) {
