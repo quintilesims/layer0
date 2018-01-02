@@ -12,6 +12,7 @@
                 "ecs:DiscoverPollEndpoint",
                 "ecs:Submit*",
                 "ecs:Poll",
+                "ecs:StartTelemetrySession",
                 "logs:CreateLogStream",
                 "logs:PutLogEvents",
                 "logs:CreateLogGroup",
