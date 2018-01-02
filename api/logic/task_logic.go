@@ -208,6 +208,48 @@ func (t *L0TaskLogic) makeTaskSummaryModels(taskARNs []string) ([]*models.TaskSu
 	return taskModels, nil
 }
 
+func (t *L0TaskLogic) makeTaskSummaryModels(taskARNs []string) ([]*models.TaskSummary, error) {
+	environmentTags, err := t.TagStore.SelectByType("environment")
+	if err != nil {
+		return nil, err
+	}
+
+	taskTags, err := t.TagStore.SelectByType("task")
+	if err != nil {
+		return nil, err
+	}
+
+	taskARNMatches := map[string]bool{}
+	for _, taskARN := range taskARNs {
+		taskARNMatches[taskARN] = true
+	}
+
+	taskModels := make([]*models.TaskSummary, 0, len(taskARNs))
+	for _, tag := range taskTags.WithKey("arn") {
+		if taskARNMatches[tag.Value] {
+			model := &models.TaskSummary{
+				TaskID: tag.EntityID,
+			}
+
+			if tag, ok := taskTags.WithID(model.TaskID).WithKey("name").First(); ok {
+				model.TaskName = tag.Value
+			}
+
+			if tag, ok := taskTags.WithID(model.TaskID).WithKey("environment_id").First(); ok {
+				model.EnvironmentID = tag.Value
+
+				if t, ok := environmentTags.WithID(tag.Value).WithKey("name").First(); ok {
+					model.EnvironmentName = t.Value
+				}
+			}
+
+			taskModels = append(taskModels, model)
+		}
+	}
+
+	return taskModels, nil
+}
+
 func (this *L0TaskLogic) populateModel(model *models.Task) error {
 	tags, err := this.TagStore.SelectByTypeAndID("task", model.TaskID)
 	if err != nil {
