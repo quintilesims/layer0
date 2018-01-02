@@ -9,7 +9,6 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockTaskLogic is a mock of TaskLogic interface

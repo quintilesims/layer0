@@ -31,7 +31,8 @@ type Provider interface {
 	DescribeTaskDefinition(familyAndRevision string) (*TaskDefinition, error)
 	Helper_DescribeTaskDefinitions(prefix string) ([]*TaskDefinition, error)
 
-	DescribeTasks(cluster string, taskArns []*string) ([]*Task, error)
+	DescribeTask(cluster string, taskARN string) (*Task, error)
+	DescribeTasks(clusterName string, taskARNs []*string) ([]*Task, error)
 
 	ListClusters() ([]*string, error)
 	ListClusterNames(prefix string) ([]string, error)
@@ -1062,6 +1063,34 @@ func (this *ECS) DescribeTasks(clusterName string, tasks []*string) ([]*Task, er
 	}
 
 	return ret, nil
+}
+
+func (this *ECS) DescribeTask(clusterName string, taskARN string) (*Task, error) {
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	input := &ecs.DescribeTasksInput{
+		Cluster: aws.String(clusterName),
+		Tasks:   []*string{aws.String(taskARN)},
+	}
+
+	output, err := connection.DescribeTasks(input)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(output.Failures) > 0 {
+		reason := aws.StringValue(output.Failures[0].Reason)
+		if strings.Contains(reason, "MISSING") {
+			return nil, fmt.Errorf("The specified task does not exist")
+		}
+
+		return nil, fmt.Errorf("Failed to describe task: %s", reason)
+	}
+
+	return &Task{output.Tasks[0]}, nil
 }
 
 func (this *ECS) DeleteTaskDefinition(taskName string) error {

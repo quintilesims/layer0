@@ -45,7 +45,7 @@ func (this *L0TaskLogic) GetTask(taskID string) (*models.Task, error) {
 		return nil, err
 	}
 
-	task, err := this.Backend.GetTask(environmentID, taskARN)
+	taskModel, err := this.Backend.GetTask(environmentID, taskARN)
 	if err != nil {
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.InvalidTaskID {
 			return nil, errors.Newf(errors.InvalidTaskID, "Task %s does not exist", taskID)
@@ -54,11 +54,11 @@ func (this *L0TaskLogic) GetTask(taskID string) (*models.Task, error) {
 		return nil, err
 	}
 
-	if err := this.populateModel(task); err != nil {
+	if err := this.populateModel(taskID, taskModel); err != nil {
 		return nil, err
 	}
 
-	return task, nil
+	return taskModel, nil
 }
 
 func (this *L0TaskLogic) DeleteTask(taskID string) error {
@@ -91,35 +91,8 @@ func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task,
 		return nil, errors.Newf(errors.MissingParameter, "TaskName not specified")
 	}
 
-	task, err := this.Backend.CreateTask(
-		req.EnvironmentID,
-		req.TaskName,
-		req.DeployID,
-		req.ContainerOverrides)
-	if err != nil {
-		return nil, err
-	}
-
-	taskID := task.TaskID
-	if err := this.TagStore.Insert(models.Tag{EntityID: taskID, EntityType: "task", Key: "name", Value: req.TaskName}); err != nil {
-		return task, err
-	}
-
-	environmentID := req.EnvironmentID
-	if err := this.TagStore.Insert(models.Tag{EntityID: taskID, EntityType: "task", Key: "environment_id", Value: environmentID}); err != nil {
-		return task, err
-	}
-
-	deployID := req.DeployID
-	if err := this.TagStore.Insert(models.Tag{EntityID: taskID, EntityType: "task", Key: "deploy_id", Value: deployID}); err != nil {
-		return task, err
-	}
-
-	if err := this.populateModel(task); err != nil {
-		return task, err
-	}
-
-	return task, nil
+	// todo: insert tags, call Read(), etc.
+	return nil, nil
 }
 
 func (this *L0TaskLogic) GetTaskLogs(taskID, start, end string, tail int) ([]*models.LogFile, error) {
@@ -208,50 +181,10 @@ func (t *L0TaskLogic) makeTaskSummaryModels(taskARNs []string) ([]*models.TaskSu
 	return taskModels, nil
 }
 
-func (t *L0TaskLogic) makeTaskSummaryModels(taskARNs []string) ([]*models.TaskSummary, error) {
-	environmentTags, err := t.TagStore.SelectByType("environment")
-	if err != nil {
-		return nil, err
-	}
+func (this *L0TaskLogic) populateModel(taskID string, model *models.Task) error {
+	model.TaskID = taskID
 
-	taskTags, err := t.TagStore.SelectByType("task")
-	if err != nil {
-		return nil, err
-	}
-
-	taskARNMatches := map[string]bool{}
-	for _, taskARN := range taskARNs {
-		taskARNMatches[taskARN] = true
-	}
-
-	taskModels := make([]*models.TaskSummary, 0, len(taskARNs))
-	for _, tag := range taskTags.WithKey("arn") {
-		if taskARNMatches[tag.Value] {
-			model := &models.TaskSummary{
-				TaskID: tag.EntityID,
-			}
-
-			if tag, ok := taskTags.WithID(model.TaskID).WithKey("name").First(); ok {
-				model.TaskName = tag.Value
-			}
-
-			if tag, ok := taskTags.WithID(model.TaskID).WithKey("environment_id").First(); ok {
-				model.EnvironmentID = tag.Value
-
-				if t, ok := environmentTags.WithID(tag.Value).WithKey("name").First(); ok {
-					model.EnvironmentName = t.Value
-				}
-			}
-
-			taskModels = append(taskModels, model)
-		}
-	}
-
-	return taskModels, nil
-}
-
-func (this *L0TaskLogic) populateModel(model *models.Task) error {
-	tags, err := this.TagStore.SelectByTypeAndID("task", model.TaskID)
+	tags, err := this.TagStore.SelectByTypeAndID("task", taskID)
 	if err != nil {
 		return err
 	}

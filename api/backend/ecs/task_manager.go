@@ -3,6 +3,7 @@ package ecsbackend
 import (
 	"fmt"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
@@ -50,24 +51,14 @@ func (this *ECSTaskManager) ListTasks() ([]string, error) {
 	return taskARNs, nil
 }
 
-func (this *ECSTaskManager) GetTask(environmentID, taskID string) (*models.Task, error) {
-	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
-	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
-
-	tasks, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(ecsTaskID.String()))
+func (this *ECSTaskManager) GetTask(environmentID, taskARN string) (*models.Task, error) {
+	clusterName := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
+	task, err := this.ECS.DescribeTask(clusterName.String(), taskARN)
 	if err != nil {
 		return nil, err
 	}
 
-	taskDescs := []*ecs.Task{}
-	if len(tasks) > 0 {
-		taskDescs, err = this.describeTasks(ecsEnvironmentID, tasks)
-		if err != nil {
-			return nil, err
-		}
-	}
-
-	return modelFromTasks(taskDescs)
+	return modelFromTasks([]*ecs.Task{task})
 }
 
 func (this *ECSTaskManager) DeleteTask(environmentID, taskID string) error {
@@ -143,17 +134,18 @@ func modelFromTasks(tasks []*ecs.Task) (*models.Task, error) {
 	var pendingCount, runningCount int64
 	copies := []models.TaskCopy{}
 	for _, task := range tasks {
-		if *task.LastStatus == "RUNNING" {
+		switch status := aws.StringValue(task.LastStatus); status {
+		case "RUNNING":
 			runningCount = runningCount + 1
-		} else if *task.LastStatus == "PENDING" {
+		case "PENDING":
 			pendingCount = pendingCount + 1
 		}
 
 		details := []models.TaskDetail{}
 		for _, container := range task.Containers {
 			detail := models.TaskDetail{
-				ContainerName: *container.Name,
-				LastStatus:    *container.LastStatus,
+				ContainerName: aws.StringValue(container.Name),
+				LastStatus:    aws.StringValue(container.LastStatus),
 				Reason:        stringOrEmpty(container.Reason),
 				ExitCode:      int64OrZero(container.ExitCode),
 			}
@@ -171,13 +163,9 @@ func modelFromTasks(tasks []*ecs.Task) (*models.Task, error) {
 	}
 
 	model := &models.Task{
-		EnvironmentID: id.ClusterARNToECSEnvironmentID(*tasks[0].ClusterArn).L0EnvironmentID(),
-		PendingCount:  pendingCount,
-		RunningCount:  runningCount,
-		DesiredCount:  int64(len(tasks)),
-		TaskID:        id.ECSTaskID(*tasks[0].StartedBy).L0TaskID(),
-		Copies:        copies,
-		DeployID:      id.TaskDefinitionARNToECSDeployID(*tasks[0].TaskDefinitionArn).L0DeployID(),
+		RunningCount: runningCount,
+		PendingCount: pendingCount,
+		Copies:       copies,
 	}
 
 	return model, nil

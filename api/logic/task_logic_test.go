@@ -8,69 +8,37 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTaskPopulateModel(t *testing.T) {
-	testLogic, ctrl := NewTestLogic(t)
-	defer ctrl.Finish()
-
-	testLogic.AddTags(t, []*models.Tag{
-		{EntityID: "t1", EntityType: "task", Key: "name", Value: "tsk_1"},
-		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env_1"},
-		{EntityID: "d1", EntityType: "deploy", Key: "name", Value: "dpl_1"},
-
-		{EntityID: "t2", EntityType: "task", Key: "name", Value: "tsk_2"},
-		{EntityID: "t2", EntityType: "task", Key: "environment_id", Value: "e2"},
-		{EntityID: "t2", EntityType: "task", Key: "deploy_id", Value: "d2"},
-	})
-
-	cases := map[*models.Task]func(*models.Task){
-		{
-			TaskID:        "t1",
-			EnvironmentID: "e1",
-			DeployID:      "d1",
-		}: func(m *models.Task) {
-			testutils.AssertEqual(t, m.TaskName, "tsk_1")
-			testutils.AssertEqual(t, m.EnvironmentName, "env_1")
-			testutils.AssertEqual(t, m.DeployName, "dpl_1")
-		},
-		{
-			TaskID: "t2",
-		}: func(m *models.Task) {
-			testutils.AssertEqual(t, m.TaskName, "tsk_2")
-			testutils.AssertEqual(t, m.EnvironmentID, "e2")
-			testutils.AssertEqual(t, m.DeployID, "d2")
-		},
-	}
-
-	taskLogic := NewL0TaskLogic(testLogic.Logic())
-	for model, fn := range cases {
-		if err := taskLogic.populateModel(model); err != nil {
-			t.Fatal(err)
-		}
-
-		fn(model)
-	}
-}
-
 func TestGetTask(t *testing.T) {
 	testLogic, ctrl := NewTestLogic(t)
 	defer ctrl.Finish()
 
-	testLogic.Backend.EXPECT().
-		GetTask("e1", "t1").
-		Return(&models.Task{TaskID: "t1"}, nil)
-
 	testLogic.AddTags(t, []*models.Tag{
-		{EntityID: "t1", EntityType: "task", Key: "environment_id", Value: "e1"},
+		{EntityID: "env_id", EntityType: "environment", Key: "name", Value: "env_name"},
+		{EntityID: "tsk_id", EntityType: "task", Key: "name", Value: "tsk_name"},
+		{EntityID: "tsk_id", EntityType: "task", Key: "environment_id", Value: "env_id"},
+		{EntityID: "tsk_id", EntityType: "task", Key: "arn", Value: "tsk_arn"},
 	})
 
+	testLogic.Backend.EXPECT().
+		GetTask("env_id", "tsk_arn").
+		Return(&models.Task{RunningCount: 1}, nil)
+
 	taskLogic := NewL0TaskLogic(testLogic.Logic())
-	task, err := taskLogic.GetTask("t1")
+	result, err := taskLogic.GetTask("tsk_id")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, task.TaskID, "t1")
-	testutils.AssertEqual(t, task.EnvironmentID, "e1")
+	expected := &models.Task{
+		EnvironmentID:   "env_id",
+		EnvironmentName: "env_name",
+		TaskID:          "tsk_id",
+		TaskName:        "tsk_name",
+		RunningCount:    1,
+		PendingCount:    0,
+	}
+
+	testutils.AssertEqual(t, expected, result)
 }
 
 func TestListTasks(t *testing.T) {

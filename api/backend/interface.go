@@ -29,7 +29,7 @@ type Backend interface {
 
 	CreateTask(envID, taskName, deployVersion string, overrides []models.ContainerOverride) (*models.Task, error)
 	ListTasks() ([]string, error)
-	GetTask(envID, taskID string) (*models.Task, error)
+	GetTask(environmentID, taskARN string) (*models.Task, error)
 	DeleteTask(envID, taskID string) error
 	GetTaskLogs(environmentID, taskID, start, end string, tail int) ([]*models.LogFile, error)
 

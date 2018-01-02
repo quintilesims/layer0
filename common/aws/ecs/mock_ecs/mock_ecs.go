@@ -147,6 +147,19 @@ func (mr *MockProviderMockRecorder) DescribeServices(arg0, arg1 interface{}) *go
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeServices", reflect.TypeOf((*MockProvider)(nil).DescribeServices), arg0, arg1)
 }
 
+// DescribeTask mocks base method
+func (m *MockProvider) DescribeTask(arg0, arg1 string) (*ecs.Task, error) {
+	ret := m.ctrl.Call(m, "DescribeTask", arg0, arg1)
+	ret0, _ := ret[0].(*ecs.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeTask indicates an expected call of DescribeTask
+func (mr *MockProviderMockRecorder) DescribeTask(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeTask", reflect.TypeOf((*MockProvider)(nil).DescribeTask), arg0, arg1)
+}
+
 // DescribeTaskDefinition mocks base method
 func (m *MockProvider) DescribeTaskDefinition(arg0 string) (*ecs.TaskDefinition, error) {
 	ret := m.ctrl.Call(m, "DescribeTaskDefinition", arg0)

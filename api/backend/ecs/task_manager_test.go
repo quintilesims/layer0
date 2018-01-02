@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"testing"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	aws_ecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
@@ -38,68 +39,29 @@ func (this *MockECSTaskManager) Task() *ECSTaskManager {
 }
 
 func TestGetTask(t *testing.T) {
-	testCases := []testutils.TestCase{
-		{
-			Name: "Should call ecs.ListTasks with proper params",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockTask := NewMockECSTaskManager(ctrl)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
-				taskID := id.L0TaskID("tskid").ECSTaskID()
-
-				mockTask.ECS.EXPECT().
-					ListTasks(environmentID.String(), nil, gomock.Any(), stringp(taskID.String()), nil).
-					Return(nil, nil).
-					Times(2)
-
-				return mockTask.Task()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSTaskManager)
-				manager.GetTask("envid", "tskid")
-			},
-		},
-		{
-			Name: "Should return layer0-formatted ids",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockTask := NewMockECSTaskManager(ctrl)
-
-				mockTask.ECS.EXPECT().
-					ListTasks(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Return([]*string{stringp("task_arn")}, nil).
-					Times(2)
-
-				task := &ecs.Task{
-					&aws_ecs.Task{
-						LastStatus:        stringp("RUNNING"),
-						ClusterArn:        stringp("aws:arn:ecs:cluster/envid"),
-						StartedBy:         stringp("tskid"),
-						TaskDefinitionArn: stringp("aws:arn:ecs:task_definition/dply.1"),
-					},
-				}
-
-				mockTask.ECS.EXPECT().
-					DescribeTasks(gomock.Any(), gomock.Any()).
-					Return([]*ecs.Task{task}, nil)
-
-				return mockTask.Task()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSTaskManager)
-
-				task, err := manager.GetTask("envid", "tskid")
-				if err != nil {
-					reporter.Fatal(err)
-				}
-
-				reporter.AssertEqual(task.TaskID, "tskid")
-				reporter.AssertEqual(task.EnvironmentID, "envid")
-				reporter.AssertEqual(task.DeployID, "dply.1")
-			},
+	environmentID := id.L0EnvironmentID("env_id")
+	task := &ecs.Task{
+		&aws_ecs.Task{
+			LastStatus: aws.String("RUNNING"),
 		},
 	}
 
-	testutils.RunTests(t, testCases)
+	mockTask := NewMockECSTaskManager(ctrl)
+	mockTask.ECS.EXPECT().
+		DescribeTask(environmentID.ECSEnvironmentID().String(), "task_arn").
+		Return(task, nil)
+
+	result, err := mockTask.Task().GetTask("env_id", "task_arn")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, int64(1), result.RunningCount)
+	assert.Equal(t, int64(0), result.PendingCount)
+	assert.Len(t, result.Copies, 1)
 }
 
 func TestListTasks(t *testing.T) {

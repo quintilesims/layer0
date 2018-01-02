@@ -9,7 +9,6 @@ import (
 
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockDeployLogic is a mock of DeployLogic interface
