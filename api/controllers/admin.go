@@ -26,12 +26,6 @@ func (a *AdminController) Routes() []*fireball.Route {
 				"GET": a.GetConfig,
 			},
 		},
-		{
-			Path: "/admin/health",
-			Handlers: fireball.Handlers{
-				"GET": a.GetHealth,
-			},
-		},
 	}
 }
 
@@ -45,8 +39,4 @@ func (a *AdminController) GetConfig(c *fireball.Context) (fireball.Response, err
 	}
 
 	return fireball.NewJSONResponse(200, model)
-}
-
-func (a *AdminController) GetHealth(c *fireball.Context) (fireball.Response, error) {
-	return fireball.NewJSONResponse(200, "")
 }

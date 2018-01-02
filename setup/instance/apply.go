@@ -22,8 +22,9 @@ func (l *LocalInstance) Apply(wait bool) error {
 		return err
 	}
 
+	hcEndpoint := endpoint + "/health"
 	if wait {
-		return l.waitForHealthyAPI(endpoint, time.Minute*10)
+		return l.waitForHealthyAPI(hcEndpoint, time.Minute*10)
 	}
 
 	return nil
