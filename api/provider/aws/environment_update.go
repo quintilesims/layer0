@@ -6,7 +6,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -20,7 +19,7 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 
 	if req.MinScale != nil || req.MaxScale != nil {
 		autoScalingGroupName := fqEnvironmentID
-		asg, err := e.readASG(autoScalingGroupName)
+		asg, err := readASG(e.AWS.AutoScaling, autoScalingGroupName)
 		if err != nil {
 			return err
 		}
@@ -35,7 +34,7 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 			maxSize = int64(*req.MaxScale)
 		}
 
-		if err := e.updateASGSize(autoScalingGroupName, minSize, maxSize); err != nil {
+		if err := updateASG(e.AWS.AutoScaling, autoScalingGroupName, &minSize, &maxSize, nil); err != nil {
 			return err
 		}
 	}
@@ -105,23 +104,6 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 		if err := e.setLinkTags(environmentID, *req.Links); err != nil {
 			return err
 		}
-	}
-
-	return nil
-}
-
-func (e *EnvironmentProvider) updateASGSize(autoScalingGroupName string, minSize, maxSize int64) error {
-	input := &autoscaling.UpdateAutoScalingGroupInput{}
-	input.SetAutoScalingGroupName(autoScalingGroupName)
-	input.SetMinSize(minSize)
-	input.SetMaxSize(maxSize)
-
-	if err := input.Validate(); err != nil {
-		return err
-	}
-
-	if _, err := e.AWS.AutoScaling.UpdateAutoScalingGroup(input); err != nil {
-		return err
 	}
 
 	return nil

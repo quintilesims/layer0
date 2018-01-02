@@ -25,7 +25,7 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 	}
 
 	autoScalingGroupName := fqEnvironmentID
-	autoScalingGroup, err := e.readASG(autoScalingGroupName)
+	autoScalingGroup, err := readASG(e.AWS.AutoScaling, autoScalingGroupName)
 	if err != nil {
 		return nil, err
 	}
@@ -67,25 +67,6 @@ func (e *EnvironmentProvider) readLC(launchConfigName string) (*autoscaling.Laun
 	}
 
 	message := fmt.Sprintf("Launch Configuration '%s' does not exist", launchConfigName)
-	return nil, awserr.New("DoesNotExist", message, nil)
-}
-
-func (e *EnvironmentProvider) readASG(autoScalingGroupName string) (*autoscaling.Group, error) {
-	input := &autoscaling.DescribeAutoScalingGroupsInput{}
-	input.SetAutoScalingGroupNames([]*string{aws.String(autoScalingGroupName)})
-
-	output, err := e.AWS.AutoScaling.DescribeAutoScalingGroups(input)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, asg := range output.AutoScalingGroups {
-		if aws.StringValue(asg.AutoScalingGroupName) == autoScalingGroupName {
-			return asg, nil
-		}
-	}
-
-	message := fmt.Sprintf("AutoScalingGroup '%s' does not exist", autoScalingGroupName)
 	return nil, awserr.New("DoesNotExist", message, nil)
 }
 

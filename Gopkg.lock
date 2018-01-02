@@ -326,6 +326,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/zpatrick/go-bytesize"
+  packages = ["."]
+  revision = "40b68ac70b6ad801369c8de9df588ffa5b9b4275"
+
+[[projects]]
+  branch = "master"
   name = "github.com/zpatrick/go-plugin-swagger"
   packages = ["."]
   revision = "c7ab932171be90d64e8c9f4486ea0095f0ee8793"
