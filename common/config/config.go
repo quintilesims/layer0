@@ -38,15 +38,19 @@ const (
 	SKIP_VERSION_VERIFY       = "LAYER0_SKIP_VERSION_VERIFY"
 	TEST_AWS_TAG_DYNAMO_TABLE = "LAYER0_TEST_AWS_TAG_DYNAMO_TABLE"
 	TEST_AWS_JOB_DYNAMO_TABLE = "LAYER0_TEST_AWS_JOB_DYNAMO_TABLE"
+	AWS_TIME_BETWEEN_REQUESTS = "LAYER0_AWS_TIME_BETWEEN_REQUESTS"
+	AWS_MAX_RETRIES           = "LAYER0_AWS_MAX_RETRIES"
 )
 
 // defaults
 // bGF5ZXIwOm5vaGF4cGx6 = layer0:nohaxplz, base64 encoded (basic http auth)
 const (
-	DEFAULT_AUTH_TOKEN   = "bGF5ZXIwOm5vaGF4cGx6"
-	DEFAULT_API_ENDPOINT = "http://localhost:9090/"
-	DEFAULT_API_PORT     = "9090"
-	DEFAULT_AWS_REGION   = "us-west-2"
+	DEFAULT_AUTH_TOKEN            = "bGF5ZXIwOm5vaGF4cGx6"
+	DEFAULT_API_ENDPOINT          = "http://localhost:9090/"
+	DEFAULT_API_PORT              = "9090"
+	DEFAULT_AWS_REGION            = "us-west-2"
+	DEFAULT_TIME_BETWEEN_REQUESTS = "10ms"
+	DEFAULT_MAX_RETRIES           = "999"
 )
 
 // api resource tags
@@ -212,6 +216,14 @@ func DynamoJobTableName() string {
 
 func TestDynamoJobTableName() string {
 	return get(TEST_AWS_JOB_DYNAMO_TABLE)
+}
+
+func AWSTimeBetweenRequests() string {
+	return getOr(AWS_TIME_BETWEEN_REQUESTS, DEFAULT_TIME_BETWEEN_REQUESTS)
+}
+
+func AWSMaxRetries() string {
+	return getOr(AWS_MAX_RETRIES, DEFAULT_MAX_RETRIES)
 }
 
 func Prefix() string {

@@ -1,8 +1,12 @@
 package startup
 
 import (
+	"strconv"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/api/logic"
@@ -131,7 +135,23 @@ func getNewTagStore() (tag_store.TagStore, error) {
 		Region:      aws.String(config.AWSRegion()),
 	}
 
+	maxRetries, err := strconv.Atoi(config.AWSMaxRetries())
+	if err != nil {
+		return nil, err
+	}
+
+	awsConfig.WithMaxRetries(maxRetries)
+	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
+	if err != nil {
+		return nil, err
+	}
+
 	session := session.New(awsConfig)
+	ticker := time.Tick(delay)
+	session.Handlers.Send.PushBack(func(r *request.Request) {
+		<-ticker
+	})
+
 	store := tag_store.NewDynamoTagStore(session, config.DynamoTagTableName())
 
 	if err := store.Init(); err != nil {
@@ -148,7 +168,23 @@ func getNewJobStore() (job_store.JobStore, error) {
 		Region:      aws.String(config.AWSRegion()),
 	}
 
+	maxRetries, err := strconv.Atoi(config.AWSMaxRetries())
+	if err != nil {
+		return nil, err
+	}
+
+	awsConfig.WithMaxRetries(maxRetries)
+	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
+	if err != nil {
+		return nil, err
+	}
+
 	session := session.New(awsConfig)
+	ticker := time.Tick(delay)
+	session.Handlers.Send.PushBack(func(r *request.Request) {
+		<-ticker
+	})
+
 	store := job_store.NewDynamoJobStore(session, config.DynamoJobTableName())
 
 	if err := store.Init(); err != nil {
