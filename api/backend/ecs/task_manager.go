@@ -2,7 +2,6 @@ package ecsbackend
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
@@ -32,65 +31,23 @@ func NewECSTaskManager(
 	}
 }
 
-func (this *ECSTaskManager) ListTasks() ([]*models.Task, error) {
-	environments, err := this.Backend.ListEnvironments()
+func (this *ECSTaskManager) ListTasks() ([]string, error) {
+	clusterNames, err := this.Backend.ListEnvironments()
 	if err != nil {
 		return nil, err
 	}
 
-	taskCopies := map[string][]*ecs.Task{}
-	for _, environment := range environments {
-		ecsEnvironmentID := id.L0EnvironmentID(environment.EnvironmentID).ECSEnvironmentID()
-
-		taskARNs, err := getTaskARNs(this.ECS, ecsEnvironmentID, nil)
+	taskARNs := []string{}
+	for _, clusterName := range clusterNames {
+		clusterTaskARNs, err := this.ECS.ListClusterTaskARNs(clusterName.String(), id.PREFIX)
 		if err != nil {
 			return nil, err
 		}
 
-		if len(taskARNs) > 0 {
-			tasks, err := this.describeTasks(ecsEnvironmentID, taskARNs)
-			if err != nil {
-				return nil, err
-			}
-
-			for _, task := range tasks {
-				startedBy := stringOrEmpty(task.StartedBy)
-
-				if strings.HasPrefix(startedBy, id.PREFIX) {
-					if _, ok := taskCopies[startedBy]; !ok {
-						taskCopies[startedBy] = []*ecs.Task{}
-					}
-
-					taskCopies[startedBy] = append(taskCopies[startedBy], task)
-				}
-			}
-		}
+		taskARNs = append(taskARNs, clusterTaskARNs...)
 	}
 
-	getModel := func(tasks []*ecs.Task) (*models.Task, error) {
-		if len(tasks) == 0 {
-			return nil, errors.Newf(errors.InvalidTaskID, "The specified task does not exist")
-		}
-
-		model := &models.Task{
-			EnvironmentID: id.ClusterARNToECSEnvironmentID(*tasks[0].ClusterArn).L0EnvironmentID(),
-			TaskID:        id.ECSTaskID(*tasks[0].StartedBy).L0TaskID(),
-		}
-
-		return model, nil
-	}
-
-	tasks := []*models.Task{}
-	for _, copies := range taskCopies {
-		model, err := getModel(copies)
-		if err != nil {
-			return nil, err
-		}
-
-		tasks = append(tasks, model)
-	}
-
-	return tasks, nil
+	return taskARNs, nil
 }
 
 func (this *ECSTaskManager) GetTask(environmentID, taskID string) (*models.Task, error) {
@@ -143,8 +100,8 @@ func (this *ECSTaskManager) CreateTask(
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	ecsDeployID := id.L0DeployID(deployID).ECSDeployID()
 
-	taskID := id.GenerateHashedEntityID(taskName)
-	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
+	//taskID := id.GenerateHashedEntityID(taskName)
+	//ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
 
 	ecsOverrides := []*ecs.ContainerOverride{}
 	for _, override := range overrides {
@@ -152,7 +109,8 @@ func (this *ECSTaskManager) CreateTask(
 		ecsOverrides = append(ecsOverrides, o)
 	}
 
-	tasks, failed, err := this.ECS.RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), 1, stringp(ecsTaskID.String()), ecsOverrides)
+	startedBy := id.PREFIX
+	tasks, failed, err := this.ECS.RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), 1, stringp(startedBy), ecsOverrides)
 	if err != nil {
 		return nil, err
 	}

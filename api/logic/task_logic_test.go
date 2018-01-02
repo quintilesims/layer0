@@ -5,6 +5,7 @@ import (
 
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestTaskPopulateModel(t *testing.T) {
@@ -76,29 +77,39 @@ func TestListTasks(t *testing.T) {
 	testLogic, ctrl := NewTestLogic(t)
 	defer ctrl.Finish()
 
+	taskARNs := []string{
+		"arn1",
+		"arn2",
+		"extra",
+	}
+
 	testLogic.Backend.EXPECT().
 		ListTasks().
-		Return([]*models.Task{
-			{TaskID: "t1"},
-			{TaskID: "t2"},
-		}, nil)
+		Return(taskARNs, nil)
 
 	testLogic.AddTags(t, []*models.Tag{
-		{EntityID: "t1", EntityType: "task", Key: "environment_id", Value: "e1"},
-		{EntityID: "t2", EntityType: "task", Key: "environment_id", Value: "e2"},
+		{EntityID: "env_id1", EntityType: "environment", Key: "name", Value: "env_name1"},
+		{EntityID: "env_id2", EntityType: "environment", Key: "name", Value: "env_name2"},
+		{EntityID: "tsk_id1", EntityType: "task", Key: "name", Value: "tsk_name1"},
+		{EntityID: "tsk_id1", EntityType: "task", Key: "environment_id", Value: "env_id1"},
+		{EntityID: "tsk_id1", EntityType: "task", Key: "arn", Value: "arn1"},
+		{EntityID: "tsk_id2", EntityType: "task", Key: "name", Value: "tsk_name2"},
+		{EntityID: "tsk_id2", EntityType: "task", Key: "environment_id", Value: "env_id2"},
+		{EntityID: "tsk_id2", EntityType: "task", Key: "arn", Value: "arn2"},
 	})
 
 	taskLogic := NewL0TaskLogic(testLogic.Logic())
-	tasks, err := taskLogic.ListTasks()
+	result, err := taskLogic.ListTasks()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, len(tasks), 2)
-	testutils.AssertEqual(t, tasks[0].TaskID, "t1")
-	testutils.AssertEqual(t, tasks[0].EnvironmentID, "e1")
-	testutils.AssertEqual(t, tasks[1].TaskID, "t2")
-	testutils.AssertEqual(t, tasks[1].EnvironmentID, "e2")
+	expected := []*models.TaskSummary{
+		{EnvironmentID: "env_id1", EnvironmentName: "env_name1", TaskID: "tsk_id1", TaskName: "tsk_name1"},
+		{EnvironmentID: "env_id2", EnvironmentName: "env_name2", TaskID: "tsk_id2", TaskName: "tsk_name2"},
+	}
+
+	assert.Equal(t, expected, result)
 }
 
 func TestDeleteTask(t *testing.T) {
