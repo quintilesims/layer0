@@ -2,11 +2,9 @@ package tag_store
 
 import (
 	"testing"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
@@ -50,17 +48,7 @@ func NewTestTagStore(t *testing.T) *DynamoTagStore {
 		Region:      aws.String(config.AWSRegion()),
 	}
 
-	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
-	if err != nil {
-		t.Fatalf("Error parsing time between requests: %v", err)
-	}
-
 	session := session.New(awsConfig)
-	ticker := time.Tick(delay)
-	session.Handlers.Send.PushBack(func(r *request.Request) {
-		<-ticker
-	})
-
 	store := NewDynamoTagStore(session, table)
 
 	if err := store.Clear(); err != nil {
