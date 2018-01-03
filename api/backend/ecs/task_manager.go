@@ -141,7 +141,6 @@ func modelFromTasks(tasks []*ecs.Task) (*models.Task, error) {
 	}
 
 	var pendingCount, runningCount int64
-	copies := []models.TaskCopy{}
 	for _, task := range tasks {
 		if *task.LastStatus == "RUNNING" {
 			runningCount = runningCount + 1
@@ -160,14 +159,6 @@ func modelFromTasks(tasks []*ecs.Task) (*models.Task, error) {
 
 			details = append(details, detail)
 		}
-
-		copy := models.TaskCopy{
-			Details:    details,
-			Reason:     stringOrEmpty(task.StoppedReason),
-			TaskCopyID: stringOrEmpty(task.TaskArn),
-		}
-
-		copies = append(copies, copy)
 	}
 
 	model := &models.Task{
@@ -176,7 +167,6 @@ func modelFromTasks(tasks []*ecs.Task) (*models.Task, error) {
 		RunningCount:  runningCount,
 		DesiredCount:  int64(len(tasks)),
 		TaskID:        id.ECSTaskID(*tasks[0].StartedBy).L0TaskID(),
-		Copies:        copies,
 		DeployID:      id.TaskDefinitionARNToECSDeployID(*tasks[0].TaskDefinitionArn).L0DeployID(),
 	}
 

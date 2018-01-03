@@ -34,3 +34,6 @@ terraform-provider-layer0
 .vscode/
 crash.log
 _vendor*
+
+#Mac
+.DS_Store

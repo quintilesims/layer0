@@ -109,7 +109,6 @@ func TestGetPendingTaskResourcesInJobs(t *testing.T) {
 				TaskName:      "t1",
 				DeployID:      "d1",
 				EnvironmentID: "e1",
-				Copies:        2,
 			}),
 		},
 		{
@@ -120,7 +119,6 @@ func TestGetPendingTaskResourcesInJobs(t *testing.T) {
 				TaskName:      "t2",
 				DeployID:      "d2",
 				EnvironmentID: "e1",
-				Copies:        1,
 			}),
 		},
 		{

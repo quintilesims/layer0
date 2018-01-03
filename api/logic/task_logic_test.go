@@ -152,7 +152,6 @@ func TestCreateTask(t *testing.T) {
 		TaskName:      "name",
 		EnvironmentID: "e1",
 		DeployID:      "d1",
-		Copies:        2,
 	}
 
 	taskLogic := NewL0TaskLogic(testLogic.Logic())
