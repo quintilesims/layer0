@@ -106,7 +106,7 @@ func TestCreateJob(t *testing.T) {
 
 	taskLogic.EXPECT().
 		CreateTask(gomock.Any()).
-		Return(&models.Task{TaskID: "t1"}, nil)
+		Return("t1", nil)
 
 	jobLogic := NewL0JobLogic(testLogic.Logic(), taskLogic, deployLogic)
 	job, err := jobLogic.CreateJob(types.DeleteEnvironmentJob, "e1")

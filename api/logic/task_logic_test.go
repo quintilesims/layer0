@@ -84,18 +84,19 @@ func TestDeleteTask(t *testing.T) {
 	testLogic, ctrl := NewTestLogic(t)
 	defer ctrl.Finish()
 
-	testLogic.Backend.EXPECT().
-		DeleteTask("e1", "t1").
-		Return(nil)
-
 	testLogic.AddTags(t, []*models.Tag{
-		{EntityID: "t1", EntityType: "task", Key: "name", Value: "tsk"},
-		{EntityID: "t1", EntityType: "task", Key: "environment_id", Value: "e1"},
-		{EntityID: "extra", EntityType: "task", Key: "name", Value: "extra"},
+		{EntityID: "tsk_id", EntityType: "task", Key: "name", Value: "tsk_name"},
+		{EntityID: "tsk_id", EntityType: "task", Key: "environment_id", Value: "env_id"},
+		{EntityID: "tsk_id", EntityType: "task", Key: "arn", Value: "tsk_arn"},
+		{EntityID: "extra", EntityType: "task"},
 	})
 
+	testLogic.Backend.EXPECT().
+		DeleteTask("env_id", "tsk_arn").
+		Return(nil)
+
 	taskLogic := NewL0TaskLogic(testLogic.Logic())
-	if err := taskLogic.DeleteTask("t1"); err != nil {
+	if err := taskLogic.DeleteTask("tsk_id"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -112,29 +113,32 @@ func TestCreateTask(t *testing.T) {
 	testLogic, ctrl := NewTestLogic(t)
 	defer ctrl.Finish()
 
-	testLogic.Backend.EXPECT().
-		CreateTask("e1", "name", "d1", nil).
-		Return(&models.Task{TaskID: "t1"}, nil)
-
-	request := models.CreateTaskRequest{
-		TaskName:      "name",
-		EnvironmentID: "e1",
-		DeployID:      "d1",
-		Copies:        2,
+	req := models.CreateTaskRequest{
+		TaskName:      "tsk_name",
+		EnvironmentID: "env_id",
+		DeployID:      "dpl_id",
 	}
 
+	testLogic.Backend.EXPECT().
+		CreateTask("env_id", "dpl_id", nil).
+		Return("tsk_arn", nil)
+
 	taskLogic := NewL0TaskLogic(testLogic.Logic())
-	task, err := taskLogic.CreateTask(request)
+	taskID, err := taskLogic.CreateTask(req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, task.TaskID, "t1")
-	testutils.AssertEqual(t, task.EnvironmentID, "e1")
+	expectedTags := []models.Tag{
+		{EntityID: taskID, EntityType: "task", Key: "name", Value: req.TaskName},
+		{EntityID: taskID, EntityType: "task", Key: "environment_id", Value: req.EnvironmentID},
+		{EntityID: taskID, EntityType: "task", Key: "deploy_id", Value: req.DeployID},
+		{EntityID: taskID, EntityType: "task", Key: "arn", Value: "tsk_arn"},
+	}
 
-	testLogic.AssertTagExists(t, models.Tag{EntityID: "t1", EntityType: "task", Key: "name", Value: "name"})
-	testLogic.AssertTagExists(t, models.Tag{EntityID: "t1", EntityType: "task", Key: "environment_id", Value: "e1"})
-	testLogic.AssertTagExists(t, models.Tag{EntityID: "t1", EntityType: "task", Key: "deploy_id", Value: "d1"})
+	for _, tag := range expectedTags {
+		testLogic.AssertTagExists(t, tag)
+	}
 }
 
 func TestCreateTaskError_missingRequiredParams(t *testing.T) {

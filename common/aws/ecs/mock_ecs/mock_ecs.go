@@ -397,17 +397,16 @@ func (mr *MockProviderMockRecorder) RegisterTaskDefinition(arg0, arg1, arg2, arg
 }
 
 // RunTask mocks base method
-func (m *MockProvider) RunTask(arg0, arg1 string, arg2 int64, arg3 *string, arg4 []*ecs.ContainerOverride) ([]*ecs.Task, []*ecs.FailedTask, error) {
-	ret := m.ctrl.Call(m, "RunTask", arg0, arg1, arg2, arg3, arg4)
-	ret0, _ := ret[0].([]*ecs.Task)
-	ret1, _ := ret[1].([]*ecs.FailedTask)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+func (m *MockProvider) RunTask(arg0, arg1, arg2 string, arg3 []*ecs.ContainerOverride) (*ecs.Task, error) {
+	ret := m.ctrl.Call(m, "RunTask", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*ecs.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // RunTask indicates an expected call of RunTask
-func (mr *MockProviderMockRecorder) RunTask(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunTask", reflect.TypeOf((*MockProvider)(nil).RunTask), arg0, arg1, arg2, arg3, arg4)
+func (mr *MockProviderMockRecorder) RunTask(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunTask", reflect.TypeOf((*MockProvider)(nil).RunTask), arg0, arg1, arg2, arg3)
 }
 
 // StartTask mocks base method

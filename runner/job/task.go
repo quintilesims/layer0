@@ -43,7 +43,7 @@ func CreateTask(quit chan bool, context *JobContext) error {
 	for i := 0; i < createTaskRequest.Copies; i++ {
 		if err := runAndRetry(quit, time.Second*10, func() error {
 			log.Infof("Running Action: CreateTask '%s', copy %d", createTaskRequest.TaskName, i)
-			task, err := context.TaskLogic.CreateTask(createTaskRequest)
+			taskID, err := context.TaskLogic.CreateTask(createTaskRequest)
 			if err != nil {
 				log.Infof("Failed CreateTask '%s', copy %d", createTaskRequest.TaskName, i)
 				return err
@@ -51,7 +51,7 @@ func CreateTask(quit chan bool, context *JobContext) error {
 
 			return runAndRetry(quit, time.Second*10, func() error {
 				key := fmt.Sprintf("task_%d", i)
-				return context.AddJobMeta(key, task.TaskID)
+				return context.AddJobMeta(key, taskID)
 			})
 		}); err != nil {
 			return err

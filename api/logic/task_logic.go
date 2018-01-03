@@ -3,12 +3,13 @@ package logic
 import (
 	"fmt"
 
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 type TaskLogic interface {
-	CreateTask(models.CreateTaskRequest) (*models.Task, error)
+	CreateTask(models.CreateTaskRequest) (string, error)
 	ListTasks() ([]*models.TaskSummary, error)
 	GetTask(string) (*models.Task, error)
 	DeleteTask(string) error
@@ -67,7 +68,12 @@ func (this *L0TaskLogic) DeleteTask(taskID string) error {
 		return err
 	}
 
-	if err := this.Backend.DeleteTask(environmentID, taskID); err != nil {
+	taskARN, err := this.lookupTaskARN(taskID)
+	if err != nil {
+		return err
+	}
+
+	if err := this.Backend.DeleteTask(environmentID, taskARN); err != nil {
 		return err
 	}
 
@@ -78,21 +84,39 @@ func (this *L0TaskLogic) DeleteTask(taskID string) error {
 	return nil
 }
 
-func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task, error) {
+func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (string, error) {
 	if req.EnvironmentID == "" {
-		return nil, errors.Newf(errors.MissingParameter, "EnvironmentID not specified")
+		return "", errors.Newf(errors.MissingParameter, "EnvironmentID not specified")
 	}
 
 	if req.DeployID == "" {
-		return nil, errors.Newf(errors.MissingParameter, "DeployID not specified")
+		return "", errors.Newf(errors.MissingParameter, "DeployID not specified")
 	}
 
 	if req.TaskName == "" {
-		return nil, errors.Newf(errors.MissingParameter, "TaskName not specified")
+		return "", errors.Newf(errors.MissingParameter, "TaskName not specified")
 	}
 
-	// todo: insert tags, call Read(), etc.
-	return nil, nil
+	taskARN, err := this.Backend.CreateTask(req.EnvironmentID, req.DeployID, req.ContainerOverrides)
+	if err != nil {
+		return "", err
+	}
+
+	taskID := id.GenerateHashedEntityID(req.TaskName)
+	tags := []models.Tag{
+		{EntityID: taskID, EntityType: "task", Key: "name", Value: req.TaskName},
+		{EntityID: taskID, EntityType: "task", Key: "environment_id", Value: req.EnvironmentID},
+		{EntityID: taskID, EntityType: "task", Key: "deploy_id", Value: req.DeployID},
+		{EntityID: taskID, EntityType: "task", Key: "arn", Value: taskARN},
+	}
+
+	for _, tag := range tags {
+		if err := this.TagStore.Insert(tag); err != nil {
+			return "", err
+		}
+	}
+
+	return taskID, nil
 }
 
 func (this *L0TaskLogic) GetTaskLogs(taskID, start, end string, tail int) ([]*models.LogFile, error) {

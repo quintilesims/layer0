@@ -1,8 +1,6 @@
 package ecsbackend
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
@@ -12,7 +10,10 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-var ClusterCapacityReason = "Waiting for cluster capacity to run"
+const (
+	ClusterCapacityReason = "Waiting for cluster capacity to run"
+	StopTaskReason        = "Task deleted by user"
+)
 
 type ECSTaskManager struct {
 	ECS            ecs.Provider
@@ -61,38 +62,18 @@ func (this *ECSTaskManager) GetTask(environmentID, taskARN string) (*models.Task
 	return modelFromTasks([]*ecs.Task{task})
 }
 
-func (this *ECSTaskManager) DeleteTask(environmentID, taskID string) error {
+func (this *ECSTaskManager) DeleteTask(environmentID, taskARN string) error {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
-	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
-
-	taskARNs, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(ecsTaskID.String()))
-	if err != nil {
-		return err
-	}
-
-	// This stops the task, later reaping by AWS will prevent it from being returned.
-	reason := "Task stopped by User"
-
-	for _, taskARN := range taskARNs {
-		if err := this.ECS.StopTask(ecsEnvironmentID.String(), reason, *taskARN); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return this.ECS.StopTask(ecsEnvironmentID.String(), taskARN, StopTaskReason)
 }
 
 func (this *ECSTaskManager) CreateTask(
 	environmentID string,
-	taskName string,
 	deployID string,
 	overrides []models.ContainerOverride,
-) (*models.Task, error) {
+) (string, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	ecsDeployID := id.L0DeployID(deployID).ECSDeployID()
-
-	//taskID := id.GenerateHashedEntityID(taskName)
-	//ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
 
 	ecsOverrides := []*ecs.ContainerOverride{}
 	for _, override := range overrides {
@@ -101,16 +82,12 @@ func (this *ECSTaskManager) CreateTask(
 	}
 
 	startedBy := id.PREFIX
-	tasks, failed, err := this.ECS.RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), 1, stringp(startedBy), ecsOverrides)
+	task, err := this.ECS.RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), startedBy, ecsOverrides)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	if len(failed) > 0 {
-		return nil, fmt.Errorf("ECS failed to start the task!")
-	}
-
-	return modelFromTasks(tasks)
+	return aws.StringValue(task.TaskArn), nil
 }
 
 func (this *ECSTaskManager) GetTaskLogs(environmentID, taskID, start, end string, tail int) ([]*models.LogFile, error) {

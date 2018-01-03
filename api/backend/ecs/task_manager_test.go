@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	aws_ecs "github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
@@ -100,134 +99,43 @@ func TestListTasks(t *testing.T) {
 }
 
 func TestDeleteTask(t *testing.T) {
-	testCases := []testutils.TestCase{
-		{
-			Name: "Should use proper params in dependent calls",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockTask := NewMockECSTaskManager(ctrl)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
-				taskID := id.L0TaskID("tskid").ECSTaskID()
+	mockTask := NewMockECSTaskManager(ctrl)
+	ecsEnvironmentID := id.L0EnvironmentID("env_id").ECSEnvironmentID()
 
-				mockTask.ECS.EXPECT().
-					ListTasks(environmentID.String(), nil, gomock.Any(), stringp(taskID.String()), nil).
-					Return(nil, nil).
-					Times(2)
+	mockTask.ECS.EXPECT().
+		StopTask(ecsEnvironmentID.String(), "tsk_arn", StopTaskReason).
+		Return(nil)
 
-				return mockTask.Task()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSTaskManager)
-				manager.DeleteTask("envid", "tskid")
-			},
-		},
-		{
-			Name: "Should propagate ecs.ListTasks error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockTask := NewMockECSTaskManager(ctrl)
-
-				mockTask.ECS.EXPECT().
-					ListTasks(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return mockTask.Task()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSTaskManager)
-
-				if err := manager.DeleteTask("envid", "tskid"); err == nil {
-					reporter.Fatalf("Error was nil!")
-				}
-			},
-		},
+	if err := mockTask.Task().DeleteTask("env_id", "tsk_arn"); err != nil {
+		t.Fatal(err)
 	}
-
-	testutils.RunTests(t, testCases)
 }
 
 func TestCreateTask(t *testing.T) {
-	defer id.StubIDGeneration("tskid")()
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-	testCases := []testutils.TestCase{
-		{
-			Name: "Should use proper params in aws calls",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockTask := NewMockECSTaskManager(ctrl)
+	task := &ecs.Task{&aws_ecs.Task{
+		TaskArn: aws.String("tsk_arn"),
+	}}
 
-				deployID := id.L0DeployID("dplyid.1").ECSDeployID()
-				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
+	ecsEnvironmentID := id.L0EnvironmentID("env_id").ECSEnvironmentID()
+	ecsDeployID := id.L0DeployID("dpl_id.1").ECSDeployID()
 
-				task := &ecs.TaskDefinition{
-					&aws_ecs.TaskDefinition{
-						Revision: int64p(1),
-						Family:   stringp(deployID.FamilyName()),
-					},
-				}
+	mockTask := NewMockECSTaskManager(ctrl)
+	mockTask.ECS.EXPECT().
+		RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), id.PREFIX, []*ecs.ContainerOverride{}).
+		Return(task, nil)
 
-				mockTask.ECS.EXPECT().
-					DescribeTaskDefinition(deployID.TaskDefinition()).
-					Return(task, nil).
-					AnyTimes()
-
-				mockTask.ECS.EXPECT().RunTask(
-					environmentID.String(),
-					deployID.TaskDefinition(),
-					int64(1),
-					stringp(id.PREFIX),
-					[]*ecs.ContainerOverride{},
-				).Return(nil, nil, nil)
-
-				return mockTask.Task()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSTaskManager)
-				manager.CreateTask("envid", "tsk_name", "dplyid.1", nil)
-			},
-		},
-		{
-			Name: "Should not create cloudwatch logs group if disableLogging is true",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockTask := NewMockECSTaskManager(ctrl)
-
-				mockTask.ECS.EXPECT().RunTask(
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-				).Return(nil, nil, nil)
-
-				return mockTask.Task()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSTaskManager)
-				manager.CreateTask("envid", "tsk_name", "dplyid.1", nil)
-			},
-		},
-		{
-			Name: "Should add task to scheduler when cluster capacity is low",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockTask := NewMockECSTaskManager(ctrl)
-
-				err := awserr.New("", "No Container Instances were found in your cluster", nil)
-				mockTask.ECS.EXPECT().RunTask(
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-					gomock.Any(),
-				).Return(nil, nil, err)
-
-				return mockTask.Task()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSTaskManager)
-				manager.CreateTask("envid", "tsk_name", "dplyid.1", nil)
-			},
-		},
+	result, err := mockTask.Task().CreateTask("env_id", "dpl_id.1", nil)
+	if err != nil {
+		t.Fatal(err)
 	}
 
-	testutils.RunTests(t, testCases)
+	assert.Equal(t, "tsk_arn", result)
 }
 
 func TestGetTaskLogs(t *testing.T) {

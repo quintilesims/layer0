@@ -5,10 +5,11 @@
 package mock_backend
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	id "github.com/quintilesims/layer0/api/backend/ecs/id"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockBackend is a mock of Backend interface
@@ -99,16 +100,16 @@ func (mr *MockBackendMockRecorder) CreateService(arg0, arg1, arg2, arg3 interfac
 }
 
 // CreateTask mocks base method
-func (m *MockBackend) CreateTask(arg0, arg1, arg2 string, arg3 []models.ContainerOverride) (*models.Task, error) {
-	ret := m.ctrl.Call(m, "CreateTask", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(*models.Task)
+func (m *MockBackend) CreateTask(arg0, arg1 string, arg2 []models.ContainerOverride) (string, error) {
+	ret := m.ctrl.Call(m, "CreateTask", arg0, arg1, arg2)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateTask indicates an expected call of CreateTask
-func (mr *MockBackendMockRecorder) CreateTask(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockBackend)(nil).CreateTask), arg0, arg1, arg2, arg3)
+func (mr *MockBackendMockRecorder) CreateTask(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockBackend)(nil).CreateTask), arg0, arg1, arg2)
 }
 
 // DeleteDeploy mocks base method

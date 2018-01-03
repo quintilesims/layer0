@@ -27,10 +27,10 @@ type Backend interface {
 	UpdateService(environmentID, serviceID, deployID string) (*models.Service, error)
 	GetServiceLogs(environmentID, serviceID, start, end string, tail int) ([]*models.LogFile, error)
 
-	CreateTask(envID, taskName, deployVersion string, overrides []models.ContainerOverride) (*models.Task, error)
+	CreateTask(environmentID, deployID string, overrides []models.ContainerOverride) (string, error)
 	ListTasks() ([]string, error)
 	GetTask(environmentID, taskARN string) (*models.Task, error)
-	DeleteTask(envID, taskID string) error
+	DeleteTask(environmentID, taskARN string) error
 	GetTaskLogs(environmentID, taskID, start, end string, tail int) ([]*models.LogFile, error)
 
 	ListLoadBalancers() ([]*models.LoadBalancer, error)
