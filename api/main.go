@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	SCALER_SLEEP_DURATION = time.Minute * 5
+	SCALER_SLEEP_DURATION = time.Hour
 )
 
 func setupRestful(lgc logic.Logic) {
