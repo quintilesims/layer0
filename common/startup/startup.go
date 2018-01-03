@@ -3,7 +3,6 @@ package startup
 import (
 	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
@@ -129,18 +128,12 @@ func GetLogic(backend *ecsbackend.ECSBackend) (*logic.Logic, error) {
 
 func getNewTagStore() (tag_store.TagStore, error) {
 	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
-	awsConfig := &aws.Config{
-		Credentials: creds,
-		Region:      aws.String(config.AWSRegion()),
-	}
-
-	awsConfig.WithMaxRetries(config.DEFAULT_MAX_RETRIES)
+	session := session.New(config.GetAWSConfig(creds, config.AWSRegion()))
 	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
 	if err != nil {
 		return nil, err
 	}
 
-	session := session.New(awsConfig)
 	ticker := time.Tick(delay)
 	session.Handlers.Send.PushBack(func(r *request.Request) {
 		<-ticker
@@ -157,18 +150,12 @@ func getNewTagStore() (tag_store.TagStore, error) {
 
 func getNewJobStore() (job_store.JobStore, error) {
 	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
-	awsConfig := &aws.Config{
-		Credentials: creds,
-		Region:      aws.String(config.AWSRegion()),
-	}
-
-	awsConfig.WithMaxRetries(config.DEFAULT_MAX_RETRIES)
+	session := session.New(config.GetAWSConfig(creds, config.AWSRegion()))
 	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
 	if err != nil {
 		return nil, err
 	}
 
-	session := session.New(awsConfig)
 	ticker := time.Tick(delay)
 	session.Handlers.Send.PushBack(func(r *request.Request) {
 		<-ticker
