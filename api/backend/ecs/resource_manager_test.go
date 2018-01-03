@@ -71,7 +71,7 @@ func TestResourceManager_GetProviders(t *testing.T) {
 		{
 			&awsecs.ContainerInstance{
 				Status:            stringp("ACTIVE"),
-				AgentConnected:    boolp(true),
+				AgentConnected:    boolp(false),
 				RunningTasksCount: int64p(0),
 				PendingTasksCount: int64p(0),
 				RemainingResources: []*awsecs.Resource{
