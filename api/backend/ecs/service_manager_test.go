@@ -15,6 +15,7 @@ import (
 	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
+	"github.com/stretchr/testify/assert"
 )
 
 type MockECSServiceManager struct {
@@ -111,74 +112,38 @@ func TestGetService(t *testing.T) {
 }
 
 func TestListServices(t *testing.T) {
-	testCases := []testutils.TestCase{
-		{
-			Name: "Should call ecs.Helper_ListServices with proper params",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockService := NewMockECSServiceManager(ctrl)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-				serviceID := id.L0ServiceID("svcid").ECSServiceID()
-				serviceARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:service/%s", serviceID.String())
-
-				mockService.ECS.EXPECT().
-					Helper_ListServices(id.PREFIX).
-					Return([]*string{&serviceARN}, nil)
-
-				return mockService.Service()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSServiceManager)
-				manager.ListServices()
-			},
-		},
-		{
-			Name: "Should return layer0-formatted ids",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockService := NewMockECSServiceManager(ctrl)
-
-				serviceID := id.L0ServiceID("svcid").ECSServiceID()
-				serviceARN := fmt.Sprintf("arn:aws:ecs:region:aws_account_id:service/%s", serviceID.String())
-
-				mockService.ECS.EXPECT().
-					Helper_ListServices(id.PREFIX).
-					Return([]*string{&serviceARN}, nil)
-
-				return mockService.Service()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSServiceManager)
-
-				services, err := manager.ListServices()
-				if err != nil {
-					reporter.Fatal(err)
-				}
-
-				reporter.AssertEqual(len(services), 1)
-				reporter.AssertEqual(services[0].ServiceID, "svcid")
-			},
-		},
-		{
-			Name: "Should propagate ecs.Helper_ListServices error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockService := NewMockECSServiceManager(ctrl)
-
-				mockService.ECS.EXPECT().
-					Helper_ListServices(gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return mockService.Service()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSServiceManager)
-
-				if _, err := manager.ListServices(); err == nil {
-					reporter.Fatalf("Error was nil!")
-				}
-			},
-		},
+	ecsEnvironmentIDs := []id.ECSEnvironmentID{
+		id.ECSEnvironmentID("env_id1"),
+		id.ECSEnvironmentID("env_id2"),
 	}
 
-	testutils.RunTests(t, testCases)
+	mockService := NewMockECSServiceManager(ctrl)
+	mockService.Backend.EXPECT().
+		ListEnvironments().
+		Return(ecsEnvironmentIDs, nil)
+
+	for i, ecsEnvironmentID := range ecsEnvironmentIDs {
+		name := fmt.Sprintf("name_%d", i)
+
+		mockService.ECS.EXPECT().
+			ListClusterServiceNames(ecsEnvironmentID.String(), id.PREFIX).
+			Return([]string{name}, nil)
+	}
+
+	result, err := mockService.Service().ListServices()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := []id.ECSServiceID{
+		id.ECSServiceID("name_0"),
+		id.ECSServiceID("name_1"),
+	}
+
+	assert.Equal(t, expected, result)
 }
 
 func TestDeleteService(t *testing.T) {

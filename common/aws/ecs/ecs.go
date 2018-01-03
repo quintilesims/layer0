@@ -41,6 +41,7 @@ type Provider interface {
 	Helper_ListServices(prefix string) ([]*string, error)
 
 	ListClusterTaskARNs(clusterName, startedBy string) ([]string, error)
+	ListClusterServiceNames(clusterName, prefix string) ([]string, error)
 	ListTasks(clusterName string, serviceName, desiredStatus, startedBy, containerInstance *string) ([]*string, error)
 
 	ListTaskDefinitions(familyName string, nextToken *string) ([]*string, *string, error)
@@ -730,6 +731,35 @@ func (this *ECS) ListClusterTaskARNs(clusterName, startedBy string) ([]string, e
 	}
 
 	return taskARNs, nil
+}
+
+func (this *ECS) ListClusterServiceNames(clusterName, prefix string) ([]string, error) {
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	var serviceNames []string
+	fn := func(output *ecs.ListServicesOutput, lastPage bool) bool {
+		for _, serviceARN := range output.ServiceArns {
+			// sample service ARN:
+			// arn:aws:ecs:us-west-2:856306994068:service/l0-tlakedev-guestbo80d9d
+			serviceName := strings.Split(aws.StringValue(serviceARN), "/")[1]
+			if strings.HasPrefix(serviceName, prefix) {
+				serviceNames = append(serviceNames, serviceName)
+			}
+		}
+
+		return !lastPage
+	}
+
+	input := &ecs.ListServicesInput{}
+	input.SetCluster(clusterName)
+	if err := connection.ListServicesPages(input, fn); err != nil {
+		return nil, err
+	}
+
+	return serviceNames, nil
 }
 
 func (this *ECS) DescribeCluster(cluster string) (*Cluster, error) {

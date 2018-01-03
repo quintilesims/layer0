@@ -315,9 +315,9 @@ func (mr *MockBackendMockRecorder) ListLoadBalancers() *gomock.Call {
 }
 
 // ListServices mocks base method
-func (m *MockBackend) ListServices() ([]*models.Service, error) {
+func (m *MockBackend) ListServices() ([]id.ECSServiceID, error) {
 	ret := m.ctrl.Call(m, "ListServices")
-	ret0, _ := ret[0].([]*models.Service)
+	ret0, _ := ret[0].([]id.ECSServiceID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

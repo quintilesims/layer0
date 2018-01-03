@@ -19,7 +19,7 @@ type Backend interface {
 	CreateDeploy(name string, body []byte) (*models.Deploy, error)
 	DeleteDeploy(deployID string) error
 
-	ListServices() ([]*models.Service, error)
+	ListServices() ([]id.ECSServiceID, error)
 	GetService(envID, serviceID string) (*models.Service, error)
 	CreateService(serviceName, environmentID, deployID, loadBalancerID string) (*models.Service, error)
 	DeleteService(environmentID, serviceID string) error

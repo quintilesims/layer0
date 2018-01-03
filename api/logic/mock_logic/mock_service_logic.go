@@ -86,9 +86,9 @@ func (mr *MockServiceLogicMockRecorder) GetServiceLogs(arg0, arg1, arg2, arg3 in
 }
 
 // ListServices mocks base method
-func (m *MockServiceLogic) ListServices() ([]*models.ServiceSummary, error) {
+func (m *MockServiceLogic) ListServices() ([]models.ServiceSummary, error) {
 	ret := m.ctrl.Call(m, "ListServices")
-	ret0, _ := ret[0].([]*models.ServiceSummary)
+	ret0, _ := ret[0].([]models.ServiceSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

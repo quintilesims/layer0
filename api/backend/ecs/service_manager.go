@@ -40,21 +40,25 @@ func NewECSServiceManager(
 	}
 }
 
-func (this *ECSServiceManager) ListServices() ([]*models.Service, error) {
-	serviceARNs, err := this.ECS.Helper_ListServices(id.PREFIX)
+func (this *ECSServiceManager) ListServices() ([]id.ECSServiceID, error) {
+	clusterNames, err := this.Backend.ListEnvironments()
 	if err != nil {
 		return nil, err
 	}
 
-	services := make([]*models.Service, len(serviceARNs))
-	for i, arn := range serviceARNs {
-		ecsServiceID := id.ServiceARNToECSServiceID(*arn)
-		services[i] = &models.Service{
-			ServiceID: ecsServiceID.L0ServiceID(),
+	serviceIDs := []id.ECSServiceID{}
+	for _, clusterName := range clusterNames {
+		clusterServiceIDs, err := this.ECS.ListClusterServiceNames(clusterName.String(), id.PREFIX)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, serviceID := range clusterServiceIDs {
+			serviceIDs = append(serviceIDs, id.ECSServiceID(serviceID))
 		}
 	}
 
-	return services, nil
+	return serviceIDs, nil
 }
 
 func (this *ECSServiceManager) GetService(environmentID, serviceID string) (*models.Service, error) {

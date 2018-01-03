@@ -270,7 +270,7 @@ func TestGetPendingServiceResources(t *testing.T) {
 	crg, ctrl := newTestEnvironmentResourceGetter(t)
 	defer ctrl.Finish()
 
-	serviceSummaries := []*models.ServiceSummary{
+	serviceSummaries := []models.ServiceSummary{
 		{
 			ServiceID:     "s1",
 			EnvironmentID: "e1",

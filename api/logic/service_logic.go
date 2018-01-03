@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 type ServiceLogic interface {
-	ListServices() ([]*models.ServiceSummary, error)
+	ListServices() ([]models.ServiceSummary, error)
 	GetService(serviceID string) (*models.Service, error)
 	CreateService(req models.CreateServiceRequest) (*models.Service, error)
 	DeleteService(serviceID string) error
@@ -28,27 +29,13 @@ func NewL0ServiceLogic(logic Logic) *L0ServiceLogic {
 	}
 }
 
-func (this *L0ServiceLogic) ListServices() ([]*models.ServiceSummary, error) {
-	services, err := this.Backend.ListServices()
+func (this *L0ServiceLogic) ListServices() ([]models.ServiceSummary, error) {
+	serviceIDs, err := this.Backend.ListServices()
 	if err != nil {
 		return nil, err
 	}
 
-	summaries := make([]*models.ServiceSummary, len(services))
-	for i, service := range services {
-		if err := this.populateModel(service); err != nil {
-			return nil, err
-		}
-
-		summaries[i] = &models.ServiceSummary{
-			ServiceID:       service.ServiceID,
-			ServiceName:     service.ServiceName,
-			EnvironmentID:   service.EnvironmentID,
-			EnvironmentName: service.EnvironmentName,
-		}
-	}
-
-	return summaries, nil
+	return this.makeServiceSummaryModels(serviceIDs)
 }
 
 func (this *L0ServiceLogic) GetService(serviceID string) (*models.Service, error) {
@@ -296,4 +283,37 @@ func (this *L0ServiceLogic) populateModel(model *models.Service) error {
 	model.Deployments = deployments
 
 	return nil
+}
+
+func (s *L0ServiceLogic) makeServiceSummaryModels(ecsServiceIDs []id.ECSServiceID) ([]models.ServiceSummary, error) {
+	serviceTags, err := s.TagStore.SelectByType("service")
+	if err != nil {
+		return nil, err
+	}
+
+	models := make([]models.ServiceSummary, len(ecsServiceIDs))
+	for i, ecsServiceID := range ecsServiceIDs {
+		serviceID := ecsServiceID.L0ServiceID()
+		models[i].ServiceID = serviceID
+
+		if tag, ok := serviceTags.WithID(serviceID).WithKey("name").First(); ok {
+			models[i].ServiceName = tag.Value
+		}
+
+		if tag, ok := serviceTags.WithID(serviceID).WithKey("environment_id").First(); ok {
+			environmentID := tag.Value
+			models[i].EnvironmentID = environmentID
+
+			environmentTags, err := s.TagStore.SelectByTypeAndID("environment", environmentID)
+			if err != nil {
+				return nil, err
+			}
+
+			if tag, ok := environmentTags.WithKey("name").First(); ok {
+				models[i].EnvironmentName = tag.Value
+			}
+		}
+	}
+
+	return models, nil
 }
