@@ -1,7 +1,6 @@
 package tag_store
 
 import (
-	"strconv"
 	"testing"
 	"time"
 
@@ -51,12 +50,6 @@ func NewTestTagStore(t *testing.T) *DynamoTagStore {
 		Region:      aws.String(config.AWSRegion()),
 	}
 
-	maxRetries, err := strconv.Atoi(config.AWSMaxRetries())
-	if err != nil {
-		t.Fatalf("Error parsing max retries: %v", err)
-	}
-
-	awsConfig.WithMaxRetries(maxRetries)
 	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
 	if err != nil {
 		t.Fatalf("Error parsing time between requests: %v", err)

@@ -2,7 +2,6 @@ package provider
 
 import (
 	"fmt"
-	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -80,12 +79,7 @@ var getConfig = func(credProvider CredProvider, region string) (sess *session.Se
 		Region:      aws.String(region),
 	}
 
-	maxRetries, err := strconv.Atoi(config.AWSMaxRetries())
-	if err != nil {
-		return
-	}
-
-	awsConfig.WithMaxRetries(maxRetries)
+	awsConfig.WithMaxRetries(config.DEFAULT_MAX_RETRIES)
 	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
 	if err != nil {
 		return

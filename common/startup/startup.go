@@ -1,7 +1,6 @@
 package startup
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -135,12 +134,7 @@ func getNewTagStore() (tag_store.TagStore, error) {
 		Region:      aws.String(config.AWSRegion()),
 	}
 
-	maxRetries, err := strconv.Atoi(config.AWSMaxRetries())
-	if err != nil {
-		return nil, err
-	}
-
-	awsConfig.WithMaxRetries(maxRetries)
+	awsConfig.WithMaxRetries(config.DEFAULT_MAX_RETRIES)
 	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
 	if err != nil {
 		return nil, err
@@ -168,12 +162,7 @@ func getNewJobStore() (job_store.JobStore, error) {
 		Region:      aws.String(config.AWSRegion()),
 	}
 
-	maxRetries, err := strconv.Atoi(config.AWSMaxRetries())
-	if err != nil {
-		return nil, err
-	}
-
-	awsConfig.WithMaxRetries(maxRetries)
+	awsConfig.WithMaxRetries(config.DEFAULT_MAX_RETRIES)
 	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
 	if err != nil {
 		return nil, err

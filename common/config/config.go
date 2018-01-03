@@ -39,7 +39,6 @@ const (
 	TEST_AWS_TAG_DYNAMO_TABLE = "LAYER0_TEST_AWS_TAG_DYNAMO_TABLE"
 	TEST_AWS_JOB_DYNAMO_TABLE = "LAYER0_TEST_AWS_JOB_DYNAMO_TABLE"
 	AWS_TIME_BETWEEN_REQUESTS = "LAYER0_AWS_TIME_BETWEEN_REQUESTS"
-	AWS_MAX_RETRIES           = "LAYER0_AWS_MAX_RETRIES"
 )
 
 // defaults
@@ -50,7 +49,7 @@ const (
 	DEFAULT_API_PORT              = "9090"
 	DEFAULT_AWS_REGION            = "us-west-2"
 	DEFAULT_TIME_BETWEEN_REQUESTS = "10ms"
-	DEFAULT_MAX_RETRIES           = "999"
+	DEFAULT_MAX_RETRIES           = 999
 )
 
 // api resource tags
@@ -220,10 +219,6 @@ func TestDynamoJobTableName() string {
 
 func AWSTimeBetweenRequests() string {
 	return getOr(AWS_TIME_BETWEEN_REQUESTS, DEFAULT_TIME_BETWEEN_REQUESTS)
-}
-
-func AWSMaxRetries() string {
-	return getOr(AWS_MAX_RETRIES, DEFAULT_MAX_RETRIES)
 }
 
 func Prefix() string {

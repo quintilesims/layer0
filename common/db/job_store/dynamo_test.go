@@ -2,7 +2,6 @@ package job_store
 
 import (
 	"reflect"
-	"strconv"
 	"testing"
 	"time"
 
@@ -27,12 +26,6 @@ func NewTestJobStore(t *testing.T) *DynamoJobStore {
 		Region:      aws.String(config.AWSRegion()),
 	}
 
-	maxRetries, err := strconv.Atoi(config.AWSMaxRetries())
-	if err != nil {
-		t.Fatalf("Error parsing max retries: %v", err)
-	}
-
-	awsConfig.WithMaxRetries(maxRetries)
 	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
 	if err != nil {
 		t.Fatalf("Error parsing time between requests: %v", err)
