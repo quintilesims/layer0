@@ -73,8 +73,7 @@ func TestCreateTask(t *testing.T) {
 		Return("jobid", nil)
 
 	flags := map[string]interface{}{
-		"copies": 2,
-		"env":    []string{"container:key=val"},
+		"env": []string{"container:key=val"},
 	}
 
 	c := testutils.GetCLIContext(t, []string{"environment", "name", "deploy"}, flags)

@@ -151,17 +151,12 @@ func (c *EnvironmentResourceGetter) getPendingTaskResourcesInJobs(environmentID 
 				}
 
 				if req.EnvironmentID == environmentID {
-					// note that this isn't exact if the job has started some, but not all of the tasks
-					deployIDCopies := map[string]int{
-						req.DeployID: int(req.Copies),
-					}
-
 					// resource consumer ids are just used for debugging purposes
-					generateID := func(deployID, containerName string, copy int) string {
-						return fmt.Sprintf("Task: %s, Deploy: %s, Container: %s, Copy: %d", req.TaskName, deployID, containerName, copy)
+					generateID := func(deployID, containerName string) string {
+						return fmt.Sprintf("Task: %s, Deploy: %s, Container: %s, Copy: %d", req.TaskName, deployID, containerName)
 					}
 
-					taskResourceConsumers, err := c.getResourcesHelper(deployIDCopies, generateID)
+					taskResourceConsumers, err := c.getResourcesHelperTask(req.DeployID, generateID)
 					if err != nil {
 						return nil, err
 					}
@@ -190,6 +185,23 @@ func (c *EnvironmentResourceGetter) getResourcesHelper(deployIDCopies map[string
 				resourceConsumers = append(resourceConsumers, consumer)
 			}
 		}
+	}
+
+	return resourceConsumers, nil
+}
+
+func (c *EnvironmentResourceGetter) getResourcesHelperTask(deployID string, generateID func(string, string) string) ([]resource.ResourceConsumer, error) {
+	resourceConsumers := []resource.ResourceConsumer{}
+
+	containerResources, err := c.getContainerResourcesFromDeploy(deployID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, containerResource := range containerResources {
+		id := generateID(deployID, containerResource.ID)
+		consumer := resource.NewResourceConsumer(id, containerResource.Memory, containerResource.Ports)
+		resourceConsumers = append(resourceConsumers, consumer)
 	}
 
 	return resourceConsumers, nil

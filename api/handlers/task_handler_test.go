@@ -3,7 +3,6 @@ package handlers
 import (
 	"testing"
 
-	"github.com/emicklei/go-restful"
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/logic/mock_logic"
 	"github.com/quintilesims/layer0/common/errors"
@@ -232,7 +231,6 @@ func TestCreateTask(t *testing.T) {
 		TaskName:      "tsk_name",
 		DeployID:      "dply_id",
 		EnvironmentID: "env_id",
-		Copies:        2,
 	}
 
 	testCase := HandlerTestCase{

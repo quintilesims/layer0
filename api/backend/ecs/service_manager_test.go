@@ -128,7 +128,7 @@ func TestListServices(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSServiceManager)
-				manager.ListServices()
+				manager.ListServiceNames()
 			},
 		},
 		{
@@ -148,13 +148,13 @@ func TestListServices(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSServiceManager)
 
-				services, err := manager.ListServices()
+				services, err := manager.ListServiceNames()
 				if err != nil {
 					reporter.Fatal(err)
 				}
 
 				reporter.AssertEqual(len(services), 1)
-				reporter.AssertEqual(services[0].ServiceID, "svcid")
+				reporter.AssertEqual(services[0], id.L0ServiceID("svcid"))
 			},
 		},
 		{
@@ -171,7 +171,7 @@ func TestListServices(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSServiceManager)
 
-				if _, err := manager.ListServices(); err == nil {
+				if _, err := manager.ListServiceNames(); err == nil {
 					reporter.Fatalf("Error was nil!")
 				}
 			},

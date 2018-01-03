@@ -29,14 +29,17 @@ func NewL0ServiceLogic(logic Logic) *L0ServiceLogic {
 }
 
 func (this *L0ServiceLogic) ListServices() ([]*models.ServiceSummary, error) {
-	services, err := this.Backend.ListServices()
+	serviceIDs, err := this.Backend.ListServiceNames()
 	if err != nil {
 		return nil, err
 	}
 
-	summaries := make([]*models.ServiceSummary, len(services))
+	services := make([]*models.Service, len(serviceIDs))
+	summaries := make([]*models.ServiceSummary, len(serviceIDs))
+
 	for i, service := range services {
-		if err := this.populateModel(service); err != nil {
+
+		if err := this.populateModel(service, string(serviceIDs[i])); err != nil {
 			return nil, err
 		}
 
@@ -46,6 +49,7 @@ func (this *L0ServiceLogic) ListServices() ([]*models.ServiceSummary, error) {
 			EnvironmentID:   service.EnvironmentID,
 			EnvironmentName: service.EnvironmentName,
 		}
+
 	}
 
 	return summaries, nil
@@ -62,7 +66,7 @@ func (this *L0ServiceLogic) GetService(serviceID string) (*models.Service, error
 		return nil, err
 	}
 
-	if err := this.populateModel(service); err != nil {
+	if err := this.populateModel(service, serviceID); err != nil {
 		return nil, err
 	}
 
@@ -97,7 +101,7 @@ func (this *L0ServiceLogic) ScaleService(serviceID string, size int) (*models.Se
 		return nil, err
 	}
 
-	if err := this.populateModel(service); err != nil {
+	if err := this.populateModel(service, serviceID); err != nil {
 		return nil, err
 	}
 
@@ -116,7 +120,7 @@ func (this *L0ServiceLogic) UpdateService(serviceID string, req models.UpdateSer
 		return nil, err
 	}
 
-	if err := this.populateModel(service); err != nil {
+	if err := this.populateModel(service, serviceID); err != nil {
 		return nil, err
 	}
 
@@ -173,7 +177,7 @@ func (this *L0ServiceLogic) CreateService(req models.CreateServiceRequest) (*mod
 		}
 	}
 
-	if err := this.populateModel(service); err != nil {
+	if err := this.populateModel(service, serviceID); err != nil {
 		return service, err
 	}
 
@@ -235,11 +239,12 @@ func (this *L0ServiceLogic) doesServiceTagExist(environmentID, name string) (boo
 	return len(ewts) > 0, nil
 }
 
-func (this *L0ServiceLogic) populateModel(model *models.Service) error {
-	tags, err := this.TagStore.SelectByTypeAndID("service", model.ServiceID)
+func (this *L0ServiceLogic) populateModel(model *models.Service, serviceID string) error {
+	tags, err := this.TagStore.SelectByTypeAndID("service", serviceID)
 	if err != nil {
 		return err
 	}
+	model.ServiceID = serviceID
 
 	if tag, ok := tags.WithKey("environment_id").First(); ok {
 		model.EnvironmentID = tag.Value

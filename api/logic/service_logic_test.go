@@ -3,6 +3,8 @@ package logic
 import (
 	"testing"
 
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
+
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
@@ -48,7 +50,7 @@ func TestServicePopulateModel(t *testing.T) {
 
 	serviceLogic := NewL0ServiceLogic(testLogic.Logic())
 	for model, fn := range cases {
-		if err := serviceLogic.populateModel(model); err != nil {
+		if err := serviceLogic.populateModel(model, model.ServiceID); err != nil {
 			t.Fatal(err)
 		}
 
@@ -83,10 +85,10 @@ func TestListServices(t *testing.T) {
 	defer ctrl.Finish()
 
 	testLogic.Backend.EXPECT().
-		ListServices().
-		Return([]*models.Service{
-			{ServiceID: "s1"},
-			{ServiceID: "s2"},
+		ListServiceNames().
+		Return([]id.L0ServiceID{
+			"s1",
+			"s2",
 		}, nil)
 
 	testLogic.AddTags(t, []*models.Tag{
