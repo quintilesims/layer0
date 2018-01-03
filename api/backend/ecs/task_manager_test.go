@@ -15,6 +15,7 @@ import (
 	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
+	"github.com/stretchr/testify/assert"
 )
 
 type MockECSTaskManager struct {
@@ -102,68 +103,38 @@ func TestGetTask(t *testing.T) {
 }
 
 func TestListTasks(t *testing.T) {
-	testCases := []testutils.TestCase{
-		{
-			Name: "Should use proper params in dependent calls",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockTask := NewMockECSTaskManager(ctrl)
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
 
-				environmentID := id.L0EnvironmentID("envid")
-				environments := []*models.Environment{
-					{
-						EnvironmentID: environmentID.String(),
-					},
-				}
-
-				mockTask.Backend.EXPECT().
-					ListEnvironments().
-					Return(environments, nil)
-
-				mockTask.ECS.EXPECT().
-					ListTasks(environmentID.ECSEnvironmentID().String(), nil, gomock.Any(), nil, nil).
-					Return(nil, nil).
-					Times(2)
-
-				return mockTask.Task()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSTaskManager)
-				manager.ListTasks()
-			},
-		},
-		{
-			Name: "Should propagate ecs.ListTasks error",
-			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
-				mockTask := NewMockECSTaskManager(ctrl)
-
-				environmentID := id.L0EnvironmentID("envid")
-				environments := []*models.Environment{
-					{
-						EnvironmentID: environmentID.String(),
-					},
-				}
-
-				mockTask.Backend.EXPECT().
-					ListEnvironments().
-					Return(environments, nil)
-
-				mockTask.ECS.EXPECT().
-					ListTasks(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
-					Return(nil, fmt.Errorf("some error"))
-
-				return mockTask.Task()
-			},
-			Run: func(reporter *testutils.Reporter, target interface{}) {
-				manager := target.(*ECSTaskManager)
-
-				if _, err := manager.ListTasks(); err == nil {
-					reporter.Fatalf("Error was nil!")
-				}
-			},
-		},
+	ecsEnvironmentIDs := []id.ECSEnvironmentID{
+		id.ECSEnvironmentID("env_id1"),
+		id.ECSEnvironmentID("env_id2"),
 	}
 
-	testutils.RunTests(t, testCases)
+	mockTask := NewMockECSTaskManager(ctrl)
+	mockTask.Backend.EXPECT().
+		ListEnvironments().
+		Return(ecsEnvironmentIDs, nil)
+
+	for i, ecsEnvironmentID := range ecsEnvironmentIDs {
+		arn := fmt.Sprintf("arn_%d", i)
+
+		mockTask.ECS.EXPECT().
+			ListClusterTaskARNs(ecsEnvironmentID.String(), id.PREFIX).
+			Return([]string{arn}, nil)
+	}
+
+	result, err := mockTask.Task().ListTasks()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := []string{
+		"arn_0",
+		"arn_1",
+	}
+
+	assert.Equal(t, expected, result)
 }
 
 func TestDeleteTask(t *testing.T) {
@@ -223,7 +194,6 @@ func TestCreateTask(t *testing.T) {
 
 				deployID := id.L0DeployID("dplyid.1").ECSDeployID()
 				environmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
-				taskID := id.L0TaskID("tskid").ECSTaskID()
 
 				task := &ecs.TaskDefinition{
 					&aws_ecs.TaskDefinition{
@@ -241,7 +211,7 @@ func TestCreateTask(t *testing.T) {
 					environmentID.String(),
 					deployID.TaskDefinition(),
 					int64(1),
-					stringp(taskID.String()),
+					stringp(id.PREFIX),
 					[]*ecs.ContainerOverride{},
 				).Return(nil, nil, nil)
 

@@ -44,25 +44,18 @@ func NewECSEnvironmentManager(
 	}
 }
 
-func (e *ECSEnvironmentManager) ListEnvironments() ([]*models.Environment, error) {
-	clusters, err := e.ECS.Helper_DescribeClusters()
+func (e *ECSEnvironmentManager) ListEnvironments() ([]id.ECSEnvironmentID, error) {
+	clusterNames, err := e.ECS.ListClusterNames(id.PREFIX)
 	if err != nil {
 		return nil, err
 	}
 
-	environments := []*models.Environment{}
-	for _, cluster := range clusters {
-		if strings.HasPrefix(*cluster.ClusterName, id.PREFIX) {
-			ecsEnvironmentID := id.ECSEnvironmentID(*cluster.ClusterName)
-			environment := &models.Environment{
-				EnvironmentID: ecsEnvironmentID.L0EnvironmentID(),
-			}
-
-			environments = append(environments, environment)
-		}
+	ecsEnvironmentIDs := make([]id.ECSEnvironmentID, len(clusterNames))
+	for i, clusterName := range clusterNames {
+		ecsEnvironmentIDs[i] = id.ECSEnvironmentID(clusterName)
 	}
 
-	return environments, nil
+	return ecsEnvironmentIDs, nil
 }
 
 func (e *ECSEnvironmentManager) GetEnvironment(environmentID string) (*models.Environment, error) {

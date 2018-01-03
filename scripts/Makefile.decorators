@@ -1,6 +1,6 @@
 deps:
-	go get github.com/imshealth/go-decorator
-	go install github.com/imshealth/go-decorator
+	go get github.com/quintilesims/go-decorator
+	go install github.com/quintilesims/go-decorator
 
 
 all: autoscaling ec2 ecs elb cloudwatchlogs
