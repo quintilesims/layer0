@@ -90,16 +90,8 @@ func (this *ECSTaskManager) CreateTask(
 	return aws.StringValue(task.TaskArn), nil
 }
 
-func (this *ECSTaskManager) GetTaskLogs(environmentID, taskID, start, end string, tail int) ([]*models.LogFile, error) {
-	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
-	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
-
-	taskARNs, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(ecsTaskID.String()))
-	if err != nil {
-		return nil, err
-	}
-
-	return GetLogs(this.CloudWatchLogs, taskARNs, start, end, tail)
+func (this *ECSTaskManager) GetTaskLogs(environmentID, taskARN, start, end string, tail int) ([]*models.LogFile, error) {
+	return GetLogs(this.CloudWatchLogs, []*string{stringp(taskARN)}, start, end, tail)
 }
 
 // Assumes the tasks are all of the same type

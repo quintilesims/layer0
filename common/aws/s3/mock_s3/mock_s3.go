@@ -5,9 +5,10 @@
 package mock_s3
 
 import (
-	gomock "github.com/golang/mock/gomock"
 	os "os"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockProvider is a mock of Provider interface

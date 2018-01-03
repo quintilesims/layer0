@@ -31,7 +31,7 @@ type Backend interface {
 	ListTasks() ([]string, error)
 	GetTask(environmentID, taskARN string) (*models.Task, error)
 	DeleteTask(environmentID, taskARN string) error
-	GetTaskLogs(environmentID, taskID, start, end string, tail int) ([]*models.LogFile, error)
+	GetTaskLogs(environmentID, taskARN, start, end string, tail int) ([]*models.LogFile, error)
 
 	ListLoadBalancers() ([]*models.LoadBalancer, error)
 	GetLoadBalancer(id string) (*models.LoadBalancer, error)

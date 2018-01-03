@@ -125,7 +125,12 @@ func (this *L0TaskLogic) GetTaskLogs(taskID, start, end string, tail int) ([]*mo
 		return nil, err
 	}
 
-	logs, err := this.Backend.GetTaskLogs(environmentID, taskID, start, end, tail)
+	taskARN, err := this.lookupTaskARN(taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	logs, err := this.Backend.GetTaskLogs(environmentID, taskARN, start, end, tail)
 	if err != nil {
 		return nil, err
 	}

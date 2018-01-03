@@ -173,24 +173,25 @@ func TestGetTaskLogs(t *testing.T) {
 	testLogic, ctrl := NewTestLogic(t)
 	defer ctrl.Finish()
 
-	logs := []*models.LogFile{
+	expected := []*models.LogFile{
 		{Name: "alpha", Lines: []string{"first", "second"}},
 		{Name: "beta", Lines: []string{"first", "second", "third"}},
 	}
 
 	testLogic.Backend.EXPECT().
-		GetTaskLogs("e1", "t1", "start", "end", 100).
-		Return(logs, nil)
+		GetTaskLogs("env_id", "tsk_arn", "start", "end", 100).
+		Return(expected, nil)
 
 	testLogic.AddTags(t, []*models.Tag{
-		{EntityID: "t1", EntityType: "task", Key: "environment_id", Value: "e1"},
+		{EntityID: "tsk_id", EntityType: "task", Key: "environment_id", Value: "env_id"},
+		{EntityID: "tsk_id", EntityType: "task", Key: "arn", Value: "tsk_arn"},
 	})
 
 	taskLogic := NewL0TaskLogic(testLogic.Logic())
-	received, err := taskLogic.GetTaskLogs("t1", "start", "end", 100)
+	result, err := taskLogic.GetTaskLogs("tsk_id", "start", "end", 100)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, received, logs)
+	testutils.AssertEqual(t, expected, result)
 }
