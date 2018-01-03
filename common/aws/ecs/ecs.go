@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/aws/provider"
 )
@@ -531,17 +532,28 @@ func (this *ECS) DeleteService(cluster, service string) error {
 	return err
 }
 
-func (this *ECS) DescribeService(cluster, service string) (*Service, error) {
-	services, err := this.DescribeServices(cluster, []*string{&service})
+func (this *ECS) DescribeService(clusterName, serviceName string) (*Service, error) {
+	connection, err := this.Connect()
 	if err != nil {
 		return nil, err
 	}
 
-	if len(services) > 0 {
-		return services[0], nil
+	input := &ecs.DescribeServicesInput{}
+	input.SetCluster(clusterName)
+	input.SetServices([]*string{
+		aws.String(serviceName),
+	})
+
+	output, err := connection.DescribeServices(input)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, fmt.Errorf("Service Not Found")
+	if len(output.Services) == 0 {
+		return nil, awserr.New("ServiceNotFoundException", "", nil)
+	}
+
+	return &Service{output.Services[0]}, nil
 }
 
 func (this *ECS) DescribeServices(cluster string, serviceIDs []*string) ([]*Service, error) {
@@ -762,17 +774,33 @@ func (this *ECS) ListClusterServiceNames(clusterName, prefix string) ([]string, 
 	return serviceNames, nil
 }
 
-func (this *ECS) DescribeCluster(cluster string) (*Cluster, error) {
-	clusters, err := this.DescribeClusters([]string{cluster})
+func (this *ECS) DescribeCluster(clusterName string) (*Cluster, error) {
+	connection, err := this.Connect()
 	if err != nil {
 		return nil, err
 	}
 
-	if len(clusters) > 0 {
-		cluster := clusters[0]
-		if *cluster.Status != "INACTIVE" {
-			return cluster, nil
+	input := &ecs.DescribeClustersInput{
+		Clusters: []*string{aws.String(clusterName)},
+	}
+
+	output, err := connection.DescribeClusters(input)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(output.Failures) > 0 {
+		reason := aws.StringValue(output.Failures[0].Reason)
+		if strings.Contains(reason, "MISSING") {
+			return nil, fmt.Errorf("Cluster Not Found")
 		}
+
+		return nil, fmt.Errorf("Failed to describe Cluster: %s", reason)
+	}
+
+	cluster := output.Clusters[0]
+	if aws.StringValue(cluster.Status) == "ACTIVE" {
+		return &Cluster{cluster}, nil
 	}
 
 	return nil, fmt.Errorf("Cluster Not Found")

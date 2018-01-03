@@ -5,11 +5,10 @@
 package mock_backend
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	id "github.com/quintilesims/layer0/api/backend/ecs/id"
 	models "github.com/quintilesims/layer0/common/models"
+	reflect "reflect"
 )
 
 // MockBackend is a mock of Backend interface

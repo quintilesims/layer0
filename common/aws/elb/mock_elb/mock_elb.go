@@ -5,10 +5,9 @@
 package mock_elb
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	elb "github.com/quintilesims/layer0/common/aws/elb"
+	reflect "reflect"
 )
 
 // MockProvider is a mock of Provider interface

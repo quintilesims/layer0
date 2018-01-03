@@ -5,6 +5,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
@@ -67,9 +68,8 @@ func (this *ECSServiceManager) GetService(environmentID, serviceID string) (*mod
 
 	description, err := this.ECS.DescribeService(ecsEnvironmentID.String(), ecsServiceID.String())
 	if err != nil {
-		if ContainsErrMsg(err, "Service Not Found") {
-			err := fmt.Errorf("Service with id '%s' does not exist", serviceID)
-			return nil, errors.New(errors.ServiceDoesNotExist, err)
+		if err, ok := err.(awserr.Error); ok && err.Code() == "ServiceNotFoundException" {
+			return nil, errors.Newf(errors.ServiceDoesNotExist, "Service '%s' does not exist", serviceID)
 		}
 
 		return nil, err

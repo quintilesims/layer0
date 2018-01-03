@@ -195,6 +195,15 @@ func (this *ProviderDecorator) ListClusterTaskARNs(p0 string, p1 string) (v0 []s
 	err = this.Decorator("ListClusterTaskARNs", call)
 	return v0, err
 }
+func (this *ProviderDecorator) ListClusterServiceNames(p0 string, p1 string) (v0 []string, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.ListClusterServiceNames(p0, p1)
+		return err
+	}
+	err = this.Decorator("ListClusterServiceNames", call)
+	return v0, err
+}
 func (this *ProviderDecorator) ListTasks(p0 string, p1 *string, p2 *string, p3 *string, p4 *string) (v0 []*string, err error) {
 	call := func() error {
 		var err error
