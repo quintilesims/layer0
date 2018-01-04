@@ -26,7 +26,8 @@ type Provider interface {
 	Helper_DescribeClusters() ([]*Cluster, error)
 	DescribeService(cluster, service string) (*Service, error)
 
-	DescribeServices(cluster string, service []*string) ([]*Service, error)
+	DescribeClusterServices(clusterName, prefix string) ([]*Service, error)
+	DescribeServices(cluster string, service []string) ([]*Service, error)
 	Helper_DescribeServices(prefix string) ([]*Service, error)
 
 	DescribeTaskDefinition(familyAndRevision string) (*TaskDefinition, error)
@@ -556,7 +557,7 @@ func (this *ECS) DescribeService(clusterName, serviceName string) (*Service, err
 	return &Service{output.Services[0]}, nil
 }
 
-func (this *ECS) DescribeServices(cluster string, serviceIDs []*string) ([]*Service, error) {
+func (this *ECS) DescribeServices(cluster string, serviceIDs []string) ([]*Service, error) {
 	connection, err := this.Connect()
 	if err != nil {
 		return nil, err
@@ -570,7 +571,7 @@ func (this *ECS) DescribeServices(cluster string, serviceIDs []*string) ([]*Serv
 
 		input := &ecs.DescribeServicesInput{
 			Cluster:  aws.String(cluster),
-			Services: serviceIDs[:i],
+			Services: aws.StringSlice(serviceIDs[:i]),
 		}
 
 		output, err := connection.DescribeServices(input)
@@ -660,7 +661,7 @@ func (this *ECS) Helper_DescribeServices(prefix string) ([]*Service, error) {
 
 	services := []*Service{}
 	for clusterARN, serviceARNs := range clusterServices {
-		svcs, err := this.DescribeServices(clusterARN, serviceARNs)
+		svcs, err := this.DescribeServices(clusterARN, aws.StringValueSlice(serviceARNs))
 		if err != nil {
 			return nil, err
 		}
@@ -804,6 +805,50 @@ func (this *ECS) DescribeCluster(clusterName string) (*Cluster, error) {
 	}
 
 	return nil, fmt.Errorf("Cluster Not Found")
+}
+
+func (this *ECS) DescribeClusterServices(clusterName, prefix string) ([]*Service, error) {
+	serviceNames, err := this.ListClusterServiceNames(clusterName, prefix)
+	if err != nil {
+		return nil, err
+	}
+
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	services := []*Service{}
+	if len(serviceNames) > 0 {
+		for i := len(serviceNames); i > 0; i = len(serviceNames) {
+			if i > MAX_DESCRIBE_SERVICE_IDS {
+				i = MAX_DESCRIBE_SERVICE_IDS
+			}
+
+			serviceNamesPtrs := make([]*string, len(serviceNames[:i]))
+			for i, serviceName := range serviceNames[:i] {
+				serviceNamesPtrs[i] = aws.String(serviceName)
+			}
+
+			input := &ecs.DescribeServicesInput{
+				Cluster:  aws.String(clusterName),
+				Services: serviceNamesPtrs,
+			}
+
+			output, err := connection.DescribeServices(input)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, svc := range output.Services {
+				services = append(services, &Service{svc})
+			}
+
+			serviceNames = serviceNames[i:]
+		}
+	}
+
+	return services, nil
 }
 
 func (this *ECS) DescribeClusters(cluster []string) ([]*Cluster, error) {

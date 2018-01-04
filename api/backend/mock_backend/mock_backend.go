@@ -209,6 +209,19 @@ func (mr *MockBackendMockRecorder) GetEnvironment(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironment", reflect.TypeOf((*MockBackend)(nil).GetEnvironment), arg0)
 }
 
+// GetEnvironmentServices mocks base method
+func (m *MockBackend) GetEnvironmentServices(arg0 string) ([]*models.Service, error) {
+	ret := m.ctrl.Call(m, "GetEnvironmentServices", arg0)
+	ret0, _ := ret[0].([]*models.Service)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEnvironmentServices indicates an expected call of GetEnvironmentServices
+func (mr *MockBackendMockRecorder) GetEnvironmentServices(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentServices", reflect.TypeOf((*MockBackend)(nil).GetEnvironmentServices), arg0)
+}
+
 // GetLoadBalancer mocks base method
 func (m *MockBackend) GetLoadBalancer(arg0 string) (*models.LoadBalancer, error) {
 	ret := m.ctrl.Call(m, "GetLoadBalancer", arg0)

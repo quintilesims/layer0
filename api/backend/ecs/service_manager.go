@@ -78,6 +78,22 @@ func (this *ECSServiceManager) GetService(environmentID, serviceID string) (*mod
 	return this.populateModel(description), nil
 }
 
+func (this *ECSServiceManager) GetEnvironmentServices(environmentID string) ([]*models.Service, error) {
+	clusterName := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
+
+	serviceDescriptions, err := this.ECS.DescribeClusterServices(clusterName.String(), id.PREFIX)
+	if err != nil {
+		return nil, err
+	}
+
+	services := make([]*models.Service, len(serviceDescriptions))
+	for i, description := range serviceDescriptions {
+		services[i] = this.populateModel(description)
+	}
+
+	return services, nil
+}
+
 func (this *ECSServiceManager) UpdateService(
 	environmentID string,
 	serviceID string,

@@ -12,6 +12,7 @@ import (
 type ServiceLogic interface {
 	ListServices() ([]models.ServiceSummary, error)
 	GetService(serviceID string) (*models.Service, error)
+	GetEnvironmentServices(environmentID string) ([]*models.Service, error)
 	CreateService(req models.CreateServiceRequest) (*models.Service, error)
 	DeleteService(serviceID string) error
 	UpdateService(serviceID string, req models.UpdateServiceRequest) (*models.Service, error)
@@ -54,6 +55,21 @@ func (this *L0ServiceLogic) GetService(serviceID string) (*models.Service, error
 	}
 
 	return service, nil
+}
+
+func (this *L0ServiceLogic) GetEnvironmentServices(environmentID string) ([]*models.Service, error) {
+	services, err := this.Backend.GetEnvironmentServices(environmentID)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, service := range services {
+		if err := this.populateModel(service); err != nil {
+			return nil, err
+		}
+	}
+
+	return services, nil
 }
 
 func (this *L0ServiceLogic) DeleteService(serviceID string) error {

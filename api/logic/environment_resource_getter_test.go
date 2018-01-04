@@ -270,29 +270,6 @@ func TestGetPendingServiceResources(t *testing.T) {
 	crg, ctrl := newTestEnvironmentResourceGetter(t)
 	defer ctrl.Finish()
 
-	serviceSummaries := []models.ServiceSummary{
-		{
-			ServiceID:     "s1",
-			EnvironmentID: "e1",
-		},
-		{
-			ServiceID:     "s2",
-			EnvironmentID: "e1",
-		},
-		{
-			ServiceID:     "s3",
-			EnvironmentID: "e1",
-		},
-		{
-			ServiceID:     "s4",
-			EnvironmentID: "e4",
-		},
-	}
-
-	crg.ServiceLogic.EXPECT().
-		ListServices().
-		Return(serviceSummaries, nil)
-
 	services := []*models.Service{
 		{
 			ServiceID:     "s1",
@@ -330,16 +307,8 @@ func TestGetPendingServiceResources(t *testing.T) {
 	}
 
 	crg.ServiceLogic.EXPECT().
-		GetService("s1").
-		Return(services[0], nil)
-
-	crg.ServiceLogic.EXPECT().
-		GetService("s2").
-		Return(services[1], nil)
-
-	crg.ServiceLogic.EXPECT().
-		GetService("s3").
-		Return(services[2], nil)
+		GetEnvironmentServices("e1").
+		Return(services, nil)
 
 	crg.DeployLogic.EXPECT().
 		GetDeploy("d1").

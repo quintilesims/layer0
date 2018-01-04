@@ -58,6 +58,19 @@ func (mr *MockServiceLogicMockRecorder) DeleteService(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteService", reflect.TypeOf((*MockServiceLogic)(nil).DeleteService), arg0)
 }
 
+// GetEnvironmentServices mocks base method
+func (m *MockServiceLogic) GetEnvironmentServices(arg0 string) ([]*models.Service, error) {
+	ret := m.ctrl.Call(m, "GetEnvironmentServices", arg0)
+	ret0, _ := ret[0].([]*models.Service)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEnvironmentServices indicates an expected call of GetEnvironmentServices
+func (mr *MockServiceLogicMockRecorder) GetEnvironmentServices(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentServices", reflect.TypeOf((*MockServiceLogic)(nil).GetEnvironmentServices), arg0)
+}
+
 // GetService mocks base method
 func (m *MockServiceLogic) GetService(arg0 string) (*models.Service, error) {
 	ret := m.ctrl.Call(m, "GetService", arg0)

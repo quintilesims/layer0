@@ -5,10 +5,9 @@
 package mock_ecs
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	ecs "github.com/quintilesims/layer0/common/aws/ecs"
+	reflect "reflect"
 )
 
 // MockProvider is a mock of Provider interface
@@ -109,6 +108,19 @@ func (mr *MockProviderMockRecorder) DescribeCluster(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeCluster", reflect.TypeOf((*MockProvider)(nil).DescribeCluster), arg0)
 }
 
+// DescribeClusterServices mocks base method
+func (m *MockProvider) DescribeClusterServices(arg0, arg1 string) ([]*ecs.Service, error) {
+	ret := m.ctrl.Call(m, "DescribeClusterServices", arg0, arg1)
+	ret0, _ := ret[0].([]*ecs.Service)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeClusterServices indicates an expected call of DescribeClusterServices
+func (mr *MockProviderMockRecorder) DescribeClusterServices(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeClusterServices", reflect.TypeOf((*MockProvider)(nil).DescribeClusterServices), arg0, arg1)
+}
+
 // DescribeContainerInstances mocks base method
 func (m *MockProvider) DescribeContainerInstances(arg0 string, arg1 []*string) ([]*ecs.ContainerInstance, error) {
 	ret := m.ctrl.Call(m, "DescribeContainerInstances", arg0, arg1)
@@ -136,7 +148,7 @@ func (mr *MockProviderMockRecorder) DescribeService(arg0, arg1 interface{}) *gom
 }
 
 // DescribeServices mocks base method
-func (m *MockProvider) DescribeServices(arg0 string, arg1 []*string) ([]*ecs.Service, error) {
+func (m *MockProvider) DescribeServices(arg0 string, arg1 []string) ([]*ecs.Service, error) {
 	ret := m.ctrl.Call(m, "DescribeServices", arg0, arg1)
 	ret0, _ := ret[0].([]*ecs.Service)
 	ret1, _ := ret[1].(error)

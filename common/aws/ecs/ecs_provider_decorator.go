@@ -87,7 +87,7 @@ func (this *ProviderDecorator) DescribeService(p0 string, p1 string) (v0 *Servic
 	err = this.Decorator("DescribeService", call)
 	return v0, err
 }
-func (this *ProviderDecorator) DescribeServices(p0 string, p1 []*string) (v0 []*Service, err error) {
+func (this *ProviderDecorator) DescribeServices(p0 string, p1 []string) (v0 []*Service, err error) {
 	call := func() error {
 		var err error
 		v0, err = this.Inner.DescribeServices(p0, p1)
