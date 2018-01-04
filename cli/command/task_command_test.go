@@ -69,12 +69,11 @@ func TestCreateTask(t *testing.T) {
 	}}
 
 	tc.Client.EXPECT().
-		CreateTask("name", "environmentID", "deployID", 2, overrides).
+		CreateTask("name", "environmentID", "deployID", overrides).
 		Return("jobid", nil)
 
 	flags := map[string]interface{}{
-		"copies": 2,
-		"env":    []string{"container:key=val"},
+		"env": []string{"container:key=val"},
 	}
 
 	c := testutils.GetCLIContext(t, []string{"environment", "name", "deploy"}, flags)
@@ -97,7 +96,7 @@ func TestCreateTaskWait(t *testing.T) {
 		Return([]string{"deployID"}, nil)
 
 	tc.Client.EXPECT().
-		CreateTask("name", "environmentID", "deployID", 0, []models.ContainerOverride{}).
+		CreateTask("name", "environmentID", "deployID", []models.ContainerOverride{}).
 		Return("jobid", nil)
 
 	tc.Client.EXPECT().

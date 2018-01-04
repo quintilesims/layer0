@@ -24,7 +24,6 @@ func TestCreateTask(t *testing.T) {
 		testutils.AssertEqual(t, req.TaskName, "name")
 		testutils.AssertEqual(t, req.EnvironmentID, "environmentID")
 		testutils.AssertEqual(t, req.DeployID, "deployID")
-		testutils.AssertEqual(t, req.Copies, 2)
 		testutils.AssertEqual(t, req.ContainerOverrides, overrides)
 
 		headers := map[string]string{
@@ -38,7 +37,7 @@ func TestCreateTask(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.CreateTask("name", "environmentID", "deployID", 2, overrides)
+	jobID, err := client.CreateTask("name", "environmentID", "deployID", overrides)
 	if err != nil {
 		t.Fatal(err)
 	}

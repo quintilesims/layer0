@@ -12,8 +12,8 @@
     l0 task create --wait test task1 alpine:latest
 }
 
-@test "task create --copies 2 --env alpine:key=val test task2 alpine:latest" {
-    l0 task create --copies 2 --env alpine:key=val test task2 alpine:latest
+@test "task create --env alpine:key=val test task2 alpine:latest" {
+    l0 task create --env alpine:key=val test task2 alpine:latest
 }
 
 @test "task list" {

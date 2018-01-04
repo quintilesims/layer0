@@ -115,7 +115,7 @@ func runTest(b *testing.B, c StressTestCase) {
 			environmentID := environmentIDs[i%len(environmentIDs)]
 			deployID := deployIDs[i%len(deployIDs)]
 			taskName := fmt.Sprintf("tt%v", i)
-			layer0.CreateTask(taskName, environmentID, deployID, 1, nil)
+			layer0.CreateTask(taskName, environmentID, deployID, nil)
 		}
 	}
 

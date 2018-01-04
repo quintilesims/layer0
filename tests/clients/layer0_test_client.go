@@ -21,8 +21,8 @@ func NewLayer0TestClient(t testutils.Tester, endpoint, token string) *Layer0Test
 	}
 }
 
-func (l *Layer0TestClient) CreateTask(taskName, environmentID, deployID string, copies int, overrides []models.ContainerOverride) string {
-	jobID, err := l.Client.CreateTask(taskName, environmentID, deployID, copies, overrides)
+func (l *Layer0TestClient) CreateTask(taskName, environmentID, deployID string, overrides []models.ContainerOverride) string {
+	jobID, err := l.Client.CreateTask(taskName, environmentID, deployID, overrides)
 	if err != nil {
 		l.T.Fatal(err)
 	}

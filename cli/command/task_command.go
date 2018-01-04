@@ -27,11 +27,6 @@ func (t *TaskCommand) GetCommand() cli.Command {
 				Action:    wrapAction(t.Command, t.Create),
 				ArgsUsage: "ENVIRONMENT NAME DEPLOY",
 				Flags: []cli.Flag{
-					cli.IntFlag{
-						Name:  "copies",
-						Value: 1,
-						Usage: "number of copies of deploy to run (default: 1)",
-					},
 					cli.StringSliceFlag{
 						Name:  "env",
 						Usage: "environment variable override in format 'CONTAINER:VAR=VAL' (can be specified multiple times)",
@@ -111,7 +106,7 @@ func (t *TaskCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := t.Client.CreateTask(args["NAME"], environmentID, deployID, c.Int("copies"), overrides)
+	jobID, err := t.Client.CreateTask(args["NAME"], environmentID, deployID, overrides)
 	if err != nil {
 		return err
 	}

@@ -139,7 +139,7 @@ func (c *EnvironmentResourceGetter) getPendingTaskResourcesInJobs(environmentID 
 				if req.EnvironmentID == environmentID {
 					// note that this isn't exact if the job has started some, but not all of the tasks
 					deployIDCopies := map[string]int{
-						req.DeployID: int(req.Copies),
+						req.DeployID: 1,
 					}
 
 					// resource consumer ids are just used for debugging purposes

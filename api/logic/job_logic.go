@@ -133,7 +133,6 @@ func (this *L0JobLogic) createJobTask(jobID, deployID string) (string, error) {
 	taskRequest := models.CreateTaskRequest{
 		DeployID:      deployID,
 		EnvironmentID: config.API_ENVIRONMENT_ID,
-		Copies:        1,
 		TaskName:      jobID,
 	}
 

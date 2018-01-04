@@ -109,7 +109,6 @@ func TestGetPendingTaskResourcesInJobs(t *testing.T) {
 				TaskName:      "t1",
 				DeployID:      "d1",
 				EnvironmentID: "e1",
-				Copies:        2,
 			}),
 		},
 		{
@@ -120,7 +119,6 @@ func TestGetPendingTaskResourcesInJobs(t *testing.T) {
 				TaskName:      "t2",
 				DeployID:      "d2",
 				EnvironmentID: "e1",
-				Copies:        1,
 			}),
 		},
 		{
@@ -155,23 +153,11 @@ func TestGetPendingTaskResourcesInJobs(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, len(resources), 4)
+	testutils.AssertEqual(t, len(resources), 3)
 
-	// job1, deploy1, container1, copy1
+	// job1, deploy1, container1
 	testutils.AssertEqual(t, resources[0].Ports, []int{80, 22})
 	testutils.AssertEqual(t, resources[0].Memory, bytesize.MiB*500)
-
-	// job1, deploy1, container1, copy2
-	testutils.AssertEqual(t, resources[1].Ports, []int{80, 22})
-	testutils.AssertEqual(t, resources[1].Memory, bytesize.MiB*500)
-
-	// job2, deploy2, container1, copy1
-	testutils.AssertEqual(t, resources[2].Ports, []int{80})
-	testutils.AssertEqual(t, resources[2].Memory, bytesize.MiB*500)
-
-	// job2, deploy2, container2, copy1
-	testutils.AssertEqual(t, resources[3].Ports, []int{8000})
-	testutils.AssertEqual(t, resources[3].Memory, bytesize.MiB*1000)
 }
 
 func TestGetPendingTaskResourcesInECS(t *testing.T) {
