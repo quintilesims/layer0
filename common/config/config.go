@@ -46,7 +46,6 @@ const (
 	DEFAULT_AUTH_TOKEN   = "bGF5ZXIwOm5vaGF4cGx6"
 	DEFAULT_API_ENDPOINT = "http://localhost:9090/"
 	DEFAULT_API_PORT     = "9090"
-	DEFAULT_AWS_REGION   = "us-west-2"
 )
 
 // api resource tags
@@ -72,6 +71,7 @@ var RequiredAPIVariables = []string{
 	AWS_ECS_INSTANCE_PROFILE,
 	AWS_LINUX_SERVICE_AMI,
 	AWS_WINDOWS_SERVICE_AMI,
+	AWS_REGION,
 }
 
 var RequiredCLIVariables = []string{}
@@ -151,7 +151,7 @@ func AWSSecretKey() string {
 }
 
 func AWSRegion() string {
-	return getOr(AWS_REGION, DEFAULT_AWS_REGION)
+	return get(AWS_REGION)
 }
 
 func AWSVPCID() string {
