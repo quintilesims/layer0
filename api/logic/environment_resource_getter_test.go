@@ -178,29 +178,6 @@ func TestGetPendingTaskResourcesInECS(t *testing.T) {
 	crg, ctrl := newTestEnvironmentResourceGetter(t)
 	defer ctrl.Finish()
 
-	taskSummaries := []*models.TaskSummary{
-		{
-			TaskID:        "t1",
-			EnvironmentID: "e1",
-		},
-		{
-			TaskID:        "t2",
-			EnvironmentID: "e1",
-		},
-		{
-			TaskID:        "t3",
-			EnvironmentID: "e1",
-		},
-		{
-			TaskID:        "t4",
-			EnvironmentID: "e4",
-		},
-	}
-
-	crg.TaskLogic.EXPECT().
-		ListTasks().
-		Return(taskSummaries, nil)
-
 	tasks := []*models.Task{
 		{
 			TaskID:        "t1",
@@ -223,16 +200,8 @@ func TestGetPendingTaskResourcesInECS(t *testing.T) {
 	}
 
 	crg.TaskLogic.EXPECT().
-		GetTask("t1").
-		Return(tasks[0], nil)
-
-	crg.TaskLogic.EXPECT().
-		GetTask("t2").
-		Return(tasks[1], nil)
-
-	crg.TaskLogic.EXPECT().
-		GetTask("t3").
-		Return(tasks[2], nil)
+		GetEnvironmentTasks("e1").
+		Return(tasks, nil)
 
 	crg.DeployLogic.EXPECT().
 		GetDeploy("d1").

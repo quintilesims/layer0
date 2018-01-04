@@ -87,6 +87,15 @@ func (this *ProviderDecorator) DescribeService(p0 string, p1 string) (v0 *Servic
 	err = this.Decorator("DescribeService", call)
 	return v0, err
 }
+func (this *ProviderDecorator) DescribeClusterServices(p0 string, p1 string) (v0 []*Service, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.DescribeClusterServices(p0, p1)
+		return err
+	}
+	err = this.Decorator("DescribeClusterServices", call)
+	return v0, err
+}
 func (this *ProviderDecorator) DescribeServices(p0 string, p1 []string) (v0 []*Service, err error) {
 	call := func() error {
 		var err error
@@ -139,6 +148,15 @@ func (this *ProviderDecorator) DescribeTasks(p0 string, p1 []*string) (v0 []*Tas
 		return err
 	}
 	err = this.Decorator("DescribeTasks", call)
+	return v0, err
+}
+func (this *ProviderDecorator) DescribeEnvironmentTasks(p0 string, p1 string) (v0 []*Task, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.DescribeEnvironmentTasks(p0, p1)
+		return err
+	}
+	err = this.Decorator("DescribeEnvironmentTasks", call)
 	return v0, err
 }
 func (this *ProviderDecorator) ListClusters() (v0 []*string, err error) {

@@ -62,6 +62,26 @@ func (this *ECSTaskManager) GetTask(environmentID, taskARN string) (*models.Task
 	return modelFromTasks([]*ecs.Task{task})
 }
 
+func (this *ECSTaskManager) GetEnvironmentTasks(environmentID string) (map[string]*models.Task, error) {
+	clusterName := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
+	taskDescriptions, err := this.ECS.DescribeEnvironmentTasks(clusterName.String(), id.PREFIX)
+	if err != nil {
+		return nil, err
+	}
+
+	taskARNModels := map[string]*models.Task{}
+	for _, taskDescription := range taskDescriptions {
+		task, err := modelFromTasks([]*ecs.Task{taskDescription})
+		if err != nil {
+			return nil, err
+		}
+
+		taskARNModels[aws.StringValue(taskDescription.TaskArn)] = task
+	}
+
+	return taskARNModels, nil
+}
+
 func (this *ECSTaskManager) DeleteTask(environmentID, taskARN string) error {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	return this.ECS.StopTask(ecsEnvironmentID.String(), taskARN, StopTaskReason)

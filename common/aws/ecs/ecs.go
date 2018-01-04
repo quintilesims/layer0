@@ -10,7 +10,10 @@ import (
 	"github.com/quintilesims/layer0/common/aws/provider"
 )
 
-const MAX_DESCRIBE_SERVICE_IDS = 10
+const (
+	MAX_DESCRIBE_SERVICE_IDS = 10
+	MAX_DESCRIBE_TASK_ARNS   = 100
+)
 
 type Provider interface {
 	CreateCluster(clusterName string) (*Cluster, error)
@@ -35,6 +38,7 @@ type Provider interface {
 
 	DescribeTask(cluster string, taskARN string) (*Task, error)
 	DescribeTasks(clusterName string, taskARNs []*string) ([]*Task, error)
+	DescribeEnvironmentTasks(clusterName, prefix string) ([]*Task, error)
 
 	ListClusters() ([]*string, error)
 	ListClusterNames(prefix string) ([]string, error)
@@ -1195,6 +1199,50 @@ func (this *ECS) DescribeTask(clusterName string, taskARN string) (*Task, error)
 	}
 
 	return &Task{output.Tasks[0]}, nil
+}
+
+func (this *ECS) DescribeEnvironmentTasks(clusterName, prefix string) ([]*Task, error) {
+	taskARNs, err := this.ListClusterTaskARNs(clusterName, prefix)
+	if err != nil {
+		return nil, err
+	}
+
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	tasks := []*Task{}
+	if len(taskARNs) > 0 {
+		for i := len(taskARNs); i > 0; i = len(taskARNs) {
+			if i > MAX_DESCRIBE_TASK_ARNS {
+				i = MAX_DESCRIBE_TASK_ARNS
+			}
+
+			taskARNPtrs := make([]*string, len(taskARNs[:i]))
+			for i, taskARN := range taskARNs[:i] {
+				taskARNPtrs[i] = aws.String(taskARN)
+			}
+
+			input := &ecs.DescribeTasksInput{
+				Cluster: aws.String(clusterName),
+				Tasks:   taskARNPtrs,
+			}
+
+			output, err := connection.DescribeTasks(input)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, task := range output.Tasks {
+				tasks = append(tasks, &Task{task})
+			}
+
+			taskARNs = taskARNs[i:]
+		}
+	}
+
+	return tasks, nil
 }
 
 func (this *ECS) DeleteTaskDefinition(taskName string) error {

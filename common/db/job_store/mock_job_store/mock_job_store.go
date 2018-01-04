@@ -5,10 +5,11 @@
 package mock_job_store
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
 	types "github.com/quintilesims/layer0/common/types"
-	reflect "reflect"
 )
 
 // MockJobStore is a mock of JobStore interface

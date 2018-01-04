@@ -5,9 +5,10 @@
 package mock_ec2
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	ec2 "github.com/quintilesims/layer0/common/aws/ec2"
-	reflect "reflect"
 )
 
 // MockProvider is a mock of Provider interface

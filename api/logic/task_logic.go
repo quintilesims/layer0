@@ -12,6 +12,7 @@ type TaskLogic interface {
 	CreateTask(models.CreateTaskRequest) (string, error)
 	ListTasks() ([]*models.TaskSummary, error)
 	GetTask(string) (*models.Task, error)
+	GetEnvironmentTasks(environmentID string) ([]*models.Task, error)
 	DeleteTask(string) error
 	GetTaskLogs(string, string, string, int) ([]*models.LogFile, error)
 }
@@ -60,6 +61,29 @@ func (this *L0TaskLogic) GetTask(taskID string) (*models.Task, error) {
 	}
 
 	return taskModel, nil
+}
+
+func (this *L0TaskLogic) GetEnvironmentTasks(environmentID string) ([]*models.Task, error) {
+	taskARNModels, err := this.Backend.GetEnvironmentTasks(environmentID)
+	if err != nil {
+		return nil, err
+	}
+
+	taskModels := []*models.Task{}
+	for taskARN, taskModel := range taskARNModels {
+		taskID, err := this.getTaskARNFromID(taskARN)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := this.populateModel(taskID, taskModel); err != nil {
+			return nil, err
+		}
+
+		taskModels = append(taskModels, taskModel)
+	}
+
+	return taskModels, nil
 }
 
 func (this *L0TaskLogic) DeleteTask(taskID string) error {
@@ -136,6 +160,19 @@ func (this *L0TaskLogic) GetTaskLogs(taskID, start, end string, tail int) ([]*mo
 	}
 
 	return logs, nil
+}
+
+func (t *L0TaskLogic) getTaskARNFromID(taskARN string) (string, error) {
+	tags, err := t.TagStore.SelectByType("task")
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("arn").WithValue(taskARN).First(); ok {
+		return tag.EntityID, nil
+	}
+
+	return "", fmt.Errorf("Failed to find task id for ARN %s", taskARN)
 }
 
 func (this *L0TaskLogic) lookupTaskEnvironmentID(taskID string) (string, error) {

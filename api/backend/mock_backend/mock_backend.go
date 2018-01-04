@@ -5,10 +5,11 @@
 package mock_backend
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	id "github.com/quintilesims/layer0/api/backend/ecs/id"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockBackend is a mock of Backend interface
@@ -220,6 +221,19 @@ func (m *MockBackend) GetEnvironmentServices(arg0 string) ([]*models.Service, er
 // GetEnvironmentServices indicates an expected call of GetEnvironmentServices
 func (mr *MockBackendMockRecorder) GetEnvironmentServices(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentServices", reflect.TypeOf((*MockBackend)(nil).GetEnvironmentServices), arg0)
+}
+
+// GetEnvironmentTasks mocks base method
+func (m *MockBackend) GetEnvironmentTasks(arg0 string) (map[string]*models.Task, error) {
+	ret := m.ctrl.Call(m, "GetEnvironmentTasks", arg0)
+	ret0, _ := ret[0].(map[string]*models.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEnvironmentTasks indicates an expected call of GetEnvironmentTasks
+func (mr *MockBackendMockRecorder) GetEnvironmentTasks(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentTasks", reflect.TypeOf((*MockBackend)(nil).GetEnvironmentTasks), arg0)
 }
 
 // GetLoadBalancer mocks base method
