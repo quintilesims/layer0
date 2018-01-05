@@ -47,7 +47,6 @@ const (
 	DEFAULT_AUTH_TOKEN            = "bGF5ZXIwOm5vaGF4cGx6"
 	DEFAULT_API_ENDPOINT          = "http://localhost:9090/"
 	DEFAULT_API_PORT              = "9090"
-	DEFAULT_AWS_REGION            = "us-west-2"
 	DEFAULT_TIME_BETWEEN_REQUESTS = "10ms"
 	DEFAULT_MAX_RETRIES           = 999
 )
