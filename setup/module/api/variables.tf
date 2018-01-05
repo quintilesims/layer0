@@ -26,7 +26,7 @@ variable "linux_region_amis" {
   default = {
     us-west-1 = "ami-689bc208"
     us-west-2 = "ami-62d35c02"
-    us-east-1 = "ami-275ffe31"
+    us-east-1 = "ami-62745007"
     eu-west-1 = "ami-95f8d2f3"
   }
 }
