@@ -1,3 +1,5 @@
+data "aws_availability_zones" "available" {}
+
 resource "aws_vpc" "mod" {
   count = "${var.count_hack}"
 
@@ -46,18 +48,18 @@ resource "aws_route_table" "private" {
 
 resource "aws_subnet" "private" {
   vpc_id            = "${aws_vpc.mod.id}"
-  cidr_block        = "${var.private_subnets[count.index]}"
-  availability_zone = "${element(var.azs, count.index)}"
-  count             = "${length(var.private_subnets) * var.count_hack}"
-  tags              = "${merge(var.tags, map("Tier", "Private"), map("Name", format("l0-%s-subnet-private-%s", var.name, element(var.azs, count.index))))}"
+  cidr_block        = "${cidrsubnet(aws_vpc.mod.cidr_block, 8, count.index + 1)}"
+  availability_zone = "${element(data.aws_availability_zones.available.names, count.index)}"
+  count             = "${length(data.aws_availability_zones.available.names) * var.count_hack}"
+  tags              = "${merge(var.tags, map("Tier", "Private"), map("Name", format("l0-%s-subnet-private-%s", var.name, element(data.aws_availability_zones.available.names, count.index))))}"
 }
 
 resource "aws_subnet" "public" {
   vpc_id            = "${aws_vpc.mod.id}"
-  cidr_block        = "${var.public_subnets[count.index]}"
-  availability_zone = "${element(var.azs, count.index)}"
-  count             = "${length(var.public_subnets) * var.count_hack}"
-  tags              = "${merge(var.tags, map("Tier", "Public"), map("Name", format("l0-%s-subnet-public-%s", var.name, element(var.azs, count.index))))}"
+  cidr_block        = "${cidrsubnet(aws_vpc.mod.cidr_block, 8, count.index + 1 + 100)}"
+  availability_zone = "${element(data.aws_availability_zones.available.names, count.index)}"
+  count             = "${length(data.aws_availability_zones.available.names) * var.count_hack}"
+  tags              = "${merge(var.tags, map("Tier", "Public"), map("Name", format("l0-%s-subnet-public-%s", var.name, element(data.aws_availability_zones.available.names, count.index))))}"
 
   map_public_ip_on_launch = "${var.map_public_ip_on_launch}"
 }
@@ -78,13 +80,13 @@ resource "aws_nat_gateway" "natgw" {
 }
 
 resource "aws_route_table_association" "private" {
-  count          = "${length(var.private_subnets) * var.count_hack}"
+  count          = "${length(data.aws_availability_zones.available.names) * var.count_hack}"
   subnet_id      = "${element(aws_subnet.private.*.id, count.index)}"
   route_table_id = "${aws_route_table.private.id}"
 }
 
 resource "aws_route_table_association" "public" {
-  count          = "${length(var.public_subnets) * var.count_hack}"
+  count          = "${length(data.aws_availability_zones.available.names) * var.count_hack}"
   subnet_id      = "${element(aws_subnet.public.*.id, count.index)}"
   route_table_id = "${aws_route_table.public.id}"
 }
