@@ -4,7 +4,7 @@ set -e
 # kill all subprocesses on exit
 trap 'if [ ! -z "$(jobs -pr)" ]; then kill $(jobs -pr); fi' EXIT
 
-BULLET='\u2713'
+BULLET='-'
 GIT_HASH=$(git describe --tags)
 LAYER0_PATH=$GOPATH/src/github.com/quintilesims/layer0
 

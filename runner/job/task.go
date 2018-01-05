@@ -49,7 +49,7 @@ func CreateTask(quit chan bool, context *JobContext) error {
 		}
 
 		return runAndRetry(quit, time.Second*10, func() error {
-			key := fmt.Sprintf("task_0")
+			key := fmt.Sprintf("task_id")
 			return context.AddJobMeta(key, taskID)
 		})
 	}); err != nil {
