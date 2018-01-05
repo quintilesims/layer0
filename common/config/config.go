@@ -75,6 +75,7 @@ var RequiredAPIVariables = []string{
 	AWS_ECS_INSTANCE_PROFILE,
 	AWS_LINUX_SERVICE_AMI,
 	AWS_WINDOWS_SERVICE_AMI,
+	AWS_REGION,
 }
 
 var RequiredCLIVariables = []string{}
@@ -154,7 +155,7 @@ func AWSSecretKey() string {
 }
 
 func AWSRegion() string {
-	return getOr(AWS_REGION, DEFAULT_AWS_REGION)
+	return get(AWS_REGION)
 }
 
 func AWSVPCID() string {

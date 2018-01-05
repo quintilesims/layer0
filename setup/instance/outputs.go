@@ -19,4 +19,5 @@ const (
 	OUTPUT_WINDOWS_SERVICE_AMI         = "windows_service_ami"
 	OUTPUT_AWS_DYNAMO_TAG_TABLE        = "dynamo_tag_table"
 	OUTPUT_AWS_DYNAMO_JOB_TABLE        = "dynamo_job_table"
+	OUTPUT_AWS_REGION                  = "region"
 )
