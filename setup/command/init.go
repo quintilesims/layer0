@@ -24,7 +24,7 @@ func (f *CommandFactory) Init() cli.Command {
 			},
 			cli.StringFlag{
 				Name:  "version",
-				Usage: instance.INPUT_VERSION_DESCRIPTION,
+				Usage: instance.INPUT_LAYER0_VERSION_DESCRIPTION,
 			},
 			cli.StringFlag{
 				Name:  "aws-access-key",

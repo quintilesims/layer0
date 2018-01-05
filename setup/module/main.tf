@@ -23,12 +23,12 @@ module "vpc" {
 }
 
 module "api" {
-  source   = "./api"
-  name     = "${var.name}"
-  region   = "${var.region}"
-  version  = "${var.version}"
-  username = "${var.username}"
-  password = "${var.password}"
+  source         = "./api"
+  name           = "${var.name}"
+  region         = "${var.region}"
+  layer0_version = "${var.layer0_version}"
+  username       = "${var.username}"
+  password       = "${var.password}"
 
   # todo: format hack is a workaround for https://github.com/hashicorp/terraform/issues/14399
   vpc_id = "${ var.vpc_id == "" ? format("%s", module.vpc.vpc_id) : var.vpc_id }"
