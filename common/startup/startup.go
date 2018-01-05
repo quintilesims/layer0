@@ -1,8 +1,10 @@
 package startup
 
 import (
-	"github.com/aws/aws-sdk-go/aws"
+	"time"
+
 	"github.com/aws/aws-sdk-go/aws/credentials"
+	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/api/logic"
@@ -126,12 +128,11 @@ func GetLogic(backend *ecsbackend.ECSBackend) (*logic.Logic, error) {
 
 func getNewTagStore() (tag_store.TagStore, error) {
 	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
-	awsConfig := &aws.Config{
-		Credentials: creds,
-		Region:      aws.String(config.AWSRegion()),
+	session := session.New(config.GetAWSConfig(creds, config.AWSRegion()))
+	if err := sessionTimeDelay(session); err != nil {
+		return nil, err
 	}
 
-	session := session.New(awsConfig)
 	store := tag_store.NewDynamoTagStore(session, config.DynamoTagTableName())
 
 	if err := store.Init(); err != nil {
@@ -143,12 +144,11 @@ func getNewTagStore() (tag_store.TagStore, error) {
 
 func getNewJobStore() (job_store.JobStore, error) {
 	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
-	awsConfig := &aws.Config{
-		Credentials: creds,
-		Region:      aws.String(config.AWSRegion()),
+	session := session.New(config.GetAWSConfig(creds, config.AWSRegion()))
+	if err := sessionTimeDelay(session); err != nil {
+		return nil, err
 	}
 
-	session := session.New(awsConfig)
 	store := job_store.NewDynamoJobStore(session, config.DynamoJobTableName())
 
 	if err := store.Init(); err != nil {
@@ -156,6 +156,20 @@ func getNewJobStore() (job_store.JobStore, error) {
 	}
 
 	return store, nil
+}
+
+func sessionTimeDelay(session *session.Session) error {
+	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
+	if err != nil {
+		return err
+	}
+
+	ticker := time.Tick(delay)
+	session.Handlers.Send.PushBack(func(r *request.Request) {
+		<-ticker
+	})
+
+	return nil
 }
 
 func wrapECS(e ecs.Provider) ecs.Provider {
