@@ -129,15 +129,9 @@ func GetLogic(backend *ecsbackend.ECSBackend) (*logic.Logic, error) {
 func getNewTagStore() (tag_store.TagStore, error) {
 	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
 	session := session.New(config.GetAWSConfig(creds, config.AWSRegion()))
-	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
-	if err != nil {
+	if err := handleSessionPushBack(session); err != nil {
 		return nil, err
 	}
-
-	ticker := time.Tick(delay)
-	session.Handlers.Send.PushBack(func(r *request.Request) {
-		<-ticker
-	})
 
 	store := tag_store.NewDynamoTagStore(session, config.DynamoTagTableName())
 
@@ -151,15 +145,9 @@ func getNewTagStore() (tag_store.TagStore, error) {
 func getNewJobStore() (job_store.JobStore, error) {
 	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
 	session := session.New(config.GetAWSConfig(creds, config.AWSRegion()))
-	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
-	if err != nil {
+	if err := handleSessionPushBack(session); err != nil {
 		return nil, err
 	}
-
-	ticker := time.Tick(delay)
-	session.Handlers.Send.PushBack(func(r *request.Request) {
-		<-ticker
-	})
 
 	store := job_store.NewDynamoJobStore(session, config.DynamoJobTableName())
 
@@ -168,6 +156,20 @@ func getNewJobStore() (job_store.JobStore, error) {
 	}
 
 	return store, nil
+}
+
+func handleSessionPushBack(session *session.Session) error {
+	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
+	if err != nil {
+		return err
+	}
+
+	ticker := time.Tick(delay)
+	session.Handlers.Send.PushBack(func(r *request.Request) {
+		<-ticker
+	})
+
+	return nil
 }
 
 func wrapECS(e ecs.Provider) ecs.Provider {
