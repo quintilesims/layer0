@@ -129,7 +129,7 @@ func GetLogic(backend *ecsbackend.ECSBackend) (*logic.Logic, error) {
 func getNewTagStore() (tag_store.TagStore, error) {
 	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
 	session := session.New(config.GetAWSConfig(creds, config.AWSRegion()))
-	if err := handleSessionPushBack(session); err != nil {
+	if err := sessionTimeDelay(session); err != nil {
 		return nil, err
 	}
 
@@ -145,7 +145,7 @@ func getNewTagStore() (tag_store.TagStore, error) {
 func getNewJobStore() (job_store.JobStore, error) {
 	creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
 	session := session.New(config.GetAWSConfig(creds, config.AWSRegion()))
-	if err := handleSessionPushBack(session); err != nil {
+	if err := sessionTimeDelay(session); err != nil {
 		return nil, err
 	}
 
@@ -158,7 +158,7 @@ func getNewJobStore() (job_store.JobStore, error) {
 	return store, nil
 }
 
-func handleSessionPushBack(session *session.Session) error {
+func sessionTimeDelay(session *session.Session) error {
 	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
 	if err != nil {
 		return err
