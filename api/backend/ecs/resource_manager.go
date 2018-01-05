@@ -62,8 +62,7 @@ func (r *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironm
 	}
 
 	if !pbool(instance.AgentConnected) {
-		r.logger.Errorf("Instance %s agent is disconnected", instanceID)
-		return nil, false
+		r.logger.Infof("Instance %s agent is disconnected", instanceID)
 	}
 
 	// this is non-intuitive, but the ports being used by tasks are kept in
