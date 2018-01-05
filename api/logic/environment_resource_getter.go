@@ -51,85 +51,71 @@ func (c *EnvironmentResourceGetter) GetConsumers(environmentID string) ([]resour
 }
 
 func (c *EnvironmentResourceGetter) getPendingServiceResources(environmentID string) ([]resource.ResourceConsumer, error) {
-	serviceSummaries, err := c.ServiceLogic.ListServices()
+	resourceConsumers := []resource.ResourceConsumer{}
+	services, err := c.ServiceLogic.GetEnvironmentServices(environmentID)
 	if err != nil {
 		return nil, err
 	}
 
-	resourceConsumers := []resource.ResourceConsumer{}
-	for _, summary := range serviceSummaries {
-		if summary.EnvironmentID == environmentID {
-			service, err := c.ServiceLogic.GetService(summary.ServiceID)
-			if err != nil {
-				return nil, err
+	for _, service := range services {
+		deployIDCopies := map[string]int{}
+		for _, deployment := range service.Deployments {
+			// deployment.RunningCount is the number of containers already running on an instance
+			// deployment.PendingCount is the number of containers that are alraedy on an instance, but are being pulled
+			// we only care about containers that are not on instances yet
+
+			if numPending := deployment.DesiredCount - (deployment.RunningCount + deployment.PendingCount); numPending > 0 {
+				deployIDCopies[deployment.DeployID] = int(numPending)
 			}
-
-			deployIDCopies := map[string]int{}
-			for _, deployment := range service.Deployments {
-				// deployment.RunningCount is the number of containers already running on an instance
-				// deployment.PendingCount is the number of containers that are alraedy on an instance, but are being pulled
-				// we only care about containers that are not on instances yet
-
-				if numPending := deployment.DesiredCount - (deployment.RunningCount + deployment.PendingCount); numPending > 0 {
-					deployIDCopies[deployment.DeployID] = int(numPending)
-				}
-			}
-
-			if len(deployIDCopies) == 0 {
-				continue
-			}
-
-			// resource consumer ids are just used for debugging purposes
-			generateID := func(deployID, containerName string, copy int) string {
-				return fmt.Sprintf("Service: %s, Deploy: %s, Container: %s, Copy: %d", summary.ServiceID, deployID, containerName, copy)
-			}
-
-			serviceResourceConsumers, err := c.getResourcesHelper(deployIDCopies, generateID)
-			if err != nil {
-				return nil, err
-			}
-
-			resourceConsumers = append(resourceConsumers, serviceResourceConsumers...)
 		}
+
+		if len(deployIDCopies) == 0 {
+			continue
+		}
+
+		// resource consumer ids are just used for debugging purposes
+		generateID := func(deployID, containerName string, copy int) string {
+			return fmt.Sprintf("Service: %s, Deploy: %s, Container: %s, Copy: %d", service.ServiceID, deployID, containerName, copy)
+		}
+
+		serviceResourceConsumers, err := c.getResourcesHelper(deployIDCopies, generateID)
+		if err != nil {
+			return nil, err
+		}
+
+		resourceConsumers = append(resourceConsumers, serviceResourceConsumers...)
 	}
 
 	return resourceConsumers, nil
 }
 
 func (c *EnvironmentResourceGetter) getPendingTaskResourcesInECS(environmentID string) ([]resource.ResourceConsumer, error) {
-	taskSummaries, err := c.TaskLogic.ListTasks()
+	tasks, err := c.TaskLogic.GetEnvironmentTasks(environmentID)
 	if err != nil {
 		return nil, err
 	}
 
 	resourceConsumers := []resource.ResourceConsumer{}
-	for _, summary := range taskSummaries {
-		if summary.EnvironmentID == environmentID {
-			task, err := c.TaskLogic.GetTask(summary.TaskID)
-			if err != nil {
-				return nil, err
-			}
-
-			if task.PendingCount == 0 {
-				continue
-			}
-
-			deployIDCopies := map[string]int{
-				task.DeployID: int(task.PendingCount),
-			}
-
-			// resource consumer ids are just used for debugging purposes
-			generateID := func(deployID, containerName string, copy int) string {
-				return fmt.Sprintf("Task: %s, Deploy: %s, Container: %s, Copy: %d", summary.TaskID, deployID, containerName, copy)
-			}
-
-			taskResourceConsumers, err := c.getResourcesHelper(deployIDCopies, generateID)
-			if err != nil {
-				return nil, err
-			}
-
-			resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
+	for _, task := range tasks {
+		if task.PendingCount == 0 {
+			continue
 		}
+
+		deployIDCopies := map[string]int{
+			task.DeployID: int(task.PendingCount),
+		}
+
+		// resource consumer ids are just used for debugging purposes
+		generateID := func(deployID, containerName string, copy int) string {
+			return fmt.Sprintf("Task: %s, Deploy: %s, Container: %s, Copy: %d", task.TaskID, deployID, containerName, copy)
+		}
+
+		taskResourceConsumers, err := c.getResourcesHelper(deployIDCopies, generateID)
+		if err != nil {
+			return nil, err
+		}
+
+		resourceConsumers = append(resourceConsumers, taskResourceConsumers...)
 	}
 
 	return resourceConsumers, nil
@@ -153,7 +139,7 @@ func (c *EnvironmentResourceGetter) getPendingTaskResourcesInJobs(environmentID 
 				if req.EnvironmentID == environmentID {
 					// note that this isn't exact if the job has started some, but not all of the tasks
 					deployIDCopies := map[string]int{
-						req.DeployID: int(req.Copies),
+						req.DeployID: 1,
 					}
 
 					// resource consumer ids are just used for debugging purposes

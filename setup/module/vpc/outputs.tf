@@ -20,7 +20,7 @@ output "private_route_table_ids" {
 }
 
 output "default_security_group_id" {
-  value = "${aws_vpc.mod.default_security_group_id}"
+  value = "${element(aws_vpc.mod.*.default_security_group_id, 0) }"
 }
 
 output "nat_eips" {
@@ -36,5 +36,5 @@ output "natgw_ids" {
 }
 
 output "igw_id" {
-  value = "${aws_internet_gateway.mod.id}"
+  value = "${element(aws_internet_gateway.mod.*.id, 0) }"
 }

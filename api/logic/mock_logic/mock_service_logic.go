@@ -5,9 +5,10 @@
 package mock_logic
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockServiceLogic is a mock of ServiceLogic interface
@@ -58,6 +59,19 @@ func (mr *MockServiceLogicMockRecorder) DeleteService(arg0 interface{}) *gomock.
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteService", reflect.TypeOf((*MockServiceLogic)(nil).DeleteService), arg0)
 }
 
+// GetEnvironmentServices mocks base method
+func (m *MockServiceLogic) GetEnvironmentServices(arg0 string) ([]*models.Service, error) {
+	ret := m.ctrl.Call(m, "GetEnvironmentServices", arg0)
+	ret0, _ := ret[0].([]*models.Service)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEnvironmentServices indicates an expected call of GetEnvironmentServices
+func (mr *MockServiceLogicMockRecorder) GetEnvironmentServices(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentServices", reflect.TypeOf((*MockServiceLogic)(nil).GetEnvironmentServices), arg0)
+}
+
 // GetService mocks base method
 func (m *MockServiceLogic) GetService(arg0 string) (*models.Service, error) {
 	ret := m.ctrl.Call(m, "GetService", arg0)
@@ -85,9 +99,9 @@ func (mr *MockServiceLogicMockRecorder) GetServiceLogs(arg0, arg1, arg2, arg3 in
 }
 
 // ListServices mocks base method
-func (m *MockServiceLogic) ListServices() ([]*models.ServiceSummary, error) {
+func (m *MockServiceLogic) ListServices() ([]models.ServiceSummary, error) {
 	ret := m.ctrl.Call(m, "ListServices")
-	ret0, _ := ret[0].([]*models.ServiceSummary)
+	ret0, _ := ret[0].([]models.ServiceSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

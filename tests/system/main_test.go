@@ -33,7 +33,7 @@ func setup() {
 		log.Level = logrus.DebugLevel
 	}
 
-	logutils.SetGlobalLogger(log)
+	logutils.SetGlobalLogger(log.Logger)
 
 	if !*dry {
 		if err := filepath.Walk("cases", deleteStateFiles); err != nil {

@@ -12,14 +12,12 @@ func (c *APIClient) CreateTask(
 	name string,
 	environmentID string,
 	deployID string,
-	copies int,
 	overrides []models.ContainerOverride,
 ) (string, error) {
 	req := models.CreateTaskRequest{
 		TaskName:           name,
 		EnvironmentID:      environmentID,
 		DeployID:           deployID,
-		Copies:             copies,
 		ContainerOverrides: overrides,
 	}
 

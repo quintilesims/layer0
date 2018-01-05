@@ -5,11 +5,15 @@ import (
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/aws/provider"
 )
 
-const MAX_DESCRIBE_SERVICE_IDS = 10
+const (
+	MAX_DESCRIBE_SERVICE_IDS = 10
+	MAX_DESCRIBE_TASK_ARNS   = 100
+)
 
 type Provider interface {
 	CreateCluster(clusterName string) (*Cluster, error)
@@ -25,13 +29,16 @@ type Provider interface {
 	Helper_DescribeClusters() ([]*Cluster, error)
 	DescribeService(cluster, service string) (*Service, error)
 
-	DescribeServices(cluster string, service []*string) ([]*Service, error)
+	DescribeClusterServices(clusterName, prefix string) ([]*Service, error)
+	DescribeServices(cluster string, service []string) ([]*Service, error)
 	Helper_DescribeServices(prefix string) ([]*Service, error)
 
 	DescribeTaskDefinition(familyAndRevision string) (*TaskDefinition, error)
 	Helper_DescribeTaskDefinitions(prefix string) ([]*TaskDefinition, error)
 
-	DescribeTasks(cluster string, taskArns []*string) ([]*Task, error)
+	DescribeTask(cluster string, taskARN string) (*Task, error)
+	DescribeTasks(clusterName string, taskARNs []*string) ([]*Task, error)
+	DescribeEnvironmentTasks(clusterName, prefix string) ([]*Task, error)
 
 	ListClusters() ([]*string, error)
 	ListClusterNames(prefix string) ([]string, error)
@@ -40,6 +47,7 @@ type Provider interface {
 	Helper_ListServices(prefix string) ([]*string, error)
 
 	ListClusterTaskARNs(clusterName, startedBy string) ([]string, error)
+	ListClusterServiceNames(clusterName, prefix string) ([]string, error)
 	ListTasks(clusterName string, serviceName, desiredStatus, startedBy, containerInstance *string) ([]*string, error)
 
 	ListTaskDefinitions(familyName string, nextToken *string) ([]*string, *string, error)
@@ -50,9 +58,9 @@ type Provider interface {
 	ListTaskDefinitionFamiliesPages(prefix string) ([]*string, error)
 
 	RegisterTaskDefinition(family string, roleARN string, networkMode string, containerDefinitions []*ContainerDefinition, volumes []*Volume, placementConstraints []*PlacementConstraint) (*TaskDefinition, error)
-	RunTask(cluster, taskDefinition string, count int64, startedBy *string, overrides []*ContainerOverride) ([]*Task, []*FailedTask, error)
+	RunTask(clusterName, taskDefinition, startedBy string, overrides []*ContainerOverride) (*Task, error)
 	StartTask(cluster, taskDefinition string, overrides *TaskOverride, containerInstanceIDs []*string, startedBy *string) error
-	StopTask(cluster, reason, task string) error
+	StopTask(clusterName, taskARN, reason string) error
 
 	UpdateService(cluster, service string, taskDefinition *string, desiredCount *int64) error
 }
@@ -250,10 +258,12 @@ func NewTask(clusterARN, taskID, deployARN string) *Task {
 		},
 	}
 }
+
 func (this *TaskDefinition) AddContainerDefinition(def *ContainerDefinition) {
 	if this.ContainerDefinitions == nil {
 		this.ContainerDefinitions = []*ecs.ContainerDefinition{}
 	}
+
 	this.ContainerDefinitions = append(this.ContainerDefinitions, def.ContainerDefinition)
 }
 
@@ -378,53 +388,49 @@ func (this *ECS) RegisterTaskDefinition(family string, roleARN string, networkMo
 	return &TaskDefinition{output.TaskDefinition}, err
 }
 
-func (this *ECS) RunTask(cluster, taskDefinition string, count int64, startedBy *string, overrides []*ContainerOverride) ([]*Task, []*FailedTask, error) {
-	var taskOverride *ecs.TaskOverride
-	if overrides != nil {
-		containerOverrides := []*ecs.ContainerOverride{}
-		for _, c := range overrides {
-			containerOverrides = append(containerOverrides, c.ContainerOverride)
-		}
-		taskOverride = &ecs.TaskOverride{
-			ContainerOverrides: containerOverrides,
-		}
-	}
-
-	input := &ecs.RunTaskInput{
-		Cluster:        aws.String(cluster),
-		TaskDefinition: aws.String(taskDefinition),
-		Count:          aws.Int64(count),
-		StartedBy:      startedBy,
-		Overrides:      taskOverride,
-		PlacementStrategy: []*ecs.PlacementStrategy{
-			{
-				Type:  aws.String(ecs.PlacementStrategyTypeBinpack),
-				Field: aws.String("memory"),
-			},
-		},
-	}
-
+func (this *ECS) RunTask(
+	clusterName string,
+	taskDefinition string,
+	startedBy string,
+	overrides []*ContainerOverride,
+) (*Task, error) {
 	connection, err := this.Connect()
 	if err != nil {
-		return nil, nil, err
+		return nil, err
+	}
+
+	placementStrategy := []*ecs.PlacementStrategy{{
+		Type:  aws.String(ecs.PlacementStrategyTypeBinpack),
+		Field: aws.String("memory"),
+	}}
+
+	input := &ecs.RunTaskInput{
+		Cluster:           aws.String(clusterName),
+		TaskDefinition:    aws.String(taskDefinition),
+		Count:             aws.Int64(1),
+		StartedBy:         aws.String(startedBy),
+		PlacementStrategy: placementStrategy,
+	}
+
+	if overrides != nil {
+		cos := make([]*ecs.ContainerOverride, len(overrides))
+		for i, o := range overrides {
+			cos[i] = o.ContainerOverride
+		}
+
+		input.Overrides = &ecs.TaskOverride{ContainerOverrides: cos}
 	}
 
 	result, err := connection.RunTask(input)
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
-	failures := []*FailedTask{}
-	for _, f := range result.Failures {
-		failures = append(failures, &FailedTask{f})
+	if len(result.Failures) > 0 {
+		return nil, fmt.Errorf("Failed to start task: %s", aws.StringValue(result.Failures[0].Reason))
 	}
 
-	tasks := []*Task{}
-	for _, task := range result.Tasks {
-		tasks = append(tasks, &Task{task})
-	}
-
-	return tasks, failures, nil
+	return &Task{result.Tasks[0]}, nil
 }
 
 func (this *ECS) StartTask(cluster, taskDefinition string, overrides *TaskOverride, containerInstanceIDs []*string, startedBy *string) (err error) {
@@ -448,20 +454,23 @@ func (this *ECS) StartTask(cluster, taskDefinition string, overrides *TaskOverri
 	return err
 }
 
-func (this *ECS) StopTask(cluster, reason, task string) (err error) {
-	input := &ecs.StopTaskInput{
-		Cluster: aws.String(cluster),
-		Reason:  aws.String(reason),
-		Task:    aws.String(task),
-	}
-
+func (this *ECS) StopTask(clusterName, taskARN, reason string) error {
 	connection, err := this.Connect()
 	if err != nil {
 		return err
 	}
 
-	_, err = connection.StopTask(input)
-	return err
+	input := &ecs.StopTaskInput{
+		Cluster: aws.String(clusterName),
+		Task:    aws.String(taskARN),
+		Reason:  aws.String(reason),
+	}
+
+	if _, err := connection.StopTask(input); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (this *ECS) CreateService(cluster, serviceName, taskDefinition string, desiredCount int64, loadBalancers []*LoadBalancer, loadBalancerRole *string) (*Service, error) {
@@ -528,20 +537,31 @@ func (this *ECS) DeleteService(cluster, service string) error {
 	return err
 }
 
-func (this *ECS) DescribeService(cluster, service string) (*Service, error) {
-	services, err := this.DescribeServices(cluster, []*string{&service})
+func (this *ECS) DescribeService(clusterName, serviceName string) (*Service, error) {
+	connection, err := this.Connect()
 	if err != nil {
 		return nil, err
 	}
 
-	if len(services) > 0 {
-		return services[0], nil
+	input := &ecs.DescribeServicesInput{}
+	input.SetCluster(clusterName)
+	input.SetServices([]*string{
+		aws.String(serviceName),
+	})
+
+	output, err := connection.DescribeServices(input)
+	if err != nil {
+		return nil, err
 	}
 
-	return nil, fmt.Errorf("Service Not Found")
+	if len(output.Services) == 0 {
+		return nil, awserr.New("ServiceNotFoundException", "", nil)
+	}
+
+	return &Service{output.Services[0]}, nil
 }
 
-func (this *ECS) DescribeServices(cluster string, serviceIDs []*string) ([]*Service, error) {
+func (this *ECS) DescribeServices(cluster string, serviceIDs []string) ([]*Service, error) {
 	connection, err := this.Connect()
 	if err != nil {
 		return nil, err
@@ -555,7 +575,7 @@ func (this *ECS) DescribeServices(cluster string, serviceIDs []*string) ([]*Serv
 
 		input := &ecs.DescribeServicesInput{
 			Cluster:  aws.String(cluster),
-			Services: serviceIDs[:i],
+			Services: aws.StringSlice(serviceIDs[:i]),
 		}
 
 		output, err := connection.DescribeServices(input)
@@ -645,7 +665,7 @@ func (this *ECS) Helper_DescribeServices(prefix string) ([]*Service, error) {
 
 	services := []*Service{}
 	for clusterARN, serviceARNs := range clusterServices {
-		svcs, err := this.DescribeServices(clusterARN, serviceARNs)
+		svcs, err := this.DescribeServices(clusterARN, aws.StringValueSlice(serviceARNs))
 		if err != nil {
 			return nil, err
 		}
@@ -730,20 +750,109 @@ func (this *ECS) ListClusterTaskARNs(clusterName, startedBy string) ([]string, e
 	return taskARNs, nil
 }
 
-func (this *ECS) DescribeCluster(cluster string) (*Cluster, error) {
-	clusters, err := this.DescribeClusters([]string{cluster})
+func (this *ECS) ListClusterServiceNames(clusterName, prefix string) ([]string, error) {
+	connection, err := this.Connect()
 	if err != nil {
 		return nil, err
 	}
 
-	if len(clusters) > 0 {
-		cluster := clusters[0]
-		if *cluster.Status != "INACTIVE" {
-			return cluster, nil
+	var serviceNames []string
+	fn := func(output *ecs.ListServicesOutput, lastPage bool) bool {
+		for _, serviceARN := range output.ServiceArns {
+			// sample service ARN:
+			// arn:aws:ecs:us-west-2:856306994068:service/l0-tlakedev-guestbo80d9d
+			serviceName := strings.Split(aws.StringValue(serviceARN), "/")[1]
+			if strings.HasPrefix(serviceName, prefix) {
+				serviceNames = append(serviceNames, serviceName)
+			}
 		}
+
+		return !lastPage
+	}
+
+	input := &ecs.ListServicesInput{}
+	input.SetCluster(clusterName)
+	if err := connection.ListServicesPages(input, fn); err != nil {
+		return nil, err
+	}
+
+	return serviceNames, nil
+}
+
+func (this *ECS) DescribeCluster(clusterName string) (*Cluster, error) {
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	input := &ecs.DescribeClustersInput{
+		Clusters: []*string{aws.String(clusterName)},
+	}
+
+	output, err := connection.DescribeClusters(input)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(output.Failures) > 0 {
+		reason := aws.StringValue(output.Failures[0].Reason)
+		if strings.Contains(reason, "MISSING") {
+			return nil, fmt.Errorf("Cluster Not Found")
+		}
+
+		return nil, fmt.Errorf("Failed to describe Cluster: %s", reason)
+	}
+
+	cluster := output.Clusters[0]
+	if aws.StringValue(cluster.Status) == "ACTIVE" {
+		return &Cluster{cluster}, nil
 	}
 
 	return nil, fmt.Errorf("Cluster Not Found")
+}
+
+func (this *ECS) DescribeClusterServices(clusterName, prefix string) ([]*Service, error) {
+	serviceNames, err := this.ListClusterServiceNames(clusterName, prefix)
+	if err != nil {
+		return nil, err
+	}
+
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	services := []*Service{}
+	if len(serviceNames) > 0 {
+		for i := len(serviceNames); i > 0; i = len(serviceNames) {
+			if i > MAX_DESCRIBE_SERVICE_IDS {
+				i = MAX_DESCRIBE_SERVICE_IDS
+			}
+
+			serviceNamesPtrs := make([]*string, len(serviceNames[:i]))
+			for i, serviceName := range serviceNames[:i] {
+				serviceNamesPtrs[i] = aws.String(serviceName)
+			}
+
+			input := &ecs.DescribeServicesInput{
+				Cluster:  aws.String(clusterName),
+				Services: serviceNamesPtrs,
+			}
+
+			output, err := connection.DescribeServices(input)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, svc := range output.Services {
+				services = append(services, &Service{svc})
+			}
+
+			serviceNames = serviceNames[i:]
+		}
+	}
+
+	return services, nil
 }
 
 func (this *ECS) DescribeClusters(cluster []string) ([]*Cluster, error) {
@@ -1062,6 +1171,78 @@ func (this *ECS) DescribeTasks(clusterName string, tasks []*string) ([]*Task, er
 	}
 
 	return ret, nil
+}
+
+func (this *ECS) DescribeTask(clusterName string, taskARN string) (*Task, error) {
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	input := &ecs.DescribeTasksInput{
+		Cluster: aws.String(clusterName),
+		Tasks:   []*string{aws.String(taskARN)},
+	}
+
+	output, err := connection.DescribeTasks(input)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(output.Failures) > 0 {
+		reason := aws.StringValue(output.Failures[0].Reason)
+		if strings.Contains(reason, "MISSING") {
+			return nil, fmt.Errorf("The specified task does not exist")
+		}
+
+		return nil, fmt.Errorf("Failed to describe task: %s", reason)
+	}
+
+	return &Task{output.Tasks[0]}, nil
+}
+
+func (this *ECS) DescribeEnvironmentTasks(clusterName, prefix string) ([]*Task, error) {
+	taskARNs, err := this.ListClusterTaskARNs(clusterName, prefix)
+	if err != nil {
+		return nil, err
+	}
+
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	tasks := []*Task{}
+	if len(taskARNs) > 0 {
+		for i := len(taskARNs); i > 0; i = len(taskARNs) {
+			if i > MAX_DESCRIBE_TASK_ARNS {
+				i = MAX_DESCRIBE_TASK_ARNS
+			}
+
+			taskARNPtrs := make([]*string, len(taskARNs[:i]))
+			for i, taskARN := range taskARNs[:i] {
+				taskARNPtrs[i] = aws.String(taskARN)
+			}
+
+			input := &ecs.DescribeTasksInput{
+				Cluster: aws.String(clusterName),
+				Tasks:   taskARNPtrs,
+			}
+
+			output, err := connection.DescribeTasks(input)
+			if err != nil {
+				return nil, err
+			}
+
+			for _, task := range output.Tasks {
+				tasks = append(tasks, &Task{task})
+			}
+
+			taskARNs = taskARNs[i:]
+		}
+	}
+
+	return tasks, nil
 }
 
 func (this *ECS) DeleteTaskDefinition(taskName string) error {

@@ -358,7 +358,6 @@ func ExampleTextPrintTasks() {
 			EnvironmentID:   "eid1",
 			EnvironmentName: "ename1",
 			RunningCount:    1,
-			DesiredCount:    1,
 			DeployName:      "d1",
 			DeployVersion:   "1",
 		},
@@ -367,7 +366,6 @@ func ExampleTextPrintTasks() {
 			TaskName:      "tsk2",
 			EnvironmentID: "eid2",
 			RunningCount:  1,
-			DesiredCount:  1,
 			DeployID:      "d2.1",
 		},
 		{
@@ -375,7 +373,6 @@ func ExampleTextPrintTasks() {
 			TaskName:      "tsk3",
 			EnvironmentID: "eid3",
 			RunningCount:  0,
-			DesiredCount:  1,
 			PendingCount:  1,
 			DeployID:      "d3.1",
 		},
@@ -384,18 +381,17 @@ func ExampleTextPrintTasks() {
 			TaskName:      "tsk4",
 			EnvironmentID: "eid4",
 			RunningCount:  1,
-			DesiredCount:  0,
 			DeployID:      "d4.1",
 		},
 	}
 
 	printer.PrintTasks(tasks...)
 	// Output:
-	// TASK ID  TASK NAME  ENVIRONMENT  DEPLOY  SCALE
+	// TASK ID  TASK NAME  ENVIRONMENT  DEPLOY  COUNT
 	// id1      tsk1       ename1       d1:1    1/1
 	// id2      tsk2       eid2         d2:1    1/1
 	// id3      tsk3       eid3         d3:1    0/1 (1)
-	// id4      tsk4       eid4         d4:1    1/0
+	// id4      tsk4       eid4         d4:1    1/1
 }
 
 func ExampleTextPrintTaskSummaries() {

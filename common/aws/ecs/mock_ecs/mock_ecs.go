@@ -5,9 +5,10 @@
 package mock_ecs
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	ecs "github.com/quintilesims/layer0/common/aws/ecs"
-	reflect "reflect"
 )
 
 // MockProvider is a mock of Provider interface
@@ -108,6 +109,19 @@ func (mr *MockProviderMockRecorder) DescribeCluster(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeCluster", reflect.TypeOf((*MockProvider)(nil).DescribeCluster), arg0)
 }
 
+// DescribeClusterServices mocks base method
+func (m *MockProvider) DescribeClusterServices(arg0, arg1 string) ([]*ecs.Service, error) {
+	ret := m.ctrl.Call(m, "DescribeClusterServices", arg0, arg1)
+	ret0, _ := ret[0].([]*ecs.Service)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeClusterServices indicates an expected call of DescribeClusterServices
+func (mr *MockProviderMockRecorder) DescribeClusterServices(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeClusterServices", reflect.TypeOf((*MockProvider)(nil).DescribeClusterServices), arg0, arg1)
+}
+
 // DescribeContainerInstances mocks base method
 func (m *MockProvider) DescribeContainerInstances(arg0 string, arg1 []*string) ([]*ecs.ContainerInstance, error) {
 	ret := m.ctrl.Call(m, "DescribeContainerInstances", arg0, arg1)
@@ -119,6 +133,19 @@ func (m *MockProvider) DescribeContainerInstances(arg0 string, arg1 []*string) (
 // DescribeContainerInstances indicates an expected call of DescribeContainerInstances
 func (mr *MockProviderMockRecorder) DescribeContainerInstances(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeContainerInstances", reflect.TypeOf((*MockProvider)(nil).DescribeContainerInstances), arg0, arg1)
+}
+
+// DescribeEnvironmentTasks mocks base method
+func (m *MockProvider) DescribeEnvironmentTasks(arg0, arg1 string) ([]*ecs.Task, error) {
+	ret := m.ctrl.Call(m, "DescribeEnvironmentTasks", arg0, arg1)
+	ret0, _ := ret[0].([]*ecs.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeEnvironmentTasks indicates an expected call of DescribeEnvironmentTasks
+func (mr *MockProviderMockRecorder) DescribeEnvironmentTasks(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeEnvironmentTasks", reflect.TypeOf((*MockProvider)(nil).DescribeEnvironmentTasks), arg0, arg1)
 }
 
 // DescribeService mocks base method
@@ -135,7 +162,7 @@ func (mr *MockProviderMockRecorder) DescribeService(arg0, arg1 interface{}) *gom
 }
 
 // DescribeServices mocks base method
-func (m *MockProvider) DescribeServices(arg0 string, arg1 []*string) ([]*ecs.Service, error) {
+func (m *MockProvider) DescribeServices(arg0 string, arg1 []string) ([]*ecs.Service, error) {
 	ret := m.ctrl.Call(m, "DescribeServices", arg0, arg1)
 	ret0, _ := ret[0].([]*ecs.Service)
 	ret1, _ := ret[1].(error)
@@ -145,6 +172,19 @@ func (m *MockProvider) DescribeServices(arg0 string, arg1 []*string) ([]*ecs.Ser
 // DescribeServices indicates an expected call of DescribeServices
 func (mr *MockProviderMockRecorder) DescribeServices(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeServices", reflect.TypeOf((*MockProvider)(nil).DescribeServices), arg0, arg1)
+}
+
+// DescribeTask mocks base method
+func (m *MockProvider) DescribeTask(arg0, arg1 string) (*ecs.Task, error) {
+	ret := m.ctrl.Call(m, "DescribeTask", arg0, arg1)
+	ret0, _ := ret[0].(*ecs.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeTask indicates an expected call of DescribeTask
+func (mr *MockProviderMockRecorder) DescribeTask(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeTask", reflect.TypeOf((*MockProvider)(nil).DescribeTask), arg0, arg1)
 }
 
 // DescribeTaskDefinition mocks base method
@@ -249,6 +289,19 @@ func (m *MockProvider) ListClusterNames(arg0 string) ([]string, error) {
 // ListClusterNames indicates an expected call of ListClusterNames
 func (mr *MockProviderMockRecorder) ListClusterNames(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListClusterNames", reflect.TypeOf((*MockProvider)(nil).ListClusterNames), arg0)
+}
+
+// ListClusterServiceNames mocks base method
+func (m *MockProvider) ListClusterServiceNames(arg0, arg1 string) ([]string, error) {
+	ret := m.ctrl.Call(m, "ListClusterServiceNames", arg0, arg1)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListClusterServiceNames indicates an expected call of ListClusterServiceNames
+func (mr *MockProviderMockRecorder) ListClusterServiceNames(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListClusterServiceNames", reflect.TypeOf((*MockProvider)(nil).ListClusterServiceNames), arg0, arg1)
 }
 
 // ListClusterTaskARNs mocks base method
@@ -384,17 +437,16 @@ func (mr *MockProviderMockRecorder) RegisterTaskDefinition(arg0, arg1, arg2, arg
 }
 
 // RunTask mocks base method
-func (m *MockProvider) RunTask(arg0, arg1 string, arg2 int64, arg3 *string, arg4 []*ecs.ContainerOverride) ([]*ecs.Task, []*ecs.FailedTask, error) {
-	ret := m.ctrl.Call(m, "RunTask", arg0, arg1, arg2, arg3, arg4)
-	ret0, _ := ret[0].([]*ecs.Task)
-	ret1, _ := ret[1].([]*ecs.FailedTask)
-	ret2, _ := ret[2].(error)
-	return ret0, ret1, ret2
+func (m *MockProvider) RunTask(arg0, arg1, arg2 string, arg3 []*ecs.ContainerOverride) (*ecs.Task, error) {
+	ret := m.ctrl.Call(m, "RunTask", arg0, arg1, arg2, arg3)
+	ret0, _ := ret[0].(*ecs.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
 }
 
 // RunTask indicates an expected call of RunTask
-func (mr *MockProviderMockRecorder) RunTask(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunTask", reflect.TypeOf((*MockProvider)(nil).RunTask), arg0, arg1, arg2, arg3, arg4)
+func (mr *MockProviderMockRecorder) RunTask(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RunTask", reflect.TypeOf((*MockProvider)(nil).RunTask), arg0, arg1, arg2, arg3)
 }
 
 // StartTask mocks base method

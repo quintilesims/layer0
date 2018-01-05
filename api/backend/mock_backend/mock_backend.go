@@ -5,10 +5,11 @@
 package mock_backend
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	id "github.com/quintilesims/layer0/api/backend/ecs/id"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockBackend is a mock of Backend interface
@@ -99,16 +100,16 @@ func (mr *MockBackendMockRecorder) CreateService(arg0, arg1, arg2, arg3 interfac
 }
 
 // CreateTask mocks base method
-func (m *MockBackend) CreateTask(arg0, arg1, arg2 string, arg3 []models.ContainerOverride) (*models.Task, error) {
-	ret := m.ctrl.Call(m, "CreateTask", arg0, arg1, arg2, arg3)
-	ret0, _ := ret[0].(*models.Task)
+func (m *MockBackend) CreateTask(arg0, arg1 string, arg2 []models.ContainerOverride) (string, error) {
+	ret := m.ctrl.Call(m, "CreateTask", arg0, arg1, arg2)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateTask indicates an expected call of CreateTask
-func (mr *MockBackendMockRecorder) CreateTask(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockBackend)(nil).CreateTask), arg0, arg1, arg2, arg3)
+func (mr *MockBackendMockRecorder) CreateTask(arg0, arg1, arg2 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateTask", reflect.TypeOf((*MockBackend)(nil).CreateTask), arg0, arg1, arg2)
 }
 
 // DeleteDeploy mocks base method
@@ -207,6 +208,32 @@ func (m *MockBackend) GetEnvironment(arg0 string) (*models.Environment, error) {
 // GetEnvironment indicates an expected call of GetEnvironment
 func (mr *MockBackendMockRecorder) GetEnvironment(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironment", reflect.TypeOf((*MockBackend)(nil).GetEnvironment), arg0)
+}
+
+// GetEnvironmentServices mocks base method
+func (m *MockBackend) GetEnvironmentServices(arg0 string) ([]*models.Service, error) {
+	ret := m.ctrl.Call(m, "GetEnvironmentServices", arg0)
+	ret0, _ := ret[0].([]*models.Service)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEnvironmentServices indicates an expected call of GetEnvironmentServices
+func (mr *MockBackendMockRecorder) GetEnvironmentServices(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentServices", reflect.TypeOf((*MockBackend)(nil).GetEnvironmentServices), arg0)
+}
+
+// GetEnvironmentTasks mocks base method
+func (m *MockBackend) GetEnvironmentTasks(arg0 string) (map[string]*models.Task, error) {
+	ret := m.ctrl.Call(m, "GetEnvironmentTasks", arg0)
+	ret0, _ := ret[0].(map[string]*models.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEnvironmentTasks indicates an expected call of GetEnvironmentTasks
+func (mr *MockBackendMockRecorder) GetEnvironmentTasks(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentTasks", reflect.TypeOf((*MockBackend)(nil).GetEnvironmentTasks), arg0)
 }
 
 // GetLoadBalancer mocks base method
@@ -314,9 +341,9 @@ func (mr *MockBackendMockRecorder) ListLoadBalancers() *gomock.Call {
 }
 
 // ListServices mocks base method
-func (m *MockBackend) ListServices() ([]*models.Service, error) {
+func (m *MockBackend) ListServices() ([]id.ECSServiceID, error) {
 	ret := m.ctrl.Call(m, "ListServices")
-	ret0, _ := ret[0].([]*models.Service)
+	ret0, _ := ret[0].([]id.ECSServiceID)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }

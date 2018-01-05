@@ -4,8 +4,10 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestServicePopulateModel(t *testing.T) {
@@ -82,29 +84,36 @@ func TestListServices(t *testing.T) {
 	testLogic, ctrl := NewTestLogic(t)
 	defer ctrl.Finish()
 
+	ecsServiceIDs := []id.ECSServiceID{
+		"svc_id1",
+		"svc_id2",
+	}
+
 	testLogic.Backend.EXPECT().
 		ListServices().
-		Return([]*models.Service{
-			{ServiceID: "s1"},
-			{ServiceID: "s2"},
-		}, nil)
+		Return(ecsServiceIDs, nil)
 
 	testLogic.AddTags(t, []*models.Tag{
-		{EntityID: "s1", EntityType: "service", Key: "environment_id", Value: "e1"},
-		{EntityID: "s2", EntityType: "service", Key: "environment_id", Value: "e2"},
+		{EntityID: "env_id1", EntityType: "environment", Key: "name", Value: "env_name1"},
+		{EntityID: "env_id2", EntityType: "environment", Key: "name", Value: "env_name2"},
+		{EntityID: "svc_id1", EntityType: "service", Key: "name", Value: "svc_name1"},
+		{EntityID: "svc_id1", EntityType: "service", Key: "environment_id", Value: "env_id1"},
+		{EntityID: "svc_id2", EntityType: "service", Key: "name", Value: "svc_name2"},
+		{EntityID: "svc_id2", EntityType: "service", Key: "environment_id", Value: "env_id2"},
 	})
 
 	serviceLogic := NewL0ServiceLogic(testLogic.Logic())
-	services, err := serviceLogic.ListServices()
+	result, err := serviceLogic.ListServices()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	testutils.AssertEqual(t, len(services), 2)
-	testutils.AssertEqual(t, services[0].ServiceID, "s1")
-	testutils.AssertEqual(t, services[0].EnvironmentID, "e1")
-	testutils.AssertEqual(t, services[1].ServiceID, "s2")
-	testutils.AssertEqual(t, services[1].EnvironmentID, "e2")
+	expected := []models.ServiceSummary{
+		{EnvironmentID: "env_id1", EnvironmentName: "env_name1", ServiceID: "svc_id1", ServiceName: "svc_name1"},
+		{EnvironmentID: "env_id2", EnvironmentName: "env_name2", ServiceID: "svc_id2", ServiceName: "svc_name2"},
+	}
+
+	assert.Equal(t, expected, result)
 }
 
 func TestDeleteService(t *testing.T) {

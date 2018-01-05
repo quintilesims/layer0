@@ -8,7 +8,7 @@ data "template_file" "container_definitions" {
 
   vars {
     api_auth_token       = "${base64encode("${var.username}:${var.password}")}"
-    version              = "${var.version}"
+    layer0_version       = "${var.layer0_version}"
     access_key           = "${aws_iam_access_key.mod.id}"
     secret_key           = "${aws_iam_access_key.mod.secret}"
     region               = "${var.region}"

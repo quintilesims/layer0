@@ -95,14 +95,14 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 		return nil, err
 	}
 
-	task, err := this.createJobTask(jobID, deploy.DeployID)
+	taskID, err := this.createJobTask(jobID, deploy.DeployID)
 	if err != nil {
 		return nil, err
 	}
 
 	job := &models.Job{
 		JobID:       jobID,
-		TaskID:      task.TaskID,
+		TaskID:      taskID,
 		JobStatus:   int64(types.Pending),
 		JobType:     int64(jobType),
 		Request:     reqStr,
@@ -113,7 +113,7 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 		return nil, err
 	}
 
-	if err := this.TagStore.Insert(models.Tag{EntityID: jobID, EntityType: "job", Key: "task_id", Value: task.TaskID}); err != nil {
+	if err := this.TagStore.Insert(models.Tag{EntityID: jobID, EntityType: "job", Key: "task_id", Value: taskID}); err != nil {
 		return nil, err
 	}
 
@@ -129,20 +129,19 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 	return job, nil
 }
 
-func (this *L0JobLogic) createJobTask(jobID, deployID string) (*models.Task, error) {
+func (this *L0JobLogic) createJobTask(jobID, deployID string) (string, error) {
 	taskRequest := models.CreateTaskRequest{
 		DeployID:      deployID,
 		EnvironmentID: config.API_ENVIRONMENT_ID,
-		Copies:        1,
 		TaskName:      jobID,
 	}
 
-	task, err := this.TaskLogic.CreateTask(taskRequest)
+	taskID, err := this.TaskLogic.CreateTask(taskRequest)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	return task, nil
+	return taskID, nil
 }
 
 func (this *L0JobLogic) createJobDeploy(jobID string) (*models.Deploy, error) {

@@ -1,6 +1,7 @@
 package command
 
 import (
+	"fmt"
 	"strings"
 
 	log "github.com/Sirupsen/logrus"
@@ -111,13 +112,22 @@ func (t *TaskCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := t.Client.CreateTask(args["NAME"], environmentID, deployID, c.Int("copies"), overrides)
-	if err != nil {
-		return err
+	if c.Int("copies") < 1 {
+		return fmt.Errorf("Copies param must be >= 1")
+	}
+
+	jobIDs := []string{}
+	for i := 0; i < c.Int("copies"); i++ {
+		jobID, err := t.Client.CreateTask(args["NAME"], environmentID, deployID, overrides)
+		if err != nil {
+			return err
+		}
+
+		jobIDs = append(jobIDs, jobID)
 	}
 
 	if !c.Bool("wait") {
-		t.Printer.Printf("This operation is running as a job. Run `l0 job get %s` to see progress\n", jobID)
+		t.Printer.Printf("This operation is running as a job. Run `l0 job get %s` to see progress\n", jobIDs[0])
 		return nil
 	}
 
@@ -127,19 +137,23 @@ func (t *TaskCommand) Create(c *cli.Context) error {
 	}
 
 	t.Printer.StartSpinner("Creating")
-	if err := t.Client.WaitForJob(jobID, timeout); err != nil {
-		return err
-	}
-
-	job, err := t.Client.GetJob(jobID)
-	if err != nil {
-		return err
-	}
 
 	taskIDs := []string{}
-	for key, val := range job.Meta {
-		if strings.HasPrefix(key, "task_") {
-			taskIDs = append(taskIDs, val)
+	for _, jobID := range jobIDs {
+		if err := t.Client.WaitForJob(jobID, timeout); err != nil {
+			return err
+		}
+
+		job, err := t.Client.GetJob(jobID)
+		if err != nil {
+			return err
+		}
+
+		for key, val := range job.Meta {
+			if key == "task_id" {
+				taskIDs = append(taskIDs, val)
+				break
+			}
 		}
 	}
 

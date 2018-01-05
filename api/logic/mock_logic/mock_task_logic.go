@@ -5,9 +5,10 @@
 package mock_logic
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
 // MockTaskLogic is a mock of TaskLogic interface
@@ -34,9 +35,9 @@ func (m *MockTaskLogic) EXPECT() *MockTaskLogicMockRecorder {
 }
 
 // CreateTask mocks base method
-func (m *MockTaskLogic) CreateTask(arg0 models.CreateTaskRequest) (*models.Task, error) {
+func (m *MockTaskLogic) CreateTask(arg0 models.CreateTaskRequest) (string, error) {
 	ret := m.ctrl.Call(m, "CreateTask", arg0)
-	ret0, _ := ret[0].(*models.Task)
+	ret0, _ := ret[0].(string)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -56,6 +57,19 @@ func (m *MockTaskLogic) DeleteTask(arg0 string) error {
 // DeleteTask indicates an expected call of DeleteTask
 func (mr *MockTaskLogicMockRecorder) DeleteTask(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteTask", reflect.TypeOf((*MockTaskLogic)(nil).DeleteTask), arg0)
+}
+
+// GetEnvironmentTasks mocks base method
+func (m *MockTaskLogic) GetEnvironmentTasks(arg0 string) ([]*models.Task, error) {
+	ret := m.ctrl.Call(m, "GetEnvironmentTasks", arg0)
+	ret0, _ := ret[0].([]*models.Task)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetEnvironmentTasks indicates an expected call of GetEnvironmentTasks
+func (mr *MockTaskLogicMockRecorder) GetEnvironmentTasks(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentTasks", reflect.TypeOf((*MockTaskLogic)(nil).GetEnvironmentTasks), arg0)
 }
 
 // GetTask mocks base method

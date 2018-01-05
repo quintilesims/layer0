@@ -1,14 +1,18 @@
 package logic
 
 import (
+	"fmt"
+
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 type TaskLogic interface {
-	CreateTask(models.CreateTaskRequest) (*models.Task, error)
+	CreateTask(models.CreateTaskRequest) (string, error)
 	ListTasks() ([]*models.TaskSummary, error)
 	GetTask(string) (*models.Task, error)
+	GetEnvironmentTasks(environmentID string) ([]*models.Task, error)
 	DeleteTask(string) error
 	GetTaskLogs(string, string, string, int) ([]*models.LogFile, error)
 }
@@ -33,12 +37,17 @@ func (this *L0TaskLogic) ListTasks() ([]*models.TaskSummary, error) {
 }
 
 func (this *L0TaskLogic) GetTask(taskID string) (*models.Task, error) {
-	environmentID, err := this.getEnvironmentID(taskID)
+	environmentID, err := this.lookupTaskEnvironmentID(taskID)
 	if err != nil {
 		return nil, err
 	}
 
-	task, err := this.Backend.GetTask(environmentID, taskID)
+	taskARN, err := this.lookupTaskARN(taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	taskModel, err := this.Backend.GetTask(environmentID, taskARN)
 	if err != nil {
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.InvalidTaskID {
 			return nil, errors.Newf(errors.InvalidTaskID, "Task %s does not exist", taskID)
@@ -47,20 +56,48 @@ func (this *L0TaskLogic) GetTask(taskID string) (*models.Task, error) {
 		return nil, err
 	}
 
-	if err := this.populateModel(task); err != nil {
+	if err := this.populateModel(taskID, taskModel); err != nil {
 		return nil, err
 	}
 
-	return task, nil
+	return taskModel, nil
+}
+
+func (this *L0TaskLogic) GetEnvironmentTasks(environmentID string) ([]*models.Task, error) {
+	taskARNModels, err := this.Backend.GetEnvironmentTasks(environmentID)
+	if err != nil {
+		return nil, err
+	}
+
+	taskModels := []*models.Task{}
+	for taskARN, taskModel := range taskARNModels {
+		taskID, err := this.getTaskARNFromID(taskARN)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := this.populateModel(taskID, taskModel); err != nil {
+			return nil, err
+		}
+
+		taskModels = append(taskModels, taskModel)
+	}
+
+	return taskModels, nil
 }
 
 func (this *L0TaskLogic) DeleteTask(taskID string) error {
-	environmentID, err := this.getEnvironmentID(taskID)
+	environmentID, err := this.lookupTaskEnvironmentID(taskID)
 	if err != nil {
 		return err
 	}
 
-	if err := this.Backend.DeleteTask(environmentID, taskID); err != nil {
+	taskARN, err := this.lookupTaskARN(taskID)
+	if err != nil {
+		return err
+	}
+
+	if err := this.Backend.DeleteTask(environmentID, taskARN); err != nil {
 		return err
 	}
 
@@ -71,57 +108,53 @@ func (this *L0TaskLogic) DeleteTask(taskID string) error {
 	return nil
 }
 
-func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (*models.Task, error) {
+func (this *L0TaskLogic) CreateTask(req models.CreateTaskRequest) (string, error) {
 	if req.EnvironmentID == "" {
-		return nil, errors.Newf(errors.MissingParameter, "EnvironmentID not specified")
+		return "", errors.Newf(errors.MissingParameter, "EnvironmentID not specified")
 	}
 
 	if req.DeployID == "" {
-		return nil, errors.Newf(errors.MissingParameter, "DeployID not specified")
+		return "", errors.Newf(errors.MissingParameter, "DeployID not specified")
 	}
 
 	if req.TaskName == "" {
-		return nil, errors.Newf(errors.MissingParameter, "TaskName not specified")
+		return "", errors.Newf(errors.MissingParameter, "TaskName not specified")
 	}
 
-	task, err := this.Backend.CreateTask(
-		req.EnvironmentID,
-		req.TaskName,
-		req.DeployID,
-		req.ContainerOverrides)
+	taskARN, err := this.Backend.CreateTask(req.EnvironmentID, req.DeployID, req.ContainerOverrides)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	taskID := task.TaskID
-	if err := this.TagStore.Insert(models.Tag{EntityID: taskID, EntityType: "task", Key: "name", Value: req.TaskName}); err != nil {
-		return task, err
+	taskID := id.GenerateHashedEntityID(req.TaskName)
+	tags := []models.Tag{
+		{EntityID: taskID, EntityType: "task", Key: "name", Value: req.TaskName},
+		{EntityID: taskID, EntityType: "task", Key: "environment_id", Value: req.EnvironmentID},
+		{EntityID: taskID, EntityType: "task", Key: "deploy_id", Value: req.DeployID},
+		{EntityID: taskID, EntityType: "task", Key: "arn", Value: taskARN},
 	}
 
-	environmentID := req.EnvironmentID
-	if err := this.TagStore.Insert(models.Tag{EntityID: taskID, EntityType: "task", Key: "environment_id", Value: environmentID}); err != nil {
-		return task, err
+	for _, tag := range tags {
+		if err := this.TagStore.Insert(tag); err != nil {
+			return "", err
+		}
 	}
 
-	deployID := req.DeployID
-	if err := this.TagStore.Insert(models.Tag{EntityID: taskID, EntityType: "task", Key: "deploy_id", Value: deployID}); err != nil {
-		return task, err
-	}
-
-	if err := this.populateModel(task); err != nil {
-		return task, err
-	}
-
-	return task, nil
+	return taskID, nil
 }
 
 func (this *L0TaskLogic) GetTaskLogs(taskID, start, end string, tail int) ([]*models.LogFile, error) {
-	environmentID, err := this.getEnvironmentID(taskID)
+	environmentID, err := this.lookupTaskEnvironmentID(taskID)
 	if err != nil {
 		return nil, err
 	}
 
-	logs, err := this.Backend.GetTaskLogs(environmentID, taskID, start, end, tail)
+	taskARN, err := this.lookupTaskARN(taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	logs, err := this.Backend.GetTaskLogs(environmentID, taskARN, start, end, tail)
 	if err != nil {
 		return nil, err
 	}
@@ -129,7 +162,20 @@ func (this *L0TaskLogic) GetTaskLogs(taskID, start, end string, tail int) ([]*mo
 	return logs, nil
 }
 
-func (this *L0TaskLogic) getEnvironmentID(taskID string) (string, error) {
+func (t *L0TaskLogic) getTaskARNFromID(taskARN string) (string, error) {
+	tags, err := t.TagStore.SelectByType("task")
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("arn").WithValue(taskARN).First(); ok {
+		return tag.EntityID, nil
+	}
+
+	return "", fmt.Errorf("Failed to find task id for ARN %s", taskARN)
+}
+
+func (this *L0TaskLogic) lookupTaskEnvironmentID(taskID string) (string, error) {
 	tags, err := this.TagStore.SelectByTypeAndID("task", taskID)
 	if err != nil {
 		return "", err
@@ -139,18 +185,24 @@ func (this *L0TaskLogic) getEnvironmentID(taskID string) (string, error) {
 		return tag.Value, nil
 	}
 
-	tasks, err := this.ListTasks()
+	return "", errors.Newf(errors.TaskDoesNotExist, "Failed to find environment for task %s", taskID)
+}
+
+func (t *L0TaskLogic) lookupTaskARN(taskID string) (string, error) {
+	tags, err := t.TagStore.SelectByTypeAndID("task", taskID)
 	if err != nil {
 		return "", err
 	}
 
-	for _, task := range tasks {
-		if task.TaskID == taskID {
-			return task.EnvironmentID, nil
-		}
+	if len(tags) == 0 {
+		return "", errors.Newf(errors.TaskDoesNotExist, "Task '%s' does not exist", taskID)
 	}
 
-	return "", errors.Newf(errors.TaskDoesNotExist, "Task %s does not exist", taskID)
+	if tag, ok := tags.WithKey("arn").First(); ok {
+		return tag.Value, nil
+	}
+
+	return "", fmt.Errorf("Failed to find ARN for task '%s'", taskID)
 }
 
 func (t *L0TaskLogic) makeTaskSummaryModels(taskARNs []string) ([]*models.TaskSummary, error) {
@@ -195,8 +247,10 @@ func (t *L0TaskLogic) makeTaskSummaryModels(taskARNs []string) ([]*models.TaskSu
 	return taskModels, nil
 }
 
-func (this *L0TaskLogic) populateModel(model *models.Task) error {
-	tags, err := this.TagStore.SelectByTypeAndID("task", model.TaskID)
+func (this *L0TaskLogic) populateModel(taskID string, model *models.Task) error {
+	model.TaskID = taskID
+
+	tags, err := this.TagStore.SelectByTypeAndID("task", taskID)
 	if err != nil {
 		return err
 	}

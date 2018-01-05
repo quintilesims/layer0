@@ -19,19 +19,21 @@ type Backend interface {
 	CreateDeploy(name string, body []byte) (*models.Deploy, error)
 	DeleteDeploy(deployID string) error
 
-	ListServices() ([]*models.Service, error)
-	GetService(envID, serviceID string) (*models.Service, error)
+	ListServices() ([]id.ECSServiceID, error)
+	GetService(environmentID, serviceID string) (*models.Service, error)
+	GetEnvironmentServices(environmentID string) ([]*models.Service, error)
 	CreateService(serviceName, environmentID, deployID, loadBalancerID string) (*models.Service, error)
 	DeleteService(environmentID, serviceID string) error
 	ScaleService(environmentID, serviceID string, count int) (*models.Service, error)
 	UpdateService(environmentID, serviceID, deployID string) (*models.Service, error)
 	GetServiceLogs(environmentID, serviceID, start, end string, tail int) ([]*models.LogFile, error)
 
-	CreateTask(envID, taskName, deployVersion string, overrides []models.ContainerOverride) (*models.Task, error)
+	CreateTask(environmentID, deployID string, overrides []models.ContainerOverride) (string, error)
 	ListTasks() ([]string, error)
-	GetTask(envID, taskID string) (*models.Task, error)
-	DeleteTask(envID, taskID string) error
-	GetTaskLogs(environmentID, taskID, start, end string, tail int) ([]*models.LogFile, error)
+	GetTask(environmentID, taskARN string) (*models.Task, error)
+	GetEnvironmentTasks(environmentID string) (map[string]*models.Task, error)
+	DeleteTask(environmentID, taskARN string) error
+	GetTaskLogs(environmentID, taskARN, start, end string, tail int) ([]*models.LogFile, error)
 
 	ListLoadBalancers() ([]*models.LoadBalancer, error)
 	GetLoadBalancer(id string) (*models.LoadBalancer, error)
