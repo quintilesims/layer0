@@ -3,8 +3,10 @@ package logic
 import (
 	"testing"
 
+	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestGetEnvironment(t *testing.T) {
@@ -46,43 +48,43 @@ func TestListEnvironments(t *testing.T) {
 	testLogic, ctrl := NewTestLogic(t)
 	defer ctrl.Finish()
 
-	retEnvironments := []*models.Environment{
-		{EnvironmentID: "e1"},
-		{EnvironmentID: "e2"},
+	ecsEnvironmentIDs := []id.ECSEnvironmentID{
+		id.L0EnvironmentID("env_id1").ECSEnvironmentID(),
+		id.L0EnvironmentID("env_id2").ECSEnvironmentID(),
 	}
 
 	testLogic.Backend.EXPECT().
 		ListEnvironments().
-		Return(retEnvironments, nil)
+		Return(ecsEnvironmentIDs, nil)
 
 	testLogic.AddTags(t, []*models.Tag{
-		{EntityID: "e1", EntityType: "environment", Key: "name", Value: "env_1"},
-		{EntityID: "e1", EntityType: "environment", Key: "os", Value: "linux"},
-		{EntityID: "e2", EntityType: "environment", Key: "name", Value: "env_2"},
-		{EntityID: "e2", EntityType: "environment", Key: "os", Value: "windows"},
+		{EntityID: "env_id1", EntityType: "environment", Key: "name", Value: "env_name1"},
+		{EntityID: "env_id1", EntityType: "environment", Key: "os", Value: "linux"},
+		{EntityID: "env_id2", EntityType: "environment", Key: "name", Value: "env_name2"},
+		{EntityID: "env_id2", EntityType: "environment", Key: "os", Value: "windows"},
 		{EntityID: "extra", EntityType: "environment", Key: "name", Value: "extra"},
 	})
 
 	environmentLogic := NewL0EnvironmentLogic(testLogic.Logic())
-	received, err := environmentLogic.ListEnvironments()
+	result, err := environmentLogic.ListEnvironments()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	expected := []*models.EnvironmentSummary{
+	expected := []models.EnvironmentSummary{
 		{
-			EnvironmentID:   "e1",
-			EnvironmentName: "env_1",
+			EnvironmentID:   "env_id1",
+			EnvironmentName: "env_name1",
 			OperatingSystem: "linux",
 		},
 		{
-			EnvironmentID:   "e2",
-			EnvironmentName: "env_2",
+			EnvironmentID:   "env_id2",
+			EnvironmentName: "env_name2",
 			OperatingSystem: "windows",
 		},
 	}
 
-	testutils.AssertEqual(t, received, expected)
+	assert.Equal(t, expected, result)
 }
 
 func TestDeleteEnvironment(t *testing.T) {

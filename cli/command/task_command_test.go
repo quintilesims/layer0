@@ -69,12 +69,12 @@ func TestCreateTask(t *testing.T) {
 	}}
 
 	tc.Client.EXPECT().
-		CreateTask("name", "environmentID", "deployID", 2, overrides).
+		CreateTask("name", "environmentID", "deployID", overrides).
 		Return("jobid", nil)
 
 	flags := map[string]interface{}{
-		"copies": 2,
 		"env":    []string{"container:key=val"},
+		"copies": 1,
 	}
 
 	c := testutils.GetCLIContext(t, []string{"environment", "name", "deploy"}, flags)
@@ -97,28 +97,42 @@ func TestCreateTaskWait(t *testing.T) {
 		Return([]string{"deployID"}, nil)
 
 	tc.Client.EXPECT().
-		CreateTask("name", "environmentID", "deployID", 0, []models.ContainerOverride{}).
-		Return("jobid", nil)
+		CreateTask("name", "environmentID", "deployID", []models.ContainerOverride{}).
+		Return("job_id1", nil)
 
 	tc.Client.EXPECT().
-		WaitForJob("jobid", gomock.Any()).
+		WaitForJob("job_id1", gomock.Any()).
 		Return(nil)
 
-	jobMeta := map[string]string{"task_0": "tid0", "task_1": "tid1"}
 	tc.Client.EXPECT().
-		GetJob("jobid").
-		Return(&models.Job{Meta: jobMeta}, nil)
+		CreateTask("name", "environmentID", "deployID", []models.ContainerOverride{}).
+		Return("job_id2", nil)
 
 	tc.Client.EXPECT().
-		GetTask("tid0").
+		WaitForJob("job_id2", gomock.Any()).
+		Return(nil)
+
+	job1Meta := map[string]string{"task_id": "task_id1"}
+	tc.Client.EXPECT().
+		GetJob("job_id1").
+		Return(&models.Job{Meta: job1Meta}, nil)
+
+	job2Meta := map[string]string{"task_id": "task_id2"}
+	tc.Client.EXPECT().
+		GetJob("job_id2").
+		Return(&models.Job{Meta: job2Meta}, nil)
+
+	tc.Client.EXPECT().
+		GetTask("task_id1").
 		Return(&models.Task{}, nil)
 
 	tc.Client.EXPECT().
-		GetTask("tid1").
+		GetTask("task_id2").
 		Return(&models.Task{}, nil)
 
 	flags := map[string]interface{}{
-		"wait": true,
+		"wait":   true,
+		"copies": 2,
 	}
 
 	c := testutils.GetCLIContext(t, []string{"environment", "name", "deploy"}, flags)

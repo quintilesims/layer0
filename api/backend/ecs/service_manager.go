@@ -5,6 +5,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
@@ -40,21 +41,25 @@ func NewECSServiceManager(
 	}
 }
 
-func (this *ECSServiceManager) ListServices() ([]*models.Service, error) {
-	serviceARNs, err := this.ECS.Helper_ListServices(id.PREFIX)
+func (this *ECSServiceManager) ListServices() ([]id.ECSServiceID, error) {
+	clusterNames, err := this.Backend.ListEnvironments()
 	if err != nil {
 		return nil, err
 	}
 
-	services := make([]*models.Service, len(serviceARNs))
-	for i, arn := range serviceARNs {
-		ecsServiceID := id.ServiceARNToECSServiceID(*arn)
-		services[i] = &models.Service{
-			ServiceID: ecsServiceID.L0ServiceID(),
+	serviceIDs := []id.ECSServiceID{}
+	for _, clusterName := range clusterNames {
+		clusterServiceIDs, err := this.ECS.ListClusterServiceNames(clusterName.String(), id.PREFIX)
+		if err != nil {
+			return nil, err
+		}
+
+		for _, serviceID := range clusterServiceIDs {
+			serviceIDs = append(serviceIDs, id.ECSServiceID(serviceID))
 		}
 	}
 
-	return services, nil
+	return serviceIDs, nil
 }
 
 func (this *ECSServiceManager) GetService(environmentID, serviceID string) (*models.Service, error) {
@@ -63,15 +68,30 @@ func (this *ECSServiceManager) GetService(environmentID, serviceID string) (*mod
 
 	description, err := this.ECS.DescribeService(ecsEnvironmentID.String(), ecsServiceID.String())
 	if err != nil {
-		if ContainsErrMsg(err, "Service Not Found") {
-			err := fmt.Errorf("Service with id '%s' does not exist", serviceID)
-			return nil, errors.New(errors.ServiceDoesNotExist, err)
+		if err, ok := err.(awserr.Error); ok && err.Code() == "ServiceNotFoundException" {
+			return nil, errors.Newf(errors.ServiceDoesNotExist, "Service '%s' does not exist", serviceID)
 		}
 
 		return nil, err
 	}
 
 	return this.populateModel(description), nil
+}
+
+func (this *ECSServiceManager) GetEnvironmentServices(environmentID string) ([]*models.Service, error) {
+	clusterName := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
+
+	serviceDescriptions, err := this.ECS.DescribeClusterServices(clusterName.String(), id.PREFIX)
+	if err != nil {
+		return nil, err
+	}
+
+	services := make([]*models.Service, len(serviceDescriptions))
+	for i, description := range serviceDescriptions {
+		services[i] = this.populateModel(description)
+	}
+
+	return services, nil
 }
 
 func (this *ECSServiceManager) UpdateService(

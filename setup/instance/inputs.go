@@ -11,7 +11,7 @@ const LAYER0_MODULE_SOURCE = "github.com/quintilesims/layer0//setup/module"
 
 const (
 	INPUT_SOURCE           = "source"
-	INPUT_VERSION          = "version"
+	INPUT_LAYER0_VERSION   = "layer0_version"
 	INPUT_AWS_ACCESS_KEY   = "access_key"
 	INPUT_AWS_SECRET_KEY   = "secret_key"
 	INPUT_AWS_REGION       = "region"
@@ -29,7 +29,7 @@ as this l0-setup binary. Using values other than the default may result in
 undesired consequences (the double slash is intentional). 
 `
 
-const INPUT_VERSION_DESCRIPTION = `
+const INPUT_LAYER0_VERSION_DESCRIPTION = `
 Version: The version input variable specifies the tag to use for the Layer0 
 Docker images 'quintilesims/l0-api' and 'quintilesims/l0-runner'. This value
 should match the version specified in the 'source' input variable. For example,
@@ -56,12 +56,12 @@ Layer0 API will use its own key with limited permissions to provision AWS resour
 
 const INPUT_AWS_REGION_DESCRIPTION = `
 AWS Region: The region input variable specifies which region to provision the
-AWS resources required for Layer0. The following regions can be used: 
+AWS resources required for Layer0. Regions that support the following services can be used:
 
-    - us-west-1
-    - us-west-2
-    - us-east-1
-    - eu-west-1
+    - ECS
+    - VPC
+    - S3
+    - DynamoDB
 
 Note that changing this value will destroy and recreate any existing resources.
 `
@@ -116,7 +116,7 @@ func InitializeLayer0ModuleInputs(version string) {
 		switch input.Name {
 		case INPUT_SOURCE:
 			input.Default = fmt.Sprintf("%s?ref=%s", LAYER0_MODULE_SOURCE, version)
-		case INPUT_VERSION:
+		case INPUT_LAYER0_VERSION:
 			input.Default = version
 		}
 	}
@@ -130,8 +130,8 @@ var Layer0ModuleInputs = []*ModuleInput{
 		prompter:    RequiredStringPrompter,
 	},
 	{
-		Name:        INPUT_VERSION,
-		Description: INPUT_VERSION_DESCRIPTION,
+		Name:        INPUT_LAYER0_VERSION,
+		Description: INPUT_LAYER0_VERSION_DESCRIPTION,
 		Default:     "latest",
 		prompter:    RequiredStringPrompter,
 	},

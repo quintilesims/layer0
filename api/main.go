@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	SCALER_SLEEP_DURATION = time.Minute * 5
+	SCALER_SLEEP_DURATION = time.Hour
 )
 
 func setupRestful(lgc logic.Logic) {
@@ -166,8 +166,6 @@ func runEnvironmentScaler(environmentLogic *logic.L0EnvironmentLogic) {
 	logger := logutils.NewStandardLogger("AUTO Environment Scaler")
 
 	for {
-		time.Sleep(SCALER_SLEEP_DURATION)
-
 		environments, err := environmentLogic.ListEnvironments()
 		if err != nil {
 			logger.Errorf("Failed to list environments: %v", err)
@@ -184,5 +182,7 @@ func runEnvironmentScaler(environmentLogic *logic.L0EnvironmentLogic) {
 
 			logger.Infof("Finished scaling environment %s", environment.EnvironmentID)
 		}
+
+		time.Sleep(SCALER_SLEEP_DURATION)
 	}
 }

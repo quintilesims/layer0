@@ -27,7 +27,7 @@ func (l *LocalInstance) Upgrade(version string, force bool) error {
 	module := config.Modules["layer0"]
 
 	// only patch upgrades are allowed
-	if current, ok := module["version"]; ok && !force {
+	if current, ok := module["layer0_version"]; ok && !force {
 		if err := assertPatchUpgrade(current.(string), version); err != nil {
 			return err
 		}
@@ -35,8 +35,8 @@ func (l *LocalInstance) Upgrade(version string, force bool) error {
 
 	// set new input values for 'source' and 'version'
 	inputValues := map[string]string{
-		INPUT_SOURCE:  fmt.Sprintf("%s?ref=%v", LAYER0_MODULE_SOURCE, version),
-		INPUT_VERSION: version,
+		INPUT_SOURCE:         fmt.Sprintf("%s?ref=%v", LAYER0_MODULE_SOURCE, version),
+		INPUT_LAYER0_VERSION: version,
 	}
 
 	for input, value := range inputValues {
@@ -76,7 +76,9 @@ func assertPatchUpgrade(currentVersion, desiredVersion string) error {
 
 	current, err := semver.Make(currentVersion)
 	if err != nil {
-		return fmt.Errorf("Failed to parse current version: %v", err)
+		text := fmt.Sprintf("Failed to parse current version ('%s'): %v\n", currentVersion, err)
+		text += "Use --force to disable semantic version checking"
+		return fmt.Errorf(text)
 	}
 
 	desired, err := semver.Make(desiredVersion)

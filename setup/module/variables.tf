@@ -1,6 +1,6 @@
 variable "name" {}
 
-variable "version" {}
+variable "layer0_version" {}
 
 variable "access_key" {}
 

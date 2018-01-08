@@ -18,6 +18,7 @@ func TestMain(m *testing.M) {
 	config.SetTestConfig()
 	log.SetLevel(log.FatalLevel)
 	jobLogger.Level = log.FatalLevel
+	tagLogger.Level = log.FatalLevel
 	retCode := m.Run()
 	os.Exit(retCode)
 }

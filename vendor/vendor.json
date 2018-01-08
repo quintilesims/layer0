@@ -1333,9 +1333,10 @@
 			"revision": "afbd495e5aaea13597b5e14fe514ddeaa4d76fc3"
 		},
 		{
-			"checksumSHA1": "I2lXmuk1IHZmw+zDXgTGi0+LvpY=",
+			"checksumSHA1": "/5JpULDw51Em+1+OJHcfDkbw/e0=",
 			"path": "github.com/golang/mock/gomock",
-			"revision": "15f8b22550555c0d3edf5afa97d74001bda2208b"
+			"revision": "b3e60bcdc577185fce3cf625fc96b62857ce5574",
+			"revisionTime": "2017-12-16T01:26:12Z"
 		},
 		{
 			"checksumSHA1": "0SXJ9K2OIJosXJiCiDudn1t6nQ8=",
@@ -3272,10 +3273,10 @@
 			"revisionTime": "2017-04-20T21:30:45Z"
 		},
 		{
-			"checksumSHA1": "JTotRbkq8HA32xEvnbVARLr9mm4=",
+			"checksumSHA1": "ObB94Sg/UH32j6sGBtG6J2BQmaI=",
 			"path": "github.com/quintilesims/tftest",
-			"revision": "398756cbff26d353c7d04c6a4e64132d5de82e6a",
-			"revisionTime": "2017-07-24T21:57:35Z"
+			"revision": "50e64a47e2216f68f260bbd17f8d8d0f81cbc127",
+			"revisionTime": "2017-08-23T23:42:00Z"
 		},
 		{
 			"checksumSHA1": "pvg8L4xN+zO9HLJislpVeHPPLjM=",

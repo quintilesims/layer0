@@ -363,15 +363,6 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 		return t.EnvironmentID
 	}
 
-	getScale := func(t *models.Task) string {
-		scale := fmt.Sprintf("%d/%d", t.RunningCount, t.DesiredCount)
-		if t.PendingCount != 0 {
-			scale = fmt.Sprintf("%s (%d)", scale, t.PendingCount)
-		}
-
-		return scale
-	}
-
 	getDeploy := func(t *models.Task) string {
 		if t.DeployName != "" && t.DeployVersion != "" {
 			return fmt.Sprintf("%s:%s", t.DeployName, t.DeployVersion)
@@ -380,7 +371,16 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 		return strings.Replace(t.DeployID, ".", ":", 1)
 	}
 
-	rows := []string{"TASK ID | TASK NAME | ENVIRONMENT | DEPLOY | SCALE "}
+	getScale := func(t *models.Task) string {
+		scale := fmt.Sprintf("%d/1", t.RunningCount)
+		if t.PendingCount != 0 {
+			scale = fmt.Sprintf("%s (%d)", scale, t.PendingCount)
+		}
+
+		return scale
+	}
+
+	rows := []string{"TASK ID | TASK NAME | ENVIRONMENT | DEPLOY | COUNT "}
 	for _, t := range tasks {
 		row := fmt.Sprintf("%s | %s | %s | %s | %s",
 			t.TaskID,

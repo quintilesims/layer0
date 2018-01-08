@@ -15,11 +15,11 @@ output "private_subnets" {
 }
 
 output "linux_service_ami" {
-  value = "${lookup(var.linux_region_amis, var.region)}"
+  value = "${data.aws_ami.linux.id}"
 }
 
 output "windows_service_ami" {
-  value = "${lookup(var.windows_region_amis, var.region)}"
+  value = "${data.aws_ami.windows.id}"
 }
 
 output "bucket_name" {
@@ -47,9 +47,9 @@ output "user_secret_key" {
 }
 
 output "dynamo_tag_table" {
-    value = "${aws_dynamodb_table.tags.id}"
+  value = "${aws_dynamodb_table.tags.id}"
 }
 
 output "dynamo_job_table" {
-    value = "${aws_dynamodb_table.jobs.id}"
+  value = "${aws_dynamodb_table.jobs.id}"
 }

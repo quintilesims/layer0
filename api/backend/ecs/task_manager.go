@@ -1,9 +1,7 @@
 package ecsbackend
 
 import (
-	"fmt"
-	"strings"
-
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
@@ -12,7 +10,10 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-var ClusterCapacityReason = "Waiting for cluster capacity to run"
+const (
+	ClusterCapacityReason = "Waiting for cluster capacity to run"
+	StopTaskReason        = "Task deleted by user"
+)
 
 type ECSTaskManager struct {
 	ECS            ecs.Provider
@@ -32,119 +33,67 @@ func NewECSTaskManager(
 	}
 }
 
-func (this *ECSTaskManager) ListTasks() ([]*models.Task, error) {
-	environments, err := this.Backend.ListEnvironments()
+func (this *ECSTaskManager) ListTasks() ([]string, error) {
+	clusterNames, err := this.Backend.ListEnvironments()
 	if err != nil {
 		return nil, err
 	}
 
-	taskCopies := map[string][]*ecs.Task{}
-	for _, environment := range environments {
-		ecsEnvironmentID := id.L0EnvironmentID(environment.EnvironmentID).ECSEnvironmentID()
-
-		taskARNs, err := getTaskARNs(this.ECS, ecsEnvironmentID, nil)
+	taskARNs := []string{}
+	for _, clusterName := range clusterNames {
+		clusterTaskARNs, err := this.ECS.ListClusterTaskARNs(clusterName.String(), id.PREFIX)
 		if err != nil {
 			return nil, err
 		}
 
-		if len(taskARNs) > 0 {
-			tasks, err := this.describeTasks(ecsEnvironmentID, taskARNs)
-			if err != nil {
-				return nil, err
-			}
-
-			for _, task := range tasks {
-				startedBy := stringOrEmpty(task.StartedBy)
-
-				if strings.HasPrefix(startedBy, id.PREFIX) {
-					if _, ok := taskCopies[startedBy]; !ok {
-						taskCopies[startedBy] = []*ecs.Task{}
-					}
-
-					taskCopies[startedBy] = append(taskCopies[startedBy], task)
-				}
-			}
-		}
+		taskARNs = append(taskARNs, clusterTaskARNs...)
 	}
 
-	getModel := func(tasks []*ecs.Task) (*models.Task, error) {
-		if len(tasks) == 0 {
-			return nil, errors.Newf(errors.InvalidTaskID, "The specified task does not exist")
-		}
-
-		model := &models.Task{
-			EnvironmentID: id.ClusterARNToECSEnvironmentID(*tasks[0].ClusterArn).L0EnvironmentID(),
-			TaskID:        id.ECSTaskID(*tasks[0].StartedBy).L0TaskID(),
-		}
-
-		return model, nil
-	}
-
-	tasks := []*models.Task{}
-	for _, copies := range taskCopies {
-		model, err := getModel(copies)
-		if err != nil {
-			return nil, err
-		}
-
-		tasks = append(tasks, model)
-	}
-
-	return tasks, nil
+	return taskARNs, nil
 }
 
-func (this *ECSTaskManager) GetTask(environmentID, taskID string) (*models.Task, error) {
-	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
-	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
-
-	tasks, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(ecsTaskID.String()))
+func (this *ECSTaskManager) GetTask(environmentID, taskARN string) (*models.Task, error) {
+	clusterName := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
+	task, err := this.ECS.DescribeTask(clusterName.String(), taskARN)
 	if err != nil {
 		return nil, err
 	}
 
-	taskDescs := []*ecs.Task{}
-	if len(tasks) > 0 {
-		taskDescs, err = this.describeTasks(ecsEnvironmentID, tasks)
+	return modelFromTasks([]*ecs.Task{task})
+}
+
+func (this *ECSTaskManager) GetEnvironmentTasks(environmentID string) (map[string]*models.Task, error) {
+	clusterName := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
+	taskDescriptions, err := this.ECS.DescribeEnvironmentTasks(clusterName.String(), id.PREFIX)
+	if err != nil {
+		return nil, err
+	}
+
+	taskARNModels := map[string]*models.Task{}
+	for _, taskDescription := range taskDescriptions {
+		task, err := modelFromTasks([]*ecs.Task{taskDescription})
 		if err != nil {
 			return nil, err
 		}
+
+		taskARNModels[aws.StringValue(taskDescription.TaskArn)] = task
 	}
 
-	return modelFromTasks(taskDescs)
+	return taskARNModels, nil
 }
 
-func (this *ECSTaskManager) DeleteTask(environmentID, taskID string) error {
+func (this *ECSTaskManager) DeleteTask(environmentID, taskARN string) error {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
-	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
-
-	taskARNs, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(ecsTaskID.String()))
-	if err != nil {
-		return err
-	}
-
-	// This stops the task, later reaping by AWS will prevent it from being returned.
-	reason := "Task stopped by User"
-
-	for _, taskARN := range taskARNs {
-		if err := this.ECS.StopTask(ecsEnvironmentID.String(), reason, *taskARN); err != nil {
-			return err
-		}
-	}
-
-	return nil
+	return this.ECS.StopTask(ecsEnvironmentID.String(), taskARN, StopTaskReason)
 }
 
 func (this *ECSTaskManager) CreateTask(
 	environmentID string,
-	taskName string,
 	deployID string,
 	overrides []models.ContainerOverride,
-) (*models.Task, error) {
+) (string, error) {
 	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
 	ecsDeployID := id.L0DeployID(deployID).ECSDeployID()
-
-	taskID := id.GenerateHashedEntityID(taskName)
-	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
 
 	ecsOverrides := []*ecs.ContainerOverride{}
 	for _, override := range overrides {
@@ -152,28 +101,17 @@ func (this *ECSTaskManager) CreateTask(
 		ecsOverrides = append(ecsOverrides, o)
 	}
 
-	tasks, failed, err := this.ECS.RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), 1, stringp(ecsTaskID.String()), ecsOverrides)
+	startedBy := id.PREFIX
+	task, err := this.ECS.RunTask(ecsEnvironmentID.String(), ecsDeployID.TaskDefinition(), startedBy, ecsOverrides)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	if len(failed) > 0 {
-		return nil, fmt.Errorf("ECS failed to start the task!")
-	}
-
-	return modelFromTasks(tasks)
+	return aws.StringValue(task.TaskArn), nil
 }
 
-func (this *ECSTaskManager) GetTaskLogs(environmentID, taskID, start, end string, tail int) ([]*models.LogFile, error) {
-	ecsEnvironmentID := id.L0EnvironmentID(environmentID).ECSEnvironmentID()
-	ecsTaskID := id.L0TaskID(taskID).ECSTaskID()
-
-	taskARNs, err := getTaskARNs(this.ECS, ecsEnvironmentID, stringp(ecsTaskID.String()))
-	if err != nil {
-		return nil, err
-	}
-
-	return GetLogs(this.CloudWatchLogs, taskARNs, start, end, tail)
+func (this *ECSTaskManager) GetTaskLogs(environmentID, taskARN, start, end string, tail int) ([]*models.LogFile, error) {
+	return GetLogs(this.CloudWatchLogs, []*string{stringp(taskARN)}, start, end, tail)
 }
 
 // Assumes the tasks are all of the same type
@@ -185,17 +123,18 @@ func modelFromTasks(tasks []*ecs.Task) (*models.Task, error) {
 	var pendingCount, runningCount int64
 	copies := []models.TaskCopy{}
 	for _, task := range tasks {
-		if *task.LastStatus == "RUNNING" {
+		switch status := aws.StringValue(task.LastStatus); status {
+		case "RUNNING":
 			runningCount = runningCount + 1
-		} else if *task.LastStatus == "PENDING" {
+		case "PENDING":
 			pendingCount = pendingCount + 1
 		}
 
 		details := []models.TaskDetail{}
 		for _, container := range task.Containers {
 			detail := models.TaskDetail{
-				ContainerName: *container.Name,
-				LastStatus:    *container.LastStatus,
+				ContainerName: aws.StringValue(container.Name),
+				LastStatus:    aws.StringValue(container.LastStatus),
 				Reason:        stringOrEmpty(container.Reason),
 				ExitCode:      int64OrZero(container.ExitCode),
 			}
@@ -213,13 +152,9 @@ func modelFromTasks(tasks []*ecs.Task) (*models.Task, error) {
 	}
 
 	model := &models.Task{
-		EnvironmentID: id.ClusterARNToECSEnvironmentID(*tasks[0].ClusterArn).L0EnvironmentID(),
-		PendingCount:  pendingCount,
-		RunningCount:  runningCount,
-		DesiredCount:  int64(len(tasks)),
-		TaskID:        id.ECSTaskID(*tasks[0].StartedBy).L0TaskID(),
-		Copies:        copies,
-		DeployID:      id.TaskDefinitionARNToECSDeployID(*tasks[0].TaskDefinitionArn).L0DeployID(),
+		RunningCount: runningCount,
+		PendingCount: pendingCount,
+		Copies:       copies,
 	}
 
 	return model, nil

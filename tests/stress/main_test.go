@@ -33,10 +33,10 @@ func setup() {
 		log.Level = logrus.DebugLevel
 	}
 
-	logutils.SetGlobalLogger(log)
+	logutils.SetGlobalLogger(log.Logger)
 
 	if !*dry {
-		if err := filepath.Walk("cases", deleteStateFiles); err != nil {
+		if err := filepath.Walk("module", deleteStateFiles); err != nil {
 			fmt.Println("Error occurred during setup: ", err)
 			os.Exit(1)
 		}
@@ -45,7 +45,10 @@ func setup() {
 
 func teardown() {
 	if !*dry {
-		if err := filepath.Walk("cases", deleteStateFiles); err != nil {
+		if err := filepath.Walk("module", deleteStateFiles); err != nil {
+			fmt.Println("Error occurred during teardown: ", err)
+			os.Exit(1)
+		}
 			fmt.Println("Error occurred during teardown: ", err)
 			os.Exit(1)
 		}

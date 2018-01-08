@@ -55,6 +55,7 @@ func (f *CommandFactory) Endpoint() cli.Command {
 				outputEnvvars[instance.OUTPUT_WINDOWS_SERVICE_AMI] = config.AWS_WINDOWS_SERVICE_AMI
 				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_TAG_TABLE] = config.AWS_DYNAMO_TAG_TABLE
 				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_JOB_TABLE] = config.AWS_DYNAMO_JOB_TABLE
+				outputEnvvars[instance.OUTPUT_AWS_REGION] = config.AWS_REGION
 			}
 
 			fmt.Println("# set the following environment variables in your current session: ")

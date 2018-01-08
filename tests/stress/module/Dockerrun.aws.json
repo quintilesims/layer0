@@ -5,15 +5,9 @@
             "name": "alpine",
             "image": "alpine",
             "entrypoint": [ "/bin/sh", "-c" ],
-            "command": ["$COMMAND"],
             "essential": true,
             "memory": 100,
-            "environment": [
-                {
-                    "name": "COMMAND",
-                    "value": "sleep 10"
-                }
-            ]
+            "command": [ "while true ; do echo LONG RUNNING SERVICE ; sleep 5 ; done" ]
         }
     ]
 }

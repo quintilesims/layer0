@@ -87,7 +87,16 @@ func (this *ProviderDecorator) DescribeService(p0 string, p1 string) (v0 *Servic
 	err = this.Decorator("DescribeService", call)
 	return v0, err
 }
-func (this *ProviderDecorator) DescribeServices(p0 string, p1 []*string) (v0 []*Service, err error) {
+func (this *ProviderDecorator) DescribeClusterServices(p0 string, p1 string) (v0 []*Service, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.DescribeClusterServices(p0, p1)
+		return err
+	}
+	err = this.Decorator("DescribeClusterServices", call)
+	return v0, err
+}
+func (this *ProviderDecorator) DescribeServices(p0 string, p1 []string) (v0 []*Service, err error) {
 	call := func() error {
 		var err error
 		v0, err = this.Inner.DescribeServices(p0, p1)
@@ -123,6 +132,15 @@ func (this *ProviderDecorator) Helper_DescribeTaskDefinitions(p0 string) (v0 []*
 	err = this.Decorator("Helper_DescribeTaskDefinitions", call)
 	return v0, err
 }
+func (this *ProviderDecorator) DescribeTask(p0 string, p1 string) (v0 *Task, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.DescribeTask(p0, p1)
+		return err
+	}
+	err = this.Decorator("DescribeTask", call)
+	return v0, err
+}
 func (this *ProviderDecorator) DescribeTasks(p0 string, p1 []*string) (v0 []*Task, err error) {
 	call := func() error {
 		var err error
@@ -132,6 +150,15 @@ func (this *ProviderDecorator) DescribeTasks(p0 string, p1 []*string) (v0 []*Tas
 	err = this.Decorator("DescribeTasks", call)
 	return v0, err
 }
+func (this *ProviderDecorator) DescribeEnvironmentTasks(p0 string, p1 string) (v0 []*Task, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.DescribeEnvironmentTasks(p0, p1)
+		return err
+	}
+	err = this.Decorator("DescribeEnvironmentTasks", call)
+	return v0, err
+}
 func (this *ProviderDecorator) ListClusters() (v0 []*string, err error) {
 	call := func() error {
 		var err error
@@ -139,6 +166,15 @@ func (this *ProviderDecorator) ListClusters() (v0 []*string, err error) {
 		return err
 	}
 	err = this.Decorator("ListClusters", call)
+	return v0, err
+}
+func (this *ProviderDecorator) ListClusterNames(p0 string) (v0 []string, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.ListClusterNames(p0)
+		return err
+	}
+	err = this.Decorator("ListClusterNames", call)
 	return v0, err
 }
 func (this *ProviderDecorator) ListContainerInstances(p0 string) (v0 []*string, err error) {
@@ -166,6 +202,24 @@ func (this *ProviderDecorator) Helper_ListServices(p0 string) (v0 []*string, err
 		return err
 	}
 	err = this.Decorator("Helper_ListServices", call)
+	return v0, err
+}
+func (this *ProviderDecorator) ListClusterTaskARNs(p0 string, p1 string) (v0 []string, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.ListClusterTaskARNs(p0, p1)
+		return err
+	}
+	err = this.Decorator("ListClusterTaskARNs", call)
+	return v0, err
+}
+func (this *ProviderDecorator) ListClusterServiceNames(p0 string, p1 string) (v0 []string, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.ListClusterServiceNames(p0, p1)
+		return err
+	}
+	err = this.Decorator("ListClusterServiceNames", call)
 	return v0, err
 }
 func (this *ProviderDecorator) ListTasks(p0 string, p1 *string, p2 *string, p3 *string, p4 *string) (v0 []*string, err error) {
@@ -231,14 +285,14 @@ func (this *ProviderDecorator) RegisterTaskDefinition(p0 string, p1 string, p2 s
 	err = this.Decorator("RegisterTaskDefinition", call)
 	return v0, err
 }
-func (this *ProviderDecorator) RunTask(p0 string, p1 string, p2 int64, p3 *string, p4 []*ContainerOverride) (v0 []*Task, v1 []*FailedTask, err error) {
+func (this *ProviderDecorator) RunTask(p0 string, p1 string, p2 string, p3 []*ContainerOverride) (v0 *Task, err error) {
 	call := func() error {
 		var err error
-		v0, v1, err = this.Inner.RunTask(p0, p1, p2, p3, p4)
+		v0, err = this.Inner.RunTask(p0, p1, p2, p3)
 		return err
 	}
 	err = this.Decorator("RunTask", call)
-	return v0, v1, err
+	return v0, err
 }
 func (this *ProviderDecorator) StartTask(p0 string, p1 string, p2 *TaskOverride, p3 []*string, p4 *string) (err error) {
 	call := func() error {
