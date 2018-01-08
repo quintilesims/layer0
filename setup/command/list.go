@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/setup/aws"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
@@ -25,6 +27,11 @@ func (f *CommandFactory) List() cli.Command {
 			cli.BoolTFlag{
 				Name:  "r, remote",
 				Usage: "show remote Layer0 instances, denoted by 'r' (default: true)",
+			},
+			cli.StringFlag{
+				Name:   "aws-region",
+				Usage:  "AWS region",
+				EnvVar: config.AWS_REGION,
 			}),
 		Action: func(c *cli.Context) error {
 			instances := map[string]status{}
@@ -58,7 +65,12 @@ func (f *CommandFactory) List() cli.Command {
 }
 
 func (f *CommandFactory) addRemoteInstances(c *cli.Context, current map[string]status) error {
-	provider, err := f.newAWSProviderHelper(c)
+	region := aws.DEFAULT_AWS_REGION
+	if c.String("aws-region") != "" {
+		region = c.String("aws-region")
+	}
+
+	provider, err := f.newAWSProviderHelper(c, region)
 	if err != nil {
 		return err
 	}

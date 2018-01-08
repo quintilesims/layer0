@@ -23,14 +23,9 @@ var awsFlags = []cli.Flag{
 		Usage:  "secret key portion on an AWS key",
 		EnvVar: config.AWS_SECRET_ACCESS_KEY,
 	},
-	cli.StringFlag{
-		Name:   "aws-region",
-		Usage:  "AWS region",
-		EnvVar: config.AWS_REGION,
-	},
 }
 
-func (f *CommandFactory) newAWSProviderHelper(c *cli.Context) (*aws.Provider, error) {
+func (f *CommandFactory) newAWSProviderHelper(c *cli.Context, region string) (*aws.Provider, error) {
 	// use default credentials and region settings
 	config := defaults.Get().Config
 
@@ -55,13 +50,7 @@ func (f *CommandFactory) newAWSProviderHelper(c *cli.Context) (*aws.Provider, er
 		return nil, err
 	}
 
-	// use region if passed in by the user
-	config.WithRegion(aws.DEFAULT_AWS_REGION)
-	if region := c.String("aws-region"); region != "" {
-		config.WithRegion(region)
-	} else {
-		logrus.Debugf("aws-region was not specified. Using default")
-	}
+	config.WithRegion(region)
 
 	return f.NewAWSProvider(config), nil
 }
