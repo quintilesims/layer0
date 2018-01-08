@@ -8,8 +8,12 @@ Environment Variables must be populated with the contents of `l0-setup endpoint 
 
 #### Running
 
+Make sure you have cleared out any existing environments, services, etc. from your Layer0 instance before running the test. 
+You can use `flow delete` to accomplish this.
+
 From the `layer0` directory, run `make smoketest`
-From the `layer0/tests/smoke` directory, run `make test`
+
+Or, from the `layer0/tests/smoke` directory, run `make test`
 
 #### Tips and Tricks
 
