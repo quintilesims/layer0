@@ -26,7 +26,7 @@ var awsFlags = []cli.Flag{
 }
 
 func (f *CommandFactory) newAWSProviderHelper(c *cli.Context, region string) (*aws.Provider, error) {
-	// use default credentials and region settings
+	// first grab default config settings
 	config := defaults.Get().Config
 
 	// use static credentials if passed in by the user
@@ -50,6 +50,8 @@ func (f *CommandFactory) newAWSProviderHelper(c *cli.Context, region string) (*a
 		return nil, err
 	}
 
+	// ensure that the correct region is set for AWS services
+	// that have region-specific operations
 	config.WithRegion(region)
 
 	return f.NewAWSProvider(config), nil
