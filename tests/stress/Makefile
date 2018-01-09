@@ -1,7 +1,10 @@
-test: 
-	go test -v -parallel 10 -timeout 1h
+init:
+	pushd module ; \
+	ln -s -f $$(which terraform-provider-layer0) . ; \
+	terraform init ; \
+	popd ; \
 
-benchmark:
-	go test -v -run NOTHING -bench . -timeout 2h
+test: init
+	go test -v -run NOTHING -bench . -timeout 2h 
 
-.PHONY: test benchmark
+.PHONY: init test

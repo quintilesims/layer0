@@ -49,9 +49,8 @@ func teardown() {
 			fmt.Println("Error occurred during teardown: ", err)
 			os.Exit(1)
 		}
-			fmt.Println("Error occurred during teardown: ", err)
-			os.Exit(1)
-		}
+		fmt.Println("Error occurred during teardown: ", err)
+		os.Exit(1)
 	}
 }
 

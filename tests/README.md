@@ -53,6 +53,11 @@ This is a simple web service whose behavior can be changed through an API.
 
 Checkout the `TestDeadServiceRecreated` test to see how to use the STS client in a test. 
 
+### Running the Tests
+To run the system and stress tests, it is required you have the [Layer0 Terraform Plugin](http://layer0.ims.io/reference/terraform-plugin/) in your system's `PATH` variable. 
+From the `test/system` or `test/stress` directory, run `make test` to initialize and execute all of the tests.
+For more explicit behavior, see the **Test Flags** section below. 
+
 ### Test Flags
 In addition to the standard `go test` flags, the following have been implemented for system tests:
 

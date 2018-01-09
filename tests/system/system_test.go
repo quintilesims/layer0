@@ -28,7 +28,7 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 
 	layer0 := clients.NewLayer0TestClient(t, vars["endpoint"], vars["token"])
 
-	if _, err := tfContext.Terraformf("init", "-get-plugins=false"); err != nil {
+	if _, err := tfContext.Terraformf("init"); err != nil {
 		t.Fatal(err)
 	}
 
