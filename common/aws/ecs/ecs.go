@@ -973,6 +973,8 @@ func (this *ECS) ListTaskDefinitionFamiliesPages(prefix string) ([]*string, erro
 		FamilyPrefix: &prefix,
 	}
 
+	input.SetStatus(ecs.TaskDefinitionFamilyStatusActive)
+
 	connection, err := this.Connect()
 	if err != nil {
 		return nil, err
@@ -1043,6 +1045,8 @@ func (this *ECS) ListTaskDefinitions(familyName string, nextToken *string) ([]*s
 		FamilyPrefix: aws.String(familyName),
 		NextToken:    nextToken,
 	}
+
+	input.SetStatus(ecs.TaskDefinitionStatusActive)
 
 	connection, err := this.Connect()
 	if err != nil {
