@@ -124,6 +124,11 @@ if [ -z $LAYER0_PREFIX ]; then
     exit 1
 fi
 
+if [ -z $LAYER0_API_ENDPOINT ]; then
+    echo "LAYER0_API_ENDPOINT not set!"
+    exit 1
+fi
+
 for i in ${@:$OPTIND}
 do
     case $i in
