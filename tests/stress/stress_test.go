@@ -71,7 +71,6 @@ func runTest(b *testing.B, c StressTestCase) {
 		tftest.Dir("module"),
 		tftest.Vars(vars),
 		tftest.DryRun(*dry),
-		tftest.Log(b),
 	)
 
 	layer0 := clients.NewLayer0TestClient(b, vars["endpoint"], vars["token"])
