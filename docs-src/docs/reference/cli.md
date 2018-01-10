@@ -7,15 +7,23 @@ The **l0** application is designed to be used with one of several subcommands: [
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0** [_globalOptions_] _command_ _subcommand_ [_options_] [_parameters_]</div>
+    <div class="divCellNoPadding">**l0** [_globalOptions_] _command_ [_command options_] [_arguments...]</div>
   </div>
 </div>
 
 ####Optional arguments
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">--output {text|json}</div>
+    <div class="divCellNoWrap">-o {text|json}, --output {text|json}</div>
     <div class="divCell">Specify the format of Layer0 outputs. By default, Layer0 outputs unformatted text; by issuing the **--output json** option, you can force **l0** to output JSON-formatted text.</div>
+  </div>
+  <div class="divRow">
+    <div class=divCellNoWrap">-t value, --timeout value
+    <div class="divCell">Specify the timeout for running **l0** commands. Values can be in h, m, s, or ms.</div>
+  </div>
+  <div class="divRow">
+    <div class=divCellNoWrap">-d, --debug
+    <div class="divCell">Print debug statements</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">--version</div>
@@ -187,7 +195,7 @@ Use the **create** subcommand to create an additional Layer0 environment (_envir
 #### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 environment create** [--size] [--min-count] [--user-data] [--os] [--ami] _environmentName_ </div>
+    <div class="divCellNoPadding">**l0 environment create** [_command options] _environmentName_ </div>
   </div>
 </div>
 
@@ -203,7 +211,7 @@ Use the **create** subcommand to create an additional Layer0 environment (_envir
 <div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap">--size</div>
-    <div class="divCell">The size of the EC2 instances to create in your environment (default: m3.medium).</div>
+    <div class="divCell">The instance size of the EC2 instances to create in your environment (default: m3.medium).</div>
   </div>
     <div class="divRow">
     <div class="divCellNoWrap">--min-count</div>
@@ -224,7 +232,7 @@ Use the **create** subcommand to create an additional Layer0 environment (_envir
   </div>
 </div>
 
-The user data template can be used to add custom configuration to your Layer0 environment.
+The user data template can be used to add custom configuration to your Layer0 environment. They are usually scripts that are executed at instance launch time to ensure an EC2 instance is in the correct state after the provisioning process finishes.
 Layer0 uses [Go Templates](https://golang.org/pkg/text/template) to render user data.
 Currently, two variables are passed into the template: **ECSEnvironmentID** and **S3Bucket**.
 Please review the [ECS Tutorial](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html)
@@ -465,7 +473,7 @@ Use the **logs** subcommand to display the logs from a Layer0 job that is curren
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 job logs**  [--start *MM/DD HH:MM*] [--end *MM/DD HH:MM*] [--tail=*N* ] _jobName_</div>
+    <div class="divCellNoPadding">**l0 job logs** [_command options_] _jobName_</div>
   </div>
 </div>
 
@@ -557,7 +565,7 @@ Use the **create** subcommand to create a new load balancer.
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 loadbalancer create** [--port _port_ --port _port_ ...] [--certificate _certificateName_] [--private] [healthcheck-flags]_environmentName loadBalancerName_</div>
+    <div class="divCellNoPadding">**l0 loadbalancer create** [_command options_] _environmentName loadBalancerName_</div>
   </div>
 </div>
 
@@ -577,10 +585,10 @@ Use the **create** subcommand to create a new load balancer.
 <div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap">
-      --port _hostPort:containerPort/protocol_
+      --port _hostPort:containerPort/protocol_ ...
     </div>
     <div class="divCell">
-      <p>The port configuration for the load balancer. _hostPort_ is the port on which the load balancer will listen for traffic; _containerPort_ is the port that traffic will be forwarded to. You can specify multiple ports using _--port xxx --port yyy_. If this option is not specified, Layer0 will use the following configuration: 80:80/tcp</p>
+      <p>The port configuration for the load balancer. Multiple ports can be specified using _--port xxx --port yyy_. _hostPort_ is the port on which the load balancer will listen for traffic; _containerPort_ is the port that traffic will be forwarded to. If this option is not specified, Layer0 will use the following configuration: 80:80/tcp</p>
     </div>
   </div>
   <div class="divRow">
@@ -698,7 +706,7 @@ Use the **addport** subcommand to add a new port configuration to an existing La
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 loadbalancer addport** *loadBalancerName hostPort:containerPort/protocol* [--certificate _certificateName_]</div>
+    <div class="divCellNoPadding">**l0 loadbalancer addport** [_--certificate certificateName_] *loadBalancerName hostPort:containerPort/protocol*</div>
   </div>
 </div>
 
@@ -765,19 +773,15 @@ Use the **get** subcommand to display information about an existing Layer0 load 
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 loadbalancer get** *environmentName:loadBalancerName*</div>
+    <div class="divCellNoPadding">**l0 loadbalancer get** *[environmentName:]loadBalancerName*</div>
   </div>
 </div>
 
 ####Required parameters
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">_environmentName_</div>
-    <div class="divCell">The name of an existing Layer0 environment.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">_loadBalancerName_</div>
-    <div class="divCell">The name of an existing Layer0 load balancer.</div>
+    <div class="divCellNoWrap">_[environmentName:]loadBalancerName_</div>
+    <div class="divCell">The name of an existing Layer0 load balancer. You can optionally provide the Layer0 Environment (_environmentName_) associated with the Load Balancer</div>
   </div>
 </div>
 
@@ -804,7 +808,7 @@ Use the **healthcheck** subcommand to display information about or update the co
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 loadbalancer healthcheck** [healthcheck-flags] *loadbalancerName*</div>
+    <div class="divCellNoPadding">**l0 loadbalancer healthcheck** [_command options_] *loadbalancerName*</div>
   </div>
 </div>
 
@@ -881,7 +885,7 @@ Use the **create** subcommand to create a Layer0 service.
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 service create** [--loadbalancer _environmentName:loadBalancerName_ ] [--no-logs] _environmentName serviceName deployName:deployVersion_</div>
+    <div class="divCellNoPadding">**l0 service create** [_command options_] _environmentName serviceName deployName[:deployVersion]_</div>
   </div>
 </div>
 
@@ -896,20 +900,16 @@ Use the **create** subcommand to create a Layer0 service.
     <div class="divCell">The name of an existing Layer0 environment.</div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap">_deployName_</div>
-    <div class="divCell">The name of a Layer0 deploy that exists in the environment _environmentName_.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">_deployVersion_</div>
-    <div class="divCell">The version number of the Layer0 deploy that you want to deploy. If you do not specify a version number, the latest version of the deploy will be used.</div>
+    <div class="divCellNoWrap">_deployName[:deployVersion]_</div>
+    <div class="divCell">The name of a Layer0 deploy that exists in the environment _environmentName_. You can optionally specify the version number of the Layer0 Deploy that you want to deploy. If you do not specify a version number, the latest version of the deploy will be used.</div>
   </div>
 </div>
 
 ####Optional arguments
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">--loadbalancer _environmentName:loadBalancerName_</div>
-    <div class="divCell">Place the new service behind an existing load balancer named _loadBalancerName_ in the environment named _environmentName_.</div>
+    <div class="divCellNoWrap">--loadbalancer _[environmentName:]loadBalancerName_</div>
+    <div class="divCell">Place the new service behind an existing load balancer named _loadBalancerName_. You can optionally specify the Layer0 Environment (_environmentName_) where the Load Balancer exists.</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">--no-logs</div>
@@ -923,19 +923,15 @@ Use the **update** subcommand to apply an existing Layer0 Deploy to an existing 
 #### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 service update** [--no-logs] _environmentName:serviceName deployName:deployVersion_</div>
+    <div class="divCellNoPadding">**l0 service update** [--no-logs] _[environmentName:]serviceName deployName:deployVersion_</div>
   </div>
 </div>
 
 ####Required parameters
 <div class="divTable">
- <div class="divRow">
-    <div class="divCellNoWrap">_environmentName_</div>
-    <div class="divCell">The name of the Layer0 environment in which the service resides.</div>
-  </div>
   <div class="divRow">
-    <div class="divCellNoWrap">_serviceName_</div>
-    <div class="divCell">The name of an existing Layer0 service into which you want to apply the deploy.</div>
+    <div class="divCellNoWrap">_[environmentName:]serviceName_</div>
+    <div class="divCell">The name of an existing Layer0 service into which you want to apply the deploy. You can optionally specify the Layer0 Environment (_environmentName_) of the service.</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">_deployName_</div>
@@ -966,19 +962,15 @@ Use the **delete** subcommand to delete an existing Layer0 service.
 #### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 service delete** [--wait] _environmentName:serviceName_</div>
+    <div class="divCellNoPadding">**l0 service delete** [--wait] _[environmentName:]serviceName_</div>
   </div>
 </div>
 
 ####Required parameters
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">_environmentName_</div>
-    <div class="divCell">The name of the Layer0 environment that contains the service you want to delete.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">_serviceName_</div>
-    <div class="divCell">The name of the Layer0 service that you want to delete.</div>
+    <div class="divCellNoWrap">_[environmentName:]serviceName_</div>
+    <div class="divCell">The name of the Layer0 service that you want to delete. You can optionally provide the Layer0 Environment (_environmentName_) of the service.</div>
   </div>
 </div>
 
@@ -1003,19 +995,15 @@ Use the **get** subcommand to display information about an existing Layer0 servi
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 service get** _environmentName:serviceName_</div>
+    <div class="divCellNoPadding">**l0 service get** _[environmentName:]serviceName_</div>
   </div>
 </div>
 
 ####Required parameters
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">_environmentName_</div>
-    <div class="divCell">The name of an existing Layer0 environment.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">_serviceName_</div>
-    <div class="divCell">The name of an existing Layer0 service.</div>
+    <div class="divCellNoWrap">_[environmentName:]serviceName_</div>
+    <div class="divCell">The name of an existing Layer0 service. You can optionally provide the Layer0 Environment (_environmentName_) of the service.</div>
   </div>
 </div>
 
@@ -1035,7 +1023,7 @@ Use the **logs** subcommand to display the logs from a Layer0 service that is cu
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 service logs** [--start *MM/DD HH:MM*] [--end *MM/DD HH:MM*] [--tail=*N* ] _serviceName_ </div>
+    <div class="divCellNoPadding">**l0 service logs** [_command options_] _serviceName_ </div>
   </div>
 </div>
 
@@ -1069,19 +1057,15 @@ Use the **scale** subcommand to specify how many copies of an existing Layer0 se
 ####Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 service scale** _environmentName:serviceName N_</div>
+    <div class="divCellNoPadding">**l0 service scale** _[environmentName:]serviceName N_</div>
   </div>
 </div>
 
 ####Required parameters
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">_environmentName_</div>
-    <div class="divCell">The name of the Layer0 environment that contains the service that you want to scale.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap">_serviceName_</div>
-    <div class="divCell">The name of the Layer0 service that you want to scale up.</div>
+    <div class="divCellNoWrap">_[environmentName:]serviceName_</div>
+    <div class="divCell">The name of the Layer0 service that you want to scale up. You can optionally provide the Layer0 Environment (_environmentName_) of the service.</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">_N_</div>
@@ -1102,7 +1086,7 @@ Use the **create** subcommand to create a Layer0 task.
 #### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 task create** [--no-logs] [--copies _copies_] *environmentName taskName deployName*</div>
+    <div class="divCellNoPadding">**l0 task create** [_command options_] *environmentName taskName deployName*</div>
   </div>
 </div>
 
@@ -1140,23 +1124,15 @@ Use the **delete** subcommand to delete an existing Layer0 task.
 #### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 task delete** [*environmentName*:]*taskName*</div>
+    <div class="divCellNoPadding">**l0 task delete** _[environmentName:]taskName_</div>
   </div>
 </div>
 
 ####Required parameters
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">_taskName_</div>
-    <div class="divCell">The name of the Layer0 task that you want to delete.</div>
-  </div>
-</div>
-
-####Optional parameters
-<div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap">[_environmentName_:]</div>
-    <div class="divCell">The name of the Layer0 environment that contains the task. This parameter is only necessary if multiple environments contain tasks with exactly the same name.</div>
+    <div class="divCellNoWrap">_[environmentName:]taskName_</div>
+    <div class="divCell">The name of the Layer0 task that you want to delete. You can optionally specify the name of the Layer0 Environment that contains the task. This parameter is only required if mulitiple environments contain tasks with exactly the same name.</div>
   </div>
 </div>
 
@@ -1173,15 +1149,15 @@ Use the **get** subcommand to display information about an existing Layer0 task 
 #### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 task get** [*environmentName*:]*taskName*</div>
+    <div class="divCellNoPadding">**l0 task get** _[environmentName:]taskName_</div>
   </div>
 </div>
 
 ####Required parameters
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">_taskName_</div>
-    <div class="divCell">The name of a Layer0 task for which you want to see information.</div>
+    <div class="divCellNoWrap">_[environmentName:]taskName_</div>
+    <div class="divCell">The name of a Layer0 task for which you want to see information. You can optionally specify the name of the Layer0 Environment that contains the task.</div>
   </div>
 </div>
 
@@ -1208,7 +1184,7 @@ Use the **logs** subcommand to display logs for a running Layer0 task.
 #### Usage
 <div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding">**l0 task logs** [--start *MM/DD HH:MM*] [--end *MM/DD HH:MM*] [--tail=*N* ] _taskName_</div>
+    <div class="divCellNoPadding">**l0 task logs** [_command options_] _taskName_</div>
   </div>
 </div>
 
