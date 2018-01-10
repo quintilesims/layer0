@@ -1,16 +1,16 @@
+
+
+
+
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+<html lang="en" class="no-js">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
       
-        <title>Layer0 CLI - Layer0</title>
-      
+        <meta name="description" content="Layer0 Documentation">
       
       
         <link rel="canonical" href="https://github.com/quintilesims/layer0/reference/cli/">
@@ -18,492 +18,3173 @@
       
         <meta name="author" content="xfra">
       
-    
-    <meta property="og:url" content="https://github.com/quintilesims/layer0/reference/cli/">
-    <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://github.com/quintilesims/layer0/reference/cli//../../static/logo_icon.png">
-    <meta name="apple-mobile-web-app-title" content="Layer0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-      <link rel="apple-touch-icon" href="../../static/logo_icon.png">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
-    <style>
-      @font-face {
-      	font-family: 'Icon';
-      	src: url('../../assets/fonts/icon.eot?52m981');
-      	src: url('../../assets/fonts/icon.eot?#iefix52m981')
-               format('embedded-opentype'),
-      		   url('../../assets/fonts/icon.woff?52m981')
-               format('woff'),
-      		   url('../../assets/fonts/icon.ttf?52m981')
-               format('truetype'),
-      		   url('../../assets/fonts/icon.svg?52m981#icon')
-               format('svg');
-      	font-weight: normal;
-      	font-style: normal;
-      }
-    </style>
-    <link rel="stylesheet" href="../../assets/stylesheets/application-b64b728552.css">
-    
-      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.3.0">
     
     
       
+        <title>Layer0 CLI - Layer0</title>
       
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application.0e9c8aca.css">
       
-      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Roboto+Mono">
-      <style>
-        body, input {
-          font-family: 'Roboto', Helvetica, Arial, sans-serif;
-        }
-        pre, code {
-          font-family: 'Roboto Mono', 'Courier New', 'Courier', monospace;
-        }
-      </style>
+        <link rel="stylesheet" href="../../assets/stylesheets/application-palette.792431c1.css">
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr.1aa3b519.js"></script>
+    
+    
+      
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     
       <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
     
   </head>
   
-  
-  
-  <body class="palette-primary-red palette-accent-grey">
     
-      
-      
-        
-      
     
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
+    
+      <body data-md-color-primary="red" data-md-color-accent="grey">
+    
+  
+    <svg class="md-svg">
+      <defs>
         
-          <span class="path">
-            
-              
-                Reference <i class="icon icon-link"></i>
-              
-            
-          </span>
         
-        Layer0 CLI
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="https://github.com/quintilesims/layer0/" title="Layer0" class="md-header-nav__button md-logo">
+          
+            <img src="../../static/logo_icon.png" width="24" height="24">
+          
+        </a>
       </div>
-    </div>
-    
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
       </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
-  
-  <a href="https://github.com/quintilesims/layer0/" class="project">
-    <div class="banner">
-      
-        <div class="logo">
-          <img src="../../static/logo_icon.png">
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            
+              <span class="md-header-nav__topic">
+                Layer0
+              </span>
+              <span class="md-header-nav__topic">
+                Layer0 CLI
+              </span>
+            
+          
         </div>
-      
-      <div class="name">
-        <strong>Layer0 v0.10.3</strong>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
         
-          <br>
-          quintilesims/layer0
+          
+            <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">&#xE5CD;</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+          
         
       </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+
+  <a href="https://github.com/quintilesims/layer0/" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
     </div>
   </a>
-  <div class="scrollable">
-    <div class="wrapper">
+
+          </div>
+        </div>
       
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="../../#download" title="Download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
       
-      <div class="toc">
-        <ul>
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
           
             
-  <li>
-    <a class="" title="Home" href="../..">
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <span class="md-nav__button md-logo">
+      
+        <img src="../../static/logo_icon.png" width="24" height="24">
+      
+    </span>
+    Layer0
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/quintilesims/layer0/" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
       Home
     </a>
-    
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Releases" href="../../releases/">
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../releases/" title="Releases" class="md-nav__link">
       Releases
     </a>
-    
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Introduction" href="../../intro/">
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../intro/" title="Introduction" class="md-nav__link">
       Introduction
     </a>
-    
   </li>
 
-          
-            
-  <li>
-    <span class="section">Setup</span>
-    <ul>
+    
       
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Setup
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        Setup
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
         
-  <li>
-    <a class="" title="Install" href="../../setup/install/">
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../setup/install/" title="Install" class="md-nav__link">
       Install
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Upgrade" href="../../setup/upgrade/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../setup/upgrade/" title="Upgrade" class="md-nav__link">
       Upgrade
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Destroy" href="../../setup/destroy/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../setup/destroy/" title="Destroy" class="md-nav__link">
       Destroy
     </a>
-    
   </li>
 
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Guides</span>
-    <ul>
-      
         
-  <li>
-    <a class="" title="Walkthrough: Introduction" href="../../guides/walkthrough/intro/">
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Guides
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../guides/walkthrough/intro/" title="Walkthrough: Introduction" class="md-nav__link">
       Walkthrough: Introduction
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Walkthrough: Deployment 1" href="../../guides/walkthrough/deployment-1/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../guides/walkthrough/deployment-1/" title="Walkthrough: Deployment 1" class="md-nav__link">
       Walkthrough: Deployment 1
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Walkthrough: Deployment 2" href="../../guides/walkthrough/deployment-2/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../guides/walkthrough/deployment-2/" title="Walkthrough: Deployment 2" class="md-nav__link">
       Walkthrough: Deployment 2
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Walkthrough: Deployment 3" href="../../guides/walkthrough/deployment-3/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../guides/walkthrough/deployment-3/" title="Walkthrough: Deployment 3" class="md-nav__link">
       Walkthrough: Deployment 3
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Terraform beyond Layer0" href="../../guides/terraform_beyond_layer0/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../guides/terraform_beyond_layer0/" title="Terraform beyond Layer0" class="md-nav__link">
       Terraform beyond Layer0
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="One-off Task" href="../../guides/one_off_task/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../guides/one_off_task/" title="One-off Task" class="md-nav__link">
       One-off Task
     </a>
-    
   </li>
 
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Reference</span>
-    <ul>
-      
         
-  <li>
-    <a class="current" title="Layer0 CLI" href="./">
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Layer0 CLI
+      </label>
+    
+    <a href="./" title="Layer0 CLI" class="md-nav__link md-nav__link--active">
       Layer0 CLI
     </a>
     
       
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-options" title="Global options" class="md-nav__link">
+    Global options
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
         
+          <li class="md-nav__item">
+  <a href="#usage" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#admin" title="Admin" class="md-nav__link">
+    Admin
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#admin-debug" title="admin debug" class="md-nav__link">
+    admin debug
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_1" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin-sql" title="admin sql" class="md-nav__link">
+    admin sql
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_2" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin-version" title="admin version" class="md-nav__link">
+    admin version
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_3" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy" title="Deploy" class="md-nav__link">
+    Deploy
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deploy-create" title="deploy create" class="md-nav__link">
+    deploy create
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_4" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_1" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-delete" title="deploy delete" class="md-nav__link">
+    deploy delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_5" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_1" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-get" title="deploy get" class="md-nav__link">
+    deploy get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_6" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_2" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_2" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-list" title="deploy list" class="md-nav__link">
+    deploy list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_7" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment" title="Environment" class="md-nav__link">
+    Environment
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#environment-create" title="environment create" class="md-nav__link">
+    environment create
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_8" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_3" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_1" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-delete" title="environment delete" class="md-nav__link">
+    environment delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_9" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_4" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_2" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_3" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-get" title="environment get" class="md-nav__link">
+    environment get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_10" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_5" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_4" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-list" title="environment list" class="md-nav__link">
+    environment list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_11" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-setmincount" title="environment setmincount" class="md-nav__link">
+    environment setmincount
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_12" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_6" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-link" title="environment link" class="md-nav__link">
+    environment link
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_13" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_7" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-unlink" title="environment unlink" class="md-nav__link">
+    environment unlink
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_14" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_8" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#job" title="Job" class="md-nav__link">
+    Job
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#job-logs" title="job logs" class="md-nav__link">
+    job logs
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_15" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_9" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_3" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#job-delete" title="job delete" class="md-nav__link">
+    job delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_16" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_10" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#job-get" title="job get" class="md-nav__link">
+    job get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_17" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_11" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_5" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#job-list" title="job list" class="md-nav__link">
+    job list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_18" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#loadbalancer" title="Loadbalancer" class="md-nav__link">
+    Loadbalancer
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-create" title="loadbalancer create" class="md-nav__link">
+    loadbalancer create
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_19" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_12" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_4" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-delete" title="loadbalancer delete" class="md-nav__link">
+    loadbalancer delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_20" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_13" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_5" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_6" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-addport" title="loadbalancer addport" class="md-nav__link">
+    loadbalancer addport
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_21" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_14" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_6" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_7" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-dropport" title="loadbalancer dropport" class="md-nav__link">
+    loadbalancer dropport
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_22" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_15" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-get" title="loadbalancer get" class="md-nav__link">
+    loadbalancer get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_23" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_16" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_8" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-list" title="loadbalancer list" class="md-nav__link">
+    loadbalancer list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_24" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-healthcheck" title="loadbalancer healthcheck" class="md-nav__link">
+    loadbalancer healthcheck
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_25" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_7" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_9" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service" title="Service" class="md-nav__link">
+    Service
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#service-create" title="service create" class="md-nav__link">
+    service create
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_26" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_17" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_8" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-update" title="service update" class="md-nav__link">
+    service update
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_27" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_18" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_10" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-delete" title="service delete" class="md-nav__link">
+    service delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_28" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_19" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_9" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_11" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-get" title="service get" class="md-nav__link">
+    service get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_29" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_20" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-list" title="service list" class="md-nav__link">
+    service list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_30" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-logs" title="service logs" class="md-nav__link">
+    service logs
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_31" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_21" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_10" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-scale" title="service scale" class="md-nav__link">
+    service scale
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_32" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_22" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task" title="Task" class="md-nav__link">
+    Task
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-create" title="task create" class="md-nav__link">
+    task create
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_33" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_23" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_11" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-delete" title="task delete" class="md-nav__link">
+    task delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_34" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_24" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_12" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-get" title="task get" class="md-nav__link">
+    task get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_35" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_25" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_13" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-list" title="task list" class="md-nav__link">
+    task list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_36" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-logs" title="task logs" class="md-nav__link">
+    task logs
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_37" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_26" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_12" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_14" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-list_1" title="task list" class="md-nav__link">
+    task list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_38" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
       
-        <ul>
-          
-            <li class="anchor">
-              <a title="Global options" href="#global-options">
-                Global options
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Admin" href="#admin">
-                Admin
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Deploy" href="#deploy">
-                Deploy
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Environment" href="#environment">
-                Environment
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Job" href="#job">
-                Job
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Loadbalancer" href="#loadbalancer">
-                Loadbalancer
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Service" href="#service">
-                Service
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Task" href="#task">
-                Task
-              </a>
-            </li>
-          
-        </ul>
       
+    </ul>
+  
+</nav>
     
   </li>
 
-      
         
-  <li>
-    <a class="" title="Layer0 Setup CLI" href="../setup-cli/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../setup-cli/" title="Layer0 Setup CLI" class="md-nav__link">
       Layer0 Setup CLI
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Terraform" href="../terraform_introduction/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../terraform_introduction/" title="Terraform" class="md-nav__link">
       Terraform
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Layer0 Terraform Plugin" href="../terraform-plugin/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../terraform-plugin/" title="Layer0 Terraform Plugin" class="md-nav__link">
       Layer0 Terraform Plugin
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Updating a Service" href="../updateservice/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../updateservice/" title="Updating a Service" class="md-nav__link">
       Updating a Service
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Consul" href="../consul/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../consul/" title="Consul" class="md-nav__link">
       Consul
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Task Definitions" href="../task_definition/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../task_definition/" title="Task Definitions" class="md-nav__link">
       Task Definitions
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Architecture" href="../architecture/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/" title="Architecture" class="md-nav__link">
       Architecture
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="ECR" href="../ecr/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ecr/" title="ECR" class="md-nav__link">
       ECR
     </a>
-    
   </li>
 
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Troubleshooting</span>
-    <ul>
-      
         
-  <li>
-    <a class="" title="Common Issues" href="../../troubleshooting/commonissues/">
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7">
+    
+    <label class="md-nav__link" for="nav-7">
+      Troubleshooting
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-7">
+        Troubleshooting
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../troubleshooting/commonissues/" title="Common Issues" class="md-nav__link">
       Common Issues
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Secure Shell (SSH)" href="../../troubleshooting/ssh/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../troubleshooting/ssh/" title="Secure Shell (SSH)" class="md-nav__link">
       Secure Shell (SSH)
     </a>
-    
   </li>
 
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#global-options" title="Global options" class="md-nav__link">
+    Global options
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#admin" title="Admin" class="md-nav__link">
+    Admin
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#admin-debug" title="admin debug" class="md-nav__link">
+    admin debug
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_1" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin-sql" title="admin sql" class="md-nav__link">
+    admin sql
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_2" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#admin-version" title="admin version" class="md-nav__link">
+    admin version
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_3" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy" title="Deploy" class="md-nav__link">
+    Deploy
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#deploy-create" title="deploy create" class="md-nav__link">
+    deploy create
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_4" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_1" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-delete" title="deploy delete" class="md-nav__link">
+    deploy delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_5" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_1" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-get" title="deploy get" class="md-nav__link">
+    deploy get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_6" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_2" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_2" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#deploy-list" title="deploy list" class="md-nav__link">
+    deploy list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_7" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment" title="Environment" class="md-nav__link">
+    Environment
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#environment-create" title="environment create" class="md-nav__link">
+    environment create
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_8" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_3" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_1" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-delete" title="environment delete" class="md-nav__link">
+    environment delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_9" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_4" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_2" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_3" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-get" title="environment get" class="md-nav__link">
+    environment get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_10" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_5" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_4" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-list" title="environment list" class="md-nav__link">
+    environment list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_11" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-setmincount" title="environment setmincount" class="md-nav__link">
+    environment setmincount
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_12" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_6" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-link" title="environment link" class="md-nav__link">
+    environment link
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_13" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_7" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#environment-unlink" title="environment unlink" class="md-nav__link">
+    environment unlink
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_14" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_8" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#job" title="Job" class="md-nav__link">
+    Job
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#job-logs" title="job logs" class="md-nav__link">
+    job logs
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_15" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_9" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_3" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#job-delete" title="job delete" class="md-nav__link">
+    job delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_16" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_10" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#job-get" title="job get" class="md-nav__link">
+    job get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_17" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_11" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_5" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#job-list" title="job list" class="md-nav__link">
+    job list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_18" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#loadbalancer" title="Loadbalancer" class="md-nav__link">
+    Loadbalancer
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-create" title="loadbalancer create" class="md-nav__link">
+    loadbalancer create
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_19" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_12" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_4" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-delete" title="loadbalancer delete" class="md-nav__link">
+    loadbalancer delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_20" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_13" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_5" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_6" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-addport" title="loadbalancer addport" class="md-nav__link">
+    loadbalancer addport
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_21" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_14" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_6" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_7" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-dropport" title="loadbalancer dropport" class="md-nav__link">
+    loadbalancer dropport
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_22" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_15" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-get" title="loadbalancer get" class="md-nav__link">
+    loadbalancer get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_23" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_16" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_8" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-list" title="loadbalancer list" class="md-nav__link">
+    loadbalancer list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_24" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loadbalancer-healthcheck" title="loadbalancer healthcheck" class="md-nav__link">
+    loadbalancer healthcheck
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_25" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_7" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_9" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service" title="Service" class="md-nav__link">
+    Service
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#service-create" title="service create" class="md-nav__link">
+    service create
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_26" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_17" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_8" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-update" title="service update" class="md-nav__link">
+    service update
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_27" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_18" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_10" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-delete" title="service delete" class="md-nav__link">
+    service delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_28" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_19" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_9" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_11" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-get" title="service get" class="md-nav__link">
+    service get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_29" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_20" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-list" title="service list" class="md-nav__link">
+    service list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_30" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-logs" title="service logs" class="md-nav__link">
+    service logs
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_31" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_21" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_10" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#service-scale" title="service scale" class="md-nav__link">
+    service scale
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_32" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_22" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#task" title="Task" class="md-nav__link">
+    Task
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#task-create" title="task create" class="md-nav__link">
+    task create
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_33" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_23" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_11" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-delete" title="task delete" class="md-nav__link">
+    task delete
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_34" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_24" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_12" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-get" title="task get" class="md-nav__link">
+    task get
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_35" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_25" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_13" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-list" title="task list" class="md-nav__link">
+    task list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_36" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-logs" title="task logs" class="md-nav__link">
+    task logs
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_37" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#required-parameters_26" title="Required parameters" class="md-nav__link">
+    Required parameters
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#optional-arguments_12" title="Optional arguments" class="md-nav__link">
+    Optional arguments
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#additional-information_14" title="Additional information" class="md-nav__link">
+    Additional information
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#task-list_1" title="task list" class="md-nav__link">
+    task list
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#usage_38" title="Usage" class="md-nav__link">
+    Usage
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
       
     </ul>
-  </li>
-
-          
-        </ul>
-        
-          <hr>
-          <span class="section">The author</span>
-          <ul>
-            
-            
-          </ul>
-        
-      </div>
-    </div>
-  </div>
+  
 </nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
+                  </div>
+                </div>
+              </div>
+            
           
-          <h1 id="layer0-cli-reference">Layer0 CLI Reference<a class="headerlink" href="#layer0-cli-reference" title="Permanent link">#</a></h1>
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/quintilesims/layer0/edit/master/docs/reference/cli.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="layer0-cli-reference">Layer0 CLI Reference<a class="headerlink" href="#layer0-cli-reference" title="Permanent link">#</a></h1>
 <h2 id="global-options">Global options<a class="headerlink" href="#global-options" title="Permanent link">#</a></h2>
 <p>The <strong>l0</strong> application is designed to be used with one of several subcommands: <a href="#admin">admin</a>, <a href="#deploy">deploy</a>, <a href="#environment">environment</a>, <a href="#job">job</a>, <a href="#loadbalancer">loadbalancer</a>, <a href="#service">service</a>, and <a href="#task">task</a>. These subcommands are detailed in the sections below. There are, however, some global parameters that you may specify when using <strong>l0</strong>.</p>
 <h4 id="usage">Usage<a class="headerlink" href="#usage" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0</strong> [<em>globalOptions</em>] <em>command</em> <em>subcommand</em> [<em>options</em>] [<em>parameters</em>]</div>
+    <div class="divCellNoPadding"><strong>l0</strong> [<em>globalOptions</em>] <em>command</em> [<em>command options</em>] [_arguments...]</div>
   </div>
 </div></p>
 <h4 id="optional-arguments">Optional arguments<a class="headerlink" href="#optional-arguments" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">--output {text|json}</div>
+    <div class="divCellNoWrap">-o {text|json}, --output {text|json}</div>
     <div class="divCell">Specify the format of Layer0 outputs. By default, Layer0 outputs unformatted text; by issuing the <strong>--output json</strong> option, you can force <strong>l0</strong> to output JSON-formatted text.</div>
+  </div>
+  <div class="divRow">
+    <div class=divCellNoWrap">-t value, --timeout value
+    <div class="divCell">Specify the timeout for running <strong>l0</strong> commands. Values can be in h, m, s, or ms.</div>
+  </div>
+  <div class="divRow">
+    <div class=divCellNoWrap">-d, --debug
+    <div class="divCell">Print debug statements</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">--version</div>
@@ -579,7 +3260,7 @@ If a <code>logConfiguration</code> section already exists, no changes are made t
 The additional section enables logs from each container to be sent to the the Layer0 log group.
 This is where logs are looked up during <code>l0 &lt;entity&gt; logs</code> commands.
 The added <code>logConfiguration</code> section uses the following template:</p>
-<pre class="code"><code>&quot;logConfiguration&quot;: {
+<div class="code"><pre><span></span>&quot;logConfiguration&quot;: {
     &quot;logDriver&quot;: &quot;awslogs&quot;,
         &quot;options&quot;: {
             &quot;awslogs-group&quot;: &quot;l0-&lt;prefix&gt;&quot;,
@@ -587,7 +3268,8 @@ The added <code>logConfiguration</code> section uses the following template:</p>
             &quot;awslogs-stream-prefix&quot;: &quot;l0&quot;
         }
     }
-}</code></pre>
+}
+</pre></div>
 
 
 <p></div>
@@ -646,7 +3328,7 @@ The <strong>environment</strong> command is used to manage Layer0 environments. 
 <h4 id="usage_8">Usage<a class="headerlink" href="#usage_8" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 environment create</strong> [--size] [--min-count] [--user-data] [--os] [--ami] <em>environmentName</em> </div>
+    <div class="divCellNoPadding"><strong>l0 environment create</strong> [<em>command options] _environmentName</em> </div>
   </div>
 </div></p>
 <h4 id="required-parameters_3">Required parameters<a class="headerlink" href="#required-parameters_3" title="Permanent link">#</a></h4>
@@ -660,7 +3342,7 @@ The <strong>environment</strong> command is used to manage Layer0 environments. 
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap">--size</div>
-    <div class="divCell">The size of the EC2 instances to create in your environment (default: m3.medium).</div>
+    <div class="divCell">The instance size of the EC2 instances to create in your environment (default: m3.medium).</div>
   </div>
     <div class="divRow">
     <div class="divCellNoWrap">--min-count</div>
@@ -680,81 +3362,91 @@ The <strong>environment</strong> command is used to manage Layer0 environments. 
     <div class="divCell">A custom AMI ID to use in the environment. If not specified, Layer0 will use its default AMI ID for the specified operating system.</div>
   </div>
 </div></p>
-<p>The user data template can be used to add custom configuration to your Layer0 environment.
+<p>The user data template can be used to add custom configuration to your Layer0 environment. They are usually scripts that are executed at instance launch time to ensure an EC2 instance is in the correct state after the provisioning process finishes.
 Layer0 uses <a href="https://golang.org/pkg/text/template">Go Templates</a> to render user data.
 Currently, two variables are passed into the template: <strong>ECSEnvironmentID</strong> and <strong>S3Bucket</strong>.
 Please review the <a href="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html">ECS Tutorial</a>
 to better understand how to write a user data template, and use at your own risk!</p>
 <p><strong>Linux Environments</strong>: The default Layer0 user data template is:</p>
-<pre class="code"><code class="language-bash linenums">#!/bin/bash
-echo ECS_CLUSTER={{ .ECSEnvironmentID }} &gt;&gt; /etc/ecs/ecs.config
-echo ECS_ENGINE_AUTH_TYPE=dockercfg &gt;&gt; /etc/ecs/ecs.config
+<table class="codetable"><tr><td class="linenos"><div class="linenodiv"><pre>1
+2
+3
+4
+5
+6
+7
+8
+9</pre></div></td><td class="code"><div class="code"><pre><span></span><span class="ch">#!/bin/bash</span>
+<span class="nb">echo</span> <span class="nv">ECS_CLUSTER</span><span class="o">={{</span> .ECSEnvironmentID <span class="o">}}</span> &gt;&gt; /etc/ecs/ecs.config
+<span class="nb">echo</span> <span class="nv">ECS_ENGINE_AUTH_TYPE</span><span class="o">=</span>dockercfg &gt;&gt; /etc/ecs/ecs.config
 yum install -y aws-cli awslogs jq
-aws s3 cp s3://{{ .S3Bucket }}/bootstrap/dockercfg dockercfg
-cfg=$(cat dockercfg)
-echo ECS_ENGINE_AUTH_DATA=$cfg &gt;&gt; /etc/ecs/ecs.config
+aws s3 cp s3://<span class="o">{{</span> .S3Bucket <span class="o">}}</span>/bootstrap/dockercfg dockercfg
+<span class="nv">cfg</span><span class="o">=</span><span class="k">$(</span>cat dockercfg<span class="k">)</span>
+<span class="nb">echo</span> <span class="nv">ECS_ENGINE_AUTH_DATA</span><span class="o">=</span><span class="nv">$cfg</span> &gt;&gt; /etc/ecs/ecs.config
 docker pull amazon/amazon-ecs-agent:latest
-start ecs</code></pre>
-
+start ecs
+</pre></div>
+</td></tr></table>
 
 <p><strong>Windows Environments</strong>: The default Layer0 user data template is:</p>
-<pre class="code"><code>&lt;powershell&gt;
-# Set agent env variables for the Machine context (durable)
-$clusterName = &quot;{{ .ECSEnvironmentID }}&quot;
-Write-Host Cluster name set as: $clusterName -foreground green
+<div class="code"><pre><span></span><span class="x">&lt;powershell&gt;</span>
+<span class="x"># Set agent env variables for the Machine context (durable)</span>
+<span class="x">$clusterName = &quot;</span><span class="cp">{{</span> <span class="nv">.ECSEnvironmentID</span> <span class="cp">}}</span><span class="x">&quot;</span>
+<span class="x">Write-Host Cluster name set as: $clusterName -foreground green</span>
 
-[Environment]::SetEnvironmentVariable(&quot;ECS_CLUSTER&quot;, $clusterName, &quot;Machine&quot;)
-[Environment]::SetEnvironmentVariable(&quot;ECS_ENABLE_TASK_IAM_ROLE&quot;, &quot;false&quot;, &quot;Machine&quot;)
-$agentVersion = 'v1.14.0-1.windows.1'
-$agentZipUri = &quot;https://s3.amazonaws.com/amazon-ecs-agent/ecs-agent-windows-$agentVersion.zip&quot;
-$agentZipMD5Uri = &quot;$agentZipUri.md5&quot;
+<span class="x">[Environment]::SetEnvironmentVariable(&quot;ECS_CLUSTER&quot;, $clusterName, &quot;Machine&quot;)</span>
+<span class="x">[Environment]::SetEnvironmentVariable(&quot;ECS_ENABLE_TASK_IAM_ROLE&quot;, &quot;false&quot;, &quot;Machine&quot;)</span>
+<span class="x">$agentVersion = &#39;v1.14.0-1.windows.1&#39;</span>
+<span class="x">$agentZipUri = &quot;https://s3.amazonaws.com/amazon-ecs-agent/ecs-agent-windows-$agentVersion.zip&quot;</span>
+<span class="x">$agentZipMD5Uri = &quot;$agentZipUri.md5&quot;</span>
 
-# Configure docker auth
-Read-S3Object -BucketName {{ .S3Bucket }} -Key bootstrap/dockercfg -File dockercfg.json
-$dockercfgContent = [IO.File]::ReadAllText(&quot;dockercfg.json&quot;)
-[Environment]::SetEnvironmentVariable(&quot;ECS_ENGINE_AUTH_DATA&quot;, $dockercfgContent, &quot;Machine&quot;)
-[Environment]::SetEnvironmentVariable(&quot;ECS_ENGINE_AUTH_TYPE&quot;, &quot;dockercfg&quot;, &quot;Machine&quot;)
+<span class="x"># Configure docker auth</span>
+<span class="x">Read-S3Object -BucketName </span><span class="cp">{{</span> <span class="nv">.S3Bucket</span> <span class="cp">}}</span><span class="x"> -Key bootstrap/dockercfg -File dockercfg.json</span>
+<span class="x">$dockercfgContent = [IO.File]::ReadAllText(&quot;dockercfg.json&quot;)</span>
+<span class="x">[Environment]::SetEnvironmentVariable(&quot;ECS_ENGINE_AUTH_DATA&quot;, $dockercfgContent, &quot;Machine&quot;)</span>
+<span class="x">[Environment]::SetEnvironmentVariable(&quot;ECS_ENGINE_AUTH_TYPE&quot;, &quot;dockercfg&quot;, &quot;Machine&quot;)</span>
 
-### --- Nothing user configurable after this point ---
-$ecsExeDir = &quot;$env:ProgramFiles\Amazon\ECS&quot;
-$zipFile = &quot;$env:TEMP\ecs-agent.zip&quot;
-$md5File = &quot;$env:TEMP\ecs-agent.zip.md5&quot;
+<span class="x">### --- Nothing user configurable after this point ---</span>
+<span class="x">$ecsExeDir = &quot;$env:ProgramFiles\Amazon\ECS&quot;</span>
+<span class="x">$zipFile = &quot;$env:TEMP\ecs-agent.zip&quot;</span>
+<span class="x">$md5File = &quot;$env:TEMP\ecs-agent.zip.md5&quot;</span>
 
-### Get the files from S3
-Invoke-RestMethod -OutFile $zipFile -Uri $agentZipUri
-Invoke-RestMethod -OutFile $md5File -Uri $agentZipMD5Uri
+<span class="x">### Get the files from S3</span>
+<span class="x">Invoke-RestMethod -OutFile $zipFile -Uri $agentZipUri</span>
+<span class="x">Invoke-RestMethod -OutFile $md5File -Uri $agentZipMD5Uri</span>
 
-## MD5 Checksum
-$expectedMD5 = (Get-Content $md5File)
-$md5 = New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider
-$actualMD5 = [System.BitConverter]::ToString($md5.ComputeHash([System.IO.File]::ReadAllBytes($zipFile))).replace('-', '')
-if($expectedMD5 -ne $actualMD5) {
-    echo &quot;Download doesn't match hash.&quot;
-    echo &quot;Expected: $expectedMD5 - Got: $actualMD5&quot;
-    exit 1
-}
+<span class="x">## MD5 Checksum</span>
+<span class="x">$expectedMD5 = (Get-Content $md5File)</span>
+<span class="x">$md5 = New-Object -TypeName System.Security.Cryptography.MD5CryptoServiceProvider</span>
+<span class="x">$actualMD5 = [System.BitConverter]::ToString($md5.ComputeHash([System.IO.File]::ReadAllBytes($zipFile))).replace(&#39;-&#39;, &#39;&#39;)</span>
+<span class="x">if($expectedMD5 -ne $actualMD5) {</span>
+<span class="x">    echo &quot;Download doesn&#39;t match hash.&quot;</span>
+<span class="x">    echo &quot;Expected: $expectedMD5 - Got: $actualMD5&quot;</span>
+<span class="x">    exit 1</span>
+<span class="x">}</span>
 
-## Put the executables in the executable directory.
-Expand-Archive -Path $zipFile -DestinationPath $ecsExeDir -Force
+<span class="x">## Put the executables in the executable directory.</span>
+<span class="x">Expand-Archive -Path $zipFile -DestinationPath $ecsExeDir -Force</span>
 
-## Start the agent script in the background.
-$jobname = &quot;ECS-Agent-Init&quot;
-$script =  &quot;cd '$ecsExeDir'; .\amazon-ecs-agent.ps1&quot;
-$repeat = (New-TimeSpan -Minutes 1)
-$jobpath = $env:LOCALAPPDATA + &quot;\Microsoft\Windows\PowerShell\ScheduledJobs\$jobname\ScheduledJobDefinition.xml&quot;
+<span class="x">## Start the agent script in the background.</span>
+<span class="x">$jobname = &quot;ECS-Agent-Init&quot;</span>
+<span class="x">$script =  &quot;cd &#39;$ecsExeDir&#39;; .\amazon-ecs-agent.ps1&quot;</span>
+<span class="x">$repeat = (New-TimeSpan -Minutes 1)</span>
+<span class="x">$jobpath = $env:LOCALAPPDATA + &quot;\Microsoft\Windows\PowerShell\ScheduledJobs\$jobname\ScheduledJobDefinition.xml&quot;</span>
 
-if($(Test-Path -Path $jobpath)) {
-  echo &quot;Job definition already present&quot;
-  exit 0
-}
+<span class="x">if($(Test-Path -Path $jobpath)) {</span>
+<span class="x">  echo &quot;Job definition already present&quot;</span>
+<span class="x">  exit 0</span>
+<span class="x">}</span>
 
-$scriptblock = [scriptblock]::Create(&quot;$script&quot;)
-$trigger = New-JobTrigger -At (Get-Date).Date -RepeatIndefinitely -RepetitionInterval $repeat -Once
-$options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery
-Register-ScheduledJob -Name $jobname -ScriptBlock $scriptblock -Trigger $trigger -ScheduledJobOption $options -RunNow
-Add-JobTrigger -Name $jobname -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:1:00)
-&lt;/powershell&gt;
-&lt;persist&gt;true&lt;/persist&gt;</code></pre>
+<span class="x">$scriptblock = [scriptblock]::Create(&quot;$script&quot;)</span>
+<span class="x">$trigger = New-JobTrigger -At (Get-Date).Date -RepeatIndefinitely -RepetitionInterval $repeat -Once</span>
+<span class="x">$options = New-ScheduledJobOption -RunElevated -ContinueIfGoingOnBattery -StartIfOnBattery</span>
+<span class="x">Register-ScheduledJob -Name $jobname -ScriptBlock $scriptblock -Trigger $trigger -ScheduledJobOption $options -RunNow</span>
+<span class="x">Add-JobTrigger -Name $jobname -Trigger (New-JobTrigger -AtStartup -RandomDelay 00:1:00)</span>
+<span class="x">&lt;/powershell&gt;</span>
+<span class="x">&lt;persist&gt;true&lt;/persist&gt;</span>
+</pre></div>
 
 
 <div class="admonition note">
@@ -892,7 +3584,7 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 <h4 id="usage_15">Usage<a class="headerlink" href="#usage_15" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 job logs</strong>  [--start <em>MM/DD HH:MM</em>] [--end <em>MM/DD HH:MM</em>] [--tail=<em>N</em> ] <em>jobName</em></div>
+    <div class="divCellNoPadding"><strong>l0 job logs</strong> [<em>command options</em>] <em>jobName</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_9">Required parameters<a class="headerlink" href="#required-parameters_9" title="Permanent link">#</a></h4>
@@ -969,7 +3661,7 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 <h4 id="usage_19">Usage<a class="headerlink" href="#usage_19" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 loadbalancer create</strong> [--port <em>port</em> --port <em>port</em> ...] [--certificate <em>certificateName</em>] [--private] [healthcheck-flags]<em>environmentName loadBalancerName</em></div>
+    <div class="divCellNoPadding"><strong>l0 loadbalancer create</strong> [<em>command options</em>] <em>environmentName loadBalancerName</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_12">Required parameters<a class="headerlink" href="#required-parameters_12" title="Permanent link">#</a></h4>
@@ -987,10 +3679,10 @@ The <strong>job</strong> command is used with the following subcommands: <a href
 <p><div class="divTable">
   <div class="divRow">
     <div class="divCellNoWrap">
-      --port <em>hostPort:containerPort/protocol</em>
+      --port <em>hostPort:containerPort/protocol</em> ...
     </div>
     <div class="divCell">
-      <p>The port configuration for the load balancer. <em>hostPort</em> is the port on which the load balancer will listen for traffic; <em>containerPort</em> is the port that traffic will be forwarded to. You can specify multiple ports using <em>--port xxx --port yyy</em>. If this option is not specified, Layer0 will use the following configuration: 80:80/tcp</p>
+      <p>The port configuration for the load balancer. Multiple ports can be specified using <em>--port xxx --port yyy</em>. <em>hostPort</em> is the port on which the load balancer will listen for traffic; <em>containerPort</em> is the port that traffic will be forwarded to. If this option is not specified, Layer0 will use the following configuration: 80:80/tcp</p>
     </div>
   </div>
   <div class="divRow">
@@ -1101,7 +3793,7 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_21">Usage<a class="headerlink" href="#usage_21" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 loadbalancer addport</strong> <em>loadBalancerName hostPort:containerPort/protocol</em> [--certificate <em>certificateName</em>]</div>
+    <div class="divCellNoPadding"><strong>l0 loadbalancer addport</strong> [<em>--certificate certificateName</em>] <em>loadBalancerName hostPort:containerPort/protocol</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_14">Required parameters<a class="headerlink" href="#required-parameters_14" title="Permanent link">#</a></h4>
@@ -1160,18 +3852,14 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_23">Usage<a class="headerlink" href="#usage_23" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 loadbalancer get</strong> <em>environmentName:loadBalancerName</em></div>
+    <div class="divCellNoPadding"><strong>l0 loadbalancer get</strong> <em>[environmentName:]loadBalancerName</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_16">Required parameters<a class="headerlink" href="#required-parameters_16" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap"><em>environmentName</em></div>
-    <div class="divCell">The name of an existing Layer0 environment.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>loadBalancerName</em></div>
-    <div class="divCell">The name of an existing Layer0 load balancer.</div>
+    <div class="divCellNoWrap"><em>[environmentName:]loadBalancerName</em></div>
+    <div class="divCell">The name of an existing Layer0 load balancer. You can optionally provide the Layer0 Environment (<em>environmentName</em>) associated with the Load Balancer</div>
   </div>
 </div></p>
 <h4 id="additional-information_8">Additional information<a class="headerlink" href="#additional-information_8" title="Permanent link">#</a></h4>
@@ -1193,7 +3881,7 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_25">Usage<a class="headerlink" href="#usage_25" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 loadbalancer healthcheck</strong> [healthcheck-flags] <em>loadbalancerName</em></div>
+    <div class="divCellNoPadding"><strong>l0 loadbalancer healthcheck</strong> [<em>command options</em>] <em>loadbalancerName</em></div>
   </div>
 </div></p>
 <h4 id="optional-arguments_7">Optional arguments<a class="headerlink" href="#optional-arguments_7" title="Permanent link">#</a></h4>
@@ -1263,7 +3951,7 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_26">Usage<a class="headerlink" href="#usage_26" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 service create</strong> [--loadbalancer <em>environmentName:loadBalancerName</em> ] [--no-logs] <em>environmentName serviceName deployName:deployVersion</em></div>
+    <div class="divCellNoPadding"><strong>l0 service create</strong> [<em>command options</em>] <em>environmentName serviceName deployName[:deployVersion]</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_17">Required parameters<a class="headerlink" href="#required-parameters_17" title="Permanent link">#</a></h4>
@@ -1277,19 +3965,15 @@ These default values together create a load balancer configured with a simple bu
     <div class="divCell">The name of an existing Layer0 environment.</div>
   </div>
   <div class="divRow">
-    <div class="divCellNoWrap"><em>deployName</em></div>
-    <div class="divCell">The name of a Layer0 deploy that exists in the environment <em>environmentName</em>.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>deployVersion</em></div>
-    <div class="divCell">The version number of the Layer0 deploy that you want to deploy. If you do not specify a version number, the latest version of the deploy will be used.</div>
+    <div class="divCellNoWrap"><em>deployName[:deployVersion]</em></div>
+    <div class="divCell">The name of a Layer0 deploy that exists in the environment <em>environmentName</em>. You can optionally specify the version number of the Layer0 Deploy that you want to deploy. If you do not specify a version number, the latest version of the deploy will be used.</div>
   </div>
 </div></p>
 <h4 id="optional-arguments_8">Optional arguments<a class="headerlink" href="#optional-arguments_8" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap">--loadbalancer <em>environmentName:loadBalancerName</em></div>
-    <div class="divCell">Place the new service behind an existing load balancer named <em>loadBalancerName</em> in the environment named <em>environmentName</em>.</div>
+    <div class="divCellNoWrap">--loadbalancer <em>[environmentName:]loadBalancerName</em></div>
+    <div class="divCell">Place the new service behind an existing load balancer named <em>loadBalancerName</em>. You can optionally specify the Layer0 Environment (<em>environmentName</em>) where the Load Balancer exists.</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap">--no-logs</div>
@@ -1301,18 +3985,14 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_27">Usage<a class="headerlink" href="#usage_27" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 service update</strong> [--no-logs] <em>environmentName:serviceName deployName:deployVersion</em></div>
+    <div class="divCellNoPadding"><strong>l0 service update</strong> [--no-logs] <em>[environmentName:]serviceName deployName:deployVersion</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_18">Required parameters<a class="headerlink" href="#required-parameters_18" title="Permanent link">#</a></h4>
 <p><div class="divTable">
- <div class="divRow">
-    <div class="divCellNoWrap"><em>environmentName</em></div>
-    <div class="divCell">The name of the Layer0 environment in which the service resides.</div>
-  </div>
   <div class="divRow">
-    <div class="divCellNoWrap"><em>serviceName</em></div>
-    <div class="divCell">The name of an existing Layer0 service into which you want to apply the deploy.</div>
+    <div class="divCellNoWrap"><em>[environmentName:]serviceName</em></div>
+    <div class="divCell">The name of an existing Layer0 service into which you want to apply the deploy. You can optionally specify the Layer0 Environment (<em>environmentName</em>) of the service.</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap"><em>deployName</em></div>
@@ -1339,18 +4019,14 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_28">Usage<a class="headerlink" href="#usage_28" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 service delete</strong> [--wait] <em>environmentName:serviceName</em></div>
+    <div class="divCellNoPadding"><strong>l0 service delete</strong> [--wait] <em>[environmentName:]serviceName</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_19">Required parameters<a class="headerlink" href="#required-parameters_19" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap"><em>environmentName</em></div>
-    <div class="divCell">The name of the Layer0 environment that contains the service you want to delete.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>serviceName</em></div>
-    <div class="divCell">The name of the Layer0 service that you want to delete.</div>
+    <div class="divCellNoWrap"><em>[environmentName:]serviceName</em></div>
+    <div class="divCell">The name of the Layer0 service that you want to delete. You can optionally provide the Layer0 Environment (<em>environmentName</em>) of the service.</div>
   </div>
 </div></p>
 <h4 id="optional-arguments_9">Optional arguments<a class="headerlink" href="#optional-arguments_9" title="Permanent link">#</a></h4>
@@ -1371,18 +4047,14 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_29">Usage<a class="headerlink" href="#usage_29" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 service get</strong> <em>environmentName:serviceName</em></div>
+    <div class="divCellNoPadding"><strong>l0 service get</strong> <em>[environmentName:]serviceName</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_20">Required parameters<a class="headerlink" href="#required-parameters_20" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap"><em>environmentName</em></div>
-    <div class="divCell">The name of an existing Layer0 environment.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>serviceName</em></div>
-    <div class="divCell">The name of an existing Layer0 service.</div>
+    <div class="divCellNoWrap"><em>[environmentName:]serviceName</em></div>
+    <div class="divCell">The name of an existing Layer0 service. You can optionally provide the Layer0 Environment (<em>environmentName</em>) of the service.</div>
   </div>
 </div></p>
 <h3 id="service-list">service list<a class="headerlink" href="#service-list" title="Permanent link">#</a></h3>
@@ -1398,7 +4070,7 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_31">Usage<a class="headerlink" href="#usage_31" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 service logs</strong> [--start <em>MM/DD HH:MM</em>] [--end <em>MM/DD HH:MM</em>] [--tail=<em>N</em> ] <em>serviceName</em> </div>
+    <div class="divCellNoPadding"><strong>l0 service logs</strong> [<em>command options</em>] <em>serviceName</em> </div>
   </div>
 </div></p>
 <h4 id="required-parameters_21">Required parameters<a class="headerlink" href="#required-parameters_21" title="Permanent link">#</a></h4>
@@ -1428,18 +4100,14 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_32">Usage<a class="headerlink" href="#usage_32" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 service scale</strong> <em>environmentName:serviceName N</em></div>
+    <div class="divCellNoPadding"><strong>l0 service scale</strong> <em>[environmentName:]serviceName N</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_22">Required parameters<a class="headerlink" href="#required-parameters_22" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap"><em>environmentName</em></div>
-    <div class="divCell">The name of the Layer0 environment that contains the service that you want to scale.</div>
-  </div>
-  <div class="divRow">
-    <div class="divCellNoWrap"><em>serviceName</em></div>
-    <div class="divCell">The name of the Layer0 service that you want to scale up.</div>
+    <div class="divCellNoWrap"><em>[environmentName:]serviceName</em></div>
+    <div class="divCell">The name of the Layer0 service that you want to scale up. You can optionally provide the Layer0 Environment (<em>environmentName</em>) of the service.</div>
   </div>
   <div class="divRow">
     <div class="divCellNoWrap"><em>N</em></div>
@@ -1455,7 +4123,7 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_33">Usage<a class="headerlink" href="#usage_33" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 task create</strong> [--no-logs] [--copies <em>copies</em>] <em>environmentName taskName deployName</em></div>
+    <div class="divCellNoPadding"><strong>l0 task create</strong> [<em>command options</em>] <em>environmentName taskName deployName</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_23">Required parameters<a class="headerlink" href="#required-parameters_23" title="Permanent link">#</a></h4>
@@ -1489,21 +4157,14 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_34">Usage<a class="headerlink" href="#usage_34" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 task delete</strong> [<em>environmentName</em>:]<em>taskName</em></div>
+    <div class="divCellNoPadding"><strong>l0 task delete</strong> <em>[environmentName:]taskName</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_24">Required parameters<a class="headerlink" href="#required-parameters_24" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap"><em>taskName</em></div>
-    <div class="divCell">The name of the Layer0 task that you want to delete.</div>
-  </div>
-</div></p>
-<h4 id="optional-parameters">Optional parameters<a class="headerlink" href="#optional-parameters" title="Permanent link">#</a></h4>
-<p><div class="divTable">
-  <div class="divRow">
-    <div class="divCellNoWrap">[<em>environmentName</em>:]</div>
-    <div class="divCell">The name of the Layer0 environment that contains the task. This parameter is only necessary if multiple environments contain tasks with exactly the same name.</div>
+    <div class="divCellNoWrap"><em>[environmentName:]taskName</em></div>
+    <div class="divCell">The name of the Layer0 task that you want to delete. You can optionally specify the name of the Layer0 Environment that contains the task. This parameter is only required if mulitiple environments contain tasks with exactly the same name.</div>
   </div>
 </div></p>
 <h4 id="additional-information_12">Additional information<a class="headerlink" href="#additional-information_12" title="Permanent link">#</a></h4>
@@ -1517,14 +4178,14 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_35">Usage<a class="headerlink" href="#usage_35" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 task get</strong> [<em>environmentName</em>:]<em>taskName</em></div>
+    <div class="divCellNoPadding"><strong>l0 task get</strong> <em>[environmentName:]taskName</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_25">Required parameters<a class="headerlink" href="#required-parameters_25" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoWrap"><em>taskName</em></div>
-    <div class="divCell">The name of a Layer0 task for which you want to see information.</div>
+    <div class="divCellNoWrap"><em>[environmentName:]taskName</em></div>
+    <div class="divCell">The name of a Layer0 task for which you want to see information. You can optionally specify the name of the Layer0 Environment that contains the task.</div>
   </div>
 </div></p>
 <h4 id="additional-information_13">Additional information<a class="headerlink" href="#additional-information_13" title="Permanent link">#</a></h4>
@@ -1546,7 +4207,7 @@ These default values together create a load balancer configured with a simple bu
 <h4 id="usage_37">Usage<a class="headerlink" href="#usage_37" title="Permanent link">#</a></h4>
 <p><div class="divTable">
   <div class="divRow">
-    <div class="divCellNoPadding"><strong>l0 task logs</strong> [--start <em>MM/DD HH:MM</em>] [--end <em>MM/DD HH:MM</em>] [--tail=<em>N</em> ] <em>taskName</em></div>
+    <div class="divCellNoPadding"><strong>l0 task logs</strong> [<em>command options</em>] <em>taskName</em></div>
   </div>
 </div></p>
 <h4 id="required-parameters_26">Required parameters<a class="headerlink" href="#required-parameters_26" title="Permanent link">#</a></h4>
@@ -1586,79 +4247,82 @@ These default values together create a load balancer configured with a simple bu
   </div>
 </div>
 =======</p>
-          <aside class="copyright" role="note">
-            
-            Documentation built with
-            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
-            using the
-            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
-              Material
-            </a>
-            theme.
-          </aside>
-          
-            <footer class="footer">
+                
+                  
+                
               
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
       
-        <a href="../../guides/one_off_task/" title="One-off Task">
-          <span class="direction">
-            Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../../guides/one_off_task/" title="One-off Task" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
-            <div class="stretch">
-              <div class="title">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
                 One-off Task
-              </div>
+              </span>
             </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../setup-cli/" title="Layer0 Setup CLI">
-          <span class="direction">
-            Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </a>
+        
+        
+          <a href="../setup-cli/" title="Layer0 Setup CLI" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
                 Layer0 Setup CLI
-              </div>
+              </span>
             </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
             </div>
-          </div>
-        </a>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+        
       
     </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
-      var base_url = '../..';
-      var repo_id  = 'quintilesims/layer0';
-    </script>
-    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
+  </div>
+</footer>
+      
+    </div>
     
+      <script src="../../assets/javascripts/application.cae2244d.js"></script>
+      
+      <script>app.initialize({version:"0.17.2",url:{base:"../.."}})</script>
+      
+    
+    
+      
     
   </body>
 </html>
