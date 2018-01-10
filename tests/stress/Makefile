@@ -5,6 +5,6 @@ init:
 	popd ; \
 
 test: init
-	go test -v -run NOTHING -bench . -timeout 2h 
+	go test -v -debug -run NOTHING -bench . -timeout 2h 
 
 .PHONY: init test
