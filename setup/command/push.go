@@ -3,7 +3,7 @@ package command
 import (
 	"fmt"
 
-	setup_instance "github.com/quintilesims/layer0/setup/instance"
+	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
 
@@ -19,8 +19,8 @@ func (f *CommandFactory) Push() cli.Command {
 				return err
 			}
 
-			instance := f.NewInstance(args["NAME"])
-			region, err := instance.Output(setup_instance.OUTPUT_AWS_REGION)
+			inst := f.NewInstance(args["NAME"])
+			region, err := inst.Output(instance.OUTPUT_AWS_REGION)
 			if err != nil {
 				return err
 			}
@@ -30,7 +30,7 @@ func (f *CommandFactory) Push() cli.Command {
 				return err
 			}
 
-			if err := instance.Push(provider.S3); err != nil {
+			if err := inst.Push(provider.S3); err != nil {
 				return err
 			}
 
