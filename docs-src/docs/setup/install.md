@@ -33,19 +33,19 @@ You will use the credentials created in this section when creating, updating, or
 
 1. In a web browser, login to the [AWS Console](http://console.aws.amazon.com/).
 
-2. Under **Security and Identity**, click **Identity and Access Management**.
+2. Click the **Services** dropdown menu in the upper left portion of the console page, then type **IAM** in the text box that appears at the top of the page after you click **Services**. As you type IAM, a search result will appear below the text box. Click on the IAM service result that appears below the text box.
 
-3. Click **Groups**, and then click **Administrators**. <div class="admonition note"><p class="admonition-title">Note</p><br /><p>If the **Administrators** group does not already exist, complete the following steps: <ol><li>Click **Create New Group**. Name the new group "Administrators", and then click **Next Step**.</li><li>Click **AdministratorAccess** to attach the Administrator policy to your new group.</li><li>Click **Next Step**, and then click **Create Group**.</li></ul></p></div>
+3. In the left panel, click **Groups**, and then confirm that you have a group called **Administrators**. <div class="admonition note"><p class="admonition-title">Note</p><br /><p>If the **Administrators** group does not already exist, complete the following steps: <ol><li>Click **Create New Group**. Name the new group **Administrators**, and then click **Next Step**.</li><li>Check the **AdministratorAccess** policy to attach the Administrator policy to your new group.</li><li>Click **Next Step**, and then click **Create Group**.</li></ul></p></div>
 
-4. Click **Users**.
+4. In the left panel, click **Users**.
 
-5. Click **Create New Users** and enter a unique user name you will use for Layer0. This user name can be used for multiple Layer0 installations. Check the box next to **Generate an Access Key for each user**, and then click **Create**.
+5. Click the **New User** button and enter a unique user name you will use for Layer0. This user name can be used for multiple Layer0 installations. Check the box next to **Programmatic access**, and then click the **Next: Permissions** button.
 
-6. Once your user account has been created, click **Download Credentials** to save your access key to a CSV file.
+6. Make sure the **Add user to group** button is highlighted. Find and check the box next to the group **Administrators**. Click **Next: Review** button to continue. This will make your newly created user an administrator for your AWS account, so be sure to keep your security credentials safe!
 
-7. In the Users list, click the user account you just created. Under **User Actions**, click **Add User to Groups**.
+7. Review your choices and then click the **Create user** button.
 
-8. Select the group **Administrators** and click **Add to Groups**. This will make your newly created user an administrator for your AWS account, so be sure to keep your security credentials safe!
+8. Once your user account has been created, click the **Download .csv** button to save your access and secret key to a CSV file.
 
 ## Part 3: Create a new Layer0 Instance
 Now that you have downloaded Layer0 and configured your AWS account, you can create your Layer0 instance.
@@ -102,9 +102,8 @@ l0-setup apply <instance_name>
 The first time you run the **apply** command, it may take around 5 minutes to complete. 
 This command is idempotent; it is safe to run multiple times if it fails the first.
 
-It's a good idea to run the **push** command (`l0-setup push <instance_name>`) after **apply** commands complete. 
-This will send a backup of your Layer0 instance's configuration and state to S3. 
-These files can be grabbed later using the **pull** command (`l0-setup pull <instance_name>`). 
+At the end of the apply command, your Layer0 instance's configuration and state will be automatically backed up to an S3 bucket. You can manually back up your configuration at any time using the **push** command. It's a good idea to run this command regularly (`l0-setup push <instance_name>`) to ensure that your configuration is backed up.
+These files can be downloaded at any time using the **pull** command (`l0-setup pull <instance_name>`).
 
 !!! note "Using a Private Docker Registry"
     **The procedures in this section are optional, but are highly recommended for production use.**
@@ -122,7 +121,7 @@ $ l0-setup init --docker-path=<path/to/config.json> <instance_name>
 This will add a rendered file into your Layer0 instance's directory at `~/.layer0/<instance_name>/dockercfg.json`.
 
 You can modify a Layer0 instance's `dockercfg.json` file and re-run the **apply** command (`l0-setup apply <instance_name>`) to make changes to your authentication. 
-Note that any EC2 instances created prior to changing your `dockercfg.json` file will need to be manually terminated since they only grab the authentication file during instance creation. 
+**Note:** Any EC2 instances created prior to changing your `dockercfg.json` file will need to be manually terminated since they only grab the authentication file during instance creation. 
 Terminated EC2 instances will be automatically re-created by autoscaling.
 
 
@@ -130,7 +129,7 @@ Terminated EC2 instances will be automatically re-created by autoscaling.
     **The procedures in this section must be followed to properly install Layer0 into an existing VPC**
 
 By default, l0-setup creates a new VPC to place resources. 
-However, l0-setup can place resources in an existing VPC if it meets the following conditions:
+However, l0-setup can place resources in an existing VPC if the VPC meets all of the following conditions:
 
 * Has access to the public internet (through a NAT instance or gateway)
 * Has at least 1 public and 1 private subnet
@@ -172,7 +171,7 @@ export LAYER0_SKIP_VERSION_VERIFY="1"
 ```
 
 The **--insecure** flag shows configurations that bypass SSL and version verifications. 
-This is required as the Layer0 API created uses a self-signed certificate by default.
+This is required as the Layer0 API created uses a self-signed SSL certificate by default.
 These settings are **not** recommended for production use!
 
 The **endpoint** command supports a `--syntax` option, which can be used to turn configuration into a single line:
