@@ -1,18 +1,20 @@
 package clients
 
 import (
-	"testing"
-
 	"github.com/quintilesims/layer0/cli/client"
 	"github.com/quintilesims/layer0/common/models"
 )
 
+type Tester interface {
+	Fatal(...interface{})
+}
+
 type Layer0TestClient struct {
-	T      *testing.T
+	T      Tester
 	Client *client.APIClient
 }
 
-func NewLayer0TestClient(t *testing.T, endpoint, token string) *Layer0TestClient {
+func NewLayer0TestClient(t Tester, endpoint, token string) *Layer0TestClient {
 	return &Layer0TestClient{
 		T: t,
 		Client: client.NewAPIClient(client.Config{
@@ -22,8 +24,8 @@ func NewLayer0TestClient(t *testing.T, endpoint, token string) *Layer0TestClient
 	}
 }
 
-func (l *Layer0TestClient) CreateTask(taskName, environmentID, deployID string, copies int, overrides []models.ContainerOverride) string {
-	jobID, err := l.Client.CreateTask(taskName, environmentID, deployID, copies, overrides)
+func (l *Layer0TestClient) CreateTask(taskName, environmentID, deployID string, overrides []models.ContainerOverride) string {
+	jobID, err := l.Client.CreateTask(taskName, environmentID, deployID, overrides)
 	if err != nil {
 		l.T.Fatal(err)
 	}
@@ -95,6 +97,15 @@ func (l *Layer0TestClient) GetTask(id string) *models.Task {
 	return task
 }
 
+func (l *Layer0TestClient) GetDeploy(id string) *models.Deploy {
+	deploy, err := l.Client.GetDeploy(id)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return deploy
+}
+
 func (l *Layer0TestClient) GetEnvironment(id string) *models.Environment {
 	environment, err := l.Client.GetEnvironment(id)
 	if err != nil {
@@ -102,6 +113,51 @@ func (l *Layer0TestClient) GetEnvironment(id string) *models.Environment {
 	}
 
 	return environment
+}
+
+func (l *Layer0TestClient) GetLoadBalancer(id string) *models.LoadBalancer {
+	loadBalancer, err := l.Client.GetLoadBalancer(id)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return loadBalancer
+}
+
+func (l *Layer0TestClient) ListDeploys() []*models.DeploySummary {
+	deploys, err := l.Client.ListDeploys()
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return deploys
+}
+
+func (l *Layer0TestClient) ListEnvironments() []*models.EnvironmentSummary {
+	environments, err := l.Client.ListEnvironments()
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return environments
+}
+
+func (l *Layer0TestClient) ListLoadBalancers() []*models.LoadBalancerSummary {
+	loadBalancers, err := l.Client.ListLoadBalancers()
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return loadBalancers
+}
+
+func (l *Layer0TestClient) ListServices() []*models.ServiceSummary {
+	services, err := l.Client.ListServices()
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return services
 }
 
 func (l *Layer0TestClient) ListTasks() []*models.TaskSummary {
