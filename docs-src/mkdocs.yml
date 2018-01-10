@@ -39,7 +39,13 @@ pages:
     - Secure Shell (SSH): troubleshooting/ssh.md
 
 site_dir: ../docs
-theme_dir: material
+
+theme:
+  name: 'material'
+  palette:
+    primary: 'indigo'
+    accent: 'indigo'
+
 extra:
     version: v0.10.3
     logo: 'static/logo_icon.png'

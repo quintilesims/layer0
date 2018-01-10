@@ -1,16 +1,16 @@
+
+
+
+
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+<html lang="en" class="no-js">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
       
-        <title>Walkthrough: Deployment 1 - Layer0</title>
-      
+        <meta name="description" content="Layer0 Documentation">
       
       
         <link rel="canonical" href="https://github.com/quintilesims/layer0/guides/walkthrough/deployment-1/">
@@ -18,443 +18,902 @@
       
         <meta name="author" content="xfra">
       
-    
-    <meta property="og:url" content="https://github.com/quintilesims/layer0/guides/walkthrough/deployment-1/">
-    <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://github.com/quintilesims/layer0/guides/walkthrough/deployment-1//../../../static/logo_icon.png">
-    <meta name="apple-mobile-web-app-title" content="Layer0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-      <link rel="apple-touch-icon" href="../../../static/logo_icon.png">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../../../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../../../assets/images/favicon-e565ddfa3b.ico">
-    <style>
-      @font-face {
-      	font-family: 'Icon';
-      	src: url('../../../assets/fonts/icon.eot?52m981');
-      	src: url('../../../assets/fonts/icon.eot?#iefix52m981')
-               format('embedded-opentype'),
-      		   url('../../../assets/fonts/icon.woff?52m981')
-               format('woff'),
-      		   url('../../../assets/fonts/icon.ttf?52m981')
-               format('truetype'),
-      		   url('../../../assets/fonts/icon.svg?52m981#icon')
-               format('svg');
-      	font-weight: normal;
-      	font-style: normal;
-      }
-    </style>
-    <link rel="stylesheet" href="../../../assets/stylesheets/application-b64b728552.css">
-    
-      <link rel="stylesheet" href="../../../assets/stylesheets/palettes-05ab2406df.css">
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.3.0">
     
     
       
+        <title>Walkthrough: Deployment 1 - Layer0</title>
       
+    
+    
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.0e9c8aca.css">
       
-      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Roboto+Mono">
-      <style>
-        body, input {
-          font-family: 'Roboto', Helvetica, Arial, sans-serif;
-        }
-        pre, code {
-          font-family: 'Roboto Mono', 'Courier New', 'Courier', monospace;
-        }
-      </style>
+        <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.792431c1.css">
+      
+    
+    
+      <script src="../../../assets/javascripts/modernizr.1aa3b519.js"></script>
+    
+    
+      
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     
       <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
-    <script src="../../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
     
   </head>
   
-  
-  
-  <body class="palette-primary-red palette-accent-grey">
     
-      
-      
-        
-      
     
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
+    
+      <body data-md-color-primary="indigo" data-md-color-accent="indigo">
+    
+  
+    <svg class="md-svg">
+      <defs>
         
-          <span class="path">
-            
-              
-                Guides <i class="icon icon-link"></i>
-              
-            
-          </span>
         
-        Walkthrough: Deployment 1
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="https://github.com/quintilesims/layer0/" title="Layer0" class="md-header-nav__button md-logo">
+          
+            <i class="md-icon"></i>
+          
+        </a>
       </div>
-    </div>
-    
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
       </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
-  
-  <a href="https://github.com/quintilesims/layer0/" class="project">
-    <div class="banner">
-      
-        <div class="logo">
-          <img src="../../../static/logo_icon.png">
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            
+              <span class="md-header-nav__topic">
+                Layer0
+              </span>
+              <span class="md-header-nav__topic">
+                Walkthrough: Deployment 1
+              </span>
+            
+          
         </div>
-      
-      <div class="name">
-        <strong>Layer0 v0.10.3</strong>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
         
-          <br>
-          quintilesims/layer0
+          
+            <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">&#xE5CD;</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+          
         
       </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+
+  <a href="https://github.com/quintilesims/layer0/" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
     </div>
   </a>
-  <div class="scrollable">
-    <div class="wrapper">
+
+          </div>
+        </div>
       
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="../../../#download" title="Download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
       
-      <div class="toc">
-        <ul>
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
           
             
-  <li>
-    <a class="" title="Home" href="../../..">
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <span class="md-nav__button md-logo">
+      
+        <i class="md-icon"></i>
+      
+    </span>
+    Layer0
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/quintilesims/layer0/" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../.." title="Home" class="md-nav__link">
       Home
     </a>
-    
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Releases" href="../../../releases/">
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../releases/" title="Releases" class="md-nav__link">
       Releases
     </a>
-    
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Introduction" href="../../../intro/">
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../../intro/" title="Introduction" class="md-nav__link">
       Introduction
     </a>
-    
   </li>
 
-          
-            
-  <li>
-    <span class="section">Setup</span>
-    <ul>
+    
       
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Setup
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        Setup
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
         
-  <li>
-    <a class="" title="Install" href="../../../setup/install/">
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../setup/install/" title="Install" class="md-nav__link">
       Install
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Upgrade" href="../../../setup/upgrade/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../setup/upgrade/" title="Upgrade" class="md-nav__link">
       Upgrade
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Destroy" href="../../../setup/destroy/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../setup/destroy/" title="Destroy" class="md-nav__link">
       Destroy
     </a>
-    
   </li>
 
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Guides</span>
-    <ul>
-      
         
-  <li>
-    <a class="" title="Walkthrough: Introduction" href="../intro/">
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5" checked>
+    
+    <label class="md-nav__link" for="nav-5">
+      Guides
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../intro/" title="Walkthrough: Introduction" class="md-nav__link">
       Walkthrough: Introduction
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="current" title="Walkthrough: Deployment 1" href="./">
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Walkthrough: Deployment 1
+      </label>
+    
+    <a href="./" title="Walkthrough: Deployment 1" class="md-nav__link md-nav__link--active">
       Walkthrough: Deployment 1
     </a>
     
       
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-with-layer0-cli" title="Deploy with Layer0 CLI" class="md-nav__link">
+    Deploy with Layer0 CLI
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
         
+          <li class="md-nav__item">
+  <a href="#part-1-create-the-environment" title="Part 1: Create the Environment" class="md-nav__link">
+    Part 1: Create the Environment
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-2-create-the-load-balancer" title="Part 2: Create the Load Balancer" class="md-nav__link">
+    Part 2: Create the Load Balancer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-3-deploy-the-ecs-task-definition" title="Part 3: Deploy the ECS Task Definition" class="md-nav__link">
+    Part 3: Deploy the ECS Task Definition
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-4-create-the-service" title="Part 4: Create the Service" class="md-nav__link">
+    Part 4: Create the Service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-the-status-of-the-service" title="Check the Status of the Service" class="md-nav__link">
+    Check the Status of the Service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-the-applications-url" title="Get the Application's URL" class="md-nav__link">
+    Get the Application's URL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs" title="Logs" class="md-nav__link">
+    Logs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleanup" title="Cleanup" class="md-nav__link">
+    Cleanup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-with-terraform" title="Deploy with Terraform" class="md-nav__link">
+    Deploy with Terraform
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tf-a-brief-aside" title="*.tf: A Brief Aside" class="md-nav__link">
+    *.tf: A Brief Aside
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-1-terraform-get" title="Part 1: Terraform Get" class="md-nav__link">
+    Part 1: Terraform Get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-2-terraform-init" title="Part 2: Terraform Init" class="md-nav__link">
+    Part 2: Terraform Init
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-3-terraform-plan" title="Part 3: Terraform Plan" class="md-nav__link">
+    Part 3: Terraform Plan
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-4-terraform-apply" title="Part 4: Terraform Apply" class="md-nav__link">
+    Part 4: Terraform Apply
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whats-happening" title="What's Happening" class="md-nav__link">
+    What's Happening
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleanup_1" title="Cleanup" class="md-nav__link">
+    Cleanup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
       
-        <ul>
-          
-            <li class="anchor">
-              <a title="Deploy with Layer0 CLI" href="#deploy-with-layer0-cli">
-                Deploy with Layer0 CLI
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Deploy with Terraform" href="#deploy-with-terraform">
-                Deploy with Terraform
-              </a>
-            </li>
-          
-        </ul>
       
+    </ul>
+  
+</nav>
     
   </li>
 
-      
         
-  <li>
-    <a class="" title="Walkthrough: Deployment 2" href="../deployment-2/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../deployment-2/" title="Walkthrough: Deployment 2" class="md-nav__link">
       Walkthrough: Deployment 2
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Walkthrough: Deployment 3" href="../deployment-3/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../deployment-3/" title="Walkthrough: Deployment 3" class="md-nav__link">
       Walkthrough: Deployment 3
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Terraform beyond Layer0" href="../../terraform_beyond_layer0/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../terraform_beyond_layer0/" title="Terraform beyond Layer0" class="md-nav__link">
       Terraform beyond Layer0
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="One-off Task" href="../../one_off_task/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../one_off_task/" title="One-off Task" class="md-nav__link">
       One-off Task
     </a>
-    
   </li>
 
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Reference</span>
-    <ul>
-      
         
-  <li>
-    <a class="" title="Layer0 CLI" href="../../../reference/cli/">
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6">
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/cli/" title="Layer0 CLI" class="md-nav__link">
       Layer0 CLI
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Layer0 Setup CLI" href="../../../reference/setup-cli/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/setup-cli/" title="Layer0 Setup CLI" class="md-nav__link">
       Layer0 Setup CLI
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Terraform" href="../../../reference/terraform_introduction/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/terraform_introduction/" title="Terraform" class="md-nav__link">
       Terraform
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Layer0 Terraform Plugin" href="../../../reference/terraform-plugin/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/terraform-plugin/" title="Layer0 Terraform Plugin" class="md-nav__link">
       Layer0 Terraform Plugin
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Updating a Service" href="../../../reference/updateservice/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/updateservice/" title="Updating a Service" class="md-nav__link">
       Updating a Service
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Consul" href="../../../reference/consul/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/consul/" title="Consul" class="md-nav__link">
       Consul
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Task Definitions" href="../../../reference/task_definition/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/task_definition/" title="Task Definitions" class="md-nav__link">
       Task Definitions
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Architecture" href="../../../reference/architecture/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/architecture/" title="Architecture" class="md-nav__link">
       Architecture
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="ECR" href="../../../reference/ecr/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../reference/ecr/" title="ECR" class="md-nav__link">
       ECR
     </a>
-    
   </li>
 
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Troubleshooting</span>
-    <ul>
-      
         
-  <li>
-    <a class="" title="Common Issues" href="../../../troubleshooting/commonissues/">
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7">
+    
+    <label class="md-nav__link" for="nav-7">
+      Troubleshooting
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-7">
+        Troubleshooting
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../troubleshooting/commonissues/" title="Common Issues" class="md-nav__link">
       Common Issues
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Secure Shell (SSH)" href="../../../troubleshooting/ssh/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../../troubleshooting/ssh/" title="Secure Shell (SSH)" class="md-nav__link">
       Secure Shell (SSH)
     </a>
-    
   </li>
 
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-with-layer0-cli" title="Deploy with Layer0 CLI" class="md-nav__link">
+    Deploy with Layer0 CLI
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#part-1-create-the-environment" title="Part 1: Create the Environment" class="md-nav__link">
+    Part 1: Create the Environment
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-2-create-the-load-balancer" title="Part 2: Create the Load Balancer" class="md-nav__link">
+    Part 2: Create the Load Balancer
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-3-deploy-the-ecs-task-definition" title="Part 3: Deploy the ECS Task Definition" class="md-nav__link">
+    Part 3: Deploy the ECS Task Definition
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-4-create-the-service" title="Part 4: Create the Service" class="md-nav__link">
+    Part 4: Create the Service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#check-the-status-of-the-service" title="Check the Status of the Service" class="md-nav__link">
+    Check the Status of the Service
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#get-the-applications-url" title="Get the Application's URL" class="md-nav__link">
+    Get the Application's URL
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#logs" title="Logs" class="md-nav__link">
+    Logs
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleanup" title="Cleanup" class="md-nav__link">
+    Cleanup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-with-terraform" title="Deploy with Terraform" class="md-nav__link">
+    Deploy with Terraform
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#tf-a-brief-aside" title="*.tf: A Brief Aside" class="md-nav__link">
+    *.tf: A Brief Aside
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-1-terraform-get" title="Part 1: Terraform Get" class="md-nav__link">
+    Part 1: Terraform Get
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-2-terraform-init" title="Part 2: Terraform Init" class="md-nav__link">
+    Part 2: Terraform Init
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-3-terraform-plan" title="Part 3: Terraform Plan" class="md-nav__link">
+    Part 3: Terraform Plan
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-4-terraform-apply" title="Part 4: Terraform Apply" class="md-nav__link">
+    Part 4: Terraform Apply
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#whats-happening" title="What's Happening" class="md-nav__link">
+    What's Happening
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#cleanup_1" title="Cleanup" class="md-nav__link">
+    Cleanup
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+      
       
     </ul>
-  </li>
-
-          
-        </ul>
-        
-          <hr>
-          <span class="section">The author</span>
-          <ul>
-            
-            
-          </ul>
-        
-      </div>
-    </div>
-  </div>
+  
 </nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
+                  </div>
+                </div>
+              </div>
+            
           
-          <h1 id="deployment-1-a-simple-guestbook-app">Deployment 1: A Simple Guestbook App<a class="headerlink" href="#deployment-1-a-simple-guestbook-app" title="Permanent link">#</a></h1>
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/quintilesims/layer0/edit/master/docs/guides/walkthrough/deployment-1.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="deployment-1-a-simple-guestbook-app">Deployment 1: A Simple Guestbook App<a class="headerlink" href="#deployment-1-a-simple-guestbook-app" title="Permanent link">#</a></h1>
 <p>In this section you'll learn how different Layer0 commands work together to deploy applications to the cloud.
 The example application in this section is a guestbook -- a web application that acts as a simple message board.
 You can choose to complete this section using either <a href="#deploy-with-layer0-cli">the Layer0 CLI</a> or <a href="#deploy-with-terraform">Terraform</a>.</p>
@@ -484,32 +943,36 @@ Here, we'll create a new environment named <strong>demo-env</strong>.
 At the command prompt, execute the following:</p>
 <p><code>l0 environment create demo-env</code></p>
 <p>We should see output like the following:</p>
-<pre class="code"><code>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium</code></pre>
+<div class="code"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
+demo00e6aa9     demo-env          0              m3.medium
+</pre></div>
 
 
 <p>We can inspect our environments in a couple of different ways:</p>
 <ul>
 <li><code>l0 environment list</code> will give us a brief summary of all environments:</li>
 </ul>
-<pre class="code"><code>ENVIRONMENT ID  ENVIRONMENT NAME
+<div class="code"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME
 demo00e6aa9     demo-env
-api             api</code></pre>
+api             api
+</pre></div>
 
 
 <ul>
 <li><code>l0 environment get demo-env</code> will show us more information about the <strong>demo-env</strong> environment we just created:</li>
 </ul>
-<pre class="code"><code>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium</code></pre>
+<div class="code"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
+demo00e6aa9     demo-env          0              m3.medium
+</pre></div>
 
 
 <ul>
 <li><code>l0 environment get \*</code> illustrates wildcard matching (you could also have used <code>demo*</code> in the above command), and it will return detailed information for <em>each</em> environment, not just one - it's like a detailed <code>list</code>:</li>
 </ul>
-<pre class="code"><code>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
+<div class="code"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
 demo00e6aa9     demo-env          0              m3.medium
-api             api               2              m3.medium</code></pre>
+api             api               2              m3.medium
+</pre></div>
 
 
 <hr />
@@ -525,8 +988,9 @@ Since the port configuration is already aligned with the default health check, w
 At the command prompt, execute the following:</p>
 <p><code>l0 loadbalancer create --port 80:80/http demo-env guestbook-lb</code></p>
 <p>We should see output like the following:</p>
-<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env              80:80/HTTP  true</code></pre>
+<div class="code"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
+guestbodb65a     guestbook-lb       demo-env              80:80/HTTP  true
+</pre></div>
 
 
 <p>The following is a summary of the arguments passed in the above command:</p>
@@ -557,8 +1021,9 @@ A deploy, once created, can be applied to multiple services - even across differ
 At the command prompt, execute the following:</p>
 <p><code>l0 deploy create Guestbook.Dockerrun.aws.json guestbook-dpl</code></p>
 <p>We should see output like the following:</p>
-<pre class="code"><code>DEPLOY ID        DEPLOY NAME    VERSION
-guestbook-dpl.1  guestbook-dpl  1</code></pre>
+<div class="code"><pre><span></span>DEPLOY ID        DEPLOY NAME    VERSION
+guestbook-dpl.1  guestbook-dpl  1
+</pre></div>
 
 
 <p>The following is a summary of the arguments passed in the above command:</p>
@@ -588,8 +1053,9 @@ The service will execute the Docker containers which have been described in the 
 <p>Here, we'll create a new service called <strong>guestbook-svc</strong>. At the command prompt, execute the following:</p>
 <p><code>l0 service create --loadbalancer demo-env:guestbook-lb demo-env guestbook-svc guestbook-dpl:latest</code></p>
 <p>We should see output like the following:</p>
-<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1</code></pre>
+<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1
+</pre></div>
 
 
 <p>The following is a summary of the arguments passed in the above command:</p>
@@ -613,18 +1079,21 @@ At the command prompt, execute the following:</p>
 <p><code>l0 service get demo-env:guestbook-svc</code></p>
 <p>If we're quick enough, we'll be able to see the first stage of the process (this is what was output after running the <code>service create</code> command up in Part 4).
 We should see an asterisk (*) next to the name of the <strong>guestbook-dpl:1</strong> deploy, which indicates that the service is in a transitional state:</p>
-<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1</code></pre>
+<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1
+</pre></div>
 
 
 <p>In the next phase of deployment, if we execute the <code>service get</code> command again, we will see <strong>(1)</strong> in the <strong>Scale</strong> column; this indicates that 1 copy of the service is transitioning to an active state:</p>
-<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1 (1)</code></pre>
+<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1 (1)
+</pre></div>
 
 
 <p>In the final phase of deployment, we will see <strong>1/1</strong> in the <strong>Scale</strong> column; this indicates that the service is running 1 copy:</p>
-<pre class="code"><code>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
-guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1   1/1</code></pre>
+<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1   1/1
+</pre></div>
 
 
 <hr />
@@ -633,8 +1102,9 @@ guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1   1/1</c
 <p>At the command prompt, execute the following:</p>
 <p><code>l0 loadbalancer get demo-env:guestbook-lb</code></p>
 <p>We should see output like the following:</p>
-<pre class="code"><code>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    &lt;url&gt;</code></pre>
+<div class="code"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
+guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    &lt;url&gt;
+</pre></div>
 
 
 <p>Copy the value shown in the <strong>URL</strong> column and paste it into a web browser.
@@ -642,7 +1112,8 @@ The guestbook application will appear (once the service has completely finished 
 <hr />
 <h3 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">#</a></h3>
 <p>Output from a Service's docker containers may be acquired by running the following command:</p>
-<pre class="code"><code>l0 service logs &lt;SERVICE&gt;</code></pre>
+<div class="code"><pre><span></span>l0 service logs &lt;SERVICE&gt;
+</pre></div>
 
 
 <hr />
@@ -697,42 +1168,45 @@ If you've followed along with the Layer0 CLI deployment above, it should be fair
 When we began the CLI deployment, our first step was to create an environment:</p>
 <p><code>l0 environment create demo-env</code></p>
 <p>This command is recreated in <code>main.tf</code> like so:</p>
-<pre class="code"><code class="language-hcl"># walkthrough/deployment-1/main.tf
+<div class="code"><pre><span></span># walkthrough/deployment-1/main.tf
 
 resource &quot;layer0_environment&quot; &quot;demo-env&quot; {
     name = &quot;demo-env&quot;
-}</code></pre>
+}
+</pre></div>
 
 
 <p>We've bundled up the heart of the Guestbook deployment (load balancer, deploy, service, etc.) into a <a href="https://www.terraform.io/docs/modules/usage.html">Terraform module</a>.
 To use it, we declare a <code>module</code> block and pass in the source of the module as well as any configuration or variables that the module needs.</p>
-<pre class="code"><code class="language-hcl"># walkthrough/deployment-1/main.tf
+<div class="code"><pre><span></span># walkthrough/deployment-1/main.tf
 
 module &quot;guestbook&quot; {
     source         = &quot;github.com/quintilesims/guides//guestbook/module&quot;
-    environment_id = &quot;${layer0_environment.demo.id}&quot;
-}</code></pre>
+    environment_id = &quot;<span class="cp">${</span><span class="n">layer0_environment</span><span class="o">.</span><span class="n">demo</span><span class="o">.</span><span class="n">id</span><span class="cp">}</span>&quot;
+}
+</pre></div>
 
 
 <p>You can see that we pass in the ID of the environment we create.
 All variables declared in this block are passed to the module, so the next file we should look at is <code>variables.tf</code> inside of the module to get an idea of what the module is expecting.</p>
 <p>There are a lot of variables here, but only one of them doesn't have a default value.</p>
-<pre class="code"><code class="language-hcl"># guestbook/module/variables.tf
+<div class="code"><pre><span></span># guestbook/module/variables.tf
 
 variable &quot;environment_id&quot; {
     description = &quot;id of the layer0 environment in which to create resources&quot;
-}</code></pre>
+}
+</pre></div>
 
 
 <p>You'll notice that this is the variable that we're passing in.
 For this particular deployment of the Guestbook, all of the default options are fine.
 We could override any of them if we wanted to, just by specifying a new value for them back in <code>deployment-1/main.tf</code>.</p>
 <p>Now that we've seen the variables that the module will have, let's take a look at part of <code>module/main.tf</code> and see how some of them might be used:</p>
-<pre class="code"><code class="language-hcl"># guestbook/module/main.tf
+<div class="code"><pre><span></span># guestbook/module/main.tf
 
 resource &quot;layer0_load_balancer&quot; &quot;guestbook-lb&quot; {
-    name = &quot;${var.load_balancer_name}&quot;
-    environment = &quot;${var.environment_id}&quot;
+    name = &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">load_balancer_name</span><span class="cp">}</span>&quot;
+    environment = &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">environment_id</span><span class="cp">}</span>&quot;
     port {
         host_port = 80
         container_port = 80
@@ -740,7 +1214,8 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook-lb&quot; {
     }
 }
 
-...</code></pre>
+...
+</pre></div>
 
 
 <p>You can follow <a href="../../../reference/terraform-plugin/">this link</a> to learn more about Layer0 resources in Terraform.</p>
@@ -750,20 +1225,58 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook-lb&quot; {
 At the command prompt, execute the following command:</p>
 <p><code>terraform get</code></p>
 <p>We should see output like the following:</p>
-<pre class="code"><code>Get: git::https://github.com/quintilesims/guides.git</code></pre>
+<div class="code"><pre><span></span><span class="n">Get</span><span class="o">:</span> <span class="n">git</span><span class="o">::</span><span class="n">https</span><span class="o">://</span><span class="n">github</span><span class="o">.</span><span class="na">com</span><span class="sr">/quintilesims/g</span><span class="n">uides</span><span class="o">.</span><span class="na">git</span>
+</pre></div>
 
 
 <p>We should now have a new local directory called <code>.terraform/</code>.
 We don't need to do anything with it; we just want to make sure it's there.</p>
 <hr />
-<h3 id="part-2-terraform-plan">Part 2: Terraform Plan<a class="headerlink" href="#part-2-terraform-plan" title="Permanent link">#</a></h3>
+<h3 id="part-2-terraform-init">Part 2: Terraform Init<a class="headerlink" href="#part-2-terraform-init" title="Permanent link">#</a></h3>
+<p>This deployment has provider dependencies so an init call must be made. 
+(Terraform v0.11~ requries init)
+At the command prompt, execute the following command:</p>
+<p><code>terraform init</code></p>
+<p>We should see output like the following:</p>
+<div class="code"><pre><span></span>Initializing modules...
+- module.guestbook
+
+Initializing provider plugins...
+- Checking for available provider plugins on https://releases.hashicorp.com...
+- Downloading plugin for provider &quot;template&quot; (1.0.0)...
+
+The following providers do not have any version constraints in configuration,
+so the latest version was installed.
+
+To prevent automatic upgrades to new major versions that may contain breaking
+changes, it is recommended to add version = &quot;...&quot; constraints to the
+corresponding provider blocks in configuration, with the constraint strings
+suggested below.
+
+* provider.template: version = &quot;~&gt; 1.0&quot;
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running &quot;terraform plan&quot; to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+</pre></div>
+
+
+<hr />
+<h3 id="part-3-terraform-plan">Part 3: Terraform Plan<a class="headerlink" href="#part-3-terraform-plan" title="Permanent link">#</a></h3>
 <p>Before we actually create/update/delete any resources, it's a good idea to find out what Terraform intends to do.</p>
 <p>Run <code>terraform plan</code>. Terraform will prompt you for configuration values that it does not have:</p>
-<pre class="code"><code>var.endpoint
+<div class="code"><pre><span></span>var.endpoint
     Enter a value:
 
 var.token
-    Enter a value:</code></pre>
+    Enter a value:
+</pre></div>
 
 
 <p>You can find these values by running <code>l0-setup endpoint &lt;your layer0 prefix&gt;</code>.</p>
@@ -772,7 +1285,7 @@ var.token
 <p>There are a few ways to configure Terraform so that you don't have to keep entering these values every time you run a Terraform command (editing the <code>terraform.tfvars</code> file, or exporting evironment variables like <code>TF_VAR_endpoint</code> and <code>TF_VAR_token</code>, for example). See the <a href="https://www.terraform.io/docs/configuration/variables.html">Terraform Docs</a> for more.</p>
 </div>
 <p>The <code>plan</code> command should give us output like the following:</p>
-<pre class="code"><code>Refreshing Terraform state in-memory prior to plan...
+<div class="code"><pre><span></span>Refreshing Terraform state in-memory prior to plan...
 The refreshed state will be used to calculate this plan, but will not be
 persisted to local or remote state storage.
 
@@ -783,16 +1296,16 @@ will be created (or destroyed and then created if an existing resource
 exists), yellow resources are being changed in-place, and red resources
 will be destroyed. Cyan entries are data sources to be read.
 
-Note: You didn't specify an &quot;-out&quot; parameter to save this plan, so when
-&quot;apply&quot; is called, Terraform can't guarantee this is what will execute.
+Note: You didn&#39;t specify an &quot;-out&quot; parameter to save this plan, so when
+&quot;apply&quot; is called, Terraform can&#39;t guarantee this is what will execute.
 
 + layer0_environment.demo
-    ami:               &quot;&lt;computed&gt;&quot;
-    cluster_count:     &quot;&lt;computed&gt;&quot;
-    links:             &quot;&lt;computed&gt;&quot;
+    ami:               &quot;<span class="nt">&lt;computed&gt;</span>&quot;
+    cluster_count:     &quot;<span class="nt">&lt;computed&gt;</span>&quot;
+    links:             &quot;<span class="nt">&lt;computed&gt;</span>&quot;
     name:              &quot;demo&quot;
     os:                &quot;linux&quot;
-    security_group_id: &quot;&lt;computed&gt;&quot;
+    security_group_id: &quot;<span class="nt">&lt;computed&gt;</span>&quot;
     size:              &quot;m3.medium&quot;
 
 + module.guestbook.layer0_deploy.guestbook
@@ -800,36 +1313,37 @@ Note: You didn't specify an &quot;-out&quot; parameter to save this plan, so whe
     name:    &quot;guestbook&quot;
 
 + module.guestbook.layer0_load_balancer.guestbook
-    environment:                    &quot;${var.environment_id}&quot;
-    health_check.#:                 &quot;&lt;computed&gt;&quot;
+    environment:                    &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">environment_id</span><span class="cp">}</span>&quot;
+    health_check.#:                 &quot;<span class="nt">&lt;computed&gt;</span>&quot;
     name:                           &quot;guestbook&quot;
     port.#:                         &quot;1&quot;
     port.2027667003.certificate:    &quot;&quot;
     port.2027667003.container_port: &quot;80&quot;
     port.2027667003.host_port:      &quot;80&quot;
     port.2027667003.protocol:       &quot;http&quot;
-    url:                            &quot;&lt;computed&gt;&quot;
+    url:                            &quot;<span class="nt">&lt;computed&gt;</span>&quot;
 
 + module.guestbook.layer0_service.guestbook
-    deploy:        &quot;${ var.deploy_id == \&quot;\&quot; ? layer0_deploy.guestbook.id : var.deploy_id }&quot;
-    environment:   &quot;${var.environment_id}&quot;
-    load_balancer: &quot;${layer0_load_balancer.guestbook.id}&quot;
+    deploy:        &quot;<span class="cp">${</span> <span class="n">var</span><span class="o">.</span><span class="n">deploy_id</span> <span class="o">==</span> \<span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2"> ? layer0_deploy.guestbook.id : var.deploy_id </span><span class="cp">}</span>&quot;
+    environment:   &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">environment_id</span><span class="cp">}</span>&quot;
+    load_balancer: &quot;<span class="cp">${</span><span class="n">layer0_load_balancer</span><span class="o">.</span><span class="n">guestbook</span><span class="o">.</span><span class="n">id</span><span class="cp">}</span>&quot;
     name:          &quot;guestbook&quot;
     scale:         &quot;1&quot;
     wait:          &quot;true&quot;
 
 
-Plan: 4 to add, 0 to change, 0 to destroy.</code></pre>
+Plan: 4 to add, 0 to change, 0 to destroy.
+</pre></div>
 
 
 <p>This shows you that Terraform intends to create a deploy, an environment, a load balancer, and a service, all through Layer0.</p>
 <p>If you've gone through this deployment using the <a href="#deploy-with-layer0-cli">Layer0 CLI</a>, you may notice that these resources appear out of order - that's fine. Terraform presents these resources in alphabetical order, but underneath, it knows the correct order in which to create them.</p>
 <p>Once we're satisfied that Terraform will do what we want it to do, we can move on to actually making these things exist!</p>
 <hr />
-<h3 id="part-3-terraform-apply">Part 3: Terraform Apply<a class="headerlink" href="#part-3-terraform-apply" title="Permanent link">#</a></h3>
+<h3 id="part-4-terraform-apply">Part 4: Terraform Apply<a class="headerlink" href="#part-4-terraform-apply" title="Permanent link">#</a></h3>
 <p>Run <code>terraform apply</code> to begin the process.</p>
 <p>We should see output like the following:</p>
-<pre class="code"><code>layer0_environment.demo: Refreshing state...
+<div class="code"><pre><span></span>layer0_environment.demo: Refreshing state...
 ...
 ...
 ...
@@ -846,7 +1360,8 @@ State path: terraform.tfstate
 
 Outputs:
 
-guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
+guestbook_url = &lt;http endpoint for the sample application&gt;
+</pre></div>
 
 
 <div class="admonition note">
@@ -860,79 +1375,82 @@ guestbook_url = &lt;http endpoint for the sample application&gt;</code></pre>
 <p><code>terraform destroy</code></p>
 <p>It's also now safe to remove the <code>.terraform/</code> directory and the <code>*.tfstate*</code> files.</p>
 <hr />
-          <aside class="copyright" role="note">
-            
-            Documentation built with
-            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
-            using the
-            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
-              Material
-            </a>
-            theme.
-          </aside>
-          
-            <footer class="footer">
+                
+                  
+                
               
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
       
-        <a href="../intro/" title="Walkthrough: Introduction">
-          <span class="direction">
-            Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../intro/" title="Walkthrough: Introduction" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
-            <div class="stretch">
-              <div class="title">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
                 Walkthrough: Introduction
-              </div>
+              </span>
             </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../deployment-2/" title="Walkthrough: Deployment 2">
-          <span class="direction">
-            Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </a>
+        
+        
+          <a href="../deployment-2/" title="Walkthrough: Deployment 2" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
                 Walkthrough: Deployment 2
-              </div>
+              </span>
             </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
             </div>
-          </div>
-        </a>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+        
       
     </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
-      var base_url = '../../..';
-      var repo_id  = 'quintilesims/layer0';
-    </script>
-    <script src="../../../assets/javascripts/application-997097ee0c.js"></script>
+  </div>
+</footer>
+      
+    </div>
     
+      <script src="../../../assets/javascripts/application.cae2244d.js"></script>
+      
+      <script>app.initialize({version:"0.17.2",url:{base:"../../.."}})</script>
+      
+    
+    
+      
     
   </body>
 </html>
