@@ -105,7 +105,7 @@ This command is idempotent; it is safe to run multiple times if it fails the fir
 At the end of the apply command, your Layer0 instance's configuration and state will be automatically backed up to an S3 bucket. You can manually back up your configuration at any time using the **push** command. It's a good idea to run this command regularly (`l0-setup push <instance_name>`) to ensure that your configuration is backed up.
 These files can be downloaded at any time using the **pull** command (`l0-setup pull <instance_name>`).
 
-!!! note "Using a Private Docker Registry"
+!!! info "Using a Private Docker Registry"
     **The procedures in this section are optional, but are highly recommended for production use.**
 
 If you require authentication to a private Docker registry, you will need a Docker configuration file present on your machine with access to private repositories (typically located at `~/.docker/config.json`). 
@@ -125,8 +125,8 @@ You can modify a Layer0 instance's `dockercfg.json` file and re-run the **apply*
 Terminated EC2 instances will be automatically re-created by autoscaling.
 
 
-!!! note "Using an Existing VPC"
-    **The procedures in this section must be followed to properly install Layer0 into an existing VPC**
+!!! warning "Using an Existing VPC"
+    **The procedures in this section must be followed precisely to properly install Layer0 into an existing VPC**
 
 By default, l0-setup creates a new VPC to place resources. 
 However, l0-setup can place resources in an existing VPC if the VPC meets all of the following conditions:

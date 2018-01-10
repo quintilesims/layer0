@@ -783,7 +783,7 @@ Layer0 Services that use Consul will run Registrator alongside their application
 <p>For an example of a Deploy that uses Consul, see the <a href="../../guides/guestbook_consul">Guestbook with Consul</a> guide.</p>
 <hr />
 <h2 id="registrator-container-definition">Registrator Container Definition<a class="headerlink" href="#registrator-container-definition" title="Permanent link">#</a></h2>
-<div class="code"><pre><span></span>{
+<div class="codehilite"><pre><span></span>{
     &quot;name&quot;: &quot;registrator&quot;,
     &quot;image&quot;: &quot;gliderlabs/registrator:master&quot;,
     &quot;essential&quot;: true,
@@ -807,7 +807,7 @@ Layer0 Services that use Consul will run Registrator alongside their application
 <p class="admonition-title">Warning</p>
 </div>
 <p>You must replace <code>&lt;url&gt;</code> with your Layer0 Consul Load Balancer's</p>
-<div class="code"><pre><span></span>{
+<div class="codehilite"><pre><span></span>{
     &quot;name&quot;: &quot;consul-agent&quot;,
     &quot;image&quot;: &quot;progrium/consul&quot;,
     &quot;essential&quot;: true,
@@ -849,7 +849,7 @@ Layer0 Services that use Consul will run Registrator alongside their application
 </ul>
 <hr />
 <h2 id="docker-socket-volume-definition">Docker Socket Volume Definition<a class="headerlink" href="#docker-socket-volume-definition" title="Permanent link">#</a></h2>
-<div class="code"><pre><span></span>&quot;volumes&quot;: [
+<div class="codehilite"><pre><span></span>&quot;volumes&quot;: [
     {
         &quot;name&quot;: &quot;dockersocket&quot;,
         &quot;host&quot;: {

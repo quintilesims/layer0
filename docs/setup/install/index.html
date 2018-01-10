@@ -785,14 +785,14 @@ You will use the credentials created in this section when creating, updating, or
 <h2 id="part-3-create-a-new-layer0-instance">Part 3: Create a new Layer0 Instance<a class="headerlink" href="#part-3-create-a-new-layer0-instance" title="Permanent link">#</a></h2>
 <p>Now that you have downloaded Layer0 and configured your AWS account, you can create your Layer0 instance.
 From a command prompt, run the following (replacing <code>&lt;instance_name&gt;</code> with a name for your Layer0 instance):</p>
-<div class="code"><pre><span></span>$ l0-setup init &lt;instance_name&gt;
+<div class="codehilite"><pre><span></span>$ l0-setup init &lt;instance_name&gt;
 </pre></div>
 
 
 <p>This command will prompt you for many different inputs. 
 Enter the required values for <strong>AWS Access Key</strong>, <strong>AWS Secret Key</strong>, and <strong>AWS SSH Key</strong> as they come up.
 All remaining inputs are optional and can be set to their default by pressing enter.</p>
-<div class="code"><pre><span></span>...
+<div class="codehilite"><pre><span></span>...
 AWS Access Key: The access_key input variable is used to provision the AWS resources
 required for Layer0. This corresponds to the Access Key ID portion of an AWS Access Key.
 It is recommended this key has the &#39;AdministratorAccess&#39; policy. Note that Layer0 will
@@ -828,7 +828,7 @@ Please enter a value and press &#39;enter&#39;.
 
 <p>Once the <strong>init</strong> command has successfully completed, you're ready to actually create the resources needed to use Layer0.
 Run the following command (again, replace <code>&lt;instance_name&gt;</code> with the name you've chosen for your Layer0 instance):</p>
-<div class="code"><pre><span></span>l0-setup apply &lt;instance_name&gt;
+<div class="codehilite"><pre><span></span>l0-setup apply &lt;instance_name&gt;
 </pre></div>
 
 
@@ -836,7 +836,7 @@ Run the following command (again, replace <code>&lt;instance_name&gt;</code> wit
 This command is idempotent; it is safe to run multiple times if it fails the first.</p>
 <p>At the end of the apply command, your Layer0 instance's configuration and state will be automatically backed up to an S3 bucket. You can manually back up your configuration at any time using the <strong>push</strong> command. It's a good idea to run this command regularly (<code>l0-setup push &lt;instance_name&gt;</code>) to ensure that your configuration is backed up.
 These files can be downloaded at any time using the <strong>pull</strong> command (<code>l0-setup pull &lt;instance_name&gt;</code>).</p>
-<div class="admonition note">
+<div class="admonition info">
 <p class="admonition-title">Using a Private Docker Registry</p>
 <p><strong>The procedures in this section are optional, but are highly recommended for production use.</strong></p>
 </div>
@@ -844,7 +844,7 @@ These files can be downloaded at any time using the <strong>pull</strong> comman
 <p>If you don't have a config file yet, you can generate one by running <code>docker login [registry-address]</code>. 
 A configuration file will be generated at <code>~/.docker/config.json</code>.</p>
 <p>To add this authentication to your Layer0 instance, run:</p>
-<div class="code"><pre><span></span>$ l0-setup init --docker-path<span class="o">=</span>&lt;path/to/config.json&gt; &lt;instance_name&gt;
+<div class="codehilite"><pre><span></span>$ l0-setup init --docker-path<span class="o">=</span>&lt;path/to/config.json&gt; &lt;instance_name&gt;
 </pre></div>
 
 
@@ -852,9 +852,9 @@ A configuration file will be generated at <code>~/.docker/config.json</code>.</p
 <p>You can modify a Layer0 instance's <code>dockercfg.json</code> file and re-run the <strong>apply</strong> command (<code>l0-setup apply &lt;instance_name&gt;</code>) to make changes to your authentication. 
 <strong>Note:</strong> Any EC2 instances created prior to changing your <code>dockercfg.json</code> file will need to be manually terminated since they only grab the authentication file during instance creation. 
 Terminated EC2 instances will be automatically re-created by autoscaling.</p>
-<div class="admonition note">
+<div class="admonition warning">
 <p class="admonition-title">Using an Existing VPC</p>
-<p><strong>The procedures in this section must be followed to properly install Layer0 into an existing VPC</strong></p>
+<p><strong>The procedures in this section must be followed precisely to properly install Layer0 into an existing VPC</strong></p>
 </div>
 <p>By default, l0-setup creates a new VPC to place resources. 
 However, l0-setup can place resources in an existing VPC if the VPC meets all of the following conditions:</p>
@@ -866,7 +866,7 @@ For information on how to tag AWS resources, please visit the <a href="http://do
 </ul>
 <p>Once you are sure the existing VPC satisfies these requirements, run the <strong>init</strong> command, 
 placing the VPC ID when prompted:</p>
-<div class="code"><pre><span></span>$ l0-setup init &lt;instance_name&gt;
+<div class="codehilite"><pre><span></span>$ l0-setup init &lt;instance_name&gt;
 ...
 VPC ID <span class="o">(</span>optional<span class="o">)</span>: The vpc_id input variable specifies an existing AWS VPC to provision
 the AWS resources required <span class="k">for</span> Layer0. If no input is specified, a new VPC will be
@@ -887,7 +887,7 @@ Please enter a new value, or press <span class="s1">&#39;enter&#39;</span> to ke
 <p>Once the command has completed, it is safe to run <strong>apply</strong> to provision the resources. </p>
 <h2 id="part-4-connect-to-a-layer0-instance">Part 4: Connect to a Layer0 Instance<a class="headerlink" href="#part-4-connect-to-a-layer0-instance" title="Permanent link">#</a></h2>
 <p>Once the <strong>apply</strong> command has run successfully, you can configure the environment variables needed to connect to the Layer0 API using the <strong>endpoint</strong> command.</p>
-<div class="code"><pre><span></span>$ l0-setup endpoint --insecure &lt;instance_name&gt;
+<div class="codehilite"><pre><span></span>$ l0-setup endpoint --insecure &lt;instance_name&gt;
 <span class="nb">export</span> <span class="nv">LAYER0_API_ENDPOINT</span><span class="o">=</span><span class="s2">&quot;https://l0-instance_name-api-123456.us-west-2.elb.amazonaws.com&quot;</span>
 <span class="nb">export</span> <span class="nv">LAYER0_AUTH_TOKEN</span><span class="o">=</span><span class="s2">&quot;abcDEFG123&quot;</span>
 <span class="nb">export</span> <span class="nv">LAYER0_SKIP_SSL_VERIFY</span><span class="o">=</span><span class="s2">&quot;1&quot;</span>

@@ -941,7 +941,7 @@ We'll also need to specify a non-default healthcheck target, since the load bala
 At the command prompt, execute the following:</p>
 <p><code>l0 loadbalancer create --port 6379:6379/tcp --private --healthcheck-target tcp:6379 demo-env redis-lb</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS          PUBLIC  URL
+<div class="codehilite"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS          PUBLIC  URL
 redislb16ae6     redis-lb           demo-env              6378:6379:TCP  false
 </pre></div>
 
@@ -961,7 +961,7 @@ redislb16ae6     redis-lb           demo-env              6378:6379:TCP  false
 At the command prompt, execute the following:</p>
 <p><code>l0 deploy create Redis.Dockerrun.aws.json redis-dpl</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>DEPLOY ID    DEPLOY NAME  VERSION
+<div class="codehilite"><pre><span></span>DEPLOY ID    DEPLOY NAME  VERSION
 redis-dpl.1  redis-dpl    1
 </pre></div>
 
@@ -978,7 +978,7 @@ redis-dpl.1  redis-dpl    1
 At the command prompt, execute the following:</p>
 <p><code>l0 service create --wait --loadbalancer demo-env:redis-lb demo-env redis-svc redis-dpl:latest</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE
+<div class="codehilite"><pre><span></span>SERVICE ID    SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE
 redislb16ae6  redis-svc     demo-env     redis-lb      redis-dpl:1  0/1
 </pre></div>
 
@@ -1005,7 +1005,7 @@ redislb16ae6  redis-svc     demo-env     redis-lb      redis-dpl:1  0/1
 <p>Once the service has finished scaling, try looking at the service's logs to see the output that the Redis server creates:</p>
 <p><code>l0 service logs redis-svc</code></p>
 <p>Among some warnings and information not important to this exercise and a fun bit of ASCII art, you should see something like the following:</p>
-<div class="code"><pre><span></span>... # words and ASCII art
+<div class="codehilite"><pre><span></span>... # words and ASCII art
 1:M 05 Apr 23:29:47.333 * The server is now ready to accept connections on port 6379
 </pre></div>
 
@@ -1015,7 +1015,7 @@ redislb16ae6  redis-svc     demo-env     redis-lb      redis-dpl:1  0/1
 <h3 id="part-5-update-the-guestbook-deploy">Part 5: Update the Guestbook Deploy<a class="headerlink" href="#part-5-update-the-guestbook-deploy" title="Permanent link">#</a></h3>
 <p>You should see in <code>walkthrough/deployment-2/</code> another <code>Guestbook.Dockerrun.aws.json</code> file.
 This file is very similar to but not the same as the one in <code>deployment-1/</code> - if you open it up, you can see the following additions:</p>
-<div class="code"><pre><span></span>    ...
+<div class="codehilite"><pre><span></span>    ...
     &quot;environment&quot;: [
         {
             &quot;name&quot;: &quot;GUESTBOOK_BACKEND_TYPE&quot;,
@@ -1032,7 +1032,7 @@ This file is very similar to but not the same as the one in <code>deployment-1/<
 
 <p>The <code>"GUESTBOOK_BACKEND_CONFIG"</code> variable is what will point the Guestbook application towards the Redis server.
 The <code>&lt;redis host and port here&gt;</code> section needs to be replaced and populated in the following format:</p>
-<div class="code"><pre><span></span>&quot;value&quot;: &quot;ADDRESS_OF_REDIS_SERVER:PORT_THE_SERVER_IS_SERVING_ON&quot;
+<div class="codehilite"><pre><span></span>&quot;value&quot;: &quot;ADDRESS_OF_REDIS_SERVER:PORT_THE_SERVER_IS_SERVING_ON&quot;
 </pre></div>
 
 
@@ -1040,14 +1040,14 @@ The <code>&lt;redis host and port here&gt;</code> section needs to be replaced a
 Remember, it lives behind a load balancer that we made, so run the following command:</p>
 <p><code>l0 loadbalancer get redis-lb</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE    PORTS          PUBLIC  URL
+<div class="codehilite"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE    PORTS          PUBLIC  URL
 redislb16ae6     redis-lb           demo-env     redis-svc  6379:6379/TCP  false   internal-l0-&lt;yadda-yadda&gt;.elb.amazonaws.com
 </pre></div>
 
 
 <p>Copy that <code>URL</code> value, replace <code>&lt;redis host and port here&gt;</code> with the <code>URL</code> value in <code>Guestbook.Dockerrun.aws.json</code>, append <code>:6379</code> to it, and save the file.
 It should look something like the following:</p>
-<div class="code"><pre><span></span>    ...
+<div class="codehilite"><pre><span></span>    ...
     &quot;environment&quot;: [
         {
             &quot;name&quot;: &quot;GUESTBOOK_BACKEND_CONFIG&quot;,
@@ -1061,7 +1061,7 @@ It should look something like the following:</p>
 <p>Now, we can create an updated deploy:</p>
 <p><code>l0 deploy create Guestbook.Dockerrun.aws.json guestbook-dpl</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>DEPLOY ID        DEPLOY NAME    VERSION
+<div class="codehilite"><pre><span></span>DEPLOY ID        DEPLOY NAME    VERSION
 guestbook-dpl.2  guestbook-dpl  2
 </pre></div>
 
@@ -1072,28 +1072,28 @@ guestbook-dpl.2  guestbook-dpl  2
 Now we just need to apply the new Guestbook deploy to the running Guestbook service:</p>
 <p><code>l0 service update guestbook-svc guestbook-dpl:latest</code></p>
 <p>As the Guestbook service moves through the phases of its update process, we should see outputs like the following (if we keep an eye on the service with <code>l0 service get guestbook-svc</code>, that is):</p>
-<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+<div class="codehilite"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2*  1/1
                                                         guestbook-dpl:1
 </pre></div>
 
 
 <p><em>above: <code>guestbook-dpl:2</code> is in a transitional state</em></p>
-<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS      SCALE
+<div class="codehilite"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS      SCALE
 guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2  2/1
                                                         guestbook-dpl:1
 </pre></div>
 
 
 <p><em>above: both versions of the deployment are running at scale</em></p>
-<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
+<div class="codehilite"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2   1/1
                                                         guestbook-dpl:1*
 </pre></div>
 
 
 <p><em>above: <code>guestbook-dpl:1</code> is in a transitional state</em></p>
-<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS      SCALE
+<div class="codehilite"><pre><span></span>SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS      SCALE
 guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2  1/1
 </pre></div>
 
@@ -1168,7 +1168,7 @@ This will create a local <code>.terraform/</code> directory.</p>
 <p><code>terraform plan</code></p>
 <p>As before, we'll be prompted for any variables Terraform needs and doesn't have (see the note in <a href="../deployment-1#deploy-with-terraform">Deployment 1</a> for configuring Terraform variables).
 We'll see output similar to the following:</p>
-<div class="code"><pre><span></span>Refreshing Terraform state in-memory prior to plan...
+<div class="codehilite"><pre><span></span>Refreshing Terraform state in-memory prior to plan...
 The refreshed state will be used to calculate this plan, but will not be
 persisted to local or remote state storage.
 
@@ -1252,7 +1252,7 @@ Plan: 7 to add, 0 to change, 0 to destroy.
 <hr />
 <h3 id="part-2-terraform-apply">Part 2: Terraform Apply<a class="headerlink" href="#part-2-terraform-apply" title="Permanent link">#</a></h3>
 <p>Run <code>terraform apply</code>, and we should see output similar to the following:</p>
-<div class="code"><pre><span></span>data.template_file.redis: Refreshing state...
+<div class="codehilite"><pre><span></span>data.template_file.redis: Refreshing state...
 layer0_deploy.redis-dpl: Creating...
 
 ...

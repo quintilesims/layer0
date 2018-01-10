@@ -969,7 +969,7 @@ The load balancer will be private since only Layer0 services need to communicate
 At the command prompt, execute the following:</p>
 <p><code>l0 loadbalancer create --port 8500:8500/tcp --port 8301:8301/tcp --private --healthcheck-target tcp:8500 demo-env consul-lb</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS          PUBLIC  URL
+<div class="codehilite"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS          PUBLIC  URL
 consull66b23     consul-lb          consul-env            8500:8500/TCP  false
                                                           8301:8301/TCP
 </pre></div>
@@ -995,7 +995,7 @@ Make note of it for when we reference it later.</p>
 <h3 id="part-2-deploy-the-consul-task-definition">Part 2: Deploy the Consul Task Definition<a class="headerlink" href="#part-2-deploy-the-consul-task-definition" title="Permanent link">#</a></h3>
 <p>Before we can create the deploy, we need to supply the URL of the Consul load balancer that we got in Part 1.
 In <code>CLI.Consul.Dockerrun.aws.json</code>, find the entry in the <code>environment</code> block that looks like this:</p>
-<div class="code"><pre><span></span>{
+<div class="codehilite"><pre><span></span>{
     &quot;name&quot;: &quot;CONSUL_SERVER_URL&quot;,
     &quot;value&quot;: &quot;&quot;
 }
@@ -1007,7 +1007,7 @@ We can then create the deploy.
 At the command prompt, execute the following:</p>
 <p><code>l0 deploy create CLI.Consul.Dockerrun.aws.json consul-dpl</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>DEPLOY ID     DEPLOY NAME  VERSION
+<div class="codehilite"><pre><span></span>DEPLOY ID     DEPLOY NAME  VERSION
 consul-dpl.1  consul-dpl   1
 </pre></div>
 
@@ -1024,7 +1024,7 @@ consul-dpl.1  consul-dpl   1
 At the command prompt, execute the following:</p>
 <p><code>l0 service create --wait --loadbalancer demo-env:consul-lb demo-env consul-svc consul-dpl:latest</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>Waiting for Deployment...
+<div class="codehilite"><pre><span></span>Waiting for Deployment...
 SERVICE ID    SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS   SCALE
 consuls2f3c6  consul-svc    demo-env     consul-lb     consul-dpl:1  1/1
 </pre></div>
@@ -1048,7 +1048,7 @@ We still need to fulfill that expectation, so we'll scale our service up to thre
 At the command prompt, execute the following:</p>
 <p><code>l0 service scale --wait consul-svc 3</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>Waiting for Deployment...
+<div class="codehilite"><pre><span></span>Waiting for Deployment...
 SERVICE ID    SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS   SCALE
 consuls2f3c6  consul-svc    demo-env     consul-lb     consul-dpl:1  3/3
 </pre></div>
@@ -1088,7 +1088,7 @@ However, in a system with many services that uses Consul like this example, we o
 At the command prompt, execute the following:</p>
 <p><code>l0 loadbalancer addport guestbook-lb 22:22/tcp</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
+<div class="codehilite"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
 guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    &lt;url&gt;
                                                                 22:22/TCP
 </pre></div>
@@ -1113,7 +1113,7 @@ But that's not the Consul universe that we came here to see.
 At the EC2 instance's command prompt, execute the following:</p>
 <p><code>echo $(curl -s localhost:8500/v1/catalog/services) | jq '.'</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>{
+<div class="codehilite"><pre><span></span>{
   &quot;consul&quot;: [],
   &quot;consul-8301&quot;: [
     &quot;udp&quot;
@@ -1140,7 +1140,7 @@ In addition to a few connections to the Consul server cluster, we can see that i
 At the EC2 instance's command prompt, execute the following:</p>
 <p><code>echo $(curl -s http://localhost:8500/v1/catalog/service/redis) | jq '.'</code></p>
 <p>We should see output like the following:</p>
-<div class="code"><pre><span></span>[
+<div class="codehilite"><pre><span></span>[
   {
     &quot;ID&quot;: &quot;b4bb81e6-fe6a-c630-2553-7f6492ae5275&quot;,
     &quot;Node&quot;: &quot;ip-10-100-230-97.us-west-2.compute.internal&quot;,
@@ -1249,7 +1249,7 @@ We should see that there are 12 new resources to be created:</p>
 <hr />
 <h3 id="part-3-terraform-apply">Part 3: Terraform Apply<a class="headerlink" href="#part-3-terraform-apply" title="Permanent link">#</a></h3>
 <p>Run <code>terraform apply</code>, and we should see output similar to the following:</p>
-<div class="code"><pre><span></span>data.template_file.consul: Refreshing state...
+<div class="codehilite"><pre><span></span>data.template_file.consul: Refreshing state...
 layer0_deploy.consul-dpl: Creating...
 
 ...

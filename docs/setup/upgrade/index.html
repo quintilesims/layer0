@@ -627,13 +627,13 @@
                 <h1 id="upgrade-a-layer0-instance">Upgrade a Layer0 Instance<a class="headerlink" href="#upgrade-a-layer0-instance" title="Permanent link">#</a></h1>
 <p>This section provides procedures for upgrading your Layer0 installation to the latest version.
 This assumes you are using Layer0 version <code>v0.10.0</code> or later. </p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
+<div class="admonition warning">
+<p class="admonition-title">Warning</p>
 <p>Layer0 does not support updating MAJOR or MINOR versions in place unless explicitly stated otherwise.
 Users will either need to create a new Layer0 instance and migrate to it or destroy and re-create their Layer0 instance in these circumstances.</p>
 </div>
 <p>Run the <strong>upgrade</strong> command, replacing <code>&lt;instance_name&gt;</code> and <code>&lt;version&gt;</code> with the name of the Layer0 instance and new version, respectively:</p>
-<div class="code"><pre><span></span>$ l0-setup upgrade &lt;instance_name&gt; &lt;version&gt;
+<div class="codehilite"><pre><span></span>$ l0-setup upgrade &lt;instance_name&gt; &lt;version&gt;
 </pre></div>
 
 
@@ -641,7 +641,7 @@ Users will either need to create a new Layer0 instance and migrate to it or dest
 If you are not satisfied with the changes, exit the application during the prompts. 
 For full control on changing inputs, please use the <strong>set</strong> command. </p>
 <p><strong>Example Usage</strong></p>
-<div class="code"><pre><span></span>$ l0-setup upgrade mylayer0 v0.10.1
+<div class="codehilite"><pre><span></span>$ l0-setup upgrade mylayer0 v0.10.1
 This will update the <span class="s1">&#39;version&#39;</span> input
         From: <span class="o">[</span>v0.10.0<span class="o">]</span>
         To:   <span class="o">[</span>v0.10.1<span class="o">]</span>

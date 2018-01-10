@@ -1010,7 +1010,7 @@
 <p>There are a few ways to configure Terraform so that you don't have to keep entering these values every time you run a Terraform command (editing the <code>terraform.tfvars</code> file, or exporting environment variables like <code>TF_VAR_endpoint</code> and <code>TF_VAR_token</code>, for example). See the <a href="https://www.terraform.io/docs/configuration/variables.html">Terraform Docs</a> for more.</p>
 </div>
 <p><code>terraform plan</code></p>
-<div class="code"><pre><span></span>var.endpoint
+<div class="codehilite"><pre><span></span>var.endpoint
   Enter a value: &lt;enter your Layer0 endpoint&gt;
 
 var.token
@@ -1036,7 +1036,7 @@ var.token
 <h2 id="part-3-terraform-apply">Part 3: Terraform Apply<a class="headerlink" href="#part-3-terraform-apply" title="Permanent link">#</a></h2>
 <p>Run the following command to begin the deploy process.</p>
 <p><code>terraform apply</code></p>
-<div class="code"><pre><span></span>layer0_environment.demo: Refreshing state...
+<div class="codehilite"><pre><span></span>layer0_environment.demo: Refreshing state...
 ...
 ...
 ...
@@ -1065,7 +1065,7 @@ guestbook_url = &lt;http endpoint for the sample application&gt;
 <h3 id="whats-happening">What's happening<a class="headerlink" href="#whats-happening" title="Permanent link">#</a></h3>
 <p>Terraform using the <a href="https://www.terraform.io/docs/providers/aws/index.html">AWS provider</a>, provisions a new DynamoDB table. It also uses the <a href="http://layer0.ims.io/reference/terraform-plugin/#provider">Layer0 provider</a> to provision the environment, deploy, load balancer and service required to run the entire guestbook application.</p>
 <p>Looking at an excerpt of the file <a href="https://github.com/quintilesims/guides/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/main.tf">./terraform-beyond-layer0/example-1/modules/guestbook_service/main.tf</a>, we can see the following definitions:</p>
-<div class="code"><pre><span></span>resource &quot;aws_dynamodb_table&quot; &quot;guestbook&quot; {
+<div class="codehilite"><pre><span></span>resource &quot;aws_dynamodb_table&quot; &quot;guestbook&quot; {
   name           = &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">table_name</span><span class="cp">}</span>&quot;
   read_capacity  = 20
   write_capacity = 20
@@ -1097,7 +1097,7 @@ data &quot;template_file&quot; &quot;guestbook&quot; {
 
 <p>Note the resource definitions for <code>aws_dynamodb_table</code> and <code>layer0_deploy</code>. To configure the guestbook application to use the provisioned DynamoDB table, we reference the <code>name</code> property from the DynamoDB definition <code>table_name = "${aws_dynamodb_table.guestbook.name}"</code>. </p>
 <p>These <code>vars</code> are used to populate the template fields in our <a href="https://github.com/quintilesims/guides/blob/master/terraform-beyond-layer0/example-1/modules/guestbook_service/Dockerrun.aws.json">Dockerrun.aws.json</a> file. </p>
-<div class="code"><pre><span></span>{
+<div class="codehilite"><pre><span></span>{
     &quot;AWSEBDockerrunVersion&quot;: 2,
     &quot;containerDefinitions&quot;: [
         {
@@ -1120,7 +1120,7 @@ data &quot;template_file&quot; &quot;guestbook&quot; {
 <h3 id="update-the-terraform-configuration">Update the Terraform configuration<a class="headerlink" href="#update-the-terraform-configuration" title="Permanent link">#</a></h3>
 <p>Open the file <code>./example-1/modules/guestbook_service/main.tf</code> in a text editor and make the change to add a <code>scale</code> property with a value of <code>3</code> to the <code>layer0_service</code> section. For more information about the <code>scale</code> property, see <a href="http://layer0.ims.io/reference/terraform-plugin/#service">Layer0 Terraform Plugin</a> documentation. The result should look like the below:</p>
 <p>example-1/modules/guestbook_service/main.tf</p>
-<div class="code"><pre><span></span># Create a service named &quot;guestbook&quot;
+<div class="codehilite"><pre><span></span># Create a service named &quot;guestbook&quot;
 resource &quot;layer0_service&quot; &quot;guestbook&quot; {
   name          = &quot;guestbook&quot;
   environment   = &quot;<span class="cp">${</span><span class="n">layer0_environment</span><span class="o">.</span><span class="n">demo</span><span class="o">.</span><span class="n">id</span><span class="cp">}</span>&quot;
@@ -1135,7 +1135,7 @@ resource &quot;layer0_service&quot; &quot;guestbook&quot; {
 <p>Execute the <code>terraform plan</code> command to understand the changes that you will be making. Note that if you did not specify <code>scale</code>, it defaults to '1'.</p>
 <p><code>terraform plan</code></p>
 <p>Outputs:</p>
-<div class="code"><pre><span></span>...
+<div class="codehilite"><pre><span></span>...
 
 ~ module.guestbook.layer0_service.guestbook
     scale: &quot;1&quot; =&gt; &quot;3&quot;
@@ -1145,7 +1145,7 @@ resource &quot;layer0_service&quot; &quot;guestbook&quot; {
 <p>Now run the following command to deploy your changes:</p>
 <p><code>terraform apply</code></p>
 <p>Outputs:</p>
-<div class="code"><pre><span></span>layer0_environment.demo: Refreshing state... (ID: demoenvbb9f6)
+<div class="codehilite"><pre><span></span>layer0_environment.demo: Refreshing state... (ID: demoenvbb9f6)
 data.template_file.guestbook: Refreshing state...
 layer0_deploy.guestbook: Refreshing state... (ID: guestbook.6)
 layer0_load_balancer.guestbook: Refreshing state... (ID: guestbo43ab0)
@@ -1172,7 +1172,7 @@ services = &lt;guestbook_service_url&gt;
 <p>To confirm your service has been updated to the desired scale, you can run the following layer0 command. Note that the desired scale for the guestbook service should be eventually be 3/3.</p>
 <p><code>l0 service get guestbook1_guestbook_svc</code>
 Outputs:</p>
-<div class="code"><pre><span></span>SERVICE ID    SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE
+<div class="codehilite"><pre><span></span>SERVICE ID    SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE
 SERVICE ID    SERVICE NAME              ENVIRONMENT  LOADBALANCER             DEPLOYMENTS                  SCALE
 guestbo4fd3b  guestbook1_guestbook_svc  demo         guestbook1_guestbook_lb  guestbook1_guestbook_dpl:3*  1/3 (2)
 </pre></div>
@@ -1193,7 +1193,7 @@ guestbo4fd3b  guestbook1_guestbook_svc  demo         guestbook1_guestbook_lb  gu
 <p class="admonition-title">Tip</p>
 <p>If you have been following along with the guide, <code>./example-1/main.tf</code> should already have the below section commented out. You can uncomment the <code>terraform</code> section and populate the bucket property with an appropriate value.</p>
 </div>
-<div class="code"><pre><span></span>terraform {
+<div class="codehilite"><pre><span></span>terraform {
   backend &quot;s3&quot; {
     bucket     = &quot;&lt;my-bucket-name&gt;&quot;
     key        = &quot;demo-env/remote-backend/terraform.tfstate&quot;
@@ -1206,7 +1206,7 @@ guestbo4fd3b  guestbook1_guestbook_svc  demo         guestbook1_guestbook_lb  gu
 <p>Once you have modified <code>main.tf</code>, you will need to initialize the newly configured backend by running the following command.</p>
 <p><code>terraform init</code></p>
 <p>Outputs:</p>
-<div class="code"><pre><span></span>Initializing the backend...
+<div class="codehilite"><pre><span></span>Initializing the backend...
 
 Do you want to copy state from &quot;local&quot; to &quot;consul&quot;?
   ...
@@ -1218,7 +1218,7 @@ Do you want to copy state from &quot;local&quot; to &quot;consul&quot;?
 
 
 <p>Go ahead and enter: <code>yes</code>.</p>
-<div class="code"><pre><span></span>Successfully configured the backend &quot;consul&quot;! Terraform will automatically
+<div class="codehilite"><pre><span></span>Successfully configured the backend &quot;consul&quot;! Terraform will automatically
 use this backend unless the backend configuration changes.
 
 Terraform has been successfully initialized!
@@ -1237,7 +1237,7 @@ Terraform has been successfully initialized!
 <p>For securing the state file further, you can also enable access logging on the S3 bucket you are using for the remote backend, which can help track down invalid access should it occur.</p>
 <h2 id="part-6-terraform-configuration-structure">Part 6: Terraform Configuration Structure<a class="headerlink" href="#part-6-terraform-configuration-structure" title="Permanent link">#</a></h2>
 <p>While there are many different approaches to organizing your Terraform code, we suggest using the following file structure:</p>
-<div class="code"><pre><span></span>example1/  # contains overarching Terraform deployment, pulls in any modules that might exist
+<div class="codehilite"><pre><span></span>example1/  # contains overarching Terraform deployment, pulls in any modules that might exist
   ─ main.tf  
   ─ variables.tf  
   ─ output.tf  
@@ -1263,7 +1263,7 @@ Terraform has been successfully initialized!
 <h3 id="single-terraform-configuration">Single Terraform Configuration<a class="headerlink" href="#single-terraform-configuration" title="Permanent link">#</a></h3>
 <p>You can use a single Terraform configuration to create and maintain multiple environments by making use of the <a href="https://www.terraform.io/docs/configuration/resources.html#count">Count</a> parameter, inside a Resource. Count enables you to create multiple copies of a given resource. </p>
 <p>For example</p>
-<div class="code"><pre><span></span>variable &quot;environments&quot; {
+<div class="codehilite"><pre><span></span>variable &quot;environments&quot; {
   type = &quot;list&quot;
 
   default = [
@@ -1284,7 +1284,7 @@ resource &quot;layer0_environment&quot; &quot;demo&quot; {
 <p>Let's have a more in-depth look in how this works. You can start by navigating to `./terraform-beyond-layer0/example-2' folder. Start by running the plan command.</p>
 <p><code>terraform plan</code></p>
 <p>Outputs:</p>
-<div class="code"><pre><span></span>+ module.environment.aws_dynamodb_table.guestbook.0
+<div class="codehilite"><pre><span></span>+ module.environment.aws_dynamodb_table.guestbook.0
     ...
     name:                      &quot;dev_guestbook&quot;
 ...
@@ -1298,7 +1298,7 @@ resource &quot;layer0_environment&quot; &quot;demo&quot; {
 <p>Note that you will see a copy of each resource for each environment specified in your environments file in <code>./example-2/variables.tf</code>. Go ahead and run apply.</p>
 <p><code>terraform apply</code></p>
 <p>Outputs:</p>
-<div class="code"><pre><span></span>Apply complete! Resources: 10 added, 0 changed, 0 destroyed.
+<div class="codehilite"><pre><span></span>Apply complete! Resources: 10 added, 0 changed, 0 destroyed.
 
 Outputs:
 
@@ -1310,7 +1310,7 @@ guestbook_urls =
 
 <p>You have now created two separate environments using a single terraform configuration: dev &amp; staging. You can navigate to both the urls output and you should note that they are separate instances of the guestbook application backed with their own separate data store.</p>
 <p>A common use case for maintaining different environments is to configure each environment slightly differently. For example, you might want to scale your Layer0 service to 3 for staging and leave it as 1 for the dev environment. This can be done easily by using conditional logic to set our <code>scale</code> parameter in the layer0 service configuration in <code>./example-2/main.tf</code>. Go ahead and open <code>main.tf</code> in a text editor. Navigate to the <code>layer0_service guestbook</code> section. Uncomment the scale parameter so that your configuration looks like below.</p>
-<div class="code"><pre><span></span>resource &quot;layer0_service&quot; &quot;guestbook&quot; {
+<div class="codehilite"><pre><span></span>resource &quot;layer0_service&quot; &quot;guestbook&quot; {
   count = &quot;<span class="cp">${</span><span class="n">length</span><span class="p">(</span><span class="n">var</span><span class="o">.</span><span class="n">environments</span><span class="p">)</span><span class="cp">}</span>&quot;
 
   name          = &quot;<span class="cp">${</span><span class="n">element</span><span class="p">(</span><span class="n">layer0_environment</span><span class="o">.</span><span class="n">demo</span><span class="o">.*.</span><span class="n">name</span><span class="p">,</span> <span class="n">count</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="cp">}</span>_guestbook_svc&quot;
@@ -1325,7 +1325,7 @@ guestbook_urls =
 <p>The variable <code>service_scale</code> is already defined in <code>variables.tf</code>. If you now go ahead and run plan, you will see that the <code>guestbook</code> service for only the <code>staging</code> environment will be scaled up.</p>
 <p><code>terraform plan</code></p>
 <p>Outputs:</p>
-<div class="code"><pre><span></span>~ layer0_service.guestbook.1
+<div class="codehilite"><pre><span></span>~ layer0_service.guestbook.1
     scale: &quot;1&quot; =&gt; &quot;3&quot;
 </pre></div>
 
@@ -1340,7 +1340,7 @@ guestbook_urls =
 <p>The previous example used a single set of Terraform Configuration files to create and maintain multiple environments. This resulted in a single state file which had the state information for all the environments. To avoid all environments sharing a single state file, you can split your Terraform configuration so that you a state file for each environment.</p>
 <p>Go ahead and navigate to <code>./terraform-beyond-layer0/example-3</code> folder. Here we are using a folder to separate each environment. So <code>env-dev</code> and <code>env-staging</code> represent a <code>dev</code> and <code>staging</code> environment. To work with either of the environments, you will need to navigate into the desired environment's folder and run Terraform commands. This will ensure that each environment will have its own state file.</p>
 <p>Open the env-dev folder inside a text editor. Note that <code>main.tf</code> doesn't contain any resource definitions. Instead, we only have one module definition which has various variables being passed in, which is also how we are passing in the <code>environment</code> variable. To create a <code>dev</code> and <code>staging</code> environments for our guestbook application, go ahead and run terraform plan and apply commands from <code>env-dev</code> and <code>env-staging</code> folders.</p>
-<div class="code"><pre><span></span># assuming you are in the terraform-beyond-layer0/example-3 folder
+<div class="codehilite"><pre><span></span># assuming you are in the terraform-beyond-layer0/example-3 folder
 cd env-dev
 terraform get
 terraform plan
@@ -1357,7 +1357,7 @@ terraform apply
 <h2 id="part-8-multiple-provider-instances">Part 8: Multiple Provider Instances<a class="headerlink" href="#part-8-multiple-provider-instances" title="Permanent link">#</a></h2>
 <p>You can define multiple instances of the same provider that is uniquely customized. For example, you can have an <code>aws</code> provider to support multiple regions, different roles etc or in the case of the <code>layer0</code> provider, to support multiple layer0 endpoints.</p>
 <p>For example:</p>
-<div class="code"><pre><span></span># aws provider
+<div class="codehilite"><pre><span></span># aws provider
 provider &quot;aws&quot; {
   alias = &quot;east&quot;
   region = &quot;us-east-1&quot;
@@ -1374,7 +1374,7 @@ provider &quot;aws&quot; {
 
 
 <p>This will now allow you to reference aws providers configured to a different region. You can do so by referencing the provider using the naming scheme <code>TYPE.ALIAS</code>, which in the above example results in <code>aws.west</code>. See <a href="https://www.terraform.io/docs/configuration/providers.html">Provider Configuration</a> for more information.</p>
-<div class="code"><pre><span></span>resource &quot;aws.east_instance&quot; &quot;foo&quot; {
+<div class="codehilite"><pre><span></span>resource &quot;aws.east_instance&quot; &quot;foo&quot; {
   # ...
 }
 

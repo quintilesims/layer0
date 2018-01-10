@@ -3,7 +3,7 @@
 This section provides procedures for upgrading your Layer0 installation to the latest version.
 This assumes you are using Layer0 version `v0.10.0` or later. 
 
-!!! note 
+!!! warning 
     Layer0 does not support updating MAJOR or MINOR versions in place unless explicitly stated otherwise.
     Users will either need to create a new Layer0 instance and migrate to it or destroy and re-create their Layer0 instance in these circumstances.
 

@@ -50,7 +50,7 @@ theme:
         code: 'Roboto Mono'
     logo: 'static/logo_icon.png'
 markdown_extensions:
-  - codehilite(css_class=code)
+  - codehilite
   - admonition
   - toc:
       permalink: '#'
