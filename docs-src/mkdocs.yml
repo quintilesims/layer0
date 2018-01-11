@@ -41,15 +41,8 @@ pages:
 site_dir: ../docs
 
 theme:
-  name: 'material'
-  palette:
-    primary: 'indigo'
-    accent: 'indigo'
-
-extra:
-    version: v0.10.3
-    logo: 'static/logo_icon.png'
-    author: xfra
+    name: 'material'
+    custom_dir: 'material'
     palette:
         primary: 'red'
         accent:  'grey'
@@ -57,6 +50,7 @@ extra:
         text: 'Roboto'
         code: 'Roboto Mono'
     logo: 'static/logo_icon.png'
+
 markdown_extensions:
   - codehilite
   - admonition
