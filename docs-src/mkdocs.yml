@@ -50,7 +50,7 @@ theme:
         text: 'Roboto'
         code: 'Roboto Mono'
     logo: 'static/logo_icon.png'
-
+    
 markdown_extensions:
   - codehilite
   - admonition

@@ -6,7 +6,7 @@ Before you can install and configure Layer0, you must obtain the following:
 
 * **An AWS account.**
 Please have your AWS access key and secret ready.
-- If the aws-cli is installed you can check them here `cat ~/.aws/credentials`
+- If the [aws-cli](https://aws.amazon.com/cli/) is installed you can check them here `cat ~/.aws/credentials`
 - If it's not installed assign them with `l0-setup init --aws-access-key <value> --aws-secret-key <value>`
 
 * **An EC2 Key Pair.**
