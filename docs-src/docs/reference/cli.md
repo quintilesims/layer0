@@ -1,15 +1,15 @@
 # Layer0 CLI Reference
 
-##Global options
+## Global options
 
 The `l0` application is designed to be used with one of several commands: [admin](#admin), [deploy](#deploy), [environment](#environment), [job](#job), [loadbalancer](#loadbalancer), [service](#service), and [task](#task). These commands are detailed in the sections below. There are, however, some global parameters that you may specify whenever using `l0`.
 
-####Usage
+#### Usage
 ```
 l0 [global options] command subcommand [subcommand options] params
 ```
 
-####Global options
+#### Global options
 * `-o [text|json], --output [text|json]` - Specify the format of Layer0 outputs. By default, Layer0 outputs unformatted text; by issuing the `--output json` option, you can force `l0` to output JSON-formatted text.
 * `-t value, --timeout value` - Specify the timeout for running `l0` commands. Values can be in h, m, s, or ms.
 * `-d, --debug` - Print debug statements
@@ -17,7 +17,7 @@ l0 [global options] command subcommand [subcommand options] params
 
 ---
 
-##Admin
+## Admin
 The `admin` command is used to manage the Layer0 API server. This command is used with the following subcommands: [debug](#admin-debug), [sql](#admin-sql), and [version](#admin-version).
 
 ### admin debug
@@ -36,7 +36,7 @@ Use the `sql` subcommand to initialize the Layer0 API database.
 l0 admin sql
 ```
 
-####Additional information
+#### Additional information
 The `sql` subcommand is automatically executed during the Layer0 installation process; we recommend that you do not use this subcommand unless specifically directed to do so.
 
 ### admin version
@@ -49,7 +49,7 @@ l0 admin version
 
 ---
 
-##Deploy
+## Deploy
 Deploys are ECS Task Definitions. They are configuration files that detail how to deploy your application.
 The `deploy` command is used to manage Layer0 environments. This command is used with the following subcommands: [create](#deploy-create), [delete](#deploy-delete), [get](#deploy-get), and [list](#deploy-list).
 
@@ -61,11 +61,11 @@ Use the `create` subcommand to upload a Docker task definition into Layer0.
 l0 deploy create taskDefPath deployName
 ```
 
-####Required parameters
+#### Required parameters
 * `taskDefPath` - The path to the Docker task definition that you want to upload.
 * `deployName` - A name for the deploy.
 
-####Additional information
+#### Additional information
 If `deployName` exactly matches the name of an existing Layer0 deploy, then the version number of that deploy will increase by 1, and the task definition you specified will replace the task definition specified in the previous version.
 
 If you use Visual Studio to modify or create your Dockerrun file, you may see an "Invalid Dockerrun.aws.json" error. This error is caused by the default encoding used by Visual Studio. See the ["Common issues" page](http://localhost:8000/troubleshooting/commonissues/#invalid-dockerrunawsjson-error-when-creating-a-deploy) for steps to resolve this issue.
@@ -96,7 +96,7 @@ Use the `delete` subcommand to delete a version of a Layer0 deploy.
 l0 deploy delete deployName
 ```
 
-####Required parameters
+#### Required parameters
 * `deployName` - The name of the Layer0 deploy you want to delete.
 
 ### deploy get
@@ -107,10 +107,10 @@ Use the `get` subcommand to view information about an existing Layer0 deploy.
 l0 deploy get deployName
 ```
 
-####Required parameters
+#### Required parameters
 * `deployName` - The name of the Layer0 deploy for which you want to view additional information.
 
-####Additional information
+#### Additional information
 The `get` subcommand supports wildcard matching: `l0 deploy get dep*` would return all deploys beginning with `dep`.
 
 ### deploy list
@@ -136,10 +136,10 @@ l0 environment create [--size size | --min-count mincount |
     --user-data path | --os os | --ami amiID] environmentName
 ```
 
-####Required parameters
+#### Required parameters
 * `environmentName` - A name for the environment.
 
-####Optional arguments
+#### Optional arguments
 * `--size size` - The instance size of the EC2 instances to create in your environment (default: m3.medium).
 * `--min-count mincount` - The minimum number of EC2 instances allowed in the environment's autoscaling group (default: 0).
 * `--user-data path` - The user data template file to use for the environment's autoscaling group.
@@ -244,13 +244,13 @@ Use the `delete` subcommand to delete an existing Layer0 environment.
 l0 environment delete [--wait] environmentName
 ```
 
-####Required parameters
+#### Required parameters
 * `environmentName` - The name of the Layer0 environment that you want to delete.
 
-####Optional arguments
+#### Optional arguments
 * `--wait` - Wait until the deletion is complete before exiting.
 
-####Additional information
+#### Additional information
 This operation performs several tasks asynchronously. When run without the `--wait` option, this operation will most likely exit before all of these tasks are complete; when run with the `--wait` option, this operation will only exit once these tasks have completed.
 
 ### environment get
@@ -261,10 +261,10 @@ Use the `get` subcommand to display information about an existing Layer0 environ
 l0 environment get environmentName
 ```
 
-####Required parameters
+#### Required parameters
 * `environmentName` - The name of the Layer0 environment for which you want to view additional information.
 
-####Additional information
+#### Additional information
 The `get` subcommand supports wildcard matching: `l0 environment get test*` would return all environments beginning with `test`.
 
 ### environment list
@@ -278,12 +278,12 @@ l0 environment list
 ### environment setmincount
 Use the `setmincount` subcommand to set the minimum number of EC2 instances allowed the environment's autoscaling group.
 
-####Usage
+#### Usage
 ```
 l0 environment setmincount environmentName count
 ```
 
-####Required parameters
+#### Required parameters
 * `environmentName` - The name of the Layer0 environment that you want to adjust.
 * `count` - The minimum number of instances allowed in the environment's autoscaling group.
 
@@ -293,12 +293,12 @@ When environments are linked, services inside the environments are allowed to co
 This link is bidirectional. 
 This command is idempotent; it will succeed even if the two specified environments are already linked.
 
-####Usage
+#### Usage
 ```
 l0 environment link sourceEnvironmentName destEnvironmentName
 ```
 
-####Required parameters
+#### Required parameters
 * `sourceEnvironmentName` - The name of the source environment to link.
 * `destEnvironmentName` - The name of the destination environment to link.
 
@@ -306,18 +306,18 @@ l0 environment link sourceEnvironmentName destEnvironmentName
 Use the `unlink` subcommand to remove the link between two environments.
 This command is idempotent; it will succeed even if the link does not exist.
 
-####Usage
+#### Usage
 ```
 l0 environment unlink sourceEnvironmentName destEnvironmentName
 ```
 
-####Required parameters
+#### Required parameters
 * `sourceEnvironmentName` - The name of the source environment to unlink.
 * `destEnvironmentName` - The name of the destination environment to unlink.
 
 ---
 
-##Job
+## Job
 A Job is a long-running unit of work performed on behalf of the Layer0 API.
 Jobs are executed as Layer0 tasks that run in the **api** environment.
 The `job` command is used with the following subcommands: [logs](#job-logs), [delete](#job-delete), [get](#job-get), and [list](#job-list).
@@ -325,61 +325,61 @@ The `job` command is used with the following subcommands: [logs](#job-logs), [de
 ### job logs
 Use the `logs` subcommand to display the logs from a Layer0 job that is currently running.
 
-####Usage
+#### Usage
 ```
 l0 job logs [--start MM/DD HH:MM | --end MM/DD HH:MM | --tail=N] jobName
 ```
 
-####Required parameters
+#### Required parameters
 * `jobName` - The name of the Layer0 job for which you want to view logs.
 
-####Optional arguments
+#### Optional arguments
 * `--start MM/DD HH:MM` - The start of the time range to fetch logs.
 * `--end MM/DD HH:MM` - The end of the time range to fetch logs.
 * `--tail=N` - Display only the last `N` lines of the log.
 
-###job delete
+### job delete
 Use the `delete` subcommand to delete an existing job.
 
-####Usage
+#### Usage
 ```
 l0 job delete jobName
 ```
 
-####Required parameters
+#### Required parameters
 * `jobName` - The name of the job that you want to delete.
 
-###job get
+### job get
 Use the `get` subcommand to display information about an existing Layer0 job.
 
-####Usage
+#### Usage
 ```
 l0 job get jobName
 ```
 
-####Required parameters
+#### Required parameters
 * `jobName` - The name of an existing Layer0 job to display.
 
-####Additional information
+#### Additional information
 The `get` subcommand supports wildcard matching: `l0 job get 2a55*` would return all jobs beginning with `2a55`.
 
-###job list
+### job list
 Use the `list` subcommand to display information about all of the existing jobs in an instance of Layer0.
 
-####Usage
+#### Usage
 ```
 l0 job list
 ```
 
 ---
 
-##Loadbalancer
+## Load Balancer
 A load balancer is a component of a Layer0 environment. Load balancers listen for traffic on certain ports, and then forward that traffic to Layer0 [services](#service). The `loadbalancer` command is used with the following subcommands: [create](#loadbalancer-create), [delete](#loadbalancer-delete), [addport](#loadbalancer-addport), [dropport](#loadbalancer-dropport), [get](#loadbalancer-get), [list](#loadbalancer-list), and [healthcheck](#loadbalancer-healthcheck).
 
-###loadbalancer create
+### loadbalancer create
 Use the `create` subcommand to create a new load balancer.
 
-####Usage
+#### Usage
 ```
 l0 loadbalancer create [--port port ... | --certificate certifiateName | 
     --private | --healthcheck-target target | --healthcheck-interval interval | 
@@ -387,11 +387,11 @@ l0 loadbalancer create [--port port ... | --certificate certifiateName |
     --healthcheck-unhealthy-threshold unhealthyThreshold] environmentName loadBalancerName
 ```
 
-####Required parameters
+#### Required parameters
 * `environmentName` - The name of the existing Layer0 environment in which you want to create the load balancer.
 * `loadBalancerName` - A name for the load balancer you are creating.
 
-####Optional arguments
+#### Optional arguments
 * `--port port ...` - The port configuration for the listener of the load balancer. Valid pattern is `hostPort:containerPort/protocol`. Multiple ports can be specified using `--port port1 --port port2 ...` (default: `80/80:TCP`).
     * `hostPort` - The port that the load balancer will listen for traffic on.
     * `containerPort` - The port that the load balancer will forward traffic to.
@@ -413,94 +413,94 @@ l0 loadbalancer create [--port port ... | --certificate certifiateName |
 
     When creating a load balancer with non-default configurations for either `--port` or `--healthcheck-target`, make sure that a valid `--port` and `--healthcheck-target` pairing is also created.
 
-###loadbalancer delete
+### loadbalancer delete
 Use the `delete` subcommand to delete an existing load balancer.
 
-####Usage
+#### Usage
 ```
 l0 loadbalancer delete [--wait] loadBalancerName
 ```
 
-####Required parameters
+#### Required parameters
 * `loadBalancerName` - The name of the load balancer that you want to delete.
 
-####Optional arguments
+#### Optional arguments
 * `--wait` - Wait until the deletion is complete before exiting.
 
-####Additional information
+#### Additional information
 In order to delete a load balancer that is already attached to a service, you must first delete the service that uses the load balancer.
 
 This operation performs several tasks asynchronously. When run without the `--wait` option, this operation will most likely exit before all of these tasks are complete; when run with the `--wait` option, this operation will only exit once these tasks have completed
 .
-###loadbalancer addport
+### loadbalancer addport
 Use the `addport` subcommand to add a new port configuration to an existing Layer0 load balancer.
 
-####Usage
+#### Usage
 ```
 l0 loadbalancer addport [--certificate certificateName] loadBalancerName port
 ```
 
-####Required parameters
+#### Required parameters
 * `loadBalancerName` - The name of an existing Layer0 load balancer in which you want to add the port configuration.
 * `port` - The port configuration for the listener of the load balancer. Valid pattern is `hostPort:containerPort/protocol`.
     * `hostPort` - The port that the load balancer will listen for traffic on.
     * `containerPort` - The port that the load balancer will forward traffic to.
     * `protocol` - The protocol to use when forwarding traffic (acceptable values: TCP, SSL, HTTP, and HTTPS).
 
-####Optional arguments
+#### Optional arguments
 * `--certificate certificateName` - The name of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.
 
-####Additional information
+#### Additional information
 The port configuration you specify must not already be in use by the load balancer you specify.
 
-###loadbalancer dropport
+### loadbalancer dropport
 Use the `dropport` subcommand to remove a port configuration from an existing Layer0 load balancer.
 
-####Usage
+#### Usage
 ```
 l0 loadbalancer dropport loadBalancerName hostPort
 ```
 
-####Required parameters
+#### Required parameters
 * `loadBalancerName`- The name of an existing Layer0 load balancer from which you want to remove the port configuration.
 * `hostPort`- The host port to remove from the load balancer.
 
-###loadbalancer get
+### loadbalancer get
 Use the `get` subcommand to display information about an existing Layer0 load balancer.
 
-####Usage
+#### Usage
 ```
 l0 loadbalancer get [environmentName:]loadBalancerName
 ```
 
-####Required parameters
+#### Required parameters
 * `[environmentName:]loadBalancerName` - The name of an existing Layer0 load balancer. You can optionally provide the Layer0 environment (`environmentName`) associated with the Load Balancer
 
-####Additional information
+#### Additional information
 The `get` subcommand supports wildcard matching: `l0 loadbalancer get entrypoint*` would return all jobs beginning with `entrypoint`.
 
-###loadbalancer list
+### loadbalancer list
 Use the `list` subcommand to display information about all of the existing load balancers in an instance of Layer0.
 
-####Usage
+#### Usage
 ```
 l0 loadbalancer list
 ```
 
-###loadbalancer healthcheck
+### loadbalancer healthcheck
 Use the `healthcheck` subcommand to display information about or update the configuration of a load balancer's health check.
 
-####Usage
+#### Usage
 ```
 l0 loadbalancer healthcheck [--set-target target | --set-interval interval | 
     --set-timeout timeout | --set-healthy-threshold healthyThreshold | 
     --set-unhealthy-threshold unhealthyThreshold] loadbalancerName
 ```
 
-####Required parameters
+#### Required parameters
 * `loadBalancerName` - The name of the existing Layer0 load balancer you are modifying.
 
-####Optional arguments
+#### Optional arguments
 * `--set-target target` - The target of the check. Valid pattern is `PROTOCOL:PORT/PATH`.
     * If `PROTOCOL` is `HTTP` or `HTTPS`, both `PORT` and `PATH` are required. Example: `HTTP:80/admin/healthcheck`.
     * If `PROTOCOL` is `TCP` or `SSL`, `PORT` is required and `PATH` is not used. Example: `TCP:80`
@@ -509,7 +509,7 @@ l0 loadbalancer healthcheck [--set-target target | --set-interval interval |
 * `--set-healthy-threshold healthyThreshold` - The number of checks before the instance is declared healthy.
 * `--set-unhealthy-threshold unhealthyThreshold` - The number of checks before the instance is declared unhealthy.
 
-####Additional information
+#### Additional information
 Calling the subcommand without flags will display the current configuration of the load balancer's health check. Setting any of the flags will update the corresponding field in the health check, and all omitted flags will leave the corresponding fields unchanged.
 
 ---
@@ -519,21 +519,21 @@ A service is a component of a Layer0 environment. The purpose of a service is to
 
 The `service` command is used with the following subcommands: [create](#service-create), [delete](#service-delete), [get](#service-get), [update](#service-update), [list](#service-list), [logs](#service-logs), and [scale](#service-scale).
 
-###service create
+### service create
 Use the `create` subcommand to create a Layer0 service.
 
-####Usage
+#### Usage
 ```
 l0 service create [--loadbalancer [environmentName:]loadBalancerName | 
     --no-logs] environmentName serviceName deployName[:deployVersion]
 ```
 
-####Required parameters
+#### Required parameters
 * `serviceName` - A name for the service that you are creating.
 * `environmentName` - The name of an existing Layer0 environment.
 * `deployName[:deployVersion]` - The name of a Layer0 deploy that exists in the environment `environmentName`. You can optionally specify the version number of the Layer0 deploy that you want to deploy. If you do not specify a version number, the latest version of the deploy will be used.
 
-####Optional arguments
+#### Optional arguments
 * `--loadbalancer [environmentName:]loadBalancerName` - Place the new service behind an existing load balancer `loadBalancerName`. You can optionally specify the Layer0 environment (`environmentName`) where the load balancer exists.
 * `--no-logs` - Disable cloudwatch logging for the service
 
@@ -545,17 +545,17 @@ Use the `update` subcommand to apply an existing Layer0 Deploy to an existing La
 l0 service update [--no-logs] [environmentName:]serviceName deployName[:deployVersion]
 ```
 
-####Required parameters
+#### Required parameters
 * `[environmentName:]serviceName` - The name of an existing Layer0 service into which you want to apply the deploy. You can optionally specify the Layer0 environment (`environmentName`) of the service.
 * `deployName[:deployVersion]` - The name of the Layer0 deploy that you want to apply to the service. You can optionally specify a specific version of the deploy (`deployVersion`). If you do not specify a version number, the latest version of the deploy will be applied.
 
-####Optional arguments
+#### Optional arguments
 * `--no-logs` - Disable cloudwatch logging for the service
 
-####Additional information
+#### Additional information
 If your service uses a load balancer, when you update the task definition for the service, the container name and container port that were specified when the service was created must remain the same in the task definition. In other words, if your service has a load balancer, you cannot apply any deploy you want to that service. If you are varying the container name or exposed ports, you must create a new service instead.
 
-###service delete
+### service delete
 Use the `delete` subcommand to delete an existing Layer0 service.
 
 #### Usage
@@ -563,30 +563,30 @@ Use the `delete` subcommand to delete an existing Layer0 service.
 l0 service delete [--wait] [environmentName:]serviceName
 ```
 
-####Required parameters
+#### Required parameters
 * `[environmentName:]serviceName` - The name of the Layer0 service that you want to delete. You can optionally provide the Layer0 environment (`environmentName`) of the service.
 
-####Optional arguments
+#### Optional arguments
 * `--wait` - Wait until the deletion is complete before exiting.
 
-####Additional information
+#### Additional information
 This operation performs several tasks asynchronously. When run without the `--wait` option, this operation will most likely exit before all of these tasks are complete; when run with the `--wait` option, this operation will only exit once these tasks have completed.
 
-###service get
+### service get
 Use the `get` subcommand to display information about an existing Layer0 service.
 
-####Usage
+#### Usage
 ```
 l0 service get [environmentName:]serviceName
 ```
 
-####Required parameters
+#### Required parameters
 * `[environmentName:]serviceName` - The name of an existing Layer0 service. You can optionally provide the Layer0 environment (`environmentName`) of the service.
 
-###service list
+### service list
 Use the `list` subcommand to list all of the existing services in your Layer0 instance.
 
-####Usage
+#### Usage
 ```
 l0 service get list
 ```
@@ -594,16 +594,16 @@ l0 service get list
 ### service logs
 Use the `logs` subcommand to display the logs from a Layer0 service that is currently running.
 
-####Usage
+#### Usage
 ```
 l0 service logs [--start MM/DD HH:MM | --end MM/DD HH:MM | --tail=N] serviceName
 ```
 
-####Required parameters
+#### Required parameters
 * `serviceName` - The name of the Layer0 service for which you want to view logs.
 
 
-####Optional arguments
+#### Optional arguments
 * `--start MM/DD HH:MM` - The start of the time range to fetch logs.
 * `--end MM/DD HH:MM` - The end of the time range to fetch logs.
 * `--tail=N` - Display only the last `N` lines of the log.
@@ -611,12 +611,12 @@ l0 service logs [--start MM/DD HH:MM | --end MM/DD HH:MM | --tail=N] serviceName
 ### service scale
 Use the `scale` subcommand to specify how many copies of an existing Layer0 service should run.
 
-####Usage
+#### Usage
 ```
 l0 service scale [environmentName:]serviceName copies
 ```
 
-####Required parameters
+#### Required parameters
 * `[environmentName:]serviceName` - The name of the Layer0 service that you want to scale up. You can optionally provide the Layer0 environment (`environmentName`) of the service.
 * `copies` - The number of copies of the specified service that should be run.
 
@@ -635,12 +635,12 @@ Use the `create` subcommand to create a Layer0 task.
 l0 task create [--copies copies | --no-logs] environmentName taskName deployName
 ```
 
-####Required parameters
+#### Required parameters
 * `environmentName` - The name of the existing Layer0 environment in which you want to create the task.
 * `taskName` - A name for the task.
 * `deployName` - The name of an existing Layer0 deploy that the task should use.
 
-####Optional arguments
+#### Optional arguments
 * `--copies copies` - The number of copies of the task to run (default: 1).
 * `--no-logs` - Disable cloudwatch logging for the service.
 
@@ -652,7 +652,7 @@ Use the `delete` subcommand to delete an existing Layer0 task.
 l0 task delete [environmentName:]taskName
 ```
 
-####Required parameters
+#### Required parameters
 * `[environmentName:]taskName` - The name of the Layer0 task that you want to delete. You can optionally specify the name of the Layer0 environment that contains the task. This parameter is only required if mulitiple environments contain tasks with exactly the same name.
 
 #### Additional information
@@ -666,10 +666,10 @@ Use the `get` subcommand to display information about an existing Layer0 task (`
 l0 task get [environmentName:]taskName
 ```
 
-####Required parameters
+#### Required parameters
 * `[environmentName:]taskName` - The name of a Layer0 task for which you want to see information. You can optionally specify the name of the Layer0 Environment that contains the task.
 
-####Additional information
+#### Additional information
 The value of `taskName` does not need to exactly match the name of an existing task. If multiple results are found that match the pattern you specified in `taskName`, then information about all matching tasks will be returned.
 
 ### task list
@@ -688,15 +688,15 @@ Use the `logs` subcommand to display logs for a running Layer0 task.
 l0 task logs [--start MM/DD HH:MM | --end MM/DD HH:MM | --tail=N] taskName
 ```
 
-####Required parameters
+#### Required parameters
 * `taskName` - The name of an existing Layer0 task.
 
-####Optional arguments
+#### Optional arguments
 * `--start MM/DD HH:MM` - The start of the time range to fetch logs.
 * `--end MM/DD HH:MM` - The end of the time range to fetch logs.
 * `--tail=N` - Display only the last `N` lines of the log.
 
-####Additional information
+#### Additional information
 The value of `taskName` does not need to exactly match the name of an existing task. If multiple results are found that match the pattern you specified in `taskName`, then information about all matching tasks will be returned.
 
 ### task list
