@@ -1,6 +1,11 @@
-![Layer0 Logo](/static/logo_rs.png)
+<p align="center">
+  <img alt="Layer0 Logo" src="/static/logo_rs.png" >
+</p>
 
+<center>
 # Build, Manage, and Deploy Your Application
+</center>
+
 
 ## Meet Layer0
 Layer0 is a framework that helps you deploy web applications to the cloud with minimal fuss. Using a simple command line interface (CLI), you can manage the entire life cycle of your application without having to focus on infrastructure.
