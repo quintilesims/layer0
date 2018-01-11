@@ -21,7 +21,6 @@ pages:
     - "Walkthrough: Introduction": guides/walkthrough/intro.md
     - "Walkthrough: Deployment 1": guides/walkthrough/deployment-1.md
     - "Walkthrough: Deployment 2": guides/walkthrough/deployment-2.md
-    - "Walkthrough: Deployment 3": guides/walkthrough/deployment-3.md
     - One-off Task: guides/one_off_task.md
   - Reference:
     - Layer0 CLI: reference/cli.md
