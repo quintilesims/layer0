@@ -7,7 +7,7 @@ Layer0 has built a custom [provider](https://www.Terraform.io/docs/providers/ind
 This provider allows users to create, manage, and update Layer0 entities using Terraform.
 
 ## Prerequisites
-- **Terraform v0.9.4+** ([download](https://www.Terraform.io/downloads.html)), accessible in your system path.
+- **Terraform v0.11+** ([download](https://www.terraform.io/downloads.html)), accessible in your system path.
 
 ## Install
 Download a Layer0 v0.8.4+ [release](/releases).
@@ -408,9 +408,9 @@ The following attributes are exported:
 * Always run `Terraform plan` before `terraform apply`.
 This will show you what action(s) Terraform plans to make before actually executing them.
 * Use [variables](https://www.terraform.io/intro/getting-started/variables.html) to reference secrets.
-Secrets can be placed in a file named `Terraform.tfvars`, or by setting `TF_VAR_*` environment variables.
+Secrets can be placed in a file named `terraform.tfvars`, or by setting `TF_VAR_*` environment variables.
 More information can be found [here](https://www.terraform.io/intro/getting-started/variables.html).
 * Use Terraform's `remote` command to backup and sync your `terraform.tfstate` file across different members in your organization.
 Terraform has documentation for using S3 as a backend [here](https://www.terraform.io/docs/backends/types/s3.html).
-* Terraform [modules](https://www.Terraform.io/intro/getting-started/modules.html) allow you to define and consume reusable components.
+* Terraform [modules](https://www.terraform.io/intro/getting-started/modules.html) allow you to define and consume reusable components.
 * Example configurations can be found [here](https://github.com/hashicorp/Terraform/tree/master/examples)

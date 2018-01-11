@@ -734,7 +734,7 @@
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The value of <code>loadbalancerName</code> in the above command must be unique to your Layer0 instance.</p>
+<p>The value of <code>loadbalancerName</code> in the above command must be unique to the Environment.</p>
 </div>
 <p>Use <a href="../cli/#service-create">l0 service create</a> to create a new Service using the Load Balancer you just created: </p>
 <div class="codehilite"><pre><span></span>l0 service create --loadbalancer loadBalancerName environmentName serviceName deployName
@@ -743,7 +743,7 @@
 
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The value of <code>serviceName</code> in the above command  must be unique to your Layer0 instance.</p>
+<p>The value of <code>serviceName</code> in the above command  must be unique to the Environment.</p>
 </div>
 <p>Implement a method of routing traffic between the old and new Services, such as <a href="http://www.haproxy.org">HAProxy</a> or <a href="https://www.consul.io">Consul</a>.</p>
                 

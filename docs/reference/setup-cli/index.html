@@ -1243,7 +1243,7 @@ Each of the inputs can be specified through an optional flag.</p>
 <h3 id="usage_1">Usage<a class="headerlink" href="#usage_1" title="Permanent link">#</a></h3>
 <div class="codehilite"><pre><span></span>l0-setup init [--docker-path path | --module-source path | 
     --version version | --aws-region region | --aws-access-key accessKey | 
-    --aws-secret-key secretKey] instanceName`
+    --aws-secret-key secretKey] instanceName
 </pre></div>
 
 
@@ -1269,7 +1269,7 @@ Each of the inputs can be specified through an optional flag.</p>
 <p>The <code>apply</code> command is used to create and update Layer0 instances. Note that the default behavior of apply is to push the layer0 configuration to an S3 bucket unless the <code>--push=false</code> flag is set to false. Pushing the configuration to an S3 bucket requires aws credentials which if not set via the optional <code>--aws-*</code> flags, are read from the environment variables or a credentials file. </p>
 <h3 id="usage_3">Usage<a class="headerlink" href="#usage_3" title="Permanent link">#</a></h3>
 <div class="codehilite"><pre><span></span>l0-setup apply [--quick | --push=false | --aws-access-key accessKey | 
-    --aws-secret-key secretKey] instanceName`
+    --aws-secret-key secretKey] instanceName
 </pre></div>
 
 

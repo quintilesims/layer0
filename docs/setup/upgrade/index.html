@@ -609,7 +609,7 @@ This assumes you are using Layer0 version <code>v0.10.0</code> or later. </p>
 Users will either need to create a new Layer0 instance and migrate to it or destroy and re-create their Layer0 instance in these circumstances.</p>
 </div>
 <p>Run the <code>upgrade</code> command, replacing <code>&lt;instance_name&gt;</code> and <code>&lt;version&gt;</code> with the name of the Layer0 instance and new version, respectively:</p>
-<div class="codehilite"><pre><span></span>$ l0-setup upgrade &lt;instance_name&gt; &lt;version&gt;
+<div class="codehilite"><pre><span></span>l0-setup upgrade &lt;instance_name&gt; &lt;version&gt;
 </pre></div>
 
 
@@ -618,6 +618,7 @@ If you are not satisfied with the changes, exit the application during the promp
 For full control on changing inputs, use the <a href="../../../reference/setup-cli#set">set</a> command. </p>
 <p><strong>Example Usage</strong></p>
 <div class="codehilite"><pre><span></span>$ l0-setup upgrade mylayer0 v0.10.1
+
 This will update the <span class="s1">&#39;version&#39;</span> input
         From: <span class="o">[</span>v0.10.0<span class="o">]</span>
         To:   <span class="o">[</span>v0.10.1<span class="o">]</span>

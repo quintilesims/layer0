@@ -1019,8 +1019,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#loadbalancer" title="Loadbalancer" class="md-nav__link">
-    Loadbalancer
+  <a href="#load-balancer" title="Load Balancer" class="md-nav__link">
+    Load Balancer
   </a>
   
     <nav class="md-nav">
@@ -2467,8 +2467,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#loadbalancer" title="Loadbalancer" class="md-nav__link">
-    Loadbalancer
+  <a href="#load-balancer" title="Load Balancer" class="md-nav__link">
+    Load Balancer
   </a>
   
     <nav class="md-nav">
@@ -3328,7 +3328,7 @@ start ecs
 
 <span class="no">[Environment]</span><span class="p">::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s2">&quot;ECS_CLUSTER&quot;</span><span class="p">,</span> <span class="nv">$clusterName</span><span class="p">,</span> <span class="s2">&quot;Machine&quot;</span><span class="p">)</span>
 <span class="no">[Environment]</span><span class="p">::</span><span class="n">SetEnvironmentVariable</span><span class="p">(</span><span class="s2">&quot;ECS_ENABLE_TASK_IAM_ROLE&quot;</span><span class="p">,</span> <span class="s2">&quot;false&quot;</span><span class="p">,</span> <span class="s2">&quot;Machine&quot;</span><span class="p">)</span>
-<span class="nv">$agentVersion</span> <span class="p">=</span> <span class="s1">&#39;v1.14.0-1.windows.1&#39;</span>
+<span class="nv">$agentVersion</span> <span class="p">=</span> <span class="s1">&#39;v1.5.2&#39;</span>
 <span class="nv">$agentZipUri</span> <span class="p">=</span> <span class="s2">&quot;https://s3.amazonaws.com/amazon-ecs-agent/ecs-agent-windows-$agentVersion.zip&quot;</span>
 <span class="nv">$agentZipMD5Uri</span> <span class="p">=</span> <span class="s2">&quot;$agentZipUri.md5&quot;</span>
 
@@ -3519,7 +3519,7 @@ The <code>job</code> command is used with the following subcommands: <a href="#j
 
 
 <hr />
-<h2 id="loadbalancer">Loadbalancer<a class="headerlink" href="#loadbalancer" title="Permanent link">#</a></h2>
+<h2 id="load-balancer">Load Balancer<a class="headerlink" href="#load-balancer" title="Permanent link">#</a></h2>
 <p>A load balancer is a component of a Layer0 environment. Load balancers listen for traffic on certain ports, and then forward that traffic to Layer0 <a href="#service">services</a>. The <code>loadbalancer</code> command is used with the following subcommands: <a href="#loadbalancer-create">create</a>, <a href="#loadbalancer-delete">delete</a>, <a href="#loadbalancer-addport">addport</a>, <a href="#loadbalancer-dropport">dropport</a>, <a href="#loadbalancer-get">get</a>, <a href="#loadbalancer-list">list</a>, and <a href="#loadbalancer-healthcheck">healthcheck</a>.</p>
 <h3 id="loadbalancer-create">loadbalancer create<a class="headerlink" href="#loadbalancer-create" title="Permanent link">#</a></h3>
 <p>Use the <code>create</code> subcommand to create a new load balancer.</p>

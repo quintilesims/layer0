@@ -1342,7 +1342,7 @@ If you are new to Terraform, we recommend checking out their <a href="https://ww
 This provider allows users to create, manage, and update Layer0 entities using Terraform.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h2>
 <ul>
-<li><strong>Terraform v0.9.4+</strong> (<a href="https://www.Terraform.io/downloads.html">download</a>), accessible in your system path.</li>
+<li><strong>Terraform v0.11+</strong> (<a href="https://www.terraform.io/downloads.html">download</a>), accessible in your system path.</li>
 </ul>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">#</a></h2>
 <p>Download a Layer0 v0.8.4+ <a href="../../releases">release</a>.
@@ -1719,11 +1719,11 @@ resource &quot;layer0_service&quot; &quot;guestbook&quot; {
 <li>Always run <code>Terraform plan</code> before <code>terraform apply</code>.
 This will show you what action(s) Terraform plans to make before actually executing them.</li>
 <li>Use <a href="https://www.terraform.io/intro/getting-started/variables.html">variables</a> to reference secrets.
-Secrets can be placed in a file named <code>Terraform.tfvars</code>, or by setting <code>TF_VAR_*</code> environment variables.
+Secrets can be placed in a file named <code>terraform.tfvars</code>, or by setting <code>TF_VAR_*</code> environment variables.
 More information can be found <a href="https://www.terraform.io/intro/getting-started/variables.html">here</a>.</li>
 <li>Use Terraform's <code>remote</code> command to backup and sync your <code>terraform.tfstate</code> file across different members in your organization.
 Terraform has documentation for using S3 as a backend <a href="https://www.terraform.io/docs/backends/types/s3.html">here</a>.</li>
-<li>Terraform <a href="https://www.Terraform.io/intro/getting-started/modules.html">modules</a> allow you to define and consume reusable components.</li>
+<li>Terraform <a href="https://www.terraform.io/intro/getting-started/modules.html">modules</a> allow you to define and consume reusable components.</li>
 <li>Example configurations can be found <a href="https://github.com/hashicorp/Terraform/tree/master/examples">here</a></li>
 </ul>
                 

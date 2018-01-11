@@ -85,7 +85,7 @@ l0 loadbalancer create --port port environmentName loadBalancerName deployName
     * `protocol` - The protocol to use when forwarding traffic (acceptable values: TCP, SSL, HTTP, and HTTPS).
 
 !!! note
-    The value of `loadbalancerName` in the above command must be unique to your Layer0 instance.
+    The value of `loadbalancerName` in the above command must be unique to the Environment.
 
 Use [l0 service create](cli/#service-create) to create a new Service using the Load Balancer you just created: 
 
@@ -94,6 +94,6 @@ l0 service create --loadbalancer loadBalancerName environmentName serviceName de
 ```
 
 !!! note
-    The value of `serviceName` in the above command  must be unique to your Layer0 instance.
+    The value of `serviceName` in the above command  must be unique to the Environment.
 
 Implement a method of routing traffic between the old and new Services, such as [HAProxy](http://www.haproxy.org) or [Consul](https://www.consul.io).

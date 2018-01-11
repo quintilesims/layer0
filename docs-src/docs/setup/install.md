@@ -4,18 +4,15 @@
 
 Before you can install and configure Layer0, you must obtain the following:
 
-* **An AWS account.**
-Please have your AWS access key and secret ready.
-    - If the aws-cli is installed you can check them here `cat ~/.aws/credentials`
-    - If it's not installed assign them with `l0-setup init --aws-access-key <value> --aws-secret-key <value>`
+* **Access to an AWS account**
 
-* **An EC2 Key Pair.**
+* **An EC2 Key Pair**
 This key pair allows you to access the EC2 instances running your Services using SSH.
 If you have already created a key pair, you can use it for this process.
 Otherwise, [follow the AWS documentation](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) to create a new key pair.
 Make a note of the name that you selected when creating the key pair.
 
-* **Terraform v0.11++**
+* **Terraform v0.11+**
 We use Terraform to create the resources that Layer0 needs.
 If you're unfamiliar with Terraform, you may want to check out our [introduction](/reference/terraform_introduction).
 If you're ready to install Terraform, there are instructions in the [Terraform documentation](https://www.terraform.io/intro/getting-started/install.html).
@@ -38,7 +35,16 @@ You will use the credentials created in this section when creating, updating, or
 
 2. Click the **Services** dropdown menu in the upper left portion of the console page, then type **IAM** in the text box that appears at the top of the page after you click **Services**. As you type IAM, a search result will appear below the text box. Click on the IAM service result that appears below the text box.
 
-3. In the left panel, click **Groups**, and then confirm that you have a group called **Administrators**. <div class="admonition note"><p class="admonition-title">Note</p><br /><p>If the **Administrators** group does not already exist, complete the following steps: <ol><li>Click **Create New Group**. Name the new group **Administrators**, and then click **Next Step**.</li><li>Check the **AdministratorAccess** policy to attach the Administrator policy to your new group.</li><li>Click **Next Step**, and then click **Create Group**.</li></ul></p></div>
+3. In the left panel, click **Groups**, and then confirm that you have a group called **Administrators**.
+
+!!! question "Is the Administrators group missing in your AWS account?"
+    If the **Administrators** group does not already exist, complete the following steps:
+    
+    * Click **Create New Group**. Name the new group **Administrators**, and then click **Next Step**.
+    
+    * Check the **AdministratorAccess** policy to attach the Administrator policy to your new group.
+    
+    * Click **Next Step**, and then click **Create Group**.
 
 4. In the left panel, click **Users**.
 
