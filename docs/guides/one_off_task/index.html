@@ -66,7 +66,11 @@
     
     
     
+<<<<<<< HEAD
       <body data-md-color-primary="indigo" data-md-color-accent="indigo">
+=======
+      <body data-md-color-primary="red" data-md-color-accent="grey">
+>>>>>>> @{-1}
     
   
     <svg class="md-svg">
@@ -87,7 +91,11 @@
       <div class="md-flex__cell md-flex__cell--shrink">
         <a href="https://github.com/quintilesims/layer0/" title="Layer0" class="md-header-nav__button md-logo">
           
+<<<<<<< HEAD
             <i class="md-icon"></i>
+=======
+            <img src="../../static/logo_icon.png" width="24" height="24">
+>>>>>>> @{-1}
           
         </a>
       </div>
@@ -181,7 +189,11 @@
   <label class="md-nav__title md-nav__title--site" for="drawer">
     <span class="md-nav__button md-logo">
       
+<<<<<<< HEAD
         <i class="md-icon"></i>
+=======
+        <img src="../../static/logo_icon.png" width="24" height="24">
+>>>>>>> @{-1}
       
     </span>
     Layer0
@@ -734,7 +746,11 @@
 <p>Next, you will create a new deploy for the task using the <strong>deploy create</strong> command. At the command prompt, run the following command:</p>
 <p><code>l0 deploy create Dockerrun.aws.json one-off-task-dpl</code></p>
 <p>You will see the following output:</p>
+<<<<<<< HEAD
 <div class="code"><pre><span></span>DEPLOY ID           DEPLOY NAME        VERSION
+=======
+<div class="codehilite"><pre><span></span>DEPLOY ID           DEPLOY NAME        VERSION
+>>>>>>> @{-1}
 one-off-task-dpl.1  one-off-task-dpl   1
 </pre></div>
 
@@ -744,7 +760,11 @@ one-off-task-dpl.1  one-off-task-dpl   1
 <p>To run the task, use the following command:</p>
 <p><code>l0 task create demo-env echo-tsk one-off-task-dpl:latest --wait</code></p>
 <p>You will see the following output:</p>
+<<<<<<< HEAD
 <div class="code"><pre><span></span>TASK ID       TASK NAME         ENVIRONMENT  DEPLOY              SCALE
+=======
+<div class="codehilite"><pre><span></span>TASK ID       TASK NAME         ENVIRONMENT  DEPLOY              SCALE
+>>>>>>> @{-1}
 one-off851c9  echo-tsk          demo-env     one-off-task-dpl:1  0/1 (1)
 </pre></div>
 
@@ -754,7 +774,11 @@ one-off851c9  echo-tsk          demo-env     one-off-task-dpl:1  0/1 (1)
 <p>To view the logs for this task, and evaluate its progress, you can use the <strong>task logs</strong> command:</p>
 <p><code>l0 task logs one-off-task-tsk</code>  </p>
 <p>You will see the following output:</p>
+<<<<<<< HEAD
 <div class="code"><pre><span></span><span class="gh">alpine</span>
+=======
+<div class="codehilite"><pre><span></span><span class="gh">alpine</span>
+>>>>>>> @{-1}
 <span class="gh">------</span>
 Task finished!
 </pre></div>
@@ -763,7 +787,11 @@ Task finished!
 <p>You can also use the following command for more information in the task.</p>
 <p><code>l0 -o json task get echo-tsk</code></p>
 <p>Outputs:</p>
+<<<<<<< HEAD
 <div class="code"><pre><span></span>[
+=======
+<div class="codehilite"><pre><span></span>[
+>>>>>>> @{-1}
     {
         &quot;copies&quot;: [
             {
@@ -789,7 +817,11 @@ Task finished!
 
 <p>After the task has finished, running <code>l0 -o json task get echo-tsk</code> will show a pending_count of 0.</p>
 <p>Outputs:</p>
+<<<<<<< HEAD
 <div class="code"><pre><span></span>...
+=======
+<div class="codehilite"><pre><span></span>...
+>>>>>>> @{-1}
 &quot;copies&quot;: [
     {
         &quot;details&quot;: [

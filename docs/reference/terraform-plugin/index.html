@@ -66,7 +66,11 @@
     
     
     
+<<<<<<< HEAD
       <body data-md-color-primary="indigo" data-md-color-accent="indigo">
+=======
+      <body data-md-color-primary="red" data-md-color-accent="grey">
+>>>>>>> @{-1}
     
   
     <svg class="md-svg">
@@ -87,7 +91,11 @@
       <div class="md-flex__cell md-flex__cell--shrink">
         <a href="https://github.com/quintilesims/layer0/" title="Layer0" class="md-header-nav__button md-logo">
           
+<<<<<<< HEAD
             <i class="md-icon"></i>
+=======
+            <img src="../../static/logo_icon.png" width="24" height="24">
+>>>>>>> @{-1}
           
         </a>
       </div>
@@ -181,7 +189,11 @@
   <label class="md-nav__title md-nav__title--site" for="drawer">
     <span class="md-nav__button md-logo">
       
+<<<<<<< HEAD
         <i class="md-icon"></i>
+=======
+        <img src="../../static/logo_icon.png" width="24" height="24">
+>>>>>>> @{-1}
       
     </span>
     Layer0
@@ -1383,7 +1395,11 @@ Copy this <code>terraform-provider-layer0</code> binary into the same directory 
 <p>The Layer0 provider is used to interact with a Layer0 API.
 The provider needs to be configured with the proper credentials before it can be used.</p>
 <h3 id="example-usage">Example Usage<a class="headerlink" href="#example-usage" title="Permanent link">#</a></h3>
+<<<<<<< HEAD
 <div class="code"><pre><span></span># Add &#39;endpoint&#39; and &#39;token&#39; variables
+=======
+<div class="codehilite"><pre><span></span># Add &#39;endpoint&#39; and &#39;token&#39; variables
+>>>>>>> @{-1}
 variable &quot;endpoint&quot; {}
 
 variable &quot;token&quot; {}
@@ -1412,7 +1428,11 @@ provider &quot;layer0&quot; {
 <h2 id="api-data-source">API Data Source<a class="headerlink" href="#api-data-source" title="Permanent link">#</a></h2>
 <p>The API data source is used to extract useful read-only variables from the Layer0 API.</p>
 <h3 id="example-usage_1">Example Usage<a class="headerlink" href="#example-usage_1" title="Permanent link">#</a></h3>
+<<<<<<< HEAD
 <div class="code"><pre><span></span># Configure the api data source
+=======
+<div class="codehilite"><pre><span></span># Configure the api data source
+>>>>>>> @{-1}
 data &quot;layer0_api&quot; &quot;config&quot; {}
 
 # Output the layer0 vpc id
@@ -1434,7 +1454,11 @@ output &quot;vpc id&quot; {
 <h2 id="deploy-data-source">Deploy Data Source<a class="headerlink" href="#deploy-data-source" title="Permanent link">#</a></h2>
 <p>The Deploy data source is used to extract Layer0 Deploy attributes.</p>
 <h3 id="example-usage_2">Example Usage<a class="headerlink" href="#example-usage_2" title="Permanent link">#</a></h3>
+<<<<<<< HEAD
 <div class="code"><pre><span></span># Configure the deploy data source
+=======
+<div class="codehilite"><pre><span></span># Configure the deploy data source
+>>>>>>> @{-1}
 data &quot;layer0_deploy&quot; &quot;dpl&quot; {
   name    = &quot;my-deploy&quot;
   version = &quot;1&quot;
@@ -1464,7 +1488,11 @@ output &quot;deploy_id&quot; {
 <h2 id="environment-data-source">Environment Data Source<a class="headerlink" href="#environment-data-source" title="Permanent link">#</a></h2>
 <p>The Environment data source is used to extract Layer0 Environment attributes.</p>
 <h3 id="example-usage_3">Example Usage<a class="headerlink" href="#example-usage_3" title="Permanent link">#</a></h3>
+<<<<<<< HEAD
 <div class="code"><pre><span></span># Configure the environment data source
+=======
+<div class="codehilite"><pre><span></span># Configure the environment data source
+>>>>>>> @{-1}
 data &quot;layer0_environment&quot; &quot;env&quot; {
   name = &quot;my-environment&quot;
 }
@@ -1495,7 +1523,11 @@ output &quot;environment_id&quot; {
 <h2 id="load-balancer-data-source">Load Balancer Data Source<a class="headerlink" href="#load-balancer-data-source" title="Permanent link">#</a></h2>
 <p>The Load Balancer data source is used to extract Layer0 Load Balancer attributes.</p>
 <h3 id="example-usage_4">Example Usage<a class="headerlink" href="#example-usage_4" title="Permanent link">#</a></h3>
+<<<<<<< HEAD
 <div class="code"><pre><span></span># Configure the load balancer source
+=======
+<div class="codehilite"><pre><span></span># Configure the load balancer source
+>>>>>>> @{-1}
 data &quot;layer0_load_balancer&quot; &quot;lb&quot; {
   name           = &quot;my-loadbalancer&quot;
   environment_id = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">layer0_environment</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">environment_id</span><span class="cp">}</span>&quot;
@@ -1528,7 +1560,11 @@ output &quot;load_balancer_id&quot; {
 <h2 id="service-data-source">Service Data Source<a class="headerlink" href="#service-data-source" title="Permanent link">#</a></h2>
 <p>The Service data source is used to extract Layer0 Service attributes.</p>
 <h3 id="example-usage_5">Example Usage<a class="headerlink" href="#example-usage_5" title="Permanent link">#</a></h3>
+<<<<<<< HEAD
 <div class="code"><pre><span></span># Configure the service data source
+=======
+<div class="codehilite"><pre><span></span># Configure the service data source
+>>>>>>> @{-1}
 data &quot;layer0_service&quot; &quot;svc&quot; {
   name           = &quot;my-service&quot;
   environment_id = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">layer0_environment</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">environment_id</span><span class="cp">}</span>&quot;
@@ -1562,7 +1598,11 @@ output &quot;service_id&quot; {
 <p>Performing variable substitution inside of your deploy's json file (typically named <code>Dockerrun.aws.json</code>) can be done through Terraform's <a href="https://www.terraform.io/docs/providers/template/">template_file</a>.
 For a working example, please see the sample <a href="https://github.com/quintilesims/guides/blob/master/guestbook/layer0.tf">Guestbook</a> application</p>
 <h3 id="example-usage_6">Example Usage<a class="headerlink" href="#example-usage_6" title="Permanent link">#</a></h3>
+<<<<<<< HEAD
 <div class="code"><pre><span></span># Configure the deploy template
+=======
+<div class="codehilite"><pre><span></span># Configure the deploy template
+>>>>>>> @{-1}
 data &quot;template_file&quot; &quot;guestbook&quot; {
   template = &quot;<span class="cp">${</span><span class="nb">file</span><span class="p">(</span><span class="s2">&quot;Dockerrun.aws.json&quot;</span><span class="p">)</span><span class="cp">}</span>&quot;
   vars {
@@ -1595,7 +1635,11 @@ resource &quot;layer0_deploy&quot; &quot;guestbook&quot; {
 <h2 id="environment-resource">Environment Resource<a class="headerlink" href="#environment-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Environment</p>
 <h3 id="example-usage_7">Example Usage<a class="headerlink" href="#example-usage_7" title="Permanent link">#</a></h3>
+<<<<<<< HEAD
 <div class="code"><pre><span></span># Create a new environment
+=======
+<div class="codehilite"><pre><span></span># Create a new environment
+>>>>>>> @{-1}
 resource &quot;layer0_environment&quot; &quot;demo&quot; {
   name      = &quot;demo&quot;
   size      = &quot;m3.medium&quot;
@@ -1636,7 +1680,11 @@ If not specified, Layer0 will use its default AMI ID for the specified operating
 <h2 id="load-balancer-resource">Load Balancer Resource<a class="headerlink" href="#load-balancer-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Load Balancer</p>
 <h3 id="example-usage_8">Example Usage<a class="headerlink" href="#example-usage_8" title="Permanent link">#</a></h3>
+<<<<<<< HEAD
 <div class="code"><pre><span></span># Create a new load balancer
+=======
+<div class="codehilite"><pre><span></span># Create a new load balancer
+>>>>>>> @{-1}
 resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
   name        = &quot;guestbook&quot;
   environment = &quot;demo123&quot;
@@ -1707,7 +1755,11 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <h2 id="service-resource">Service Resource<a class="headerlink" href="#service-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Service</p>
 <h3 id="example-usage_9">Example Usage<a class="headerlink" href="#example-usage_9" title="Permanent link">#</a></h3>
+<<<<<<< HEAD
 <div class="code"><pre><span></span># Create a new service
+=======
+<div class="codehilite"><pre><span></span># Create a new service
+>>>>>>> @{-1}
 resource &quot;layer0_service&quot; &quot;guestbook&quot; {
   name          = &quot;guestbook&quot;
   environment   = &quot;environment123&quot;
