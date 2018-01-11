@@ -1,7 +1,7 @@
 # Layer0 Setup Reference
 The Layer0 Setup application (commonly called `l0-setup`), is used for administrative tasks on Layer0 instances.
 
-##Global options
+## Global options
 
 `l0-setup` can be used with one of several commands: [init](#init), [plan](#plan), [apply](#apply), [list](#list), [push](#push), [pull](#pull), [endpoint](#endpoint), [destroy](#destroy), [upgrade](#upgrade), and [set](#set). These commands are detailed in teh sections below. There are, however, some global paramters that you may specify whenever using `l0-setup`
 
@@ -10,7 +10,7 @@ The Layer0 Setup application (commonly called `l0-setup`), is used for administr
 l0-setup [global options] command [command options] params
 ```
 
-###Global options
+### Global options
 * `-l value, --log value` - The log level to display on the console when you run commands. (default: info)
 * `--version` - Display the version number of the `l0-setup` application.
 
@@ -28,7 +28,7 @@ l0-setup init [--docker-path path | --module-source path |
     --aws-secret-key secretKey] instanceName`
 ```
 
-###Optional arguments
+### Optional arguments
 * `--docker-path` - Path to docker config.json file. This is used to include private Docker Registry authentication for this Layer0 instance.
 * `--module-source` - The source input variable is the path to the Terraform Layer0. By default, this points to the Layer0 github repository. Using values other than the default may result in undesired consequences.
 * `--version` - The version input variable specifies the tag to use for the Layer0 Docker images: `quintilesims/l0-api` and `quintilesims/l0-runner`.
@@ -57,7 +57,7 @@ l0-setup apply [--quick | --push=false | --aws-access-key accessKey |
     --aws-secret-key secretKey] instanceName`
 ```
 
-###Optional arguments
+### Optional arguments
 * `--quick` - Skips verification checks that normally run after `terraform apply` has completed
 * `--push=false` - Skips uploading local Layer0 configuration files to an S3 bucket
 * `--aws-access-key` - The access_key input variable is used to provision the AWS resources required for Layer0. This corresponds to the Access Key ID portion of an AWS Access Key. It is recommended this key has the `AdministratorAccess` policy.
