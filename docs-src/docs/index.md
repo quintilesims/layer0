@@ -1,4 +1,3 @@
-<!-- ![Layer0 Logo](/static/logo_rs.png) -->
 <p align="center">
   <img alt="Layer0 Logo" src="/static/logo_rs.png" >
 </p>
