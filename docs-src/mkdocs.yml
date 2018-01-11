@@ -39,9 +39,10 @@ pages:
     - Secure Shell (SSH): troubleshooting/ssh.md
 
 site_dir: ../docs
+
 theme:
     name: 'material'
-    custom_dir: 'material'   
+    custom_dir: 'material'
     palette:
         primary: 'red'
         accent:  'grey'
@@ -49,6 +50,7 @@ theme:
         text: 'Roboto'
         code: 'Roboto Mono'
     logo: 'static/logo_icon.png'
+
 markdown_extensions:
   - codehilite
   - admonition

@@ -501,6 +501,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#part-2-terraform-init" title="Part 2: Terraform Init" class="md-nav__link">
+    Part 2: Terraform Init
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#part-2-terraform-plan" title="Part 2: Terraform Plan" class="md-nav__link">
     Part 2: Terraform Plan
   </a>
@@ -876,6 +883,13 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#part-2-terraform-init" title="Part 2: Terraform Init" class="md-nav__link">
+    Part 2: Terraform Init
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#part-2-terraform-plan" title="Part 2: Terraform Plan" class="md-nav__link">
     Part 2: Terraform Plan
   </a>
@@ -1234,6 +1248,44 @@ If you'd like to follow along the Redis deployment logic chain (the other applic
 <hr />
 <h3 id="part-1-terraform-get">Part 1: Terraform Get<a class="headerlink" href="#part-1-terraform-get" title="Permanent link">#</a></h3>
 <p>Run <code>terraform get</code> to pull down all the source materials Terraform needs for our deployment.</p>
+<hr />
+<h3 id="part-2-terraform-init">Part 2: Terraform Init<a class="headerlink" href="#part-2-terraform-init" title="Permanent link">#</a></h3>
+<p>This deployment has provider dependencies so an init call must be made. 
+(Terraform v0.11~ requries init)
+At the command prompt, execute the following command:</p>
+<p><code>terraform init</code></p>
+<p>We should see output like the following:</p>
+<div class="codehilite"><pre><span></span>Initializing modules...
+- module.consul
+- module.redis
+- module.guestbook
+
+Initializing provider plugins...
+- Checking for available provider plugins on https://releases.hashicorp.com...
+- Downloading plugin for provider &quot;template&quot; (1.0.0)...
+
+The following providers do not have any version constraints in configuration,
+so the latest version was installed.
+
+To prevent automatic upgrades to new major versions that may contain breaking
+changes, it is recommended to add version = &quot;...&quot; constraints to the
+corresponding provider blocks in configuration, with the constraint strings
+suggested below.
+
+* provider.template: version = &quot;~&gt; 1.0&quot;
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running &quot;terraform plan&quot; to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+</pre></div>
+
+
 <hr />
 <h3 id="part-2-terraform-plan">Part 2: Terraform Plan<a class="headerlink" href="#part-2-terraform-plan" title="Permanent link">#</a></h3>
 <p>As before, we can run <code>terraform plan</code> to see what's going to happen.

@@ -476,15 +476,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#part-2-terraform-plan" title="Part 2: Terraform Plan" class="md-nav__link">
-    Part 2: Terraform Plan
+  <a href="#part-2-terraform-init" title="Part 2: Terraform Init" class="md-nav__link">
+    Part 2: Terraform Init
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#part-2-terraform-apply" title="Part 2: Terraform Apply" class="md-nav__link">
-    Part 2: Terraform Apply
+  <a href="#part-3-terraform-plan" title="Part 3: Terraform Plan" class="md-nav__link">
+    Part 3: Terraform Plan
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-4-terraform-apply" title="Part 4: Terraform Apply" class="md-nav__link">
+    Part 4: Terraform Apply
   </a>
   
 </li>
@@ -850,15 +857,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#part-2-terraform-plan" title="Part 2: Terraform Plan" class="md-nav__link">
-    Part 2: Terraform Plan
+  <a href="#part-2-terraform-init" title="Part 2: Terraform Init" class="md-nav__link">
+    Part 2: Terraform Init
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#part-2-terraform-apply" title="Part 2: Terraform Apply" class="md-nav__link">
-    Part 2: Terraform Apply
+  <a href="#part-3-terraform-plan" title="Part 3: Terraform Plan" class="md-nav__link">
+    Part 3: Terraform Plan
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#part-4-terraform-apply" title="Part 4: Terraform Apply" class="md-nav__link">
+    Part 4: Terraform Apply
   </a>
   
 </li>
@@ -1163,7 +1177,46 @@ We maintain this module as well; you can inspect <a href="https://github.com/qui
 <p>Run <code>terraform get</code> to pull down the source materials Terraform will use for deployment.
 This will create a local <code>.terraform/</code> directory.</p>
 <hr />
-<h3 id="part-2-terraform-plan">Part 2: Terraform Plan<a class="headerlink" href="#part-2-terraform-plan" title="Permanent link">#</a></h3>
+<h3 id="part-2-terraform-init">Part 2: Terraform Init<a class="headerlink" href="#part-2-terraform-init" title="Permanent link">#</a></h3>
+<p>This deployment has provider dependencies so an init call must be made. 
+(Terraform v0.11~ requries init)
+At the command prompt, execute the following command:</p>
+<p><code>terraform init</code></p>
+<p>We should see output like the following:</p>
+<div class="codehilite"><pre><span></span>Initializing modules...
+- module.redis
+  Getting source &quot;github.com/quintilesims/redis//terraform&quot;
+- module.guestbook
+  Getting source &quot;github.com/quintilesims/guides//guestbook/module&quot;
+
+Initializing provider plugins...
+- Checking for available provider plugins on https://releases.hashicorp.com...
+- Downloading plugin for provider &quot;template&quot; (1.0.0)...
+
+The following providers do not have any version constraints in configuration,
+so the latest version was installed.
+
+To prevent automatic upgrades to new major versions that may contain breaking
+changes, it is recommended to add version = &quot;...&quot; constraints to the
+corresponding provider blocks in configuration, with the constraint strings
+suggested below.
+
+* provider.template: version = &quot;~&gt; 1.0&quot;
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running &quot;terraform plan&quot; to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+</pre></div>
+
+
+<hr />
+<h3 id="part-3-terraform-plan">Part 3: Terraform Plan<a class="headerlink" href="#part-3-terraform-plan" title="Permanent link">#</a></h3>
 <p>It's always a good idea to find out what Terraform intends to do, so let's do that:</p>
 <p><code>terraform plan</code></p>
 <p>As before, we'll be prompted for any variables Terraform needs and doesn't have (see the note in <a href="../deployment-1#deploy-with-terraform">Deployment 1</a> for configuring Terraform variables).
@@ -1250,7 +1303,7 @@ Plan: 7 to add, 0 to change, 0 to destroy.
 
 <p>We should see that Terraform intends to add 7 new resources, some of which are for the Guestbook deployment and some of which are for the Redis deployment.</p>
 <hr />
-<h3 id="part-2-terraform-apply">Part 2: Terraform Apply<a class="headerlink" href="#part-2-terraform-apply" title="Permanent link">#</a></h3>
+<h3 id="part-4-terraform-apply">Part 4: Terraform Apply<a class="headerlink" href="#part-4-terraform-apply" title="Permanent link">#</a></h3>
 <p>Run <code>terraform apply</code>, and we should see output similar to the following:</p>
 <div class="codehilite"><pre><span></span>data.template_file.redis: Refreshing state...
 layer0_deploy.redis-dpl: Creating...

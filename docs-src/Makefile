@@ -1,5 +1,6 @@
 deps:
 	pip install mkdocs
+	pip install mkdocs-material
 
 build:
 	mkdocs build --clean

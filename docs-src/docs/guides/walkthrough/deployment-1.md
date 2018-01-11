@@ -366,7 +366,47 @@ We don't need to do anything with it; we just want to make sure it's there.
 
 ---
 
-### Part 2: Terraform Plan
+### Part 2: Terraform Init
+
+This deployment has provider dependencies so an init call must be made. 
+(Terraform v0.11~ requries init)
+At the command prompt, execute the following command:
+
+`terraform init`
+
+We should see output like the following:
+
+```
+Initializing modules...
+- module.guestbook
+
+Initializing provider plugins...
+- Checking for available provider plugins on https://releases.hashicorp.com...
+- Downloading plugin for provider "template" (1.0.0)...
+
+The following providers do not have any version constraints in configuration,
+so the latest version was installed.
+
+To prevent automatic upgrades to new major versions that may contain breaking
+changes, it is recommended to add version = "..." constraints to the
+corresponding provider blocks in configuration, with the constraint strings
+suggested below.
+
+* provider.template: version = "~> 1.0"
+
+Terraform has been successfully initialized!
+
+You may now begin working with Terraform. Try running "terraform plan" to see
+any changes that are required for your infrastructure. All Terraform commands
+should now work.
+
+If you ever set or change modules or backend configuration for Terraform,
+rerun this command to reinitialize your working directory. If you forget, other
+commands will detect it and remind you to do so if necessary.
+```
+---
+
+### Part 3: Terraform Plan
 
 Before we actually create/update/delete any resources, it's a good idea to find out what Terraform intends to do.
 
@@ -446,7 +486,7 @@ Once we're satisfied that Terraform will do what we want it to do, we can move o
 
 ---
 
-### Part 3: Terraform Apply
+### Part 4: Terraform Apply
 
 Run `terraform apply` to begin the process.
 
