@@ -1,86 +1,126 @@
 # Layer0 Setup Reference
-The Layer0 Setup application (commonly called **l0-setup**), is used to provision, update, and destroy Layer0 instances.
+The Layer0 Setup application (commonly called `l0-setup`), is used for administrative tasks on Layer0 instances.
+
+##Global options
+
+`l0-setup` can be used with one of several commands: [init](#init), [plan](#plan), [apply](#apply), [list](#list), [push](#push), [pull](#pull), [endpoint](#endpoint), [destroy](#destroy), [upgrade](#upgrade), and [set](#set). These commands are detailed in teh sections below. There are, however, some global paramters that you may specify whenever using `l0-setup`
+
+### Usage
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">`l0-setup [global options] command params`</div>
+  </div>
+</div>
+
+###Global options
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">`-l value, --log value`</div>
+    <div class="divCell">The log level to display on the console when you run commands. (default: info)</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">`--version`</div>
+    <div class="divCell">Display the version number of the `l0-setup` application.</div>
+  </div>
+</div>
 
 ---
-## General Usage
-You can use the `-h, --help` command to get generate information about the `l0-setup` tool:
 
----
 ## Init
-The **init** command is used to initialize or reconfigure a Layer0 instance. 
+The `init` command is used to initialize or reconfigure a Layer0 instance. 
 This command will prompt the user for inputs required to create/update a Layer0 instance. 
 Each of the inputs can be specified through an optional flag.
 
 ### Usage
-```
-$ l0-setup init [options] <instance_name> 
-```
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">`l0-setup init [--docker-path path | --module-source path | --version version | --aws-access-key access_key | --aws-secret-key secret_key | --aws-region region] instanceName`</div>
+  </div>
+</div>
 
-### Options
-* `--docker-path` - Path to docker config.json file. 
-This is used to include private Docker Registry authentication for this Layer0 instance.
-* `--module-source` - The source input variable is the path to the Terraform Layer0. 
-By default, this points to the Layer0 github repository. 
-Using values other than the default may result in undesired consequences.
-* `--version` - The version input variable specifies the tag to use for the Layer0
-Docker images: `quintilesims/l0-api` and `quintilesims/l0-runner`.
-* `--aws-access-key` - The access_key input variable is used to provision the AWS resources
-required for Layer0. 
-This corresponds to the Access Key ID portion of an AWS Access Key.
-It is recommended this key has the `AdministratorAccess` policy. 
-* `--aws-secret-key` The secret_key input variable is used to provision the AWS resources
-required for Layer0. 
-This corresponds to the Secret Access Key portion of an AWS Access Key.
-It is recommended this key has the `AdministratorAccess` policy.
-* `--aws-region` - The region input variable specifies which region to provision the
-AWS resources required for Layer0. The following regions can be used:
-    - us-west-1
-    - us-west-2
-    - us-east-1
-    - eu-west-1
-
-
-* `--aws-ssh-key-pair` - The ssh_key_pair input variable specifies the name of the
-ssh key pair to include in EC2 instances provisioned by Layer0. 
-This key pair must already exist in the AWS account. 
-The names of existing key pairs can be found in the EC2 dashboard.
+###Optional arguments
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">`--docker-path`</div>
+    <div class="divCell">Path to docker config.json file. This is used to include private Docker Registry authentication for this Layer0 instance.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">`--module-source`</div>
+    <div class="divCell">The source input variable is the path to the Terraform Layer0. By default, this points to the Layer0 github repository. Using values other than the default may result in undesired consequences.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">`--version`</div>
+    <div class="divCell">The version input variable specifies the tag to use for the Layer0 Docker images: `quintilesims/l0-api` and `quintilesims/l0-runner`.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">`--aws-access-key`</div>
+    <div class="divCell">The access_key input variable is used to provision the AWS resources required for Layer0. This corresponds to the Access Key ID portion of an AWS Access Key. It is recommended this key has the `AdministratorAccess` policy.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">`--aws-secret-key`</div>
+    <div class="divCell">The secret_key input variable is used to provision the AWS resources required for Layer0. This corresponds to the Secret Access Key portion of an AWS Access Key. It is recommended this key has the `AdministratorAccess` policy.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">`--aws-ssh-key-pair`</div>
+    <div class="divCell">The ssh_key_pair input variable specifies the name of the ssh key pair to include in EC2 instances provisioned by Layer0. This key pair must already exist in the AWS account.  The names of existing key pairs can be found in the EC2 dashboard.</div>
+  </div>
+</div>
 
 ---
+
 ## Plan
-The **plan** command is used to show the planned operation(s) to run during the next `apply` on a Layer0 instance without actually executing any actions
+The `plan` command is used to show the planned operation(s) to run during the next `apply` on a Layer0 instance without actually executing any actions
 
 ### Usage
-```
-$ l0-setup plan <instance_name> 
-```
-
-### Options
-There are no options for this command
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">`l0-setup plan instanceName`</div>
+  </div>
+</div>
 
 ---
+
 ## Apply
-The **apply** command is used to create and update Layer0 instances. Note that the default behavior of apply is to push the layer0 configuration to an S3 bucket unless the `--push=false` flag is set to false. Pushing the configuration to an S3 bucket requires aws credentials which if not set via the optional `--aws-*` flags, are read from the environment variables or a credentials file. 
+The `apply` command is used to create and update Layer0 instances. Note that the default behavior of apply is to push the layer0 configuration to an S3 bucket unless the `--push=false` flag is set to false. Pushing the configuration to an S3 bucket requires aws credentials which if not set via the optional `--aws-*` flags, are read from the environment variables or a credentials file. 
 
 ### Usage
-```
-$ l0-setup apply [options] <instance_name> 
-```
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">`l0-setup apply [--quick | --push=false | --aws-access-key | --aws-secret-key | --aws-region] instanceName`</div>
+  </div>
+</div>
 
-### Options
-* `--quick` - Skips verification checks that normally run after `terraform apply` has completed
-* `--push` - Skips uploading local Layer0 configuration files to an S3 bucket
-* `--aws-access-key` - The Access Key ID portion of an AWS Access Key that has permissions to push to the Layer0 instances's S3 bucket. If not specified, the application will attempt to use any AWS credentials used by the AWS CLI. 
-* `--aws-secret-key` - The Secret Access Key portion of an AWS Access Key that has permissions to push to the Layer0 instances's S3 bucket. If not specified, the application will attempt to use any AWS credentials used by the AWS CLI. 
-* `--aws-region` - The region of the Layer0 instance. The default value is `us-west-2`. 
+###Optional arguments
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoWrap">`--quick`</div>
+    <div class="divCell">Skips verification checks that normally run after `terraform apply` has completed</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">`--push=false`</div>
+    <div class="divCell">Skips uploading local Layer0 configuration files to an S3 bucket</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">`--aws-access-key`</div>
+    <div class="divCell">The Access Key ID portion of an AWS Access Key that has permissions to push to the Layer0 instances's S3 bucket. If not specified, the application will attempt to use any AWS credentials used by the AWS CLI.</div>
+  </div>
+  <div class="divRow">
+    <div class="divCellNoWrap">`--aws-secret-key`</div>
+    <div class="divCell">The Secret Access Key portion of an AWS Access Key that has permissions to push to the Layer0 instances's S3 bucket. If not specified, the application will attempt to use any AWS credentials used by the AWS CLI.</div>
+  </div>
+</div>
 
 ---
+
 ## List
-The **list** command is used to list local and remote Layer0 instances.
+The `list` command is used to list local and remote Layer0 instances.
 
 ### Usage
-```
-$ l0-setup list [options]
-```
+<div class="divTable">
+  <div class="divRow">
+    <div class="divCellNoPadding">`l0-setup list [--local | --remote | --aws-access-key | --aws-secret-key]`</div>
+  </div>
+</div>
 
 ### Options
 * `-l, --local` - Show local Layer0 instances. This value is true by default.
@@ -89,7 +129,6 @@ $ l0-setup list [options]
 If not specified, the application will attempt to use any AWS credentials used by the AWS CLI. 
 * `--aws-secret-key` - The Secret Access Key portion of an AWS Access Key that has permissions to list S3 buckets. 
 If not specified, the application will attempt to use any AWS credentials used by the AWS CLI. 
-* `--aws-region` - The region to list S3 buckets. The default value is `us-west-2`. 
 
 ---
 ## Push
