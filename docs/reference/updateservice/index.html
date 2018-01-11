@@ -676,12 +676,6 @@
 <p>This method of updating a Layer0 application is the easiest to implement, because you do not need to rescale the Service or modify the Loadbalancer. This method is completely transparent to all other components of the application, and using this method does not involve any downtime.</p>
 <p>The disadvantage of using this method is that you cannot perform A/B testing of the old and new services, and you cannot control which traffic goes to the old service and which goes to the new one.</p>
 <p><strong>To replace a Deploy to refer to a new task definition:</strong></p>
-<<<<<<< HEAD
-<ol>
-<li>At the command line, type the following to create a new Deploy: <br /><code>l0 deploy create [pathToTaskDefinition] [deployName]</code><br />Note that if <code>[deployName]</code> already exists, this step will create a new version of that Deploy.</li>
-<li>Type the following to update the existing Service: <br /><code>l0 service update [existingServiceName] [deployName]</code><br />By default, the Service you specify in this command will refer to the latest version of <code>[deployName]</code>, if multiple versions of the Deploy exist.<div class="admonition note"><p class="admonition-title">Note</p><br /><p>If you want to refer to a specific version of the Deploy, type the following command instead of the one shown above: <code style="color:black;">l0 service update [serviceName] [deployName]:[deployVersion]</code></p></div></li>
-</ol>
-=======
 <p>At the command line, type the following to create a new Deploy:</p>
 <div class="codehilite"><pre><span></span>l0 deploy create taskDefPath deployName
 </pre></div>
@@ -694,7 +688,6 @@
 
 
 <p>By default, the service name you specify in this command will refer to the latest version of <code>deployName</code>. You can optionally specify a specific version of the deploy, as shown above.</p>
->>>>>>> @{-1}
 <h2 id="method-2-create-a-new-deploy-and-service-using-the-same-loadbalancer">Method 2: Create a new Deploy and Service using the same Loadbalancer<a class="headerlink" href="#method-2-create-a-new-deploy-and-service-using-the-same-loadbalancer" title="Permanent link">#</a></h2>
 <p>This method of updating a Layer0 application is also rather easy to implement. Like the method described in the previous section, this method is completely transparent to all other services and components of the application. This method also you allows you to re-scale the service if necessary, using the <a href="../cli/#service-scale">l0 service scale</a> command. Finally, this method allows for indirect A/B testing of the application; you can change the scale of the application, and observe the success and failure rates.</p>
 <p>The disadvantage of using this method is that you cannot control the routing of traffic between the old and new versions of the application.</p>
@@ -717,17 +710,6 @@
 
 
 <h2 id="method-3-create-a-new-deploy-loadbalancer-and-service">Method 3: Create a new Deploy, Loadbalancer and Service<a class="headerlink" href="#method-3-create-a-new-deploy-loadbalancer-and-service" title="Permanent link">#</a></h2>
-<<<<<<< HEAD
-<p>The final method of updating a Layer0 service is to create an entirely new Deploy, Loadbalancer and Service. This method gives you complete control over both the new and the old Service, and allows you to perform true A/B testing by routing traffic to individual Services.</p>
-<p>The disadvantage of using this method is that you need to implement a method of routing traffic between the new and the old Loadbalancer.</p>
-<p><strong>To create a new Deploy, Loadbalancer and Service:</strong></p>
-<ol>
-<li>At the command line, type the following command to create a new Deploy:<br /><code>l0 deploy create [pathToTaskDefinition] [deployName]</code></li>
-<li>Type the following command to create a new Loadbalancer:<br /> <code>l0 loadbalancer create --port [portNumber] [environmentName] [loadbalancerName] [deployName]</code><div class="admonition note"><p class="admonition-title">Note</p><br /><p>The value of <code style="color:black;">[loadbalancerName]</code> in the above command must be unique.</p></div></li>
-<li>Type the following command to create a new Service: <br /><code>l0 service create --loadbalancer [loadBalancerName] [environmentName] [serviceName] [deployName]</code><div class="admonition note"><p class="admonition-title">Note</p><br /><p>The value of <code style="color:black;">[serviceName]</code> in the above command  must be unique.</p></div></li>
-<li>Implement a method of routing traffic between the old and new Services, such as <a href="http://www.haproxy.org">HAProxy</a> or <a href="https://www.consul.io">Consul</a>.</li>
-</ol>
-=======
 <p>The final method of updating a Layer0 service is to create an entirely new Deploy, Load Balancer and Service. This method gives you complete control over both the new and the old Service, and allows you to perform true A/B testing by routing traffic to individual Services.</p>
 <p>The disadvantage of using this method is that you need to implement a method of routing traffic between the new and the old Load Balancer.</p>
 <p><strong>To create a new Deploy, Load Balancer and Service:</strong></p>
@@ -764,7 +746,6 @@
 <p>The value of <code>serviceName</code> in the above command  must be unique to the Environment.</p>
 </div>
 <p>Implement a method of routing traffic between the old and new Services, such as <a href="http://www.haproxy.org">HAProxy</a> or <a href="https://www.consul.io">Consul</a>.</p>
->>>>>>> @{-1}
                 
                   
                 

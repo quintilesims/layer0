@@ -11,10 +11,6 @@ The disadvantage of using this method is that you cannot perform A/B testing of 
 
 **To replace a Deploy to refer to a new task definition:**
 
-<<<<<<< HEAD
-1. At the command line, type the following to create a new Deploy: <br />```l0 deploy create [pathToTaskDefinition] [deployName]```<br />Note that if ```[deployName]``` already exists, this step will create a new version of that Deploy.
-2. Type the following to update the existing Service: <br />```l0 service update [existingServiceName] [deployName]```<br />By default, the Service you specify in this command will refer to the latest version of ```[deployName]```, if multiple versions of the Deploy exist.<div class="admonition note"><p class="admonition-title">Note</p><br /><p>If you want to refer to a specific version of the Deploy, type the following command instead of the one shown above: <code style="color:black;">l0 service update [serviceName] [deployName]:[deployVersion]</code></p></div>
-=======
 At the command line, type the following to create a new Deploy:
 
 ```
@@ -30,7 +26,6 @@ l0 service update serviceName deployName[:deployVersion]
 ```
 
 By default, the service name you specify in this command will refer to the latest version of `deployName`. You can optionally specify a specific version of the deploy, as shown above.
->>>>>>> @{-1}
 
 ## Method 2: Create a new Deploy and Service using the same Loadbalancer
 
@@ -101,11 +96,4 @@ l0 service create --loadbalancer loadBalancerName environmentName serviceName de
 !!! note
     The value of `serviceName` in the above command  must be unique to the Environment.
 
-<<<<<<< HEAD
-1. At the command line, type the following command to create a new Deploy:<br />```l0 deploy create [pathToTaskDefinition] [deployName]```
-2. Type the following command to create a new Loadbalancer:<br /> ```l0 loadbalancer create --port [portNumber] [environmentName] [loadbalancerName] [deployName]```<div class="admonition note"><p class="admonition-title">Note</p><br /><p>The value of <code style="color:black;">[loadbalancerName]</code> in the above command must be unique.</p></div>
-3. Type the following command to create a new Service: <br />```l0 service create --loadbalancer [loadBalancerName] [environmentName] [serviceName] [deployName]```<div class="admonition note"><p class="admonition-title">Note</p><br /><p>The value of <code style="color:black;">[serviceName]</code> in the above command  must be unique.</p></div>
-4. Implement a method of routing traffic between the old and new Services, such as [HAProxy](http://www.haproxy.org) or [Consul](https://www.consul.io).
-=======
 Implement a method of routing traffic between the old and new Services, such as [HAProxy](http://www.haproxy.org) or [Consul](https://www.consul.io).
->>>>>>> @{-1}
