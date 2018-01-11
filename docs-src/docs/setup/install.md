@@ -5,6 +5,9 @@
 Before you can install and configure Layer0, you must obtain the following:
 
 * **An AWS account.**
+Please have your AWS access key and secret ready.
+- If the aws-cli is installed you can check them here `cat ~/.aws/credentials`
+- If it's not installed assign them with `l0-setup init --aws-access-key <value> --aws-secret-key <value>`
 
 * **An EC2 Key Pair.**
 This key pair allows you to access the EC2 instances running your Services using SSH.
@@ -12,7 +15,7 @@ If you have already created a key pair, you can use it for this process.
 Otherwise, follow the [instructions at aws.amazon.com](http://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) to create a new key pair.
 Make a note of the name that you selected when creating the key pair.
 
-* **Terraform v0.9.4+**
+* **Terraform v0.11++**
 We use Terraform to create the resources that Layer0 needs.
 If you're unfamiliar with Terraform, you may want to check out our [introduction](/reference/terraform_introduction).
 If you're ready to install Terraform, there are instructions in the [Terraform documentation](https://www.terraform.io/intro/getting-started/install.html).

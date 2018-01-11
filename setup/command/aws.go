@@ -48,7 +48,8 @@ func (f *CommandFactory) newAWSProviderHelper(c *cli.Context) (*aws.Provider, er
 	if _, err := config.Credentials.Get(); err != nil {
 		if err, ok := err.(awserr.Error); ok && err.Code() == "NoCredentialProviders" {
 			text := "No valid AWS credentials found. Please specify an AWS access key and secret key using "
-			text += "their corresponding flags or environment variables"
+			text += "their corresponding flags or environment variables."
+			text += "`l0-setup 0-setup init --aws-access-key <value> --aws-secret-key <value>`"
 			return nil, fmt.Errorf(text)
 		}
 
