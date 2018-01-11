@@ -1,9 +1,9 @@
 # Layer0 Terraform Provider Reference
 
 Terraform is an open-source tool for provisioning and managing infrastructure.
-If you are new to Terraform, we recommend checking out their [documentation](https://www.Terraform.io/intro/index.html).
+If you are new to Terraform, we recommend checking out their [documentation](https://www.terraform.io/intro/index.html).
 
-Layer0 has built a custom [provider](https://www.Terraform.io/docs/providers/index.html) for Layer0.
+Layer0 has built a custom [provider](https://www.terraform.io/docs/providers/index.html) for Layer0.
 This provider allows users to create, manage, and update Layer0 entities using Terraform.
 
 ## Prerequisites
