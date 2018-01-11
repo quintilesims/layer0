@@ -83,7 +83,7 @@ The `push` command is used to back up your Layer0 configuration files to an S3 b
 
 ### Usage
 ```
-$ l0-setup push [--aws-access-key accessKey | 
+l0-setup push [--aws-access-key accessKey | 
     --aws-secret-key secretKey] instanceName
 ```
 
@@ -97,7 +97,7 @@ The `pull` command is used copy Layer0 configuration files from an S3 bucket.
 
 ### Usage
 ```
-$ l0-setup pull [--aws-access-key accessKey | 
+l0-setup pull [--aws-access-key accessKey | 
     --aws-secret-key secretKey] instanceName
 ```
 
@@ -111,7 +111,7 @@ The `endpoint` command is used to show environment variables used to connect to 
 
 ### Usage
 ```
-$ l0-setup endpoint [-i | -d | -s syntax] instanceName
+l0-setup endpoint [-i | -d | -s syntax] instanceName
 ```
 
 ### Optional arguments
@@ -129,7 +129,7 @@ The `destroy` command is used to destroy all resources associated with a Layer0 
 
 ### Usage
 ```
-$ l0-setup destroy [--force] instanceName
+l0-setup destroy [--force] instanceName
 ```
 
 ### Optional arguments
@@ -143,7 +143,7 @@ You will need to run an `apply` after this command has completed.
 
 ### Usage
 ```
-$ l0-setup upgrade [--force] instanceName version
+l0-setup upgrade [--force] instanceName version
 ```
 
 ### Optional arguments
@@ -157,7 +157,7 @@ You will need to run an `apply` after this command has completed.
 
 ### Usage
 ```
-$ l0-setup set [--input key=value] instanceName
+l0-setup set [--input key=value] instanceName
 ```
 
 ### Options
@@ -165,6 +165,6 @@ $ l0-setup set [--input key=value] instanceName
 
 ### Example Usage
 ```
-$ l0-setup set --input username=admin --input password=pass123 mylayer0
+l0-setup set --input username=admin --input password=pass123 mylayer0
 ```
 
