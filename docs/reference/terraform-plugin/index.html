@@ -368,30 +368,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../guides/walkthrough/deployment-3/" title="Walkthrough: Deployment 3" class="md-nav__link">
-      Walkthrough: Deployment 3
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../guides/terraform_beyond_layer0/" title="Terraform beyond Layer0" class="md-nav__link">
-      Terraform beyond Layer0
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../guides/one_off_task/" title="One-off Task" class="md-nav__link">
       One-off Task
     </a>
@@ -1366,7 +1342,7 @@ If you are new to Terraform, we recommend checking out their <a href="https://ww
 This provider allows users to create, manage, and update Layer0 entities using Terraform.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h2>
 <ul>
-<li><strong>Terraform v0.9.4+</strong> (<a href="https://www.Terraform.io/downloads.html">download</a>), accessible in your system path.</li>
+<li><strong>Terraform v0.11+</strong> (<a href="https://www.terraform.io/downloads.html">download</a>), accessible in your system path.</li>
 </ul>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">#</a></h2>
 <p>Download a Layer0 v0.8.4+ <a href="../../releases">release</a>.
@@ -1375,7 +1351,7 @@ Copy this <code>terraform-provider-layer0</code> binary into the same directory 
 <p>For further information, see Terraform's documentation on installing a Terraform plugin <a href="https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin">here</a>.</p>
 <h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">#</a></h2>
 <ul>
-<li>Checkout the <code>Terraform</code> section of the Guestbook walkthrough <a href="../../guides/guestbook#terraform">here</a>.</li>
+<li>Checkout the <code>Terraform</code> section of the Guestbook walkthrough <a href="../../guides/walkthrough/deployment-1/#deploy-with-terraform">here</a>.</li>
 <li>We've added some tips and links to helpful resources in the <a href="#best-practices">Best Practices</a> section below.</li>
 </ul>
 <hr />
@@ -1560,7 +1536,7 @@ output &quot;service_id&quot; {
 <h2 id="deploy-resource">Deploy Resource<a class="headerlink" href="#deploy-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Deploy.</p>
 <p>Performing variable substitution inside of your deploy's json file (typically named <code>Dockerrun.aws.json</code>) can be done through Terraform's <a href="https://www.terraform.io/docs/providers/template/">template_file</a>.
-For a working example, please see the sample <a href="https://github.com/quintilesims/guides/blob/master/guestbook/layer0.tf">Guestbook</a> application</p>
+For a working example, please see the sample <a href="https://github.com/quintilesims/guides/blob/master/guestbook/module/main.tf">Guestbook</a> application</p>
 <h3 id="example-usage_6">Example Usage<a class="headerlink" href="#example-usage_6" title="Permanent link">#</a></h3>
 <div class="codehilite"><pre><span></span># Configure the deploy template
 data &quot;template_file&quot; &quot;guestbook&quot; {
@@ -1673,7 +1649,7 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <li><code>environment</code> - (Required) The id of the environment to place the load balancer inside of</li>
 <li><code>private</code> - (Optional) If true, the load balancer will not be exposed to the public internet</li>
 <li><code>port</code> - (Optional, Default: 80:80/tcp) A list of port blocks. Ports documented below</li>
-<li><code>health_check</code> - (Optional, Default: {"TCP:80" 30 5 2 2}) A health_check block. Health check documented below</li>
+<li><code>health_check</code> - (Optional, Default: <code>{"TCP:80" 30 5 2 2}</code>) A health_check block. Health check documented below</li>
 </ul>
 <p>Ports (<code>port</code>) support the following:</p>
 <ul>
@@ -1684,9 +1660,9 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 </ul>
 <p>Healthcheck (<code>health_check</code>) supports the following:</p>
 <ul>
-<li><code>target</code> - (Required) The target of the check. Valid pattern is "${PROTOCOL}:${PORT}${PATH}", where PROTOCOL values are:<ul>
-<li><code>HTTP</code>, <code>HTTPS</code> - PORT and PATH are required</li>
-<li><code>TCP</code>, <code>SSL</code> - PORT is required, PATH is not supported</li>
+<li><code>target</code> - (Required) The target of the check. Valid pattern is <code>PROTOCOL:PORT/PATH</code>, where <code>PROTOCOL</code> values are:<ul>
+<li><code>HTTP</code>, <code>HTTPS</code> - <code>PORT</code> and <code>PATH</code> are required</li>
+<li><code>TCP</code>, <code>SSL</code> - <code>PORT</code> is required, <code>PATH</code> is not supported</li>
 </ul>
 </li>
 <li><code>interval</code> - (Required) The interval between checks.</li>
@@ -1742,12 +1718,12 @@ resource &quot;layer0_service&quot; &quot;guestbook&quot; {
 <ul>
 <li>Always run <code>Terraform plan</code> before <code>terraform apply</code>.
 This will show you what action(s) Terraform plans to make before actually executing them.</li>
-<li>Use <a href="https://www.Terraform.io/intro/getting-started/variables.html">variables</a> to reference secrets.
-Secrets can be placed in a file named <code>Terraform.tfvars</code>, or by setting <code>TF_VAR_*</code> environment variables.
-More information can be found <a href="https://www.Terraform.io/intro/getting-started/variables.html">here</a>.</li>
+<li>Use <a href="https://www.terraform.io/intro/getting-started/variables.html">variables</a> to reference secrets.
+Secrets can be placed in a file named <code>terraform.tfvars</code>, or by setting <code>TF_VAR_*</code> environment variables.
+More information can be found <a href="https://www.terraform.io/intro/getting-started/variables.html">here</a>.</li>
 <li>Use Terraform's <code>remote</code> command to backup and sync your <code>terraform.tfstate</code> file across different members in your organization.
-Terraform has documentation for using S3 as a backend <a href="https://www.Terraform.io/docs/state/remote/s3.html">here</a>.</li>
-<li>Terraform <a href="https://www.Terraform.io/intro/getting-started/modules.html">modules</a> allow you to define and consume reusable components.</li>
+Terraform has documentation for using S3 as a backend <a href="https://www.terraform.io/docs/backends/types/s3.html">here</a>.</li>
+<li>Terraform <a href="https://www.terraform.io/intro/getting-started/modules.html">modules</a> allow you to define and consume reusable components.</li>
 <li>Example configurations can be found <a href="https://github.com/hashicorp/Terraform/tree/master/examples">here</a></li>
 </ul>
                 

@@ -23,6 +23,7 @@ Run the following command (replacing `<instance_name>` with the name of the Laye
 $ l0-setup destroy <instance_name>
 ```
 
-The **destroy** command is idempotent; if it fails, it is safe to re-attempt multiple times. 
-If the  operation continues to fail, it is likely there are resources that were created outside of Layer0 that have dependencies on the resources `l0-setup` is attempting to destroy. 
-You will need to manually remove these dependencies in order to get the **destroy** command to complete successfully. 
+The `destroy` command is idempotent; if it fails, it is safe to re-attempt multiple times. 
+
+!!! note
+    If the operation continues to fail, it is likely there are resources that were created outside of Layer0 that have dependencies on the resources `l0-setup` is attempting to destroy. You will need to manually remove these dependencies in order to get the `destroy` command to complete successfully. 

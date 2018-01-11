@@ -31,8 +31,8 @@ smoketest:
 systemtest:
 	$(MAKE) -C tests/system test
 
-benchmark:
-	$(MAKE) -C tests/stress benchmark
+stresstest:
+	$(MAKE) -C tests/stress test
 
 install-smoketest:
 	$(MAKE) -C cli install-smoketest

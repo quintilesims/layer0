@@ -7,7 +7,7 @@ Layer0 has built a custom [provider](https://www.Terraform.io/docs/providers/ind
 This provider allows users to create, manage, and update Layer0 entities using Terraform.
 
 ## Prerequisites
-- **Terraform v0.9.4+** ([download](https://www.Terraform.io/downloads.html)), accessible in your system path.
+- **Terraform v0.11+** ([download](https://www.terraform.io/downloads.html)), accessible in your system path.
 
 ## Install
 Download a Layer0 v0.8.4+ [release](/releases).
@@ -18,7 +18,7 @@ For further information, see Terraform's documentation on installing a Terraform
 
 ## Getting Started
 
-* Checkout the `Terraform` section of the Guestbook walkthrough [here](/guides/guestbook#terraform).
+* Checkout the `Terraform` section of the Guestbook walkthrough [here](../guides/walkthrough/deployment-1/#deploy-with-terraform).
 * We've added some tips and links to helpful resources in the [Best Practices](#best-practices) section below.
 
 ---
@@ -217,7 +217,7 @@ The following attributes are exported:
 Provides a Layer0 Deploy.
 
 Performing variable substitution inside of your deploy's json file (typically named `Dockerrun.aws.json`) can be done through Terraform's [template_file](https://www.terraform.io/docs/providers/template/).
-For a working example, please see the sample [Guestbook](https://github.com/quintilesims/guides/blob/master/guestbook/layer0.tf) application
+For a working example, please see the sample [Guestbook](https://github.com/quintilesims/guides/blob/master/guestbook/module/main.tf) application
 
 ### Example Usage
 ```
@@ -336,7 +336,7 @@ The following arguments are supported:
 * `environment` - (Required) The id of the environment to place the load balancer inside of
 * `private` - (Optional) If true, the load balancer will not be exposed to the public internet
 * `port` - (Optional, Default: 80:80/tcp) A list of port blocks. Ports documented below
-* `health_check` - (Optional, Default: {"TCP:80" 30 5 2 2}) A health_check block. Health check documented below
+* `health_check` - (Optional, Default: `{"TCP:80" 30 5 2 2}`) A health_check block. Health check documented below
 
 Ports (`port`) support the following:
 
@@ -347,9 +347,9 @@ Ports (`port`) support the following:
 
 Healthcheck (`health_check`) supports the following:
 
-* `target` - (Required) The target of the check. Valid pattern is "${PROTOCOL}:${PORT}${PATH}", where PROTOCOL values are:
-    * `HTTP`, `HTTPS` - PORT and PATH are required
-    * `TCP`, `SSL` - PORT is required, PATH is not supported
+* `target` - (Required) The target of the check. Valid pattern is `PROTOCOL:PORT/PATH`, where `PROTOCOL` values are:
+    * `HTTP`, `HTTPS` - `PORT` and `PATH` are required
+    * `TCP`, `SSL` - `PORT` is required, `PATH` is not supported
 * `interval` - (Required) The interval between checks.
 * `timeout` - (Required) The length of time before the check times out.
 * `healthy_threshold` - (Required) The number of checks before the instance is declared healthy.
@@ -407,10 +407,10 @@ The following attributes are exported:
 
 * Always run `Terraform plan` before `terraform apply`.
 This will show you what action(s) Terraform plans to make before actually executing them.
-* Use [variables](https://www.Terraform.io/intro/getting-started/variables.html) to reference secrets.
-Secrets can be placed in a file named `Terraform.tfvars`, or by setting `TF_VAR_*` environment variables.
-More information can be found [here](https://www.Terraform.io/intro/getting-started/variables.html).
+* Use [variables](https://www.terraform.io/intro/getting-started/variables.html) to reference secrets.
+Secrets can be placed in a file named `terraform.tfvars`, or by setting `TF_VAR_*` environment variables.
+More information can be found [here](https://www.terraform.io/intro/getting-started/variables.html).
 * Use Terraform's `remote` command to backup and sync your `terraform.tfstate` file across different members in your organization.
-Terraform has documentation for using S3 as a backend [here](https://www.Terraform.io/docs/state/remote/s3.html).
-* Terraform [modules](https://www.Terraform.io/intro/getting-started/modules.html) allow you to define and consume reusable components.
+Terraform has documentation for using S3 as a backend [here](https://www.terraform.io/docs/backends/types/s3.html).
+* Terraform [modules](https://www.terraform.io/intro/getting-started/modules.html) allow you to define and consume reusable components.
 * Example configurations can be found [here](https://github.com/hashicorp/Terraform/tree/master/examples)

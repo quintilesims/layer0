@@ -368,30 +368,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../guides/walkthrough/deployment-3/" title="Walkthrough: Deployment 3" class="md-nav__link">
-      Walkthrough: Deployment 3
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../guides/terraform_beyond_layer0/" title="Terraform beyond Layer0" class="md-nav__link">
-      Terraform beyond Layer0
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../guides/one_off_task/" title="One-off Task" class="md-nav__link">
       One-off Task
     </a>
@@ -721,8 +697,10 @@
                 
                 <h1 id="common-issues-and-their-solutions">Common issues and their solutions<a class="headerlink" href="#common-issues-and-their-solutions" title="Permanent link">#</a></h1>
 <h2 id="connection-refused-error-when-executing-layer0-commands">"Connection refused" error when executing Layer0 commands<a class="headerlink" href="#connection-refused-error-when-executing-layer0-commands" title="Permanent link">#</a></h2>
-<p>When executing commands using the Layer0 CLI, you may see the following error message: "Get http://localhost:9090/<em>command</em>/: dial tcp 127.0.0.1:9090: connection refused", where <em>command</em> is the Layer0 command you are trying to execute.</p>
-<p>This error indicates that your Layer0 environment variables have not been set for the current session. See the <a href="http://localhost:8000/setup/install/#part-4-configure-environment-variables">"Configure environment variables" section</a> of the Layer0 installation guide for instructions for setting up your environment variables.</p>
+<p>When executing commands using the Layer0 CLI, you may see the following error message: </p>
+<p><code>Get http://localhost:9090/command/: dial tcp 127.0.0.1:9090: connection refused</code></p>
+<p>Where <code>command</code> is the Layer0 command you are trying to execute.</p>
+<p>This error indicates that your Layer0 environment variables have not been set for the current session. See the <a href="../../setup/install/#part-4-connect-to-a-layer0-instance">"Connect to a Layer0 Instance" section</a> of the Layer0 installation guide for instructions for setting up your environment variables.</p>
 <hr />
 <h2 id="invalid-dockerrunawsjson-error-when-creating-a-deploy">"Invalid Dockerrun.aws.json" error when creating a deploy<a class="headerlink" href="#invalid-dockerrunawsjson-error-when-creating-a-deploy" title="Permanent link">#</a></h2>
 <h3 id="byte-order-marks-bom-in-dockerrun-file">Byte Order Marks (BOM) in Dockerrun file<a class="headerlink" href="#byte-order-marks-bom-in-dockerrun-file" title="Permanent link">#</a></h3>
@@ -732,31 +710,32 @@
 <li>
 <p>At the command line, type the following to remove the BOM:</p>
 <ul>
-<li>(Linux/OS X) <strong>tail -c +4</strong> <em>DockerrunFile</em> <strong>&gt;</strong> <em>DockerrunFileNew</em>
-<br /><br />Replace <em>DockerrunFile</em> with the path to your Dockerrun file, and <em>DockerrunFileNew</em> with a new name for the Dockerrun file without the BOM.</li>
+<li>(Linux/OS X) </li>
 </ul>
+<p><code>tail -c +4 DockerrunFile &gt; DockerrunFileNew</code></p>
+<p>Replace <code>DockerrunFile</code> with the path to your Dockerrun file, and <code>DockerrunFileNew</code> with a new name for the Dockerrun file without the BOM.</p>
 </li>
 </ul>
 <p>Alternatively, you can use the <a href="https://sourceforge.net/projects/dos2unix/">dos2unix file converter</a> to remove the BOM from your Dockerrun files. Dos2unix is available for Windows, Linux and Mac OS.</p>
 <p><strong>To remove the BOM using dos2unix:</strong></p>
 <ul>
-<li>
-<p>At the command line, type the following:</p>
-<ul>
-<li><strong>dos2unix --remove-bom -n</strong> <em>DockerrunFile</em> <em>DockerrunFileNew</em>
-<br /><br />Replace <em>DockerrunFile</em> with the path to your Dockerrun file, and <em>DockerrunFileNew</em> with a new name for the Dockerrun file without the BOM.</li>
+<li>At the command line, type the following:</li>
 </ul>
-</li>
-</ul>
+<div class="codehilite"><pre><span></span>dos2unix --remove-bom -n DockerrunFile DockerrunFileNew
+</pre></div>
+
+
+<p>Replace DockerrunFile with the path to your Dockerrun file, and DockerrunFileNew with a new name for the Dockerrun file without the BOM.</p>
 <hr />
 <h2 id="aws-error-the-key-pair-does-not-exist-code-validationerror-with-l0-setup">"AWS Error: the key pair '<keyvalue>' does not exist (code 'ValidationError')" with l0-setup<a class="headerlink" href="#aws-error-the-key-pair-does-not-exist-code-validationerror-with-l0-setup" title="Permanent link">#</a></h2>
-<p>This occurs when you pass a non-existent EC2 keypair to l0-setup. To fix this, follow the instructions for <a href="../../install/#part-2-create-an-access-key">creating an EC2 Key Pair</a>.</p>
+<p>This occurs when you pass an invalid EC2 keypair to l0-setup. To fix this, follow the instructions for <a href="../../setup/install/#part-2-create-an-access-key">creating an EC2 Key Pair</a>.</p>
 <ol>
-<li>After you've created a new EC2 Key Pair, run the following command:
-<ul>
-  <li class="command"><strong>l0-setup plan</strong> <em>prefix</em> <strong>-var key_pair</strong>=<em>keypair</em></li>
-</ul></li>
+<li>After you've created a new EC2 Key Pair, use <a href="../reference/setup-cli/#init">l0-setup init</a> to reconfigure your instance:</li>
 </ol>
+<div class="codehilite"><pre><span></span>l0-setup init --aws-ssh-key-pair keypair
+</pre></div>
+
+
 <!--
 ##"Back-end server is at capacity" (status code 503) error when executing Layer0 commands
 

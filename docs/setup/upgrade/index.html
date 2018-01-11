@@ -379,30 +379,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../guides/walkthrough/deployment-3/" title="Walkthrough: Deployment 3" class="md-nav__link">
-      Walkthrough: Deployment 3
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../guides/terraform_beyond_layer0/" title="Terraform beyond Layer0" class="md-nav__link">
-      Terraform beyond Layer0
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../guides/one_off_task/" title="One-off Task" class="md-nav__link">
       One-off Task
     </a>
@@ -632,16 +608,17 @@ This assumes you are using Layer0 version <code>v0.10.0</code> or later. </p>
 <p>Layer0 does not support updating MAJOR or MINOR versions in place unless explicitly stated otherwise.
 Users will either need to create a new Layer0 instance and migrate to it or destroy and re-create their Layer0 instance in these circumstances.</p>
 </div>
-<p>Run the <strong>upgrade</strong> command, replacing <code>&lt;instance_name&gt;</code> and <code>&lt;version&gt;</code> with the name of the Layer0 instance and new version, respectively:</p>
-<div class="codehilite"><pre><span></span>$ l0-setup upgrade &lt;instance_name&gt; &lt;version&gt;
+<p>Run the <code>upgrade</code> command, replacing <code>&lt;instance_name&gt;</code> and <code>&lt;version&gt;</code> with the name of the Layer0 instance and new version, respectively:</p>
+<div class="codehilite"><pre><span></span>l0-setup upgrade &lt;instance_name&gt; &lt;version&gt;
 </pre></div>
 
 
 <p>This will prompt you about the updated <code>source</code> and <code>version</code> inputs changing. 
 If you are not satisfied with the changes, exit the application during the prompts. 
-For full control on changing inputs, please use the <strong>set</strong> command. </p>
+For full control on changing inputs, use the <a href="../../../reference/setup-cli#set">set</a> command. </p>
 <p><strong>Example Usage</strong></p>
 <div class="codehilite"><pre><span></span>$ l0-setup upgrade mylayer0 v0.10.1
+
 This will update the <span class="s1">&#39;version&#39;</span> input
         From: <span class="o">[</span>v0.10.0<span class="o">]</span>
         To:   <span class="o">[</span>v0.10.1<span class="o">]</span>
@@ -658,7 +635,7 @@ Everything looks good! You are now ready to run <span class="s1">&#39;l0-setup a
 </pre></div>
 
 
-<p>As stated by the command output, run the <strong>apply</strong> command to apply the changes to the Layer0 instance.
+<p>As stated by the command output, run the <a href="../../../reference/setup-cli#apply">apply</a> command to apply the changes to the Layer0 instance.
 If any errors occur, please contact the Layer0 team. </p>
                 
                   

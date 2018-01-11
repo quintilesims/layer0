@@ -368,30 +368,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../guides/walkthrough/deployment-3/" title="Walkthrough: Deployment 3" class="md-nav__link">
-      Walkthrough: Deployment 3
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
-    <a href="../../guides/terraform_beyond_layer0/" title="Terraform beyond Layer0" class="md-nav__link">
-      Terraform beyond Layer0
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../guides/one_off_task/" title="One-off Task" class="md-nav__link">
       One-off Task
     </a>
@@ -658,7 +634,7 @@ It is <strong>not</strong> recommended for production environments.</p>
 
 <h2 id="remarks">Remarks<a class="headerlink" href="#remarks" title="Permanent link">#</a></h2>
 <p>You can get the load balancer url from the Load Balancers section of your Layer0 AWS console.</p>
-<p>Use the <a href="../../reference/cli/#loadbalancer">loadbalancer dropport</a> subcommand to remove a port configuration from an existing Layer0 load balancer.</p>
+<p>Use the <a href="../../reference/cli/#loadbalancer-dropport">l0 loadbalancer dropport</a> subcommand to remove a port configuration from an existing Layer0 load balancer.</p>
 <p>You <em>cannot</em> change the key pair after a Layer0 has been created. If you lose your key pair or need to generate a new one, you will need to create a new Layer0.</p>
 <p>If your Service is behind a private load balancer, or none at all, you can either re-create your Service behind a public load balancer, use an existing public load balancer as a "jump" point, or create a new Layer0 Service behind a public load balancer to serve as a "jump" point.</p>
                 
