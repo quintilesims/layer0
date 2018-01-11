@@ -4,7 +4,7 @@
 
 When executing commands using the Layer0 CLI, you may see the following error message: "Get http://localhost:9090/_command_/: dial tcp 127.0.0.1:9090: connection refused", where _command_ is the Layer0 command you are trying to execute.
 
-This error indicates that your Layer0 environment variables have not been set for the current session. See the ["Configure environment variables" section](http://localhost:8000/setup/install/#part-4-configure-environment-variables) of the Layer0 installation guide for instructions for setting up your environment variables.
+This error indicates that your Layer0 environment variables have not been set for the current session. See the ["Connect to a Layer0 Instance" section](../setup/install/#part-4-connect-to-a-layer0-instance) of the Layer0 installation guide for instructions for setting up your environment variables.
 
 ---
 
@@ -32,7 +32,7 @@ Alternatively, you can use the [dos2unix file converter](https://sourceforge.net
 
 ##"AWS Error: the key pair '<keyvalue>' does not exist (code 'ValidationError')" with l0-setup
 
-This occurs when you pass a non-existent EC2 keypair to l0-setup. To fix this, follow the instructions for [creating an EC2 Key Pair](/install/#part-2-create-an-access-key).
+This occurs when you pass a non-existent EC2 keypair to l0-setup. To fix this, follow the instructions for [creating an EC2 Key Pair](../setup/install/#part-2-create-an-access-key).
 
 1. After you've created a new EC2 Key Pair, run the following command:
 <ul>

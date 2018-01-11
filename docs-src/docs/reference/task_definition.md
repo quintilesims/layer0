@@ -7,7 +7,7 @@ For more comprehensive documentation, we recommend taking a look at the official
 
 
 ## Sample
-The following snippet contains the task definition for the [Guestbook](/guides/guestbook) application
+The following snippet contains the task definition for the [Guestbook](../guides/walkthrough/deployment-1) application
 ```
 {
     "AWSEBDockerrunVersion": 2,

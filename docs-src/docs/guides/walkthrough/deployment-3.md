@@ -145,10 +145,10 @@ consuls2f3c6  consul-svc    demo-env     consul-lb     consul-dpl:1  3/3
 ```
 
 !!! WARNING "Important!"
-    The successful completion of the **scale** command doesn't mean that we're ready to move on just yet!
-    We need to check in on the logs (**l0 service logs consul-svc**) until we can confirm that all three of the Consul servers have synced up with each other.
-    Each **consul-server** section in the logs should be ending with **consul: Adding LAN server [ip address]** or **agent: Join completed**.
-    If you see one of the sections ending with **agent: Join failed, retrying in 30s**, you need to wait for that server to join the cluster before continuing.
+    The successful completion of the `scale` command doesn't mean that we're ready to move on just yet!
+    We need to check in on the logs (`l0 service logs consul-svc`) until we can confirm that all three of the Consul servers have synced up with each other.
+    Each **consul-server** section in the logs should be ending with `consul: Adding LAN server [ip address]` or `agent: Join completed`.
+    If you see one of the sections ending with `agent: Join failed, retrying in 30s`, you need to wait for that server to join the cluster before continuing.
 
 
 ---

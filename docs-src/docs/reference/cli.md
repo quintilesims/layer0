@@ -58,11 +58,11 @@ Use the `create` subcommand to upload a Docker task definition into Layer0.
 
 #### Usage
 ```
-l0 deploy create dockerPath deployName
+l0 deploy create taskDefPath deployName
 ```
 
 ####Required parameters
-* `dockerPath` - The path to the Docker task definition that you want to upload.
+* `taskDefPath` - The path to the Docker task definition that you want to upload.
 * `deployName` - A name for the deploy.
 
 ####Additional information
@@ -153,7 +153,6 @@ Currently, two variables are passed into the template: **ECSEnvironmentID** and 
 !!! danger
     Please review the [ECS Tutorial](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/launch_container_instance.html)
     to better understand how to write a user data template, and use at your own risk!
-
 
 **Linux Environments**: The default Layer0 user data template is:
 
@@ -535,7 +534,7 @@ l0 service create [--loadbalancer [environmentName:]loadBalancerName |
 * `deployName[:deployVersion]` - The name of a Layer0 deploy that exists in the environment `environmentName`. You can optionally specify the version number of the Layer0 deploy that you want to deploy. If you do not specify a version number, the latest version of the deploy will be used.
 
 ####Optional arguments
-* `--loadbalancer [environmentName:]loadBalancerName` - Place the new service behind an existing load balancer `loadBalancerName`. You can optionally specify the Layer0 environment (`environmentName`) where the Load Balancer exists.
+* `--loadbalancer [environmentName:]loadBalancerName` - Place the new service behind an existing load balancer `loadBalancerName`. You can optionally specify the Layer0 environment (`environmentName`) where the load balancer exists.
 * `--no-logs` - Disable cloudwatch logging for the service
 
 ### service update

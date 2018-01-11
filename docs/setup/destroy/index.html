@@ -425,18 +425,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../guides/terraform_beyond_layer0/" title="Terraform beyond Layer0" class="md-nav__link">
-      Terraform beyond Layer0
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../guides/one_off_task/" title="One-off Task" class="md-nav__link">
       One-off Task
     </a>
@@ -701,9 +689,11 @@ Run the following command (replacing <code>&lt;instance_name&gt;</code> with the
 </pre></div>
 
 
-<p>The <strong>destroy</strong> command is idempotent; if it fails, it is safe to re-attempt multiple times. 
-If the  operation continues to fail, it is likely there are resources that were created outside of Layer0 that have dependencies on the resources <code>l0-setup</code> is attempting to destroy. 
-You will need to manually remove these dependencies in order to get the <strong>destroy</strong> command to complete successfully. </p>
+<p>The <code>destroy</code> command is idempotent; if it fails, it is safe to re-attempt multiple times. </p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>If the  operation continues to fail, it is likely there are resources that were created outside of Layer0 that have dependencies on the resources <code>l0-setup</code> is attempting to destroy. You will need to manually remove these dependencies in order to get the <code>destroy</code> command to complete successfully. </p>
+</div>
                 
                   
                 

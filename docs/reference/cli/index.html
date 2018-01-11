@@ -380,18 +380,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../guides/terraform_beyond_layer0/" title="Terraform beyond Layer0" class="md-nav__link">
-      Terraform beyond Layer0
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../guides/one_off_task/" title="One-off Task" class="md-nav__link">
       One-off Task
     </a>
@@ -3204,7 +3192,7 @@
 <li><code>-o [text|json], --output [text|json]</code> - Specify the format of Layer0 outputs. By default, Layer0 outputs unformatted text; by issuing the <code>--output json</code> option, you can force <code>l0</code> to output JSON-formatted text.</li>
 <li><code>-t value, --timeout value</code> - Specify the timeout for running <code>l0</code> commands. Values can be in h, m, s, or ms.</li>
 <li><code>-d, --debug</code> - Print debug statements</li>
-<li><code>--version</code> - Display the version number of the <code>l0</code> application.</li>
+<li><code>-v, --version</code> - Display the version number of the <code>l0</code> application.</li>
 </ul>
 <hr />
 <h2 id="admin">Admin<a class="headerlink" href="#admin" title="Permanent link">#</a></h2>
@@ -3239,13 +3227,13 @@ The <code>deploy</code> command is used to manage Layer0 environments. This comm
 <h3 id="deploy-create">deploy create<a class="headerlink" href="#deploy-create" title="Permanent link">#</a></h3>
 <p>Use the <code>create</code> subcommand to upload a Docker task definition into Layer0. </p>
 <h4 id="usage_4">Usage<a class="headerlink" href="#usage_4" title="Permanent link">#</a></h4>
-<div class="codehilite"><pre><span></span>l0 deploy create dockerPath deployName
+<div class="codehilite"><pre><span></span>l0 deploy create taskDefPath deployName
 </pre></div>
 
 
 <h4 id="required-parameters">Required parameters<a class="headerlink" href="#required-parameters" title="Permanent link">#</a></h4>
 <ul>
-<li><code>dockerPath</code> - The path to the Docker task definition that you want to upload.</li>
+<li><code>taskDefPath</code> - The path to the Docker task definition that you want to upload.</li>
 <li><code>deployName</code> - A name for the deploy.</li>
 </ul>
 <h4 id="additional-information_1">Additional information<a class="headerlink" href="#additional-information_1" title="Permanent link">#</a></h4>
@@ -3708,7 +3696,7 @@ These default values together create a load balancer configured with a simple bu
 </ul>
 <h4 id="optional-arguments_7">Optional arguments<a class="headerlink" href="#optional-arguments_7" title="Permanent link">#</a></h4>
 <ul>
-<li><code>--loadbalancer [environmentName:]loadBalancerName</code> - Place the new service behind an existing load balancer <code>loadBalancerName</code>. You can optionally specify the Layer0 environment (<code>environmentName</code>) where the Load Balancer exists.</li>
+<li><code>--loadbalancer [environmentName:]loadBalancerName</code> - Place the new service behind an existing load balancer <code>loadBalancerName</code>. You can optionally specify the Layer0 environment (<code>environmentName</code>) where the load balancer exists.</li>
 <li><code>--no-logs</code> - Disable cloudwatch logging for the service</li>
 </ul>
 <h3 id="service-update">service update<a class="headerlink" href="#service-update" title="Permanent link">#</a></h3>

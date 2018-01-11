@@ -380,18 +380,6 @@
 
 
   <li class="md-nav__item">
-    <a href="../../guides/terraform_beyond_layer0/" title="Terraform beyond Layer0" class="md-nav__link">
-      Terraform beyond Layer0
-    </a>
-  </li>
-
-        
-          
-          
-          
-
-
-  <li class="md-nav__item">
     <a href="../../guides/one_off_task/" title="One-off Task" class="md-nav__link">
       One-off Task
     </a>
@@ -722,7 +710,7 @@
                 <h1 id="common-issues-and-their-solutions">Common issues and their solutions<a class="headerlink" href="#common-issues-and-their-solutions" title="Permanent link">#</a></h1>
 <h2 id="connection-refused-error-when-executing-layer0-commands">"Connection refused" error when executing Layer0 commands<a class="headerlink" href="#connection-refused-error-when-executing-layer0-commands" title="Permanent link">#</a></h2>
 <p>When executing commands using the Layer0 CLI, you may see the following error message: "Get http://localhost:9090/<em>command</em>/: dial tcp 127.0.0.1:9090: connection refused", where <em>command</em> is the Layer0 command you are trying to execute.</p>
-<p>This error indicates that your Layer0 environment variables have not been set for the current session. See the <a href="http://localhost:8000/setup/install/#part-4-configure-environment-variables">"Configure environment variables" section</a> of the Layer0 installation guide for instructions for setting up your environment variables.</p>
+<p>This error indicates that your Layer0 environment variables have not been set for the current session. See the <a href="../../setup/install/#part-4-connect-to-a-layer0-instance">"Connect to a Layer0 Instance" section</a> of the Layer0 installation guide for instructions for setting up your environment variables.</p>
 <hr />
 <h2 id="invalid-dockerrunawsjson-error-when-creating-a-deploy">"Invalid Dockerrun.aws.json" error when creating a deploy<a class="headerlink" href="#invalid-dockerrunawsjson-error-when-creating-a-deploy" title="Permanent link">#</a></h2>
 <h3 id="byte-order-marks-bom-in-dockerrun-file">Byte Order Marks (BOM) in Dockerrun file<a class="headerlink" href="#byte-order-marks-bom-in-dockerrun-file" title="Permanent link">#</a></h3>
@@ -750,7 +738,7 @@
 </ul>
 <hr />
 <h2 id="aws-error-the-key-pair-does-not-exist-code-validationerror-with-l0-setup">"AWS Error: the key pair '<keyvalue>' does not exist (code 'ValidationError')" with l0-setup<a class="headerlink" href="#aws-error-the-key-pair-does-not-exist-code-validationerror-with-l0-setup" title="Permanent link">#</a></h2>
-<p>This occurs when you pass a non-existent EC2 keypair to l0-setup. To fix this, follow the instructions for <a href="../../install/#part-2-create-an-access-key">creating an EC2 Key Pair</a>.</p>
+<p>This occurs when you pass a non-existent EC2 keypair to l0-setup. To fix this, follow the instructions for <a href="../../setup/install/#part-2-create-an-access-key">creating an EC2 Key Pair</a>.</p>
 <ol>
 <li>After you've created a new EC2 Key Pair, run the following command:
 <ul>
