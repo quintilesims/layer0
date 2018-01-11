@@ -13,7 +13,7 @@ l0 [global options] command subcommand [subcommand options] params
 * `-o [text|json], --output [text|json]` - Specify the format of Layer0 outputs. By default, Layer0 outputs unformatted text; by issuing the `--output json` option, you can force `l0` to output JSON-formatted text.
 * `-t value, --timeout value` - Specify the timeout for running `l0` commands. Values can be in h, m, s, or ms.
 * `-d, --debug` - Print debug statements
-* `--version` - Display the version number of the `l0` application.
+* `-v, --version` - Display the version number of the `l0` application.
 
 ---
 
