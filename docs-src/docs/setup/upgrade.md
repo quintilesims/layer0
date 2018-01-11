@@ -9,7 +9,7 @@ This assumes you are using Layer0 version `v0.10.0` or later.
 
 Run the `upgrade` command, replacing `<instance_name>` and `<version>` with the name of the Layer0 instance and new version, respectively:
 ```
-$ l0-setup upgrade <instance_name> <version>
+l0-setup upgrade <instance_name> <version>
 ```
 
 This will prompt you about the updated `source` and `version` inputs changing. 
@@ -19,6 +19,7 @@ For full control on changing inputs, use the [set](../../reference/setup-cli#set
 **Example Usage**
 ```
 $ l0-setup upgrade mylayer0 v0.10.1
+
 This will update the 'version' input
         From: [v0.10.0]
         To:   [v0.10.1]

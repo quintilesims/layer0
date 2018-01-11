@@ -25,7 +25,7 @@ Each of the inputs can be specified through an optional flag.
 ```
 l0-setup init [--docker-path path | --module-source path | 
     --version version | --aws-region region | --aws-access-key accessKey | 
-    --aws-secret-key secretKey] instanceName`
+    --aws-secret-key secretKey] instanceName
 ```
 
 ### Optional arguments
@@ -54,7 +54,7 @@ The `apply` command is used to create and update Layer0 instances. Note that the
 ### Usage
 ```
 l0-setup apply [--quick | --push=false | --aws-access-key accessKey | 
-    --aws-secret-key secretKey] instanceName`
+    --aws-secret-key secretKey] instanceName
 ```
 
 ### Optional arguments
