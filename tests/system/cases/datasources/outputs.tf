@@ -105,7 +105,7 @@ output "load_balancer_private" {
 }
 
 output "load_balancer_private_expected" {
-  value = "${layer0_load_balancer.datasources.private}"
+  value = "false"
 }
 
 output "load_balancer_url" {

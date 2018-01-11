@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 
+	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
 
@@ -27,18 +28,23 @@ func (f *CommandFactory) Apply() cli.Command {
 				return err
 			}
 
-			instance := f.NewInstance(args["NAME"])
-			if err := instance.Apply(!c.Bool("quick")); err != nil {
+			inst := f.NewInstance(args["NAME"])
+			if err := inst.Apply(!c.Bool("quick")); err != nil {
 				return err
 			}
 
 			if c.Bool("push") {
-				provider, err := f.newAWSProviderHelper(c)
+				region, err := inst.Output(instance.OUTPUT_AWS_REGION)
 				if err != nil {
 					return err
 				}
 
-				if err := instance.Push(provider.S3); err != nil {
+				provider, err := f.newAWSProviderHelper(c, region)
+				if err != nil {
+					return err
+				}
+
+				if err := inst.Push(provider.S3); err != nil {
 					return err
 				}
 			}
