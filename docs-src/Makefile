@@ -1,6 +1,6 @@
 deps:
 	pip install mkdocs
-	pip install mkdocs-material
+	pip install -Iv mkdocs-material==2.3.0
 
 build:
 	mkdocs build --clean
