@@ -133,7 +133,7 @@
     height: 42px;
 }
 
-.md-content__icon, .md-footer-nav__button, .md-header-nav__button, .md-nav__button, .md-nav__title:before, .md-search-result__article--document:before {
+a.md-content__icon, .md-footer-nav__button, .md-header-nav__button.md-logo, .md-nav__button,  .md-search-result__article--document:before {
   display: block;
   margin: .4rem;
   padding: 0.2rem;
