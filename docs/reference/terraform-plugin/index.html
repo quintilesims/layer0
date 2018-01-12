@@ -1,16 +1,16 @@
+
+
+
+
 <!DOCTYPE html>
-<!--[if lt IE 7 ]><html class="no-js ie6"><![endif]-->
-<!--[if IE 7 ]><html class="no-js ie7"><![endif]-->
-<!--[if IE 8 ]><html class="no-js ie8"><![endif]-->
-<!--[if IE 9 ]><html class="no-js ie9"><![endif]-->
-<!--[if (gt IE 9)|!(IE)]><!--> <html class="no-js"> <!--<![endif]-->
+<html lang="en" class="no-js">
   <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1,maximum-scale=1">
     
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      <meta http-equiv="x-ua-compatible" content="ie=edge">
       
-        <title>Layer0 Terraform Plugin - Layer0</title>
-      
+        <meta name="description" content="Layer0 Documentation">
       
       
         <link rel="canonical" href="https://github.com/quintilesims/layer0/reference/terraform-plugin/">
@@ -18,522 +18,1331 @@
       
         <meta name="author" content="xfra">
       
-    
-    <meta property="og:url" content="https://github.com/quintilesims/layer0/reference/terraform-plugin/">
-    <meta property="og:title" content="Layer0">
-    <meta property="og:image" content="https://github.com/quintilesims/layer0/reference/terraform-plugin//../../static/logo_icon.png">
-    <meta name="apple-mobile-web-app-title" content="Layer0">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    
-      <link rel="apple-touch-icon" href="../../static/logo_icon.png">
-    
-    
-    <link rel="shortcut icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
-    <link rel="icon" type="image/x-icon" href="../../assets/images/favicon-e565ddfa3b.ico">
-    <style>
-      @font-face {
-      	font-family: 'Icon';
-      	src: url('../../assets/fonts/icon.eot?52m981');
-      	src: url('../../assets/fonts/icon.eot?#iefix52m981')
-               format('embedded-opentype'),
-      		   url('../../assets/fonts/icon.woff?52m981')
-               format('woff'),
-      		   url('../../assets/fonts/icon.ttf?52m981')
-               format('truetype'),
-      		   url('../../assets/fonts/icon.svg?52m981#icon')
-               format('svg');
-      	font-weight: normal;
-      	font-style: normal;
-      }
-    </style>
-    <link rel="stylesheet" href="../../assets/stylesheets/application-b64b728552.css">
-    
-      <link rel="stylesheet" href="../../assets/stylesheets/palettes-05ab2406df.css">
+      
+        <meta name="lang:clipboard.copy" content="Copy to clipboard">
+      
+        <meta name="lang:clipboard.copied" content="Copied to clipboard">
+      
+        <meta name="lang:search.language" content="en">
+      
+        <meta name="lang:search.result.none" content="No matching documents">
+      
+        <meta name="lang:search.result.one" content="1 matching document">
+      
+        <meta name="lang:search.result.other" content="# matching documents">
+      
+        <meta name="lang:search.tokenizer" content="[\s\-]+">
+      
+      <link rel="shortcut icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.3.0">
     
     
       
+        <title>Layer0 Terraform Plugin - Layer0</title>
       
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/application.0e9c8aca.css">
       
-      <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:400,700|Roboto+Mono">
-      <style>
-        body, input {
-          font-family: 'Roboto', Helvetica, Arial, sans-serif;
-        }
-        pre, code {
-          font-family: 'Roboto Mono', 'Courier New', 'Courier', monospace;
-        }
-      </style>
+        <link rel="stylesheet" href="../../assets/stylesheets/application-palette.792431c1.css">
+      
+    
+    
+      <script src="../../assets/javascripts/modernizr.1aa3b519.js"></script>
+    
+    
+      
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
+        <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
+      
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
     
       <link rel="stylesheet" href="../../stylesheets/extra.css">
     
-    <script src="../../assets/javascripts/modernizr-4ab42b99fd.js"></script>
     
   </head>
   
-  
-  
-  <body class="palette-primary-red palette-accent-grey">
     
-      
-      
-        
-      
     
-    <div class="backdrop">
-      <div class="backdrop-paper"></div>
-    </div>
-    <input class="toggle" type="checkbox" id="toggle-drawer">
-    <input class="toggle" type="checkbox" id="toggle-search">
-    <label class="toggle-button overlay" for="toggle-drawer"></label>
-    <header class="header">
-      <nav aria-label="Header">
-  <div class="bar default">
-    <div class="button button-menu" role="button" aria-label="Menu">
-      <label class="toggle-button icon icon-menu" for="toggle-drawer">
-        <span></span>
-      </label>
-    </div>
-    <div class="stretch">
-      <div class="title">
+    
+      <body data-md-color-primary="red" data-md-color-accent="grey">
+    
+  
+    <svg class="md-svg">
+      <defs>
         
-          <span class="path">
-            
-              
-                Reference <i class="icon icon-link"></i>
-              
-            
-          </span>
         
-        Layer0 Terraform Plugin
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+        
+      </defs>
+    </svg>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
+    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header-nav md-grid">
+    <div class="md-flex">
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <a href="https://github.com/quintilesims/layer0/" title="Layer0" class="md-header-nav__button md-logo">
+          
+            <img src="../../static/logo_icon.png" width="24" height="24">
+          
+        </a>
       </div>
-    </div>
-    
-    
-    <div class="button button-search" role="button" aria-label="Search">
-      <label class="toggle-button icon icon-search" title="Search" for="toggle-search"></label>
-    </div>
-  </div>
-  <div class="bar search">
-    <div class="button button-close" role="button" aria-label="Close">
-      <label class="toggle-button icon icon-back" for="toggle-search"></label>
-    </div>
-    <div class="stretch">
-      <div class="field">
-        <input class="query" type="text" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck>
+      <div class="md-flex__cell md-flex__cell--shrink">
+        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
       </div>
-    </div>
-    <div class="button button-reset" role="button" aria-label="Search">
-      <button class="toggle-button icon icon-close" id="reset-search"></button>
-    </div>
-  </div>
-</nav>
-    </header>
-    <main class="main">
-      
-      <div class="drawer">
-        <nav aria-label="Navigation">
-  
-  <a href="https://github.com/quintilesims/layer0/" class="project">
-    <div class="banner">
-      
-        <div class="logo">
-          <img src="../../static/logo_icon.png">
+      <div class="md-flex__cell md-flex__cell--stretch">
+        <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
+          
+            
+              <span class="md-header-nav__topic">
+                Layer0
+              </span>
+              <span class="md-header-nav__topic">
+                Layer0 Terraform Plugin
+              </span>
+            
+          
         </div>
-      
-      <div class="name">
-        <strong>Layer0 v0.10.3</strong>
+      </div>
+      <div class="md-flex__cell md-flex__cell--shrink">
         
-          <br>
-          quintilesims/layer0
+          
+            <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+            
+<div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="search"></label>
+  <div class="md-search__inner">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
+      <label class="md-icon md-search__icon" for="search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">&#xE5CD;</button>
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="result">
+          <div class="md-search-result__meta">
+            Type to start searching
+          </div>
+          <ol class="md-search-result__list"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+          
         
       </div>
+      
+        <div class="md-flex__cell md-flex__cell--shrink">
+          <div class="md-header-nav__source">
+            
+
+
+  
+
+
+  <a href="https://github.com/quintilesims/layer0/" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
     </div>
   </a>
-  <div class="scrollable">
-    <div class="wrapper">
+
+          </div>
+        </div>
       
-        <ul class="repo">
-          <li class="repo-download">
-            
-            <a href="../../#download" title="Download">
-              <i class="icon icon-download"></i> Download
-            </a>
-          </li>
-          <li class="repo-stars">
-            <a href="https://github.com/quintilesims/layer0//stargazers" target="_blank" title="Stargazers" data-action="star">
-              <i class="icon icon-star"></i> Stars
-              <span class="count">&ndash;</span>
-            </a>
-          </li>
-        </ul>
-        <hr>
+    </div>
+  </nav>
+</header>
+    
+    <div class="md-container">
       
-      <div class="toc">
-        <ul>
+        
+      
+      
+      <main class="md-main">
+        <div class="md-main__inner md-grid" data-md-component="container">
           
             
-  <li>
-    <a class="" title="Home" href="../..">
+              <div class="md-sidebar md-sidebar--primary" data-md-component="navigation">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    <nav class="md-nav md-nav--primary" data-md-level="0">
+  <label class="md-nav__title md-nav__title--site" for="drawer">
+    <span class="md-nav__button md-logo">
+      
+        <img src="../../static/logo_icon.png" width="24" height="24">
+      
+    </span>
+    Layer0
+  </label>
+  
+    <div class="md-nav__source">
+      
+
+
+  
+
+
+  <a href="https://github.com/quintilesims/layer0/" title="Go to repository" class="md-source" data-md-source="github">
+    
+      <div class="md-source__icon">
+        <svg viewBox="0 0 24 24" width="24" height="24">
+          <use xlink:href="#github" width="24" height="24"></use>
+        </svg>
+      </div>
+    
+    <div class="md-source__repository">
+      GitHub
+    </div>
+  </a>
+
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../.." title="Home" class="md-nav__link">
       Home
     </a>
-    
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Releases" href="../../releases/">
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../releases/" title="Releases" class="md-nav__link">
       Releases
     </a>
-    
   </li>
 
-          
-            
-  <li>
-    <a class="" title="Introduction" href="../../intro/">
+    
+      
+      
+      
+
+
+  <li class="md-nav__item">
+    <a href="../../intro/" title="Introduction" class="md-nav__link">
       Introduction
     </a>
-    
   </li>
 
-          
-            
-  <li>
-    <span class="section">Setup</span>
-    <ul>
+    
       
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-4" type="checkbox" id="nav-4">
+    
+    <label class="md-nav__link" for="nav-4">
+      Setup
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-4">
+        Setup
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
         
-  <li>
-    <a class="" title="Install" href="../../setup/install/">
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../setup/install/" title="Install" class="md-nav__link">
       Install
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Upgrade" href="../../setup/upgrade/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../setup/upgrade/" title="Upgrade" class="md-nav__link">
       Upgrade
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Destroy" href="../../setup/destroy/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../setup/destroy/" title="Destroy" class="md-nav__link">
       Destroy
     </a>
-    
   </li>
 
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Guides</span>
-    <ul>
-      
         
-  <li>
-    <a class="" title="Walkthrough: Introduction" href="../../guides/walkthrough/intro/">
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-5" type="checkbox" id="nav-5">
+    
+    <label class="md-nav__link" for="nav-5">
+      Guides
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-5">
+        Guides
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../guides/walkthrough/intro/" title="Walkthrough: Introduction" class="md-nav__link">
       Walkthrough: Introduction
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Walkthrough: Deployment 1" href="../../guides/walkthrough/deployment-1/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../guides/walkthrough/deployment-1/" title="Walkthrough: Deployment 1" class="md-nav__link">
       Walkthrough: Deployment 1
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Walkthrough: Deployment 2" href="../../guides/walkthrough/deployment-2/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../guides/walkthrough/deployment-2/" title="Walkthrough: Deployment 2" class="md-nav__link">
       Walkthrough: Deployment 2
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Walkthrough: Deployment 3" href="../../guides/walkthrough/deployment-3/">
-      Walkthrough: Deployment 3
-    </a>
-    
-  </li>
+          
+          
+          
 
-      
-        
-  <li>
-    <a class="" title="Terraform beyond Layer0" href="../../guides/terraform_beyond_layer0/">
-      Terraform beyond Layer0
-    </a>
-    
-  </li>
 
-      
-        
-  <li>
-    <a class="" title="One-off Task" href="../../guides/one_off_task/">
+  <li class="md-nav__item">
+    <a href="../../guides/one_off_task/" title="One-off Task" class="md-nav__link">
       One-off Task
     </a>
-    
   </li>
 
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Reference</span>
-    <ul>
-      
         
-  <li>
-    <a class="" title="Layer0 CLI" href="../cli/">
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-6" type="checkbox" id="nav-6" checked>
+    
+    <label class="md-nav__link" for="nav-6">
+      Reference
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-6">
+        Reference
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../cli/" title="Layer0 CLI" class="md-nav__link">
       Layer0 CLI
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Layer0 Setup CLI" href="../setup-cli/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../setup-cli/" title="Layer0 Setup CLI" class="md-nav__link">
       Layer0 Setup CLI
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Terraform" href="../terraform_introduction/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../terraform_introduction/" title="Terraform" class="md-nav__link">
       Terraform
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="current" title="Layer0 Terraform Plugin" href="./">
+          
+          
+          
+
+  
+
+
+  <li class="md-nav__item md-nav__item--active">
+    
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    
+      
+    
+    
+      <label class="md-nav__link md-nav__link--active" for="toc">
+        Layer0 Terraform Plugin
+      </label>
+    
+    <a href="./" title="Layer0 Terraform Plugin" class="md-nav__link md-nav__link--active">
       Layer0 Terraform Plugin
     </a>
     
       
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" title="Prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install" title="Install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" title="Getting Started" class="md-nav__link">
+    Getting Started
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provider" title="Provider" class="md-nav__link">
+    Provider
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
         
+          <li class="md-nav__item">
+  <a href="#example-usage" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-data-source" title="API Data Source" class="md-nav__link">
+    API Data Source
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_1" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-data-source" title="Deploy Data Source" class="md-nav__link">
+    Deploy Data Source
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_2" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_1" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_1" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-data-source" title="Environment Data Source" class="md-nav__link">
+    Environment Data Source
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_3" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_2" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_2" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-balancer-data-source" title="Load Balancer Data Source" class="md-nav__link">
+    Load Balancer Data Source
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_4" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_3" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_3" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-data-source" title="Service Data Source" class="md-nav__link">
+    Service Data Source
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_5" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_4" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_4" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-resource" title="Deploy Resource" class="md-nav__link">
+    Deploy Resource
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_6" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_5" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_5" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-resource" title="Environment Resource" class="md-nav__link">
+    Environment Resource
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_7" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_6" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_6" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-balancer-resource" title="Load Balancer Resource" class="md-nav__link">
+    Load Balancer Resource
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_8" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_7" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_7" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-resource" title="Service Resource" class="md-nav__link">
+    Service Resource
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_9" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_8" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_8" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" title="Best Practices" class="md-nav__link">
+    Best Practices
+  </a>
+  
+</li>
       
       
-        <ul>
-          
-            <li class="anchor">
-              <a title="Prerequisites" href="#prerequisites">
-                Prerequisites
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Install" href="#install">
-                Install
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Getting Started" href="#getting-started">
-                Getting Started
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Provider" href="#provider">
-                Provider
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="API Data Source" href="#api-data-source">
-                API Data Source
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Deploy Data Source" href="#deploy-data-source">
-                Deploy Data Source
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Environment Data Source" href="#environment-data-source">
-                Environment Data Source
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Load Balancer Data Source" href="#load-balancer-data-source">
-                Load Balancer Data Source
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Service Data Source" href="#service-data-source">
-                Service Data Source
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Deploy Resource" href="#deploy-resource">
-                Deploy Resource
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Environment Resource" href="#environment-resource">
-                Environment Resource
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Load Balancer Resource" href="#load-balancer-resource">
-                Load Balancer Resource
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Service Resource" href="#service-resource">
-                Service Resource
-              </a>
-            </li>
-          
-            <li class="anchor">
-              <a title="Best Practices" href="#best-practices">
-                Best Practices
-              </a>
-            </li>
-          
-        </ul>
       
+    </ul>
+  
+</nav>
     
   </li>
 
-      
         
-  <li>
-    <a class="" title="Updating a Service" href="../updateservice/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../updateservice/" title="Updating a Service" class="md-nav__link">
       Updating a Service
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Consul" href="../consul/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../consul/" title="Consul" class="md-nav__link">
       Consul
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Task Definitions" href="../task_definition/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../task_definition/" title="Task Definitions" class="md-nav__link">
       Task Definitions
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Architecture" href="../architecture/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../architecture/" title="Architecture" class="md-nav__link">
       Architecture
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="ECR" href="../ecr/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../ecr/" title="ECR" class="md-nav__link">
       ECR
     </a>
-    
   </li>
 
-      
-    </ul>
-  </li>
-
-          
-            
-  <li>
-    <span class="section">Troubleshooting</span>
-    <ul>
-      
         
-  <li>
-    <a class="" title="Common Issues" href="../../troubleshooting/commonissues/">
+      </ul>
+    </nav>
+  </li>
+
+    
+      
+      
+      
+
+
+  <li class="md-nav__item md-nav__item--nested">
+    
+      <input class="md-toggle md-nav__toggle" data-md-toggle="nav-7" type="checkbox" id="nav-7">
+    
+    <label class="md-nav__link" for="nav-7">
+      Troubleshooting
+    </label>
+    <nav class="md-nav" data-md-component="collapsible" data-md-level="1">
+      <label class="md-nav__title" for="nav-7">
+        Troubleshooting
+      </label>
+      <ul class="md-nav__list" data-md-scrollfix>
+        
+        
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../troubleshooting/commonissues/" title="Common Issues" class="md-nav__link">
       Common Issues
     </a>
-    
   </li>
 
-      
         
-  <li>
-    <a class="" title="Secure Shell (SSH)" href="../../troubleshooting/ssh/">
+          
+          
+          
+
+
+  <li class="md-nav__item">
+    <a href="../../troubleshooting/ssh/" title="Secure Shell (SSH)" class="md-nav__link">
       Secure Shell (SSH)
     </a>
-    
   </li>
 
+        
+      </ul>
+    </nav>
+  </li>
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="toc">
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+<nav class="md-nav md-nav--secondary">
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="toc">Table of contents</label>
+    <ul class="md-nav__list" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#prerequisites" title="Prerequisites" class="md-nav__link">
+    Prerequisites
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#install" title="Install" class="md-nav__link">
+    Install
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" title="Getting Started" class="md-nav__link">
+    Getting Started
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provider" title="Provider" class="md-nav__link">
+    Provider
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#api-data-source" title="API Data Source" class="md-nav__link">
+    API Data Source
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_1" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-data-source" title="Deploy Data Source" class="md-nav__link">
+    Deploy Data Source
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_2" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_1" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_1" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-data-source" title="Environment Data Source" class="md-nav__link">
+    Environment Data Source
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_3" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_2" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_2" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-balancer-data-source" title="Load Balancer Data Source" class="md-nav__link">
+    Load Balancer Data Source
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_4" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_3" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_3" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-data-source" title="Service Data Source" class="md-nav__link">
+    Service Data Source
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_5" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_4" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_4" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deploy-resource" title="Deploy Resource" class="md-nav__link">
+    Deploy Resource
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_6" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_5" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_5" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#environment-resource" title="Environment Resource" class="md-nav__link">
+    Environment Resource
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_7" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_6" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_6" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#load-balancer-resource" title="Load Balancer Resource" class="md-nav__link">
+    Load Balancer Resource
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_8" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_7" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_7" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#service-resource" title="Service Resource" class="md-nav__link">
+    Service Resource
+  </a>
+  
+    <nav class="md-nav">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-usage_9" title="Example Usage" class="md-nav__link">
+    Example Usage
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#argument-reference_8" title="Argument Reference" class="md-nav__link">
+    Argument Reference
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#attribute-reference_8" title="Attribute Reference" class="md-nav__link">
+    Attribute Reference
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#best-practices" title="Best Practices" class="md-nav__link">
+    Best Practices
+  </a>
+  
+</li>
+      
+      
       
     </ul>
-  </li>
-
-          
-        </ul>
-        
-          <hr>
-          <span class="section">The author</span>
-          <ul>
-            
-            
-          </ul>
-        
-      </div>
-    </div>
-  </div>
+  
 </nav>
-      </div>
-      <article class="article">
-        <div class="wrapper">
+                  </div>
+                </div>
+              </div>
+            
           
-          <h1 id="layer0-terraform-provider-reference">Layer0 Terraform Provider Reference<a class="headerlink" href="#layer0-terraform-provider-reference" title="Permanent link">#</a></h1>
+          <div class="md-content">
+            <article class="md-content__inner md-typeset">
+              
+                
+                  <a href="https://github.com/quintilesims/layer0/blob/master/docs-src/docs/reference/terraform-plugin.md" title="Edit this page" class="md-icon md-content__icon">&#xE3C9;</a>
+                
+                
+                <h1 id="layer0-terraform-provider-reference">Layer0 Terraform Provider Reference<a class="headerlink" href="#layer0-terraform-provider-reference" title="Permanent link">#</a></h1>
 <p>Terraform is an open-source tool for provisioning and managing infrastructure.
-If you are new to Terraform, we recommend checking out their <a href="https://www.Terraform.io/intro/index.html">documentation</a>.</p>
-<p>Layer0 has built a custom <a href="https://www.Terraform.io/docs/providers/index.html">provider</a> for Layer0.
+If you are new to Terraform, we recommend checking out their <a href="https://www.terraform.io/intro/index.html">documentation</a>.</p>
+<p>Layer0 has built a custom <a href="https://www.terraform.io/docs/providers/index.html">provider</a> for Layer0.
 This provider allows users to create, manage, and update Layer0 entities using Terraform.</p>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">#</a></h2>
 <ul>
-<li><strong>Terraform v0.9.4+</strong> (<a href="https://www.Terraform.io/downloads.html">download</a>), accessible in your system path.</li>
+<li><strong>Terraform v0.11+</strong> (<a href="https://www.terraform.io/downloads.html">download</a>), accessible in your system path.</li>
 </ul>
 <h2 id="install">Install<a class="headerlink" href="#install" title="Permanent link">#</a></h2>
 <p>Download a Layer0 v0.8.4+ <a href="../../releases">release</a>.
@@ -542,7 +1351,7 @@ Copy this <code>terraform-provider-layer0</code> binary into the same directory 
 <p>For further information, see Terraform's documentation on installing a Terraform plugin <a href="https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin">here</a>.</p>
 <h2 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">#</a></h2>
 <ul>
-<li>Checkout the <code>Terraform</code> section of the Guestbook walkthrough <a href="../../guides/guestbook#terraform">here</a>.</li>
+<li>Checkout the <code>Terraform</code> section of the Guestbook walkthrough <a href="../../guides/walkthrough/deployment-1/#deploy-with-terraform">here</a>.</li>
 <li>We've added some tips and links to helpful resources in the <a href="#best-practices">Best Practices</a> section below.</li>
 </ul>
 <hr />
@@ -550,24 +1359,25 @@ Copy this <code>terraform-provider-layer0</code> binary into the same directory 
 <p>The Layer0 provider is used to interact with a Layer0 API.
 The provider needs to be configured with the proper credentials before it can be used.</p>
 <h3 id="example-usage">Example Usage<a class="headerlink" href="#example-usage" title="Permanent link">#</a></h3>
-<pre class="code"><code># Add 'endpoint' and 'token' variables
+<div class="codehilite"><pre><span></span># Add &#39;endpoint&#39; and &#39;token&#39; variables
 variable &quot;endpoint&quot; {}
 
 variable &quot;token&quot; {}
 
 # Configure the layer0 provider
 provider &quot;layer0&quot; {
-  endpoint        = &quot;${var.endpoint}&quot;
-  token           = &quot;${var.token}&quot;
+  endpoint        = &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">endpoint</span><span class="cp">}</span>&quot;
+  token           = &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">token</span><span class="cp">}</span>&quot;
   skip_ssl_verify = true
-}</code></pre>
+}
+</pre></div>
 
 
 <h3 id="argument-reference">Argument Reference<a class="headerlink" href="#argument-reference" title="Permanent link">#</a></h3>
 <p>The following arguments are supported:</p>
 <div class="admonition note">
-<p class="admonition-title">Configuration</p>
-<p>The <code>endpoint</code> and <code>token</code> variables for your layer0 api can be found using the <a href="../../reference/setup-cli/#endpoint">l0-setup endpoint</a> command</p>
+<p class="admonition-title">Note</p>
+<p>The <code>endpoint</code> and <code>token</code> variables for your layer0 api can be found using the <a href="../setup-cli/#endpoint">l0-setup endpoint</a> command</p>
 </div>
 <ul>
 <li><code>endpoint</code> - (Required) The endpoint of the layer0 api</li>
@@ -578,13 +1388,14 @@ provider &quot;layer0&quot; {
 <h2 id="api-data-source">API Data Source<a class="headerlink" href="#api-data-source" title="Permanent link">#</a></h2>
 <p>The API data source is used to extract useful read-only variables from the Layer0 API.</p>
 <h3 id="example-usage_1">Example Usage<a class="headerlink" href="#example-usage_1" title="Permanent link">#</a></h3>
-<pre class="code"><code># Configure the api data source
+<div class="codehilite"><pre><span></span># Configure the api data source
 data &quot;layer0_api&quot; &quot;config&quot; {}
 
 # Output the layer0 vpc id
 output &quot;vpc id&quot; {
-  val = &quot;${data.layer0_api.config.vpc_id}&quot;
-}</code></pre>
+  val = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">layer0_api</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">vpc_id</span><span class="cp">}</span>&quot;
+}
+</pre></div>
 
 
 <h3 id="attribute-reference">Attribute Reference<a class="headerlink" href="#attribute-reference" title="Permanent link">#</a></h3>
@@ -599,7 +1410,7 @@ output &quot;vpc id&quot; {
 <h2 id="deploy-data-source">Deploy Data Source<a class="headerlink" href="#deploy-data-source" title="Permanent link">#</a></h2>
 <p>The Deploy data source is used to extract Layer0 Deploy attributes.</p>
 <h3 id="example-usage_2">Example Usage<a class="headerlink" href="#example-usage_2" title="Permanent link">#</a></h3>
-<pre class="code"><code># Configure the deploy data source
+<div class="codehilite"><pre><span></span># Configure the deploy data source
 data &quot;layer0_deploy&quot; &quot;dpl&quot; {
   name    = &quot;my-deploy&quot;
   version = &quot;1&quot;
@@ -607,8 +1418,9 @@ data &quot;layer0_deploy&quot; &quot;dpl&quot; {
 
 # Output the layer0 deploy id
 output &quot;deploy_id&quot; {
-  val = &quot;${data.layer0_deploy.dpl.id}&quot;
-}</code></pre>
+  val = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">layer0_deploy</span><span class="o">.</span><span class="n">dpl</span><span class="o">.</span><span class="n">id</span><span class="cp">}</span>&quot;
+}
+</pre></div>
 
 
 <h3 id="argument-reference_1">Argument Reference<a class="headerlink" href="#argument-reference_1" title="Permanent link">#</a></h3>
@@ -628,15 +1440,16 @@ output &quot;deploy_id&quot; {
 <h2 id="environment-data-source">Environment Data Source<a class="headerlink" href="#environment-data-source" title="Permanent link">#</a></h2>
 <p>The Environment data source is used to extract Layer0 Environment attributes.</p>
 <h3 id="example-usage_3">Example Usage<a class="headerlink" href="#example-usage_3" title="Permanent link">#</a></h3>
-<pre class="code"><code># Configure the environment data source
+<div class="codehilite"><pre><span></span># Configure the environment data source
 data &quot;layer0_environment&quot; &quot;env&quot; {
   name = &quot;my-environment&quot;
 }
 
 # Output the layer0 environment id
 output &quot;environment_id&quot; {
-  val = &quot;${data.layer0_environment.env.id}&quot;
-}</code></pre>
+  val = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">layer0_environment</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">id</span><span class="cp">}</span>&quot;
+}
+</pre></div>
 
 
 <h3 id="argument-reference_2">Argument Reference<a class="headerlink" href="#argument-reference_2" title="Permanent link">#</a></h3>
@@ -658,16 +1471,17 @@ output &quot;environment_id&quot; {
 <h2 id="load-balancer-data-source">Load Balancer Data Source<a class="headerlink" href="#load-balancer-data-source" title="Permanent link">#</a></h2>
 <p>The Load Balancer data source is used to extract Layer0 Load Balancer attributes.</p>
 <h3 id="example-usage_4">Example Usage<a class="headerlink" href="#example-usage_4" title="Permanent link">#</a></h3>
-<pre class="code"><code># Configure the load balancer source
+<div class="codehilite"><pre><span></span># Configure the load balancer source
 data &quot;layer0_load_balancer&quot; &quot;lb&quot; {
   name           = &quot;my-loadbalancer&quot;
-  environment_id = &quot;${data.layer0_environment.env.environment_id}&quot;
+  environment_id = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">layer0_environment</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">environment_id</span><span class="cp">}</span>&quot;
 }
 
 # Output the layer0 load balancer id
 output &quot;load_balancer_id&quot; {
-  val = &quot;${data.layer0_load_balancer.lb.id}&quot;
-}</code></pre>
+  val = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">layer0_load_balancer</span><span class="o">.</span><span class="n">lb</span><span class="o">.</span><span class="n">id</span><span class="cp">}</span>&quot;
+}
+</pre></div>
 
 
 <h3 id="argument-reference_3">Argument Reference<a class="headerlink" href="#argument-reference_3" title="Permanent link">#</a></h3>
@@ -690,16 +1504,17 @@ output &quot;load_balancer_id&quot; {
 <h2 id="service-data-source">Service Data Source<a class="headerlink" href="#service-data-source" title="Permanent link">#</a></h2>
 <p>The Service data source is used to extract Layer0 Service attributes.</p>
 <h3 id="example-usage_5">Example Usage<a class="headerlink" href="#example-usage_5" title="Permanent link">#</a></h3>
-<pre class="code"><code># Configure the service data source
+<div class="codehilite"><pre><span></span># Configure the service data source
 data &quot;layer0_service&quot; &quot;svc&quot; {
   name           = &quot;my-service&quot;
-  environment_id = &quot;${data.layer0_environment.env.environment_id}&quot;
+  environment_id = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">layer0_environment</span><span class="o">.</span><span class="n">env</span><span class="o">.</span><span class="n">environment_id</span><span class="cp">}</span>&quot;
 }
 
 # Output the layer0 service id
 output &quot;service_id&quot; {
-  val = &quot;${data.layer0_service.svc.id}&quot;
-}</code></pre>
+  val = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">layer0_service</span><span class="o">.</span><span class="n">svc</span><span class="o">.</span><span class="n">id</span><span class="cp">}</span>&quot;
+}
+</pre></div>
 
 
 <h3 id="argument-reference_4">Argument Reference<a class="headerlink" href="#argument-reference_4" title="Permanent link">#</a></h3>
@@ -721,11 +1536,11 @@ output &quot;service_id&quot; {
 <h2 id="deploy-resource">Deploy Resource<a class="headerlink" href="#deploy-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Deploy.</p>
 <p>Performing variable substitution inside of your deploy's json file (typically named <code>Dockerrun.aws.json</code>) can be done through Terraform's <a href="https://www.terraform.io/docs/providers/template/">template_file</a>.
-For a working example, please see the sample <a href="https://github.com/quintilesims/guides/blob/master/guestbook/layer0.tf">Guestbook</a> application</p>
+For a working example, please see the sample <a href="https://github.com/quintilesims/guides/blob/master/guestbook/module/main.tf">Guestbook</a> application</p>
 <h3 id="example-usage_6">Example Usage<a class="headerlink" href="#example-usage_6" title="Permanent link">#</a></h3>
-<pre class="code"><code># Configure the deploy template
+<div class="codehilite"><pre><span></span># Configure the deploy template
 data &quot;template_file&quot; &quot;guestbook&quot; {
-  template = &quot;${file(&quot;Dockerrun.aws.json&quot;)}&quot;
+  template = &quot;<span class="cp">${</span><span class="nb">file</span><span class="p">(</span><span class="s2">&quot;Dockerrun.aws.json&quot;</span><span class="p">)</span><span class="cp">}</span>&quot;
   vars {
     docker_image_tag = &quot;latest&quot;
   }
@@ -734,8 +1549,9 @@ data &quot;template_file&quot; &quot;guestbook&quot; {
 # Create a deploy using the rendered template
 resource &quot;layer0_deploy&quot; &quot;guestbook&quot; {
   name    = &quot;guestbook&quot;
-  content = &quot;${data.template_file.guestbook.rendered}&quot;
-}</code></pre>
+  content = &quot;<span class="cp">${</span><span class="n">data</span><span class="o">.</span><span class="n">template_file</span><span class="o">.</span><span class="n">guestbook</span><span class="o">.</span><span class="n">rendered</span><span class="cp">}</span>&quot;
+}
+</pre></div>
 
 
 <h3 id="argument-reference_5">Argument Reference<a class="headerlink" href="#argument-reference_5" title="Permanent link">#</a></h3>
@@ -755,7 +1571,7 @@ resource &quot;layer0_deploy&quot; &quot;guestbook&quot; {
 <h2 id="environment-resource">Environment Resource<a class="headerlink" href="#environment-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Environment</p>
 <h3 id="example-usage_7">Example Usage<a class="headerlink" href="#example-usage_7" title="Permanent link">#</a></h3>
-<pre class="code"><code># Create a new environment
+<div class="codehilite"><pre><span></span># Create a new environment
 resource &quot;layer0_environment&quot; &quot;demo&quot; {
   name      = &quot;demo&quot;
   size      = &quot;m3.medium&quot;
@@ -763,7 +1579,8 @@ resource &quot;layer0_environment&quot; &quot;demo&quot; {
   user_data = &quot;echo hello, world&quot;
   os        = &quot;linux&quot;
   ami       = &quot;ami123&quot;
-}</code></pre>
+}
+</pre></div>
 
 
 <h3 id="argument-reference_6">Argument Reference<a class="headerlink" href="#argument-reference_6" title="Permanent link">#</a></h3>
@@ -795,7 +1612,7 @@ If not specified, Layer0 will use its default AMI ID for the specified operating
 <h2 id="load-balancer-resource">Load Balancer Resource<a class="headerlink" href="#load-balancer-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Load Balancer</p>
 <h3 id="example-usage_8">Example Usage<a class="headerlink" href="#example-usage_8" title="Permanent link">#</a></h3>
-<pre class="code"><code># Create a new load balancer
+<div class="codehilite"><pre><span></span># Create a new load balancer
 resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
   name        = &quot;guestbook&quot;
   environment = &quot;demo123&quot;
@@ -821,7 +1638,8 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
     healthy_threshold   = 2
     unhealthy_threshold = 2
   }
-}</code></pre>
+}
+</pre></div>
 
 
 <h3 id="argument-reference_7">Argument Reference<a class="headerlink" href="#argument-reference_7" title="Permanent link">#</a></h3>
@@ -831,7 +1649,7 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <li><code>environment</code> - (Required) The id of the environment to place the load balancer inside of</li>
 <li><code>private</code> - (Optional) If true, the load balancer will not be exposed to the public internet</li>
 <li><code>port</code> - (Optional, Default: 80:80/tcp) A list of port blocks. Ports documented below</li>
-<li><code>health_check</code> - (Optional, Default: {"TCP:80" 30 5 2 2}) A health_check block. Health check documented below</li>
+<li><code>health_check</code> - (Optional, Default: <code>{"TCP:80" 30 5 2 2}</code>) A health_check block. Health check documented below</li>
 </ul>
 <p>Ports (<code>port</code>) support the following:</p>
 <ul>
@@ -842,9 +1660,9 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 </ul>
 <p>Healthcheck (<code>health_check</code>) supports the following:</p>
 <ul>
-<li><code>target</code> - (Required) The target of the check. Valid pattern is "${PROTOCOL}:${PORT}${PATH}", where PROTOCOL values are:<ul>
-<li><code>HTTP</code>, <code>HTTPS</code> - PORT and PATH are required</li>
-<li><code>TCP</code>, <code>SSL</code> - PORT is required, PATH is not supported</li>
+<li><code>target</code> - (Required) The target of the check. Valid pattern is <code>PROTOCOL:PORT/PATH</code>, where <code>PROTOCOL</code> values are:<ul>
+<li><code>HTTP</code>, <code>HTTPS</code> - <code>PORT</code> and <code>PATH</code> are required</li>
+<li><code>TCP</code>, <code>SSL</code> - <code>PORT</code> is required, <code>PATH</code> is not supported</li>
 </ul>
 </li>
 <li><code>interval</code> - (Required) The interval between checks.</li>
@@ -865,14 +1683,15 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <h2 id="service-resource">Service Resource<a class="headerlink" href="#service-resource" title="Permanent link">#</a></h2>
 <p>Provides a Layer0 Service</p>
 <h3 id="example-usage_9">Example Usage<a class="headerlink" href="#example-usage_9" title="Permanent link">#</a></h3>
-<pre class="code"><code># Create a new service
+<div class="codehilite"><pre><span></span># Create a new service
 resource &quot;layer0_service&quot; &quot;guestbook&quot; {
   name          = &quot;guestbook&quot;
   environment   = &quot;environment123&quot;
   deploy        = &quot;deploy123&quot;
   load_balancer = &quot;loadbalancer123&quot;
   scale         = 3
-}</code></pre>
+}
+</pre></div>
 
 
 <h3 id="argument-reference_8">Argument Reference<a class="headerlink" href="#argument-reference_8" title="Permanent link">#</a></h3>
@@ -899,87 +1718,90 @@ resource &quot;layer0_service&quot; &quot;guestbook&quot; {
 <ul>
 <li>Always run <code>Terraform plan</code> before <code>terraform apply</code>.
 This will show you what action(s) Terraform plans to make before actually executing them.</li>
-<li>Use <a href="https://www.Terraform.io/intro/getting-started/variables.html">variables</a> to reference secrets.
-Secrets can be placed in a file named <code>Terraform.tfvars</code>, or by setting <code>TF_VAR_*</code> environment variables.
-More information can be found <a href="https://www.Terraform.io/intro/getting-started/variables.html">here</a>.</li>
+<li>Use <a href="https://www.terraform.io/intro/getting-started/variables.html">variables</a> to reference secrets.
+Secrets can be placed in a file named <code>terraform.tfvars</code>, or by setting <code>TF_VAR_*</code> environment variables.
+More information can be found <a href="https://www.terraform.io/intro/getting-started/variables.html">here</a>.</li>
 <li>Use Terraform's <code>remote</code> command to backup and sync your <code>terraform.tfstate</code> file across different members in your organization.
-Terraform has documentation for using S3 as a backend <a href="https://www.Terraform.io/docs/state/remote/s3.html">here</a>.</li>
-<li>Terraform <a href="https://www.Terraform.io/intro/getting-started/modules.html">modules</a> allow you to define and consume reusable components.</li>
+Terraform has documentation for using S3 as a backend <a href="https://www.terraform.io/docs/backends/types/s3.html">here</a>.</li>
+<li>Terraform <a href="https://www.terraform.io/intro/getting-started/modules.html">modules</a> allow you to define and consume reusable components.</li>
 <li>Example configurations can be found <a href="https://github.com/hashicorp/Terraform/tree/master/examples">here</a></li>
 </ul>
-          <aside class="copyright" role="note">
-            
-            Documentation built with
-            <a href="http://www.mkdocs.org" target="_blank">MkDocs</a>
-            using the
-            <a href="http://squidfunk.github.io/mkdocs-material/" target="_blank">
-              Material
-            </a>
-            theme.
-          </aside>
-          
-            <footer class="footer">
+                
+                  
+                
               
-  <nav class="pagination" aria-label="Footer">
-    <div class="previous">
+              
+                
+              
+            </article>
+          </div>
+        </div>
+      </main>
       
-        <a href="../terraform_introduction/" title="Terraform">
-          <span class="direction">
-            Previous
-          </span>
-          <div class="page">
-            <div class="button button-previous" role="button" aria-label="Previous">
-              <i class="icon icon-back"></i>
+        
+<footer class="md-footer">
+  
+    <div class="md-footer-nav">
+      <nav class="md-footer-nav__inner md-grid">
+        
+          <a href="../terraform_introduction/" title="Terraform" class="md-flex md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-back md-footer-nav__button"></i>
             </div>
-            <div class="stretch">
-              <div class="title">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Previous
+                </span>
                 Terraform
-              </div>
+              </span>
             </div>
-          </div>
-        </a>
-      
-    </div>
-    <div class="next">
-      
-        <a href="../updateservice/" title="Updating a Service">
-          <span class="direction">
-            Next
-          </span>
-          <div class="page">
-            <div class="stretch">
-              <div class="title">
+          </a>
+        
+        
+          <a href="../updateservice/" title="Updating a Service" class="md-flex md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-flex__cell md-flex__cell--stretch md-footer-nav__title">
+              <span class="md-flex__ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
                 Updating a Service
-              </div>
+              </span>
             </div>
-            <div class="button button-next" role="button" aria-label="Next">
-              <i class="icon icon-forward"></i>
+            <div class="md-flex__cell md-flex__cell--shrink">
+              <i class="md-icon md-icon--arrow-forward md-footer-nav__button"></i>
             </div>
-          </div>
-        </a>
+          </a>
+        
+      </nav>
+    </div>
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-footer-copyright">
+        
+        powered by
+        <a href="http://www.mkdocs.org">MkDocs</a>
+        and
+        <a href="https://squidfunk.github.io/mkdocs-material/">
+          Material for MkDocs</a>
+      </div>
+      
+        
       
     </div>
-  </nav>
-
-            </footer>
-          
-        </div>
-      </article>
-      <div class="results" role="status" aria-live="polite">
-        <div class="scrollable">
-          <div class="wrapper">
-            <div class="meta"></div>
-            <div class="list"></div>
-          </div>
-        </div>
-      </div>
-    </main>
-    <script>
-      var base_url = '../..';
-      var repo_id  = 'quintilesims/layer0';
-    </script>
-    <script src="../../assets/javascripts/application-997097ee0c.js"></script>
+  </div>
+</footer>
+      
+    </div>
     
+      <script src="../../assets/javascripts/application.cae2244d.js"></script>
+      
+      <script>app.initialize({version:"0.17.2",url:{base:"../.."}})</script>
+      
+    
+    
+      
     
   </body>
 </html>

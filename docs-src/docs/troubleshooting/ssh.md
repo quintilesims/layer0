@@ -27,7 +27,7 @@ docker exec -it <container id> /bin/bash
 ##Remarks
 You can get the load balancer url from the Load Balancers section of your Layer0 AWS console.
 
-Use the [loadbalancer dropport](/reference/cli.md#loadbalancer) subcommand to remove a port configuration from an existing Layer0 load balancer.
+Use the [l0 loadbalancer dropport](../reference/cli/#loadbalancer-dropport) subcommand to remove a port configuration from an existing Layer0 load balancer.
 
 You _cannot_ change the key pair after a Layer0 has been created. If you lose your key pair or need to generate a new one, you will need to create a new Layer0.
 
