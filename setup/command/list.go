@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/quintilesims/layer0/setup/aws"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
@@ -58,7 +59,11 @@ func (f *CommandFactory) List() cli.Command {
 }
 
 func (f *CommandFactory) addRemoteInstances(c *cli.Context, current map[string]status) error {
-	provider, err := f.newAWSProviderHelper(c)
+	// The default AWS region is passed here (as opposed to other l0-setup
+	// operations) because listing buckets from S3 is a region-agnostic
+	// operation. All S3 buckets in the AWS account will be retrieved
+	// regardless of what region is provided.
+	provider, err := f.newAWSProviderHelper(c, aws.DEFAULT_AWS_REGION)
 	if err != nil {
 		return err
 	}

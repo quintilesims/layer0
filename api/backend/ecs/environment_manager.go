@@ -503,7 +503,7 @@ Write-Host Cluster name set as: $clusterName -foreground green
 
 [Environment]::SetEnvironmentVariable("ECS_CLUSTER", $clusterName, "Machine")
 [Environment]::SetEnvironmentVariable("ECS_ENABLE_TASK_IAM_ROLE", "false", "Machine")
-$agentVersion = 'v1.14.0-1.windows.1'
+$agentVersion = 'v1.15.2'
 $agentZipUri = "https://s3.amazonaws.com/amazon-ecs-agent/ecs-agent-windows-$agentVersion.zip"
 $agentZipMD5Uri = "$agentZipUri.md5"
 

@@ -1,13 +1,13 @@
 # Layer0 Terraform Provider Reference
 
 Terraform is an open-source tool for provisioning and managing infrastructure.
-If you are new to Terraform, we recommend checking out their [documentation](https://www.Terraform.io/intro/index.html).
+If you are new to Terraform, we recommend checking out their [documentation](https://www.terraform.io/intro/index.html).
 
-Layer0 has built a custom [provider](https://www.Terraform.io/docs/providers/index.html) for Layer0.
+Layer0 has built a custom [provider](https://www.terraform.io/docs/providers/index.html) for Layer0.
 This provider allows users to create, manage, and update Layer0 entities using Terraform.
 
 ## Prerequisites
-- **Terraform v0.9.4+** ([download](https://www.Terraform.io/downloads.html)), accessible in your system path.
+- **Terraform v0.11+** ([download](https://www.terraform.io/downloads.html)), accessible in your system path.
 
 ## Install
 Download a Layer0 v0.8.4+ [release](/releases).
@@ -18,16 +18,18 @@ For further information, see Terraform's documentation on installing a Terraform
 
 ## Getting Started
 
-* Checkout the `Terraform` section of the Guestbook walkthrough [here](/guides/guestbook#terraform).
+* Checkout the `Terraform` section of the Guestbook walkthrough [here](../guides/walkthrough/deployment-1/#deploy-with-terraform).
 * We've added some tips and links to helpful resources in the [Best Practices](#best-practices) section below.
 
 ---
 
-##Provider
+## Provider
+
 The Layer0 provider is used to interact with a Layer0 API.
 The provider needs to be configured with the proper credentials before it can be used.
 
 ### Example Usage
+
 ```
 # Add 'endpoint' and 'token' variables
 variable "endpoint" {}
@@ -40,14 +42,13 @@ provider "layer0" {
   token           = "${var.token}"
   skip_ssl_verify = true
 }
-
 ```
 
 ### Argument Reference
 The following arguments are supported:
 
-!!! note "Configuration"
-	The `endpoint` and `token` variables for your layer0 api can be found using the [l0-setup endpoint](/reference/setup-cli/#endpoint) command
+!!! note
+	The `endpoint` and `token` variables for your layer0 api can be found using the [l0-setup endpoint](setup-cli/#endpoint) command
 
 * `endpoint` - (Required) The endpoint of the layer0 api
 * `token` - (Required) The authentication token for the layer0 api
@@ -59,6 +60,7 @@ The following arguments are supported:
 The API data source is used to extract useful read-only variables from the Layer0 API.
 
 ### Example Usage
+
 ```
 # Configure the api data source
 data "layer0_api" "config" {}
@@ -70,6 +72,7 @@ output "vpc id" {
 ```
 
 ### Attribute Reference
+
 The following attributes are exported:
 
 * `prefix` - The prefix of the layer0 instance
@@ -80,9 +83,11 @@ The following attributes are exported:
 ---
 
 ##Deploy Data Source
+
 The Deploy data source is used to extract Layer0 Deploy attributes.
 
 ### Example Usage
+
 ```
 # Configure the deploy data source
 data "layer0_deploy" "dpl" {
@@ -97,12 +102,14 @@ output "deploy_id" {
 ```
 
 ### Argument Reference
+
 The following arguments are supported:
 
 * `name` - (Required) The name of the deploy
 * `version` - (Required) The version of the deploy
 
 ### Attribute Reference
+
 The following attributes are exported:
 
 * `name` - The name of the deploy
@@ -111,10 +118,12 @@ The following attributes are exported:
 
 ---
 
-##Environment Data Source
+## Environment Data Source
+
 The Environment data source is used to extract Layer0 Environment attributes.
 
 ### Example Usage
+
 ```
 # Configure the environment data source
 data "layer0_environment" "env" {
@@ -128,11 +137,13 @@ output "environment_id" {
 ```
 
 ### Argument Reference
+
 The following arguments are supported:
 
 * `name` - (Required) The name of the environment
 
 ### Attribute Reference
+
 The following attributes are exported:
 
 * `id` - The id of the environment
@@ -144,10 +155,12 @@ The following attributes are exported:
 
 ---
 
-##Load Balancer Data Source
+## Load Balancer Data Source
+
 The Load Balancer data source is used to extract Layer0 Load Balancer attributes.
 
 ### Example Usage
+
 ```
 # Configure the load balancer source
 data "layer0_load_balancer" "lb" {
@@ -162,12 +175,14 @@ output "load_balancer_id" {
 ```
 
 ### Argument Reference
+
 The following arguments are supported:
 
 * `name` - (required) The name of the load balancer
 * `environment_id` - (required) The id of the environment the load balancer exists in
 
 ### Attribute Reference
+
 The following attributes are exported:
 
 * `id` - The id of the load balancer
@@ -179,10 +194,12 @@ The following attributes are exported:
 
 ---
 
-##Service Data Source
+## Service Data Source
+
 The Service data source is used to extract Layer0 Service attributes.
 
 ### Example Usage
+
 ```
 # Configure the service data source
 data "layer0_service" "svc" {
@@ -197,12 +214,14 @@ output "service_id" {
 ```
 
 ### Argument Reference
+
 The following arguments are supported:
 
 * `name` - (required) The name of the service
 * `environment_id` - (required) The id of the environment the service exists in
 
 ### Attribute Reference
+
 The following attributes are exported:
 
 * `id` - The id of the service
@@ -213,13 +232,15 @@ The following attributes are exported:
 
 ---
 
-##Deploy Resource
+## Deploy Resource
+
 Provides a Layer0 Deploy.
 
 Performing variable substitution inside of your deploy's json file (typically named `Dockerrun.aws.json`) can be done through Terraform's [template_file](https://www.terraform.io/docs/providers/template/).
-For a working example, please see the sample [Guestbook](https://github.com/quintilesims/guides/blob/master/guestbook/layer0.tf) application
+For a working example, please see the sample [Guestbook](https://github.com/quintilesims/guides/blob/master/guestbook/module/main.tf) application
 
 ### Example Usage
+
 ```
 # Configure the deploy template
 data "template_file" "guestbook" {
@@ -237,12 +258,14 @@ resource "layer0_deploy" "guestbook" {
 ```
 
 ### Argument Reference
+
 The following arguments are supported:
 
 * `name` - (Required) The name of the deploy
 * `content` - (Required) The content of the deploy
 
 ### Attribute Reference
+
 The following attributes are exported:
 
 * `id` - The id of the deploy
@@ -256,6 +279,7 @@ The following attributes are exported:
 Provides a Layer0 Environment
 
 ### Example Usage
+
 ```
 # Create a new environment
 resource "layer0_environment" "demo" {
@@ -269,6 +293,7 @@ resource "layer0_environment" "demo" {
 ```
 
 ### Argument Reference
+
 The following arguments are supported:
 
 * `name` - (Required) The name of the environment
@@ -283,6 +308,7 @@ Options are "linux" or "windows".
 If not specified, Layer0 will use its default AMI ID for the specified operating system.
 
 ### Attribute Reference
+
 The following attributes are exported:
 
 * `id` - The id of the environment
@@ -299,6 +325,7 @@ The following attributes are exported:
 Provides a Layer0 Load Balancer
 
 ### Example Usage
+
 ```
 # Create a new load balancer
 resource "layer0_load_balancer" "guestbook" {
@@ -330,13 +357,14 @@ resource "layer0_load_balancer" "guestbook" {
 ```
 
 ### Argument Reference
+
 The following arguments are supported:
 
 * `name` - (Required) The name of the load balancer
 * `environment` - (Required) The id of the environment to place the load balancer inside of
 * `private` - (Optional) If true, the load balancer will not be exposed to the public internet
 * `port` - (Optional, Default: 80:80/tcp) A list of port blocks. Ports documented below
-* `health_check` - (Optional, Default: {"TCP:80" 30 5 2 2}) A health_check block. Health check documented below
+* `health_check` - (Optional, Default: `{"TCP:80" 30 5 2 2}`) A health_check block. Health check documented below
 
 Ports (`port`) support the following:
 
@@ -347,15 +375,16 @@ Ports (`port`) support the following:
 
 Healthcheck (`health_check`) supports the following:
 
-* `target` - (Required) The target of the check. Valid pattern is "${PROTOCOL}:${PORT}${PATH}", where PROTOCOL values are:
-    * `HTTP`, `HTTPS` - PORT and PATH are required
-    * `TCP`, `SSL` - PORT is required, PATH is not supported
+* `target` - (Required) The target of the check. Valid pattern is `PROTOCOL:PORT/PATH`, where `PROTOCOL` values are:
+    * `HTTP`, `HTTPS` - `PORT` and `PATH` are required
+    * `TCP`, `SSL` - `PORT` is required, `PATH` is not supported
 * `interval` - (Required) The interval between checks.
 * `timeout` - (Required) The length of time before the check times out.
 * `healthy_threshold` - (Required) The number of checks before the instance is declared healthy.
 * `unhealthy_threshold` - (Required) The number of checks before the instance is declared unhealthy.
 
 ### Attribute Reference
+
 The following attributes are exported:
 
 * `id` - The id of the load balancer
@@ -371,6 +400,7 @@ The following attributes are exported:
 Provides a Layer0 Service
 
 ### Example Usage
+
 ```
 # Create a new service
 resource "layer0_service" "guestbook" {
@@ -383,6 +413,7 @@ resource "layer0_service" "guestbook" {
 ```
 
 ### Argument Reference
+
 The following arguments are supported:
 
 * `name` - (Required) The name of the service
@@ -407,10 +438,10 @@ The following attributes are exported:
 
 * Always run `Terraform plan` before `terraform apply`.
 This will show you what action(s) Terraform plans to make before actually executing them.
-* Use [variables](https://www.Terraform.io/intro/getting-started/variables.html) to reference secrets.
-Secrets can be placed in a file named `Terraform.tfvars`, or by setting `TF_VAR_*` environment variables.
-More information can be found [here](https://www.Terraform.io/intro/getting-started/variables.html).
+* Use [variables](https://www.terraform.io/intro/getting-started/variables.html) to reference secrets.
+Secrets can be placed in a file named `terraform.tfvars`, or by setting `TF_VAR_*` environment variables.
+More information can be found [here](https://www.terraform.io/intro/getting-started/variables.html).
 * Use Terraform's `remote` command to backup and sync your `terraform.tfstate` file across different members in your organization.
-Terraform has documentation for using S3 as a backend [here](https://www.Terraform.io/docs/state/remote/s3.html).
-* Terraform [modules](https://www.Terraform.io/intro/getting-started/modules.html) allow you to define and consume reusable components.
+Terraform has documentation for using S3 as a backend [here](https://www.terraform.io/docs/backends/types/s3.html).
+* Terraform [modules](https://www.terraform.io/intro/getting-started/modules.html) allow you to define and consume reusable components.
 * Example configurations can be found [here](https://github.com/hashicorp/Terraform/tree/master/examples)

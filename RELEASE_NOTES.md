@@ -1,5 +1,22 @@
 # Release Notes
 ---
+## v0.10.4 | [Download](http://layer0.ims.io/#download)
+1.12.18
+
+#### Features
+* Improvements to documentation and redesign.
+* v0.11+ Terraform requirement.
+* Add ECS metrics in AWS Console.
+* Improve retry logic to AWS API
+
+#### Fixes
+* Reduce AWS api calls.
+* Fix system and stress tests.
+* Fix multi-region support.
+* Fix disconnected ECS agent scaling
+* Minor bug fixes.
+
+---
 ## v0.10.3 | [Download](http://layer0.ims.io/#download)
 8.3.2017
 

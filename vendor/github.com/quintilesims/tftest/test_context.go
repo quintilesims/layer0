@@ -17,6 +17,12 @@ func NewTestContext(t Tester, options ...ContextOption) *TestContext {
 	}
 }
 
+func (c *TestContext) Init() {
+	if _, err := c.Context.Init(); err != nil {
+		c.t.Fatal(err)
+	}
+}
+
 func (c *TestContext) Apply() {
 	if _, err := c.Context.Apply(); err != nil {
 		c.t.Fatal(err)

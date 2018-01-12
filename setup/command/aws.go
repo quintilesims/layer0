@@ -23,15 +23,10 @@ var awsFlags = []cli.Flag{
 		Usage:  "secret key portion on an AWS key",
 		EnvVar: config.AWS_SECRET_ACCESS_KEY,
 	},
-	cli.StringFlag{
-		Name:   "aws-region",
-		Usage:  "AWS region",
-		EnvVar: config.AWS_REGION,
-	},
 }
 
-func (f *CommandFactory) newAWSProviderHelper(c *cli.Context) (*aws.Provider, error) {
-	// use default credentials and region settings
+func (f *CommandFactory) newAWSProviderHelper(c *cli.Context, region string) (*aws.Provider, error) {
+	// first grab default config settings
 	config := defaults.Get().Config
 
 	// use static credentials if passed in by the user
@@ -48,20 +43,17 @@ func (f *CommandFactory) newAWSProviderHelper(c *cli.Context) (*aws.Provider, er
 	if _, err := config.Credentials.Get(); err != nil {
 		if err, ok := err.(awserr.Error); ok && err.Code() == "NoCredentialProviders" {
 			text := "No valid AWS credentials found. Please specify an AWS access key and secret key using "
-			text += "their corresponding flags or environment variables"
+			text += "their corresponding flags or environment variables."
+			text += "l0-setup init --aws-access-key <value> --aws-secret-key <value>"
 			return nil, fmt.Errorf(text)
 		}
 
 		return nil, err
 	}
 
-	// use region if passed in by the user
-	config.WithRegion(aws.DEFAULT_AWS_REGION)
-	if region := c.String("aws-region"); region != "" {
-		config.WithRegion(region)
-	} else {
-		logrus.Debugf("aws-region was not specified. Using default")
-	}
+	// ensure that the correct region is set for AWS services
+	// that have region-specific operations
+	config.WithRegion(region)
 
 	return f.NewAWSProvider(config), nil
 }
