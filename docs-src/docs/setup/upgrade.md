@@ -18,7 +18,7 @@ For full control on changing inputs, use the [set](../../reference/setup-cli#set
 
 **Example Usage**
 ```
-$ l0-setup upgrade mylayer0 v0.10.1
+l0-setup upgrade mylayer0 v0.10.1
 
 This will update the 'version' input
         From: [v0.10.0]

@@ -60,7 +60,7 @@ You will use the credentials created in this section when creating, updating, or
 Now that you have downloaded Layer0 and configured your AWS account, you can create your Layer0 instance.
 From a command prompt, run the following (replacing `<instance_name>` with a name for your Layer0 instance):
 ```
-$ l0-setup init <instance_name>
+l0-setup init <instance_name>
 ```
 
 This command will prompt you for many different inputs. 
@@ -124,7 +124,7 @@ A configuration file will be generated at `~/.docker/config.json`.
 
 To add this authentication to your Layer0 instance, run:
 ```
-$ l0-setup init --docker-path=<path/to/config.json> <instance_name>
+l0-setup init --docker-path=<path/to/config.json> <instance_name>
 ```
 
 This will reconfigure your Layer0 configuration and add a rendered file into your Layer0 instance's directory at `~/.layer0/<instance_name>/dockercfg.json`.
@@ -148,7 +148,7 @@ For information on how to tag AWS resources, please visit the [AWS documentation
 Once you are sure the existing VPC satisfies these requirements, run the `init` command, 
 placing the VPC ID when prompted:
 ```
-$ l0-setup init <instance_name>
+l0-setup init <instance_name>
 ...
 VPC ID (optional): The vpc_id input variable specifies an existing AWS VPC to provision
 the AWS resources required for Layer0. If no input is specified, a new VPC will be
@@ -172,7 +172,7 @@ Once the command has completed, it is safe to run [apply](../../reference/setup-
 Once the `apply` command has run successfully, you can configure the environment variables needed to connect to the Layer0 API using the `endpoint` command.
 
 ```
-$ l0-setup endpoint --insecure <instance_name>
+l0-setup endpoint --insecure <instance_name>
 export LAYER0_API_ENDPOINT="https://l0-instance_name-api-123456.us-west-2.elb.amazonaws.com"
 export LAYER0_AUTH_TOKEN="abcDEFG123"
 export LAYER0_SKIP_SSL_VERIFY="1"
@@ -186,5 +186,5 @@ export LAYER0_SKIP_VERSION_VERIFY="1"
 
 The `endpoint` command supports a `--syntax` option, which can be used to turn configuration into a single line:
 
-* Bash (default) - `$ eval "$(l0-setup endpoint --insecure <instance_name>)"`
-* Powershell - `$ l0-setup endpoint --insecure --syntax=powershell <instance_name> | Out-String | Invoke-Expression`
+* Bash (default) - `eval "$(l0-setup endpoint --insecure <instance_name>)"`
+* Powershell - `l0-setup endpoint --insecure --syntax=powershell <instance_name> | Out-String | Invoke-Expression`
