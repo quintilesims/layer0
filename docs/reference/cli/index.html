@@ -3382,12 +3382,14 @@ start ecs
 
 
 <div class="admonition note">
-<p class="admonition-title">Windows Environments<p>Windows containers are still in beta. </p>
-</p>
+<p class="admonition-title">Windows Environments</p>
+<p>Windows containers are still in beta. </p>
+<ul>
+<li>You can view the documented caveats with ECS <a href="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_Windows.html#windows_caveats">here</a>.</li>
+<li>When creating Windows environments in Layer0, the root volume sizes for instances are 200GiB to accommodate the large size of the containers.</li>
+<li>It can take as long as 45 minutes for a new windows container to come online. </li>
+</ul>
 </div>
-<p>You can view the documented caveats with ECS <a href="http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_Windows.html#windows_caveats">here</a>.
-When creating Windows environments in Layer0, the root volume sizes for instances are 200GiB to accommodate the large size of the containers.<br />
-It can take as long as 45 minutes for a new windows container to come online. </p>
 <h3 id="environment-delete">environment delete<a class="headerlink" href="#environment-delete" title="Permanent link">#</a></h3>
 <p>Use the <code>delete</code> subcommand to delete an existing Layer0 environment.</p>
 <h4 id="usage_9">Usage<a class="headerlink" href="#usage_9" title="Permanent link">#</a></h4>

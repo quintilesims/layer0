@@ -231,10 +231,11 @@ Add-JobTrigger -Name $jobname -Trigger (New-JobTrigger -AtStartup -RandomDelay 0
 
 
 !!! note "Windows Environments"
-        Windows containers are still in beta. 
-You can view the documented caveats with ECS [here](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_Windows.html#windows_caveats).
-When creating Windows environments in Layer0, the root volume sizes for instances are 200GiB to accommodate the large size of the containers.  
-It can take as long as 45 minutes for a new windows container to come online. 
+    Windows containers are still in beta. 
+
+    - You can view the documented caveats with ECS [here](http://docs.aws.amazon.com/AmazonECS/latest/developerguide/ECS_Windows.html#windows_caveats).
+    - When creating Windows environments in Layer0, the root volume sizes for instances are 200GiB to accommodate the large size of the containers.
+    - It can take as long as 45 minutes for a new windows container to come online. 
 
 ### environment delete
 Use the `delete` subcommand to delete an existing Layer0 environment.
