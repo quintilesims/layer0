@@ -41,10 +41,7 @@ install-smoketest:
 	$(MAKE) -C api release
 	$(MAKE) -C runner release
 
-apply-smoketest:
-	$(MAKE) -C setup apply-smoketest
-
 destroy-smoketest:
 	$(MAKE) -C setup destroy-smoketest
 
-.PHONY: release unittest smoketest install-smoketest apply-smoketest destroy-smoketest systemtest benchmark
+.PHONY: release unittest smoketest install-smoketest destroy-smoketest systemtest benchmark
