@@ -47,8 +47,7 @@ git push -u origin release
 
 ## Update README badges
 
-Update the `[Version]` badge in [README.MD](https://github.com/quintilesims/layer0/blob/release/README.md). There are two places in the badge's URLs that need to have the version number updated.
-
+Update the `[Version]` badge in [README.MD](https://github.com/quintilesims/layer0/blob/release/README.md). You can use the update_readm.sh in scripts.
 
 ## Add Release Notes
 
@@ -114,4 +113,4 @@ summary of the release contents. For example:
 
 # Merge Master into Develop
 
-To bring the `develop` branch up-to-date with `master`, create a [create a pull request](https://github.com/quintilesims/layer0/compare) from the `master` branch targeting the `develop` branch (_base: develop, compare: master_).
+To bring the `develop` branch up-to-date with `master`, create a [create a pull request](https://github.com/quintilesims/layer0/compare) from the `master` branch targeting the `develop` branch (_base: develop, compare: master_). **Please squash and merge.**
