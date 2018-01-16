@@ -265,7 +265,7 @@ Your data should still be there!
 
 ### Cleanup
 
-When you're finished with the example, instruct Layer0 to delete the environment and terminate the application:
+When you're finished with the example, you can instruct Layer0 to delete the environment and terminate the application.
 
 `l0 environment delete demo-env`
 
