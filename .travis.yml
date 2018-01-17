@@ -17,5 +17,6 @@ deploy:
   file: 
    - binaries.zip
   skip_cleanup: true
-  # on:
-  #   repo: quintilesims/layer0
+  on:
+    repo: quintilesims/layer0
+    branch: update-release-notes
