@@ -18,10 +18,25 @@ release:
 		aws s3 cp build/$$os/layer0_$(L0_VERSION)_$$os.zip s3://xfra-layer0/release/$(L0_VERSION)/layer0_$(L0_VERSION)_$$os.zip ; \
 	done
 
+github-release:
+	# $(MAKE) -C api build-github
+	$(MAKE) -C cli release
+	# $(MAKE) -C setup release
+	# $(MAKE) -C plugins/terraform release
+	# cp -R setup/binaries . ; \
+	# 	cp -R plugins/terraform/binaries . ; \
+
+	rm -rf binaries
+	for os in linux darwin windows; do \
+		cp -R cli/build binaries ; \
+	done
+	
+	zip -r binaries.zip binaries
+
 update-release:
 	# Update Version to Latest and clean up
 	sed -i '' 's/0\.10\../'$(L0_VERSION)'/g' README.md docs-src/docs/index.md
-	
+
 	# Add new version to release
 	$(shell ex -sc '3i|$(RELEASE)' -cx docs-src/docs/releases.md)
 
