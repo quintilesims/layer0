@@ -18,5 +18,5 @@ deploy:
    - binaries.zip
   skip_cleanup: true
   on:
-    tag: true
+    tags: true
     repo: quintilesims/layer0

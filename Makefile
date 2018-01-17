@@ -19,18 +19,15 @@ release:
 	done
 
 github-release:
-	# $(MAKE) -C api build-github
 	$(MAKE) -C cli release
-	# $(MAKE) -C setup release
-	# $(MAKE) -C plugins/terraform release
-	# cp -R setup/binaries . ; \
-	# 	cp -R plugins/terraform/binaries . ; \
+	$(MAKE) -C setup release
+	$(MAKE) -C plugins/terraform release
 
 	rm -rf binaries
-	for os in linux darwin windows; do \
-		cp -R cli/build binaries ; \
-	done
-	
+	cp -R cli/build/ binaries 
+	cp -R setup/build/ binaries
+	cp -R plugins/terraform/build/  binaries 
+
 	zip -r binaries.zip binaries
 
 update-release:
