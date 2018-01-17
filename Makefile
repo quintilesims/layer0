@@ -1,5 +1,6 @@
 SHELL:=/bin/bash
-L0_VERSION?=$(shell git describe --tags)
+L0_VERSION:=$(shell git describe --tags | sed "s/v//")
+RELEASE:=$(shell cat docs-src/docs/releases.md | sed -n 3p | sed 's/0\.10\../'$(L0_VERSION)'/g')
 
 release:
 	$(MAKE) -C api release
@@ -16,6 +17,13 @@ release:
 		cd build/$$os && zip -r layer0_$(L0_VERSION)_$$os.zip * && cd ../.. ; \
 		aws s3 cp build/$$os/layer0_$(L0_VERSION)_$$os.zip s3://xfra-layer0/release/$(L0_VERSION)/layer0_$(L0_VERSION)_$$os.zip ; \
 	done
+
+update-release:
+	# Update Version to Latest and clean up
+	sed -i '' 's/0\.10\../'$(L0_VERSION)'/g' README.md docs-src/docs/index.md
+	
+	# Add new version to release
+	$(shell ex -sc '3i|$(RELEASE)' -cx docs-src/docs/releases.md)
 
 unittest:
 	$(MAKE) -C api test
