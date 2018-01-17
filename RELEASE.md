@@ -44,11 +44,6 @@ git merge remotes/origin/master
 git push -u origin release
 ```
 
-
-## Update README badges
-
-Update the `[Version]` badge in [README.MD](https://github.com/quintilesims/layer0/blob/release/README.md). You can use the update_readm.sh in scripts.
-
 ## Add Release Notes
 
 Update [RELEASE_NOTES.md](https://github.com/quintilesims/layer0/blob/release/RELEASE_NOTES.md) with information about the current release. 
@@ -59,11 +54,12 @@ Commit your changes and push them to the `release` branch when you are done.
 
 ## Update Documentation
 
-There are a couple of references in the [docs](https://github.com/quintilesims/layer0/tree/release/docs-src/docs) section that will need to be updated with the latest version:
+After running `make update-release` this will update a version number for these files and the 
 
 * [mkdocs.yml](https://github.com/quintilesims/layer0/blob/release/docs-src/mkdocs.yml#L40)
 * [index.md](https://github.com/quintilesims/layer0/blob/release/docs-src/docs/index.md)
 * [releases.md](https://github.com/quintilesims/layer0/blob/release/docs-src/docs/releases.md)
+* [README.MD](https://github.com/quintilesims/layer0/blob/release/README.md)
 
 Run `make build` from the `docs-src/` directory to compile the docs, commit your changes, and push them to the release branch when you are done.
 
