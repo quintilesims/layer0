@@ -48,7 +48,7 @@ provider "layer0" {
 The following arguments are supported:
 
 !!! note
-	The `endpoint` and `token` variables for your layer0 api can be found using the [l0-setup endpoint](setup-cli/#endpoint) command
+	The `endpoint` and `token` variables for your layer0 api can be found using the [l0-setup endpoint](setup-cli/#endpoint) command.
 
 * `endpoint` - (Required) The endpoint of the layer0 api
 * `token` - (Required) The authentication token for the layer0 api

@@ -48,7 +48,7 @@ Layer0 Services that use Consul will need to add the [Registrator](#registrator-
 ## Consul Agent Container Definition
 
 !!!warning
-You must replace `<url>` with your Layer0 Consul Load Balancer's
+    You must replace `<url>` with your Layer0 Consul Load Balancer's URL.
 
 ```
 {

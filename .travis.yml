@@ -13,7 +13,3 @@ before_install:
 
 script:
   - make unittest
-  - ./scripts/ci-smoketest.sh
-
-after_script:
-  - make destroy-smoketest

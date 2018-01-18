@@ -675,11 +675,11 @@ For more comprehensive documentation, we recommend taking a look at the official
 </ul>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
-</div>
 <p>If you wish to update your task definition, the container names <strong>must</strong> remain the same.
 If any container names are changed or removed in an updated task definition,
 ECS will not know how the existing container(s) should be mapped over and you will not be able to deploy the updated task definition.
 If you encounter a scenario where you must change or remove a container's name in a task definition, we recommend re-creating the Layer0 Deploy and Service.</p>
+</div>
 <ul>
 <li><strong>Image</strong> The Docker image used to build the container. The image format is <code>url/image:tag</code><ul>
 <li>The <code>url</code> specifies which Docker Repo to pull the image from
