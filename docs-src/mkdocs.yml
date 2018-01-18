@@ -8,6 +8,7 @@ extra_css: ['stylesheets/extra.css']
 # Repository
 repo_name: GitHub
 repo_url: https://github.com/quintilesims/layer0/
+edit_uri: blob/master/docs-src/docs/
 
 pages:
   - Home: index.md
@@ -21,8 +22,6 @@ pages:
     - "Walkthrough: Introduction": guides/walkthrough/intro.md
     - "Walkthrough: Deployment 1": guides/walkthrough/deployment-1.md
     - "Walkthrough: Deployment 2": guides/walkthrough/deployment-2.md
-    - "Walkthrough: Deployment 3": guides/walkthrough/deployment-3.md
-    - Terraform beyond Layer0: guides/terraform_beyond_layer0.md
     - One-off Task: guides/one_off_task.md
   - Reference:
     - Layer0 CLI: reference/cli.md
@@ -39,19 +38,20 @@ pages:
     - Secure Shell (SSH): troubleshooting/ssh.md
 
 site_dir: ../docs
-theme_dir: material
-extra:
-    version: v0.10.3
-    logo: 'static/logo_icon.png'
-    author: xfra
+
+theme:
+    name: 'material'
+    custom_dir: 'material'
     palette:
         primary: 'red'
         accent:  'grey'
     font:
         text: 'Roboto'
         code: 'Roboto Mono'
+    logo: 'static/logo_icon.png'
+
 markdown_extensions:
-  - codehilite(css_class=code)
+  - codehilite
   - admonition
   - toc:
       permalink: '#'
