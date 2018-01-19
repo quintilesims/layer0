@@ -17,7 +17,7 @@ func TestCreateEnvironment(t *testing.T) {
 	controller := NewEnvironmentController(mockEnvironmentProvider)
 
 	req := models.CreateEnvironmentRequest{
-		EnvironmentName:  "env_name1",
+		EnvironmentName:  "env_name",
 		InstanceType:     "instance_type",
 		UserDataTemplate: []byte("user_data_template"),
 		MinScale:         1,

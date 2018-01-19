@@ -17,7 +17,7 @@ func TestCreateDeploy(t *testing.T) {
 	controller := NewDeployController(mockDeployProvider)
 
 	req := models.CreateDeployRequest{
-		DeployName: "dpl_name1",
+		DeployName: "dpl_name",
 		DeployFile: []byte("content"),
 	}
 
