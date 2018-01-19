@@ -6,6 +6,7 @@ import (
 	"net"
 	"strings"
 
+	"github.com/Microsoft/go-winio"
 	"github.com/docker/go-connections/sockets"
 )
 

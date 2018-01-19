@@ -11,14 +11,14 @@ import (
 
 func TestCreateTask(t *testing.T) {
 	req := models.CreateTaskRequest{
-                TaskName:      "tsk_name",
-                EnvironmentID: "env_id",
-                DeployID:      "dpl_id",
-                ContainerOverrides: []models.ContainerOverride{
-                        {ContainerName: "c1", EnvironmentOverrides: map[string]string{"k1": "v1"}},
-                        {ContainerName: "c2", EnvironmentOverrides: map[string]string{"k2": "v2"}},
-                },
-        }
+		TaskName:      "tsk_name",
+		EnvironmentID: "env_id",
+		DeployID:      "dpl_id",
+		ContainerOverrides: []models.ContainerOverride{
+			{ContainerName: "c1", EnvironmentOverrides: map[string]string{"k1": "v1"}},
+			{ContainerName: "c2", EnvironmentOverrides: map[string]string{"k2": "v2"}},
+		},
+	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "POST")
@@ -59,20 +59,20 @@ func TestDeleteTask(t *testing.T) {
 }
 
 func TestListTasks(t *testing.T) {
-	 expected := []models.TaskSummary{
-                {
-                        TaskID:          "tsk_id1",
-                        TaskName:        "tsk_name1",
-                        EnvironmentID:   "env_id1",
-                        EnvironmentName: "env_name1",
-                },
-                {
-                        TaskID:          "tsk_id2",
-                        TaskName:        "tskd_name2",
-                        EnvironmentID:   "env_id2",
-                        EnvironmentName: "env_name2",
-                },
-        }
+	expected := []models.TaskSummary{
+		{
+			TaskID:          "tsk_id1",
+			TaskName:        "tsk_name1",
+			EnvironmentID:   "env_id1",
+			EnvironmentName: "env_name1",
+		},
+		{
+			TaskID:          "tsk_id2",
+			TaskName:        "tskd_name2",
+			EnvironmentID:   "env_id2",
+			EnvironmentName: "env_name2",
+		},
+	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
@@ -94,19 +94,19 @@ func TestListTasks(t *testing.T) {
 
 func TestReadTask(t *testing.T) {
 	expected := models.Task{
-                TaskID:          "tsk_id",
-                TaskName:        "tsk_name",
-                EnvironmentID:   "env_id",
-                EnvironmentName: "env_name",
-                DeployID:        "dpl_id",
-                DeployName:      "dpl_name",
-                DeployVersion:   "1",
-                Status:          "RUNNING",
-                Containers: []models.Container{
-                        {ContainerName: "c1", Status: "RUNNING", ExitCode: 0},
-                        {ContainerName: "c2", Status: "STOPPED", ExitCode: 1},
-                },
-        }
+		TaskID:          "tsk_id",
+		TaskName:        "tsk_name",
+		EnvironmentID:   "env_id",
+		EnvironmentName: "env_name",
+		DeployID:        "dpl_id",
+		DeployName:      "dpl_name",
+		DeployVersion:   "1",
+		Status:          "RUNNING",
+		Containers: []models.Container{
+			{ContainerName: "c1", Status: "RUNNING", ExitCode: 0},
+			{ContainerName: "c2", Status: "STOPPED", ExitCode: 1},
+		},
+	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
@@ -123,21 +123,21 @@ func TestReadTask(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, *result)
 }
 
 func TestReadTaskLogs(t *testing.T) {
 	expected := []models.LogFile{
-                {
-                        ContainerName: "apline",
-                        Lines:         []string{"hello", "world"},
-                },
-        }
+		{
+			ContainerName: "apline",
+			Lines:         []string{"hello", "world"},
+		},
+	}
 
 	query := url.Values{}
-	query.Set(LogQueryParamTail, "100")
-	query.Set(LogQueryParamStart, "2000-01-01 00:00")
-	query.Set(LogQueryParamEnd, "2000-01-01 12:12")
+	query.Set(models.LogQueryParamTail, "100")
+	query.Set(models.LogQueryParamStart, "2000-01-01 00:00")
+	query.Set(models.LogQueryParamEnd, "2000-01-01 12:12")
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")

@@ -8,6 +8,7 @@ import (
 	"golang.org/x/net/context"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/go-units"
 )
 
 // State holds the current container state, and has methods to get and

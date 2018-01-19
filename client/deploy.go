@@ -24,8 +24,8 @@ func (c *APIClient) DeleteDeploy(deployID string) error {
 	return nil
 }
 
-func (c *APIClient) ListDeploys() ([]*models.DeploySummary, error) {
-	var deploys []*models.DeploySummary
+func (c *APIClient) ListDeploys() ([]models.DeploySummary, error) {
+	var deploys []models.DeploySummary
 	if err := c.client.Get("/deploy", &deploys); err != nil {
 		return nil, err
 	}

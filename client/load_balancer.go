@@ -24,8 +24,8 @@ func (c *APIClient) DeleteLoadBalancer(loadBalancerID string) error {
 	return nil
 }
 
-func (c *APIClient) ListLoadBalancers() ([]*models.LoadBalancerSummary, error) {
-	var loadbalancers []*models.LoadBalancerSummary
+func (c *APIClient) ListLoadBalancers() ([]models.LoadBalancerSummary, error) {
+	var loadbalancers []models.LoadBalancerSummary
 	if err := c.client.Get("/loadbalancer", &loadbalancers); err != nil {
 		return nil, err
 	}

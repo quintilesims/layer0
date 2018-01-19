@@ -6,11 +6,10 @@
 package main
 
 import (
-	"testing"
-
 	"github.com/docker/docker/daemon"
 	"github.com/docker/docker/pkg/testutil/assert"
 	"github.com/docker/docker/pkg/testutil/tempfile"
+	"testing"
 )
 
 func TestLoadDaemonCliConfigWithDaemonFlags(t *testing.T) {

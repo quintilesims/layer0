@@ -4,7 +4,7 @@ import (
 	"os"
 	"runtime"
 
-	specs "github.com/opencontainers/runtime-spec/specs-go"
+	"github.com/opencontainers/runtime-spec/specs-go"
 )
 
 func sPtr(s string) *string      { return &s }

@@ -6,12 +6,11 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/client/mock_client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
 
-func TestWaitForDeployment_standard(t *testing.T) {
+func TestWaitForDeployment(t *testing.T) {
 	defer SetTimeMultiplier(0)()
 
 	ctrl := gomock.NewController(t)
@@ -66,7 +65,7 @@ func TestWaitForDeployment_standard(t *testing.T) {
 	assert.Equal(t, finished, result)
 }
 
-func TestWaitForDeployment_error(t *testing.T) {
+func TestWaitForDeploymentError(t *testing.T) {
 	defer SetTimeMultiplier(0)()
 
 	ctrl := gomock.NewController(t)
@@ -82,7 +81,7 @@ func TestWaitForDeployment_error(t *testing.T) {
 	}
 }
 
-func TestWaitForDeployment_timeout(t *testing.T) {
+func TestWaitForDeploymentTimeout(t *testing.T) {
 	defer SetTimeMultiplier(0)()
 
 	ctrl := gomock.NewController(t)
@@ -106,73 +105,6 @@ func TestWaitForDeployment_timeout(t *testing.T) {
 		AnyTimes()
 
 	if _, err := WaitForDeployment(client, "svc_id", time.Second); err == nil {
-		t.Fatal("Error was nil!")
-	}
-}
-
-func TestWaitForJob(t *testing.T) {
-	defer SetTimeMultiplier(0)()
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	client := mock_client.NewMockClient(ctrl)
-
-	expected := &models.Job{
-		EntityID: "jid",
-		Status:   models.CompletedJobStatus,
-	}
-
-	client.EXPECT().
-		ReadJob("jid").
-		Return(expected, nil)
-
-	result, err := WaitForJob(client, "jid", time.Millisecond)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	assert.Equal(t, expected, result)
-}
-
-func TestWaitForJobError(t *testing.T) {
-	defer SetTimeMultiplier(0)()
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	client := mock_client.NewMockClient(ctrl)
-
-	expected := &models.Job{
-		EntityID: "jid",
-		Status:   models.ErrorJobStatus,
-	}
-
-	client.EXPECT().
-		ReadJob("jid").
-		Return(expected, nil)
-
-	if _, err := WaitForJob(client, "jid", time.Millisecond); err == nil {
-		t.Fatal("Error was nil!")
-	}
-}
-
-func TestWaitForJobTimeout(t *testing.T) {
-	defer SetTimeMultiplier(0)()
-
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-	client := mock_client.NewMockClient(ctrl)
-
-	expected := &models.Job{
-		EntityID: "jid",
-		Status:   models.InProgressJobStatus,
-	}
-
-	client.EXPECT().
-		ReadJob("jid").
-		Return(expected, nil).
-		AnyTimes()
-
-	if _, err := WaitForJob(client, "jid", time.Millisecond); err == nil {
 		t.Fatal("Error was nil!")
 	}
 }

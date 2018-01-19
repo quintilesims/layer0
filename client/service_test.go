@@ -132,7 +132,7 @@ func TestReadService(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, *result)
 }
 
 func TestReadServiceLogs(t *testing.T) {
@@ -144,9 +144,9 @@ func TestReadServiceLogs(t *testing.T) {
 	}
 
 	query := url.Values{}
-	query.Set(LogQueryParamTail, "100")
-	query.Set(LogQueryParamStart, "2000-01-01 00:00")
-	query.Set(LogQueryParamEnd, "2000-01-01 12:12")
+	query.Set(models.LogQueryParamTail, "100")
+	query.Set(models.LogQueryParamStart, "2000-01-01 00:00")
+	query.Set(models.LogQueryParamEnd, "2000-01-01 12:12")
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")

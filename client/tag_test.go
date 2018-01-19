@@ -16,8 +16,8 @@ func TestListTags(t *testing.T) {
 	}
 
 	query := url.Values{}
-	query.Set(TagQueryParamType, "environment")
-	query.Set(TagQueryParamID, "eid")
+	query.Set(models.TagQueryParamType, "environment")
+	query.Set(models.TagQueryParamID, "eid")
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")

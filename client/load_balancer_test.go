@@ -59,11 +59,9 @@ func TestDeleteLoadBalancer(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	if err := client.DeleteLoadBalancer("lid"); err != nil {
+	if err := client.DeleteLoadBalancer("lb_id"); err != nil {
 		t.Fatal(err)
 	}
-
-	assert.Equal(t, loadBalancerID, "lb_id")
 }
 
 func TestListLoadBalancers(t *testing.T) {
@@ -123,15 +121,22 @@ func TestReadLoadBalancer(t *testing.T) {
 		},
 	}
 
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		assert.Equal(t, r.Method, "GET")
+		assert.Equal(t, r.URL.Path, "/loadbalancer/lb_id")
+
+		MarshalAndWrite(t, w, expected, 200)
+	}
+
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	result, err := client.ReadLoadBalancer("lid")
+	result, err := client.ReadLoadBalancer("lb_id")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, *result)
 }
 
 func TestUpdateLoadBalancer(t *testing.T) {

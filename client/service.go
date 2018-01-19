@@ -26,8 +26,8 @@ func (c *APIClient) DeleteService(serviceID string) error {
 	return nil
 }
 
-func (c *APIClient) ListServices() ([]*models.ServiceSummary, error) {
-	var services []*models.ServiceSummary
+func (c *APIClient) ListServices() ([]models.ServiceSummary, error) {
+	var services []models.ServiceSummary
 	if err := c.client.Get("/service", &services); err != nil {
 		return nil, err
 	}
@@ -45,8 +45,8 @@ func (c *APIClient) ReadService(serviceID string) (*models.Service, error) {
 	return service, nil
 }
 
-func (c *APIClient) ReadServiceLogs(serviceID string, query url.Values) ([]*models.LogFile, error) {
-	var logs []*models.LogFile
+func (c *APIClient) ReadServiceLogs(serviceID string, query url.Values) ([]models.LogFile, error) {
+	var logs []models.LogFile
 	path := fmt.Sprintf("/service/%s/logs", serviceID)
 	if err := c.client.Get(path, &logs, rclient.Query(query)); err != nil {
 		return nil, err

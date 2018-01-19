@@ -107,5 +107,5 @@ func TestReadDeploy(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, *result)
 }

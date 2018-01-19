@@ -24,8 +24,8 @@ func (c *APIClient) DeleteEnvironment(environmentID string) error {
 	return nil
 }
 
-func (c *APIClient) ListEnvironments() ([]*models.EnvironmentSummary, error) {
-	var environments []*models.EnvironmentSummary
+func (c *APIClient) ListEnvironments() ([]models.EnvironmentSummary, error) {
+	var environments []models.EnvironmentSummary
 	if err := c.client.Get("/environment", &environments); err != nil {
 		return nil, err
 	}

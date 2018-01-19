@@ -118,7 +118,7 @@ func TestReadEnvironment(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, *result)
 }
 
 func TestUpdateEnvironment(t *testing.T) {
@@ -134,13 +134,13 @@ func TestUpdateEnvironment(t *testing.T) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "PATCH")
-		assert.Equal(t, r.URL.Path, "/environment/env_id1")
+		assert.Equal(t, r.URL.Path, "/environment/env_id")
 
 		var body models.UpdateEnvironmentRequest
 		Unmarshal(t, r, &body)
 
 		assert.Equal(t, req, body)
-		MarshalAndWrite(t, w, 200)
+		MarshalAndWrite(t, w, nil, 200)
 	}
 
 	client, server := newClientAndServer(handler)
