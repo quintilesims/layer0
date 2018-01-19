@@ -212,7 +212,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		PutRolePolicy(gomock.Any()).
 		Return(&iam.PutRolePolicyOutput{}, nil)
 
-	listeners := []*elb.Listener{listenerHelper(config.DefaultLoadBalancerPort)}
+	listeners := []*elb.Listener{listenerHelper(config.DefaultLoadBalancerPort())}
 	createLoadBalancerInput := &elb.CreateLoadBalancerInput{}
 	createLoadBalancerInput.SetLoadBalancerName("l0-test-lb_id")
 	createLoadBalancerInput.SetScheme("internal")
@@ -224,7 +224,8 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		CreateLoadBalancer(createLoadBalancerInput).
 		Return(&elb.CreateLoadBalancerOutput{}, nil)
 
-	healthCheck := healthCheckHelper(&config.DefaultLoadBalancerHealthCheck)
+	hc := config.DefaultLoadBalancerHealthCheck()
+	healthCheck := healthCheckHelper(&hc)
 	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
 	configureHealthCheckInput.SetLoadBalancerName("l0-test-lb_id")
 	configureHealthCheckInput.SetHealthCheck(healthCheck)
