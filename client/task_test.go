@@ -24,7 +24,7 @@ func TestCreateTask(t *testing.T) {
 		Unmarshal(t, r, &body)
 
 		assert.Equal(t, req, body)
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
+		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "jid"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
@@ -43,7 +43,7 @@ func TestDeleteTask(t *testing.T) {
 		assert.Equal(t, r.Method, "DELETE")
 		assert.Equal(t, r.URL.Path, "/task/tid")
 
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
+		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "jid"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)

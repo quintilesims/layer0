@@ -9,22 +9,22 @@ import (
 )
 
 func (c *APIClient) CreateTask(req models.CreateTaskRequest) (string, error) {
-	var resp models.CreateJobResponse
+	var resp models.CreateEntityResponse
 	if err := c.client.Post("/task", req, &resp); err != nil {
 		return "", err
 	}
 
-	return resp.JobID, nil
+	return resp.EntityID, nil
 }
 
 func (c *APIClient) DeleteTask(taskID string) (string, error) {
-	var resp models.CreateJobResponse
+	var resp models.CreateEntityResponse
 	path := fmt.Sprintf("/task/%s", taskID)
 	if err := c.client.Delete(path, nil, &resp); err != nil {
 		return "", err
 	}
 
-	return resp.JobID, nil
+	return resp.EntityID, nil
 }
 
 func (c *APIClient) ListTasks() ([]*models.TaskSummary, error) {

@@ -27,43 +27,40 @@ func TestCreateEnvironment(t *testing.T) {
 		Unmarshal(t, r, &body)
 
 		assert.Equal(t, req, body)
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
+		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "env_id"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.CreateEnvironment(req)
+	environmentID, err := client.CreateEnvironment(req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, "jid", jobID)
+	assert.Equal(t, "env_id", environmentID)
 }
 
 func TestDeleteEnvironment(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "DELETE")
-		assert.Equal(t, r.URL.Path, "/environment/eid")
+		assert.Equal(t, r.URL.Path, "/environment/env_id")
 
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
+		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "env_id"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.DeleteEnvironment("eid")
-	if err != nil {
+	if err := client.DeleteEnvironment("env_id"); err != nil {
 		t.Fatal(err)
 	}
-
-	assert.Equal(t, jobID, "jid")
 }
 
 func TestListEnvironments(t *testing.T) {
 	expected := []*models.EnvironmentSummary{
-		{EnvironmentID: "eid1"},
-		{EnvironmentID: "eid2"},
+		{EnvironmentID: "env_id1"},
+		{EnvironmentID: "env_id2"},
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
@@ -86,13 +83,13 @@ func TestListEnvironments(t *testing.T) {
 
 func TestReadEnvironment(t *testing.T) {
 	expected := &models.Environment{
-		EnvironmentID:   "eid",
-		EnvironmentName: "ename",
+		EnvironmentID:   "env_id",
+		EnvironmentName: "env_name",
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
-		assert.Equal(t, r.URL.Path, "/environment/eid")
+		assert.Equal(t, r.URL.Path, "/environment/env_id")
 
 		MarshalAndWrite(t, w, expected, 200)
 	}
@@ -100,7 +97,7 @@ func TestReadEnvironment(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	result, err := client.ReadEnvironment("eid")
+	result, err := client.ReadEnvironment("env_id")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -110,8 +107,8 @@ func TestReadEnvironment(t *testing.T) {
 
 func TestUpdateEnvironment(t *testing.T) {
 	minScale := 1
-	maxScale := 5
-	links := []string{"env_id2"}
+	maxScale := 2
+	links := []string{"env_id2", "env_id3"}
 
 	req := models.UpdateEnvironmentRequest{
 		MinScale: &minScale,
@@ -121,22 +118,19 @@ func TestUpdateEnvironment(t *testing.T) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "PATCH")
-		assert.Equal(t, r.URL.Path, "/environment/eid")
+		assert.Equal(t, r.URL.Path, "/environment/env_id1")
 
 		var body models.UpdateEnvironmentRequest
 		Unmarshal(t, r, &body)
 
 		assert.Equal(t, req, body)
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
+		MarshalAndWrite(t, w, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.UpdateEnvironment("eid", req)
-	if err != nil {
+	if err := client.UpdateEnvironment("env_id", req); err != nil {
 		t.Fatal(err)
 	}
-
-	assert.Equal(t, "jid", jobID)
 }

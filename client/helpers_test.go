@@ -118,8 +118,8 @@ func TestWaitForJob(t *testing.T) {
 	client := mock_client.NewMockClient(ctrl)
 
 	expected := &models.Job{
-		JobID:  "jid",
-		Status: models.CompletedJobStatus,
+		EntityID: "jid",
+		Status:   models.CompletedJobStatus,
 	}
 
 	client.EXPECT().
@@ -142,8 +142,8 @@ func TestWaitForJobError(t *testing.T) {
 	client := mock_client.NewMockClient(ctrl)
 
 	expected := &models.Job{
-		JobID:  "jid",
-		Status: models.ErrorJobStatus,
+		EntityID: "jid",
+		Status:   models.ErrorJobStatus,
 	}
 
 	client.EXPECT().
@@ -163,8 +163,8 @@ func TestWaitForJobTimeout(t *testing.T) {
 	client := mock_client.NewMockClient(ctrl)
 
 	expected := &models.Job{
-		JobID:  "jid",
-		Status: models.InProgressJobStatus,
+		EntityID: "jid",
+		Status:   models.InProgressJobStatus,
 	}
 
 	client.EXPECT().

@@ -26,7 +26,7 @@ func TestCreateService(t *testing.T) {
 		Unmarshal(t, r, &body)
 
 		assert.Equal(t, req, body)
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
+		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "jid"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
@@ -45,7 +45,7 @@ func TestDeleteService(t *testing.T) {
 		assert.Equal(t, r.Method, "DELETE")
 		assert.Equal(t, r.URL.Path, "/service/sid")
 
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
+		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "jid"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
@@ -153,7 +153,7 @@ func TestUpdateService(t *testing.T) {
 		Unmarshal(t, r, &body)
 
 		assert.Equal(t, req, body)
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
+		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "jid"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)

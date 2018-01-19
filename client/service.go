@@ -9,22 +9,22 @@ import (
 )
 
 func (c *APIClient) CreateService(req models.CreateServiceRequest) (string, error) {
-	var resp models.CreateJobResponse
+	var resp models.CreateEntityResponse
 	if err := c.client.Post("/service", req, &resp); err != nil {
 		return "", err
 	}
 
-	return resp.JobID, nil
+	return resp.EntityID, nil
 }
 
 func (c *APIClient) DeleteService(serviceID string) (string, error) {
-	var resp models.CreateJobResponse
+	var resp models.CreateEntityResponse
 	path := fmt.Sprintf("/service/%s", serviceID)
 	if err := c.client.Delete(path, nil, &resp); err != nil {
 		return "", err
 	}
 
-	return resp.JobID, nil
+	return resp.EntityID, nil
 }
 
 func (c *APIClient) ListServices() ([]*models.ServiceSummary, error) {
@@ -57,11 +57,11 @@ func (c *APIClient) ReadServiceLogs(serviceID string, query url.Values) ([]*mode
 }
 
 func (c *APIClient) UpdateService(serviceID string, req models.UpdateServiceRequest) (string, error) {
-	var resp models.CreateJobResponse
+	var resp models.CreateEntityResponse
 	path := fmt.Sprintf("/service/%s", serviceID)
 	if err := c.client.Patch(path, req, &resp); err != nil {
 		return "", err
 	}
 
-	return resp.JobID, nil
+	return resp.EntityID, nil
 }
