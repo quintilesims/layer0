@@ -14,21 +14,6 @@ var (
 	timeMultiplier time.Duration = 1
 )
 
-const (
-	LogQueryParamTail  = "tail"
-	LogQueryParamStart = "start"
-	LogQueryParamEnd   = "end"
-)
-
-const (
-	TagQueryParamEnvironmentID = "environment_id"
-	TagQueryParamFuzz          = "fuzz"
-	TagQueryParamID            = "id"
-	TagQueryParamName          = "name"
-	TagQueryParamType          = "type"
-	TagQueryParamVersion       = "version"
-)
-
 func SetTimeMultiplier(v time.Duration) func() {
 	timeMultiplier = v
 	return func() { timeMultiplier = 1 }

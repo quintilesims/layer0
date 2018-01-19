@@ -8,6 +8,9 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 )
 
+// 'YYYY-MM-DD HH:MM' time layout as described by https://golang.org/src/time/format.go
+const TimeLayout = "2006-01-02 15:04"
+
 func parseLoggingQuery(query url.Values) (int, time.Time, time.Time, error) {
 	var tail int
 	if v := query.Get("tail"); v != "" {
@@ -24,7 +27,7 @@ func parseLoggingQuery(query url.Values) (int, time.Time, time.Time, error) {
 			return time.Time{}, nil
 		}
 
-		return time.Parse(TIME_LAYOUT, v)
+		return time.Parse(TimeLayout, v)
 	}
 
 	start, err := parseTime(query.Get("start"))

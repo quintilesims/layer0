@@ -4,9 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
-	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,30 +14,28 @@ func TestCreateDeploy(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
+	controller := NewDeployController(mockDeployProvider)
 
 	req := models.CreateDeployRequest{
-		DeployName: "deploy1",
+		DeployName: "dpl_name1",
 		DeployFile: []byte("content"),
 	}
 
-	mockJobStore.EXPECT().
-		Insert(models.CreateDeployJob, gomock.Any()).
-		Return("jid", nil)
+	mockDeployProvider.EXPECT().
+		Create(req).
+		Return("dpl_id", nil)
 
 	c := newFireballContext(t, req, nil)
-	resp, err := controller.CreateDeploy(c)
+	resp, err := controller.createDeploy(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Job
+	var response models.CreateEntityResponse
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, "jid", response.JobID)
+	assert.Equal(t, "dpl_id", response.EntityID)
 }
 
 func TestDeleteDeploy(t *testing.T) {
@@ -47,58 +43,20 @@ func TestDeleteDeploy(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
-
-	mockJobStore.EXPECT().
-		Insert(models.DeleteDeployJob, "did").
-		Return("jid", nil)
-
-	c := newFireballContext(t, nil, map[string]string{"id": "did"})
-	resp, err := controller.DeleteDeploy(c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var response models.Job
-	recorder := unmarshalBody(t, resp, &response)
-
-	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, "jid", response.JobID)
-}
-
-func TestGetDeploy(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	DeployModel := models.Deploy{
-		DeployFile: []byte("content"),
-		DeployID:   "d1",
-		DeployName: "deploy1",
-		Version:    "1",
-	}
-
-	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
+	controller := NewDeployController(mockDeployProvider)
 
 	mockDeployProvider.EXPECT().
-		Read("d1").
-		Return(&DeployModel, nil)
+		Delete("dpl_id").
+		Return(nil)
 
-	c := newFireballContext(t, nil, map[string]string{"id": "d1"})
-	resp, err := controller.GetDeploy(c)
+	c := newFireballContext(t, nil, map[string]string{"id": "dpl_id"})
+	resp, err := controller.deleteDeploy(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Deploy
-	recorder := unmarshalBody(t, resp, &response)
-
+	recorder := unmarshalBody(t, resp, nil)
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, DeployModel, response)
 }
 
 func TestListDeploys(t *testing.T) {
@@ -106,34 +64,27 @@ func TestListDeploys(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewDeployController(mockDeployProvider, mockJobStore, tagStore)
+	controller := NewDeployController(mockDeployProvider)
 
-	deploySummaries := []models.DeploySummary{
+	expected := []models.DeploySummary{
 		{
-			DeployID:   "d1",
-			DeployName: "deploy1",
+			DeployID:   "dpl_id1",
+			DeployName: "dpl_name1",
 			Version:    "1",
 		},
 		{
-			DeployID:   "d1",
-			DeployName: "deploy1",
+			DeployID:   "dpl_id2",
+			DeployName: "dpld_name2",
 			Version:    "2",
-		},
-		{
-			DeployID:   "d2",
-			DeployName: "deploy2",
-			Version:    "1",
 		},
 	}
 
 	mockDeployProvider.EXPECT().
 		List().
-		Return(deploySummaries, nil)
+		Return(expected, nil)
 
 	c := newFireballContext(t, nil, nil)
-	resp, err := controller.ListDeploys(c)
+	resp, err := controller.listDeploys(c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -142,5 +93,36 @@ func TestListDeploys(t *testing.T) {
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, deploySummaries, response)
+	assert.Equal(t, expected, response)
+}
+
+func TestReadDeploy(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	expected := models.Deploy{
+		DeployID:   "dpl_id",
+		DeployName: "dpl_name",
+		DeployFile: []byte("content"),
+		Version:    "1",
+	}
+
+	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
+	controller := NewDeployController(mockDeployProvider)
+
+	mockDeployProvider.EXPECT().
+		Read("dpl_id").
+		Return(&expected, nil)
+
+	c := newFireballContext(t, nil, map[string]string{"id": "dpl_id"})
+	resp, err := controller.readDeploy(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var response models.Deploy
+	recorder := unmarshalBody(t, resp, &response)
+
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, expected, response)
 }

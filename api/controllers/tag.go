@@ -6,7 +6,6 @@ import (
 	"strconv"
 
 	"github.com/quintilesims/layer0/api/tag"
-	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	glob "github.com/ryanuber/go-glob"
@@ -75,19 +74,19 @@ func (t *TagController) ListTags(c *fireball.Context) (fireball.Response, error)
 	}
 
 	entityTags := tags.GroupByID()
-	if environmentID := query.Get(client.TagQueryParamEnvironmentID); environmentID != "" {
+	if environmentID := query.Get(models.TagQueryParamEnvironmentID); environmentID != "" {
 		filterTagsByEnvironmentID(entityTags, environmentID)
 	}
 
-	if name := query.Get(client.TagQueryParamName); name != "" {
+	if name := query.Get(models.TagQueryParamName); name != "" {
 		filterTagsByName(entityTags, name)
 	}
 
-	if fuzz := query.Get(client.TagQueryParamFuzz); fuzz != "" {
+	if fuzz := query.Get(models.TagQueryParamFuzz); fuzz != "" {
 		filterTagsByIDOrNameGlob(entityTags, fuzz)
 	}
 
-	if version := query.Get(client.TagQueryParamVersion); version != "" {
+	if version := query.Get(models.TagQueryParamVersion); version != "" {
 		if version == "latest" {
 			filterTagsByLatestVersion(entityTags)
 		} else {
@@ -104,8 +103,8 @@ func (t *TagController) ListTags(c *fireball.Context) (fireball.Response, error)
 }
 
 func (t *TagController) selectTagsFromQuery(query url.Values) (models.Tags, error) {
-	entityID := query.Get(client.TagQueryParamID)
-	entityType := query.Get(client.TagQueryParamType)
+	entityID := query.Get(models.TagQueryParamID)
+	entityType := query.Get(models.TagQueryParamType)
 
 	if entityType != "" && entityID != "" {
 		return t.TagStore.SelectByTypeAndID(entityType, entityID)
