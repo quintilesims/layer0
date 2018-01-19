@@ -19,8 +19,8 @@ func NewLoadBalancerCommand(b *CommandBase) *LoadBalancerCommand {
 }
 
 func (l *LoadBalancerCommand) Command() cli.Command {
-	dhc := config.DefaultLoadBalancerHealthCheck
-	dp := config.DefaultLoadBalancerPort
+	dhc := config.DefaultLoadBalancerHealthCheck()
+	dp := config.DefaultLoadBalancerPort()
 	defaultPortString := fmt.Sprintf("%d:%d/%s", dp.HostPort, dp.ContainerPort, dp.Protocol)
 	defaultPortFlag := cli.StringSlice([]string{defaultPortString})
 
@@ -168,20 +168,17 @@ func (l *LoadBalancerCommand) addport(c *cli.Context) error {
 		Ports: &ports,
 	}
 
-	jobID, err := l.client.UpdateLoadBalancer(loadBalancerID, req)
+	if err := l.client.UpdateLoadBalancer(loadBalancerID, req); err != nil {
+		return err
+	}
+
+	loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
 	if err != nil {
 		return err
 	}
 
-	return l.waitOnJobHelper(c, jobID, "adding port", func(loadBalancerID string) error {
-		loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
-		if err != nil {
-			return err
-		}
-
-		l.printer.StopSpinner()
-		return l.printer.PrintLoadBalancers(loadBalancer)
-	})
+	l.printer.StopSpinner()
+	return l.printer.PrintLoadBalancers(loadBalancer)
 }
 
 func (l *LoadBalancerCommand) create(c *cli.Context) error {
@@ -237,20 +234,17 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := l.client.CreateLoadBalancer(req)
+	loadBalancerID, err := l.client.CreateLoadBalancer(req)
 	if err != nil {
 		return err
 	}
 
-	return l.waitOnJobHelper(c, jobID, "creating", func(loadBalancerID string) error {
-		loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
-		if err != nil {
-			return err
-		}
+	loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
+	if err != nil {
+		return err
+	}
 
-		l.printer.StopSpinner()
-		return l.printer.PrintLoadBalancers(loadBalancer)
-	})
+	return l.printer.PrintLoadBalancers(loadBalancer)
 }
 
 func (l *LoadBalancerCommand) delete(c *cli.Context) error {

@@ -150,25 +150,21 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := e.client.CreateEnvironment(req)
+	environmentID, err := e.client.CreateEnvironment(req)
 	if err != nil {
 		return err
 	}
 
-	return e.waitOnJobHelper(c, jobID, "creating", func(environmentID string) error {
-		environment, err := e.client.ReadEnvironment(environmentID)
-		if err != nil {
-			return err
-		}
+	environment, err := e.client.ReadEnvironment(environmentID)
+	if err != nil {
+		return err
+	}
 
-		return e.printer.PrintEnvironments(environment)
-	})
+	return e.printer.PrintEnvironments(environment)
 }
 
 func (e *EnvironmentCommand) delete(c *cli.Context) error {
-	return e.deleteHelper(c, "environment", func(environmentID string) (string, error) {
-		return e.client.DeleteEnvironment(environmentID)
-	})
+	return e.client.DeleteEnvironment(environmentID)
 }
 
 func (e *EnvironmentCommand) list(c *cli.Context) error {
@@ -230,21 +226,19 @@ func (e *EnvironmentCommand) setScale(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := e.client.UpdateEnvironment(environmentID, req)
+	if err := e.client.UpdateEnvironment(environmentID, req); err != nil {
+		return err
+	}
+
+	environment, err := e.client.ReadEnvironment(environmentID)
 	if err != nil {
 		return err
 	}
 
-	return e.waitOnJobHelper(c, jobID, "updating", func(environmentID string) error {
-		environment, err := e.client.ReadEnvironment(environmentID)
-		if err != nil {
-			return err
-		}
-
-		return e.printer.PrintEnvironments(environment)
-	})
+	return e.printer.PrintEnvironments(environment)
 }
 
+// todo: this should be simplified
 func (e *EnvironmentCommand) link(c *cli.Context) error {
 	generateAddLinkRequest := func(sourceEnvironmentID, destEnvironmentID string) (models.UpdateEnvironmentRequest, error) {
 		env, err := e.client.ReadEnvironment(sourceEnvironmentID)
@@ -316,15 +310,12 @@ func (e *EnvironmentCommand) updateEnvironmentLinksHelper(
 			return err
 		}
 
-		jobID, err := e.client.UpdateEnvironment(sourceEnvID, updateEnvReq)
-		if err != nil {
+		if err := e.client.UpdateEnvironment(sourceEnvID, updateEnvReq); err != nil {
 			return err
 		}
 
-		return e.waitOnJobHelper(c, jobID, "updating", func(environmentID string) error {
-			e.printer.Printf("Environment update successfull")
-			return nil
-		})
+		e.printer.Printf("Environment update successfull")
+		return nil
 	}
 
 	updateLinkFN(sourceEnvironmentID, destEnvironmentID)

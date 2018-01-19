@@ -78,25 +78,21 @@ func (d *DeployCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := d.client.CreateDeploy(req)
+	deployID, err := d.client.CreateDeploy(req)
 	if err != nil {
 		return err
 	}
 
-	return d.waitOnJobHelper(c, jobID, "creating", func(deployID string) error {
-		deploy, err := d.client.ReadDeploy(deployID)
-		if err != nil {
-			return err
-		}
+	deploy, err := d.client.ReadDeploy(deployID)
+	if err != nil {
+		return err
+	}
 
-		return d.printer.PrintDeploys(deploy)
-	})
+	return d.printer.PrintDeploys(deploy)
 }
 
 func (d *DeployCommand) delete(c *cli.Context) error {
-	return d.deleteHelper(c, "deploy", func(deployID string) (string, error) {
-		return d.client.DeleteDeploy(deployID)
-	})
+	return d.client.DeleteDeploy(deployID)
 }
 
 func (d *DeployCommand) read(c *cli.Context) error {
