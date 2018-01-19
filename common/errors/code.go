@@ -10,6 +10,7 @@ const (
 	InvalidRequest           ErrorCode = "InvalidReqest"
 	DeployDoesNotExist       ErrorCode = "DeployDoesNotExist"
 	EnvironmentDoesNotExist  ErrorCode = "EnvironmentDoesNotExist"
+	DependencyError          ErrorCode = "DependencyError"
 	JobDoesNotExist          ErrorCode = "JobDoesNotExist"
 	LoadBalancerDoesNotExist ErrorCode = "LoadBalancerDoesNotExist"
 	ServiceDoesNotExist      ErrorCode = "ServiceDoesNotExist"
