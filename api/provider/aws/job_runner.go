@@ -170,54 +170,7 @@ func (r *JobRunner) deleteDeploy(jobID, deployID string) (string, error) {
 }
 
 func (r *JobRunner) deleteEnvironment(jobID, environmentID string) (string, error) {
-	loadBalancers, err := r.loadBalancerProvider.List()
-	if err != nil {
-		return "", err
-	}
-
-	for _, loadBalancer := range loadBalancers {
-		if loadBalancer.EnvironmentID == environmentID {
-			if _, err := r.deleteLoadBalancer(jobID, loadBalancer.LoadBalancerID); err != nil {
-				return "", err
-			}
-		}
-	}
-
-	services, err := r.serviceProvider.List()
-	if err != nil {
-		return "", err
-	}
-
-	for _, service := range services {
-		if service.EnvironmentID == environmentID {
-			if _, err := r.deleteService(jobID, service.ServiceID); err != nil {
-				return "", err
-			}
-		}
-	}
-
-	tasks, err := r.taskProvider.List()
-	if err != nil {
-		return "", err
-	}
-
-	for _, task := range tasks {
-		if task.EnvironmentID == environmentID {
-			if _, err := r.deleteTask(jobID, task.TaskID); err != nil {
-				return "", err
-			}
-		}
-	}
-
-	return catchAndRetry(time.Minute*15, func() (result string, err error, shouldRetry bool) {
-		log.Printf("[DEBUG] [JobRunner] Deleting environment %s", environmentID)
-		if err := r.environmentProvider.Delete(environmentID); err != nil {
-			log.Printf("[DEBUG] [JobRunner] Failed to delete environment %s: %v", environmentID, err)
-			return "", err, true
-		}
-
-		return "", nil, false
-	})
+	return "", r.environmentProvider.Delete(environmentID)
 }
 
 func (r *JobRunner) deleteLoadBalancer(jobID, loadBalancerID string) (string, error) {
