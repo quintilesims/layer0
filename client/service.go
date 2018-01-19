@@ -17,14 +17,13 @@ func (c *APIClient) CreateService(req models.CreateServiceRequest) (string, erro
 	return resp.EntityID, nil
 }
 
-func (c *APIClient) DeleteService(serviceID string) (string, error) {
-	var resp models.CreateEntityResponse
+func (c *APIClient) DeleteService(serviceID string) error {
 	path := fmt.Sprintf("/service/%s", serviceID)
-	if err := c.client.Delete(path, nil, &resp); err != nil {
-		return "", err
+	if err := c.client.Delete(path, nil, nil); err != nil {
+		return err
 	}
 
-	return resp.EntityID, nil
+	return nil
 }
 
 func (c *APIClient) ListServices() ([]*models.ServiceSummary, error) {
@@ -56,12 +55,11 @@ func (c *APIClient) ReadServiceLogs(serviceID string, query url.Values) ([]*mode
 	return logs, nil
 }
 
-func (c *APIClient) UpdateService(serviceID string, req models.UpdateServiceRequest) (string, error) {
-	var resp models.CreateEntityResponse
+func (c *APIClient) UpdateService(serviceID string, req models.UpdateServiceRequest) error {
 	path := fmt.Sprintf("/service/%s", serviceID)
-	if err := c.client.Patch(path, req, &resp); err != nil {
-		return "", err
+	if err := c.client.Patch(path, req, nil); err != nil {
+		return err
 	}
 
-	return resp.EntityID, nil
+	return nil
 }

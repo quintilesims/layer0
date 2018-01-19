@@ -17,14 +17,13 @@ func (c *APIClient) CreateTask(req models.CreateTaskRequest) (string, error) {
 	return resp.EntityID, nil
 }
 
-func (c *APIClient) DeleteTask(taskID string) (string, error) {
-	var resp models.CreateEntityResponse
+func (c *APIClient) DeleteTask(taskID string) (error) {
 	path := fmt.Sprintf("/task/%s", taskID)
-	if err := c.client.Delete(path, nil, &resp); err != nil {
-		return "", err
+	if err := c.client.Delete(path, nil, nil); err != nil {
+		return err
 	}
 
-	return resp.EntityID, nil
+	return nil
 }
 
 func (c *APIClient) ListTasks() ([]*models.TaskSummary, error) {

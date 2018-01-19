@@ -10,8 +10,8 @@ import (
 
 func TestCreateDeploy(t *testing.T) {
 	req := models.CreateDeployRequest{
-		DeployName: "name",
-		DeployFile: []byte("deploy_file"),
+		DeployName: "dpl_name",
+		DeployFile: []byte("content"),
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
@@ -53,9 +53,17 @@ func TestDeleteDeploy(t *testing.T) {
 }
 
 func TestListDeploys(t *testing.T) {
-	expected := []*models.DeploySummary{
-		{DeployID: "dpl_id1"},
-		{DeployID: "dpld_id2"},
+	expected := []models.DeploySummary{
+		{
+			DeployID:   "dpl_id1",
+			DeployName: "dpl_name1",
+			Version:    "1",
+		},
+		{
+			DeployID:   "dpl_id2",
+			DeployName: "dpld_name2",
+			Version:    "2",
+		},
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
@@ -77,9 +85,11 @@ func TestListDeploys(t *testing.T) {
 }
 
 func TestReadDeploy(t *testing.T) {
-	expected := &models.Deploy{
+	expected := models.Deploy{
 		DeployID:   "dpl_id",
 		DeployName: "dpl_name",
+		Version:    "1",
+		DeployFile: []byte("content"),
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {

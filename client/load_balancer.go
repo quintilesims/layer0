@@ -15,7 +15,7 @@ func (c *APIClient) CreateLoadBalancer(req models.CreateLoadBalancerRequest) (st
 	return resp.EntityID, nil
 }
 
-func (c *APIClient) DeleteLoadBalancer(loadBalancerID string) (error) {
+func (c *APIClient) DeleteLoadBalancer(loadBalancerID string) error {
 	path := fmt.Sprintf("/loadbalancer/%s", loadBalancerID)
 	if err := c.client.Delete(path, nil, nil); err != nil {
 		return err
@@ -43,7 +43,7 @@ func (c *APIClient) ReadLoadBalancer(loadBalancerID string) (*models.LoadBalance
 	return loadbalancer, nil
 }
 
-func (c *APIClient) UpdateLoadBalancer(loadBalancerID string, req models.UpdateLoadBalancerRequest) ( error) {
+func (c *APIClient) UpdateLoadBalancer(loadBalancerID string, req models.UpdateLoadBalancerRequest) error {
 	path := fmt.Sprintf("/loadbalancer/%s", loadBalancerID)
 	if err := c.client.Patch(path, req, nil); err != nil {
 		return err

@@ -11,10 +11,10 @@ import (
 
 func TestCreateService(t *testing.T) {
 	req := models.CreateServiceRequest{
-		ServiceName:    "name",
-		EnvironmentID:  "eid",
-		DeployID:       "did",
-		LoadBalancerID: "lid",
+		ServiceName:    "svc_name",
+		EnvironmentID:  "env_id",
+		DeployID:       "dpl_id",
+		LoadBalancerID: "lb_id",
 		Scale:          3,
 	}
 
@@ -26,43 +26,50 @@ func TestCreateService(t *testing.T) {
 		Unmarshal(t, r, &body)
 
 		assert.Equal(t, req, body)
-		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "jid"}, 200)
+		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "svc_id"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.CreateService(req)
+	serviceID, err := client.CreateService(req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, "jid", jobID)
+	assert.Equal(t, "svc_id", serviceID)
 }
 
 func TestDeleteService(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "DELETE")
-		assert.Equal(t, r.URL.Path, "/service/sid")
+		assert.Equal(t, r.URL.Path, "/service/svc_id")
 
-		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "jid"}, 200)
+		MarshalAndWrite(t, w, nil, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.DeleteService("sid")
-	if err != nil {
+	if err := client.DeleteService("svc_id"); err != nil {
 		t.Fatal(err)
 	}
-
-	assert.Equal(t, jobID, "jid")
 }
 
 func TestListServices(t *testing.T) {
-	expected := []*models.ServiceSummary{
-		{ServiceID: "sid1"},
-		{ServiceID: "sid2"},
+	expected := []models.ServiceSummary{
+		{
+			ServiceID:       "svc_id1",
+			ServiceName:     "svc_name1",
+			EnvironmentID:   "env_id1",
+			EnvironmentName: "env_name1",
+		},
+		{
+			ServiceID:       "svc_id2",
+			ServiceName:     "svcd_name2",
+			EnvironmentID:   "env_id2",
+			EnvironmentName: "env_name2",
+		},
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
@@ -84,14 +91,35 @@ func TestListServices(t *testing.T) {
 }
 
 func TestReadService(t *testing.T) {
-	expected := &models.Service{
-		ServiceID:   "sid",
-		ServiceName: "ename",
+	expected := models.Service{
+		ServiceID:        "svc_id",
+		ServiceName:      "svc_name",
+		EnvironmentID:    "env_id",
+		EnvironmentName:  "env_name",
+		LoadBalancerID:   "lb_id",
+		LoadBalancerName: "lb_name",
+		DesiredCount:     3,
+		PendingCount:     2,
+		RunningCount:     1,
+		Deployments: []models.Deployment{
+			{
+				DeployID:      "dpl_id1",
+				DeployName:    "dpl_name1",
+				DeployVersion: "1",
+				Status:        "RUNNING",
+			},
+			{
+				DeployID:      "dpl_id2",
+				DeployName:    "dpl_name2",
+				DeployVersion: "2",
+				Status:        "STOPPED",
+			},
+		},
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
-		assert.Equal(t, r.URL.Path, "/service/sid")
+		assert.Equal(t, r.URL.Path, "/service/svc_id")
 
 		MarshalAndWrite(t, w, expected, 200)
 	}
@@ -99,7 +127,7 @@ func TestReadService(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	result, err := client.ReadService("sid")
+	result, err := client.ReadService("svc_id")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -108,9 +136,11 @@ func TestReadService(t *testing.T) {
 }
 
 func TestReadServiceLogs(t *testing.T) {
-	expected := []*models.LogFile{
-		{ContainerName: "c1"},
-		{ContainerName: "c2"},
+	expected := []models.LogFile{
+		{
+			ContainerName: "apline",
+			Lines:         []string{"hello", "world"},
+		},
 	}
 
 	query := url.Values{}
@@ -120,7 +150,7 @@ func TestReadServiceLogs(t *testing.T) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
-		assert.Equal(t, r.URL.Path, "/service/sid/logs")
+		assert.Equal(t, r.URL.Path, "/service/svc_id/logs")
 		assert.Equal(t, query, r.URL.Query())
 
 		MarshalAndWrite(t, w, expected, 200)
@@ -129,7 +159,7 @@ func TestReadServiceLogs(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	result, err := client.ReadServiceLogs("sid", query)
+	result, err := client.ReadServiceLogs("svc_id", query)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -138,8 +168,9 @@ func TestReadServiceLogs(t *testing.T) {
 }
 
 func TestUpdateService(t *testing.T) {
-	deployID := "did"
+	deployID := "dpl_id"
 	scale := 1
+
 	req := models.UpdateServiceRequest{
 		DeployID: &deployID,
 		Scale:    &scale,
@@ -147,22 +178,19 @@ func TestUpdateService(t *testing.T) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "PATCH")
-		assert.Equal(t, r.URL.Path, "/service/sid")
+		assert.Equal(t, r.URL.Path, "/service/svc_id")
 
 		var body models.UpdateServiceRequest
 		Unmarshal(t, r, &body)
 
 		assert.Equal(t, req, body)
-		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "jid"}, 200)
+		MarshalAndWrite(t, w, nil, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.UpdateService("sid", req)
-	if err != nil {
+	if err := client.UpdateService("svc_id", req); err != nil {
 		t.Fatal(err)
 	}
-
-	assert.Equal(t, "jid", jobID)
 }

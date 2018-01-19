@@ -11,8 +11,8 @@ import (
 
 func TestListTags(t *testing.T) {
 	expected := models.Tags{
-		{EntityID: "eid"},
-		{EntityID: "eid"},
+		{EntityID: "env_id"},
+		{EntityID: "env_id"},
 	}
 
 	query := url.Values{}
