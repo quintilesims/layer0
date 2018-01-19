@@ -5,10 +5,11 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/kr/pty"
 	"os/exec"
 	"strings"
 	"time"
+
+	"github.com/kr/pty"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/pkg/integration/checker"

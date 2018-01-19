@@ -103,8 +103,8 @@ func TestReadDeploy(t *testing.T) {
 	expected := models.Deploy{
 		DeployID:   "dpl_id",
 		DeployName: "dpl_name",
-		Version: "1",	
-	DeployFile: []byte("content"),
+		Version:    "1",
+		DeployFile: []byte("content"),
 	}
 
 	mockDeployProvider := mock_provider.NewMockDeployProvider(ctrl)
