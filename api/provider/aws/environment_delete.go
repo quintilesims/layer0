@@ -1,12 +1,14 @@
 package aws
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/errors"
 )
 
 // Delete is used to delete an ECS Cluster using the specified environmentID. The environmentID
@@ -16,6 +18,10 @@ import (
 // is subsequently used when the DeleteSecurityGroup request is made to AWS. The ECS Cluster is deleted
 // by making a DeleteCluster request to AWS.
 func (e *EnvironmentProvider) Delete(environmentID string) error {
+	if err := e.checkEnvironmentDependencies(environmentID); err != nil {
+		return err
+	}
+
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	autoScalingGroupName := fqEnvironmentID
@@ -48,6 +54,43 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 
 	if err := deleteEntityTags(e.TagStore, "environment", environmentID); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (e *EnvironmentProvider) checkEnvironmentDependencies(environmentID string) error {
+	loadBalancerTags, err := e.TagStore.SelectByType("load_balancer")
+	if err != nil {
+		return err
+	}
+
+	dependentLoadBalancers := loadBalancerTags.WithKey("environment_id").WithValue(environmentID)
+	if len(dependentLoadBalancers) > 0 {
+		msg := fmt.Sprintf("Cannot delete non-empty environment '%s' (environment contains one or more load balancers).", environmentID)
+		return errors.Newf(errors.DependencyError, msg)
+	}
+
+	serviceTags, err := e.TagStore.SelectByType("service")
+	if err != nil {
+		return err
+	}
+
+	dependentServices := serviceTags.WithKey("environment_id").WithValue(environmentID)
+	if len(dependentServices) > 0 {
+		msg := fmt.Sprintf("Cannot delete non-empty environment '%s' (environment contains one or more services).", environmentID)
+		return errors.Newf(errors.DependencyError, msg)
+	}
+
+	taskTags, err := e.TagStore.SelectByType("task")
+	if err != nil {
+		return err
+	}
+
+	dependentTasks := taskTags.WithKey("environment_id").WithValue(environmentID)
+	if len(dependentTasks) > 0 {
+		msg := fmt.Sprintf("Cannot delete non-empty environment '%s' (environment contains one or more tasks).", environmentID)
+		return errors.Newf(errors.DependencyError, msg)
 	}
 
 	return nil
