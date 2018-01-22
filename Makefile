@@ -29,6 +29,9 @@ smoketest:
 systemtest:
 	 $(MAKE) -C tests/system test
 
+benchmark:
+	$(MAKE) -C tests/stress benchmark
+
 install-smoketest:
 	$(MAKE) -C cli install-smoketest
 	$(MAKE) -C setup install-smoketest
@@ -41,4 +44,4 @@ apply-smoketest:
 destroy-smoketest:
 	$(MAKE) -C setup destroy-smoketest
 
-.PHONY: release unittest smoketest install-smoketest apply-smoketest destroy-smoketest systemtest
+.PHONY: release unittest smoketest install-smoketest apply-smoketest destroy-smoketest systemtest benchmark
