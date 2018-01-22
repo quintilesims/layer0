@@ -16,7 +16,7 @@ Ready to learn more about Layer0? See our [introduction page](intro.md) to learn
 | Download **v0.10.4** | | |
 |:-:|:-:|:-:|
 | ![Darwin](/static/icon_darwin.png) | ![Linux](/static/icon_linux.png)  | ![Windows](/static/icon_windows.png) |
-| [macOS](https://s3.amazonaws.com/xfra-layer0/release/v0.10.4/layer0_v0.10.4_darwin.zip) | [Linux](https://s3.amazonaws.com/xfra-layer0/release/v0.10.4/layer0_v0.10.4_linux.zip) | [Windows](https://s3.amazonaws.com/xfra-layer0/release/v0.10.4/layer0_v0.10.4_windows.zip) |
+| [macOS](https://github.com/quintilesims/layer0/releases/download/v0.10.4/macOS.zip) | [Linux](https://github.com/quintilesims/layer0/releases/download/v0.10.4/Linux.zip) | [Windows](https://github.com/quintilesims/layer0/releases/download/v0.10.4/Windows.zip) |
 
 
 ## Contact Us

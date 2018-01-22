@@ -52,18 +52,6 @@ Please follow the existing formatting when adding release notes.
 Commit your changes and push them to the `release` branch when you are done.
 
 
-## Update Documentation
-
-After running `make update-release` this will update a version number for these files and the 
-
-* [mkdocs.yml](https://github.com/quintilesims/layer0/blob/release/docs-src/mkdocs.yml#L40)
-* [index.md](https://github.com/quintilesims/layer0/blob/release/docs-src/docs/index.md)
-* [releases.md](https://github.com/quintilesims/layer0/blob/release/docs-src/docs/releases.md)
-* [README.MD](https://github.com/quintilesims/layer0/blob/release/README.md)
-
-Run `make build` from the `docs-src/` directory to compile the docs, commit your changes, and push them to the release branch when you are done.
-
-
 ## Merge Release into Master
 
 With the release notes and documentation updated, [create a pull request](https://github.com/quintilesims/layer0/compare) from the `release` branch targeting the `master` branch (_base: master, compare: release_). 
@@ -109,4 +97,4 @@ summary of the release contents. For example:
 
 # Merge Master into Develop
 
-To bring the `develop` branch up-to-date with `master`, create a [create a pull request](https://github.com/quintilesims/layer0/compare) from the `master` branch targeting the `develop` branch (_base: develop, compare: master_). **Please squash and merge.**
+To bring the `develop` branch up-to-date with `master`, create a [create a pull request](https://github.com/quintilesims/layer0/compare) from the `master` branch targeting the `develop` branch (_base: develop, compare: master_). **Please rebase and merge** (squash and merge if not possible.)
