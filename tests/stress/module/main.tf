@@ -10,9 +10,9 @@ resource "random_pet" "environment_names" {
 }
 
 resource "layer0_environment" "te" {
-  name  = "${element(random_pet.environment_names.*.id, count.index)}"
-  size  = "t2.micro"
-  count = "${var.num_environments}"
+  name          = "${element(random_pet.environment_names.*.id, count.index)}"
+  instance_type = "t2.micro"
+  count         = "${var.num_environments}"
 }
 
 resource "random_pet" "load_balancer_names" {
