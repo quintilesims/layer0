@@ -12,7 +12,7 @@ type Printer interface {
 	PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) error
 	PrintLoadBalancerSummaries(loadBalancers ...models.LoadBalancerSummary) error
 	PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBalancer) error
-	PrintLogs(logs ...*models.LogFile) error
+	PrintLogs(logs ...models.LogFile) error
 	PrintServices(services ...*models.Service) error
 	PrintServiceSummaries(services ...models.ServiceSummary) error
 	PrintTasks(tasks ...*models.Task) error

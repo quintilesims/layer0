@@ -1,4 +1,4 @@
-package config
+package testutils
 
 import (
 	"os"
@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 const (
@@ -14,11 +15,11 @@ const (
 )
 
 func GetTestAWSSession() *session.Session {
-	accessKey := os.Getenv(ENVVAR_AWS_ACCESS_KEY)
-	secretKey := os.Getenv(ENVVAR_AWS_SECRET_KEY)
-	region := os.Getenv(ENVVAR_AWS_REGION)
+	accessKey := os.Getenv(config.ENVVAR_AWS_ACCESS_KEY)
+	secretKey := os.Getenv(config.ENVVAR_AWS_SECRET_KEY)
+	region := os.Getenv(config.ENVVAR_AWS_REGION)
 	if region == "" {
-		region = DefaultAWSRegion
+		region = config.DefaultAWSRegion
 	}
 
 	creds := credentials.NewStaticCredentials(accessKey, secretKey, "")

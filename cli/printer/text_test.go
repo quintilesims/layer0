@@ -186,7 +186,7 @@ func ExampleTextPrintLoadBalancerHealthCheck() {
 
 func ExampleTextPrintLogs() {
 	printer := &TextPrinter{}
-	logs := []*models.LogFile{
+	logs := []models.LogFile{
 		{ContainerName: "file1", Lines: []string{"line1", "line2", "line3"}},
 		{ContainerName: "file2", Lines: []string{"lineA", "lineB", "lineC"}},
 	}

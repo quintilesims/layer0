@@ -108,25 +108,31 @@ func (t *TaskCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := t.client.CreateTask(req)
+	taskID, err := t.client.CreateTask(req)
 	if err != nil {
 		return err
 	}
 
-	return t.waitOnJobHelper(c, jobID, "creating", func(taskID string) error {
-		task, err := t.client.ReadTask(taskID)
-		if err != nil {
-			return err
-		}
+	task, err := t.client.ReadTask(taskID)
+	if err != nil {
+		return err
+	}
 
-		return t.printer.PrintTasks(task)
-	})
+	return t.printer.PrintTasks(task)
 }
 
 func (t *TaskCommand) delete(c *cli.Context) error {
-	return t.deleteHelper(c, "task", func(taskID string) (string, error) {
-		return t.client.DeleteTask(taskID)
-	})
+	args, err := extractArgs(c.Args(), "TASK_NAME")
+	if err != nil {
+		return err
+	}
+
+	taskID, err := t.resolveSingleEntityIDHelper("task", args["TASK_NAME"])
+	if err != nil {
+		return err
+	}
+
+	return t.client.DeleteTask(taskID)
 }
 
 func (t *TaskCommand) list(c *cli.Context) error {
@@ -229,5 +235,4 @@ func parseOverrides(overrides []string) ([]models.ContainerOverride, error) {
 	}
 
 	return models, nil
-
 }

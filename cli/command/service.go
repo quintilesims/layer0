@@ -131,25 +131,31 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := s.client.CreateService(req)
+	serviceID, err := s.client.CreateService(req)
 	if err != nil {
 		return err
 	}
 
-	return s.waitOnJobHelper(c, jobID, "creating", func(serviceID string) error {
-		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
-		if err != nil {
-			return err
-		}
+	service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
+	if err != nil {
+		return err
+	}
 
-		return s.printer.PrintServices(service)
-	})
+	return s.printer.PrintServices(service)
 }
 
 func (s *ServiceCommand) delete(c *cli.Context) error {
-	return s.deleteHelper(c, "service", func(serviceID string) (string, error) {
-		return s.client.DeleteService(serviceID)
-	})
+	args, err := extractArgs(c.Args(), "SERVICE_NAME")
+	if err != nil {
+		return err
+	}
+
+	serviceID, err := s.resolveSingleEntityIDHelper("service", args["SERVICE_NAME"])
+	if err != nil {
+		return err
+	}
+
+	return s.client.DeleteService(serviceID)
 }
 
 func (s *ServiceCommand) list(c *cli.Context) error {
@@ -226,19 +232,16 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 		Scale: &scale,
 	}
 
-	jobID, err := s.client.UpdateService(serviceID, req)
+	if err := s.client.UpdateService(serviceID, req); err != nil {
+		return err
+	}
+
+	service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
 	if err != nil {
 		return err
 	}
 
-	return s.waitOnJobHelper(c, jobID, "scaling", func(serviceID string) error {
-		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
-		if err != nil {
-			return err
-		}
-
-		return s.printer.PrintServices(service)
-	})
+	return s.printer.PrintServices(service)
 }
 
 func (s *ServiceCommand) update(c *cli.Context) error {
@@ -261,17 +264,14 @@ func (s *ServiceCommand) update(c *cli.Context) error {
 		DeployID: &deployID,
 	}
 
-	jobID, err := s.client.UpdateService(serviceID, req)
+	if err := s.client.UpdateService(serviceID, req); err != nil {
+		return err
+	}
+
+	service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
 	if err != nil {
 		return err
 	}
 
-	return s.waitOnJobHelper(c, jobID, "updating", func(serviceID string) error {
-		service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
-		if err != nil {
-			return err
-		}
-
-		return s.printer.PrintServices(service)
-	})
+	return s.printer.PrintServices(service)
 }

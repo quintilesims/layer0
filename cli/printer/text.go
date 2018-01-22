@@ -193,7 +193,7 @@ func (t *TextPrinter) PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBala
 	return nil
 }
 
-func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
+func (t *TextPrinter) PrintLogs(logs ...models.LogFile) error {
 	for _, l := range logs {
 		fmt.Println(l.ContainerName)
 		for i := 0; i < len(l.ContainerName); i++ {
