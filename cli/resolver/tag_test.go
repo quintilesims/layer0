@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/client/mock_client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -26,8 +25,8 @@ func TestTagResolverQueryParams(t *testing.T) {
 			EntityType: "deploy",
 			Target:     "d*",
 			ExpectedQueries: []url.Values{{
-				client.TagQueryParamType: []string{"deploy"},
-				client.TagQueryParamFuzz: []string{"d*"},
+				models.TagQueryParamType: []string{"deploy"},
+				models.TagQueryParamFuzz: []string{"d*"},
 			}},
 		},
 		{
@@ -35,9 +34,9 @@ func TestTagResolverQueryParams(t *testing.T) {
 			EntityType: "deploy",
 			Target:     "d:1",
 			ExpectedQueries: []url.Values{{
-				client.TagQueryParamType:    []string{"deploy"},
-				client.TagQueryParamFuzz:    []string{"d"},
-				client.TagQueryParamVersion: []string{"1"},
+				models.TagQueryParamType:    []string{"deploy"},
+				models.TagQueryParamFuzz:    []string{"d"},
+				models.TagQueryParamVersion: []string{"1"},
 			}},
 		},
 		{
@@ -45,8 +44,8 @@ func TestTagResolverQueryParams(t *testing.T) {
 			EntityType: "environment",
 			Target:     "e*",
 			ExpectedQueries: []url.Values{{
-				client.TagQueryParamType: []string{"environment"},
-				client.TagQueryParamFuzz: []string{"e*"},
+				models.TagQueryParamType: []string{"environment"},
+				models.TagQueryParamFuzz: []string{"e*"},
 			}},
 		},
 		{
@@ -54,8 +53,8 @@ func TestTagResolverQueryParams(t *testing.T) {
 			EntityType: "job",
 			Target:     "j*",
 			ExpectedQueries: []url.Values{{
-				client.TagQueryParamType: []string{"job"},
-				client.TagQueryParamFuzz: []string{"j*"},
+				models.TagQueryParamType: []string{"job"},
+				models.TagQueryParamFuzz: []string{"j*"},
 			}},
 		},
 		{
@@ -63,8 +62,8 @@ func TestTagResolverQueryParams(t *testing.T) {
 			EntityType: "load_balancer",
 			Target:     "l*",
 			ExpectedQueries: []url.Values{{
-				client.TagQueryParamType: []string{"load_balancer"},
-				client.TagQueryParamFuzz: []string{"l*"},
+				models.TagQueryParamType: []string{"load_balancer"},
+				models.TagQueryParamFuzz: []string{"l*"},
 			}},
 		},
 		{
@@ -73,13 +72,13 @@ func TestTagResolverQueryParams(t *testing.T) {
 			Target:     "e*:l*",
 			ExpectedQueries: []url.Values{
 				{
-					client.TagQueryParamType: []string{"environment"},
-					client.TagQueryParamFuzz: []string{"e*"},
+					models.TagQueryParamType: []string{"environment"},
+					models.TagQueryParamFuzz: []string{"e*"},
 				},
 				{
-					client.TagQueryParamType:          []string{"load_balancer"},
-					client.TagQueryParamFuzz:          []string{"l*"},
-					client.TagQueryParamEnvironmentID: []string{resolvedEnvID},
+					models.TagQueryParamType:          []string{"load_balancer"},
+					models.TagQueryParamFuzz:          []string{"l*"},
+					models.TagQueryParamEnvironmentID: []string{resolvedEnvID},
 				},
 			},
 		},
@@ -88,8 +87,8 @@ func TestTagResolverQueryParams(t *testing.T) {
 			EntityType: "service",
 			Target:     "s*",
 			ExpectedQueries: []url.Values{{
-				client.TagQueryParamType: []string{"service"},
-				client.TagQueryParamFuzz: []string{"s*"},
+				models.TagQueryParamType: []string{"service"},
+				models.TagQueryParamFuzz: []string{"s*"},
 			}},
 		},
 		{
@@ -98,13 +97,13 @@ func TestTagResolverQueryParams(t *testing.T) {
 			Target:     "e*:s*",
 			ExpectedQueries: []url.Values{
 				{
-					client.TagQueryParamType: []string{"environment"},
-					client.TagQueryParamFuzz: []string{"e*"},
+					models.TagQueryParamType: []string{"environment"},
+					models.TagQueryParamFuzz: []string{"e*"},
 				},
 				{
-					client.TagQueryParamType:          []string{"service"},
-					client.TagQueryParamFuzz:          []string{"s*"},
-					client.TagQueryParamEnvironmentID: []string{resolvedEnvID},
+					models.TagQueryParamType:          []string{"service"},
+					models.TagQueryParamFuzz:          []string{"s*"},
+					models.TagQueryParamEnvironmentID: []string{resolvedEnvID},
 				},
 			},
 		},
@@ -113,8 +112,8 @@ func TestTagResolverQueryParams(t *testing.T) {
 			EntityType: "task",
 			Target:     "t*",
 			ExpectedQueries: []url.Values{{
-				client.TagQueryParamType: []string{"task"},
-				client.TagQueryParamFuzz: []string{"t*"},
+				models.TagQueryParamType: []string{"task"},
+				models.TagQueryParamFuzz: []string{"t*"},
 			}},
 		},
 		{
@@ -123,13 +122,13 @@ func TestTagResolverQueryParams(t *testing.T) {
 			Target:     "e*:t*",
 			ExpectedQueries: []url.Values{
 				{
-					client.TagQueryParamType: []string{"environment"},
-					client.TagQueryParamFuzz: []string{"e*"},
+					models.TagQueryParamType: []string{"environment"},
+					models.TagQueryParamFuzz: []string{"e*"},
 				},
 				{
-					client.TagQueryParamType:          []string{"task"},
-					client.TagQueryParamFuzz:          []string{"t*"},
-					client.TagQueryParamEnvironmentID: []string{resolvedEnvID},
+					models.TagQueryParamType:          []string{"task"},
+					models.TagQueryParamFuzz:          []string{"t*"},
+					models.TagQueryParamEnvironmentID: []string{resolvedEnvID},
 				},
 			},
 		},

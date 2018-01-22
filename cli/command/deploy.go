@@ -92,6 +92,16 @@ func (d *DeployCommand) create(c *cli.Context) error {
 }
 
 func (d *DeployCommand) delete(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "DEPLOY_NAME")
+	if err != nil {
+		return err
+	}
+
+	deployID, err := d.resolveSingleEntityIDHelper("deploy", args["DEPLOY_NAME"])
+	if err != nil {
+		return err
+	}
+
 	return d.client.DeleteDeploy(deployID)
 }
 
@@ -135,8 +145,8 @@ func (d *DeployCommand) list(c *cli.Context) error {
 	return d.printer.PrintDeploySummaries(deploySummaries...)
 }
 
-func filterDeploySummaries(deploys []*models.DeploySummary) ([]*models.DeploySummary, error) {
-	catalog := map[string]*models.DeploySummary{}
+func filterDeploySummaries(deploys []models.DeploySummary) ([]models.DeploySummary, error) {
+	catalog := map[string]models.DeploySummary{}
 
 	for _, deploy := range deploys {
 		if name := deploy.DeployName; name != "" {
@@ -161,7 +171,7 @@ func filterDeploySummaries(deploys []*models.DeploySummary) ([]*models.DeploySum
 		}
 	}
 
-	filtered := []*models.DeploySummary{}
+	filtered := []models.DeploySummary{}
 	for _, deploy := range catalog {
 		filtered = append(filtered, deploy)
 	}
