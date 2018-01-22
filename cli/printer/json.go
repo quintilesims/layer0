@@ -10,9 +10,6 @@ import (
 
 type JSONPrinter struct{}
 
-func (j *JSONPrinter) StartSpinner(string) {}
-func (j *JSONPrinter) StopSpinner()        {}
-
 func (j *JSONPrinter) Printf(format string, tokens ...interface{}) {
 	message := struct {
 		Message string

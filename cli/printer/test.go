@@ -8,8 +8,6 @@ import (
 // using gomock.Any() for variadic functions
 type TestPrinter struct{}
 
-func (t *TestPrinter) StartSpinner(string)                                             {}
-func (t *TestPrinter) StopSpinner()                                                    {}
 func (t *TestPrinter) Printf(string, ...interface{})                                   {}
 func (t *TestPrinter) Fatalf(int64, string, ...interface{})                            {}
 func (t *TestPrinter) PrintDeploys(...*models.Deploy) error                            { return nil }

@@ -4,41 +4,18 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/ryanuber/columnize"
 )
 
-type TextPrinter struct {
-	spinner *spinner.Spinner
-}
-
-func (t *TextPrinter) StartSpinner(prefix string) {
-	if t.spinner != nil {
-		t.spinner.Stop()
-	}
-
-	t.spinner = spinner.New(spinner.CharSets[26], 1*time.Second)
-	t.spinner.Prefix = prefix
-	t.spinner.Start()
-}
-
-func (t *TextPrinter) StopSpinner() {
-	if t.spinner != nil {
-		t.spinner.Stop()
-		fmt.Println()
-	}
-}
+type TextPrinter struct{}
 
 func (t *TextPrinter) Printf(format string, tokens ...interface{}) {
-	t.StopSpinner()
 	fmt.Printf(format, tokens...)
 }
 
 func (t *TextPrinter) Println(tokens ...interface{}) {
-	t.StopSpinner()
 	fmt.Println(tokens...)
 }
 
@@ -217,7 +194,6 @@ func (t *TextPrinter) PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBala
 }
 
 func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
-	t.StopSpinner()
 	for _, l := range logs {
 		fmt.Println(l.ContainerName)
 		for i := 0; i < len(l.ContainerName); i++ {

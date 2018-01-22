@@ -5,8 +5,6 @@ import (
 )
 
 type Printer interface {
-	StartSpinner(message string)
-	StopSpinner()
 	PrintDeploys(deploys ...*models.Deploy) error
 	PrintDeploySummaries(deploys ...models.DeploySummary) error
 	PrintEnvironments(environments ...*models.Environment) error
