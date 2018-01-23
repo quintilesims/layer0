@@ -110,3 +110,102 @@ func TestTaskRead(t *testing.T) {
 
 	assert.Equal(t, expected, result)
 }
+
+func TestTaskRead_CannotPullContainer(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAWS := awsc.NewMockClient(ctrl)
+	tagStore := tag.NewMemoryStore()
+	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+
+	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+
+	tags := models.Tags{
+		{
+			EntityID:   "tsk_id",
+			EntityType: "task",
+			Key:        "name",
+			Value:      "tsk_name",
+		},
+		{
+			EntityID:   "tsk_id",
+			EntityType: "task",
+			Key:        "arn",
+			Value:      "arn:aws:ecs:region:012345678910:task/arn",
+		},
+		{
+			EntityID:   "tsk_id",
+			EntityType: "task",
+			Key:        "environment_id",
+			Value:      "env_id",
+		},
+		{
+			EntityID:   "dpl_id",
+			EntityType: "deploy",
+			Key:        "name",
+			Value:      "dpl_name",
+		},
+		{
+			EntityID:   "dpl_id",
+			EntityType: "deploy",
+			Key:        "version",
+			Value:      "deployVersion",
+		},
+	}
+
+	for _, tag := range tags {
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	describeTaskInput := &ecs.DescribeTasksInput{}
+	describeTaskInput.SetCluster("l0-test-env_id")
+	describeTaskInput.SetTasks([]*string{aws.String("arn:aws:ecs:region:012345678910:task/arn")})
+
+	containerECS := &ecs.Container{}
+	containerECS.SetName("container")
+	containerECS.SetLastStatus("status")
+	containerECS.SetReason("CannotPullContainerError: API error (404): repository test not found: does not exist or no pull access\n")
+	containerECS.SetExitCode(0)
+
+	task := &ecs.Task{}
+	task.SetTaskArn("arn:aws:ecs:region:012345678910:task/arn")
+	task.SetTaskDefinitionArn("arn:aws:ecs:region:account:task-definition/dpl_id:deployVersion")
+	task.SetLastStatus(ecs.DesiredStatusStopped)
+	task.SetContainers([]*ecs.Container{containerECS})
+
+	describeTaskOutput := &ecs.DescribeTasksOutput{}
+	describeTaskOutput.SetTasks([]*ecs.Task{task})
+
+	mockAWS.ECS.EXPECT().
+		DescribeTasks(describeTaskInput).
+		Return(describeTaskOutput, nil)
+
+	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
+	result, err := target.Read("tsk_id")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	container := models.Container{
+		ContainerName: "container",
+		Status:        "status",
+		ExitCode:      1,
+		Meta:          "CannotPullContainerError: API error (404): repository test not found: does not exist or no pull access\n",
+	}
+
+	expected := &models.Task{
+		TaskID:        "tsk_id",
+		TaskName:      "tsk_name",
+		EnvironmentID: "env_id",
+		DeployID:      "dpl_id",
+		DeployName:    "dpl_name",
+		DeployVersion: "deployVersion",
+		Status:        ecs.DesiredStatusStopped,
+		Containers:    []models.Container{container},
+	}
+
+	assert.Equal(t, expected, result)
+}
