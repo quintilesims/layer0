@@ -27,7 +27,7 @@ func (l *LocalInstance) Upgrade(version string, force bool) error {
 	module := config.Modules["layer0"]
 
 	// only patch upgrades are allowed
-	if current, ok := module["version"]; ok && !force {
+	if current, ok := module["layer0_version"]; ok && !force {
 		if err := assertPatchUpgrade(current.(string), version); err != nil {
 			return err
 		}
