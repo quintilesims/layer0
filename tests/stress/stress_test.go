@@ -2,6 +2,7 @@ package system
 
 import (
 	"fmt"
+	"os"
 	"strconv"
 	"strings"
 	"testing"
@@ -57,8 +58,8 @@ func runTest(b *testing.B, c StressTestCase) {
 	}
 
 	vars := map[string]string{
-		"endpoint":            config.FLAG_ENDPOINT,
-		"token":               config.FLAG_TOKEN,
+		"endpoint":            os.Getenv(config.ENVVAR_ENDPOINT),
+		"token":               os.Getenv(config.ENVVAR_TOKEN),
 		"num_deploys":         strconv.Itoa(c.NumDeploys),
 		"num_deploy_families": strconv.Itoa(c.NumDeployFamilies),
 		"num_environments":    strconv.Itoa(c.NumEnvironments),
@@ -71,7 +72,6 @@ func runTest(b *testing.B, c StressTestCase) {
 		tftest.Dir("module"),
 		tftest.Vars(vars),
 		tftest.DryRun(*dry),
-		tftest.Log(b),
 	)
 
 	layer0 := clients.NewLayer0TestClient(b, vars["endpoint"], vars["token"])
