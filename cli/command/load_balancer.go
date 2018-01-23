@@ -31,7 +31,7 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 			{
 				Name:      "addport",
 				Usage:     "Add a new listener port (HOST_PORT:CONTAINER_PORT/PROTOCOL) to load balancer LOAD_BALANCER_NAME",
-				Action:    l.addport,
+				Action:    l.addPort,
 				ArgsUsage: "LOAD_BALANCER_NAME HOST_PORT:CONTAINER_PORT/PROTOCOL",
 				Flags: []cli.Flag{
 					cli.StringFlag{
@@ -95,7 +95,7 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 			{
 				Name:      "dropport",
 				Usage:     "Drop the listener with host port HOST_PORT from load balancer LOAD_BALANCER_NAME",
-				Action:    l.dropport,
+				Action:    l.dropPort,
 				ArgsUsage: "LOAD_BALANCER_NAME HOST_PORT",
 			},
 			{
@@ -142,7 +142,7 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 	}
 }
 
-func (l *LoadBalancerCommand) addport(c *cli.Context) error {
+func (l *LoadBalancerCommand) addPort(c *cli.Context) error {
 	args, err := extractArgs(c.Args(), "LOAD_BALANCER_NAME", "PORT")
 	if err != nil {
 		return err
@@ -260,7 +260,7 @@ func (l *LoadBalancerCommand) delete(c *cli.Context) error {
 	return l.client.DeleteLoadBalancer(loadBalancerID)
 }
 
-func (l *LoadBalancerCommand) dropport(c *cli.Context) error {
+func (l *LoadBalancerCommand) dropPort(c *cli.Context) error {
 	args, err := extractArgs(c.Args(), "LOAD_BALANCER_NAME", "HOST_PORT")
 	if err != nil {
 		return err
