@@ -176,7 +176,7 @@ func (c *ContextAPIConfig) Validate() error {
 
 	for _, name := range requiredVars {
 		if !c.C.IsSet(name) {
-			return fmt.Errorf("Required Variable %s is not set!", name)
+			return fmt.Errorf("Required Variable '%s' is not set!", name)
 		}
 	}
 

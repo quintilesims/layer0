@@ -64,7 +64,7 @@ func ValidateCLIContext(c *cli.Context) error {
 
 	for _, name := range requiredVars {
 		if !c.IsSet(name) {
-			return fmt.Errorf("Required Variable %s is not set!", name)
+			return fmt.Errorf("Required Variable '%s' is not set!", name)
 		}
 	}
 
