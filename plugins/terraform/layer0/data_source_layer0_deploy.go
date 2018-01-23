@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/quintilesims/layer0/client"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func dataSourceLayer0Deploy() *schema.Resource {
@@ -32,9 +33,9 @@ func dataSourceLayer0DeployRead(d *schema.ResourceData, meta interface{}) error 
 	apiClient := meta.(client.Client)
 
 	query := url.Values{}
-	query.Set(client.TagQueryParamType, "deploy")
-	query.Set(client.TagQueryParamName, d.Get("name").(string))
-	query.Set(client.TagQueryParamVersion, d.Get("version").(string))
+	query.Set(models.TagQueryParamType, "deploy")
+	query.Set(models.TagQueryParamName, d.Get("name").(string))
+	query.Set(models.TagQueryParamVersion, d.Get("version").(string))
 
 	tags, err := apiClient.ListTags(query)
 	if err != nil {

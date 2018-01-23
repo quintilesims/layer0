@@ -123,12 +123,10 @@ type APIConfig interface {
 	InstanceProfile() string
 	PublicSubnets() []string
 	PrivateSubnets() []string
-	DynamoJobTable() string
 	DynamoTagTable() string
 	DynamoLockTable() string
 	LogGroupName() string
 	SSHKeyPair() string
-	JobExpiry() time.Duration
 	LockExpiry() time.Duration
 	TimeBetweenRequests() time.Duration
 	MaxRetries() int

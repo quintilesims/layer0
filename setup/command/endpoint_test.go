@@ -66,7 +66,6 @@ func TestEndpointDev(t *testing.T) {
 			instance.OUTPUT_AWS_LINUX_SERVICE_AMI,
 			instance.OUTPUT_WINDOWS_SERVICE_AMI,
 			instance.OUTPUT_AWS_DYNAMO_TAG_TABLE,
-			instance.OUTPUT_AWS_DYNAMO_JOB_TABLE,
 			instance.OUTPUT_AWS_DYNAMO_LOCK_TABLE,
 		}
 

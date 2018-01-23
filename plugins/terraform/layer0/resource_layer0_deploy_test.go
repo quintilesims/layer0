@@ -23,16 +23,7 @@ func TestResourceDeployCreateRead(t *testing.T) {
 
 	mockClient.EXPECT().
 		CreateDeploy(req).
-		Return("job_id", nil)
-
-	job := &models.Job{
-		Status: models.CompletedJobStatus,
-		Result: "dpl_id",
-	}
-
-	mockClient.EXPECT().
-		ReadJob("job_id").
-		Return(job, nil)
+		Return("dpl_id", nil)
 
 	deploy := &models.Deploy{
 		DeployID:   "dpl_id",
@@ -68,11 +59,7 @@ func TestResourceDeployDelete(t *testing.T) {
 
 	mockClient.EXPECT().
 		DeleteDeploy("dpl_id").
-		Return("job_id", nil)
-
-	mockClient.EXPECT().
-		ReadJob("job_id").
-		Return(&models.Job{Status: models.CompletedJobStatus}, nil)
+		Return(nil)
 
 	deployResource := Provider().(*schema.Provider).ResourcesMap["layer0_deploy"]
 	d := schema.TestResourceDataRaw(t, deployResource.Schema, map[string]interface{}{})
