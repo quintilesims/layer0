@@ -34,14 +34,9 @@ func (e *EnvironmentCommand) Command() cli.Command {
 						Usage: "type of the ec2 instances to use in the environment cluster",
 					},
 					cli.IntFlag{
-						Name:  "min-scale",
+						Name:  "scale",
 						Value: 0,
-						Usage: "minimum allowed scale of the environment cluster",
-					},
-					cli.IntFlag{
-						Name:  "max-scale",
-						Value: config.DefaultEnvironmentMaxScale,
-						Usage: "maximum allowed scale of the environment cluster",
+						Usage: "cluster size. setting scale explicitly, results in a static environment",
 					},
 					cli.StringFlag{
 						Name:  "user-data",
@@ -78,17 +73,13 @@ func (e *EnvironmentCommand) Command() cli.Command {
 			},
 			{
 				Name:      "set-scale",
-				Usage:     "update the min/max scale of an environment cluster",
+				Usage:     "update the scale of a static environment cluster",
 				Action:    e.setScale,
 				ArgsUsage: "ENVIRONMENT_NAME",
 				Flags: []cli.Flag{
 					cli.IntFlag{
-						Name:  "min-scale",
-						Usage: "minimum allowed scale of the environment cluster",
-					},
-					cli.IntFlag{
-						Name:  "max-scale",
-						Usage: "maximum allowed scale of the environment cluster",
+						Name:  "scale",
+						Usage: "size of the environment cluster",
 					},
 				},
 			},
@@ -139,11 +130,15 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  args["ENVIRONMENT_NAME"],
 		InstanceType:     c.String("type"),
-		MinScale:         c.Int("min-scale"),
-		MaxScale:         c.Int("max-scale"),
+		Scale:            c.Int("scale"),
+		EnvironmentType:  config.DefaultEnvironmentType,
 		UserDataTemplate: userData,
 		OperatingSystem:  c.String("os"),
 		AMIID:            c.String("ami"),
+	}
+
+	if c.IsSet("scale") {
+		req.EnvironmentType = models.EnvironmentTypeStatic
 	}
 
 	if err := req.Validate(); err != nil {
@@ -211,14 +206,9 @@ func (e *EnvironmentCommand) setScale(c *cli.Context) error {
 	}
 
 	req := models.UpdateEnvironmentRequest{}
-	if c.IsSet("min-scale") {
-		minScale := c.Int("min-scale")
-		req.MinScale = &minScale
-	}
-
-	if c.IsSet("max-scale") {
-		maxScale := c.Int("max-scale")
-		req.MaxScale = &maxScale
+	if c.IsSet("scale") {
+		scale := c.Int("scale")
+		req.Scale = &scale
 	}
 
 	if err := req.Validate(); err != nil {

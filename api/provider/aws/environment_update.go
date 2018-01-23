@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -18,24 +19,23 @@ import (
 func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvironmentRequest) error {
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	if req.MinScale != nil || req.MaxScale != nil {
-		autoScalingGroupName := fqEnvironmentID
-		asg, err := e.readASG(autoScalingGroupName)
+	if req.Scale != nil {
+		tags, err := e.TagStore.SelectByTypeAndID("environment", environmentID)
 		if err != nil {
 			return err
 		}
 
-		minSize := aws.Int64Value(asg.MinSize)
-		if req.MinScale != nil {
-			minSize = int64(*req.MinScale)
+		environmentType := ""
+		if tag, ok := tags.WithKey("type").First(); ok {
+			environmentType = tag.Value
 		}
 
-		maxSize := aws.Int64Value(asg.MaxSize)
-		if req.MaxScale != nil {
-			maxSize = int64(*req.MaxScale)
+		if environmentType != models.EnvironmentTypeStatic {
+			return fmt.Errorf("updating dynamic environment's size isn't supported")
 		}
 
-		if err := e.updateASGSize(autoScalingGroupName, minSize, maxSize); err != nil {
+		autoScalingGroupName := fqEnvironmentID
+		if err := e.updateASGSize(autoScalingGroupName, aws.IntValue(req.Scale)); err != nil {
 			return err
 		}
 	}
@@ -110,11 +110,11 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 	return nil
 }
 
-func (e *EnvironmentProvider) updateASGSize(autoScalingGroupName string, minSize, maxSize int64) error {
+func (e *EnvironmentProvider) updateASGSize(autoScalingGroupName string, size int) error {
 	input := &autoscaling.UpdateAutoScalingGroupInput{}
 	input.SetAutoScalingGroupName(autoScalingGroupName)
-	input.SetMinSize(minSize)
-	input.SetMaxSize(maxSize)
+	input.SetMinSize(int64(size))
+	input.SetMaxSize(int64(size))
 
 	if err := input.Validate(); err != nil {
 		return err

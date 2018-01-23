@@ -13,7 +13,7 @@ const (
 	DefaultLockExpiry              = time.Hour * 1
 	DefaultPort                    = 9090
 	DefaultEnvironmentInstanceType = "t2.small"
-	DefaultEnvironmentMaxScale     = 100
+	DefaultEnvironmentType         = models.EnvironmentTypeDynamic
 	DefaultEnvironmentOS           = "linux"
 	DefaultServiceScale            = 1
 )
