@@ -1,84 +1,42 @@
 #!/usr/bin/env bats
 
-@test "environment create test" {
-    l0 environment create test
+@test "create" {
+  l0 environment create env_name
+  l0 deploy create ./common/Service.Dockerrun.aws.json dpl_name1
+  l0 deploy create ./common/Service.Dockerrun.aws.json dpl_name2
+  l0 loadbalancer create --port 80:80/http env_name lb_name1
+  l0 service create env_name svc_name1 dpl_name1
+  l0 service create --loadbalancer lb_name1 --scale 2 env_name svc_name2 dpl_name1
 }
 
-@test "loadbalancer create --port 80:80/http test loadbalancer1" {
-    l0 loadbalancer create --port 80:80/http test loadbalancer1
+@test "get" {
+  l0 service get svc_name1
+  l0 service get svc_name2
+  l0 service get svc_name*
 }
 
-@test "deploy create guestbook" {
-    l0 deploy create ./common/Service.Dockerrun.aws.json guestbook
+@test "list" {
+  l0 service list
 }
 
-@test "service create --loadbalancer loadbalancer1 test service1 guestbook:latest" {
-    l0 service create --loadbalancer loadbalancer1 test service1 guestbook:latest
+@test "scale" {
+  l0 service scale svc_name1 2
 }
 
-@test "service create test service2 guestbook:latest" {
-    l0 service create test service2 guestbook:latest
+@test "update" {
+  l0 service update svc_name1 dpl_name2
 }
 
-@test "service create test service3 guestbook:latest" {
-    l0 service create test service3 guestbook:latest
+@test "logs" {
+  l0 service logs svc_name1
+  l0 service logs --tail 100 --start '2001-01-01 01:01' --end '2012-12-12 12:12' svc_name1
 }
 
-@test "service list" {
-    l0 service list
-}
-
-@test "service get service1" {
-    l0 service get service1
-}
-
-@test "service scale service1 2" {
-    l0 --no-wait service scale service1 2
-}
-
-@test "service scale service2 2" {
-    l0 service scale service2 2
-}
-
-@test "deploy create guestbook" {
-    l0 deploy create ./common/Service.Dockerrun.aws.json guestbook
-}
-
-@test "service update service1 guestbook:latest" {
-    l0 --no-wait service update service1 guestbook:latest
-}
-
-@test "service update service2 guestbook:latest" {
-    l0 --no-wait service update service2 guestbook:latest
-}
-
-@test "service update service3 guestbook:latest" {
-    l0 service update service3 guestbook:latest
-}
-
-@test "service logs service1" {
-    l0 service logs service1
-}
-
-@test "service logs --tail 100 service1" {
-    l0 service logs --tail 100 service1
-}
-
-@test "service logs --start 2001-01-01 01:01 --end 2012-12-12 12:12 service1" {
-    l0 service logs --start '2001-01-01 01:01' --end '2012-12-12 12:12' service1
-}
-
-# twice since we created 2 deploys named guestbook
-@test "service: delete guestbook deploy" {
-    l0 deploy delete guestbook:latest
-    l0 deploy delete guestbook:latest
-}
-
-@test "service delete service1" {
-    l0 service delete service1
-}
-
-# this deletes the remaining service(s), load balancer(s), and task(s)
-@test "environment delete test" {
-    l0 environment delete test
+@test "delete" {
+  l0 service delete svc_name1
+  l0 service delete svc_name2
+  l0 loadbalancer delete lb_name1
+  l0 deploy delete dpl_name1
+  l0 deploy delete dpl_name2
+  l0 environment delete env_name
 }
