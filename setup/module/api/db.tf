@@ -17,22 +17,10 @@ resource "aws_dynamodb_table" "tags" {
   }
 }
 
-resource "aws_dynamodb_table" "jobs" {
-  name           = "l0-${var.name}-jobs"
-  read_capacity  = 25
-  write_capacity = 10
-  hash_key       = "JobID"
-
-  attribute {
-    name = "JobID"
-    type = "S"
-  }
-}
-
 resource "aws_dynamodb_table" "lock" {
   name           = "l0-${var.name}-lock"
-  read_capacity  = 5
-  write_capacity = 5
+  read_capacity  = 25
+  write_capacity = 10
   hash_key       = "LockID"
 
   attribute {

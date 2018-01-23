@@ -58,18 +58,18 @@ output "windows_service_ami" {
   value = "${module.api.windows_service_ami}"
 }
 
-output "dynamo_tag_table" {
-  value = "${module.api.dynamo_tag_table}"
+output "log_group_name" {
+  value = "${module.api.log_group_name}"
 }
 
-output "dynamo_job_table" {
-  value = "${module.api.dynamo_job_table}"
+output "dynamo_tag_table" {
+  value = "${module.api.dynamo_tag_table}"
 }
 
 output "dynamo_lock_table" {
   value = "${module.api.dynamo_lock_table}"
 }
 
-output "log_group_name" {
-  value = "${module.api.log_group}"
+output "region" {
+  value = "${var.region}"
 }
