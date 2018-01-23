@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/urfave/cli"
@@ -136,7 +135,7 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
+	service, err := s.client.ReadService(serviceID)
 	if err != nil {
 		return err
 	}
@@ -218,14 +217,14 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 		return err
 	}
 
-	serviceID, err := s.resolveSingleEntityIDHelper("service", args["SERVICE_NAME"])
-	if err != nil {
-		return err
-	}
-
 	scale, err := strconv.Atoi(args["COUNT"])
 	if err != nil {
 		return fmt.Errorf("Failed to parse COUNT argument: %v", args["COUNT"])
+	}
+
+	serviceID, err := s.resolveSingleEntityIDHelper("service", args["SERVICE_NAME"])
+	if err != nil {
+		return err
 	}
 
 	req := models.UpdateServiceRequest{
@@ -236,7 +235,7 @@ func (s *ServiceCommand) scale(c *cli.Context) error {
 		return err
 	}
 
-	service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
+	service, err := s.client.ReadService(serviceID)
 	if err != nil {
 		return err
 	}
@@ -268,7 +267,7 @@ func (s *ServiceCommand) update(c *cli.Context) error {
 		return err
 	}
 
-	service, err := client.WaitForDeployment(s.client, serviceID, c.GlobalDuration(config.FLAG_TIMEOUT))
+	service, err := s.client.ReadService(serviceID)
 	if err != nil {
 		return err
 	}

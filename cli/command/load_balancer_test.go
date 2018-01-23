@@ -284,7 +284,6 @@ func TestReadLoadBalancerInputErrors(t *testing.T) {
 			}
 		})
 	}
-
 }
 
 func TestParsePort(t *testing.T) {

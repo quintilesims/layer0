@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/quintilesims/layer0/common/models"
@@ -155,29 +154,14 @@ func (t *TaskCommand) read(c *cli.Context) error {
 		return err
 	}
 
-	taskSummaries, err := t.client.ListTasks()
-	if err != nil {
-		return err
-	}
-
-	taskExists := map[string]bool{}
-	for _, taskSummary := range taskSummaries {
-		taskExists[taskSummary.TaskID] = true
-	}
-
-	tasks := make([]*models.Task, 0, len(taskIDs))
-	for _, taskID := range taskIDs {
-		if !taskExists[taskID] {
-			log.Printf("[DEBUG] Resolver returned an expired task '%s'", taskID)
-			continue
-		}
-
+	tasks := make([]*models.Task, len(taskIDs))
+	for i, taskID := range taskIDs {
 		task, err := t.client.ReadTask(taskID)
 		if err != nil {
 			return err
 		}
 
-		tasks = append(tasks, task)
+		tasks[i] = task
 	}
 
 	return t.printer.PrintTasks(tasks...)
