@@ -29,7 +29,7 @@ Powerful tools that give you the basic building blocks for high-availability, sc
 
 ### Services
 
-Your running Layer0 applications. We also use the term `service` for tools such as Consul, for which we provide a pre-built [sample implementation](guides/consul) using Layer0.
+Your running Layer0 applications. We also use the term `service` for tools such as Consul, for which we provide a pre-built [sample implementation](https://github.com/quintilesims/consul) using Layer0.
 
 ### Environments
 

@@ -1,6 +1,6 @@
 # An Iterative Walkthrough
 
-This guide aims to take you through three increasingly-complex deployment examples using Layer0.
+This guide aims to take you through two increasingly-complex deployment examples using Layer0.
 Successive sections build upon the previous ones, and each deployment can be completed either through the Layer0 CLI directly, or through Terraform using our custom [Layer0 Terraform Provider](/reference/terraform-plugin).
 
 We assume that you're using Layer0 v0.9.0 or later.
@@ -17,7 +17,6 @@ As you do so, we will assume that your working directory matches the part of the
 
 - [Deployment 1](deployment-1): Deploying a web service (Guestbook)
 - [Deployment 2](deployment-2): Deploying Guestbook and a data store service (Redis)
-- [Deployment 3](deployment-3): Deploying Guestbook, Redis, and a service discovery service (Consul)
 
 
 ---

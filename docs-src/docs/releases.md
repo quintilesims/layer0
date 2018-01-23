@@ -1,5 +1,6 @@
 | Version | macOS | Linux | Windows |
 | - | - | - | - |
+| v0.10.4 | [macOS](https://s3.amazonaws.com/xfra-layer0/release/v0.10.4/layer0_v0.10.4_darwin.zip) | [Linux](https://s3.amazonaws.com/xfra-layer0/release/v0.10.4/layer0_v0.10.4_linux.zip) | [Windows](https://s3.amazonaws.com/xfra-layer0/release/v0.10.4/layer0_v0.10.4_windows.zip)
 | v0.10.3 | [macOS](https://s3.amazonaws.com/xfra-layer0/release/v0.10.3/layer0_v0.10.3_darwin.zip) | [Linux](https://s3.amazonaws.com/xfra-layer0/release/v0.10.3/layer0_v0.10.3_linux.zip) | [Windows](https://s3.amazonaws.com/xfra-layer0/release/v0.10.3/layer0_v0.10.3_windows.zip)
 | v0.10.2 | [macOS](https://s3.amazonaws.com/xfra-layer0/release/v0.10.2/layer0_v0.10.2_darwin.zip) | [Linux](https://s3.amazonaws.com/xfra-layer0/release/v0.10.2/layer0_v0.10.2_linux.zip) | [Windows](https://s3.amazonaws.com/xfra-layer0/release/v0.10.2/layer0_v0.10.2_windows.zip)
 | v0.10.1 | [macOS](https://s3.amazonaws.com/xfra-layer0/release/v0.10.1/layer0_v0.10.1_darwin.zip) | [Linux](https://s3.amazonaws.com/xfra-layer0/release/v0.10.1/layer0_v0.10.1_linux.zip) | [Windows](https://s3.amazonaws.com/xfra-layer0/release/v0.10.1/layer0_v0.10.1_windows.zip)

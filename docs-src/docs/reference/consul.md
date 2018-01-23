@@ -24,8 +24,6 @@ Layer0 Services that use Consul will run Registrator alongside their application
 Layer0 Services that use Consul will need to add the [Registrator](#registrator-container-definition) and [Consul Agent](#consul-agent-container-definition) definitions to the
 `containerDefinitions` section of your Deploys. You must also add the [Docker Socket](#docker-socket-volume-definition) definition to the `volumes` section of your Deploys.
 
-For an example of a Deploy that uses Consul, see the [Guestbook with Consul](/guides/guestbook_consul) guide.
-
 ---
 ## Registrator Container Definition
 ```
@@ -50,7 +48,7 @@ For an example of a Deploy that uses Consul, see the [Guestbook with Consul](/gu
 ## Consul Agent Container Definition
 
 !!!warning
-You must replace `<url>` with your Layer0 Consul Load Balancer's
+    You must replace `<url>` with your Layer0 Consul Load Balancer's URL.
 
 ```
 {
