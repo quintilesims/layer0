@@ -63,6 +63,16 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				Usage:     "delete an environment",
 				ArgsUsage: "ENVIRONMENT_NAME",
 				Action:    e.delete,
+				Flags: []cli.Flag{
+					cli.BoolFlag{
+						Name:  "r",
+						Usage: "delete all dependecies (services, load balancers, and tasks)",
+					},
+					cli.BoolFlag{
+						Name:  "recursive",
+						Usage: "delete all dependecies (services, load balancers, and tasks)",
+					},
+				},
 			},
 			{
 				Name:      "list",
@@ -166,9 +176,60 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) delete(c *cli.Context) error {
+	if c.Bool("r") || c.Bool("recursive") {
+		environmentID, err := e.entityIDHelper(c, "environment")
+		if err != nil {
+			return err
+		}
+
+		if err := e.deleteDependecies(environmentID); err != nil {
+			return err
+		}
+	}
+
 	return e.deleteHelper(c, "environment", func(environmentID string) (string, error) {
 		return e.client.DeleteEnvironment(environmentID)
 	})
+}
+
+func (e *EnvironmentCommand) deleteDependecies(environmentID string) error {
+	// Delete Load Balancers
+	loadBalancers, err := e.client.ListLoadBalancers()
+	if err != nil {
+		return err
+	}
+
+	for _, loadBalancer := range loadBalancers {
+		if loadBalancer.EnvironmentID == environmentID {
+			e.client.DeleteLoadBalancer(loadBalancer.LoadBalancerID)
+		}
+	}
+
+	// Delete Tasks
+	tasks, err := e.client.ListTasks()
+	if err != nil {
+		return err
+	}
+
+	for _, task := range tasks {
+		if task.EnvironmentID == environmentID {
+			e.client.DeleteTask(task.TaskID)
+		}
+	}
+
+	// Delete Services
+	services, err := e.client.ListServices()
+	if err != nil {
+		return err
+	}
+
+	for _, service := range services {
+		if service.EnvironmentID == environmentID {
+			e.client.DeleteTask(service.ServiceID)
+		}
+	}
+
+	return nil
 }
 
 func (e *EnvironmentCommand) list(c *cli.Context) error {
