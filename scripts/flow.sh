@@ -33,7 +33,7 @@ delete() {
     for id in $environment_ids; do
         if [ "$id" != "api" ]; then
             echo -e $BULLET "$id"
-            l0 environment delete $id --wait > /dev/null &
+            l0 environment delete $id > /dev/null
         fi
     done
 
