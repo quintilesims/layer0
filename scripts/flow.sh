@@ -33,7 +33,7 @@ delete() {
     for id in $load_balancer_ids; do
         if [ "$id" != "api" ]; then
             echo -e $BULLET "$id"
-            l0 loadbalancer delete $id > /dev/null &
+            l0 loadbalancer delete $id > /dev/null 
         fi
     done
 
@@ -42,7 +42,7 @@ delete() {
     for id in $service_ids; do
         if [ "$id" != "api" ]; then
             echo -e $BULLET "$id"
-            l0 service delete $id > /dev/null &
+            l0 service delete $id > /dev/null
         fi
     done
 
@@ -51,7 +51,7 @@ delete() {
     for id in $environment_ids; do
         if [ "$id" != "api" ]; then
             echo -e $BULLET "$id"
-            l0 environment delete $id > /dev/null &
+            l0 environment delete $id > /dev/null
         fi
     done
 
