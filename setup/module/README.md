@@ -24,17 +24,17 @@ Usage
 
 ```hcl
 module "layer0" {
-  source       = "https://github.com/quintilesims/layer0/setup//layer0?ref=v1.0.0"
-  name         = "foobar"
-  layer0_version      = "v1.0.0"
-  access_key   = "ABC123"
-  secret_key   = "ABC123"
-  region       = "us-west-2"
-  ssh_key_pair = "my-key"
-  dockercfg    = "${file("~/.docker/dockercfg")}"
-  username     = "layer0"
-  password     = "password123"
-  vpc_id       = ""
+  source         = "https://github.com/quintilesims/layer0/setup//layer0?ref=v1.0.0"
+  name           = "foobar"
+  layer0_version = "v1.0.0"
+  access_key     = "ABC123"
+  secret_key     = "ABC123"
+  region         = "us-west-2"
+  ssh_key_pair   = "my-key"
+  dockercfg      = "${file("~/.docker/dockercfg")}"
+  username       = "layer0"
+  password       = "password123"
+  vpc_id         = ""
 }
 ```
 
