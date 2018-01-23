@@ -44,14 +44,6 @@ git merge remotes/origin/master
 git push -u origin release
 ```
 
-## Add Release Notes
-
-Update [RELEASE_NOTES.md](https://github.com/quintilesims/layer0/blob/release/RELEASE_NOTES.md) with information about the current release. 
-This can either be done locally or through the [Github UI](https://github.com/quintilesims/layer0/edit/release/RELEASE_NOTES.md). 
-Please follow the existing formatting when adding release notes.
-Commit your changes and push them to the `release` branch when you are done.
-
-
 ## Merge Release into Master
 
 With the release notes and documentation updated, [create a pull request](https://github.com/quintilesims/layer0/compare) from the `release` branch targeting the `master` branch (_base: master, compare: release_). 
@@ -73,16 +65,18 @@ git tag -a vX.X.X -m "<some message about the version>"
 git push origin --tag
 ```
 
+## Add Release Notes
 
-## Build and Push the Layer0 Binaries
+Add release notes to the release with this format.
+```
+### Features
+* Features here.
 
-To build and release the Layer0 binaries and Docker images, run the following from the `layer0` repo: 
+###Fixes
+* Bug fixes here.
 ```
-git checkout vX.X.X
-make release
-```
-This process will take a couple minutes. 
-Once completed, the zipped release files will be located in the [xfra-layer0](https://console.aws.amazon.com/s3/home?region=us-west-2#&bucket=xfra-layer0&prefix=release) S3 bucket. 
+This can be done through the [Github UI](https://github.com/quintilesims/layer0/releases) by clicking the edit button on the latest release.
+Please follow the existing formatting when adding release notes.
 
 
 # Announce the release
