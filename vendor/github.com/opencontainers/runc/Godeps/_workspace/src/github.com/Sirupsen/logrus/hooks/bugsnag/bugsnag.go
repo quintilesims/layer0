@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/bugsnag/bugsnag-go"
 )
 
 type bugsnagHook struct{}
