@@ -4,7 +4,7 @@ variable "name" {}
 
 variable "region" {}
 
-variable "version" {}
+variable "layer0_version" {}
 
 variable "vpc_id" {}
 
@@ -15,8 +15,6 @@ variable "password" {}
 variable "ssh_key_pair" {}
 
 variable "dockercfg" {}
-
-variable "time_between_requests" {}
 
 variable "tags" {
   description = "A map of tags to add to all resources"

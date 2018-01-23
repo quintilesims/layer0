@@ -34,7 +34,7 @@ output "iam_role" {
   value = "${aws_iam_role.ecs.id}"
 }
 
-output "log_group" {
+output "log_group_name" {
   value = "${aws_cloudwatch_log_group.mod.id}"
 }
 
@@ -48,10 +48,6 @@ output "user_secret_key" {
 
 output "dynamo_tag_table" {
   value = "${aws_dynamodb_table.tags.id}"
-}
-
-output "dynamo_job_table" {
-  value = "${aws_dynamodb_table.jobs.id}"
 }
 
 output "dynamo_lock_table" {
