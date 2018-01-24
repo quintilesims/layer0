@@ -23,8 +23,7 @@ func TestCreateEnvironment(t *testing.T) {
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName: "env",
 		InstanceType:    "t2.small",
-		MinScale:        1,
-		MaxScale:        3,
+		Scale:           3,
 		OperatingSystem: "linux",
 		AMIID:           "ami123",
 	}
@@ -85,9 +84,8 @@ func TestGetEnvironment(t *testing.T) {
 		EnvironmentID:   "e1",
 		EnvironmentName: "env",
 		InstanceType:    "t2.small",
-		MinScale:        1,
 		CurrentScale:    2,
-		MaxScale:        3,
+		DesiredScale:    3,
 		SecurityGroupID: "sg1",
 		OperatingSystem: "linux",
 		AMIID:           "ami123",
@@ -159,14 +157,12 @@ func TestUpdateEnvironment(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
 
-	minScale := 2
-	maxScale := 5
+	scale := 2
 	links := []string{"e2"}
 
 	req := models.UpdateEnvironmentRequest{
-		MinScale: &minScale,
-		MaxScale: &maxScale,
-		Links:    &links,
+		Scale: &scale,
+		Links: &links,
 	}
 
 	mockJobStore.EXPECT().

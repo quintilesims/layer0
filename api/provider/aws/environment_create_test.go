@@ -13,7 +13,7 @@ func TestEnvironment_createTags(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	environment := NewEnvironmentProvider(nil, tagStore, nil)
 
-	if err := environment.createTags("env_id", "env_name", "env_os"); err != nil {
+	if err := environment.createTags("env_id", "env_name", "static", "env_os"); err != nil {
 		t.Fatal(err)
 	}
 

@@ -22,6 +22,10 @@ func (r CreateEnvironmentRequest) Validate() error {
 		return fmt.Errorf("EnvironmentName is required")
 	}
 
+	if r.Scale < 0 {
+		return fmt.Errorf("Scale must be a positive integer")
+	}
+
 	if strings.EqualFold(r.EnvironmentType, EnvironmentTypeDynamic) &&
 		!strings.EqualFold(r.OperatingSystem, LinuxOS) {
 		return fmt.Errorf("%s is not a supported OS for dynamic environments", r.OperatingSystem)

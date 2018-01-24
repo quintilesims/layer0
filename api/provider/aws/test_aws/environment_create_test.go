@@ -40,11 +40,11 @@ func TestEnvironmentCreate(t *testing.T) {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "env_name",
+		EnvironmentType:  "static",
 		InstanceType:     "t2.small",
 		UserDataTemplate: []byte("some user data"),
 		AMIID:            "some ami",
-		MinScale:         2,
-		MaxScale:         5,
+		Scale:            2,
 		OperatingSystem:  "windows",
 	}
 
@@ -93,7 +93,7 @@ func TestEnvironmentCreate(t *testing.T) {
 	createASGInput.SetLaunchConfigurationName("l0-test-env_id")
 	createASGInput.SetVPCZoneIdentifier("priv1,priv2")
 	createASGInput.SetMinSize(2)
-	createASGInput.SetMaxSize(5)
+	createASGInput.SetMaxSize(2)
 	createASGInput.SetTags([]*autoscaling.Tag{tag})
 
 	mockAWS.AutoScaling.EXPECT().
@@ -122,6 +122,12 @@ func TestEnvironmentCreate(t *testing.T) {
 			EntityType: "environment",
 			Key:        "name",
 			Value:      "env_name",
+		},
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
+			Key:        "type",
+			Value:      "static",
 		},
 		{
 			EntityID:   "env_id",
@@ -158,6 +164,7 @@ func TestEnvironmentCreateDefaults(t *testing.T) {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName: "env_name",
+		EnvironmentType: "static",
 	}
 
 	// using create/read helpers instead of gomock.Any() for readability

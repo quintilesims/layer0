@@ -42,45 +42,54 @@ func ExampleTextPrintEnvironments() {
 		{
 			EnvironmentID:   "id1",
 			EnvironmentName: "name1",
+			EnvironmentType: "static",
 			OperatingSystem: "linux",
-			MinScale:        1,
 			CurrentScale:    2,
-			MaxScale:        3,
+			DesiredScale:    3,
 			InstanceType:    "t2.small",
 			Links:           []string{"id2"},
 		},
 		{
 			EnvironmentID:   "id2",
 			EnvironmentName: "name2",
+			EnvironmentType: "static",
 			OperatingSystem: "windows",
-			MinScale:        2,
-			CurrentScale:    5,
-			MaxScale:        50,
+			CurrentScale:    2,
+			DesiredScale:    5,
 			InstanceType:    "t2.small",
 			Links:           []string{"id1", "api"},
+		},
+		{
+			EnvironmentID:   "id3",
+			EnvironmentName: "name3",
+			EnvironmentType: "dynamic",
+			OperatingSystem: "linux",
 		},
 	}
 
 	printer.PrintEnvironments(environments...)
 	// Output:
-	// ENVIRONMENT ID  ENVIRONMENT NAME  OS       SCALE   INSTANCE TYPE  LINKS
-	// id1             name1             linux    1:2:3   t2.small       id2
-	// id2             name2             windows  2:5:50  t2.small       id1
-	//                                                                   api
+	// ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS       SCALE  INSTANCE TYPE  LINKS
+	// id1             name1             static   linux    2/3    t2.small       id2
+	// id2             name2             static   windows  2/5    t2.small       id1
+	//                                                            api
+	// id3             name3             dynamic  linux    n/a
 }
 
 func ExampleTextPrintEnvironmentSummaries() {
 	printer := &TextPrinter{}
 	environments := []*models.EnvironmentSummary{
-		{EnvironmentID: "id1", EnvironmentName: "name1", OperatingSystem: "linux"},
-		{EnvironmentID: "id2", EnvironmentName: "name2", OperatingSystem: "windows"},
+		{EnvironmentID: "id1", EnvironmentName: "name1", OperatingSystem: "linux", EnvironmentType: "static"},
+		{EnvironmentID: "id2", EnvironmentName: "name2", OperatingSystem: "linux", EnvironmentType: "dynamic"},
+		{EnvironmentID: "id3", EnvironmentName: "name3", OperatingSystem: "windows", EnvironmentType: "static"},
 	}
 
 	printer.PrintEnvironmentSummaries(environments...)
 	// Output:
-	// ENVIRONMENT ID  ENVIRONMENT NAME  OS
-	// id1             name1             linux
-	// id2             name2             windows
+	// ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS
+	// id1             name1             static   linux
+	// id2             name2             dynamic  linux
+	// id3             name3             static   windows
 }
 
 func ExampleTextPrintJobs() {

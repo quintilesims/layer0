@@ -15,9 +15,8 @@ func TestEnvironmentCreate_userInputErrors(t *testing.T) {
 	command := NewEnvironmentCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg":  NewContext(t, nil, nil),
-		"Negative MinScale": NewContext(t, Args{"env_name"}, Flags{"min-scale": "-1"}),
-		"Negative MaxScale": NewContext(t, Args{"env_name"}, Flags{"max-scale": "-1"}),
+		"Missing NAME arg": NewContext(t, nil, nil),
+		"Negative Scale":   NewContext(t, Args{"env_name"}, Flags{"scale": "-1"}),
 	}
 
 	for name, c := range contexts {
@@ -134,8 +133,8 @@ func TestCreateEnvironment(t *testing.T) {
 		req := models.CreateEnvironmentRequest{
 			EnvironmentName:  "env_name",
 			InstanceType:     "t2.small",
-			MinScale:         2,
-			MaxScale:         5,
+			Scale:            2,
+			EnvironmentType:  "static",
 			UserDataTemplate: []byte(userData),
 			OperatingSystem:  "linux",
 			AMIID:            "ami",
@@ -164,8 +163,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 		flags := map[string]interface{}{
 			"type":      req.InstanceType,
-			"min-scale": req.MinScale,
-			"max-scale": req.MaxScale,
+			"scale":     req.Scale,
 			"user-data": file.Name(),
 			"os":        req.OperatingSystem,
 			"ami":       req.AMIID,
@@ -263,11 +261,9 @@ func TestEnvironmentSetScale(t *testing.T) {
 			Resolve("environment", "env_name").
 			Return([]string{"env_id"}, nil)
 
-		minScale := 2
-		maxScale := 5
+		Scale := 2
 		req := models.UpdateEnvironmentRequest{
-			MinScale: &minScale,
-			MaxScale: &maxScale,
+			Scale: &Scale,
 		}
 
 		job := &models.Job{
@@ -291,8 +287,7 @@ func TestEnvironmentSetScale(t *testing.T) {
 		}
 
 		flags := Flags{
-			"min-scale": 2,
-			"max-scale": 5,
+			"scale": 2,
 		}
 
 		c := NewContext(t, []string{"env_name"}, flags, SetNoWait(!wait))
