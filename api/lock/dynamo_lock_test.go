@@ -6,15 +6,15 @@ import (
 	"testing"
 	"time"
 
-	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/stretchr/testify/assert"
 )
 
 func newTestLock(t *testing.T, expiry time.Duration) *DynamoLock {
-	session := config.GetTestAWSSession()
-	table := os.Getenv(config.ENVVAR_TEST_AWS_DYNAMO_LOCK_TABLE)
+	session := testutils.GetTestAWSSession()
+	table := os.Getenv(testutils.ENVVAR_TEST_AWS_DYNAMO_LOCK_TABLE)
 	if table == "" {
-		t.Skipf("Test table not set (envvar: %s)", config.ENVVAR_TEST_AWS_DYNAMO_LOCK_TABLE)
+		t.Skipf("Test table not set (envvar: %s)", testutils.ENVVAR_TEST_AWS_DYNAMO_LOCK_TABLE)
 	}
 
 	lock := NewDynamoLock(session, table, expiry)

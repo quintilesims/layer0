@@ -86,10 +86,10 @@ func TestCreateLoadBalancer(t *testing.T) {
 		},
 		HealthCheck: models.HealthCheck{
 			Target:             "tcp:80",
-			Interval:           1,
-			Timeout:            2,
-			HealthyThreshold:   3,
-			UnhealthyThreshold: 4,
+			Interval:           5,
+			Timeout:            6,
+			HealthyThreshold:   7,
+			UnhealthyThreshold: 8,
 		},
 	}
 
@@ -109,10 +109,10 @@ func TestCreateLoadBalancer(t *testing.T) {
 		},
 		"certificate":                     "cert",
 		"healthcheck-target":              "tcp:80",
-		"healthcheck-interval":            1,
-		"healthcheck-timeout":             2,
-		"healthcheck-healthy-threshold":   3,
-		"healthcheck-unhealthy-threshold": 4,
+		"healthcheck-interval":            5,
+		"healthcheck-timeout":             6,
+		"healthcheck-healthy-threshold":   7,
+		"healthcheck-unhealthy-threshold": 8,
 	}
 
 	c := testutils.NewTestContext(t, []string{"env_name", "lb_name"}, flags)

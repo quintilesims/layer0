@@ -114,10 +114,10 @@ func TestReadLoadBalancer(t *testing.T) {
 		},
 		HealthCheck: models.HealthCheck{
 			Target:             "tcp:80",
-			Interval:           1,
-			Timeout:            2,
-			HealthyThreshold:   3,
-			UnhealthyThreshold: 4,
+			Interval:           5,
+			Timeout:            6,
+			HealthyThreshold:   7,
+			UnhealthyThreshold: 8,
 		},
 	}
 
