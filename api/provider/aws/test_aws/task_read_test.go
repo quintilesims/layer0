@@ -165,15 +165,12 @@ func TestTaskRead_CannotPullContainer(t *testing.T) {
 	describeTaskInput.SetTasks([]*string{aws.String("arn:aws:ecs:region:012345678910:task/arn")})
 
 	containerECS := &ecs.Container{}
-	containerECS.SetName("container")
-	containerECS.SetLastStatus("status")
 	containerECS.SetReason("CannotPullContainerError: API error (404): repository test not found: does not exist or no pull access\n")
 	containerECS.SetExitCode(0)
 
 	task := &ecs.Task{}
 	task.SetTaskArn("arn:aws:ecs:region:012345678910:task/arn")
 	task.SetTaskDefinitionArn("arn:aws:ecs:region:account:task-definition/dpl_id:deployVersion")
-	task.SetLastStatus(ecs.DesiredStatusStopped)
 	task.SetContainers([]*ecs.Container{containerECS})
 
 	describeTaskOutput := &ecs.DescribeTasksOutput{}
@@ -190,10 +187,8 @@ func TestTaskRead_CannotPullContainer(t *testing.T) {
 	}
 
 	container := models.Container{
-		ContainerName: "container",
-		Status:        "status",
-		ExitCode:      1,
-		Meta:          "CannotPullContainerError: API error (404): repository test not found: does not exist or no pull access\n",
+		ExitCode: 1,
+		Meta:     "CannotPullContainerError: API error (404): repository test not found: does not exist or no pull access\n",
 	}
 
 	expected := &models.Task{
@@ -203,7 +198,6 @@ func TestTaskRead_CannotPullContainer(t *testing.T) {
 		DeployID:      "dpl_id",
 		DeployName:    "dpl_name",
 		DeployVersion: "deployVersion",
-		Status:        ecs.DesiredStatusStopped,
 		Containers:    []models.Container{container},
 	}
 
