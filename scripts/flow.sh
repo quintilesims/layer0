@@ -42,9 +42,10 @@ delete() {
     echo "Deleting Deploys"
     deploy_ids=$(l0 -o json deploy list --all | jq .[] | jq 'select(.deploy_name != "")' | jq -r .deploy_id)
     for id in $deploy_ids; do
-        echo -e $BULLET "$id"
-        l0 deploy delete $id > /dev/null
-        echo -e $BULLET "$id"
+        if [ "$id" != "api" ]; then
+            echo -e $BULLET "$id"
+            l0 deploy delete $id > /dev/null
+        fi
     done
 
     echo "Deleting Jobs"
