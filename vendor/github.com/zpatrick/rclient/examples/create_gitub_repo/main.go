@@ -3,9 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
-
 	"github.com/zpatrick/rclient"
+	"log"
 )
 
 type repository struct {

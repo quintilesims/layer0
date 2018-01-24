@@ -13,7 +13,7 @@ import (
 	"github.com/docker/docker/cli/command"
 	"github.com/docker/docker/pkg/stringid"
 	"github.com/docker/docker/pkg/stringutils"
-	units "github.com/docker/go-units"
+	"github.com/docker/go-units"
 	"github.com/spf13/cobra"
 )
 

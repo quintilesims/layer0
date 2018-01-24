@@ -2,13 +2,12 @@ package tftest
 
 import (
 	"fmt"
-	"os"
+	"log"
 	"os/exec"
 	"strings"
 )
 
 type Context struct {
-	Logger Logger
 	Vars   map[string]string
 	dir    string
 	dryRun bool
@@ -16,9 +15,8 @@ type Context struct {
 
 func NewContext(options ...ContextOption) *Context {
 	context := &Context{
-		Logger: NewIOLogger(os.Stdout),
-		Vars:   map[string]string{},
-		dir:    ".",
+		Vars: map[string]string{},
+		dir:  ".",
 	}
 
 	for _, option := range options {
@@ -45,7 +43,7 @@ func (c *Context) Apply() ([]byte, error) {
 		return c.Terraformf("plan")
 	}
 
-	return c.Terraformf("apply")
+	return c.Terraformf("apply", "-auto-approve")
 }
 
 func (c *Context) Destroy() ([]byte, error) {
@@ -82,16 +80,13 @@ func (c *Context) Terraformf(command string, args ...string) ([]byte, error) {
 	cmd.Env = env
 	cmd.Dir = c.dir
 
-	c.Logger.Logf("Running %v from %s", cmd.Args, cmd.Dir)
+	log.Printf("[DEBUG] Running %v from %s", cmd.Args, cmd.Dir)
 
 	output, err := cmd.CombinedOutput()
 	if err != nil {
-		text := fmt.Sprintf("Error running %v from %s: %v\n", cmd.Args, cmd.Dir, err)
-		for _, line := range strings.Split(string(output), "\n") {
-			text += line + "\n"
-		}
-
-		return nil, fmt.Errorf(text)
+		text := fmt.Sprintf("%v\n%v", string(output), err)
+		log.Printf("[ERROR] Error running %v from %s: %v\n", cmd.Args, cmd.Dir, text)
+		return nil, err
 	}
 
 	return output, nil

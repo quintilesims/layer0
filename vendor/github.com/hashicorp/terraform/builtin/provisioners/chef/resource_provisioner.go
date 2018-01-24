@@ -21,6 +21,7 @@ import (
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/mitchellh/go-homedir"
+	"github.com/mitchellh/go-linereader"
 )
 
 const (

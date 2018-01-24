@@ -274,7 +274,7 @@
   branch = "master"
   name = "github.com/quintilesims/tftest"
   packages = ["."]
-  revision = "548cc1289647cc0fb8ee87e27d115b31a9ec736d"
+  revision = "70597d446846d3de7adaabbf000469cd172387b4"
 
 [[projects]]
   name = "github.com/ryanuber/columnize"
@@ -322,13 +322,19 @@
   branch = "master"
   name = "github.com/zpatrick/fireball"
   packages = ["."]
-  revision = "3e4ffde20763c94ddfc5591126a7e473e8680616"
+  revision = "fadb7581da82d8e63af785050c77d239f55d2181"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/zpatrick/go-cache"
+  packages = ["."]
+  revision = "b3d50461cf11553e8edee06a3d02c87085c499c3"
 
 [[projects]]
   branch = "master"
   name = "github.com/zpatrick/go-plugin-swagger"
   packages = ["."]
-  revision = "c7ab932171be90d64e8c9f4486ea0095f0ee8793"
+  revision = "8aadb0183d3f6e1f700dd06dbc1bdaeb92283f65"
 
 [[projects]]
   branch = "master"
