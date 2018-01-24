@@ -212,6 +212,57 @@ func TestDeleteEnvironment(t *testing.T) {
 	})
 }
 
+func TestDeleteEnvironmentRecursive(t *testing.T) {
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
+
+		command := NewEnvironmentCommand(base.Command())
+
+		job := &models.Job{
+			JobID:  "job_id",
+			Status: models.CompletedJobStatus,
+			Result: "entity_id",
+		}
+
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name").
+			Return([]string{"env_id"}, nil)
+
+		base.Client.EXPECT().
+			ListLoadBalancers()
+
+		base.Client.EXPECT().
+			ListTasks()
+
+		base.Client.EXPECT().
+			ListServices()
+
+		base.Resolver.EXPECT().
+			Resolve("environment", "env_name").
+			Return([]string{"env_id"}, nil)
+
+		base.Client.EXPECT().
+			DeleteEnvironment("env_id").
+			Return(job.JobID, nil)
+
+		if wait {
+			base.Client.EXPECT().
+				ReadJob(job.JobID).
+				Return(job, nil)
+		}
+
+		f := Flags{
+			"r": true,
+		}
+
+		c := NewContext(t, []string{"env_name"}, f, SetNoWait(!wait))
+		if err := command.delete(c); err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
 func TestGetEnvironment(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()

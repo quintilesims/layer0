@@ -75,20 +75,6 @@ func (b *CommandBase) deleteHelper(c *cli.Context, entityType string, deleteFN f
 	return nil
 }
 
-func (b *CommandBase) entityIDHelper(c *cli.Context, entityType string) (string, error) {
-	args, err := extractArgs(c.Args(), "NAME")
-	if err != nil {
-		return "", err
-	}
-
-	entityID, err := b.resolveSingleEntityIDHelper(entityType, args["NAME"])
-	if err != nil {
-		return "", err
-	}
-
-	return entityID, nil
-}
-
 func (b *CommandBase) waitOnJobHelper(c *cli.Context, jobID, spinnerText string, onCompleteFN func(entityID string) error) error {
 	if c.GlobalBool(config.FLAG_NO_WAIT) {
 		b.printJobResponse(jobID)

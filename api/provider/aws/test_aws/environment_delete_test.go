@@ -12,6 +12,7 @@ import (
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config/mock_config"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -116,4 +117,55 @@ func TestDeleteEnvironmentIdempotence(t *testing.T) {
 	if err := target.Delete("env_id"); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestEnvironmentDeleteDependencies(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAWS := awsc.NewMockClient(ctrl)
+	tagStore := tag.NewMemoryStore()
+	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+
+	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+
+	tags := models.Tags{
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
+			Key:        "name",
+			Value:      "env_name",
+		},
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
+			Key:        "os",
+			Value:      "linux",
+		},
+		{
+			EntityID:   "svc_id",
+			EntityType: "service",
+			Key:        "name",
+			Value:      "svc_name",
+		},
+		{
+			EntityID:   "svc_id",
+			EntityType: "service",
+			Key:        "environment_id",
+			Value:      "env_id",
+		},
+	}
+
+	for _, tag := range tags {
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
+	if err := target.Delete("env_id"); err.Error() != error.Error(errors.Newf(errors.DependencyError, "Cannot delete environment 'env_id' because it contains dependent services: svc_id")) {
+		t.Fatal(err)
+	}
+
+	assert.Len(t, tagStore.Tags(), 4)
 }
