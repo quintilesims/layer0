@@ -65,9 +65,15 @@ func (e *EnvironmentProvider) checkEnvironmentDependencies(environmentID string)
 		return err
 	}
 
-	dependentLoadBalancers := loadBalancerTags.WithKey("environment_id").WithValue(environmentID)
-	if len(dependentLoadBalancers) > 0 {
-		msg := fmt.Sprintf("Cannot delete non-empty environment '%s' (environment contains one or more load balancers).", environmentID)
+	dependentLoadBalancerTags := loadBalancerTags.WithKey("environment_id").WithValue(environmentID)
+	if len(dependentLoadBalancerTags) > 0 {
+		loadBalancerIDs := []string{}
+		for _, tag := range dependentLoadBalancerTags {
+			loadBalancerIDs = append(loadBalancerIDs, tag.EntityID)
+		}
+
+		msg := "Cannot delete environment '%s' because it contains dependent load balancers: %s"
+		msg = fmt.Sprintf(msg, environmentID, strings.Join(loadBalancerIDs, ", "))
 		return errors.Newf(errors.DependencyError, msg)
 	}
 
@@ -76,9 +82,15 @@ func (e *EnvironmentProvider) checkEnvironmentDependencies(environmentID string)
 		return err
 	}
 
-	dependentServices := serviceTags.WithKey("environment_id").WithValue(environmentID)
-	if len(dependentServices) > 0 {
-		msg := fmt.Sprintf("Cannot delete non-empty environment '%s' (environment contains one or more services).", environmentID)
+	dependentServiceTags := serviceTags.WithKey("environment_id").WithValue(environmentID)
+	if len(dependentServiceTags) > 0 {
+		serviceIDs := []string{}
+		for _, tag := range dependentServiceTags {
+			serviceIDs = append(serviceIDs, tag.EntityID)
+		}
+
+		msg := "Cannot delete environment '%s' because it contains dependent services: %s"
+		msg = fmt.Sprintf(msg, environmentID, strings.Join(serviceIDs, ", "))
 		return errors.Newf(errors.DependencyError, msg)
 	}
 
@@ -87,9 +99,15 @@ func (e *EnvironmentProvider) checkEnvironmentDependencies(environmentID string)
 		return err
 	}
 
-	dependentTasks := taskTags.WithKey("environment_id").WithValue(environmentID)
-	if len(dependentTasks) > 0 {
-		msg := fmt.Sprintf("Cannot delete non-empty environment '%s' (environment contains one or more tasks).", environmentID)
+	dependentTaskTags := taskTags.WithKey("environment_id").WithValue(environmentID)
+	if len(dependentTaskTags) > 0 {
+		taskIDs := []string{}
+		for _, tag := range dependentTaskTags {
+			taskIDs = append(taskIDs, tag.EntityID)
+		}
+
+		msg := "Cannot delete environment '%s' because it contains dependent tasks: %s"
+		msg = fmt.Sprintf(msg, environmentID, strings.Join(taskIDs, ", "))
 		return errors.Newf(errors.DependencyError, msg)
 	}
 
