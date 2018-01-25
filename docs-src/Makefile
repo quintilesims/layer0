@@ -11,12 +11,10 @@ build:
 	mkdocs build --clean
 
 release:
-	# Remove v from Version
-	$(eval L0_VERSION_V := $(shell echo $(L0_VERSION) | cut -c 2-))
-	$(shell sed -E -i '' 's/([0-9].[0-9]+.[0-9])/'$(L0_VERSION_V)'/g' ../README.md)
-	
+	$(shell sed -E -i '' 's/(v[0-9].[0-9]+.[0-9])/'$(L0_VERSION)'/g' ../README.md)
 	expenv -f index.md.template > docs/index.md
 	expenv -f release_table.template >> docs/releases.md
+	
 serve:
 	mkdocs serve -a 0.0.0.0:9090
 

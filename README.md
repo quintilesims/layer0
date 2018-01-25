@@ -1,7 +1,7 @@
 # ![logo](https://quintilesims.github.io/layer0/static/logo_rs.png)
 
 [![Build Status](https://travis-ci.org/quintilesims/layer0.svg?branch=master)](https://travis-ci.org/quintilesims/layer0)
-[![Version](https://img.shields.io/badge/version-0.10.4-brightgreen.svg)](https://github.com/quintilesims/layer0/releases/tag/v0.10.4)
+[![Version](https://img.shields.io/badge/version-v0.10.5-7-g63bde91c-brightgreen.svg)](https://github.com/quintilesims/layer0/releases/tag/v0.10.5-7-g63bde91c)
 [![Documentation](https://img.shields.io/badge/docs-latest-blue.svg)](https://quintilesims.github.io/layer0/)
 
 Layer0 is a PAAS that helps you deploy your Docker containers to the cloud with minimal fuss. 
