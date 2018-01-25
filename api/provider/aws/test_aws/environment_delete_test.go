@@ -129,43 +129,48 @@ func TestEnvironmentDeleteDependencies(t *testing.T) {
 
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
-	tags := models.Tags{
-		{
-			EntityID:   "env_id",
-			EntityType: "environment",
-			Key:        "name",
-			Value:      "env_name",
-		},
-		{
-			EntityID:   "env_id",
-			EntityType: "environment",
-			Key:        "os",
-			Value:      "linux",
-		},
-		{
-			EntityID:   "svc_id",
-			EntityType: "service",
-			Key:        "name",
-			Value:      "svc_name",
-		},
-		{
-			EntityID:   "svc_id",
-			EntityType: "service",
-			Key:        "environment_id",
-			Value:      "env_id",
-		},
+	envTag := models.Tag{
+		EntityID:   "env_id",
+		EntityType: "environment",
+		Key:        "name",
+		Value:      "env_name",
 	}
 
-	for _, tag := range tags {
-		if err := tagStore.Insert(tag); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
-	if err := target.Delete("env_id"); err.Error() != error.Error(errors.Newf(errors.DependencyError, "Cannot delete environment 'env_id' because it contains dependent services: svc_id")) {
+	if err := tagStore.Insert(envTag); err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Len(t, tagStore.Tags(), 4)
+	var dependencies = []struct {
+		entityID   string
+		entityType string
+		err        string // expected result
+	}{
+		{"lb_id", "load_balancer", error.Error(errors.Newf(errors.DependencyError, "Cannot delete environment 'env_id' because it contains dependent load balancers: lb_id"))},
+		{"tsk_id", "task", error.Error(errors.Newf(errors.DependencyError, "Cannot delete environment 'env_id' because it contains dependent tasks: tsk_id"))},
+		{"svc_id", "service", error.Error(errors.Newf(errors.DependencyError, "Cannot delete environment 'env_id' because it contains dependent services: svc_id"))},
+	}
+
+	for _, dependency := range dependencies {
+		tag := models.Tag{
+			EntityID:   dependency.entityID,
+			EntityType: dependency.entityType,
+			Key:        "environment_id",
+			Value:      "env_id",
+		}
+
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+
+		target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
+		actual := target.Delete("env_id")
+
+		if actual.Error() != dependency.err {
+			t.Errorf("\nexpected %s\nactual %s", dependency.err, actual)
+		}
+
+		if err := tagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
+			t.Fatal(err)
+		}
+	}
 }

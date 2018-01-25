@@ -212,7 +212,7 @@ func TestDeleteEnvironment(t *testing.T) {
 	})
 }
 
-func TestDeleteEnvironmentRecursive(t *testing.T) {
+func TestDeleteEnvironmentDependencies(t *testing.T) {
 	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
@@ -230,13 +230,16 @@ func TestDeleteEnvironmentRecursive(t *testing.T) {
 			Return([]string{"env_id"}, nil)
 
 		base.Client.EXPECT().
-			ListLoadBalancers()
+			ListLoadBalancers().
+			Return([]*models.LoadBalancerSummary{}, nil)
 
 		base.Client.EXPECT().
-			ListTasks()
+			ListTasks().
+			Return([]*models.TaskSummary{}, nil)
 
 		base.Client.EXPECT().
-			ListServices()
+			ListServices().
+			Return([]*models.ServiceSummary{}, nil)
 
 		base.Resolver.EXPECT().
 			Resolve("environment", "env_name").
@@ -253,7 +256,7 @@ func TestDeleteEnvironmentRecursive(t *testing.T) {
 		}
 
 		f := Flags{
-			"r": true,
+			"recursive": true,
 		}
 
 		c := NewContext(t, []string{"env_name"}, f, SetNoWait(!wait))

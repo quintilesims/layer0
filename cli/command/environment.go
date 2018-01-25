@@ -191,7 +191,9 @@ func (e *EnvironmentCommand) delete(c *cli.Context) error {
 
 		for _, loadBalancer := range loadBalancers {
 			if loadBalancer.EnvironmentID == environmentID {
-				e.client.DeleteLoadBalancer(loadBalancer.LoadBalancerID)
+				if _, err := e.client.DeleteLoadBalancer(loadBalancer.LoadBalancerID); err != nil {
+					return err
+				}
 			}
 		}
 
@@ -203,7 +205,9 @@ func (e *EnvironmentCommand) delete(c *cli.Context) error {
 
 		for _, task := range tasks {
 			if task.EnvironmentID == environmentID {
-				e.client.DeleteTask(task.TaskID)
+				if _, err := e.client.DeleteTask(task.TaskID); err != nil {
+					return err
+				}
 			}
 		}
 
@@ -215,7 +219,9 @@ func (e *EnvironmentCommand) delete(c *cli.Context) error {
 
 		for _, service := range services {
 			if service.EnvironmentID == environmentID {
-				e.client.DeleteTask(service.ServiceID)
+				if _, err := e.client.DeleteTask(service.ServiceID); err != nil {
+					return err
+				}
 			}
 		}
 	}
