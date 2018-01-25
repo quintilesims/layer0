@@ -6,8 +6,8 @@ import (
 
 	"reflect"
 
-	"github.com/kylelemons/godebug/pretty"
 	"github.com/zclconf/go-cty/cty"
+	"github.com/kylelemons/godebug/pretty"
 )
 
 func TestDiffListsShallow(t *testing.T) {

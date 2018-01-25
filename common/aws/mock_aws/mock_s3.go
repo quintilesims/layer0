@@ -5,12 +5,11 @@
 package mock_aws
 
 import (
-	reflect "reflect"
-
+	gomock "github.com/golang/mock/gomock"
 	aws "github.com/aws/aws-sdk-go/aws"
 	request "github.com/aws/aws-sdk-go/aws/request"
 	s3 "github.com/aws/aws-sdk-go/service/s3"
-	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockS3API is a mock of S3API interface
@@ -355,6 +354,50 @@ func (m *MockS3API) DeleteBucketCorsWithContext(arg0 aws.Context, arg1 *s3.Delet
 func (mr *MockS3APIMockRecorder) DeleteBucketCorsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBucketCorsWithContext", reflect.TypeOf((*MockS3API)(nil).DeleteBucketCorsWithContext), varargs...)
+}
+
+// DeleteBucketEncryption mocks base method
+func (m *MockS3API) DeleteBucketEncryption(arg0 *s3.DeleteBucketEncryptionInput) (*s3.DeleteBucketEncryptionOutput, error) {
+	ret := m.ctrl.Call(m, "DeleteBucketEncryption", arg0)
+	ret0, _ := ret[0].(*s3.DeleteBucketEncryptionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteBucketEncryption indicates an expected call of DeleteBucketEncryption
+func (mr *MockS3APIMockRecorder) DeleteBucketEncryption(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBucketEncryption", reflect.TypeOf((*MockS3API)(nil).DeleteBucketEncryption), arg0)
+}
+
+// DeleteBucketEncryptionRequest mocks base method
+func (m *MockS3API) DeleteBucketEncryptionRequest(arg0 *s3.DeleteBucketEncryptionInput) (*request.Request, *s3.DeleteBucketEncryptionOutput) {
+	ret := m.ctrl.Call(m, "DeleteBucketEncryptionRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*s3.DeleteBucketEncryptionOutput)
+	return ret0, ret1
+}
+
+// DeleteBucketEncryptionRequest indicates an expected call of DeleteBucketEncryptionRequest
+func (mr *MockS3APIMockRecorder) DeleteBucketEncryptionRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBucketEncryptionRequest", reflect.TypeOf((*MockS3API)(nil).DeleteBucketEncryptionRequest), arg0)
+}
+
+// DeleteBucketEncryptionWithContext mocks base method
+func (m *MockS3API) DeleteBucketEncryptionWithContext(arg0 aws.Context, arg1 *s3.DeleteBucketEncryptionInput, arg2 ...request.Option) (*s3.DeleteBucketEncryptionOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "DeleteBucketEncryptionWithContext", varargs...)
+	ret0, _ := ret[0].(*s3.DeleteBucketEncryptionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DeleteBucketEncryptionWithContext indicates an expected call of DeleteBucketEncryptionWithContext
+func (mr *MockS3APIMockRecorder) DeleteBucketEncryptionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteBucketEncryptionWithContext", reflect.TypeOf((*MockS3API)(nil).DeleteBucketEncryptionWithContext), varargs...)
 }
 
 // DeleteBucketInventoryConfiguration mocks base method
@@ -1002,6 +1045,50 @@ func (m *MockS3API) GetBucketCorsWithContext(arg0 aws.Context, arg1 *s3.GetBucke
 func (mr *MockS3APIMockRecorder) GetBucketCorsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBucketCorsWithContext", reflect.TypeOf((*MockS3API)(nil).GetBucketCorsWithContext), varargs...)
+}
+
+// GetBucketEncryption mocks base method
+func (m *MockS3API) GetBucketEncryption(arg0 *s3.GetBucketEncryptionInput) (*s3.GetBucketEncryptionOutput, error) {
+	ret := m.ctrl.Call(m, "GetBucketEncryption", arg0)
+	ret0, _ := ret[0].(*s3.GetBucketEncryptionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBucketEncryption indicates an expected call of GetBucketEncryption
+func (mr *MockS3APIMockRecorder) GetBucketEncryption(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBucketEncryption", reflect.TypeOf((*MockS3API)(nil).GetBucketEncryption), arg0)
+}
+
+// GetBucketEncryptionRequest mocks base method
+func (m *MockS3API) GetBucketEncryptionRequest(arg0 *s3.GetBucketEncryptionInput) (*request.Request, *s3.GetBucketEncryptionOutput) {
+	ret := m.ctrl.Call(m, "GetBucketEncryptionRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*s3.GetBucketEncryptionOutput)
+	return ret0, ret1
+}
+
+// GetBucketEncryptionRequest indicates an expected call of GetBucketEncryptionRequest
+func (mr *MockS3APIMockRecorder) GetBucketEncryptionRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBucketEncryptionRequest", reflect.TypeOf((*MockS3API)(nil).GetBucketEncryptionRequest), arg0)
+}
+
+// GetBucketEncryptionWithContext mocks base method
+func (m *MockS3API) GetBucketEncryptionWithContext(arg0 aws.Context, arg1 *s3.GetBucketEncryptionInput, arg2 ...request.Option) (*s3.GetBucketEncryptionOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetBucketEncryptionWithContext", varargs...)
+	ret0, _ := ret[0].(*s3.GetBucketEncryptionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetBucketEncryptionWithContext indicates an expected call of GetBucketEncryptionWithContext
+func (mr *MockS3APIMockRecorder) GetBucketEncryptionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetBucketEncryptionWithContext", reflect.TypeOf((*MockS3API)(nil).GetBucketEncryptionWithContext), varargs...)
 }
 
 // GetBucketInventoryConfiguration mocks base method
@@ -2599,6 +2686,50 @@ func (m *MockS3API) PutBucketCorsWithContext(arg0 aws.Context, arg1 *s3.PutBucke
 func (mr *MockS3APIMockRecorder) PutBucketCorsWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutBucketCorsWithContext", reflect.TypeOf((*MockS3API)(nil).PutBucketCorsWithContext), varargs...)
+}
+
+// PutBucketEncryption mocks base method
+func (m *MockS3API) PutBucketEncryption(arg0 *s3.PutBucketEncryptionInput) (*s3.PutBucketEncryptionOutput, error) {
+	ret := m.ctrl.Call(m, "PutBucketEncryption", arg0)
+	ret0, _ := ret[0].(*s3.PutBucketEncryptionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutBucketEncryption indicates an expected call of PutBucketEncryption
+func (mr *MockS3APIMockRecorder) PutBucketEncryption(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutBucketEncryption", reflect.TypeOf((*MockS3API)(nil).PutBucketEncryption), arg0)
+}
+
+// PutBucketEncryptionRequest mocks base method
+func (m *MockS3API) PutBucketEncryptionRequest(arg0 *s3.PutBucketEncryptionInput) (*request.Request, *s3.PutBucketEncryptionOutput) {
+	ret := m.ctrl.Call(m, "PutBucketEncryptionRequest", arg0)
+	ret0, _ := ret[0].(*request.Request)
+	ret1, _ := ret[1].(*s3.PutBucketEncryptionOutput)
+	return ret0, ret1
+}
+
+// PutBucketEncryptionRequest indicates an expected call of PutBucketEncryptionRequest
+func (mr *MockS3APIMockRecorder) PutBucketEncryptionRequest(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutBucketEncryptionRequest", reflect.TypeOf((*MockS3API)(nil).PutBucketEncryptionRequest), arg0)
+}
+
+// PutBucketEncryptionWithContext mocks base method
+func (m *MockS3API) PutBucketEncryptionWithContext(arg0 aws.Context, arg1 *s3.PutBucketEncryptionInput, arg2 ...request.Option) (*s3.PutBucketEncryptionOutput, error) {
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "PutBucketEncryptionWithContext", varargs...)
+	ret0, _ := ret[0].(*s3.PutBucketEncryptionOutput)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// PutBucketEncryptionWithContext indicates an expected call of PutBucketEncryptionWithContext
+func (mr *MockS3APIMockRecorder) PutBucketEncryptionWithContext(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PutBucketEncryptionWithContext", reflect.TypeOf((*MockS3API)(nil).PutBucketEncryptionWithContext), varargs...)
 }
 
 // PutBucketInventoryConfiguration mocks base method

@@ -2,7 +2,7 @@ package libcontainerd
 
 import (
 	containerd "github.com/docker/containerd/api/grpc/types"
-	specs "github.com/opencontainers/runtime-spec/specs-go"
+	"github.com/opencontainers/runtime-spec/specs-go"
 )
 
 // Process contains information to start a specific application inside the container.

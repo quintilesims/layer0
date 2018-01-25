@@ -1,11 +1,10 @@
 package main
 
 import (
-	"log"
-	"net/http"
-
 	"github.com/zpatrick/fireball"
 	"github.com/zpatrick/fireball/examples/swagger/controllers"
+	"log"
+	"net/http"
 )
 
 const (

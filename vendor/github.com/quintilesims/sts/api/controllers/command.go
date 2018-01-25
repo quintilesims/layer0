@@ -3,11 +3,10 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"os/exec"
-
 	"github.com/quintilesims/sts/models"
 	"github.com/zpatrick/fireball"
+	"log"
+	"os/exec"
 )
 
 type CommandController struct {
