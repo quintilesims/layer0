@@ -53,10 +53,16 @@ func TestLoadBalancerCreate_specifyPorts(t *testing.T) {
 			Protocol:      "http",
 		},
 		{
-			CertificateName: "certname",
+			CertificateName: "crt_name",
 			ContainerPort:   8080,
 			HostPort:        8080,
 			Protocol:        "https",
+		},
+		{
+			CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
+			ContainerPort:  9000,
+			HostPort:       9000,
+			Protocol:       "https",
 		},
 	}
 
@@ -145,7 +151,7 @@ func TestLoadBalancerUpdate_ports(t *testing.T) {
 			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
 
 		mockClient.EXPECT().
-			UpdateLoadBalancerPorts("lbid", []models.Port{{"", 80, 80, "http"}}).
+			UpdateLoadBalancerPorts("lbid", []models.Port{{"", "", 80, 80, "http"}}).
 			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
 
 		mockClient.EXPECT().
