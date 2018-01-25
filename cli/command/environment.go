@@ -172,7 +172,7 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) delete(c *cli.Context) error {
-	if c.Bool("r") || c.Bool("recursive") {
+	if c.Bool("recursive") {
 		args, err := extractArgs(c.Args(), "NAME")
 		if err != nil {
 			return err
