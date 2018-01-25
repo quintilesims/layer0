@@ -265,11 +265,9 @@ Your data should still be there!
 
 ### Cleanup
 
-If you're finished with the example and don't want to continue with this walkthrough, you can instruct Layer0 to delete the environment and terminate the application.
+When you're finished with the example, you can instruct Layer0 to delete the environment and terminate the application.
 
 `l0 environment delete demo-env`
-
-However, if you intend to continue through [Deployment 3](deployment-3), you will want to keep the resources you made in this section.
 
 
 ---
