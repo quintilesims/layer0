@@ -125,12 +125,6 @@ func TestTaskRead_CannotPullContainer(t *testing.T) {
 		{
 			EntityID:   "tsk_id",
 			EntityType: "task",
-			Key:        "name",
-			Value:      "tsk_name",
-		},
-		{
-			EntityID:   "tsk_id",
-			EntityType: "task",
 			Key:        "arn",
 			Value:      "arn:aws:ecs:region:012345678910:task/arn",
 		},
@@ -140,18 +134,6 @@ func TestTaskRead_CannotPullContainer(t *testing.T) {
 			Key:        "environment_id",
 			Value:      "env_id",
 		},
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "name",
-			Value:      "dpl_name",
-		},
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "version",
-			Value:      "deployVersion",
-		},
 	}
 
 	for _, tag := range tags {
@@ -159,10 +141,6 @@ func TestTaskRead_CannotPullContainer(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-
-	describeTaskInput := &ecs.DescribeTasksInput{}
-	describeTaskInput.SetCluster("l0-test-env_id")
-	describeTaskInput.SetTasks([]*string{aws.String("arn:aws:ecs:region:012345678910:task/arn")})
 
 	containerECS := &ecs.Container{}
 	containerECS.SetReason("CannotPullContainerError: API error (404): repository test not found: does not exist or no pull access\n")
@@ -177,7 +155,7 @@ func TestTaskRead_CannotPullContainer(t *testing.T) {
 	describeTaskOutput.SetTasks([]*ecs.Task{task})
 
 	mockAWS.ECS.EXPECT().
-		DescribeTasks(describeTaskInput).
+		DescribeTasks(gomock.Any()).
 		Return(describeTaskOutput, nil)
 
 	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
@@ -186,20 +164,7 @@ func TestTaskRead_CannotPullContainer(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	container := models.Container{
-		ExitCode: 1,
-		Meta:     "CannotPullContainerError: API error (404): repository test not found: does not exist or no pull access\n",
-	}
+	assert.Len(t, result.Containers, 1)
+	assert.Equal(t, 1, result.Containers[0].ExitCode)
 
-	expected := &models.Task{
-		TaskID:        "tsk_id",
-		TaskName:      "tsk_name",
-		EnvironmentID: "env_id",
-		DeployID:      "dpl_id",
-		DeployName:    "dpl_name",
-		DeployVersion: "deployVersion",
-		Containers:    []models.Container{container},
-	}
-
-	assert.Equal(t, expected, result)
 }
