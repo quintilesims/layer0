@@ -18,6 +18,7 @@ import (
 	"github.com/hashicorp/terraform/helper/logging"
 	"github.com/hashicorp/terraform/terraform"
 	"github.com/mattn/go-colorable"
+	"github.com/mattn/go-shellwords"
 	"github.com/mitchellh/cli"
 	"github.com/mitchellh/panicwrap"
 	"github.com/mitchellh/prefixedio"
@@ -140,7 +141,6 @@ func wrappedMain() int {
 			// We continue to run anyway, since Terraform has reasonable defaults.
 		}
 	}
-	log.Printf("[DEBUG] CLI config is %#v", config)
 
 	// In tests, Commands may already be set to provide mock commands
 	if Commands == nil {

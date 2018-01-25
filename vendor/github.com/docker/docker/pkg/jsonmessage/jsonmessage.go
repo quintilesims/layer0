@@ -9,6 +9,7 @@ import (
 
 	"github.com/docker/docker/pkg/jsonlog"
 	"github.com/docker/docker/pkg/term"
+	"github.com/docker/go-units"
 )
 
 // JSONError wraps a concrete Code and Message, `Code` is

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/Sirupsen/logrus"
+	"github.com/tobi/airbrake-go"
 )
 
 // AirbrakeHook to send exceptions to an exception-tracking service compatible

@@ -3,7 +3,7 @@ package opts
 import (
 	"testing"
 
-	units "github.com/docker/go-units"
+	"github.com/docker/go-units"
 )
 
 func TestUlimitOpt(t *testing.T) {
