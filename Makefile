@@ -1,5 +1,4 @@
 SHELL:=/bin/bash
-L0_VERSION:=$(shell git describe --tags)
 
 release:
 	$(MAKE) -C api release
