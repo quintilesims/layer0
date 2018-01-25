@@ -439,8 +439,10 @@ func (e *ECSLoadBalancerManager) portToListener(port models.Port) (*elb.Listener
 		containerProtocol = "TCP"
 	}
 
-	var certificateARN string
-	if port.CertificateName != "" {
+	// use cert arn if specified by the user
+	// otherwise, if name is specified, convert it to an arn
+	certificateARN := port.CertificateARN
+	if certificateARN == "" && port.CertificateName != "" {
 		arn, err := e.getCertificateARN(port.CertificateName)
 		if err != nil {
 			return nil, err
