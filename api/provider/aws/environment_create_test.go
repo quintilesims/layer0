@@ -27,6 +27,12 @@ func TestEnvironment_createTags(t *testing.T) {
 		{
 			EntityID:   "env_id",
 			EntityType: "environment",
+			Key:        "type",
+			Value:      "static",
+		},
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
 			Key:        "os",
 			Value:      "env_os",
 		},
