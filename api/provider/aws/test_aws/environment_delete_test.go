@@ -1,6 +1,7 @@
 package test_aws
 
 import (
+	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -119,7 +120,7 @@ func TestDeleteEnvironmentIdempotence(t *testing.T) {
 	}
 }
 
-func TestEnvironmentDeleteDependencies(t *testing.T) {
+func TestCheckEnvironmentDependencies(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -140,20 +141,11 @@ func TestEnvironmentDeleteDependencies(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	var dependencies = []struct {
-		entityID   string
-		entityType string
-		err        string // expected result
-	}{
-		{"lb_id", "load_balancer", error.Error(errors.Newf(errors.DependencyError, "Cannot delete environment 'env_id' because it contains dependent load balancers: lb_id"))},
-		{"tsk_id", "task", error.Error(errors.Newf(errors.DependencyError, "Cannot delete environment 'env_id' because it contains dependent tasks: tsk_id"))},
-		{"svc_id", "service", error.Error(errors.Newf(errors.DependencyError, "Cannot delete environment 'env_id' because it contains dependent services: svc_id"))},
-	}
-
-	for _, dependency := range dependencies {
+	cases := []string{"service", "task", "load_balancer"}
+	for _, c := range cases {
 		tag := models.Tag{
-			EntityID:   dependency.entityID,
-			EntityType: dependency.entityType,
+			EntityID:   "id",
+			EntityType: c,
 			Key:        "environment_id",
 			Value:      "env_id",
 		}
@@ -163,10 +155,10 @@ func TestEnvironmentDeleteDependencies(t *testing.T) {
 		}
 
 		target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
-		actual := target.Delete("env_id")
-
-		if actual.Error() != dependency.err {
-			t.Errorf("\nexpected %s\nactual %s", dependency.err, actual)
+		if err := target.Delete("env_id"); err != nil {
+			if !strings.Contains(err.Error(), errors.DependencyError.String()) {
+				t.Errorf("Error: %s", err)
+			}
 		}
 
 		if err := tagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
