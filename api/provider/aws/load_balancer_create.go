@@ -219,7 +219,12 @@ func (l *LoadBalancerProvider) portsToListeners(ports []models.Port) ([]*elb.Lis
 		listener.SetLoadBalancerPort(port.HostPort)
 		listener.SetInstancePort(port.ContainerPort)
 
-		if port.CertificateName != "" {
+		certificateARN := port.CertificateARN
+		if certificateARN != "" {
+			listener.SetSSLCertificateId(certificateARN)
+		}
+
+		if certificateARN == "" && port.CertificateName != "" {
 			certificateARN, err := l.lookupCertificateARN(port.CertificateName)
 			if err != nil {
 				return nil, err

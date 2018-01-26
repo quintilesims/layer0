@@ -278,7 +278,12 @@ func expandPorts(flattened []interface{}) []models.Port {
 		}
 
 		if v, ok := data["certificate"]; ok {
-			port.CertificateName = v.(string)
+			certificate := v.(string)
+			if strings.HasPrefix(strings.ToLower(certificate), "arn:") {
+				port.CertificateARN = certificate
+			} else {
+				port.CertificateName = certificate
+			}
 		}
 
 		ports = append(ports, port)
@@ -297,7 +302,9 @@ func flattenPorts(ports []models.Port) []map[string]interface{} {
 			"protocol":       port.Protocol,
 		}
 
-		if port.CertificateName != "" {
+		if port.CertificateARN != "" {
+			data["certificate"] = port.CertificateARN
+		} else if port.CertificateName != "" {
 			data["certificate"] = port.CertificateName
 		}
 

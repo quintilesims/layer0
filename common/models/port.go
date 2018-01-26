@@ -8,6 +8,7 @@ import (
 
 type Port struct {
 	CertificateName string `json:"certificate_name"`
+	CertificateARN  string `json:"certificate_arn"`
 	ContainerPort   int64  `json:"container_port"`
 	HostPort        int64  `json:"host_port"`
 	Protocol        string `json:"protocol"`
@@ -34,6 +35,7 @@ func (p Port) Definition() swagger.Definition {
 		Type: "object",
 		Properties: map[string]swagger.Property{
 			"certificate_name": swagger.NewStringProperty(),
+			"certificate_arn":  swagger.NewStringProperty(),
 			"container_port":   swagger.NewIntProperty(),
 			"host_port":        swagger.NewIntProperty(),
 			"protocol":         swagger.NewStringProperty(),
