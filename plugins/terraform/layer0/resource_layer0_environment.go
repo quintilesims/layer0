@@ -28,7 +28,6 @@ func resourceLayer0Environment() *schema.Resource {
 			"instance_type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  config.DefaultEnvironmentInstanceType,
 				ForceNew: true,
 			},
 			"environment_type": {

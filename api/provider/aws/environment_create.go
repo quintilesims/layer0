@@ -26,14 +26,6 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	environmentID := entityIDGenerator(req.EnvironmentName)
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	instanceType := config.DefaultEnvironmentInstanceType
-	if req.InstanceType != "" {
-		instanceType = req.InstanceType
-	}
-
-	var userDataTemplate []byte
-	var amiID string
-
 	if req.OperatingSystem == "" {
 		req.OperatingSystem = config.DefaultEnvironmentOS
 	}
@@ -58,7 +50,10 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	}
 
 	// creating asg, lc isn't required for dynamic environments
-	if strings.ToLower(req.EnvironmentType) == models.EnvironmentTypeStatic {
+	if strings.ToLower(req.EnvironmentType) != models.EnvironmentTypeDynamic {
+		var userDataTemplate []byte
+		var amiID string
+
 		switch strings.ToLower(req.OperatingSystem) {
 		case models.LinuxOS:
 			userDataTemplate = []byte(DefaultLinuxUserdataTemplate)
@@ -72,6 +67,11 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 
 		if req.AMIID != "" {
 			amiID = req.AMIID
+		}
+
+		instanceType := config.DefaultEnvironmentInstanceType
+		if req.InstanceType != "" {
+			instanceType = req.InstanceType
 		}
 
 		if len(req.UserDataTemplate) > 0 {
