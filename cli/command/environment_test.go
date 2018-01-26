@@ -212,7 +212,7 @@ func TestDeleteEnvironment(t *testing.T) {
 	})
 }
 
-func TestDeleteEnvironmentDependencies(t *testing.T) {
+func TestCheckEnvironmentDependencies(t *testing.T) {
 	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
 		defer ctrl.Finish()
