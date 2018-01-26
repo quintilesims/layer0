@@ -46,7 +46,7 @@ func (l *LoadBalancerCommand) GetCommand() cli.Command {
 					},
 					cli.StringFlag{
 						Name:  "certificate",
-						Usage: "name of certificate to use for port configuration (only required for https)",
+						Usage: "name or arn of certificate to use for port configuration (only required for https)",
 					},
 					cli.BoolFlag{
 						Name:  "private",
@@ -385,7 +385,7 @@ func (l *LoadBalancerCommand) List(c *cli.Context) error {
 	return l.Printer.PrintLoadBalancerSummaries(loadBalancerSummaries...)
 }
 
-func parsePort(port, certificateName string) (*models.Port, error) {
+func parsePort(port, certificate string) (*models.Port, error) {
 	split := strings.FieldsFunc(port, func(r rune) bool {
 		return r == ':' || r == '/'
 	})
@@ -405,8 +405,15 @@ func parsePort(port, certificateName string) (*models.Port, error) {
 	}
 
 	protocol := split[2]
-	if strings.ToLower(protocol) != "https" {
-		certificateName = ""
+	var certificateName string
+	var certificateARN string
+
+	if strings.ToLower(protocol) == "https" {
+		if strings.HasPrefix(strings.ToLower(certificate), "arn:") {
+			certificateARN = certificate
+		} else {
+			certificateName = certificate
+		}
 	}
 
 	model := &models.Port{
@@ -414,6 +421,7 @@ func parsePort(port, certificateName string) (*models.Port, error) {
 		ContainerPort:   containerPort,
 		Protocol:        protocol,
 		CertificateName: certificateName,
+		CertificateARN:  certificateARN,
 	}
 
 	return model, nil

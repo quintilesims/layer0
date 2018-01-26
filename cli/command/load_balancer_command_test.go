@@ -9,40 +9,64 @@ import (
 )
 
 func TestParsePort(t *testing.T) {
-	cases := map[string]*models.Port{
-		"80:80/tcp": {
-			HostPort:        80,
-			ContainerPort:   80,
-			Protocol:        "tcp",
-			CertificateName: "",
+	cases := []struct {
+		Target      string
+		Certificate string
+		Expected    models.Port
+	}{
+		{
+			Target: "80:80/tcp",
+			Expected: models.Port{
+				HostPort:      80,
+				ContainerPort: 80,
+				Protocol:      "tcp",
+			},
 		},
-		"80:80/http": {
-			HostPort:        80,
-			ContainerPort:   80,
-			Protocol:        "http",
-			CertificateName: "",
+		{
+			Target: "80:80/http",
+			Expected: models.Port{
+				HostPort:      80,
+				ContainerPort: 80,
+				Protocol:      "http",
+			},
 		},
-		"8080:80/http": {
-			HostPort:        8080,
-			ContainerPort:   80,
-			Protocol:        "http",
-			CertificateName: "",
+		{
+			Target: "8080:80/http",
+			Expected: models.Port{
+				HostPort:      8080,
+				ContainerPort: 80,
+				Protocol:      "http",
+			},
 		},
-		"443:80/https": {
-			HostPort:        443,
-			ContainerPort:   80,
-			Protocol:        "https",
-			CertificateName: "cert_name",
+		{
+			Target:      "80:80/https",
+			Certificate: "crt_name",
+			Expected: models.Port{
+				HostPort:        80,
+				ContainerPort:   80,
+				Protocol:        "https",
+				CertificateName: "crt_name",
+			},
+		},
+		{
+			Target:      "80:80/https",
+			Certificate: "arn:aws:iam::12345:server-certificate/crt_name",
+			Expected: models.Port{
+				HostPort:       80,
+				ContainerPort:  80,
+				Protocol:       "https",
+				CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
+			},
 		},
 	}
 
-	for input, expected := range cases {
-		model, err := parsePort(input, "cert_name")
+	for _, c := range cases {
+		result, err := parsePort(c.Target, c.Certificate)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		testutils.AssertEqual(t, model, expected)
+		testutils.AssertEqual(t, *result, c.Expected)
 	}
 }
 

@@ -94,6 +94,7 @@ created for you. Existing VPCs must satisfy the following constraints:
     - Have access to the public internet (through a NAT instance or gateway)
     - Have at least 1 public and 1 private subnet
     - Each subnet must be tagged with ["Tier": "Private"] or ["Tier": "Public"]
+    - The subnets in each tier cannot have overlapping availability zones
 
 Note that changing this value will destroy and recreate any existing resources.
 `
