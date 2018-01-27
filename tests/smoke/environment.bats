@@ -20,12 +20,12 @@
     l0 environment create --user-data common/user_data.sh test2 
 }
 
-@test "environment create --min-scale 2 --max-scale 5 test3" {
-    l0 environment create --min-scale 2 --max-scale 5  test3
+@test "environment create --scale 2 test3" {
+    l0 environment create --scale 2 test3
 }
 
-@test "environment create --os windows test4" {
-    l0 environment create --os windows test4
+@test "environment create --os windows --scale 1 test4" {
+    l0 environment create --os windows --scale 1 test4
 }
 
 @test "environment link --bi-directional test1 test2" {
@@ -52,8 +52,8 @@
     l0 environment get test2
 }
 
-@test "environment set-scale --min-scale 1 --max-scale 5 test3" {
-    l0 environment set-scale --min-scale 1 --max-scale 5 test3
+@test "environment set-scale --scale 2 test3" {
+    l0 environment set-scale --scale 2 test3
 }
 
 @test "environment delete test1" {
