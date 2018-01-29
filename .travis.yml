@@ -28,3 +28,6 @@ deploy:
     tags: true
     branch: master
     repo: quintilesims/layer0
+    
+script:
+  - make unittest

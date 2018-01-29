@@ -780,8 +780,8 @@ Layer0 Services that use Consul will run Registrator alongside their application
 <h2 id="consul-agent-container-definition">Consul Agent Container Definition<a class="headerlink" href="#consul-agent-container-definition" title="Permanent link">#</a></h2>
 <div class="admonition warning">
 <p class="admonition-title">Warning</p>
+<p>You must replace <code>&lt;url&gt;</code> with your Layer0 Consul Load Balancer's URL.</p>
 </div>
-<p>You must replace <code>&lt;url&gt;</code> with your Layer0 Consul Load Balancer's</p>
 <div class="codehilite"><pre><span></span>{
     &quot;name&quot;: &quot;consul-agent&quot;,
     &quot;image&quot;: &quot;progrium/consul&quot;,
