@@ -38,6 +38,7 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
+				Computed: true,
 			},
 			"url": {
 				Type:     schema.TypeString,
