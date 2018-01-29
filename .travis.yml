@@ -6,9 +6,9 @@ services:
 - docker
 before_install:
 - sudo apt-get install jq
-
-stage: Build Release
-
+script:
+  - make unittest
+  
 before_deploy:
  - if [ "$TRAVIS_BRANCH" == "master" ]; then
     docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
@@ -28,6 +28,4 @@ deploy:
     tags: true
     branch: master
     repo: quintilesims/layer0
-    
-script:
-  - make unittest
+
