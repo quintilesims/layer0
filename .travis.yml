@@ -9,18 +9,15 @@ before_install:
 script:
   - make unittest
 
+# Build Binaries to upload
 before_deploy:
- - if [ "$TRAVIS_BRANCH" == "master" ]; then
+ - make release;
+   && if [ "$TRAVIS_BRANCH" == "master" ]; then
    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
    fi
 
-stage: GitHub Release
-script: echo "Deploying to GitHub releases ..."
+# Deploy to Github
 deploy:
-  # Build Binaries to upload
-- provider: script
-  script: make release
-  # Deploy to Github
 - provider: releases
   api_key:
     secure: O0g3yP0OWCF2I96p2sY9SsmFrurbVWS1A4DthtWw+xVl8PYhAby7hzgYsy/Ap6C3L5b0PAdP8EtDKoYBy8A7tIImKtoIG7XZPqEH11WhFyUGlpr52DgeROdwZhpKsB3AjELzzSY+XYqW1pKxhcQPIbEBRSHfcREVJ3mL1yuXJkjrXDFCqnLe7oalR6rXaYfv27dJ9PK/Dmtpcu87I21rAX3Jmr94NFPfhXSaIHx9v4WOriMRYKNXvS0hxMH/UNlPNyKBFP6bMzMJFuIusmiJOx9ew/PmxyWen46rRytnJXj9YtaTeaK2Vn+6hEQ11PtwDn7ulou40ZIUiruxM1lmwN/uSIPmq5LVkx6Xsqfppu/jE8JLzitlme2D15xwJybdxNFaXCYG6TjlHjus4DPc72lLtO9OLNQr5bRc0IWrMlHPY49THkMnwMmqNxSLKhz56GcOOPUU/sNwCbReMlT0Ml/CKWwqqF8ul4MD/6quQjiemKsbGEXUTzy4myzO681R7/MQSioI6XF2fPaf+29CBB28uxUva7jbQSb7f1MaRagBBPL2a7P0Pk7ofw9nX49LOHLF8z9SZAbXT0/R4HgIBBt4yXOD1IyIXUitnNHYfbCQLUA4Mq7NFglGKfUPs9HG0afTm+eUJXxjUqEjXpNjrLC6TJOzutYXamBpTVaZe1w=
