@@ -11,8 +11,8 @@ script:
 
 # Build Binaries to upload
 before_deploy:
- - make release;
-   && if [ "$TRAVIS_BRANCH" == "master" ]; then
+ - make release
+ - if [ "$TRAVIS_BRANCH" == "master" ]; then
    docker login -e="$DOCKER_EMAIL" -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD";
    fi
 
