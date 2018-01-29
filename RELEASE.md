@@ -44,31 +44,6 @@ git merge remotes/origin/master
 git push -u origin release
 ```
 
-
-## Update README badges
-
-Update the `[Version]` badge in [README.MD](https://github.com/quintilesims/layer0/blob/release/README.md). There are two places in the badge's URLs that need to have the version number updated.
-
-
-## Add Release Notes
-
-Update [RELEASE_NOTES.md](https://github.com/quintilesims/layer0/blob/release/RELEASE_NOTES.md) with information about the current release. 
-This can either be done locally or through the [Github UI](https://github.com/quintilesims/layer0/edit/release/RELEASE_NOTES.md). 
-Please follow the existing formatting when adding release notes.
-Commit your changes and push them to the `release` branch when you are done.
-
-
-## Update Documentation
-
-There are a couple of references in the [docs](https://github.com/quintilesims/layer0/tree/release/docs-src/docs) section that will need to be updated with the latest version:
-
-* [mkdocs.yml](https://github.com/quintilesims/layer0/blob/release/docs-src/mkdocs.yml#L40)
-* [index.md](https://github.com/quintilesims/layer0/blob/release/docs-src/docs/index.md)
-* [releases.md](https://github.com/quintilesims/layer0/blob/release/docs-src/docs/releases.md)
-
-Run `make build` from the `docs-src/` directory to compile the docs, commit your changes, and push them to the release branch when you are done.
-
-
 ## Merge Release into Master
 
 With the release notes and documentation updated, [create a pull request](https://github.com/quintilesims/layer0/compare) from the `release` branch targeting the `master` branch (_base: master, compare: release_). 
@@ -90,16 +65,18 @@ git tag -a vX.X.X -m "<some message about the version>"
 git push origin --tag
 ```
 
+## Add Release Notes
 
-## Build and Push the Layer0 Binaries
+Add release notes to the release with this format.
+```
+### Features
+* Features here.
 
-To build and release the Layer0 binaries and Docker images, run the following from the `layer0` repo: 
+###Fixes
+* Bug fixes here.
 ```
-git checkout vX.X.X
-make release
-```
-This process will take a couple minutes. 
-Once completed, the zipped release files will be located in the [xfra-layer0](https://console.aws.amazon.com/s3/home?region=us-west-2#&bucket=xfra-layer0&prefix=release) S3 bucket. 
+This can be done through the [Github UI](https://github.com/quintilesims/layer0/releases) by clicking the edit button on the latest release.
+Please follow the existing formatting when adding release notes.
 
 
 # Announce the release
@@ -114,4 +91,4 @@ summary of the release contents. For example:
 
 # Merge Master into Develop
 
-To bring the `develop` branch up-to-date with `master`, create a [create a pull request](https://github.com/quintilesims/layer0/compare) from the `master` branch targeting the `develop` branch (_base: develop, compare: master_).
+To bring the `develop` branch up-to-date with `master`, create a [create a pull request](https://github.com/quintilesims/layer0/compare) from the `master` branch targeting the `develop` branch (_base: develop, compare: master_). **Please rebase and merge** (squash and merge if not possible.)
