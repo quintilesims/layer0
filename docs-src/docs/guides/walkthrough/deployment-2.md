@@ -336,8 +336,8 @@ Note: You didn't specify an "-out" parameter to save this plan, so when
 
 + layer0_environment.demo
     ami:               "<computed>"
-    cluster_count:     "<computed>"
-    links:             "<computed>"
+    current_scale:     "<computed>"
+    environment_type:  "dynamic"
     name:              "demo"
     os:                "linux"
     security_group_id: "<computed>"

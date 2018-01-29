@@ -137,10 +137,11 @@ The following attributes are exported:
 
 * `id` - The id of the environment
 * `name` - The name of the environment
-* `size` - The size of the instances in the environment
-* `min_count` - The current number instances in the environment
+* `environment_type` - Default: dynamic. Can be either static or dynamic.
+* `instance_type` - The ec2 instance size of a static environment
+* `scale` - The current number instances in a static type environment
 * `os` - The operating system used for the environment
-* `ami` - The AMI ID used for the environment
+* `ami` - The AMI ID used for a static environment
 
 ---
 
@@ -259,12 +260,7 @@ Provides a Layer0 Environment
 ```
 # Create a new environment
 resource "layer0_environment" "demo" {
-  name      = "demo"
-  size      = "m3.medium"
-  min_count = 0
-  user_data = "echo hello, world"
-  os        = "linux"
-  ami       = "ami123"
+  name             = "demo"
 }
 ```
 
@@ -272,14 +268,15 @@ resource "layer0_environment" "demo" {
 The following arguments are supported:
 
 * `name` - (Required) The name of the environment
-* `size` - (Optional, Default: "m3.medium") The size of the instances in the environment.
+* `environment_type` - (Optional, Values: "dynamic, static" Default: "dynamic") Use static when you need to customize ec2 instances that the containers run on or for a Windows os environment.
+* `instance_type` - (Optional, Default: "m3.medium") The size of the instances in the environment.
 Available instance sizes can be found [here](https://aws.amazon.com/ec2/instance-types/)
-* `min_count` - (Optional, Default: 0) The minimum number of instances allowed in the environment
-* `user-data` - (Optional) The user data template to use for the environment's autoscaling group.
+* `scale` - (Optional, Default: 0) The desired number of instances allowed in a static environment.
+* `user-data` - (Optional) The user data template to use for a static environment's autoscaling group.
 See the [cli reference](/reference/cli/#environment) for the default template.
 * `os` - (Optional, Default: "linux") Specifies the type of operating system used in the environment.
 Options are "linux" or "windows".
-* `ami` - (Optional) A custom AMI ID to use in the environment. 
+* `ami` - (Optional) A custom AMI ID to use for a static environment. 
 If not specified, Layer0 will use its default AMI ID for the specified operating system.
 
 ### Attribute Reference
@@ -287,8 +284,9 @@ The following attributes are exported:
 
 * `id` - The id of the environment
 * `name` - The name of the environment
-* `size` - The size of the instances in the environment
-* `cluster_count` - The current number instances in the environment
+* `environment_type` - The current number instances in a static type environment
+* `instance_type` - The ec2 instance size of a static environment
+* `scale` - The current number instances in a static type environment
 * `security_group_id` - The ID of the environment's security group
 * `os` - The operating system used for the environment
 * `ami` - The AMI ID used for the environment
