@@ -12,6 +12,8 @@ script:
 # Build Binaries to upload
 before_deploy:
  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
+ - go get github.com/blang/expenv
+ - go install github.com/blang/expenv
  - make release
 
 # Deploy to Github
