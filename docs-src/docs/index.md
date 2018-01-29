@@ -19,6 +19,7 @@ Ready to learn more about Layer0? See our [introduction page](intro.md) to learn
 | [macOS](https://github.com/quintilesims/layer0/releases/download/v0.10.5/macOS.zip) | [Linux](https://github.com/quintilesims/layer0/releases/download/v0.10.5/Linux.zip) | [Windows](https://github.com/quintilesims/layer0/releases/download/v0.10.5/Windows.zip) |
 
 
+
 ## Contact Us
 
 If you have questions about Layer0, email the development team at [carbon@us.imshealth.com](mailto:carbon@us.imshealth.com).
