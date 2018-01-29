@@ -1,6 +1,7 @@
 package system
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -22,6 +23,9 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 	vars["endpoint"] = os.Getenv(config.ENVVAR_ENDPOINT)
 	vars["token"] = os.Getenv(config.ENVVAR_TOKEN)
 
+	fmt.Println("[DEBUG] endpoint", vars["endpoint"])
+	fmt.Println("[DEBUG] token", vars["token"])
+
 	tfContext := tftest.NewTestContext(t,
 		tftest.Dir(dir),
 		tftest.Vars(vars),
@@ -29,8 +33,12 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 
 	layer0 := clients.NewLayer0TestClient(t, vars["endpoint"], vars["token"])
 
-	// download modules using terraform get
-	tfContext.Terraformf("get")
+	// download modules using terraform init
+	stdoutStderr, err := tfContext.Terraformf("init")
+	if err != nil {
+		fmt.Println("[ERROR]", err)
+	}
+	fmt.Printf("%s\n", stdoutStderr)
 
 	return &SystemTest{
 		Terraform: tfContext,

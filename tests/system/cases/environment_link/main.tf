@@ -12,9 +12,9 @@ resource "layer0_environment" "el_private" {
   name = "el_private"
 }
 
-resource "layer0_environment_link" "public_private" {
-  source = "${layer0_environment.el_public.id}"
-  dest   = "${layer0_environment.el_private.id}"
+resource "layer0_environment_links" "public_private" {
+  environment_id = "${layer0_environment.el_public.id}"
+  links   = [ "${layer0_environment.el_private.id}" ]
 }
 
 module "sts_public" {
