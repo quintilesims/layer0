@@ -35,7 +35,7 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 	// download modules using terraform init
 	stdoutStderr, err := tfContext.Terraformf("init")
 	if err != nil {
-		t.Fatalf(["[ERROR] %s", err.Error())
+		t.Fatalf("[ERROR] %s", err.Error())
 	}
 	t.Logf("[DEBUG] %s\n", stdoutStderr)
 
