@@ -1,5 +1,7 @@
 package events
 
+import "github.com/docker/go-metrics"
+
 var (
 	eventsCounter    metrics.Counter
 	eventSubscribers metrics.Gauge

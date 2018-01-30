@@ -22,12 +22,8 @@
 
 
 [[constraint]]
-  name = "github.com/Sirupsen/logrus"
-  version = "1.0.3"
-
-[[constraint]]
   name = "github.com/aws/aws-sdk-go"
-  version = "1.12.19"
+  version = "1.12.67"
 
 [[constraint]]
   name = "github.com/blang/semver"
@@ -42,8 +38,8 @@
   version = "1.13.1"
 
 [[constraint]]
-  name = "github.com/golang/mock"
   branch = "master"
+  name = "github.com/golang/mock"
 
 [[constraint]]
   branch = "master"
@@ -51,7 +47,7 @@
 
 [[constraint]]
   name = "github.com/hashicorp/terraform"
-  version = "0.10.8"
+  version = "0.11.2"
 
 [[constraint]]
   branch = "master"

@@ -9,8 +9,6 @@ import (
 
 	"github.com/posener/complete"
 
-	"github.com/hashicorp/go-getter"
-
 	multierror "github.com/hashicorp/go-multierror"
 	"github.com/hashicorp/terraform/backend"
 	"github.com/hashicorp/terraform/config"
@@ -131,7 +129,8 @@ func (c *InitCommand) Run(args []string) int {
 		)))
 		header = true
 
-		if err := c.copyConfigFromModule(path, src, pwd); err != nil {
+		s := module.NewStorage("", c.Services, c.Credentials)
+		if err := s.GetModule(path, src); err != nil {
 			c.Ui.Error(fmt.Sprintf("Error copying source module: %s", err))
 			return 1
 		}
@@ -173,7 +172,7 @@ func (c *InitCommand) Run(args []string) int {
 					"[reset][bold]Upgrading modules...")))
 			} else {
 				c.Ui.Output(c.Colorize().Color(fmt.Sprintf(
-					"[reset][bold]Downloading modules...")))
+					"[reset][bold]Initializing modules...")))
 			}
 
 			if err := getModules(&c.Meta, path, getMode); err != nil {
@@ -181,7 +180,6 @@ func (c *InitCommand) Run(args []string) int {
 					"Error downloading modules: %s", err))
 				return 1
 			}
-
 		}
 
 		// If we're requesting backend configuration or looking for required
@@ -272,35 +270,24 @@ func (c *InitCommand) Run(args []string) int {
 	return 0
 }
 
-func (c *InitCommand) copyConfigFromModule(dst, src, pwd string) error {
-	// errors from this function will be prefixed with "Error copying source module: "
-	// when returned to the user.
-	var err error
-
-	src, err = getter.Detect(src, pwd, getter.Detectors)
-	if err != nil {
-		return fmt.Errorf("invalid module source: %s", err)
-	}
-
-	return module.GetCopy(dst, src)
-}
-
 // Load the complete module tree, and fetch any missing providers.
 // This method outputs its own Ui.
 func (c *InitCommand) getProviders(path string, state *terraform.State, upgrade bool) error {
-	mod, err := c.Module(path)
-	if err != nil {
-		c.Ui.Error(fmt.Sprintf("Error getting plugins: %s", err))
-		return err
+	mod, diags := c.Module(path)
+	if diags.HasErrors() {
+		c.showDiagnostics(diags)
+		return diags.Err()
 	}
 
-	if err := mod.Validate(); err != nil {
-		c.Ui.Error(fmt.Sprintf("Error getting plugins: %s", err))
+	if err := terraform.CheckStateVersion(state); err != nil {
+		diags = diags.Append(err)
+		c.showDiagnostics(diags)
 		return err
 	}
 
 	if err := terraform.CheckRequiredVersion(mod); err != nil {
-		c.Ui.Error(err.Error())
+		diags = diags.Append(err)
+		c.showDiagnostics(diags)
 		return err
 	}
 
@@ -390,7 +377,10 @@ func (c *InitCommand) getProviders(path string, state *terraform.State, upgrade 
 	// again. If anything changes, other commands that use providers will
 	// fail with an error instructing the user to re-run this command.
 	available = c.providerPluginSet() // re-discover to see newly-installed plugins
-	chosen := choosePlugins(available, requirements)
+
+	// internal providers were already filtered out, since we don't need to get them.
+	chosen := choosePlugins(available, nil, requirements)
+
 	digests := map[string][]byte{}
 	for name, meta := range chosen {
 		digest, err := meta.SHA256()
@@ -403,7 +393,7 @@ func (c *InitCommand) getProviders(path string, state *terraform.State, upgrade 
 			digests[name] = nil
 		}
 	}
-	err = c.providerPluginsLock().Write(digests)
+	err := c.providerPluginsLock().Write(digests)
 	if err != nil {
 		c.Ui.Error(fmt.Sprintf("failed to save provider manifest: %s", err))
 		return err

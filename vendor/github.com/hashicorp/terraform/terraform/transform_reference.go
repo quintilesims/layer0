@@ -127,6 +127,7 @@ func (m *ReferenceMap) References(v dag.Vertex) ([]dag.Vertex, []string) {
 	var matches []dag.Vertex
 	var missing []string
 	prefix := m.prefix(v)
+
 	for _, ns := range rn.References() {
 		found := false
 		for _, n := range strings.Split(ns, "/") {
@@ -139,19 +140,14 @@ func (m *ReferenceMap) References(v dag.Vertex) ([]dag.Vertex, []string) {
 			// Mark that we found a match
 			found = true
 
-			// Make sure this isn't a self reference, which isn't included
-			selfRef := false
 			for _, p := range parents {
+				// don't include self-references
 				if p == v {
-					selfRef = true
-					break
+					continue
 				}
-			}
-			if selfRef {
-				continue
+				matches = append(matches, p)
 			}
 
-			matches = append(matches, parents...)
 			break
 		}
 
@@ -335,8 +331,13 @@ func ReferenceFromInterpolatedVar(v config.InterpolatedVariable) []string {
 }
 
 func modulePrefixStr(p []string) string {
+	// strip "root"
+	if len(p) > 0 && p[0] == rootModulePath[0] {
+		p = p[1:]
+	}
+
 	parts := make([]string, 0, len(p)*2)
-	for _, p := range p[1:] {
+	for _, p := range p {
 		parts = append(parts, "module", p)
 	}
 

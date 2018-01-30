@@ -1,7 +1,7 @@
 [
     {
         "name": "api",
-        "image": "quintilesims/l0-api:${version}",
+        "image": "quintilesims/l0-api:${layer0_version}",
         "essential": true,
         "memory": 500,
         "portMappings": [
@@ -19,25 +19,29 @@
                 }
          },
         "environment": [
+            { "name": "LAYER0_INSTANCE", "value": "${l0_prefix}" },
             { "name": "LAYER0_AWS_ACCESS_KEY_ID", "value": "${access_key}" },
             { "name": "LAYER0_AWS_SECRET_ACCESS_KEY", "value": "${secret_key}" },
-            { "name": "LAYER0_AWS_SSH_KEY_PAIR", "value": "${ssh_key_pair}" },
             { "name": "LAYER0_AWS_REGION", "value": "${region}" },
             { "name": "LAYER0_AWS_PUBLIC_SUBNETS", "value": "${public_subnets}" },
             { "name": "LAYER0_AWS_PRIVATE_SUBNETS", "value": "${private_subnets}" },
             { "name": "LAYER0_AWS_ECS_INSTANCE_PROFILE", "value": "${ecs_instance_profile}" },
             { "name": "LAYER0_AWS_VPC_ID", "value": "${vpc_id}" },
             { "name": "LAYER0_AWS_S3_BUCKET", "value": "${s3_bucket}" },
-            { "name": "LAYER0_INSTANCE", "value": "${l0_instance}" },
+            { "name": "LAYER0_PREFIX", "value": "${l0_prefix}" },
             { "name": "LAYER0_AWS_LINUX_SERVICE_AMI", "value": "${linux_service_ami}" },
             { "name": "LAYER0_AWS_WINDOWS_SERVICE_AMI", "value": "${windows_service_ami}" },
             { "name": "LAYER0_AWS_DYNAMO_TAG_TABLE", "value": "${dynamo_tag_table}" },
             { "name": "LAYER0_AWS_DYNAMO_LOCK_TABLE", "value": "${dynamo_lock_table}" },
-	    { "name": "LAYER0_AUTH_TOKEN", "value": "${api_auth_token}" },
-            { "name": "LAYER0_AWS_ACCOUNT_ID", "value": "${account_id}" },
             { "name": "LAYER0_AWS_LOG_GROUP_NAME", "value": "${log_group_name}" },
             { "name": "LAYER0_AWS_TIME_BETWEEN_REQUESTS", "value": "${time_between_requests}" },
-            { "name": "LAYER0_DEBUG", "value": "true" }
+            { "name": "LAYER0_AUTH_TOKEN", "value": "${api_auth_token}" },
+            { "name": "LAYER0_RUNNER_VERSION_TAG", "value": "${layer0_version}" },
+            { "name": "LAYER0_AWS_ECS_ROLE", "value": "${ecs_role}" },
+            { "name": "LAYER0_AWS_SSH_KEY_PAIR", "value": "${ssh_key_pair}" },
+            { "name": "LAYER0_AWS_ACCOUNT_ID", "value": "${account_id}" },
+            { "name": "LAYER0_API_LOG_LEVEL", "value": "debug" },
+            { "name": "LAYER0_RUNNER_LOG_LEVEL", "value": "debug" }
         ]
     }
 ]

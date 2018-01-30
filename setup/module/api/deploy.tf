@@ -8,7 +8,7 @@ data "template_file" "container_definitions" {
 
   vars {
     api_auth_token        = "${base64encode("${var.username}:${var.password}")}"
-    version               = "${var.version}"
+    layer0_version        = "${var.layer0_version}"
     access_key            = "${aws_iam_access_key.mod.id}"
     secret_key            = "${aws_iam_access_key.mod.secret}"
     region                = "${var.region}"
@@ -20,7 +20,7 @@ data "template_file" "container_definitions" {
     s3_bucket             = "${aws_s3_bucket.mod.id}"
     linux_service_ami     = "${data.aws_ami.linux.id}"
     windows_service_ami   = "${data.aws_ami.windows.id}"
-    l0_instance           = "${var.name}"
+    l0_prefix             = "${var.name}"
     account_id            = "${data.aws_caller_identity.current.account_id}"
     ssh_key_pair          = "${var.ssh_key_pair}"
     log_group_name        = "${aws_cloudwatch_log_group.mod.id}"

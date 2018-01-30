@@ -34,7 +34,7 @@ output "iam_role" {
   value = "${aws_iam_role.ecs.id}"
 }
 
-output "log_group" {
+output "log_group_name" {
   value = "${aws_cloudwatch_log_group.mod.id}"
 }
 

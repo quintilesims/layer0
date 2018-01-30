@@ -7,7 +7,7 @@ For more comprehensive documentation, we recommend taking a look at the official
 
 
 ## Sample
-The following snippet contains the task definition for the [Guestbook](/guides/guestbook) application
+The following snippet contains the task definition for the [Guestbook](../guides/walkthrough/deployment-1) application
 ```
 {
     "AWSEBDockerrunVersion": 2,
@@ -31,10 +31,10 @@ The following snippet contains the task definition for the [Guestbook](/guides/g
 * **Name** The name of the container
 
 !!! warning
-If you wish to update your task definition, the container names **must** remain the same.
-If any container names are changed or removed in an updated task definition,
-ECS will not know how the existing container(s) should be mapped over and you will not be able to deploy the updated task definition.
-If you encounter a scenario where you must change or remove a container's name in a task definition, we recommend re-creating the Layer0 Deploy and Service.
+    If you wish to update your task definition, the container names **must** remain the same.
+    If any container names are changed or removed in an updated task definition,
+    ECS will not know how the existing container(s) should be mapped over and you will not be able to deploy the updated task definition.
+    If you encounter a scenario where you must change or remove a container's name in a task definition, we recommend re-creating the Layer0 Deploy and Service.
 
 
 * **Image** The Docker image used to build the container. The image format is `url/image:tag`

@@ -7,7 +7,7 @@ Module Input Variables
 ----------------------
 
 - `name` - Layer0 instance name
-- `version` - Version of Layer0 to use
+- `layer0_version` - Version of Layer0 to use
 - `access_key` - AWS Access Key ID to manage resources
 - `secret_key` - AWS Secret Access Key to manage resources
 - `region` - AWS Region to manage resources
@@ -24,17 +24,17 @@ Usage
 
 ```hcl
 module "layer0" {
-  source       = "https://github.com/quintilesims/layer0/setup//layer0?ref=v1.0.0"
-  name         = "foobar"
-  version      = "v1.0.0"
-  access_key   = "ABC123"
-  secret_key   = "ABC123"
-  region       = "us-west-2"
-  ssh_key_pair = "my-key"
-  dockercfg    = "${file("~/.docker/dockercfg")}"
-  username     = "layer0"
-  password     = "password123"
-  vpc_id       = ""
+  source         = "https://github.com/quintilesims/layer0/setup//layer0?ref=v1.0.0"
+  name           = "foobar"
+  layer0_version = "v1.0.0"
+  access_key     = "ABC123"
+  secret_key     = "ABC123"
+  region         = "us-west-2"
+  ssh_key_pair   = "my-key"
+  dockercfg      = "${file("~/.docker/dockercfg")}"
+  username       = "layer0"
+  password       = "password123"
+  vpc_id         = ""
 }
 ```
 
