@@ -50,10 +50,6 @@ output "dynamo_tag_table" {
   value = "${aws_dynamodb_table.tags.id}"
 }
 
-output "dynamo_job_table" {
-  value = "${aws_dynamodb_table.jobs.id}"
-}
-
 output "dynamo_lock_table" {
   value = "${aws_dynamodb_table.lock.id}"
 }

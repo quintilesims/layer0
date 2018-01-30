@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/quintilesims/layer0/setup/instance/mock_instance"
 )
@@ -24,7 +25,7 @@ func TestUpgrade(t *testing.T) {
 	commandFactory := NewCommandFactory(instanceFactory, nil)
 	action := extractAction(t, commandFactory.Upgrade())
 
-	c := NewContext(t, []string{"name", "v1.0.0"}, nil)
+	c := testutils.NewTestContext(t, []string{"name", "v1.0.0"}, nil)
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +47,7 @@ func TestUpgradeForce(t *testing.T) {
 	commandFactory := NewCommandFactory(instanceFactory, nil)
 	action := extractAction(t, commandFactory.Upgrade())
 
-	c := NewContext(t, []string{"name", "v1.0.0"}, map[string]interface{}{"force": "true"})
+	c := testutils.NewTestContext(t, []string{"name", "v1.0.0"}, map[string]interface{}{"force": "true"})
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}

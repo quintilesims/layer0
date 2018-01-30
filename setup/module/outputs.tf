@@ -62,10 +62,6 @@ output "dynamo_tag_table" {
   value = "${module.api.dynamo_tag_table}"
 }
 
-output "dynamo_job_table" {
-  value = "${module.api.dynamo_job_table}"
-}
-
 output "dynamo_lock_table" {
   value = "${module.api.dynamo_lock_table}"
 }
