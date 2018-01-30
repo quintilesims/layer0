@@ -14,9 +14,7 @@ import (
 	"runtime"
 	"strings"
 
-	"gopkg.in/urfave/cli.v1"
-
-	"gopkg.in/yaml.v2"
+	"github.com/urfave/cli"
 )
 
 type yamlSourceContext struct {

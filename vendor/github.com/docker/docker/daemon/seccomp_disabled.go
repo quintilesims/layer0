@@ -6,7 +6,7 @@ import (
 	"fmt"
 
 	"github.com/docker/docker/container"
-	"github.com/opencontainers/runtime-spec/specs-go"
+	specs "github.com/opencontainers/runtime-spec/specs-go"
 )
 
 var supportsSeccomp = false

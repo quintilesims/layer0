@@ -2,9 +2,10 @@ package rclient
 
 import (
 	"errors"
-	"github.com/stretchr/testify/assert"
 	"net/http"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 var JohnDoe = person{Name: "John Doe", Age: 35}
