@@ -33,4 +33,4 @@ Your running Layer0 applications. We also use the term `service` for tools such 
 
 ### Environments
 
-Logical groupings of services. Typically, you would make a single environment for each tier of your application, such as `dev`, `staging`, and `prod`. Additionally an environment be either static or dynamic. Static environments should be used when you require more fine grained control over an EC2 instance that a container will run on. Dynamic (the default) allows you to run containers without having to worry about managing and scaling clusters of EC2 instances.
+Logical groupings of services. Typically, you would make a single environment for each tier of your application, such as `dev`, `staging`, and `prod`. Additionally an environment can be either static or dynamic. Static environments should be used when you require more fine grained control over an EC2 instance that a container will run on. Dynamic environments (the default) allow you to run containers without having to worry about managing and scaling clusters of EC2 instances.
