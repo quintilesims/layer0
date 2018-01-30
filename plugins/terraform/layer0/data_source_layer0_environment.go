@@ -74,7 +74,6 @@ func dataSourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	d.Set("name", environment.EnvironmentName)
 	d.Set("instance_type", environment.InstanceType)
 	d.Set("environment_type", environment.EnvironmentType)
-	d.Set("environment", environment.EnvironmentType)
 	d.Set("scale", environment.DesiredScale)
 	d.Set("security_group_id", environment.SecurityGroupID)
 	d.Set("os", environment.OperatingSystem)

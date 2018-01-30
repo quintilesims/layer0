@@ -7,6 +7,7 @@ provider "layer0" {
 resource "layer0_environment" "ws" {
   name = "ws"
   os   = "windows"
+  scale = 1
   instance_type = "m3.large"
   environment_type = "static"
 }

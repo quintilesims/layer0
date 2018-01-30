@@ -176,6 +176,50 @@ func TestCreateEnvironment(t *testing.T) {
 	})
 }
 
+func TestCreateDynamicEnvironment(t *testing.T) {
+	testWaitHelper(t, func(t *testing.T, wait bool) {
+		base, ctrl := newTestCommand(t)
+		defer ctrl.Finish()
+
+		command := NewEnvironmentCommand(base.Command())
+
+		req := models.CreateEnvironmentRequest{
+			EnvironmentName: "env_name",
+			Scale:           0,
+			EnvironmentType: "dynamic",
+			OperatingSystem: "linux",
+		}
+
+		environment := &models.Environment{}
+		job := &models.Job{
+			JobID:  "job_id",
+			Status: models.CompletedJobStatus,
+			Result: "entity_id",
+		}
+
+		base.Client.EXPECT().
+			CreateEnvironment(req).
+			Return(job.JobID, nil)
+
+		if wait {
+			base.Client.EXPECT().
+				ReadJob(job.JobID).
+				Return(job, nil)
+
+			base.Client.EXPECT().
+				ReadEnvironment(job.Result).
+				Return(environment, nil)
+		}
+
+		flags := map[string]interface{}{}
+
+		c := NewContext(t, []string{"env_name"}, flags, SetNoWait(!wait))
+		if err := command.create(c); err != nil {
+			t.Fatal(err)
+		}
+	})
+}
+
 func TestDeleteEnvironment(t *testing.T) {
 	testWaitHelper(t, func(t *testing.T, wait bool) {
 		base, ctrl := newTestCommand(t)
@@ -261,9 +305,9 @@ func TestEnvironmentSetScale(t *testing.T) {
 			Resolve("environment", "env_name").
 			Return([]string{"env_id"}, nil)
 
-		Scale := 2
+		scale := 2
 		req := models.UpdateEnvironmentRequest{
-			Scale: &Scale,
+			Scale: &scale,
 		}
 
 		job := &models.Job{

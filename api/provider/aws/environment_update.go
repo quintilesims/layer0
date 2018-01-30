@@ -31,7 +31,7 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 		}
 
 		if environmentType != models.EnvironmentTypeStatic {
-			return fmt.Errorf("updating dynamic environment's size isn't supported")
+			return fmt.Errorf("updating dynamic environment's scale isn't supported")
 		}
 
 		autoScalingGroupName := fqEnvironmentID

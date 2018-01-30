@@ -78,7 +78,7 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 			return fmt.Sprintf("%d/%d", e.CurrentScale, e.DesiredScale)
 		}
 
-		return "n/a"
+		return "-"
 	}
 
 	getLink := func(e *models.Environment, i int) string {

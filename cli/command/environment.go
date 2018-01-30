@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"io/ioutil"
+	"strconv"
 
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
@@ -44,7 +45,7 @@ func (e *EnvironmentCommand) Command() cli.Command {
 					},
 					cli.StringFlag{
 						Name:  "os",
-						Value: "linux",
+						Value: config.DefaultEnvironmentOS,
 						Usage: "specifies if the environment will run windows or linux containers",
 					},
 					cli.StringFlag{
@@ -72,16 +73,10 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				ArgsUsage: "ENVIRONMENT_NAME",
 			},
 			{
-				Name:      "set-scale",
+				Name:      "scale",
 				Usage:     "update the scale of a static environment cluster",
 				Action:    e.setScale,
-				ArgsUsage: "ENVIRONMENT_NAME",
-				Flags: []cli.Flag{
-					cli.IntFlag{
-						Name:  "scale",
-						Usage: "size of the environment cluster",
-					},
-				},
+				ArgsUsage: "ENVIRONMENT_NAME SCALE",
 			},
 			{
 				Name:      "link",
@@ -139,6 +134,10 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 
 	if c.IsSet("scale") {
 		req.EnvironmentType = models.EnvironmentTypeStatic
+	}
+
+	if !c.IsSet("os") {
+		req.OperatingSystem = config.DefaultEnvironmentOS
 	}
 
 	if err := req.Validate(); err != nil {
@@ -200,14 +199,14 @@ func (e *EnvironmentCommand) read(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) setScale(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME")
+	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME", "SCALE")
 	if err != nil {
 		return err
 	}
 
 	req := models.UpdateEnvironmentRequest{}
-	if c.IsSet("scale") {
-		scale := c.Int("scale")
+	scale, err := strconv.Atoi(args["SCALE"])
+	if err == nil {
 		req.Scale = &scale
 	}
 

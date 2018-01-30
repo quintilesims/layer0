@@ -26,9 +26,19 @@ func (r CreateEnvironmentRequest) Validate() error {
 		return fmt.Errorf("Scale must be a positive integer")
 	}
 
+	if !strings.EqualFold(r.EnvironmentType, EnvironmentTypeDynamic) &&
+		!strings.EqualFold(r.EnvironmentType, EnvironmentTypeStatic) {
+		return fmt.Errorf("%s is not a supported/valid environment type", r.EnvironmentType)
+	}
+
 	if strings.EqualFold(r.EnvironmentType, EnvironmentTypeDynamic) &&
 		!strings.EqualFold(r.OperatingSystem, LinuxOS) {
 		return fmt.Errorf("%s is not a supported OS for dynamic environments", r.OperatingSystem)
+	}
+
+	if strings.EqualFold(r.EnvironmentType, EnvironmentTypeDynamic) &&
+		r.Scale > 0 {
+		return fmt.Errorf("setting `Scale` is not valid for dynamic environments")
 	}
 
 	return nil
@@ -40,9 +50,9 @@ func (e CreateEnvironmentRequest) Definition() swagger.Definition {
 		Properties: map[string]swagger.Property{
 			"environment_name":   swagger.NewStringProperty(),
 			"instance_type":      swagger.NewStringProperty(),
+			"environment_type":   swagger.NewStringProperty(),
 			"user_data_template": swagger.NewStringProperty(),
-			"min_scale":          swagger.NewIntProperty(),
-			"max_scale":          swagger.NewIntProperty(),
+			"scale":              swagger.NewIntProperty(),
 			"operating_system":   swagger.NewStringProperty(),
 			"ami_id":             swagger.NewStringProperty(),
 		},
