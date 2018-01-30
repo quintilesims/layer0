@@ -28,6 +28,7 @@ func (e Environment) Definition() swagger.Definition {
 		Properties: map[string]swagger.Property{
 			"environment_id":    swagger.NewStringProperty(),
 			"environment_name":  swagger.NewStringProperty(),
+			"environment_type":  swagger.NewStringProperty(),
 			"current_scale":     swagger.NewIntProperty(),
 			"desired_scale":     swagger.NewIntProperty(),
 			"instance_type":     swagger.NewStringProperty(),

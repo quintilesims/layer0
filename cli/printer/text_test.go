@@ -69,11 +69,11 @@ func ExampleTextPrintEnvironments() {
 
 	printer.PrintEnvironments(environments...)
 	// Output:
-	// ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS       SCALE  INSTANCE TYPE  LINKS
-	// id1             name1             static   linux    2/3    t2.small       id2
-	// id2             name2             static   windows  2/5    t2.small       id1
-	//                                                            api
-	// id3             name3             dynamic  linux    n/a
+	// ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS       LINKS
+	// id1             name1             static   linux    id2
+	// id2             name2             static   windows  id1
+	//                                                     api
+	// id3             name3             dynamic  linux
 }
 
 func ExampleTextPrintEnvironmentSummaries() {

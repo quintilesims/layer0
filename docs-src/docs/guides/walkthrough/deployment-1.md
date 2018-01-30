@@ -49,16 +49,16 @@ api             api                        linux
 - `l0 environment get demo-env` will show us more information about the **demo-env** environment we just created:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS     SCALE  INSTANCE TYPE  LINKS
-demoenv0fe11    demo-env          dynamic  linux  n/a    m3.medium
+ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS     LINKS
+demoenv0fe11    demo-env          dynamic  linux
 ```
 
 - `l0 environment get \*` illustrates wildcard matching (you could also have used `demo*` in the above command), and it will return detailed information for _each_ environment, not just one - it's like a detailed `list`:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS     SCALE  INSTANCE TYPE  LINKS
-demoenv0fe11    demo-env          dynamic  linux  n/a    m3.medium
-api             api                        linux         m3.medium
+ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS     LINKS
+demoenv0fe11    demo-env          dynamic  linux
+api             api                        linux
 ```
 
 ---
