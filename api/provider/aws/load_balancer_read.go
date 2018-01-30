@@ -33,7 +33,7 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 			// certificate arn format:  arn:aws:iam:region:012345678910:certificate/path/to/name
 			split := strings.SplitN(certificateARN, "/", -1)
 			certificateName := split[len(split)-1]
-			port.CertificateName = certificateName
+			port.Certificate = certificateName
 		}
 
 		model.Ports[i] = port

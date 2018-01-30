@@ -84,10 +84,10 @@ func TestLoadBalancerRead(t *testing.T) {
 
 	ports := []models.Port{
 		models.Port{
-			CertificateName: "cert",
-			ContainerPort:   4444,
-			HostPort:        443,
-			Protocol:        "https",
+			Certificate:   "cert",
+			ContainerPort: 4444,
+			HostPort:      443,
+			Protocol:      "https",
 		},
 		models.Port{
 			ContainerPort: 88,

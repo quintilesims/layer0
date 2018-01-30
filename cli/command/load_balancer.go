@@ -439,26 +439,15 @@ func parsePort(port, certificate string) (*models.Port, error) {
 	}
 
 	protocol := split[2]
-	var certificateName string
-	var certificateARN string
 	if strings.ToLower(protocol) == "https" && certificate == "" {
 		return nil, fmt.Errorf("HTTPS protocol specified in a port, but no certificate provided")
 	}
 
-	if strings.ToLower(protocol) == "https" {
-		if strings.HasPrefix(strings.ToLower(certificate), "arn:") {
-			certificateARN = certificate
-		} else {
-			certificateName = certificate
-		}
-	}
-
 	model := &models.Port{
-		HostPort:        hostPort,
-		ContainerPort:   containerPort,
-		Protocol:        protocol,
-		CertificateName: certificateName,
-		CertificateARN:  certificateARN,
+		HostPort:      hostPort,
+		ContainerPort: containerPort,
+		Protocol:      protocol,
+		Certificate:   certificate,
 	}
 
 	return model, nil

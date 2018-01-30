@@ -40,16 +40,16 @@ func TestLoadBalancerCreate(t *testing.T) {
 		IsPublic:         true,
 		Ports: []models.Port{
 			{
-				CertificateName: "cert",
-				ContainerPort:   88,
-				HostPort:        80,
-				Protocol:        "http",
+				Certificate:   "cert",
+				ContainerPort: 88,
+				HostPort:      80,
+				Protocol:      "http",
 			},
 			{
-				CertificateName: "cert",
-				ContainerPort:   4444,
-				HostPort:        443,
-				Protocol:        "https",
+				Certificate:   "cert",
+				ContainerPort: 4444,
+				HostPort:      443,
+				Protocol:      "https",
 			},
 		},
 		HealthCheck: models.HealthCheck{

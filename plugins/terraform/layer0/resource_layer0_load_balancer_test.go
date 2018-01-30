@@ -18,10 +18,10 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 
 	ports := []models.Port{
 		{
-			CertificateName: "crt_name",
-			HostPort:        443,
-			ContainerPort:   4444,
-			Protocol:        "https",
+			Certificate:   "crt_name",
+			HostPort:      443,
+			ContainerPort: 4444,
+			Protocol:      "https",
 		},
 		{
 			HostPort:      80,
@@ -29,16 +29,16 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 			Protocol:      "tcp",
 		},
 		{
-			CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
-			HostPort:       9000,
-			ContainerPort:  9090,
-			Protocol:       "https",
+			Certificate:   "arn:aws:iam::12345:server-certificate/crt_name",
+			HostPort:      9000,
+			ContainerPort: 9090,
+			Protocol:      "https",
 		},
 		{
-			CertificateARN: "arn:aws:acm::12345:certificate/crt_name",
-			HostPort:       10000,
-			ContainerPort:  10101,
-			Protocol:       "https",
+			Certificate:   "arn:aws:acm::12345:certificate/crt_name",
+			HostPort:      10000,
+			ContainerPort: 10101,
+			Protocol:      "https",
 		},
 	}
 
