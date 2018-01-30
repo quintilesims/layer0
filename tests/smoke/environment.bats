@@ -52,8 +52,8 @@
     l0 environment get test2
 }
 
-@test "environment set-scale --scale 2 test3" {
-    l0 environment set-scale --scale 2 test3
+@test "environment scale test3 2" {
+    l0 environment scale test3 2
 }
 
 @test "environment delete test1" {
