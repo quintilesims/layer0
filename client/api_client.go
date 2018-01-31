@@ -24,7 +24,6 @@ type APIClient struct {
 	client *rclient.RestClient
 }
 
-// todo: verify version should be done in cli main
 func NewAPIClient(c Config) *APIClient {
 	httpClient := http.DefaultClient
 	if !c.VerifySSL {

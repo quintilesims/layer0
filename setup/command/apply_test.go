@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/quintilesims/layer0/setup/instance/mock_instance"
 )
@@ -24,7 +25,7 @@ func TestApply(t *testing.T) {
 	commandFactory := NewCommandFactory(instanceFactory, nil)
 	action := extractAction(t, commandFactory.Apply())
 
-	c := NewContext(t, []string{"name"}, nil)
+	c := testutils.NewTestContext(t, []string{"name"}, nil)
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}
@@ -46,7 +47,7 @@ func TestApplyQuick(t *testing.T) {
 	commandFactory := NewCommandFactory(instanceFactory, nil)
 	action := extractAction(t, commandFactory.Apply())
 
-	c := NewContext(t, []string{"name"}, map[string]interface{}{"quick": "true"})
+	c := testutils.NewTestContext(t, []string{"name"}, map[string]interface{}{"quick": "true"})
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}

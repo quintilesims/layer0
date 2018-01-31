@@ -3,12 +3,20 @@ package controllers
 import (
 	"bytes"
 	"encoding/json"
+	"io/ioutil"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/zpatrick/fireball"
 )
+
+func TestMain(m *testing.M) {
+	log.SetOutput(ioutil.Discard)
+	os.Exit(m.Run())
+}
 
 func newFireballContext(t *testing.T, body interface{}, params map[string]string) *fireball.Context {
 	b, err := json.Marshal(body)

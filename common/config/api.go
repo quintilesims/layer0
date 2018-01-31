@@ -21,11 +21,6 @@ func APIFlags() []cli.Flag {
 			EnvVar: ENVVAR_TOKEN,
 		},
 		cli.DurationFlag{
-			Name:   FLAG_JOB_EXPIRY,
-			Value:  DefaultJobExpiry,
-			EnvVar: ENVVAR_JOB_EXPIRY,
-		},
-		cli.DurationFlag{
 			Name:   FLAG_LOCK_EXPIRY,
 			Value:  DefaultLockExpiry,
 			EnvVar: ENVVAR_LOCK_EXPIRY,
@@ -74,10 +69,6 @@ func APIFlags() []cli.Flag {
 		cli.StringFlag{
 			Name:   FLAG_AWS_INSTANCE_PROFILE,
 			EnvVar: ENVVAR_AWS_INSTANCE_PROFILE,
-		},
-		cli.StringFlag{
-			Name:   FLAG_AWS_DYNAMO_JOB_TABLE,
-			EnvVar: ENVVAR_AWS_DYNAMO_JOB_TABLE,
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_DYNAMO_TAG_TABLE,
@@ -132,12 +123,10 @@ type APIConfig interface {
 	InstanceProfile() string
 	PublicSubnets() []string
 	PrivateSubnets() []string
-	DynamoJobTable() string
 	DynamoTagTable() string
 	DynamoLockTable() string
 	LogGroupName() string
 	SSHKeyPair() string
-	JobExpiry() time.Duration
 	LockExpiry() time.Duration
 	TimeBetweenRequests() time.Duration
 	MaxRetries() int
@@ -248,10 +237,6 @@ func (c *ContextAPIConfig) InstanceProfile() string {
 	return c.C.String(FLAG_AWS_INSTANCE_PROFILE)
 }
 
-func (c *ContextAPIConfig) DynamoJobTable() string {
-	return c.C.String(FLAG_AWS_DYNAMO_JOB_TABLE)
-}
-
 func (c *ContextAPIConfig) DynamoTagTable() string {
 	return c.C.String(FLAG_AWS_DYNAMO_TAG_TABLE)
 }
@@ -270,10 +255,6 @@ func (c *ContextAPIConfig) PrivateSubnets() []string {
 
 func (c *ContextAPIConfig) LogGroupName() string {
 	return c.C.String(FLAG_AWS_LOG_GROUP_NAME)
-}
-
-func (c *ContextAPIConfig) JobExpiry() time.Duration {
-	return c.C.Duration(FLAG_JOB_EXPIRY)
 }
 
 func (c *ContextAPIConfig) LockExpiry() time.Duration {

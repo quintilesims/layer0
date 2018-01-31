@@ -1,8 +1,6 @@
 package printer
 
 import (
-	"time"
-
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -24,7 +22,7 @@ func ExampleTextPrintDeploys() {
 
 func ExampleTextPrintDeploySummaries() {
 	printer := &TextPrinter{}
-	deploys := []*models.DeploySummary{
+	deploys := []models.DeploySummary{
 		{DeployID: "id1", DeployName: "name1", Version: "1"},
 		{DeployID: "id2", DeployName: "name2", Version: "2"},
 	}
@@ -71,7 +69,7 @@ func ExampleTextPrintEnvironments() {
 
 func ExampleTextPrintEnvironmentSummaries() {
 	printer := &TextPrinter{}
-	environments := []*models.EnvironmentSummary{
+	environments := []models.EnvironmentSummary{
 		{EnvironmentID: "id1", EnvironmentName: "name1", OperatingSystem: "linux"},
 		{EnvironmentID: "id2", EnvironmentName: "name2", OperatingSystem: "windows"},
 	}
@@ -81,37 +79,6 @@ func ExampleTextPrintEnvironmentSummaries() {
 	// ENVIRONMENT ID  ENVIRONMENT NAME  OS
 	// id1             name1             linux
 	// id2             name2             windows
-}
-
-func ExampleTextPrintJobs() {
-	printer := &TextPrinter{}
-	jobs := []*models.Job{
-		{
-			JobID:   "job_id1",
-			Type:    models.DeleteEnvironmentJob,
-			Status:  models.PendingJobStatus,
-			Created: time.Time{},
-		},
-		{
-			JobID:   "job_id2",
-			Type:    models.CreateServiceJob,
-			Status:  models.InProgressJobStatus,
-			Created: time.Time{},
-		},
-		{
-			JobID:   "job_id3",
-			Type:    models.UpdateLoadBalancerJob,
-			Status:  models.ErrorJobStatus,
-			Created: time.Time{},
-		},
-	}
-
-	printer.PrintJobs(jobs...)
-	// Output:
-	// JOB ID   TYPE                STATUS      CREATED
-	// job_id1  DeleteEnvironment   Pending     0001-01-01 00:00:00
-	// job_id2  CreateService       InProgress  0001-01-01 00:00:00
-	// job_id3  UpdateLoadBalancer  Error       0001-01-01 00:00:00
 }
 
 func ExampleTextPrintLoadBalancers() {
@@ -167,7 +134,7 @@ func ExampleTextPrintLoadBalancers() {
 
 func ExampleTextPrintLoadBalancerSummaries() {
 	printer := &TextPrinter{}
-	loadBalancers := []*models.LoadBalancerSummary{
+	loadBalancers := []models.LoadBalancerSummary{
 		{LoadBalancerID: "id1", LoadBalancerName: "lb1", EnvironmentID: "eid1", EnvironmentName: "ename1"},
 		{LoadBalancerID: "id2", LoadBalancerName: "lb2", EnvironmentID: "eid2"},
 	}
@@ -219,7 +186,7 @@ func ExampleTextPrintLoadBalancerHealthCheck() {
 
 func ExampleTextPrintLogs() {
 	printer := &TextPrinter{}
-	logs := []*models.LogFile{
+	logs := []models.LogFile{
 		{ContainerName: "file1", Lines: []string{"line1", "line2", "line3"}},
 		{ContainerName: "file2", Lines: []string{"lineA", "lineB", "lineC"}},
 	}
@@ -237,20 +204,6 @@ func ExampleTextPrintLogs() {
 	//lineA
 	//lineB
 	//lineC
-}
-
-func ExampleTextPrintScalerRunInfo() {
-	printer := &TextPrinter{}
-	runInfo := &models.ScalerRunInfo{
-		EnvironmentID:       "eid1",
-		ScaleBeforeRun:      1,
-		ActualScaleAfterRun: 2,
-	}
-
-	printer.PrintScalerRunInfo(runInfo)
-	// Output:
-	//ENVIRONMENT  CURRENT SCALE  DESIRED SCALE
-	//eid1         1              2
 }
 
 func ExampleTextPrintServices() {
@@ -328,7 +281,7 @@ func ExampleTextPrintServices() {
 
 func ExampleTextPrintServiceSummaries() {
 	printer := &TextPrinter{}
-	services := []*models.ServiceSummary{
+	services := []models.ServiceSummary{
 		{ServiceID: "id1", ServiceName: "svc1", EnvironmentID: "eid1", EnvironmentName: "ename1"},
 		{ServiceID: "id2", ServiceName: "svc2", EnvironmentID: "eid2"},
 	}
@@ -386,7 +339,7 @@ func ExampleTextPrintTasks() {
 
 func ExampleTextPrintTaskSummaries() {
 	printer := &TextPrinter{}
-	tasks := []*models.TaskSummary{
+	tasks := []models.TaskSummary{
 		{TaskID: "id1", TaskName: "tsk1", EnvironmentID: "eid1", EnvironmentName: "ename1"},
 		{TaskID: "id2", TaskName: "tsk2", EnvironmentID: "eid2"},
 	}

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/quintilesims/layer0/client"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func dataSourcelayer0LoadBalancer() *schema.Resource {
@@ -44,9 +45,9 @@ func dataSourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) 
 	apiClient := meta.(client.Client)
 
 	query := url.Values{}
-	query.Set(client.TagQueryParamType, "load_balancer")
-	query.Set(client.TagQueryParamName, d.Get("name").(string))
-	query.Set(client.TagQueryParamEnvironmentID, d.Get("environment_id").(string))
+	query.Set(models.TagQueryParamType, "load_balancer")
+	query.Set(models.TagQueryParamName, d.Get("name").(string))
+	query.Set(models.TagQueryParamEnvironmentID, d.Get("environment_id").(string))
 
 	tags, err := apiClient.ListTags(query)
 	if err != nil {

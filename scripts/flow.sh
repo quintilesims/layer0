@@ -4,7 +4,7 @@ set -e
 # kill all subprocesses on exit
 trap 'if [ ! -z "$(jobs -pr)" ]; then kill $(jobs -pr); fi' EXIT
 
-BULLET='\u2713'
+BULLET='->'
 GIT_HASH=$(git describe --tags)
 LAYER0_PATH=$GOPATH/src/github.com/quintilesims/layer0
 
@@ -28,6 +28,24 @@ apply() {
 }
 
 delete() {
+    echo "Deleting Load Balancers"
+    load_balancer_ids=$(l0 -o json loadbalancer list | jq -r .[].load_balancer_id)
+    for id in $load_balancer_ids; do
+        if [ "$id" != "api" ]; then
+            echo -e $BULLET "$id"
+            l0 loadbalancer delete $id > /dev/null 
+        fi
+    done
+
+    echo "Deleting Services"
+    service_ids=$(l0 -o json service list | jq -r .[].service_id)
+    for id in $service_ids; do
+        if [ "$id" != "api" ]; then
+            echo -e $BULLET "$id"
+            l0 service delete $id > /dev/null
+        fi
+    done
+
     echo "Deleting Environments"
     environment_ids=$(l0 -o json environment list | jq -r .[].environment_id)
     for id in $environment_ids; do
@@ -48,12 +66,6 @@ delete() {
         fi
     done
 
-    echo "Deleting Jobs"
-    job_ids=$(l0 -o json job list | jq -r .[].job_id)
-    for id in $job_ids; do
-        l0 job delete $id
-        echo -e $BULLET "$id"
-    done
 }
 
 usage() {

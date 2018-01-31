@@ -7,26 +7,25 @@ import (
 )
 
 func (c *APIClient) CreateDeploy(req models.CreateDeployRequest) (string, error) {
-	var resp models.CreateJobResponse
+	var resp models.CreateEntityResponse
 	if err := c.client.Post("/deploy", req, &resp); err != nil {
 		return "", err
 	}
 
-	return resp.JobID, nil
+	return resp.EntityID, nil
 }
 
-func (c *APIClient) DeleteDeploy(deployID string) (string, error) {
-	var resp models.CreateJobResponse
+func (c *APIClient) DeleteDeploy(deployID string) error {
 	path := fmt.Sprintf("/deploy/%s", deployID)
-	if err := c.client.Delete(path, nil, &resp); err != nil {
-		return "", err
+	if err := c.client.Delete(path, nil, nil); err != nil {
+		return err
 	}
 
-	return resp.JobID, nil
+	return nil
 }
 
-func (c *APIClient) ListDeploys() ([]*models.DeploySummary, error) {
-	var deploys []*models.DeploySummary
+func (c *APIClient) ListDeploys() ([]models.DeploySummary, error) {
+	var deploys []models.DeploySummary
 	if err := c.client.Get("/deploy", &deploys); err != nil {
 		return nil, err
 	}

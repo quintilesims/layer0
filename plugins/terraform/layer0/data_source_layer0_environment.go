@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/quintilesims/layer0/client"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func dataSourceLayer0Environment() *schema.Resource {
@@ -56,8 +57,8 @@ func dataSourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	apiClient := meta.(client.Client)
 
 	query := url.Values{}
-	query.Set(client.TagQueryParamType, "environment")
-	query.Set(client.TagQueryParamName, d.Get("name").(string))
+	query.Set(models.TagQueryParamType, "environment")
+	query.Set(models.TagQueryParamName, d.Get("name").(string))
 
 	tags, err := apiClient.ListTags(query)
 	if err != nil {

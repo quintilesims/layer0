@@ -4,7 +4,7 @@ import (
 	"io"
 
 	containerd "github.com/docker/containerd/api/grpc/types"
-	"github.com/opencontainers/runtime-spec/specs-go"
+	specs "github.com/opencontainers/runtime-spec/specs-go"
 	"golang.org/x/net/context"
 )
 

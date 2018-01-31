@@ -13,10 +13,8 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/quintilesims/layer0/api/controllers"
 	"github.com/quintilesims/layer0/api/daemon"
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/lock"
 	"github.com/quintilesims/layer0/api/provider/aws"
-	"github.com/quintilesims/layer0/api/scaler"
 	"github.com/quintilesims/layer0/api/tag"
 	awsclient "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config"
@@ -71,7 +69,6 @@ func main() {
 
 		client := awsclient.NewClient(session)
 		tagStore := tag.NewDynamoStore(session, cfg.DynamoTagTable())
-		jobStore := job.NewDynamoStore(session, cfg.DynamoJobTable())
 
 		adminProvider := aws.NewAdminProvider(client, tagStore, cfg)
 		deployProvider := aws.NewDeployProvider(client, tagStore, cfg)
@@ -79,31 +76,19 @@ func main() {
 		loadBalancerProvider := aws.NewLoadBalancerProvider(client, tagStore, cfg)
 		serviceProvider := aws.NewServiceProvider(client, tagStore, cfg)
 		taskProvider := aws.NewTaskProvider(client, tagStore, cfg)
-		environmentScaler := aws.NewEnvironmentScaler()
-		scalerDispatcher := scaler.NewDispatcher(jobStore, time.Second*15)
 
 		if err := adminProvider.Init(); err != nil {
 			return err
 		}
 
-		jobRunner := aws.NewJobRunner(
-			deployProvider,
-			environmentProvider,
-			loadBalancerProvider,
-			serviceProvider,
-			taskProvider,
-			environmentScaler,
-			scalerDispatcher)
-
 		routes := controllers.NewSwaggerController(Version).Routes()
 		routes = append(routes, controllers.NewAdminController(cfg, Version).Routes()...)
-		routes = append(routes, controllers.NewDeployController(deployProvider, jobStore, tagStore).Routes()...)
-		routes = append(routes, controllers.NewEnvironmentController(environmentProvider, jobStore, tagStore).Routes()...)
-		routes = append(routes, controllers.NewJobController(jobStore, tagStore).Routes()...)
-		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider, jobStore, tagStore).Routes()...)
-		routes = append(routes, controllers.NewServiceController(serviceProvider, jobStore, tagStore).Routes()...)
+		routes = append(routes, controllers.NewDeployController(deployProvider).Routes()...)
+		routes = append(routes, controllers.NewEnvironmentController(environmentProvider).Routes()...)
+		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider).Routes()...)
+		routes = append(routes, controllers.NewServiceController(serviceProvider).Routes()...)
 		routes = append(routes, controllers.NewTagController(tagStore).Routes()...)
-		routes = append(routes, controllers.NewTaskController(taskProvider, jobStore, tagStore).Routes()...)
+		routes = append(routes, controllers.NewTaskController(taskProvider).Routes()...)
 
 		user, pass, err := cfg.ParseAuthToken()
 		if err != nil {
@@ -120,23 +105,7 @@ func main() {
 		server := fireball.NewApp(routes)
 		server.ErrorHandler = controllers.ErrorHandler
 
-		jobLock := lock.NewDynamoLock(session, cfg.DynamoLockTable(), cfg.JobExpiry())
 		daemonLock := lock.NewDynamoLock(session, cfg.DynamoLockTable(), time.Minute*5)
-
-		// todo: get num workers from config
-		jobTicker, stopWorkers := job.RunWorkersAndDispatcher(2, jobStore, jobRunner, jobLock)
-		defer jobTicker.Stop()
-		defer stopWorkers()
-
-		sdFN := scaler.NewDaemonFN(jobStore, environmentProvider)
-		scalerDaemon := daemon.NewDaemon("Scaler", "ScalerDaemon", daemonLock, sdFN)
-		scalerDaemonTicker := scalerDaemon.RunEvery(time.Hour)
-		defer scalerDaemonTicker.Stop()
-
-		jdFN := job.NewDaemonFN(jobStore, cfg.JobExpiry())
-		jobDaemon := daemon.NewDaemon("Job", "JobDaemon", daemonLock, jdFN)
-		jobDaemonTicker := jobDaemon.RunEvery(time.Hour)
-		defer jobDaemonTicker.Stop()
 
 		tdFN := tag.NewDaemonFN(tagStore, taskProvider)
 		tagDaemon := daemon.NewDaemon("Tag", "TagDaemon", daemonLock, tdFN)

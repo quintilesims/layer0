@@ -4,114 +4,91 @@ import (
 	"testing"
 
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
 
 func TestCreateDeploy(t *testing.T) {
-	testWaitHelper(t, func(t *testing.T, wait bool) {
-		base, ctrl := newTestCommand(t)
-		defer ctrl.Finish()
-		command := NewDeployCommand(base.Command())
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewDeployCommand(base.Command())
 
-		file, close := createTempFile(t, "dpl_file")
-		defer close()
+	file, delete := testutils.TempFile(t, "content")
+	defer delete()
 
-		req := models.CreateDeployRequest{
-			DeployName: "dpl_name",
-			DeployFile: []byte("dpl_file"),
-		}
+	req := models.CreateDeployRequest{
+		DeployName: "dpl_name",
+		DeployFile: []byte("content"),
+	}
 
-		base.Client.EXPECT().
-			CreateDeploy(req).
-			Return("jid", nil)
+	base.Client.EXPECT().
+		CreateDeploy(req).
+		Return("dpl_id", nil)
 
-		job := &models.Job{
-			Status: "Completed",
-			Result: "dpl_id",
-		}
+	base.Client.EXPECT().
+		ReadDeploy("dpl_id").
+		Return(&models.Deploy{}, nil)
 
-		if wait {
-			base.Client.EXPECT().
-				ReadJob("jid").
-				Return(job, nil)
-
-			base.Client.EXPECT().
-				ReadDeploy("dpl_id").
-				Return(&models.Deploy{}, nil)
-		}
-
-		c := NewContext(t, []string{file.Name(), "dpl_name"}, nil, SetNoWait(!wait))
-		if err := command.create(c); err != nil {
-			t.Fatal(err)
-		}
-	})
+	c := testutils.NewTestContext(t, []string{file.Name(), "dpl_name"}, nil)
+	if err := command.create(c); err != nil {
+		t.Fatal(err)
+	}
 }
 
-func TestCreateDeploy_userInputErrors(t *testing.T) {
+func TestCreateDeployInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewDeployCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing PATH arg": NewContext(t, nil, nil),
-		"Missing NAME arg": NewContext(t, []string{"path"}, nil),
+		"Missing PATH arg": testutils.NewTestContext(t, nil, nil),
+		"Missing NAME arg": testutils.NewTestContext(t, []string{"path"}, nil),
 	}
 
 	for name, c := range contexts {
-		if err := command.create(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.create(c); err == nil {
+				t.Fatal("error was nil!")
+			}
+		})
 	}
 }
 
 func TestDeleteDeploy(t *testing.T) {
-	testWaitHelper(t, func(t *testing.T, wait bool) {
-		base, ctrl := newTestCommand(t)
-		defer ctrl.Finish()
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewDeployCommand(base.Command())
 
-		base.Resolver.EXPECT().
-			Resolve("deploy", "dpl_name").
-			Return([]string{"dpl_id"}, nil)
+	base.Resolver.EXPECT().
+		Resolve("deploy", "dpl_name").
+		Return([]string{"dpl_id"}, nil)
 
-		base.Client.EXPECT().
-			DeleteDeploy("dpl_id").
-			Return("jid", nil)
+	base.Client.EXPECT().
+		DeleteDeploy("dpl_id").
+		Return(nil)
 
-		job := &models.Job{
-			Status: "Completed",
-			Result: "dpl_id",
-		}
-
-		if wait {
-			base.Client.EXPECT().
-				ReadJob("jid").
-				Return(job, nil)
-		}
-
-		args := Args{"dpl_name"}
-		c := NewContext(t, args, nil, SetNoWait(!wait))
-
-		command := NewDeployCommand(base.Command())
-		if err := command.delete(c); err != nil {
-			t.Fatal(err)
-		}
-	})
+	c := testutils.NewTestContext(t, []string{"dpl_name"}, nil)
+	if err := command.delete(c); err != nil {
+		t.Fatal(err)
+	}
 }
 
-func TestDeleteDeploy_userInputErrors(t *testing.T) {
+func TestDeleteDeployInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewDeployCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
-		if err := command.delete(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.delete(c); err == nil {
+				t.Fatal("error was nil!")
+			}
+		})
 	}
 }
 
@@ -122,31 +99,33 @@ func TestReadDeploy(t *testing.T) {
 
 	base.Resolver.EXPECT().
 		Resolve("deploy", "dpl_name").
-		Return([]string{"id"}, nil)
+		Return([]string{"dpl_id"}, nil)
 
 	base.Client.EXPECT().
-		ReadDeploy("id").
+		ReadDeploy("dpl_id").
 		Return(&models.Deploy{}, nil)
 
-	c := NewContext(t, []string{"dpl_name"}, nil)
+	c := testutils.NewTestContext(t, []string{"dpl_name"}, nil)
 	if err := command.read(c); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestReadDeploy_userInputErrors(t *testing.T) {
+func TestReadDeployInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewDeployCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
-		if err := command.read(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.read(c); err == nil {
+				t.Fatal("error was nil!")
+			}
+		})
 	}
 }
 
@@ -157,16 +136,16 @@ func TestListDeploys(t *testing.T) {
 
 	base.Client.EXPECT().
 		ListDeploys().
-		Return([]*models.DeploySummary{}, nil)
+		Return([]models.DeploySummary{}, nil)
 
-	c := NewContext(t, nil, map[string]interface{}{"all": true})
+	c := testutils.NewTestContext(t, nil, map[string]interface{}{"all": true})
 	if err := command.list(c); err != nil {
 		t.Fatal(err)
 	}
 }
 
 func TestFilterDeploySummaries(t *testing.T) {
-	input := []*models.DeploySummary{
+	input := []models.DeploySummary{
 		{DeployName: "a", DeployID: "a.1", Version: "1"},
 		{DeployName: "a", DeployID: "a.2", Version: "2"},
 		{DeployName: "a", DeployID: "a.3", Version: "3"},

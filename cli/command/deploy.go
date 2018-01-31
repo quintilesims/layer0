@@ -78,25 +78,31 @@ func (d *DeployCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := d.client.CreateDeploy(req)
+	deployID, err := d.client.CreateDeploy(req)
 	if err != nil {
 		return err
 	}
 
-	return d.waitOnJobHelper(c, jobID, "creating", func(deployID string) error {
-		deploy, err := d.client.ReadDeploy(deployID)
-		if err != nil {
-			return err
-		}
+	deploy, err := d.client.ReadDeploy(deployID)
+	if err != nil {
+		return err
+	}
 
-		return d.printer.PrintDeploys(deploy)
-	})
+	return d.printer.PrintDeploys(deploy)
 }
 
 func (d *DeployCommand) delete(c *cli.Context) error {
-	return d.deleteHelper(c, "deploy", func(deployID string) (string, error) {
-		return d.client.DeleteDeploy(deployID)
-	})
+	args, err := extractArgs(c.Args(), "DEPLOY_NAME")
+	if err != nil {
+		return err
+	}
+
+	deployID, err := d.resolveSingleEntityIDHelper("deploy", args["DEPLOY_NAME"])
+	if err != nil {
+		return err
+	}
+
+	return d.client.DeleteDeploy(deployID)
 }
 
 func (d *DeployCommand) read(c *cli.Context) error {
@@ -139,8 +145,8 @@ func (d *DeployCommand) list(c *cli.Context) error {
 	return d.printer.PrintDeploySummaries(deploySummaries...)
 }
 
-func filterDeploySummaries(deploys []*models.DeploySummary) ([]*models.DeploySummary, error) {
-	catalog := map[string]*models.DeploySummary{}
+func filterDeploySummaries(deploys []models.DeploySummary) ([]models.DeploySummary, error) {
+	catalog := map[string]models.DeploySummary{}
 
 	for _, deploy := range deploys {
 		if name := deploy.DeployName; name != "" {
@@ -165,7 +171,7 @@ func filterDeploySummaries(deploys []*models.DeploySummary) ([]*models.DeploySum
 		}
 	}
 
-	filtered := []*models.DeploySummary{}
+	filtered := []models.DeploySummary{}
 	for _, deploy := range catalog {
 		filtered = append(filtered, deploy)
 	}

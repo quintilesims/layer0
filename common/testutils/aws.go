@@ -1,4 +1,4 @@
-package config
+package testutils
 
 import (
 	"os"
@@ -6,20 +6,20 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/quintilesims/layer0/common/config"
 )
 
 const (
 	ENVVAR_TEST_AWS_DYNAMO_TAG_TABLE  = "LAYER0_TEST_AWS_DYNAMO_TAG_TABLE"
-	ENVVAR_TEST_AWS_DYNAMO_JOB_TABLE  = "LAYER0_TEST_AWS_DYNAMO_JOB_TABLE"
 	ENVVAR_TEST_AWS_DYNAMO_LOCK_TABLE = "LAYER0_TEST_AWS_DYNAMO_LOCK_TABLE"
 )
 
 func GetTestAWSSession() *session.Session {
-	accessKey := os.Getenv(ENVVAR_AWS_ACCESS_KEY)
-	secretKey := os.Getenv(ENVVAR_AWS_SECRET_KEY)
-	region := os.Getenv(ENVVAR_AWS_REGION)
+	accessKey := os.Getenv(config.ENVVAR_AWS_ACCESS_KEY)
+	secretKey := os.Getenv(config.ENVVAR_AWS_SECRET_KEY)
+	region := os.Getenv(config.ENVVAR_AWS_REGION)
 	if region == "" {
-		region = DefaultAWSRegion
+		region = config.DefaultAWSRegion
 	}
 
 	creds := credentials.NewStaticCredentials(accessKey, secretKey, "")

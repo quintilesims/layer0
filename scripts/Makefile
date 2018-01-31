@@ -3,7 +3,7 @@ deps:
 	go install github.com/golang/mock/mockgen
 
 all: api cli setup common
-api: provider job lock
+api: provider lock
 cli: command client
 setup: instance
 common: aws config
@@ -14,9 +14,6 @@ provider:
 	mockgen github.com/quintilesims/layer0/api/provider LoadBalancerProvider > ../api/provider/mock_provider/mock_loadbalancer.go &
 	mockgen github.com/quintilesims/layer0/api/provider ServiceProvider > ../api/provider/mock_provider/mock_service.go &
 	mockgen github.com/quintilesims/layer0/api/provider TaskProvider > ../api/provider/mock_provider/mock_task.go &
-
-job:
-	mockgen github.com/quintilesims/layer0/api/job Store > ../api/job/mock_job/mock_store.go &
 
 lock:
 	mockgen github.com/quintilesims/layer0/api/lock Lock > ../api/lock/mock_lock/mock_lock.go &
@@ -60,4 +57,4 @@ instance:
 	sed -i '.tmp' s/github.com\\/quintilesims\\/layer0\\/vendor\\/// ../setup/instance/mock_instance/mock_instance.go && \
 	rm -f ../setup/instance/mock_instance/mock_instance.go.tmp
 
-.PHONY: deps all api common provider job aws config setup instance
+.PHONY: deps all api common provider aws config setup instance

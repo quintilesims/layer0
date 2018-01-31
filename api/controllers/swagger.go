@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
 	swagger "github.com/zpatrick/go-plugin-swagger"
@@ -54,16 +53,15 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			"Admin":                     models.APIConfig{}.Definition(),
 			"Container":                 models.Container{}.Definition(),
 			"ContainerOverride":         models.ContainerOverride{}.Definition(),
+			"CreateEntityResponse":      models.CreateEntityResponse{}.Definition(),
 			"CreateEnvironmentRequest":  models.CreateEnvironmentRequest{}.Definition(),
 			"CreateLoadBalancerRequest": models.CreateLoadBalancerRequest{}.Definition(),
 			"CreateServiceRequest":      models.CreateServiceRequest{}.Definition(),
 			"CreateTaskRequest":         models.CreateTaskRequest{}.Definition(),
 			"CreateDeployRequest":       models.CreateDeployRequest{}.Definition(),
-			"CreateJobResponse":         models.CreateJobResponse{}.Definition(),
 			"Deployment":                models.Deployment{}.Definition(),
 			"Environment":               models.Environment{}.Definition(),
 			"HealthCheck":               models.HealthCheck{}.Definition(),
-			"Job":                       models.Job{}.Definition(),
 			"LoadBalancer":              models.LoadBalancer{}.Definition(),
 			"LogFile":                   models.LogFile{}.Definition(),
 			"Port":                      models.Port{}.Definition(),
@@ -83,10 +81,6 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 			{
 				Name:        "Environment",
 				Description: "Methods related to environments",
-			},
-			{
-				Name:        "Job",
-				Description: "Methods related to jobs",
 			},
 			{
 				Name:        "LoadBalancer",
@@ -122,7 +116,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 				},
 			},
-			"/admin/health": map[string]swagger.Method{
+			"/health": map[string]swagger.Method{
 				"get": {
 					Summary: "Get Health",
 					Tags:    []string{"Admin"},
@@ -145,15 +139,15 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 				},
 				"post": {
-					Summary: "Add an Environment",
+					Summary: "Create a new Environment",
 					Tags:    []string{"Environment"},
 					Parameters: []swagger.Parameter{
-						swagger.NewBodyParam("CreateEnvironmentRequest", "Environment to add", true),
+						swagger.NewBodyParam("CreateEnvironmentRequest", "Environment to create", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the create request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "The ID of the new Environment",
+							Schema:      swagger.NewObjectSchema("CreateEntityResponse"),
 						},
 					},
 				},
@@ -180,8 +174,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the delete request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "Success",
 						},
 					},
 				},
@@ -189,48 +182,8 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Summary: "Update Environment links",
 					Tags:    []string{"Environment"},
 					Parameters: []swagger.Parameter{
-						swagger.NewStringPathParam("id", "ID of the environment to describe", true),
+						swagger.NewStringPathParam("id", "ID of the environment to update", true),
 						swagger.NewBodyParam("UpdateEnvironmentRequest", "Environment update request", true),
-					},
-					Responses: map[string]swagger.Response{
-						"200": {
-							Description: "The Job ID of the update request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
-						},
-					},
-				},
-			},
-			"/job": map[string]swagger.Method{
-				"get": {
-					Summary: "List all Jobs",
-					Tags:    []string{"Job"},
-					Responses: map[string]swagger.Response{
-						"200": {
-							Description: "An array of jobs",
-							Schema:      swagger.NewObjectSliceSchema("Job"),
-						},
-					},
-				},
-			},
-			"/job/{id}": map[string]swagger.Method{
-				"get": {
-					Summary: "Describe a Job",
-					Tags:    []string{"Job"},
-					Parameters: []swagger.Parameter{
-						swagger.NewStringPathParam("id", "ID of the job to describe", true),
-					},
-					Responses: map[string]swagger.Response{
-						"200": {
-							Description: "The desired job",
-							Schema:      swagger.NewObjectSchema("Job"),
-						},
-					},
-				},
-				"delete": {
-					Summary: "Delete a Job",
-					Tags:    []string{"Job"},
-					Parameters: []swagger.Parameter{
-						swagger.NewStringPathParam("id", "ID of the job to delete", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
@@ -251,15 +204,15 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 				},
 				"post": {
-					Summary: "Add a LoadBalancer",
+					Summary: "Create a new LoadBalancer",
 					Tags:    []string{"LoadBalancer"},
 					Parameters: []swagger.Parameter{
-						swagger.NewBodyParam("CreateLoadBalancerRequest", "LoadBalancer to add", true),
+						swagger.NewBodyParam("CreateLoadBalancerRequest", "LoadBalancer to create", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the create request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "The ID of the new LoadBalancer",
+							Schema:      swagger.NewObjectSchema("CreateEntityResponse"),
 						},
 					},
 				},
@@ -286,8 +239,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the update request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "Success",
 						},
 					},
 				},
@@ -299,23 +251,22 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the delete request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "Success",
 						},
 					},
 				},
 			},
 			"/service": {
 				"post": {
-					Summary: "Add a Service",
+					Summary: "Create a new Service",
 					Tags:    []string{"Service"},
 					Parameters: []swagger.Parameter{
-						swagger.NewBodyParam("CreateServiceRequest", "Service to add", true),
+						swagger.NewBodyParam("CreateServiceRequest", "Service to create", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the create request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "The ID of the new Service",
+							Schema:      swagger.NewObjectSchema("CreateEntityResponse"),
 						},
 					},
 				},
@@ -352,8 +303,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the update request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "Success",
 						},
 					},
 				},
@@ -365,8 +315,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the delete request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "Success",
 						},
 					},
 				},
@@ -401,15 +350,15 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 				},
 				"post": {
-					Summary: "Add a Task",
+					Summary: "Create a new Task",
 					Tags:    []string{"Task"},
 					Parameters: []swagger.Parameter{
-						swagger.NewBodyParam("CreateTaskRequest", "Task to add", true),
+						swagger.NewBodyParam("CreateTaskRequest", "Task to create", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the create request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "The ID of the new Task",
+							Schema:      swagger.NewObjectSchema("CreateEntityResponse"),
 						},
 					},
 				},
@@ -436,8 +385,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the delete request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "Success",
 						},
 					},
 				},
@@ -477,12 +425,12 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					Summary: "List Tags",
 					Tags:    []string{"Tag"},
 					Parameters: []swagger.Parameter{
-						swagger.NewStringQueryParam(client.TagQueryParamEnvironmentID, "Filter entities that have a matching 'environment_id' tag", false),
-						swagger.NewStringQueryParam(client.TagQueryParamFuzz, "Filter entities that have a matching entity id or name tag (glob patterns allowed)", false),
-						swagger.NewStringQueryParam(client.TagQueryParamID, "Filter entities that have a matching entity id", false),
-						swagger.NewStringQueryParam(client.TagQueryParamName, "Filter entities that have a matching name tag", false),
-						swagger.NewStringQueryParam(client.TagQueryParamType, "Filter entities that have a matching type", false),
-						swagger.NewStringQueryParam(client.TagQueryParamVersion, "Filter entities that have a version tag (version='latest' will return only the latest version)", false),
+						swagger.NewStringQueryParam(models.TagQueryParamEnvironmentID, "Filter entities that have a matching 'environment_id' tag", false),
+						swagger.NewStringQueryParam(models.TagQueryParamFuzz, "Filter entities that have a matching entity id or name tag (glob patterns allowed)", false),
+						swagger.NewStringQueryParam(models.TagQueryParamID, "Filter entities that have a matching entity id", false),
+						swagger.NewStringQueryParam(models.TagQueryParamName, "Filter entities that have a matching name tag", false),
+						swagger.NewStringQueryParam(models.TagQueryParamType, "Filter entities that have a matching type", false),
+						swagger.NewStringQueryParam(models.TagQueryParamVersion, "Filter entities that have a version tag (version='latest' will return only the latest version)", false),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
@@ -492,14 +440,14 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 				},
 				"post": {
-					Summary: "Add a Tag",
+					Summary: "Create a new Tag",
 					Tags:    []string{"Tag"},
 					Parameters: []swagger.Parameter{
-						swagger.NewBodyParam("Tag", "Tag to add", true),
+						swagger.NewBodyParam("Tag", "Tag to create", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The added tag",
+							Description: "The new Tag",
 							Schema:      swagger.NewObjectSchema("Tag"),
 						},
 					},
@@ -517,15 +465,15 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 				},
 				"post": {
-					Summary: "Add a Deploy",
+					Summary: "Create a new Deploy",
 					Tags:    []string{"Deploy"},
 					Parameters: []swagger.Parameter{
-						swagger.NewBodyParam("CreateDeployRequest", "Deploy to add (base64 encoded)", true),
+						swagger.NewBodyParam("CreateDeployRequest", "Deploy to create (base64 encoded)", true),
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the create request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "The ID of the new Deploy",
+							Schema:      swagger.NewObjectSchema("CreateEntityResponse"),
 						},
 					},
 				},
@@ -552,8 +500,7 @@ func (s *SwaggerController) ServeSwaggerSpec(c *fireball.Context) (fireball.Resp
 					},
 					Responses: map[string]swagger.Response{
 						"200": {
-							Description: "The Job ID of the delete request",
-							Schema:      swagger.NewObjectSchema("CreateJobResponse"),
+							Description: "Success",
 						},
 					},
 				},

@@ -59,18 +59,16 @@ func resourceLayer0ServiceCreate(d *schema.ResourceData, meta interface{}) error
 		Scale:          d.Get("scale").(int),
 	}
 
-	jobID, err := apiClient.CreateService(req)
+	serviceID, err := apiClient.CreateService(req)
 	if err != nil {
 		return err
 	}
 
-	job, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout)
-	if err != nil {
-		return err
-	}
-
-	serviceID := job.Result
 	d.SetId(serviceID)
+
+	if _, err := client.WaitForDeployment(apiClient, serviceID, config.DefaultTimeout); err != nil {
+		return err
+	}
 
 	return resourceLayer0ServiceRead(d, meta)
 }
@@ -121,12 +119,11 @@ func resourceLayer0ServiceUpdate(d *schema.ResourceData, meta interface{}) error
 	}
 
 	if req.DeployID != nil || req.Scale != nil {
-		jobID, err := apiClient.UpdateService(serviceID, req)
-		if err != nil {
+		if err := apiClient.UpdateService(serviceID, req); err != nil {
 			return err
 		}
 
-		if _, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout); err != nil {
+		if _, err := client.WaitForDeployment(apiClient, serviceID, config.DefaultTimeout); err != nil {
 			return err
 		}
 	}
@@ -138,12 +135,7 @@ func resourceLayer0ServiceDelete(d *schema.ResourceData, meta interface{}) error
 	apiClient := meta.(client.Client)
 	serviceID := d.Id()
 
-	jobID, err := apiClient.DeleteService(serviceID)
-	if err != nil {
-		return err
-	}
-
-	if _, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout); err != nil {
+	if err := apiClient.DeleteService(serviceID); err != nil {
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.ServiceDoesNotExist {
 			return nil
 		}

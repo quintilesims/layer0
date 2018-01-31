@@ -19,8 +19,8 @@ func NewLoadBalancerCommand(b *CommandBase) *LoadBalancerCommand {
 }
 
 func (l *LoadBalancerCommand) Command() cli.Command {
-	dhc := config.DefaultLoadBalancerHealthCheck
-	dp := config.DefaultLoadBalancerPort
+	dhc := config.DefaultLoadBalancerHealthCheck()
+	dp := config.DefaultLoadBalancerPort()
 	defaultPortString := fmt.Sprintf("%d:%d/%s", dp.HostPort, dp.ContainerPort, dp.Protocol)
 	defaultPortFlag := cli.StringSlice([]string{defaultPortString})
 
@@ -30,9 +30,9 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 		Subcommands: []cli.Command{
 			{
 				Name:      "addport",
-				Usage:     "Add a new listener port (HOST_PORT:CONTAINER_PORT/PROTOCOL) to load balancer LOADBALANCER_NAME",
-				Action:    l.addport,
-				ArgsUsage: "LOADBALANCER_NAME HOST_PORT:CONTAINER_PORT/PROTOCOL",
+				Usage:     "Add a new listener port (HOST_PORT:CONTAINER_PORT/PROTOCOL) to load balancer LOAD_BALANCER_NAME",
+				Action:    l.addPort,
+				ArgsUsage: "LOAD_BALANCER_NAME HOST_PORT:CONTAINER_PORT/PROTOCOL",
 				Flags: []cli.Flag{
 					cli.StringFlag{
 						Name:  "certificate",
@@ -42,9 +42,9 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 			},
 			{
 				Name:      "create",
-				Usage:     "Create a new load balancer LOADBALANCER_NAME in the environment specified in ENVIRONMENT_TARGET",
+				Usage:     "Create a new load balancer LOAD_BALANCER_NAME in the environment specified in ENVIRONMENT_TARGET",
 				Action:    l.create,
-				ArgsUsage: "ENVIRONMENT_TARGET LOADBALANCER_NAME",
+				ArgsUsage: "ENVIRONMENT_TARGET LOAD_BALANCER_NAME",
 				Flags: []cli.Flag{
 					cli.StringSliceFlag{
 						Name:  "port",
@@ -88,27 +88,27 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 			},
 			{
 				Name:      "delete",
-				Usage:     "Delete the load balancer LOADBALANCER_NAME",
-				ArgsUsage: "LOADBALANCER_NAME",
+				Usage:     "Delete the load balancer LOAD_BALANCER_NAME",
+				ArgsUsage: "LOAD_BALANCER_NAME",
 				Action:    l.delete,
 			},
 			{
 				Name:      "dropport",
-				Usage:     "Drop the listener with host port HOST_PORT from load balancer LOADBALANCER_NAME",
-				Action:    l.dropport,
-				ArgsUsage: "LOADBALANCER_NAME HOST_PORT",
+				Usage:     "Drop the listener with host port HOST_PORT from load balancer LOAD_BALANCER_NAME",
+				Action:    l.dropPort,
+				ArgsUsage: "LOAD_BALANCER_NAME HOST_PORT",
 			},
 			{
 				Name:      "get",
-				Usage:     "Describe load balancer LOADBALANCER_NAME",
+				Usage:     "Describe load balancer LOAD_BALANCER_NAME",
 				Action:    l.read,
-				ArgsUsage: "LOADBALANCER_NAME",
+				ArgsUsage: "LOAD_BALANCER_NAME",
 			},
 			{
 				Name:      "healthcheck",
-				Usage:     "View or update the health check of load balancer LOADBALANCER_NAME",
+				Usage:     "View or update the health check of load balancer LOAD_BALANCER_NAME",
 				Action:    l.healthcheck,
-				ArgsUsage: "LOADBALANCER_NAME",
+				ArgsUsage: "LOAD_BALANCER_NAME",
 				Flags: []cli.Flag{
 					cli.StringFlag{
 						Name:  "healthcheck-target",
@@ -142,8 +142,8 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 	}
 }
 
-func (l *LoadBalancerCommand) addport(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "LOADBALANCER_NAME", "PORT")
+func (l *LoadBalancerCommand) addPort(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "LOAD_BALANCER_NAME", "PORT")
 	if err != nil {
 		return err
 	}
@@ -153,7 +153,7 @@ func (l *LoadBalancerCommand) addport(c *cli.Context) error {
 		return err
 	}
 
-	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOADBALANCER_NAME"])
+	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOAD_BALANCER_NAME"])
 	if err != nil {
 		return err
 	}
@@ -168,24 +168,20 @@ func (l *LoadBalancerCommand) addport(c *cli.Context) error {
 		Ports: &ports,
 	}
 
-	jobID, err := l.client.UpdateLoadBalancer(loadBalancerID, req)
+	if err := l.client.UpdateLoadBalancer(loadBalancerID, req); err != nil {
+		return err
+	}
+
+	loadBalancer, err = l.client.ReadLoadBalancer(loadBalancerID)
 	if err != nil {
 		return err
 	}
 
-	return l.waitOnJobHelper(c, jobID, "adding port", func(loadBalancerID string) error {
-		loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
-		if err != nil {
-			return err
-		}
-
-		l.printer.StopSpinner()
-		return l.printer.PrintLoadBalancers(loadBalancer)
-	})
+	return l.printer.PrintLoadBalancers(loadBalancer)
 }
 
 func (l *LoadBalancerCommand) create(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "ENVIRONMENT_TARGET", "LOADBALANCER_NAME")
+	args, err := extractArgs(c.Args(), "ENVIRONMENT_TARGET", "LOAD_BALANCER_NAME")
 	if err != nil {
 		return err
 	}
@@ -226,7 +222,7 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 	}
 
 	req := models.CreateLoadBalancerRequest{
-		LoadBalancerName: args["LOADBALANCER_NAME"],
+		LoadBalancerName: args["LOAD_BALANCER_NAME"],
 		EnvironmentID:    environmentID,
 		IsPublic:         !c.Bool("private"),
 		Ports:            ports,
@@ -237,30 +233,35 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := l.client.CreateLoadBalancer(req)
+	loadBalancerID, err := l.client.CreateLoadBalancer(req)
 	if err != nil {
 		return err
 	}
 
-	return l.waitOnJobHelper(c, jobID, "creating", func(loadBalancerID string) error {
-		loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
-		if err != nil {
-			return err
-		}
+	loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
+	if err != nil {
+		return err
+	}
 
-		l.printer.StopSpinner()
-		return l.printer.PrintLoadBalancers(loadBalancer)
-	})
+	return l.printer.PrintLoadBalancers(loadBalancer)
 }
 
 func (l *LoadBalancerCommand) delete(c *cli.Context) error {
-	return l.deleteHelper(c, "load_balancer", func(loadBalancerID string) (string, error) {
-		return l.client.DeleteLoadBalancer(loadBalancerID)
-	})
+	args, err := extractArgs(c.Args(), "LOAD_BALANCER_NAME")
+	if err != nil {
+		return err
+	}
+
+	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOAD_BALANCER_NAME"])
+	if err != nil {
+		return err
+	}
+
+	return l.client.DeleteLoadBalancer(loadBalancerID)
 }
 
-func (l *LoadBalancerCommand) dropport(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "LOADBALANCER_NAME", "HOST_PORT")
+func (l *LoadBalancerCommand) dropPort(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "LOAD_BALANCER_NAME", "HOST_PORT")
 	if err != nil {
 		return err
 	}
@@ -270,7 +271,7 @@ func (l *LoadBalancerCommand) dropport(c *cli.Context) error {
 		return fmt.Errorf("'%s' is not a valid integer", args["HOST_PORT"])
 	}
 
-	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOADBALANCER_NAME"])
+	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOAD_BALANCER_NAME"])
 	if err != nil {
 		return err
 	}
@@ -294,33 +295,28 @@ func (l *LoadBalancerCommand) dropport(c *cli.Context) error {
 	}
 
 	req := models.UpdateLoadBalancerRequest{
-		Ports:       &loadBalancer.Ports,
-		HealthCheck: nil,
+		Ports: &loadBalancer.Ports,
 	}
 
-	jobID, err := l.client.UpdateLoadBalancer(loadBalancerID, req)
+	if err := l.client.UpdateLoadBalancer(loadBalancerID, req); err != nil {
+		return err
+	}
+
+	loadBalancer, err = l.client.ReadLoadBalancer(loadBalancerID)
 	if err != nil {
 		return err
 	}
 
-	return l.waitOnJobHelper(c, jobID, "dropping port", func(loadBalancerID string) error {
-		loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
-		if err != nil {
-			return err
-		}
-
-		l.printer.StopSpinner()
-		return l.printer.PrintLoadBalancers(loadBalancer)
-	})
+	return l.printer.PrintLoadBalancers(loadBalancer)
 }
 
 func (l *LoadBalancerCommand) healthcheck(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "LOADBALANCER_NAME")
+	args, err := extractArgs(c.Args(), "LOAD_BALANCER_NAME")
 	if err != nil {
 		return err
 	}
 
-	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOADBALANCER_NAME"])
+	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOAD_BALANCER_NAME"])
 	if err != nil {
 		return err
 	}
@@ -370,20 +366,16 @@ func (l *LoadBalancerCommand) healthcheck(c *cli.Context) error {
 		HealthCheck: &healthCheck,
 	}
 
-	jobID, err := l.client.UpdateLoadBalancer(loadBalancerID, req)
+	if err := l.client.UpdateLoadBalancer(loadBalancerID, req); err != nil {
+		return err
+	}
+
+	loadBalancer, err = l.client.ReadLoadBalancer(loadBalancerID)
 	if err != nil {
 		return err
 	}
 
-	return l.waitOnJobHelper(c, jobID, "updating health check", func(loadBalancerID string) error {
-		loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
-		if err != nil {
-			return err
-		}
-
-		l.printer.StopSpinner()
-		return l.printer.PrintLoadBalancerHealthCheck(loadBalancer)
-	})
+	return l.printer.PrintLoadBalancerHealthCheck(loadBalancer)
 }
 
 func (l *LoadBalancerCommand) list(c *cli.Context) error {
@@ -396,12 +388,12 @@ func (l *LoadBalancerCommand) list(c *cli.Context) error {
 }
 
 func (l *LoadBalancerCommand) read(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "LOADBALANCER_NAME")
+	args, err := extractArgs(c.Args(), "LOAD_BALANCER_NAME")
 	if err != nil {
 		return err
 	}
 
-	loadBalancerIDs, err := l.resolver.Resolve("load_balancer", args["LOADBALANCER_NAME"])
+	loadBalancerIDs, err := l.resolver.Resolve("load_balancer", args["LOAD_BALANCER_NAME"])
 	if err != nil {
 		return err
 	}
@@ -460,7 +452,9 @@ func validateTarget(target string) error {
 
 	protocol := strings.ToLower(split[0])
 	if len(split) < 3 && (protocol == "https" || protocol == "http") {
-		return fmt.Errorf("HTTP and HTTPS targets must specify a port followed by a path that begins with a slash. e.g. HTTPS:443/ping/this/path")
+		text := "HTTP & HTTPS targets must specify a port followed by a path.\n"
+		text += "For example, HTTPS:443/health"
+		return fmt.Errorf(text)
 	}
 
 	return nil

@@ -6,9 +6,7 @@ import (
 	"time"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
-	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -18,31 +16,33 @@ func TestCreateTask(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewTaskController(mockTaskProvider, mockJobStore, tagStore)
+	controller := NewTaskController(mockTaskProvider)
 
 	req := models.CreateTaskRequest{
-		DeployID:      "deploy_id",
+		TaskName:      "tsk_name",
 		EnvironmentID: "env_id",
-		TaskName:      "task_name",
+		DeployID:      "dpl_id",
+		ContainerOverrides: []models.ContainerOverride{
+			{ContainerName: "c1", EnvironmentOverrides: map[string]string{"k1": "v1"}},
+			{ContainerName: "c2", EnvironmentOverrides: map[string]string{"k2": "v2"}},
+		},
 	}
 
-	mockJobStore.EXPECT().
-		Insert(models.CreateTaskJob, gomock.Any()).
-		Return("jid", nil)
+	mockTaskProvider.EXPECT().
+		Create(req).
+		Return("tsk_id", nil)
 
 	c := newFireballContext(t, req, nil)
-	resp, err := controller.CreateTask(c)
+	resp, err := controller.createTask(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Job
+	var response models.CreateEntityResponse
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, "jid", response.JobID)
+	assert.Equal(t, "tsk_id", response.EntityID)
 }
 
 func TestDeleteTask(t *testing.T) {
@@ -50,119 +50,20 @@ func TestDeleteTask(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewTaskController(mockTaskProvider, mockJobStore, tagStore)
-
-	mockJobStore.EXPECT().
-		Insert(models.DeleteTaskJob, "tid").
-		Return("jid", nil)
-
-	c := newFireballContext(t, nil, map[string]string{"id": "tid"})
-	resp, err := controller.DeleteTask(c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var response models.Job
-	recorder := unmarshalBody(t, resp, &response)
-
-	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, "jid", response.JobID)
-}
-
-func TestGetTask(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewTaskController(mockTaskProvider, mockJobStore, tagStore)
-
-	taskModel := models.Task{
-		TaskID:          "task_id",
-		TaskName:        "task_name",
-		EnvironmentID:   "env_id",
-		EnvironmentName: "env_name",
-		DeployID:        "deploy_id",
-		DeployName:      "deploy_name",
-		DeployVersion:   "5",
-		Status:          "RUNNING",
-		Containers: []models.Container{
-			{
-				ContainerName: "name",
-				Status:        "RUNNING",
-				ExitCode:      0,
-				Meta:          "",
-			},
-		},
-	}
+	controller := NewTaskController(mockTaskProvider)
 
 	mockTaskProvider.EXPECT().
-		Read("task_id").
-		Return(&taskModel, nil)
+		Delete("tsk_id").
+		Return(nil)
 
-	c := newFireballContext(t, nil, map[string]string{"id": "task_id"})
-	resp, err := controller.GetTask(c)
+	c := newFireballContext(t, nil, map[string]string{"id": "tsk_id"})
+	resp, err := controller.deleteTask(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Task
-	recorder := unmarshalBody(t, resp, &response)
-
+	recorder := unmarshalBody(t, resp, nil)
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, taskModel, response)
-}
-
-func TestGetTaskLogs(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewTaskController(mockTaskProvider, mockJobStore, tagStore)
-
-	logFiles := []models.LogFile{
-		{
-			ContainerName: "alpine",
-			Lines:         []string{"hello", "world"},
-		},
-	}
-
-	tail := "100"
-	start, err := time.Parse(TIME_LAYOUT, "2001-01-02 10:00")
-	if err != nil {
-		t.Fatalf("Failed to parse start: %v", err)
-	}
-
-	end, err := time.Parse(TIME_LAYOUT, "2001-01-02 12:00")
-	if err != nil {
-		t.Fatalf("Failed to parse end: %v", err)
-	}
-
-	mockTaskProvider.EXPECT().
-		Logs("task_id", 100, start, end).
-		Return(logFiles, nil)
-
-	c := newFireballContext(t, nil, map[string]string{"id": "task_id"})
-	c.Request.URL.RawQuery = fmt.Sprintf("tail=%s&start=%s&end=%s",
-		tail,
-		start.Format(TIME_LAYOUT),
-		end.Format(TIME_LAYOUT))
-
-	resp, err := controller.GetTaskLogs(c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var response []models.LogFile
-	recorder := unmarshalBody(t, resp, &response)
-
-	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, logFiles, response)
 }
 
 func TestListTasks(t *testing.T) {
@@ -170,31 +71,29 @@ func TestListTasks(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewTaskController(mockTaskProvider, mockJobStore, tagStore)
+	controller := NewTaskController(mockTaskProvider)
 
-	taskSummaries := []models.TaskSummary{
+	expected := []models.TaskSummary{
 		{
-			TaskID:          "task_id",
-			TaskName:        "task_name",
-			EnvironmentID:   "env_id",
-			EnvironmentName: "env_name",
+			TaskID:          "tsk_id1",
+			TaskName:        "tsk_name1",
+			EnvironmentID:   "env_id1",
+			EnvironmentName: "env_name1",
 		},
 		{
-			TaskID:          "task_id",
-			TaskName:        "task_name",
-			EnvironmentID:   "env_id",
-			EnvironmentName: "env_name",
+			TaskID:          "tsk_id2",
+			TaskName:        "tskd_name2",
+			EnvironmentID:   "env_id2",
+			EnvironmentName: "env_name2",
 		},
 	}
 
 	mockTaskProvider.EXPECT().
 		List().
-		Return(taskSummaries, nil)
+		Return(expected, nil)
 
 	c := newFireballContext(t, nil, nil)
-	resp, err := controller.ListTasks(c)
+	resp, err := controller.listTasks(c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -203,5 +102,91 @@ func TestListTasks(t *testing.T) {
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, taskSummaries, response)
+	assert.Equal(t, expected, response)
+}
+
+func TestReadTask(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	expected := models.Task{
+		TaskID:          "tsk_id",
+		TaskName:        "tsk_name",
+		EnvironmentID:   "env_id",
+		EnvironmentName: "env_name",
+		DeployID:        "dpl_id",
+		DeployName:      "dpl_name",
+		DeployVersion:   "1",
+		Status:          "RUNNING",
+		Containers: []models.Container{
+			{ContainerName: "c1", Status: "RUNNING", ExitCode: 0},
+			{ContainerName: "c2", Status: "STOPPED", ExitCode: 1},
+		},
+	}
+
+	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
+	controller := NewTaskController(mockTaskProvider)
+
+	mockTaskProvider.EXPECT().
+		Read("tsk_id").
+		Return(&expected, nil)
+
+	c := newFireballContext(t, nil, map[string]string{"id": "tsk_id"})
+	resp, err := controller.readTask(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var response models.Task
+	recorder := unmarshalBody(t, resp, &response)
+
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, expected, response)
+}
+
+func TestReadTaskLogs(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockTaskProvider := mock_provider.NewMockTaskProvider(ctrl)
+	controller := NewTaskController(mockTaskProvider)
+
+	expected := []models.LogFile{
+		{
+			ContainerName: "apline",
+			Lines:         []string{"hello", "world"},
+		},
+	}
+
+	tail := "100"
+	start, err := time.Parse(TimeLayout, "2001-01-02 10:00")
+	if err != nil {
+		t.Fatalf("Failed to parse start: %v", err)
+	}
+
+	end, err := time.Parse(TimeLayout, "2001-01-02 12:00")
+	if err != nil {
+		t.Fatalf("Failed to parse end: %v", err)
+	}
+
+	mockTaskProvider.EXPECT().
+		Logs("tsk_id", 100, start, end).
+		Return(expected, nil)
+
+	c := newFireballContext(t, nil, map[string]string{"id": "tsk_id"})
+	c.Request.URL.RawQuery = fmt.Sprintf("tail=%s&start=%s&end=%s",
+		tail,
+		start.Format(TimeLayout),
+		end.Format(TimeLayout))
+
+	resp, err := controller.readTaskLogs(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var response []models.LogFile
+	recorder := unmarshalBody(t, resp, &response)
+
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, expected, response)
 }

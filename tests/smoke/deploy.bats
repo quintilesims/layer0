@@ -1,29 +1,22 @@
 #!/usr/bin/env bats
 
-@test "deploy create guestbook1" {
-    l0 deploy create ./common/Service.Dockerrun.aws.json guestbook1
+@test "create" {
+  l0 deploy create ./common/Service.Dockerrun.aws.json dpl_name1
+  l0 deploy create ./common/Service.Dockerrun.aws.json dpl_name2
 }
 
-@test "deploy list" {
-    l0 deploy list
+@test "get" {
+  l0 deploy get dpl_name1
+  l0 deploy get dpl_name2
+  l0 deploy get dpl_name*
 }
 
-@test "deploy list --all" {
-    l0 deploy list --all
+@test "list" {
+  l0 deploy list
+  l0 deploy list --all
 }
 
-@test "deploy get guestbook1" {
-    l0 deploy get guestbook1
-}
-
-@test "deploy get guestbook1:latest" {
-    l0 deploy get guestbook1:latest
-}
-
-@test "deploy get guest*" {
-    l0 deploy get guest\*
-}
-
-@test "deploy delete guestbook1" {
-    l0 deploy delete guestbook1
+@test "delete" {
+  l0 deploy delete dpl_name1
+  l0 deploy delete dpl_name2
 }
