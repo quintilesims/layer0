@@ -79,27 +79,27 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 						"target": {
 							Type:     schema.TypeString,
 							Optional: true,
-							Default:  config.DefaultLoadBalancerHealthCheck.Target,
+							Default:  config.DefaultLoadBalancerHealthCheck().Target,
 						},
 						"interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  config.DefaultLoadBalancerHealthCheck.Interval,
+							Default:  config.DefaultLoadBalancerHealthCheck().Interval,
 						},
 						"timeout": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  config.DefaultLoadBalancerHealthCheck.Timeout,
+							Default:  config.DefaultLoadBalancerHealthCheck().Timeout,
 						},
 						"healthy_threshold": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  config.DefaultLoadBalancerHealthCheck.HealthyThreshold,
+							Default:  config.DefaultLoadBalancerHealthCheck().HealthyThreshold,
 						},
 						"unhealthy_threshold": {
 							Type:     schema.TypeInt,
 							Optional: true,
-							Default:  config.DefaultLoadBalancerHealthCheck.UnhealthyThreshold,
+							Default:  config.DefaultLoadBalancerHealthCheck().UnhealthyThreshold,
 						},
 					},
 				},
@@ -113,7 +113,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 
 	ports := expandPorts(d.Get("port").(*schema.Set).List())
 	if len(ports) == 0 {
-		ports = []models.Port{config.DefaultLoadBalancerPort}
+		ports = []models.Port{config.DefaultLoadBalancerPort()}
 	}
 
 	req := models.CreateLoadBalancerRequest{
@@ -124,19 +124,12 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 		HealthCheck:      expandHealthCheck(d.Get("health_check")),
 	}
 
-	jobID, err := apiClient.CreateLoadBalancer(req)
+	loadBalancerID, err := apiClient.CreateLoadBalancer(req)
 	if err != nil {
 		return err
 	}
 
-	job, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout)
-	if err != nil {
-		return err
-	}
-
-	loadBalancerID := job.Result
 	d.SetId(loadBalancerID)
-
 	return resourceLayer0LoadBalancerRead(d, meta)
 }
 
@@ -182,12 +175,7 @@ func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) 
 	}
 
 	if req.Ports != nil || req.HealthCheck != nil {
-		jobID, err := apiClient.UpdateLoadBalancer(loadBalancerID, req)
-		if err != nil {
-			return err
-		}
-
-		if _, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout); err != nil {
+		if err := apiClient.UpdateLoadBalancer(loadBalancerID, req); err != nil {
 			return err
 		}
 	}
@@ -199,12 +187,7 @@ func resourceLayer0LoadBalancerDelete(d *schema.ResourceData, meta interface{}) 
 	apiClient := meta.(client.Client)
 	loadBalancerID := d.Id()
 
-	jobID, err := apiClient.DeleteLoadBalancer(loadBalancerID)
-	if err != nil {
-		return err
-	}
-
-	if _, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout); err != nil {
+	if err := apiClient.DeleteLoadBalancer(loadBalancerID); err != nil {
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
 			return nil
 		}
@@ -249,7 +232,7 @@ func expandHealthCheck(flattened interface{}) models.HealthCheck {
 		}
 	}
 
-	return config.DefaultLoadBalancerHealthCheck
+	return config.DefaultLoadBalancerHealthCheck()
 }
 
 func flattenHealthCheck(healthCheck models.HealthCheck) []map[string]interface{} {

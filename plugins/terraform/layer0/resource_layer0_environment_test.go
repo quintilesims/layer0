@@ -28,16 +28,7 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 
 	mockClient.EXPECT().
 		CreateEnvironment(req).
-		Return("job_id", nil)
-
-	job := &models.Job{
-		Status: models.CompletedJobStatus,
-		Result: "env_id",
-	}
-
-	mockClient.EXPECT().
-		ReadJob("job_id").
-		Return(job, nil)
+		Return("env_id", nil)
 
 	environment := &models.Environment{
 		EnvironmentID:   "env_id",
@@ -87,11 +78,7 @@ func TestResourceEnvironmentDelete(t *testing.T) {
 
 	mockClient.EXPECT().
 		DeleteEnvironment("env_id").
-		Return("job_id", nil)
-
-	mockClient.EXPECT().
-		ReadJob("job_id").
-		Return(&models.Job{Status: models.CompletedJobStatus}, nil)
+		Return(nil)
 
 	environmentResource := Provider().(*schema.Provider).ResourcesMap["layer0_environment"]
 	d := schema.TestResourceDataRaw(t, environmentResource.Schema, map[string]interface{}{})

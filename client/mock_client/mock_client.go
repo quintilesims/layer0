@@ -101,11 +101,10 @@ func (mr *MockClientMockRecorder) CreateTask(arg0 interface{}) *gomock.Call {
 }
 
 // DeleteDeploy mocks base method
-func (m *MockClient) DeleteDeploy(arg0 string) (string, error) {
+func (m *MockClient) DeleteDeploy(arg0 string) error {
 	ret := m.ctrl.Call(m, "DeleteDeploy", arg0)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // DeleteDeploy indicates an expected call of DeleteDeploy
@@ -114,11 +113,10 @@ func (mr *MockClientMockRecorder) DeleteDeploy(arg0 interface{}) *gomock.Call {
 }
 
 // DeleteEnvironment mocks base method
-func (m *MockClient) DeleteEnvironment(arg0 string) (string, error) {
+func (m *MockClient) DeleteEnvironment(arg0 string) error {
 	ret := m.ctrl.Call(m, "DeleteEnvironment", arg0)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // DeleteEnvironment indicates an expected call of DeleteEnvironment
@@ -126,24 +124,11 @@ func (mr *MockClientMockRecorder) DeleteEnvironment(arg0 interface{}) *gomock.Ca
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteEnvironment", reflect.TypeOf((*MockClient)(nil).DeleteEnvironment), arg0)
 }
 
-// DeleteJob mocks base method
-func (m *MockClient) DeleteJob(arg0 string) error {
-	ret := m.ctrl.Call(m, "DeleteJob", arg0)
+// DeleteLoadBalancer mocks base method
+func (m *MockClient) DeleteLoadBalancer(arg0 string) error {
+	ret := m.ctrl.Call(m, "DeleteLoadBalancer", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
-}
-
-// DeleteJob indicates an expected call of DeleteJob
-func (mr *MockClientMockRecorder) DeleteJob(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteJob", reflect.TypeOf((*MockClient)(nil).DeleteJob), arg0)
-}
-
-// DeleteLoadBalancer mocks base method
-func (m *MockClient) DeleteLoadBalancer(arg0 string) (string, error) {
-	ret := m.ctrl.Call(m, "DeleteLoadBalancer", arg0)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
 }
 
 // DeleteLoadBalancer indicates an expected call of DeleteLoadBalancer
@@ -152,11 +137,10 @@ func (mr *MockClientMockRecorder) DeleteLoadBalancer(arg0 interface{}) *gomock.C
 }
 
 // DeleteService mocks base method
-func (m *MockClient) DeleteService(arg0 string) (string, error) {
+func (m *MockClient) DeleteService(arg0 string) error {
 	ret := m.ctrl.Call(m, "DeleteService", arg0)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // DeleteService indicates an expected call of DeleteService
@@ -165,11 +149,10 @@ func (mr *MockClientMockRecorder) DeleteService(arg0 interface{}) *gomock.Call {
 }
 
 // DeleteTask mocks base method
-func (m *MockClient) DeleteTask(arg0 string) (string, error) {
+func (m *MockClient) DeleteTask(arg0 string) error {
 	ret := m.ctrl.Call(m, "DeleteTask", arg0)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // DeleteTask indicates an expected call of DeleteTask
@@ -178,9 +161,9 @@ func (mr *MockClientMockRecorder) DeleteTask(arg0 interface{}) *gomock.Call {
 }
 
 // ListDeploys mocks base method
-func (m *MockClient) ListDeploys() ([]*models.DeploySummary, error) {
+func (m *MockClient) ListDeploys() ([]models.DeploySummary, error) {
 	ret := m.ctrl.Call(m, "ListDeploys")
-	ret0, _ := ret[0].([]*models.DeploySummary)
+	ret0, _ := ret[0].([]models.DeploySummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -191,9 +174,9 @@ func (mr *MockClientMockRecorder) ListDeploys() *gomock.Call {
 }
 
 // ListEnvironments mocks base method
-func (m *MockClient) ListEnvironments() ([]*models.EnvironmentSummary, error) {
+func (m *MockClient) ListEnvironments() ([]models.EnvironmentSummary, error) {
 	ret := m.ctrl.Call(m, "ListEnvironments")
-	ret0, _ := ret[0].([]*models.EnvironmentSummary)
+	ret0, _ := ret[0].([]models.EnvironmentSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -203,23 +186,10 @@ func (mr *MockClientMockRecorder) ListEnvironments() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListEnvironments", reflect.TypeOf((*MockClient)(nil).ListEnvironments))
 }
 
-// ListJobs mocks base method
-func (m *MockClient) ListJobs() ([]*models.Job, error) {
-	ret := m.ctrl.Call(m, "ListJobs")
-	ret0, _ := ret[0].([]*models.Job)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ListJobs indicates an expected call of ListJobs
-func (mr *MockClientMockRecorder) ListJobs() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListJobs", reflect.TypeOf((*MockClient)(nil).ListJobs))
-}
-
 // ListLoadBalancers mocks base method
-func (m *MockClient) ListLoadBalancers() ([]*models.LoadBalancerSummary, error) {
+func (m *MockClient) ListLoadBalancers() ([]models.LoadBalancerSummary, error) {
 	ret := m.ctrl.Call(m, "ListLoadBalancers")
-	ret0, _ := ret[0].([]*models.LoadBalancerSummary)
+	ret0, _ := ret[0].([]models.LoadBalancerSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -230,9 +200,9 @@ func (mr *MockClientMockRecorder) ListLoadBalancers() *gomock.Call {
 }
 
 // ListServices mocks base method
-func (m *MockClient) ListServices() ([]*models.ServiceSummary, error) {
+func (m *MockClient) ListServices() ([]models.ServiceSummary, error) {
 	ret := m.ctrl.Call(m, "ListServices")
-	ret0, _ := ret[0].([]*models.ServiceSummary)
+	ret0, _ := ret[0].([]models.ServiceSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -256,9 +226,9 @@ func (mr *MockClientMockRecorder) ListTags(arg0 interface{}) *gomock.Call {
 }
 
 // ListTasks mocks base method
-func (m *MockClient) ListTasks() ([]*models.TaskSummary, error) {
+func (m *MockClient) ListTasks() ([]models.TaskSummary, error) {
 	ret := m.ctrl.Call(m, "ListTasks")
-	ret0, _ := ret[0].([]*models.TaskSummary)
+	ret0, _ := ret[0].([]models.TaskSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -307,19 +277,6 @@ func (mr *MockClientMockRecorder) ReadEnvironment(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadEnvironment", reflect.TypeOf((*MockClient)(nil).ReadEnvironment), arg0)
 }
 
-// ReadJob mocks base method
-func (m *MockClient) ReadJob(arg0 string) (*models.Job, error) {
-	ret := m.ctrl.Call(m, "ReadJob", arg0)
-	ret0, _ := ret[0].(*models.Job)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// ReadJob indicates an expected call of ReadJob
-func (mr *MockClientMockRecorder) ReadJob(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadJob", reflect.TypeOf((*MockClient)(nil).ReadJob), arg0)
-}
-
 // ReadLoadBalancer mocks base method
 func (m *MockClient) ReadLoadBalancer(arg0 string) (*models.LoadBalancer, error) {
 	ret := m.ctrl.Call(m, "ReadLoadBalancer", arg0)
@@ -347,9 +304,9 @@ func (mr *MockClientMockRecorder) ReadService(arg0 interface{}) *gomock.Call {
 }
 
 // ReadServiceLogs mocks base method
-func (m *MockClient) ReadServiceLogs(arg0 string, arg1 url.Values) ([]*models.LogFile, error) {
+func (m *MockClient) ReadServiceLogs(arg0 string, arg1 url.Values) ([]models.LogFile, error) {
 	ret := m.ctrl.Call(m, "ReadServiceLogs", arg0, arg1)
-	ret0, _ := ret[0].([]*models.LogFile)
+	ret0, _ := ret[0].([]models.LogFile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -373,9 +330,9 @@ func (mr *MockClientMockRecorder) ReadTask(arg0 interface{}) *gomock.Call {
 }
 
 // ReadTaskLogs mocks base method
-func (m *MockClient) ReadTaskLogs(arg0 string, arg1 url.Values) ([]*models.LogFile, error) {
+func (m *MockClient) ReadTaskLogs(arg0 string, arg1 url.Values) ([]models.LogFile, error) {
 	ret := m.ctrl.Call(m, "ReadTaskLogs", arg0, arg1)
-	ret0, _ := ret[0].([]*models.LogFile)
+	ret0, _ := ret[0].([]models.LogFile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
@@ -386,11 +343,10 @@ func (mr *MockClientMockRecorder) ReadTaskLogs(arg0, arg1 interface{}) *gomock.C
 }
 
 // UpdateEnvironment mocks base method
-func (m *MockClient) UpdateEnvironment(arg0 string, arg1 models.UpdateEnvironmentRequest) (string, error) {
+func (m *MockClient) UpdateEnvironment(arg0 string, arg1 models.UpdateEnvironmentRequest) error {
 	ret := m.ctrl.Call(m, "UpdateEnvironment", arg0, arg1)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // UpdateEnvironment indicates an expected call of UpdateEnvironment
@@ -399,11 +355,10 @@ func (mr *MockClientMockRecorder) UpdateEnvironment(arg0, arg1 interface{}) *gom
 }
 
 // UpdateLoadBalancer mocks base method
-func (m *MockClient) UpdateLoadBalancer(arg0 string, arg1 models.UpdateLoadBalancerRequest) (string, error) {
+func (m *MockClient) UpdateLoadBalancer(arg0 string, arg1 models.UpdateLoadBalancerRequest) error {
 	ret := m.ctrl.Call(m, "UpdateLoadBalancer", arg0, arg1)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // UpdateLoadBalancer indicates an expected call of UpdateLoadBalancer
@@ -412,11 +367,10 @@ func (mr *MockClientMockRecorder) UpdateLoadBalancer(arg0, arg1 interface{}) *go
 }
 
 // UpdateService mocks base method
-func (m *MockClient) UpdateService(arg0 string, arg1 models.UpdateServiceRequest) (string, error) {
+func (m *MockClient) UpdateService(arg0 string, arg1 models.UpdateServiceRequest) error {
 	ret := m.ctrl.Call(m, "UpdateService", arg0, arg1)
-	ret0, _ := ret[0].(string)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 // UpdateService indicates an expected call of UpdateService

@@ -5,7 +5,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/quintilesims/layer0/client"
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -40,12 +39,7 @@ func resourceLayer0EnvironmentLinksCreate(d *schema.ResourceData, meta interface
 		Links: &links,
 	}
 
-	jobID, err := apiClient.UpdateEnvironment(environmentID, req)
-	if err != nil {
-		return err
-	}
-
-	if _, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout); err != nil {
+	if err := apiClient.UpdateEnvironment(environmentID, req); err != nil {
 		return err
 	}
 
@@ -80,12 +74,7 @@ func resourceLayer0EnvironmentLinksDelete(d *schema.ResourceData, meta interface
 		Links: &links,
 	}
 
-	jobID, err := apiClient.UpdateEnvironment(d.Id(), req)
-	if err != nil {
-		return err
-	}
-
-	if _, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout); err != nil {
+	if err := apiClient.UpdateEnvironment(d.Id(), req); err != nil {
 		return err
 	}
 

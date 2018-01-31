@@ -87,19 +87,12 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 		return err
 	}
 
-	jobID, err := apiClient.CreateEnvironment(req)
+	environmentID, err := apiClient.CreateEnvironment(req)
 	if err != nil {
 		return err
 	}
 
-	job, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout)
-	if err != nil {
-		return err
-	}
-
-	environmentID := job.Result
 	d.SetId(environmentID)
-
 	return resourceLayer0EnvironmentRead(d, meta)
 }
 
@@ -140,12 +133,7 @@ func resourceLayer0EnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	}
 
 	if req.Scale != nil {
-		jobID, err := apiClient.UpdateEnvironment(environmentID, req)
-		if err != nil {
-			return err
-		}
-
-		if _, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout); err != nil {
+		if err := apiClient.UpdateEnvironment(environmentID, req); err != nil {
 			return err
 		}
 	}
@@ -157,12 +145,7 @@ func resourceLayer0EnvironmentDelete(d *schema.ResourceData, meta interface{}) e
 	apiClient := meta.(client.Client)
 	environmentID := d.Id()
 
-	jobID, err := apiClient.DeleteEnvironment(environmentID)
-	if err != nil {
-		return err
-	}
-
-	if _, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout); err != nil {
+	if err := apiClient.DeleteEnvironment(environmentID); err != nil {
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.EnvironmentDoesNotExist {
 			return nil
 		}

@@ -3,9 +3,7 @@ package controllers
 import (
 	"encoding/json"
 
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
-	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
@@ -13,15 +11,11 @@ import (
 
 type EnvironmentController struct {
 	EnvironmentProvider provider.EnvironmentProvider
-	JobStore            job.Store
-	TagStore            tag.Store
 }
 
-func NewEnvironmentController(e provider.EnvironmentProvider, j job.Store, t tag.Store) *EnvironmentController {
+func NewEnvironmentController(e provider.EnvironmentProvider) *EnvironmentController {
 	return &EnvironmentController{
 		EnvironmentProvider: e,
-		JobStore:            j,
-		TagStore:            t,
 	}
 }
 
@@ -30,27 +24,27 @@ func (e *EnvironmentController) Routes() []*fireball.Route {
 		{
 			Path: "/environment",
 			Handlers: fireball.Handlers{
-				"GET":  e.ListEnvironments,
-				"POST": e.CreateEnvironment,
+				"GET":  e.listEnvironments,
+				"POST": e.createEnvironment,
 			},
 		},
 		{
 			Path: "/environment/:id",
 			Handlers: fireball.Handlers{
-				"GET":    e.GetEnvironment,
-				"DELETE": e.DeleteEnvironment,
+				"GET":    e.readEnvironment,
+				"DELETE": e.deleteEnvironment,
 			},
 		},
 		{
 			Path: "/environment/:id",
 			Handlers: fireball.Handlers{
-				"PATCH": e.UpdateEnvironment,
+				"PATCH": e.updateEnvironment,
 			},
 		},
 	}
 }
 
-func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball.Response, error) {
+func (e *EnvironmentController) createEnvironment(c *fireball.Context) (fireball.Response, error) {
 	var req models.CreateEnvironmentRequest
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
@@ -60,35 +54,45 @@ func (e *EnvironmentController) CreateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(e.TagStore, e.JobStore, models.CreateEnvironmentJob, req)
-}
-
-func (e *EnvironmentController) DeleteEnvironment(c *fireball.Context) (fireball.Response, error) {
-	id := c.PathVariables["id"]
-	return createJob(e.TagStore, e.JobStore, models.DeleteEnvironmentJob, id)
-}
-
-func (e *EnvironmentController) GetEnvironment(c *fireball.Context) (fireball.Response, error) {
-	id := c.PathVariables["id"]
-	model, err := e.EnvironmentProvider.Read(id)
+	environmentID, err := e.EnvironmentProvider.Create(req)
 	if err != nil {
 		return nil, err
 	}
 
-	return fireball.NewJSONResponse(200, model)
+	return fireball.NewJSONResponse(200, models.CreateEntityResponse{EntityID: environmentID})
 }
 
-func (e *EnvironmentController) ListEnvironments(c *fireball.Context) (fireball.Response, error) {
-	summaries, err := e.EnvironmentProvider.List()
+func (e *EnvironmentController) deleteEnvironment(c *fireball.Context) (fireball.Response, error) {
+	environmentID := c.PathVariables["id"]
+	if err := e.EnvironmentProvider.Delete(environmentID); err != nil {
+		return nil, err
+	}
+
+	return fireball.NewJSONResponse(200, nil)
+}
+
+func (e *EnvironmentController) listEnvironments(c *fireball.Context) (fireball.Response, error) {
+	environments, err := e.EnvironmentProvider.List()
 	if err != nil {
 		return nil, err
 	}
 
-	return fireball.NewJSONResponse(200, summaries)
+	return fireball.NewJSONResponse(200, environments)
 }
 
-func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball.Response, error) {
-	id := c.PathVariables["id"]
+func (e *EnvironmentController) readEnvironment(c *fireball.Context) (fireball.Response, error) {
+	environmentID := c.PathVariables["id"]
+	environment, err := e.EnvironmentProvider.Read(environmentID)
+	if err != nil {
+		return nil, err
+	}
+
+	return fireball.NewJSONResponse(200, environment)
+}
+
+func (e *EnvironmentController) updateEnvironment(c *fireball.Context) (fireball.Response, error) {
+	environmentID := c.PathVariables["id"]
+
 	var req models.UpdateEnvironmentRequest
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
@@ -98,6 +102,9 @@ func (e *EnvironmentController) UpdateEnvironment(c *fireball.Context) (fireball
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	jobRequest := models.UpdateEnvironmentRequestJob{id, req}
-	return createJob(e.TagStore, e.JobStore, models.UpdateEnvironmentJob, jobRequest)
+	if err := e.EnvironmentProvider.Update(environmentID, req); err != nil {
+		return nil, err
+	}
+
+	return fireball.NewJSONResponse(200, nil)
 }

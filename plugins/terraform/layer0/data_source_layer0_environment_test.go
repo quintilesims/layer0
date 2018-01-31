@@ -6,7 +6,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/client/mock_client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -19,8 +18,8 @@ func TestDataSourceLayer0EnvironmentRead(t *testing.T) {
 	mockClient := mock_client.NewMockClient(ctrl)
 
 	query := url.Values{}
-	query.Set(client.TagQueryParamType, "environment")
-	query.Set(client.TagQueryParamName, "env_name")
+	query.Set(models.TagQueryParamType, "environment")
+	query.Set(models.TagQueryParamName, "env_name")
 
 	mockClient.EXPECT().
 		ListTags(query).

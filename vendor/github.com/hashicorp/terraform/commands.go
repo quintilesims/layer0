@@ -39,6 +39,17 @@ func initCommands(config *Config) {
 	credsSrc := credentialsSource(config)
 	services := disco.NewDisco()
 	services.SetCredentialsSource(credsSrc)
+	for userHost, hostConfig := range config.Hosts {
+		host, err := svchost.ForComparison(userHost)
+		if err != nil {
+			// We expect the config was already validated by the time we get
+			// here, so we'll just ignore invalid hostnames.
+			continue
+		}
+		services.ForceHostServices(host, hostConfig.Services)
+	}
+
+	dataDir := os.Getenv("TF_DATA_DIR")
 
 	meta := command.Meta{
 		Color:            true,
@@ -51,6 +62,9 @@ func initCommands(config *Config) {
 
 		RunningInAutomation: inAutomation,
 		PluginCacheDir:      config.PluginCacheDir,
+		OverrideDataDir:     dataDir,
+
+		ShutdownCh: makeShutdownCh(),
 	}
 
 	// The command list is included in the terraform -help
@@ -68,23 +82,20 @@ func initCommands(config *Config) {
 	Commands = map[string]cli.CommandFactory{
 		"apply": func() (cli.Command, error) {
 			return &command.ApplyCommand{
-				Meta:       meta,
-				ShutdownCh: makeShutdownCh(),
+				Meta: meta,
 			}, nil
 		},
 
 		"console": func() (cli.Command, error) {
 			return &command.ConsoleCommand{
-				Meta:       meta,
-				ShutdownCh: makeShutdownCh(),
+				Meta: meta,
 			}, nil
 		},
 
 		"destroy": func() (cli.Command, error) {
 			return &command.ApplyCommand{
-				Meta:       meta,
-				Destroy:    true,
-				ShutdownCh: makeShutdownCh(),
+				Meta:    meta,
+				Destroy: true,
 			}, nil
 		},
 

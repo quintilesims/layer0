@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/quintilesims/layer0/api/tag"
-	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/models"
 	glob "github.com/ryanuber/go-glob"
 	"github.com/stretchr/testify/assert"
@@ -45,7 +44,7 @@ func TestListTags(t *testing.T) {
 		{
 			Name: "type",
 			Query: url.Values{
-				client.TagQueryParamType: []string{"environment"},
+				models.TagQueryParamType: []string{"environment"},
 			},
 			CheckResult: func(t *testing.T, result models.Tags) {
 				assert.False(t, result.Any(func(tag models.Tag) bool {
@@ -56,7 +55,7 @@ func TestListTags(t *testing.T) {
 		{
 			Name: "id",
 			Query: url.Values{
-				client.TagQueryParamID: []string{"eid1"},
+				models.TagQueryParamID: []string{"eid1"},
 			},
 			CheckResult: func(t *testing.T, result models.Tags) {
 				assert.False(t, result.Any(func(tag models.Tag) bool {
@@ -67,7 +66,7 @@ func TestListTags(t *testing.T) {
 		{
 			Name: "name",
 			Query: url.Values{
-				client.TagQueryParamName: []string{"ename1"},
+				models.TagQueryParamName: []string{"ename1"},
 			},
 			CheckResult: func(t *testing.T, result models.Tags) {
 				assert.False(t, result.Any(func(tag models.Tag) bool {
@@ -78,7 +77,7 @@ func TestListTags(t *testing.T) {
 		{
 			Name: "fuzz='e*'",
 			Query: url.Values{
-				client.TagQueryParamName: []string{"e*"},
+				models.TagQueryParamName: []string{"e*"},
 			},
 			CheckResult: func(t *testing.T, result models.Tags) {
 				assert.False(t, result.Any(func(tag models.Tag) bool {
@@ -89,7 +88,7 @@ func TestListTags(t *testing.T) {
 		{
 			Name: "fuzz='*name*'",
 			Query: url.Values{
-				client.TagQueryParamName: []string{"*name*"},
+				models.TagQueryParamName: []string{"*name*"},
 			},
 			CheckResult: func(t *testing.T, result models.Tags) {
 				assert.False(t, result.Any(func(tag models.Tag) bool {
@@ -100,7 +99,7 @@ func TestListTags(t *testing.T) {
 		{
 			Name: "fuzz='*s'",
 			Query: url.Values{
-				client.TagQueryParamName: []string{"*s*"},
+				models.TagQueryParamName: []string{"*s*"},
 			},
 			CheckResult: func(t *testing.T, result models.Tags) {
 				assert.False(t, result.Any(func(tag models.Tag) bool {
@@ -111,7 +110,7 @@ func TestListTags(t *testing.T) {
 		{
 			Name: "version=1",
 			Query: url.Values{
-				client.TagQueryParamVersion: []string{"1"},
+				models.TagQueryParamVersion: []string{"1"},
 			},
 			CheckResult: func(t *testing.T, result models.Tags) {
 				assert.False(t, result.Any(func(tag models.Tag) bool {
@@ -122,7 +121,7 @@ func TestListTags(t *testing.T) {
 		{
 			Name: "version=latest",
 			Query: url.Values{
-				client.TagQueryParamVersion: []string{"latest"},
+				models.TagQueryParamVersion: []string{"latest"},
 			},
 			CheckResult: func(t *testing.T, result models.Tags) {
 				assert.False(t, result.Any(func(tag models.Tag) bool {
@@ -133,7 +132,7 @@ func TestListTags(t *testing.T) {
 		{
 			Name: "environment_id",
 			Query: url.Values{
-				client.TagQueryParamEnvironmentID: []string{"eid1"},
+				models.TagQueryParamEnvironmentID: []string{"eid1"},
 			},
 			CheckResult: func(t *testing.T, result models.Tags) {
 				assert.False(t, result.Any(func(tag models.Tag) bool {
@@ -144,8 +143,8 @@ func TestListTags(t *testing.T) {
 		{
 			Name: "fuzz+type",
 			Query: url.Values{
-				client.TagQueryParamType: []string{"environment"},
-				client.TagQueryParamFuzz: []string{"e*"},
+				models.TagQueryParamType: []string{"environment"},
+				models.TagQueryParamFuzz: []string{"e*"},
 			},
 			CheckResult: func(t *testing.T, result models.Tags) {
 				assert.False(t, result.Any(func(tag models.Tag) bool {
@@ -158,9 +157,9 @@ func TestListTags(t *testing.T) {
 		{
 			Name: "fuzz+type+environment_id",
 			Query: url.Values{
-				client.TagQueryParamType:          []string{"service"},
-				client.TagQueryParamFuzz:          []string{"s*"},
-				client.TagQueryParamEnvironmentID: []string{"eid1"},
+				models.TagQueryParamType:          []string{"service"},
+				models.TagQueryParamFuzz:          []string{"s*"},
+				models.TagQueryParamEnvironmentID: []string{"eid1"},
 			},
 			CheckResult: func(t *testing.T, result models.Tags) {
 				assert.False(t, result.Any(func(tag models.Tag) bool {

@@ -11,7 +11,7 @@ const LAYER0_MODULE_SOURCE = "github.com/quintilesims/layer0//setup/module"
 
 const (
 	INPUT_SOURCE           = "source"
-	INPUT_VERSION          = "version"
+	INPUT_VERSION          = "layer0_version"
 	INPUT_AWS_ACCESS_KEY   = "access_key"
 	INPUT_AWS_SECRET_KEY   = "secret_key"
 	INPUT_AWS_REGION       = "region"

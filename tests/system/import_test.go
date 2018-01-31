@@ -40,8 +40,8 @@ func TestImport(t *testing.T) {
 		LoadBalancerName: "sts",
 		EnvironmentID:    environmentID,
 		IsPublic:         true,
-		Ports:            []models.Port{config.DefaultLoadBalancerPort},
-		HealthCheck:      config.DefaultLoadBalancerHealthCheck,
+		Ports:            []models.Port{config.DefaultLoadBalancerPort()},
+		HealthCheck:      config.DefaultLoadBalancerHealthCheck(),
 	}
 
 	loadBalancerID := s.Layer0.CreateLoadBalancer(createLoadBalancerReq)

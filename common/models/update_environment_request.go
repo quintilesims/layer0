@@ -6,11 +6,6 @@ import (
 	swagger "github.com/zpatrick/go-plugin-swagger"
 )
 
-type UpdateEnvironmentRequestJob struct {
-	EnvironmentID string `json:"environment_id"`
-	UpdateEnvironmentRequest
-}
-
 type UpdateEnvironmentRequest struct {
 	Scale *int      `json:"scale"`
 	Links *[]string `json:"links"`

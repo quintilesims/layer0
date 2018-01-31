@@ -7,6 +7,7 @@ import (
 
 	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func NewTagResolver(c client.Client) ResolverFunc {
@@ -42,8 +43,8 @@ func NewTagResolver(c client.Client) ResolverFunc {
 
 func resolveUnqualifiedEntity(c client.Client, entityType, target string) ([]string, error) {
 	query := url.Values{}
-	query.Set(client.TagQueryParamType, entityType)
-	query.Set(client.TagQueryParamFuzz, target)
+	query.Set(models.TagQueryParamType, entityType)
+	query.Set(models.TagQueryParamFuzz, target)
 
 	return findMatches(c, target, query)
 }
@@ -59,9 +60,9 @@ func resolveFullyQualifiedEntity(c client.Client, entityType, environmentTarget,
 		return nil, errors.NoMatchesError("environment", environmentTarget)
 	case 1:
 		query := url.Values{}
-		query.Set(client.TagQueryParamType, entityType)
-		query.Set(client.TagQueryParamFuzz, entityTarget)
-		query.Set(client.TagQueryParamEnvironmentID, environmentIDs[0])
+		query.Set(models.TagQueryParamType, entityType)
+		query.Set(models.TagQueryParamFuzz, entityTarget)
+		query.Set(models.TagQueryParamEnvironmentID, environmentIDs[0])
 
 		return findMatches(c, entityTarget, query)
 	default:
@@ -71,9 +72,9 @@ func resolveFullyQualifiedEntity(c client.Client, entityType, environmentTarget,
 
 func resolveFullyQualifedDeploy(c client.Client, target, version string) ([]string, error) {
 	query := url.Values{}
-	query.Set(client.TagQueryParamType, "deploy")
-	query.Set(client.TagQueryParamFuzz, target)
-	query.Set(client.TagQueryParamVersion, version)
+	query.Set(models.TagQueryParamType, "deploy")
+	query.Set(models.TagQueryParamFuzz, target)
+	query.Set(models.TagQueryParamVersion, version)
 
 	return findMatches(c, target, query)
 }

@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -35,10 +35,10 @@ var TestTags = models.Tags{
 }
 
 func newTestStore(t *testing.T) *DynamoStore {
-	session := config.GetTestAWSSession()
-	table := os.Getenv(config.ENVVAR_TEST_AWS_DYNAMO_TAG_TABLE)
+	session := testutils.GetTestAWSSession()
+	table := os.Getenv(testutils.ENVVAR_TEST_AWS_DYNAMO_TAG_TABLE)
 	if table == "" {
-		t.Skipf("Test table not set (envvar: %s)", config.ENVVAR_TEST_AWS_DYNAMO_TAG_TABLE)
+		t.Skipf("Test table not set (envvar: %s)", testutils.ENVVAR_TEST_AWS_DYNAMO_TAG_TABLE)
 	}
 
 	store := NewDynamoStore(session, table)

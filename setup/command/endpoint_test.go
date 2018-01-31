@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/quintilesims/layer0/setup/instance/mock_instance"
 )
@@ -36,7 +37,7 @@ func TestEndpoint(t *testing.T) {
 		"syntax": "bash",
 	}
 
-	c := NewContext(t, []string{"name"}, flags)
+	c := testutils.NewTestContext(t, []string{"name"}, flags)
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}
@@ -66,7 +67,6 @@ func TestEndpointDev(t *testing.T) {
 			instance.OUTPUT_AWS_LINUX_SERVICE_AMI,
 			instance.OUTPUT_WINDOWS_SERVICE_AMI,
 			instance.OUTPUT_AWS_DYNAMO_TAG_TABLE,
-			instance.OUTPUT_AWS_DYNAMO_JOB_TABLE,
 			instance.OUTPUT_AWS_DYNAMO_LOCK_TABLE,
 		}
 
@@ -87,7 +87,7 @@ func TestEndpointDev(t *testing.T) {
 		"dev":    "true",
 	}
 
-	c := NewContext(t, []string{"name"}, flags)
+	c := testutils.NewTestContext(t, []string{"name"}, flags)
 	if err := action(c); err != nil {
 		t.Fatal(err)
 	}

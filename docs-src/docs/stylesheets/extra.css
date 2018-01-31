@@ -1,15 +1,20 @@
+
+:root {
+  --theme-color:#e84e40;
+}
+
 .article h2 {
   font-size:18pt;
 }
 
 .article h3 {
-  color: #e84e40;
+  color: var(--theme-color);
   font-size:14pt;
   font-weight:normal;
 }
 
 .article h4 {
-  color:#e84e40;
+  color: var(--theme-color);
   font-weight:bold;
   font-style:normal;
 }
@@ -64,10 +69,6 @@
   color: #ddd;
 }
 
-.admonition.note a {
-  color: #7ff;
-}
-
 .article a.note {
   color:#ffffff;
   border-bottom:1px dotted;
@@ -75,5 +76,71 @@
 
 .article a.note:hover {
   border-bottom: 1px solid;
-  color:#e84e40;
+  color: var(--theme-color);
+}
+         
+.md-nav__link:hover {
+  color: var(--theme-color);
+}
+
+.md-typeset h2[id] .headerlink:focus, .md-typeset h2[id]:hover .headerlink:hover, .md-typeset h2[id]:target .headerlink {
+  color: var(--theme-color);
+}
+
+/* Change Note Box Colors */
+.md-typeset .admonition, .md-typeset details {
+  -webkit-box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12), 0 3px 1px -2px rgba(0,0,0,.2);
+  box-shadow: 0 2px 2px 0 rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.12), 0 3px 1px -2px rgba(0,0,0,.2);
+  position: relative;
+  margin: 1.5625em 0;
+  padding: 0 1.2rem;
+  border-left: .4rem solid var(--theme-color);
+  border-radius: .2rem;
+  font-size: 1.28rem;
+  overflow: auto;
+}
+
+.md-typeset .admonition>.admonition-title, .md-typeset .admonition>summary, .md-typeset details>.admonition-title, .md-typeset details>summary {
+  margin: 0 -1.2rem;
+  padding: .8rem 1.2rem .8rem 4rem;
+  border-bottom: .1rem solid rgba(68,138,255,.1);
+  background-color: #e84e404d;
+  font-weight: 700;
+}
+
+.md-typeset .admonition>.admonition-title:before, .md-typeset .admonition>summary:before, .md-typeset details>.admonition-title:before, .md-typeset details>summary:before {
+  position: absolute;
+  left: 1.2rem;
+  color: var(--theme-color);
+  font-size: 2rem;
+  content: "\E3C9";
+}
+
+/* Code Block */
+.md-typeset code, .md-typeset pre {
+  background-color: rgba(237, 237, 237, 0.226);
+  color: #0a1c25;
+  font-size: 85%;
+}
+
+/* Logo Header */
+.md-header-nav__button.md-logo img {
+    width: 42px;
+    height: 42px;
+}
+
+a.md-content__icon, .md-footer-nav__button, .md-header-nav__button.md-logo, .md-nav__button,  .md-search-result__article--document:before {
+  display: block;
+  margin: .4rem;
+  padding: 0.2rem;
+  font-size: 2.4rem;
+  cursor: pointer;
+}
+
+/* Title Size */
+.md-header-nav__title {
+  padding: 0;
+  display: block;
+  font-size: 2.0rem;
+  line-height: 4.8rem;
 }

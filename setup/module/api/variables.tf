@@ -4,7 +4,7 @@ variable "name" {}
 
 variable "region" {}
 
-variable "version" {}
+variable "layer0_version" {}
 
 variable "vpc_id" {}
 
