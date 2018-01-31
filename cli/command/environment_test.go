@@ -18,7 +18,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "env_name",
-    EnvironmentType:  "static",
+		EnvironmentType:  "static",
 		InstanceType:     "t2.small",
 		Scale:            2,
 		UserDataTemplate: []byte("user_data"),
@@ -36,8 +36,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 	flags := map[string]interface{}{
 		"type":      req.InstanceType,
-		"min-scale": req.MinScale,
-		"max-scale": req.MaxScale,
+		"scale":     req.Scale,
 		"user-data": file.Name(),
 		"os":        req.OperatingSystem,
 		"ami":       req.AMIID,
@@ -56,12 +55,9 @@ func TestCreateEnvironmentInputErrors(t *testing.T) {
 
 	contexts := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
-		"Negative MinScale": testutils.NewTestContext(t,
+		"Negative Scale": testutils.NewTestContext(t,
 			[]string{"env_name"},
-			map[string]interface{}{"min-scale": "-1"}),
-		"Negative MaxScale": testutils.NewTestContext(t,
-			[]string{"env_name"},
-			map[string]interface{}{"max-scale": "-1"}),
+			map[string]interface{}{"scale": "-1"}),
 	}
 
 	for name, c := range contexts {
@@ -176,7 +172,7 @@ func TestLinkEnvironments(t *testing.T) {
 		base.Resolver.EXPECT().
 			Resolve("environment", name).
 			Return([]string{id}, nil)
-    
+
 		environment := &models.Environment{
 			EnvironmentID: id,
 			Links:         []string{},
