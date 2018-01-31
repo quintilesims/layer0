@@ -1,7 +1,6 @@
 package aws
 
 import (
-	"fmt"
 	"log"
 	"strings"
 
@@ -9,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ec2"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -31,7 +31,7 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 		}
 
 		if environmentType != models.EnvironmentTypeStatic {
-			return fmt.Errorf("updating dynamic environment's scale isn't supported")
+			return errors.New(errors.InvalidRequest, "updating dynamic environment's scale isn't supported")
 		}
 
 		autoScalingGroupName := fqEnvironmentID

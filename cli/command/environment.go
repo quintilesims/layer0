@@ -37,7 +37,7 @@ func (e *EnvironmentCommand) Command() cli.Command {
 					cli.IntFlag{
 						Name:  "scale",
 						Value: 0,
-						Usage: "cluster size. setting scale explicitly, results in a static environment",
+						Usage: "specifies the number of instances in the cluster. Setting this value will create a static environment",
 					},
 					cli.StringFlag{
 						Name:  "user-data",

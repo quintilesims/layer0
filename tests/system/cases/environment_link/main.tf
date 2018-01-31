@@ -14,7 +14,7 @@ resource "layer0_environment" "el_private" {
 
 resource "layer0_environment_links" "public_private" {
   environment_id = "${layer0_environment.el_public.id}"
-  links   = [ "${layer0_environment.el_private.id}" ]
+  links          = ["${layer0_environment.el_private.id}"]
 }
 
 module "sts_public" {
