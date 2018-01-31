@@ -28,6 +28,10 @@
     l0 environment create --os windows test4
 }
 
+@test "environment create test5" {
+    l0 environment create test5
+}
+
 @test "environment link --bi-directional test1 test2" {
     l0 environment link --bi-directional test1 test2
 }
@@ -71,3 +75,8 @@
 @test "environment delete test4" {
     l0 environment delete test4
 }
+
+@test "environment delete test5" {
+    l0 environment delete -r test5
+}
+

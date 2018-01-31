@@ -1,7 +1,6 @@
 package test_aws
 
 import (
-	"strings"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -125,44 +124,41 @@ func TestCheckEnvironmentDependencies(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockAWS := awsc.NewMockClient(ctrl)
-	tagStore := tag.NewMemoryStore()
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
-	envTag := models.Tag{
-		EntityID:   "env_id",
-		EntityType: "environment",
-		Key:        "name",
-		Value:      "env_name",
-	}
-
-	if err := tagStore.Insert(envTag); err != nil {
-		t.Fatal(err)
-	}
-
-	cases := []string{"service", "task", "load_balancer"}
+	cases := []string{"load_balancer", "service", "task"}
 	for _, c := range cases {
-		tag := models.Tag{
-			EntityID:   "id",
-			EntityType: c,
-			Key:        "environment_id",
-			Value:      "env_id",
+		tagStore := tag.NewMemoryStore()
+		tags := []models.Tag{
+			models.Tag{
+				EntityID:   "env_id",
+				EntityType: "environment",
+				Key:        "name",
+				Value:      "env_name",
+			},
+			models.Tag{
+				EntityID:   "id",
+				EntityType: c,
+				Key:        "environment_id",
+				Value:      "env_id",
+			},
 		}
 
-		if err := tagStore.Insert(tag); err != nil {
-			t.Fatal(err)
+		for _, tag := range tags {
+			if err := tagStore.Insert(tag); err != nil {
+				t.Fatal(err)
+			}
 		}
 
 		target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
 		if err := target.Delete("env_id"); err != nil {
-			if !strings.Contains(err.Error(), errors.DependencyError.String()) {
-				t.Errorf("Error: %s", err)
+			if serverError, ok := err.(*errors.ServerError); ok {
+				if serverError.Code != errors.DependencyError {
+					t.Errorf("Error: %s", err)
+				}
 			}
-		}
-
-		if err := tagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
-			t.Fatal(err)
 		}
 	}
 }

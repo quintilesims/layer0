@@ -183,7 +183,6 @@ func (e *EnvironmentCommand) delete(c *cli.Context) error {
 			return err
 		}
 
-		// Delete Load Balancers
 		loadBalancers, err := e.client.ListLoadBalancers()
 		if err != nil {
 			return err
@@ -197,7 +196,6 @@ func (e *EnvironmentCommand) delete(c *cli.Context) error {
 			}
 		}
 
-		// Delete Tasks
 		tasks, err := e.client.ListTasks()
 		if err != nil {
 			return err
@@ -211,7 +209,6 @@ func (e *EnvironmentCommand) delete(c *cli.Context) error {
 			}
 		}
 
-		// Delete Services
 		services, err := e.client.ListServices()
 		if err != nil {
 			return err
@@ -219,7 +216,7 @@ func (e *EnvironmentCommand) delete(c *cli.Context) error {
 
 		for _, service := range services {
 			if service.EnvironmentID == environmentID {
-				if _, err := e.client.DeleteTask(service.ServiceID); err != nil {
+				if _, err := e.client.DeleteService(service.ServiceID); err != nil {
 					return err
 				}
 			}
