@@ -14,6 +14,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/elb/elbiface"
 	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func describeLoadBalancer(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerDescription, error) {
@@ -63,6 +64,26 @@ func describeTaskDefinition(ecsapi ecsiface.ECSAPI, taskDefinitionARN string) (*
 	}
 
 	return output.TaskDefinition, nil
+}
+
+func getLaunchTypeFromEnvironmentID(store tag.Store, environmentID string) (string, error) {
+	var launchType string
+	tags, err := store.SelectByTypeAndID("environment", environmentID)
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("type").First(); ok {
+		if tag.Value == models.EnvironmentTypeDynamic {
+			launchType = ecs.LaunchTypeFargate
+		}
+
+		if tag.Value == models.EnvironmentTypeStatic {
+			launchType = ecs.LaunchTypeEc2
+		}
+	}
+
+	return launchType, nil
 }
 
 func lookupDeployIDFromTaskDefinitionARN(store tag.Store, taskDefinitionARN string) (string, error) {
