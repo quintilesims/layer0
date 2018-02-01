@@ -16,20 +16,9 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskID := entityIDGenerator(req.TaskName)
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
 
-	var launchType string
-	tags, err := t.TagStore.SelectByTypeAndID("environment", req.EnvironmentID)
+	launchType, err := getLaunchTypeFromEnvironmentID(t.TagStore, req.EnvironmentID)
 	if err != nil {
 		return "", err
-	}
-
-	if tag, ok := tags.WithKey("type").First(); ok {
-		if tag.Value == models.EnvironmentTypeDynamic {
-			launchType = ecs.LaunchTypeFargate
-		}
-
-		if tag.Value == models.EnvironmentTypeStatic {
-			launchType = ecs.LaunchTypeEc2
-		}
 	}
 
 	deployName, deployVersion, err := lookupDeployNameAndVersion(t.TagStore, req.DeployID)

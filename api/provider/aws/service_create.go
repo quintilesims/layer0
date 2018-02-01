@@ -12,20 +12,9 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
 	cluster := fqEnvironmentID
 
-	var launchType string
-	tags, err := s.TagStore.SelectByTypeAndID("environment", req.EnvironmentID)
+	launchType, err := getLaunchTypeFromEnvironmentID(s.TagStore, req.EnvironmentID)
 	if err != nil {
 		return "", err
-	}
-
-	if tag, ok := tags.WithKey("type").First(); ok {
-		if tag.Value == models.EnvironmentTypeDynamic {
-			launchType = ecs.LaunchTypeFargate
-		}
-
-		if tag.Value == models.EnvironmentTypeStatic {
-			launchType = ecs.LaunchTypeEc2
-		}
 	}
 
 	serviceID := entityIDGenerator(req.ServiceName)
