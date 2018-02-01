@@ -154,12 +154,10 @@ func TestCheckEnvironmentDependencies(t *testing.T) {
 
 		target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
 		err := target.Delete("env_id")
-		if serverError, ok := err.(*errors.ServerError); ok {
-			if serverError.Code != errors.DependencyError {
-				t.Errorf("Expected DependencyError for entity type %s\nActual Error: %s", c, err)
-			}
+		if err, ok := err.(*errors.ServerError); ok {
+			assert.Equal(t, errors.DependencyError, err.Code)
 		} else {
-			t.Errorf("Assertion to ServerError failed\nError: %s", err)
+			t.Fatalf("Error was not of type *errors.ServerError: %#v", err)
 		}
 	}
 }

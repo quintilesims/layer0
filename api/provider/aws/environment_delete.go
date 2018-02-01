@@ -73,23 +73,17 @@ func (e *EnvironmentProvider) checkEnvironmentDependencies(environmentID string)
 				entityIDs = append(entityIDs, tag.EntityID)
 			}
 
-			msg := fmt.Sprintf("Cannot delete environment '%s' because it contains dependent %ss:", environmentID, entityType)
+			msg := fmt.Sprintf("Cannot delete environment '%s' because it contains dependent %ss: ", environmentID, entityType)
 			msg += strings.Join(entityIDs, ", ")
 			return errors.Newf(errors.DependencyError, msg)
 		}
 		return nil
 	}
 
-	if err := checkDependentEntityTags("load_balancer"); err != nil {
-		return err
-	}
-
-	if err := checkDependentEntityTags("service"); err != nil {
-		return err
-	}
-
-	if err := checkDependentEntityTags("task"); err != nil {
-		return err
+	for _, entity := range []string{"load_balancer", "service", "task"} {
+		if err := checkDependentEntityTags(entity); err != nil {
+			return err
+		}
 	}
 
 	return nil
