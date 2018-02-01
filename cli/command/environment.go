@@ -170,17 +170,17 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) delete(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "NAME")
+	if err != nil {
+		return err
+	}
+
+	environmentID, err := e.CommandBase.resolveSingleEntityIDHelper("environment", args["NAME"])
+	if err != nil {
+		return err
+	}
+
 	if c.Bool("recursive") {
-		args, err := extractArgs(c.Args(), "NAME")
-		if err != nil {
-			return err
-		}
-
-		environmentID, err := e.CommandBase.resolveSingleEntityIDHelper("environment", args["NAME"])
-		if err != nil {
-			return err
-		}
-
 		loadBalancers, err := e.client.ListLoadBalancers()
 		if err != nil {
 			return err
@@ -188,7 +188,7 @@ func (e *EnvironmentCommand) delete(c *cli.Context) error {
 
 		for _, loadBalancer := range loadBalancers {
 			if loadBalancer.EnvironmentID == environmentID {
-				if _, err := e.client.DeleteLoadBalancer(loadBalancer.LoadBalancerID); err != nil {
+				if err := e.client.DeleteLoadBalancer(loadBalancer.LoadBalancerID); err != nil {
 					return err
 				}
 			}
@@ -201,7 +201,7 @@ func (e *EnvironmentCommand) delete(c *cli.Context) error {
 
 		for _, task := range tasks {
 			if task.EnvironmentID == environmentID {
-				if _, err := e.client.DeleteTask(task.TaskID); err != nil {
+				if err := e.client.DeleteTask(task.TaskID); err != nil {
 					return err
 				}
 			}
@@ -214,16 +214,14 @@ func (e *EnvironmentCommand) delete(c *cli.Context) error {
 
 		for _, service := range services {
 			if service.EnvironmentID == environmentID {
-				if _, err := e.client.DeleteService(service.ServiceID); err != nil {
+				if err := e.client.DeleteService(service.ServiceID); err != nil {
 					return err
 				}
 			}
 		}
 	}
 
-	return e.deleteHelper(c, "environment", func(environmentID string) (string, error) {
-		return e.client.DeleteEnvironment(environmentID)
-	})
+	return e.client.DeleteEnvironment(environmentID)
 }
 
 func (e *EnvironmentCommand) list(c *cli.Context) error {
