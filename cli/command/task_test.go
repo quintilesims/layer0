@@ -4,6 +4,7 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/stretchr/testify/assert"
@@ -23,18 +24,31 @@ func TestCreateTask(t *testing.T) {
 		Resolve("deploy", "dpl_name").
 		Return([]string{"dpl_id"}, nil)
 
-	req := models.CreateTaskRequest{
-		TaskName:      "tsk_name",
-		EnvironmentID: "env_id",
-		DeployID:      "dpl_id",
-		ContainerOverrides: []models.ContainerOverride{
-			{ContainerName: "c1", EnvironmentOverrides: map[string]string{"k1": "v1"}},
-			{ContainerName: "c2", EnvironmentOverrides: map[string]string{"k2": "v2"}},
+	expected := []models.ContainerOverride{
+		{
+			ContainerName:        "c1",
+			EnvironmentOverrides: map[string]string{"k1": "v1"},
+		},
+		{
+			ContainerName:        "c2",
+			EnvironmentOverrides: map[string]string{"k2": "v2"},
 		},
 	}
 
+	validateOverride := func(req models.CreateTaskRequest) {
+		assert.Equal(t, "tsk_name", req.TaskName)
+		assert.Equal(t, "dpl_id", req.DeployID)
+		assert.Equal(t, "env_id", req.EnvironmentID)
+
+		assert.Len(t, req.ContainerOverrides, 2)
+		for _, override := range req.ContainerOverrides {
+			assert.Contains(t, expected, override)
+		}
+	}
+
 	base.Client.EXPECT().
-		CreateTask(req).
+		CreateTask(gomock.Any()).
+		Do(validateOverride).
 		Return("tsk_id", nil)
 
 	base.Client.EXPECT().
