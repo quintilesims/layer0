@@ -37,6 +37,12 @@ func TestTaskCreate(t *testing.T) {
 			Key:        "version",
 			Value:      "version",
 		},
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
+			Key:        "type",
+			Value:      models.EnvironmentTypeDynamic,
+		},
 	}
 
 	for _, tag := range tags {
@@ -72,6 +78,7 @@ func TestTaskCreate(t *testing.T) {
 
 	runTaskInput := &ecs.RunTaskInput{}
 	runTaskInput.SetCluster("l0-test-env_id")
+	runTaskInput.SetLaunchType(ecs.LaunchTypeFargate)
 	runTaskInput.SetStartedBy("test")
 	runTaskInput.SetTaskDefinition("l0-test-dpl_name:version")
 	runTaskInput.SetOverrides(taskOverride)
