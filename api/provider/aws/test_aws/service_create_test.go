@@ -34,6 +34,12 @@ func TestServiceCreate(t *testing.T) {
 			Key:        "arn",
 			Value:      "dpl_arn",
 		},
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
+			Key:        "type",
+			Value:      models.EnvironmentTypeDynamic,
+		},
 	}
 
 	for _, tag := range tags {
@@ -105,6 +111,7 @@ func TestServiceCreate(t *testing.T) {
 	createServiceInput := &ecs.CreateServiceInput{}
 	createServiceInput.SetCluster("l0-test-env_id")
 	createServiceInput.SetDesiredCount(1)
+	createServiceInput.SetLaunchType(ecs.LaunchTypeFargate)
 	createServiceInput.SetServiceName("l0-test-svc_id")
 	createServiceInput.SetTaskDefinition("dpl_arn")
 
@@ -180,6 +187,12 @@ func TestServiceCreate_defaults(t *testing.T) {
 			Key:        "arn",
 			Value:      "dpl_arn",
 		},
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
+			Key:        "type",
+			Value:      models.EnvironmentTypeStatic,
+		},
 	}
 
 	for _, tag := range tags {
@@ -193,6 +206,7 @@ func TestServiceCreate_defaults(t *testing.T) {
 	createServiceInput := &ecs.CreateServiceInput{}
 	createServiceInput.SetCluster("l0-test-env_id")
 	createServiceInput.SetDesiredCount(1)
+	createServiceInput.SetLaunchType(ecs.LaunchTypeEc2)
 	createServiceInput.SetServiceName("l0-test-svc_id")
 	createServiceInput.SetTaskDefinition("dpl_arn")
 
