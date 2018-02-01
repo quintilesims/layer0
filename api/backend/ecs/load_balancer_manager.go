@@ -220,6 +220,7 @@ func (e *ECSLoadBalancerManager) listenerToPort(listener *awselb.Listener) model
 	}
 
 	if listener.SSLCertificateId != nil {
+		port.CertificateARN = *listener.SSLCertificateId
 		port.CertificateName = id.CertificateARNToName(*listener.SSLCertificateId)
 	}
 
