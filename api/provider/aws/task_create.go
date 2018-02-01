@@ -16,6 +16,22 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskID := entityIDGenerator(req.TaskName)
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
 
+	var launchType string
+	tags, err := t.TagStore.SelectByTypeAndID("environment", req.EnvironmentID)
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("type").First(); ok {
+		if tag.Value == models.EnvironmentTypeDynamic {
+			launchType = ecs.LaunchTypeFargate
+		}
+
+		if tag.Value == models.EnvironmentTypeStatic {
+			launchType = ecs.LaunchTypeEc2
+		}
+	}
+
 	deployName, deployVersion, err := lookupDeployNameAndVersion(t.TagStore, req.DeployID)
 	if err != nil {
 		return "", err
@@ -27,7 +43,7 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskDefinitionVersion := deployVersion
 	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
 
-	task, err := t.runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionVersion, taskOverrides)
+	task, err := t.runTask(clusterName, launchType, startedBy, taskDefinitionFamily, taskDefinitionVersion, taskOverrides)
 	if err != nil {
 		return "", err
 	}
@@ -65,9 +81,10 @@ func convertContainerOverrides(overrides []models.ContainerOverride) *ecs.TaskOv
 	return taskOverride
 }
 
-func (t *TaskProvider) runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionRevision string, overrides *ecs.TaskOverride) (*ecs.Task, error) {
+func (t *TaskProvider) runTask(clusterName, launchType, startedBy, taskDefinitionFamily, taskDefinitionRevision string, overrides *ecs.TaskOverride) (*ecs.Task, error) {
 	input := &ecs.RunTaskInput{}
 	input.SetCluster(clusterName)
+	input.SetLaunchType(launchType)
 	input.SetStartedBy(startedBy)
 	input.SetOverrides(overrides)
 

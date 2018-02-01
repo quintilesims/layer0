@@ -12,6 +12,22 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
 	cluster := fqEnvironmentID
 
+	var launchType string
+	tags, err := s.TagStore.SelectByTypeAndID("environment", req.EnvironmentID)
+	if err != nil {
+		return "", err
+	}
+
+	if tag, ok := tags.WithKey("type").First(); ok {
+		if tag.Value == models.EnvironmentTypeDynamic {
+			launchType = ecs.LaunchTypeFargate
+		}
+
+		if tag.Value == models.EnvironmentTypeStatic {
+			launchType = ecs.LaunchTypeEc2
+		}
+	}
+
 	serviceID := entityIDGenerator(req.ServiceName)
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
 	serviceName := fqServiceID
@@ -60,6 +76,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 
 	if err := s.createService(
 		cluster,
+		launchType,
 		serviceName,
 		taskDefinitionARN,
 		scale,
@@ -77,6 +94,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 
 func (s *ServiceProvider) createService(
 	cluster string,
+	launchType string,
 	serviceName string,
 	taskDefinition string,
 	desiredCount int,
@@ -86,6 +104,7 @@ func (s *ServiceProvider) createService(
 	input := &ecs.CreateServiceInput{}
 	input.SetCluster(cluster)
 	input.SetDesiredCount(int64(desiredCount))
+	input.SetLaunchType(launchType)
 	input.SetServiceName(serviceName)
 	input.SetTaskDefinition(taskDefinition)
 	if loadBalancer != nil {
