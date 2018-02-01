@@ -60,35 +60,35 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 }
 
 func (e *EnvironmentProvider) checkEnvironmentDependencies(environmentID string) error {
-	deleteEntity := func(entity string) error {
-		tags, err := e.TagStore.SelectByType(entity)
+	checkDependentEntityTags := func(entityType string) error {
+		tags, err := e.TagStore.SelectByType(entityType)
 		if err != nil {
 			return err
 		}
 
 		dependentTags := tags.WithKey("environment_id").WithValue(environmentID)
 		if len(dependentTags) > 0 {
-			IDs := []string{}
+			entityIDs := []string{}
 			for _, tag := range dependentTags {
-				IDs = append(IDs, tag.EntityID)
+				entityIDs = append(entityIDs, tag.EntityID)
 			}
 
-			msg := "Cannot delete environment '%s' because it contains dependent %s: %s"
-			msg = fmt.Sprintf(msg, environmentID, entity, strings.Join(IDs, ", "))
+			msg := fmt.Sprintf("Cannot delete environment '%s' because it contains dependent %ss:", environmentID, entityType)
+			msg += strings.Join(entityIDs, ", ")
 			return errors.Newf(errors.DependencyError, msg)
 		}
 		return nil
 	}
 
-	if err := deleteEntity("load_balancer"); err != nil {
+	if err := checkDependentEntityTags("load_balancer"); err != nil {
 		return err
 	}
 
-	if err := deleteEntity("service"); err != nil {
+	if err := checkDependentEntityTags("service"); err != nil {
 		return err
 	}
 
-	if err := deleteEntity("task"); err != nil {
+	if err := checkDependentEntityTags("task"); err != nil {
 		return err
 	}
 
