@@ -1,6 +1,7 @@
 package system
 
 import (
+	"log"
 	"os"
 	"testing"
 
@@ -22,8 +23,8 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 	vars["endpoint"] = os.Getenv(config.ENVVAR_ENDPOINT)
 	vars["token"] = os.Getenv(config.ENVVAR_TOKEN)
 
-	t.Logf("[DEBUG] endpoint: %s", vars["endpoint"])
-	t.Logf("[DEBUG] token: %s", vars["token"])
+	log.Printf("endpoint: %s", vars["endpoint"])
+	log.Printf("token: %s", vars["token"])
 
 	tfContext := tftest.NewTestContext(t,
 		tftest.Dir(dir),
@@ -35,9 +36,9 @@ func NewSystemTest(t *testing.T, dir string, vars map[string]string) *SystemTest
 	// download modules using terraform init
 	stdoutStderr, err := tfContext.Init()
 	if err != nil {
-		t.Fatalf("[ERROR] %s", err.Error())
+		t.Fatalf("%s", err.Error())
 	}
-	t.Logf("[DEBUG] %s\n", stdoutStderr)
+	log.Printf("%s\n", stdoutStderr)
 
 	return &SystemTest{
 		Terraform: tfContext,

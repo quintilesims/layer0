@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"fmt"
 	"log"
 	"strings"
 
@@ -31,7 +32,7 @@ func (e *EnvironmentProvider) Update(environmentID string, req models.UpdateEnvi
 		}
 
 		if environmentType != models.EnvironmentTypeStatic {
-			return errors.New(errors.InvalidRequest, "updating dynamic environment's scale isn't supported")
+			return errors.New(errors.InvalidRequest, fmt.Errorf("updating dynamic environment's scale isn't supported"))
 		}
 
 		autoScalingGroupName := fqEnvironmentID

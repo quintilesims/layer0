@@ -210,10 +210,13 @@ func (e *EnvironmentCommand) setScale(c *cli.Context) error {
 		return err
 	}
 
-	req := models.UpdateEnvironmentRequest{}
 	scale, err := strconv.Atoi(args["SCALE"])
-	if err == nil {
-		req.Scale = &scale
+	if err != nil {
+		return err
+	}
+
+	req := models.UpdateEnvironmentRequest{
+		Scale: &scale,
 	}
 
 	if err := req.Validate(); err != nil {
