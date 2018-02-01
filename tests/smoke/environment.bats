@@ -1,19 +1,26 @@
 #!/usr/bin/env bats
 
-@test "environment create test1" {
-    l0 environment create test1
+@test "create" {
+  l0 environment create env_name1
+  l0 environment create --user-data common/user_data.sh --os windows --type t2.small env_name2
 }
 
-@test "environment list" {
-    l0 environment list
+@test "get" {
+  l0 environment get env_name1
+  l0 environment get env_name2
+  l0 environment get env_name*
 }
 
-@test "environment get test1" {
-    l0 environment get test1
+@test "list" {
+  l0 environment list
 }
 
-@test "environment get t" {
-    l0 environment get t\*
+@test "link" {
+  l0 environment link --bi-directional env_name1 env_name2
+}
+ 
+@test "unlink" {
+  l0 environment unlink --bi-directional env_name1 env_name2
 }
 
 @test "environment create --user-data common/user_data.sh test2" {
@@ -70,10 +77,10 @@
 
 @test "environment delete test3" {
     l0 --no-wait environment delete test3
-}
 
-@test "environment delete test4" {
-    l0 environment delete test4
+@test "delete" {
+  l0 environment delete env_name1
+  l0 environment delete env_name2
 }
 
 @test "environment delete test5" {

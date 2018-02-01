@@ -4,9 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
-	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,39 +14,40 @@ func TestCreateLoadBalancer(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore, tagStore)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider)
 
 	req := models.CreateLoadBalancerRequest{
-		LoadBalancerName: "lb1",
-		EnvironmentID:    "e1",
+		LoadBalancerName: "lb_name",
+		EnvironmentID:    "env_id",
 		IsPublic:         true,
-		Ports:            []models.Port{},
+		Ports: []models.Port{
+			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+			{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
+		},
 		HealthCheck: models.HealthCheck{
-			Target:             "80",
-			Interval:           60,
-			Timeout:            60,
-			HealthyThreshold:   3,
-			UnhealthyThreshold: 3,
+			Target:             "tcp:80",
+			Interval:           5,
+			Timeout:            6,
+			HealthyThreshold:   7,
+			UnhealthyThreshold: 8,
 		},
 	}
 
-	mockJobStore.EXPECT().
-		Insert(models.CreateLoadBalancerJob, gomock.Any()).
-		Return("jid", nil)
+	mockLoadBalancerProvider.EXPECT().
+		Create(req).
+		Return("lb_id", nil)
 
 	c := newFireballContext(t, req, nil)
-	resp, err := controller.CreateLoadBalancer(c)
+	resp, err := controller.createLoadBalancer(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Job
+	var response models.CreateEntityResponse
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, "jid", response.JobID)
+	assert.Equal(t, "lb_id", response.EntityID)
 }
 
 func TestDeleteLoadBalancer(t *testing.T) {
@@ -56,64 +55,20 @@ func TestDeleteLoadBalancer(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore, tagStore)
-
-	mockJobStore.EXPECT().
-		Insert(models.DeleteLoadBalancerJob, "lid").
-		Return("jid", nil)
-
-	c := newFireballContext(t, nil, map[string]string{"id": "lid"})
-	resp, err := controller.DeleteLoadBalancer(c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var response models.Job
-	recorder := unmarshalBody(t, resp, &response)
-
-	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, "jid", response.JobID)
-}
-
-func TestReadLoadBalancer(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore, tagStore)
-
-	loadBalancerModel := models.LoadBalancer{
-		EnvironmentID:    "e1",
-		EnvironmentName:  "environment1",
-		HealthCheck:      models.HealthCheck{},
-		IsPublic:         true,
-		LoadBalancerID:   "lb1",
-		LoadBalancerName: "loadbalancer1",
-		Ports:            []models.Port{},
-		ServiceID:        "s1",
-		ServiceName:      "service1",
-		URL:              "http://some-url.com",
-	}
+	controller := NewLoadBalancerController(mockLoadBalancerProvider)
 
 	mockLoadBalancerProvider.EXPECT().
-		Read("lb1").
-		Return(&loadBalancerModel, nil)
+		Delete("lb_id").
+		Return(nil)
 
-	c := newFireballContext(t, nil, map[string]string{"id": "lb1"})
-	resp, err := controller.ReadLoadBalancer(c)
+	c := newFireballContext(t, nil, map[string]string{"id": "lb_id"})
+	resp, err := controller.deleteLoadBalancer(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.LoadBalancer
-	recorder := unmarshalBody(t, resp, &response)
-
+	recorder := unmarshalBody(t, resp, nil)
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, loadBalancerModel, response)
 }
 
 func TestListLoadBalancers(t *testing.T) {
@@ -121,31 +76,29 @@ func TestListLoadBalancers(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore, tagStore)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider)
 
-	loadBalancerSummaries := []models.LoadBalancerSummary{
+	expected := []models.LoadBalancerSummary{
 		{
-			LoadBalancerID:   "lb1",
-			LoadBalancerName: "LoadBalancer1",
-			EnvironmentID:    "e1",
-			EnvironmentName:  "environment1",
+			LoadBalancerID:   "lb_id1",
+			LoadBalancerName: "lb_name1",
+			EnvironmentID:    "env_id1",
+			EnvironmentName:  "env_name1",
 		},
 		{
-			LoadBalancerID:   "lb2",
-			LoadBalancerName: "LoadBalancer2",
-			EnvironmentID:    "e2",
-			EnvironmentName:  "environment2",
+			LoadBalancerID:   "lb_id2",
+			LoadBalancerName: "lbd_name2",
+			EnvironmentID:    "env_id2",
+			EnvironmentName:  "env_name2",
 		},
 	}
 
 	mockLoadBalancerProvider.EXPECT().
 		List().
-		Return(loadBalancerSummaries, nil)
+		Return(expected, nil)
 
 	c := newFireballContext(t, nil, nil)
-	resp, err := controller.ListLoadBalancers(c)
+	resp, err := controller.listLoadBalancers(c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -154,7 +107,53 @@ func TestListLoadBalancers(t *testing.T) {
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, loadBalancerSummaries, response)
+	assert.Equal(t, expected, response)
+}
+
+func TestReadLoadBalancer(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	expected := models.LoadBalancer{
+		LoadBalancerID:   "lb_id",
+		LoadBalancerName: "lb_name",
+		EnvironmentID:    "env_id",
+		EnvironmentName:  "env_name",
+		ServiceID:        "svc_id",
+		ServiceName:      "svc_name",
+		IsPublic:         true,
+		URL:              "url",
+		Ports: []models.Port{
+			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+			{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
+		},
+		HealthCheck: models.HealthCheck{
+			Target:             "tcp:80",
+			Interval:           1,
+			Timeout:            2,
+			HealthyThreshold:   3,
+			UnhealthyThreshold: 4,
+		},
+	}
+
+	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider)
+
+	mockLoadBalancerProvider.EXPECT().
+		Read("lb_id").
+		Return(&expected, nil)
+
+	c := newFireballContext(t, nil, map[string]string{"id": "lb_id"})
+	resp, err := controller.readLoadBalancer(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var response models.LoadBalancer
+	recorder := unmarshalBody(t, resp, &response)
+
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, expected, response)
 }
 
 func TestUpdateLoadBalancer(t *testing.T) {
@@ -162,34 +161,36 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockLoadBalancerProvider := mock_provider.NewMockLoadBalancerProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewLoadBalancerController(mockLoadBalancerProvider, mockJobStore, tagStore)
+	controller := NewLoadBalancerController(mockLoadBalancerProvider)
 
-	req := models.UpdateLoadBalancerRequest{
-		Ports: &[]models.Port{},
-		HealthCheck: &models.HealthCheck{
-			Target:             "80",
-			Interval:           60,
-			Timeout:            60,
-			HealthyThreshold:   3,
-			UnhealthyThreshold: 3,
-		},
+	ports := []models.Port{
+		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+		{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
 	}
 
-	mockJobStore.EXPECT().
-		Insert(models.UpdateLoadBalancerJob, gomock.Any()).
-		Return("jid", nil)
+	healthCheck := models.HealthCheck{
+		Target:             "tcp:80",
+		Interval:           1,
+		Timeout:            2,
+		HealthyThreshold:   3,
+		UnhealthyThreshold: 4,
+	}
 
-	c := newFireballContext(t, req, nil)
-	resp, err := controller.UpdateLoadBalancer(c)
+	req := models.UpdateLoadBalancerRequest{
+		Ports:       &ports,
+		HealthCheck: &healthCheck,
+	}
+
+	mockLoadBalancerProvider.EXPECT().
+		Update("lb_id", req).
+		Return(nil)
+
+	c := newFireballContext(t, req, map[string]string{"id": "lb_id"})
+	resp, err := controller.updateLoadBalancer(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Job
-	recorder := unmarshalBody(t, resp, &response)
-
+	recorder := unmarshalBody(t, resp, nil)
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, "jid", response.JobID)
 }

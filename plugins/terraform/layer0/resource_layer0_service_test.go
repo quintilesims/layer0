@@ -26,16 +26,7 @@ func TestResourceServiceCreateRead(t *testing.T) {
 
 	mockClient.EXPECT().
 		CreateService(req).
-		Return("job_id", nil)
-
-	job := &models.Job{
-		Status: models.CompletedJobStatus,
-		Result: "svc_id",
-	}
-
-	mockClient.EXPECT().
-		ReadJob("job_id").
-		Return(job, nil)
+		Return("svc_id", nil)
 
 	service := &models.Service{
 		ServiceID:      "svc_id",
@@ -44,13 +35,14 @@ func TestResourceServiceCreateRead(t *testing.T) {
 		LoadBalancerID: "lb_id",
 		DesiredCount:   3,
 		Deployments: []models.Deployment{
-			{DeployID: "dpl_id", Status: "PRIMARY"},
+			{DeployID: "dpl_id", Status: "PRIMARY", DesiredCount: 1, RunningCount: 1},
 		},
 	}
 
 	mockClient.EXPECT().
 		ReadService("svc_id").
-		Return(service, nil)
+		Return(service, nil).
+		AnyTimes()
 
 	serviceResource := Provider().(*schema.Provider).ResourcesMap["layer0_service"]
 	d := schema.TestResourceDataRaw(t, serviceResource.Schema, map[string]interface{}{
@@ -81,11 +73,7 @@ func TestResourceServiceDelete(t *testing.T) {
 
 	mockClient.EXPECT().
 		DeleteService("svc_id").
-		Return("job_id", nil)
-
-	mockClient.EXPECT().
-		ReadJob("job_id").
-		Return(&models.Job{Status: models.CompletedJobStatus}, nil)
+		Return(nil)
 
 	serviceResource := Provider().(*schema.Provider).ResourcesMap["layer0_service"]
 	d := schema.TestResourceDataRaw(t, serviceResource.Schema, map[string]interface{}{})

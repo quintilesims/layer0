@@ -11,9 +11,13 @@ import (
 
 func TestCreateTask(t *testing.T) {
 	req := models.CreateTaskRequest{
-		TaskName:      "name",
-		EnvironmentID: "eid",
-		DeployID:      "did",
+		TaskName:      "tsk_name",
+		EnvironmentID: "env_id",
+		DeployID:      "dpl_id",
+		ContainerOverrides: []models.ContainerOverride{
+			{ContainerName: "c1", EnvironmentOverrides: map[string]string{"k1": "v1"}},
+			{ContainerName: "c2", EnvironmentOverrides: map[string]string{"k2": "v2"}},
+		},
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
@@ -24,43 +28,50 @@ func TestCreateTask(t *testing.T) {
 		Unmarshal(t, r, &body)
 
 		assert.Equal(t, req, body)
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
+		MarshalAndWrite(t, w, models.CreateEntityResponse{EntityID: "tsk_id"}, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.CreateTask(req)
+	taskID, err := client.CreateTask(req)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, "jid", jobID)
+	assert.Equal(t, "tsk_id", taskID)
 }
 
 func TestDeleteTask(t *testing.T) {
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "DELETE")
-		assert.Equal(t, r.URL.Path, "/task/tid")
+		assert.Equal(t, r.URL.Path, "/task/tsk_id")
 
-		MarshalAndWrite(t, w, models.CreateJobResponse{JobID: "jid"}, 200)
+		MarshalAndWrite(t, w, nil, 200)
 	}
 
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	jobID, err := client.DeleteTask("tid")
-	if err != nil {
+	if err := client.DeleteTask("tsk_id"); err != nil {
 		t.Fatal(err)
 	}
-
-	assert.Equal(t, jobID, "jid")
 }
 
 func TestListTasks(t *testing.T) {
-	expected := []*models.TaskSummary{
-		{TaskID: "tid1"},
-		{TaskID: "tid2"},
+	expected := []models.TaskSummary{
+		{
+			TaskID:          "tsk_id1",
+			TaskName:        "tsk_name1",
+			EnvironmentID:   "env_id1",
+			EnvironmentName: "env_name1",
+		},
+		{
+			TaskID:          "tsk_id2",
+			TaskName:        "tskd_name2",
+			EnvironmentID:   "env_id2",
+			EnvironmentName: "env_name2",
+		},
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
@@ -82,14 +93,24 @@ func TestListTasks(t *testing.T) {
 }
 
 func TestReadTask(t *testing.T) {
-	expected := &models.Task{
-		TaskID:   "tid",
-		TaskName: "ename",
+	expected := models.Task{
+		TaskID:          "tsk_id",
+		TaskName:        "tsk_name",
+		EnvironmentID:   "env_id",
+		EnvironmentName: "env_name",
+		DeployID:        "dpl_id",
+		DeployName:      "dpl_name",
+		DeployVersion:   "1",
+		Status:          "RUNNING",
+		Containers: []models.Container{
+			{ContainerName: "c1", Status: "RUNNING", ExitCode: 0},
+			{ContainerName: "c2", Status: "STOPPED", ExitCode: 1},
+		},
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
-		assert.Equal(t, r.URL.Path, "/task/tid")
+		assert.Equal(t, r.URL.Path, "/task/tsk_id")
 
 		MarshalAndWrite(t, w, expected, 200)
 	}
@@ -97,28 +118,30 @@ func TestReadTask(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	result, err := client.ReadTask("tid")
+	result, err := client.ReadTask("tsk_id")
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	assert.Equal(t, expected, result)
+	assert.Equal(t, expected, *result)
 }
 
 func TestReadTaskLogs(t *testing.T) {
-	expected := []*models.LogFile{
-		{ContainerName: "c1"},
-		{ContainerName: "c2"},
+	expected := []models.LogFile{
+		{
+			ContainerName: "apline",
+			Lines:         []string{"hello", "world"},
+		},
 	}
 
 	query := url.Values{}
-	query.Set(LogQueryParamTail, "100")
-	query.Set(LogQueryParamStart, "2000-01-01 00:00")
-	query.Set(LogQueryParamEnd, "2000-01-01 12:12")
+	query.Set(models.LogQueryParamTail, "100")
+	query.Set(models.LogQueryParamStart, "2000-01-01 00:00")
+	query.Set(models.LogQueryParamEnd, "2000-01-01 12:12")
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
-		assert.Equal(t, r.URL.Path, "/task/tid/logs")
+		assert.Equal(t, r.URL.Path, "/task/tsk_id/logs")
 		assert.Equal(t, query, r.URL.Query())
 
 		MarshalAndWrite(t, w, expected, 200)
@@ -127,7 +150,7 @@ func TestReadTaskLogs(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	result, err := client.ReadTaskLogs("tid", query)
+	result, err := client.ReadTaskLogs("tsk_id", query)
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -3,30 +3,19 @@ package controllers
 import (
 	"encoding/json"
 
-	"github.com/quintilesims/layer0/api/job"
 	"github.com/quintilesims/layer0/api/provider"
-	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
 )
 
-const (
-	// 'YYYY-MM-DD HH:MM' time layout as described by https://golang.org/src/time/format.go
-	TIME_LAYOUT = "2006-01-02 15:04"
-)
-
 type TaskController struct {
 	TaskProvider provider.TaskProvider
-	JobStore     job.Store
-	TagStore     tag.Store
 }
 
-func NewTaskController(p provider.TaskProvider, j job.Store, t tag.Store) *TaskController {
+func NewTaskController(t provider.TaskProvider) *TaskController {
 	return &TaskController{
-		TaskProvider: p,
-		JobStore:     j,
-		TagStore:     t,
+		TaskProvider: t,
 	}
 }
 
@@ -35,27 +24,27 @@ func (t *TaskController) Routes() []*fireball.Route {
 		{
 			Path: "/task",
 			Handlers: fireball.Handlers{
-				"GET":  t.ListTasks,
-				"POST": t.CreateTask,
+				"GET":  t.listTasks,
+				"POST": t.createTask,
 			},
 		},
 		{
 			Path: "/task/:id",
 			Handlers: fireball.Handlers{
-				"GET":    t.GetTask,
-				"DELETE": t.DeleteTask,
+				"GET":    t.readTask,
+				"DELETE": t.deleteTask,
 			},
 		},
 		{
 			Path: "/task/:id/logs",
 			Handlers: fireball.Handlers{
-				"GET": t.GetTaskLogs,
+				"GET": t.readTaskLogs,
 			},
 		},
 	}
 }
 
-func (t *TaskController) CreateTask(c *fireball.Context) (fireball.Response, error) {
+func (t *TaskController) createTask(c *fireball.Context) (fireball.Response, error) {
 	var req models.CreateTaskRequest
 	if err := json.NewDecoder(c.Request.Body).Decode(&req); err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
@@ -65,45 +54,53 @@ func (t *TaskController) CreateTask(c *fireball.Context) (fireball.Response, err
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	return createJob(t.TagStore, t.JobStore, models.CreateTaskJob, req)
-}
-
-func (t *TaskController) DeleteTask(c *fireball.Context) (fireball.Response, error) {
-	id := c.PathVariables["id"]
-	return createJob(t.TagStore, t.JobStore, models.DeleteTaskJob, id)
-}
-
-func (t *TaskController) GetTask(c *fireball.Context) (fireball.Response, error) {
-	id := c.PathVariables["id"]
-	model, err := t.TaskProvider.Read(id)
+	taskID, err := t.TaskProvider.Create(req)
 	if err != nil {
 		return nil, err
 	}
 
-	return fireball.NewJSONResponse(200, model)
+	return fireball.NewJSONResponse(200, models.CreateEntityResponse{EntityID: taskID})
 }
 
-func (t *TaskController) GetTaskLogs(c *fireball.Context) (fireball.Response, error) {
-	id := c.PathVariables["id"]
+func (t *TaskController) deleteTask(c *fireball.Context) (fireball.Response, error) {
+	taskID := c.PathVariables["id"]
+	if err := t.TaskProvider.Delete(taskID); err != nil {
+		return nil, err
+	}
 
+	return fireball.NewJSONResponse(200, nil)
+}
+
+func (t *TaskController) listTasks(c *fireball.Context) (fireball.Response, error) {
+	tasks, err := t.TaskProvider.List()
+	if err != nil {
+		return nil, err
+	}
+
+	return fireball.NewJSONResponse(200, tasks)
+}
+
+func (t *TaskController) readTask(c *fireball.Context) (fireball.Response, error) {
+	taskID := c.PathVariables["id"]
+	task, err := t.TaskProvider.Read(taskID)
+	if err != nil {
+		return nil, err
+	}
+
+	return fireball.NewJSONResponse(200, task)
+}
+
+func (t *TaskController) readTaskLogs(c *fireball.Context) (fireball.Response, error) {
+	taskID := c.PathVariables["id"]
 	tail, start, end, err := parseLoggingQuery(c.Request.URL.Query())
 	if err != nil {
-		return nil, err
+		return nil, errors.New(errors.InvalidRequest, err)
 	}
 
-	logs, err := t.TaskProvider.Logs(id, tail, start, end)
+	logs, err := t.TaskProvider.Logs(taskID, tail, start, end)
 	if err != nil {
 		return nil, err
 	}
 
 	return fireball.NewJSONResponse(200, logs)
-}
-
-func (t *TaskController) ListTasks(c *fireball.Context) (fireball.Response, error) {
-	summaries, err := t.TaskProvider.List()
-	if err != nil {
-		return nil, err
-	}
-
-	return fireball.NewJSONResponse(200, summaries)
 }

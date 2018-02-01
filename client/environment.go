@@ -7,26 +7,25 @@ import (
 )
 
 func (c *APIClient) CreateEnvironment(req models.CreateEnvironmentRequest) (string, error) {
-	var resp models.CreateJobResponse
+	var resp models.CreateEntityResponse
 	if err := c.client.Post("/environment", req, &resp); err != nil {
 		return "", err
 	}
 
-	return resp.JobID, nil
+	return resp.EntityID, nil
 }
 
-func (c *APIClient) DeleteEnvironment(environmentID string) (string, error) {
-	var resp models.CreateJobResponse
+func (c *APIClient) DeleteEnvironment(environmentID string) error {
 	path := fmt.Sprintf("/environment/%s", environmentID)
-	if err := c.client.Delete(path, nil, &resp); err != nil {
-		return "", err
+	if err := c.client.Delete(path, nil, nil); err != nil {
+		return err
 	}
 
-	return resp.JobID, nil
+	return nil
 }
 
-func (c *APIClient) ListEnvironments() ([]*models.EnvironmentSummary, error) {
-	var environments []*models.EnvironmentSummary
+func (c *APIClient) ListEnvironments() ([]models.EnvironmentSummary, error) {
+	var environments []models.EnvironmentSummary
 	if err := c.client.Get("/environment", &environments); err != nil {
 		return nil, err
 	}
@@ -44,12 +43,11 @@ func (c *APIClient) ReadEnvironment(environmentID string) (*models.Environment, 
 	return environment, nil
 }
 
-func (c *APIClient) UpdateEnvironment(environmentID string, req models.UpdateEnvironmentRequest) (string, error) {
-	var resp models.CreateJobResponse
+func (c *APIClient) UpdateEnvironment(environmentID string, req models.UpdateEnvironmentRequest) error {
 	path := fmt.Sprintf("/environment/%s", environmentID)
-	if err := c.client.Patch(path, req, &resp); err != nil {
-		return "", err
+	if err := c.client.Patch(path, req, nil); err != nil {
+		return err
 	}
 
-	return resp.JobID, nil
+	return nil
 }

@@ -396,6 +396,11 @@ type ResourceAttrDiff struct {
 	Type        DiffAttrType
 }
 
+// Modified returns the inequality of Old and New for this attr
+func (d *ResourceAttrDiff) Modified() bool {
+	return d.Old != d.New
+}
+
 // Empty returns true if the diff for this attr is neutral
 func (d *ResourceAttrDiff) Empty() bool {
 	return d.Old == d.New && !d.NewComputed && !d.NewRemoved
@@ -837,7 +842,14 @@ func (d *InstanceDiff) Same(d2 *InstanceDiff) (bool, string) {
 			}
 		}
 
-		// TODO: check for the same value if not computed
+		// We don't compare the values because we can't currently actually
+		// guarantee to generate the same value two two diffs created from
+		// the same state+config: we have some pesky interpolation functions
+		// that do not behave as pure functions (uuid, timestamp) and so they
+		// can be different each time a diff is produced.
+		// FIXME: Re-organize our config handling so that we don't re-evaluate
+		// expressions when we produce a second comparison diff during
+		// apply (for EvalCompareDiff).
 	}
 
 	// Check for leftover attributes

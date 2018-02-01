@@ -6,7 +6,6 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform/helper/schema"
-	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/client/mock_client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -19,9 +18,9 @@ func TestDataSourceLayer0LoadBalancerRead(t *testing.T) {
 	mockClient := mock_client.NewMockClient(ctrl)
 
 	query := url.Values{}
-	query.Set(client.TagQueryParamType, "load_balancer")
-	query.Set(client.TagQueryParamName, "lb_name")
-	query.Set(client.TagQueryParamEnvironmentID, "env_id")
+	query.Set(models.TagQueryParamType, "load_balancer")
+	query.Set(models.TagQueryParamName, "lb_name")
+	query.Set(models.TagQueryParamEnvironmentID, "env_id")
 
 	mockClient.EXPECT().
 		ListTags(query).
