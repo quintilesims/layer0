@@ -33,6 +33,7 @@ func TestCreateTask(t *testing.T) {
 		},
 	}
 
+	// todo: use .Do(...) because map doesn't work
 	base.Client.EXPECT().
 		CreateTask(req).
 		Return("tsk_id", nil)
