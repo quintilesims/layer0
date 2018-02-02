@@ -17,4 +17,3 @@ output "deploy_id" {
 output "deploy_name" {
   value = "${layer0_deploy.sts.name}"
 }
-

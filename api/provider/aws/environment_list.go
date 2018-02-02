@@ -39,6 +39,10 @@ func (e *EnvironmentProvider) makeEnvironmentSummaryModels(environmentIDs []stri
 		if tag, ok := tags.WithID(environmentID).WithKey("os").First(); ok {
 			models[i].OperatingSystem = tag.Value
 		}
+
+		if tag, ok := tags.WithID(environmentID).WithKey("type").First(); ok {
+			models[i].EnvironmentType = tag.Value
+		}
 	}
 
 	return models, nil
