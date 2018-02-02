@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -18,35 +19,43 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 	// todo: catch 'EntityDoesNotExist' errors
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
+	model, err := e.makeEnvironmentModel(environmentID)
+	if err != nil {
+		return nil, err
+	}
+
+	if model.EnvironmentType == models.EnvironmentTypeStatic {
+		autoScalingGroupName := fqEnvironmentID
+		autoScalingGroup, err := e.readASG(autoScalingGroupName)
+		if err != nil {
+			return nil, err
+		}
+
+		launchConfigName := aws.StringValue(autoScalingGroup.LaunchConfigurationName)
+		launchConfig, err := e.readLC(launchConfigName)
+		if err != nil {
+			return nil, err
+		}
+
+		clusterName := autoScalingGroupName
+		clusterInstanceCount, err := e.readClusterCount(clusterName)
+		if err != nil {
+			return nil, err
+		}
+
+		model.CurrentScale = clusterInstanceCount
+		model.DesiredScale = int(aws.Int64Value(autoScalingGroup.DesiredCapacity))
+		model.InstanceType = aws.StringValue(launchConfig.InstanceType)
+		model.AMIID = aws.StringValue(launchConfig.ImageId)
+	}
+
 	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
 	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
 	if err != nil {
 		return nil, err
 	}
 
-	autoScalingGroupName := fqEnvironmentID
-	autoScalingGroup, err := e.readASG(autoScalingGroupName)
-	if err != nil {
-		return nil, err
-	}
-
-	launchConfigName := aws.StringValue(autoScalingGroup.LaunchConfigurationName)
-	launchConfig, err := e.readLC(launchConfigName)
-	if err != nil {
-		return nil, err
-	}
-
-	model, err := e.makeEnvironmentModel(environmentID)
-	if err != nil {
-		return nil, err
-	}
-
-	model.MinScale = int(aws.Int64Value(autoScalingGroup.MinSize))
-	model.CurrentScale = int(aws.Int64Value(autoScalingGroup.DesiredCapacity))
-	model.MaxScale = int(aws.Int64Value(autoScalingGroup.MaxSize))
-	model.InstanceType = aws.StringValue(launchConfig.InstanceType)
 	model.SecurityGroupID = aws.StringValue(securityGroup.GroupId)
-	model.AMIID = aws.StringValue(launchConfig.ImageId)
 
 	return model, nil
 }
@@ -89,6 +98,18 @@ func (e *EnvironmentProvider) readASG(autoScalingGroupName string) (*autoscaling
 	return nil, awserr.New("DoesNotExist", message, nil)
 }
 
+func (e *EnvironmentProvider) readClusterCount(clusterName string) (int, error) {
+	input := &ecs.ListContainerInstancesInput{}
+	input.SetCluster(clusterName)
+
+	output, err := e.AWS.ECS.ListContainerInstances(input)
+	if err != nil {
+		return 0, err
+	}
+
+	return len(output.ContainerInstanceArns), nil
+}
+
 func (e *EnvironmentProvider) makeEnvironmentModel(environmentID string) (*models.Environment, error) {
 	model := &models.Environment{
 		EnvironmentID: environmentID,
@@ -105,6 +126,10 @@ func (e *EnvironmentProvider) makeEnvironmentModel(environmentID string) (*model
 
 	if tag, ok := tags.WithKey("os").First(); ok {
 		model.OperatingSystem = tag.Value
+	}
+
+	if tag, ok := tags.WithKey("type").First(); ok {
+		model.EnvironmentType = tag.Value
 	}
 
 	model.Links = []string{}

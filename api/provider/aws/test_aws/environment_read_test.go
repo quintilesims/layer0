@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
@@ -35,6 +36,12 @@ func TestEnvironmentRead(t *testing.T) {
 		{
 			EntityID:   "env_id",
 			EntityType: "environment",
+			Key:        "type",
+			Value:      "static",
+		},
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
 			Key:        "os",
 			Value:      "linux",
 		},
@@ -58,8 +65,8 @@ func TestEnvironmentRead(t *testing.T) {
 	asg := &autoscaling.Group{}
 	asg.SetAutoScalingGroupName("l0-test-env_id")
 	asg.SetLaunchConfigurationName("lc_name")
-	asg.SetMinSize(1)
-	asg.SetDesiredCapacity(2)
+	asg.SetMinSize(5)
+	asg.SetDesiredCapacity(5)
 	asg.SetMaxSize(5)
 
 	describeASGOutput := &autoscaling.DescribeAutoScalingGroupsOutput{}
@@ -84,6 +91,13 @@ func TestEnvironmentRead(t *testing.T) {
 		DescribeLaunchConfigurations(describeLCInput).
 		Return(describeLCOutput, nil)
 
+	containerInstArn := "abc"
+	listCIOutput := &ecs.ListContainerInstancesOutput{}
+	listCIOutput.SetContainerInstanceArns([]*string{&containerInstArn})
+	mockAWS.ECS.EXPECT().
+		ListContainerInstances(gomock.Any()).
+		Return(listCIOutput, nil)
+
 	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.Read("env_id")
 	if err != nil {
@@ -94,12 +108,12 @@ func TestEnvironmentRead(t *testing.T) {
 	expected := &models.Environment{
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
+		EnvironmentType: "static",
 		OperatingSystem: "linux",
 		InstanceType:    "t2.small",
 		SecurityGroupID: "sg_id",
-		MinScale:        1,
-		CurrentScale:    2,
-		MaxScale:        5,
+		CurrentScale:    1,
+		DesiredScale:    5,
 		AMIID:           "ami_id",
 		Links:           []string{},
 	}

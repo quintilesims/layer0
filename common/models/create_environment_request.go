@@ -2,16 +2,17 @@ package models
 
 import (
 	"fmt"
+	"strings"
 
 	swagger "github.com/zpatrick/go-plugin-swagger"
 )
 
 type CreateEnvironmentRequest struct {
 	EnvironmentName  string `json:"environment_name"`
+	EnvironmentType  string `json:"environment_type"`
+	Scale            int    `json:"scale"`
 	InstanceType     string `json:"instance_type"`
 	UserDataTemplate []byte `json:"user_data_template"`
-	MinScale         int    `json:"min_scale"`
-	MaxScale         int    `json:"max_scale"`
 	OperatingSystem  string `json:"operating_system"`
 	AMIID            string `json:"ami_id"`
 }
@@ -21,16 +22,23 @@ func (r CreateEnvironmentRequest) Validate() error {
 		return fmt.Errorf("EnvironmentName is required")
 	}
 
-	if r.MinScale < 0 {
-		return fmt.Errorf("MinScale must be a positive integer")
+	if r.Scale < 0 {
+		return fmt.Errorf("Scale must be a positive integer")
 	}
 
-	if r.MaxScale < 0 {
-		return fmt.Errorf("MaxScale must be a positive integer")
+	if !strings.EqualFold(r.EnvironmentType, EnvironmentTypeDynamic) &&
+		!strings.EqualFold(r.EnvironmentType, EnvironmentTypeStatic) {
+		return fmt.Errorf("%s is not a supported/valid environment type", r.EnvironmentType)
 	}
 
-	if r.MaxScale < r.MinScale {
-		return fmt.Errorf("MaxScale must be greater than or equal to MinScale")
+	if strings.EqualFold(r.EnvironmentType, EnvironmentTypeDynamic) &&
+		!strings.EqualFold(r.OperatingSystem, LinuxOS) {
+		return fmt.Errorf("%s is not a supported OS for dynamic environments", r.OperatingSystem)
+	}
+
+	if strings.EqualFold(r.EnvironmentType, EnvironmentTypeDynamic) &&
+		r.Scale > 0 {
+		return fmt.Errorf("setting `Scale` is not valid for dynamic environments")
 	}
 
 	return nil
@@ -42,9 +50,9 @@ func (e CreateEnvironmentRequest) Definition() swagger.Definition {
 		Properties: map[string]swagger.Property{
 			"environment_name":   swagger.NewStringProperty(),
 			"instance_type":      swagger.NewStringProperty(),
+			"environment_type":   swagger.NewStringProperty(),
 			"user_data_template": swagger.NewStringProperty(),
-			"min_scale":          swagger.NewIntProperty(),
-			"max_scale":          swagger.NewIntProperty(),
+			"scale":              swagger.NewIntProperty(),
 			"operating_system":   swagger.NewStringProperty(),
 			"ami_id":             swagger.NewStringProperty(),
 		},
