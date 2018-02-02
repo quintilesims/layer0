@@ -11,7 +11,7 @@ import (
 func TestCreateEnvironment(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
 	file, delete := testutils.TempFile(t, "user_data")
 	defer delete()
@@ -52,9 +52,9 @@ func TestCreateEnvironment(t *testing.T) {
 func TestCreateEnvironmentInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 		"Negative MinScale": testutils.NewTestContext(t,
 			[]string{"env_name"},
@@ -64,7 +64,7 @@ func TestCreateEnvironmentInputErrors(t *testing.T) {
 			map[string]interface{}{"max-scale": "-1"}),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.create(c); err == nil {
 				t.Fatal("error was nil!")
@@ -76,7 +76,7 @@ func TestCreateEnvironmentInputErrors(t *testing.T) {
 func TestDeleteEnvironment(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("environment", "env_name").
@@ -95,13 +95,13 @@ func TestDeleteEnvironment(t *testing.T) {
 func TestDeleteEnvironmentInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.delete(c); err == nil {
 				t.Fatal("error was nil!")
@@ -113,7 +113,7 @@ func TestDeleteEnvironmentInputErrors(t *testing.T) {
 func TestListEnvironments(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
 	base.Client.EXPECT().
 		ListEnvironments().
@@ -128,7 +128,7 @@ func TestListEnvironments(t *testing.T) {
 func TestReadEnvironment(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("environment", "env_name").
@@ -147,13 +147,13 @@ func TestReadEnvironment(t *testing.T) {
 func TestReadEnvironmentInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.read(c); err == nil {
 				t.Fatal("error was nil!")
@@ -165,7 +165,7 @@ func TestReadEnvironmentInputErrors(t *testing.T) {
 func TestLinkEnvironments(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
 	environments := map[string]string{
 		"env_name1": "env_id1",
@@ -205,7 +205,7 @@ func TestLinkEnvironments(t *testing.T) {
 func TestLinkEnvironmentsBidirectional(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
 	environments := map[string]string{
 		"env_name1": "env_id1",
@@ -255,14 +255,14 @@ func TestLinkEnvironmentsBidirectional(t *testing.T) {
 func TestLinkEnvironmentsInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing SOURCE arg": testutils.NewTestContext(t, nil, nil),
 		"Missing DEST arg":   testutils.NewTestContext(t, []string{"env_name1"}, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.link(c); err == nil {
 				t.Fatal("error was nil!")
@@ -274,7 +274,7 @@ func TestLinkEnvironmentsInputErrors(t *testing.T) {
 func TestUnlinkEnvironments(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
 	environments := map[string]string{
 		"env_name1": "env_id1",
@@ -321,7 +321,7 @@ func TestUnlinkEnvironments(t *testing.T) {
 func TestUnlinkEnvironmentsBidirectional(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
 	environments := map[string]string{
 		"env_name1": "env_id1",
@@ -372,14 +372,14 @@ func TestUnlinkEnvironmentsBidirectional(t *testing.T) {
 func TestUnlinkEnvironmentsInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
+	command := NewEnvironmentCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing SOURCE arg": testutils.NewTestContext(t, nil, nil),
 		"Missing DEST arg":   testutils.NewTestContext(t, []string{"env_name1"}, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.unlink(c); err == nil {
 				t.Fatal("error was nil!")

@@ -12,7 +12,7 @@ import (
 func TestLoadBalancerAddPort(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("load_balancer", "lb_name").
@@ -51,14 +51,14 @@ func TestLoadBalancerAddPort(t *testing.T) {
 func TestLoadBalancerAddPortInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 		"Missing PORT arg": testutils.NewTestContext(t, []string{"lb_name"}, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.addPort(c); err == nil {
 				t.Fatal("error was nil!")
@@ -70,7 +70,7 @@ func TestLoadBalancerAddPortInputErrors(t *testing.T) {
 func TestCreateLoadBalancer(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("environment", "env_name").
@@ -124,14 +124,14 @@ func TestCreateLoadBalancer(t *testing.T) {
 func TestCreateLoadBalancerInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing ENVIRONMENT arg": testutils.NewTestContext(t, nil, nil),
 		"Missing NAME arg":        testutils.NewTestContext(t, []string{"env_name"}, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.create(c); err == nil {
 				t.Fatal("error was nil!")
@@ -143,7 +143,7 @@ func TestCreateLoadBalancerInputErrors(t *testing.T) {
 func TestDeleteLoadBalancer(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("load_balancer", "lb_name").
@@ -162,13 +162,13 @@ func TestDeleteLoadBalancer(t *testing.T) {
 func TestDeleteLoadBalancerInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.delete(c); err == nil {
 				t.Fatal("error was nil!")
@@ -180,7 +180,7 @@ func TestDeleteLoadBalancerInputErrors(t *testing.T) {
 func TestLoadBalancerDropPort(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("load_balancer", "lb_name").
@@ -218,14 +218,14 @@ func TestLoadBalancerDropPort(t *testing.T) {
 func TestLoadBalancerDropPortInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 		"Missing PORT arg": testutils.NewTestContext(t, []string{"lb_name"}, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.dropPort(c); err == nil {
 				t.Fatal("error was nil!")
@@ -237,7 +237,7 @@ func TestLoadBalancerDropPortInputErrors(t *testing.T) {
 func TestListLoadBalancers(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.CommandBase())
 
 	base.Client.EXPECT().
 		ListLoadBalancers().
@@ -252,7 +252,7 @@ func TestListLoadBalancers(t *testing.T) {
 func TestReadLoadBalancer(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("load_balancer", "lb_name").
@@ -271,13 +271,13 @@ func TestReadLoadBalancer(t *testing.T) {
 func TestReadLoadBalancerInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.read(c); err == nil {
 				t.Fatal("error was nil!")

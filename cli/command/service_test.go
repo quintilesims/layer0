@@ -12,7 +12,7 @@ import (
 func TestCreateService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("environment", "env_name").
@@ -56,15 +56,15 @@ func TestCreateService(t *testing.T) {
 func TestCreateServiceInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing ENVIRONMENT arg": testutils.NewTestContext(t, nil, nil),
 		"Missing NAME arg":        testutils.NewTestContext(t, []string{"env_name"}, nil),
 		"Missing DEPLOY arg":      testutils.NewTestContext(t, []string{"env_name", "svc_name"}, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.create(c); err == nil {
 				t.Fatal("error was nil!")
@@ -76,7 +76,7 @@ func TestCreateServiceInputErrors(t *testing.T) {
 func TestDeleteService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("service", "svc_name").
@@ -95,13 +95,13 @@ func TestDeleteService(t *testing.T) {
 func TestDeleteServiceInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.delete(c); err == nil {
 				t.Fatal("error was nil!")
@@ -113,7 +113,7 @@ func TestDeleteServiceInputErrors(t *testing.T) {
 func TestListServices(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
 	base.Client.EXPECT().
 		ListServices().
@@ -128,7 +128,7 @@ func TestListServices(t *testing.T) {
 func TestReadService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("service", "svc_name").
@@ -147,13 +147,13 @@ func TestReadService(t *testing.T) {
 func TestReadServiceInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.read(c); err == nil {
 				t.Fatal("error was nil!")
@@ -165,7 +165,7 @@ func TestReadServiceInputErrors(t *testing.T) {
 func TestReadServiceLogs(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("service", "svc_name").
@@ -196,13 +196,13 @@ func TestReadServiceLogs(t *testing.T) {
 func TestReadServiceLogsInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.logs(c); err == nil {
 				t.Fatal("error was nil!")
@@ -214,7 +214,7 @@ func TestReadServiceLogsInputErrors(t *testing.T) {
 func TestScaleService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("service", "svc_name").
@@ -242,15 +242,15 @@ func TestScaleService(t *testing.T) {
 func TestScaleServiceInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg":      testutils.NewTestContext(t, nil, nil),
 		"Missing COUNT arg":     testutils.NewTestContext(t, []string{"svc_name"}, nil),
 		"Non-integer COUNT arg": testutils.NewTestContext(t, []string{"svc_name", "two"}, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.scale(c); err == nil {
 				t.Fatal("error was nil!")
@@ -262,7 +262,7 @@ func TestScaleServiceInputErrors(t *testing.T) {
 func TestUpdateService(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("service", "svc_name").
@@ -294,14 +294,14 @@ func TestUpdateService(t *testing.T) {
 func TestUpdateServiceInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewServiceCommand(base.Command())
+	command := NewServiceCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg":   testutils.NewTestContext(t, nil, nil),
 		"Missing DEPLOY arg": testutils.NewTestContext(t, []string{"svc_name"}, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.update(c); err == nil {
 				t.Fatal("error was nil!")

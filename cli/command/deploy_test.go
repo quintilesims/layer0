@@ -1,18 +1,18 @@
 package command
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/stretchr/testify/assert"
-	"github.com/urfave/cli"
 )
 
 func TestCreateDeploy(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewDeployCommand(base.Command())
+	command := NewDeployCommand(base.CommandBase()).Command()
 
 	file, delete := testutils.TempFile(t, "content")
 	defer delete()
@@ -30,8 +30,8 @@ func TestCreateDeploy(t *testing.T) {
 		ReadDeploy("dpl_id").
 		Return(&models.Deploy{}, nil)
 
-	c := testutils.NewTestContext(t, []string{file.Name(), "dpl_name"}, nil)
-	if err := command.create(c); err != nil {
+	input := fmt.Sprintf("l0 deploy create %s dpl_name", file.Name())
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -39,16 +39,17 @@ func TestCreateDeploy(t *testing.T) {
 func TestCreateDeployInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewDeployCommand(base.Command())
+	command := NewDeployCommand(base.CommandBase()).Command()
 
-	contexts := map[string]*cli.Context{
-		"Missing PATH arg": testutils.NewTestContext(t, nil, nil),
-		"Missing NAME arg": testutils.NewTestContext(t, []string{"path"}, nil),
+	cases := map[string]string{
+		"Missing PATH arg":    "l0 deploy create",
+		"Missing NAME arg":    "l0 deploy create path",
+		"PATH does not exist": "l0 deploy create badpath name",
 	}
 
-	for name, c := range contexts {
+	for name, input := range cases {
 		t.Run(name, func(t *testing.T) {
-			if err := command.create(c); err == nil {
+			if err := testutils.RunApp(command, input); err == nil {
 				t.Fatal("error was nil!")
 			}
 		})
@@ -58,7 +59,7 @@ func TestCreateDeployInputErrors(t *testing.T) {
 func TestDeleteDeploy(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewDeployCommand(base.Command())
+	command := NewDeployCommand(base.CommandBase()).Command()
 
 	base.Resolver.EXPECT().
 		Resolve("deploy", "dpl_name").
@@ -68,8 +69,7 @@ func TestDeleteDeploy(t *testing.T) {
 		DeleteDeploy("dpl_id").
 		Return(nil)
 
-	c := testutils.NewTestContext(t, []string{"dpl_name"}, nil)
-	if err := command.delete(c); err != nil {
+	if err := testutils.RunApp(command, "l0 deploy delete dpl_name"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -77,15 +77,15 @@ func TestDeleteDeploy(t *testing.T) {
 func TestDeleteDeployInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewDeployCommand(base.Command())
+	command := NewDeployCommand(base.CommandBase()).Command()
 
-	contexts := map[string]*cli.Context{
-		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
+	cases := map[string]string{
+		"Missing NAME arg": "l0 deploy delete",
 	}
 
-	for name, c := range contexts {
+	for name, input := range cases {
 		t.Run(name, func(t *testing.T) {
-			if err := command.delete(c); err == nil {
+			if err := testutils.RunApp(command, input); err == nil {
 				t.Fatal("error was nil!")
 			}
 		})
@@ -95,7 +95,7 @@ func TestDeleteDeployInputErrors(t *testing.T) {
 func TestReadDeploy(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewDeployCommand(base.Command())
+	command := NewDeployCommand(base.CommandBase()).Command()
 
 	base.Resolver.EXPECT().
 		Resolve("deploy", "dpl_name").
@@ -105,8 +105,7 @@ func TestReadDeploy(t *testing.T) {
 		ReadDeploy("dpl_id").
 		Return(&models.Deploy{}, nil)
 
-	c := testutils.NewTestContext(t, []string{"dpl_name"}, nil)
-	if err := command.read(c); err != nil {
+	if err := testutils.RunApp(command, "l0 deploy get dpl_name"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -114,15 +113,15 @@ func TestReadDeploy(t *testing.T) {
 func TestReadDeployInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewDeployCommand(base.Command())
+	command := NewDeployCommand(base.CommandBase()).Command()
 
-	contexts := map[string]*cli.Context{
-		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
+	cases := map[string]string{
+		"Missing NAME arg": "l0 deploy get",
 	}
 
-	for name, c := range contexts {
+	for name, input := range cases {
 		t.Run(name, func(t *testing.T) {
-			if err := command.read(c); err == nil {
+			if err := testutils.RunApp(command, input); err == nil {
 				t.Fatal("error was nil!")
 			}
 		})
@@ -132,14 +131,13 @@ func TestReadDeployInputErrors(t *testing.T) {
 func TestListDeploys(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewDeployCommand(base.Command())
+	command := NewDeployCommand(base.CommandBase()).Command()
 
 	base.Client.EXPECT().
 		ListDeploys().
 		Return([]models.DeploySummary{}, nil)
 
-	c := testutils.NewTestContext(t, nil, map[string]interface{}{"all": true})
-	if err := command.list(c); err != nil {
+	if err := testutils.RunApp(command, "l0 deploy list"); err != nil {
 		t.Fatal(err)
 	}
 }

@@ -13,7 +13,7 @@ import (
 func TestCreateTask(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.Command())
+	command := NewTaskCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("environment", "env_name").
@@ -57,15 +57,15 @@ func TestCreateTask(t *testing.T) {
 func TestCreateTaskInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.Command())
+	command := NewTaskCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing ENVIRONMENT arg": testutils.NewTestContext(t, nil, nil),
 		"Missing NAME arg":        testutils.NewTestContext(t, []string{"env_name"}, nil),
 		"Missing DEPLOY arg":      testutils.NewTestContext(t, []string{"env_name", "tsk_name"}, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.create(c); err == nil {
 				t.Fatal("error was nil!")
@@ -77,7 +77,7 @@ func TestCreateTaskInputErrors(t *testing.T) {
 func TestDeleteTask(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.Command())
+	command := NewTaskCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("task", "tsk_name").
@@ -96,13 +96,13 @@ func TestDeleteTask(t *testing.T) {
 func TestDeleteTaskInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.Command())
+	command := NewTaskCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.delete(c); err == nil {
 				t.Fatal("error was nil!")
@@ -114,7 +114,7 @@ func TestDeleteTaskInputErrors(t *testing.T) {
 func TestListTasks(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.Command())
+	command := NewTaskCommand(base.CommandBase())
 
 	base.Client.EXPECT().
 		ListTasks().
@@ -129,7 +129,7 @@ func TestListTasks(t *testing.T) {
 func TestReadTask(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.Command())
+	command := NewTaskCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("task", "tsk_name").
@@ -148,13 +148,13 @@ func TestReadTask(t *testing.T) {
 func TestReadTaskInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.Command())
+	command := NewTaskCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.read(c); err == nil {
 				t.Fatal("error was nil!")
@@ -166,7 +166,7 @@ func TestReadTaskInputErrors(t *testing.T) {
 func TestReadTaskLogs(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.Command())
+	command := NewTaskCommand(base.CommandBase())
 
 	base.Resolver.EXPECT().
 		Resolve("task", "tsk_name").
@@ -197,13 +197,13 @@ func TestReadTaskLogs(t *testing.T) {
 func TestReadTaskLogsInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.Command())
+	command := NewTaskCommand(base.CommandBase())
 
-	contexts := map[string]*cli.Context{
+	cases := map[string]*cli.Context{
 		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
-	for name, c := range contexts {
+	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if err := command.logs(c); err == nil {
 				t.Fatal("error was nil!")
