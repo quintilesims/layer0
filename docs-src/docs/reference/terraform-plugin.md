@@ -14,7 +14,7 @@ Download a Layer0 v0.8.4+ [release](/releases).
 The Terraform plugin binary is located in the release zip file as `terraform-provider-layer0`.
 
 * On Windows, copy `terraform-provider-layer0` in the sub-path `terraform.d\plugins\` beneath your user's `AppData` directory (if running Windows 7 or later). An alias for this path is `%USERPROFILE%\AppData\terraform.d\plugins\`
-* On all other systems, copy `terraform-provider-layer0` in the sub-path `terraform.d/plugins/` in your user's home directory.
+* On all other systems, copy `terraform-provider-layer0` to the path `~/terraform.d/plugins/` within your user's home directory.
 
 If the `plugins` directory does not exist, create it.
 
