@@ -58,23 +58,11 @@ func TestCreateTask(t *testing.T) {
 }
 
 func TestCreateTaskInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewTaskCommand(nil).Command(), map[string]string{
 		"Missing ENVIRONMENT arg": "l0 task create",
 		"Missing NAME arg":        "l0 task create env",
 		"Missing DEPLOY arg":      "l0 task create env name",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestDeleteTask(t *testing.T) {
@@ -96,21 +84,9 @@ func TestDeleteTask(t *testing.T) {
 }
 
 func TestDeleteTaskInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewTaskCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 task delete",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestListTasks(t *testing.T) {
@@ -146,21 +122,9 @@ func TestReadTask(t *testing.T) {
 }
 
 func TestReadTaskInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewTaskCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 task get",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestReadTaskLogs(t *testing.T) {
@@ -189,21 +153,9 @@ func TestReadTaskLogs(t *testing.T) {
 }
 
 func TestReadTaskLogsInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewTaskCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 task logs",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestParseOverrides(t *testing.T) {

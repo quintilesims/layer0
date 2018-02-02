@@ -52,23 +52,11 @@ func TestCreateService(t *testing.T) {
 }
 
 func TestCreateServiceInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewServiceCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewServiceCommand(nil).Command(), map[string]string{
 		"Missing ENVIRONMENT arg": "l0 service create",
 		"Missing NAME arg":        "l0 service create env",
 		"Missing DEPLOY arg":      "l0 service create env name",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestDeleteService(t *testing.T) {
@@ -90,21 +78,9 @@ func TestDeleteService(t *testing.T) {
 }
 
 func TestDeleteServiceInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewServiceCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewServiceCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 service delete",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestListServices(t *testing.T) {
@@ -140,21 +116,9 @@ func TestReadService(t *testing.T) {
 }
 
 func TestReadServiceInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewServiceCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewServiceCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 service get",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestReadServiceLogs(t *testing.T) {
@@ -183,21 +147,9 @@ func TestReadServiceLogs(t *testing.T) {
 }
 
 func TestReadServiceLogsInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewServiceCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewServiceCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 service logs",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestScaleService(t *testing.T) {
@@ -228,23 +180,11 @@ func TestScaleService(t *testing.T) {
 }
 
 func TestScaleServiceInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewServiceCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewServiceCommand(nil).Command(), map[string]string{
 		"Missing NAME arg":      "l0 service scale",
 		"Missing COUNT arg":     "l0 service scale name",
 		"Non-integer COUNT arg": "l0 service scale name two",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestUpdateService(t *testing.T) {
@@ -279,20 +219,8 @@ func TestUpdateService(t *testing.T) {
 }
 
 func TestUpdateServiceInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewServiceCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewServiceCommand(nil).Command(), map[string]string{
 		"Missing NAME arg":   "l0 service update",
 		"Missing DEPLOY arg": "l0 service update name",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }

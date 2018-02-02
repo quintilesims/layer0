@@ -37,23 +37,11 @@ func TestCreateDeploy(t *testing.T) {
 }
 
 func TestCreateDeployInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewDeployCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewDeployCommand(nil).Command(), map[string]string{
 		"Missing PATH arg":    "l0 deploy create",
 		"Missing NAME arg":    "l0 deploy create path",
 		"PATH does not exist": "l0 deploy create badpath name",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestDeleteDeploy(t *testing.T) {
@@ -75,21 +63,9 @@ func TestDeleteDeploy(t *testing.T) {
 }
 
 func TestDeleteDeployInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewDeployCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewDeployCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 deploy delete",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestReadDeploy(t *testing.T) {
@@ -111,21 +87,9 @@ func TestReadDeploy(t *testing.T) {
 }
 
 func TestReadDeployInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewDeployCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewDeployCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 deploy get",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestListDeploys(t *testing.T) {

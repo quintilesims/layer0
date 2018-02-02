@@ -44,22 +44,10 @@ func TestLoadBalancerAddPort(t *testing.T) {
 }
 
 func TestLoadBalancerAddPortInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewLoadBalancerCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 loadbalancer addport",
 		"Missing PORT arg": "l0 loadbalancer addport name",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestCreateLoadBalancer(t *testing.T) {
@@ -114,22 +102,10 @@ func TestCreateLoadBalancer(t *testing.T) {
 }
 
 func TestCreateLoadBalancerInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewLoadBalancerCommand(nil).Command(), map[string]string{
 		"Missing ENVIRONMENT arg": "l0 loadbalancer create",
 		"Missing NAME arg":        "l0 loadbalancer create env",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestDeleteLoadBalancer(t *testing.T) {
@@ -151,21 +127,9 @@ func TestDeleteLoadBalancer(t *testing.T) {
 }
 
 func TestDeleteLoadBalancerInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewLoadBalancerCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 loadbalancer delete",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestLoadBalancerDropPort(t *testing.T) {
@@ -206,22 +170,10 @@ func TestLoadBalancerDropPort(t *testing.T) {
 }
 
 func TestLoadBalancerDropPortInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewLoadBalancerCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 loadbalancer dropport",
 		"Missing PORT arg": "l0 loadbalancer dropport name",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestListLoadBalancers(t *testing.T) {
@@ -257,21 +209,9 @@ func TestReadLoadBalancer(t *testing.T) {
 }
 
 func TestReadLoadBalancerInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewLoadBalancerCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewLoadBalancerCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 loadbalancer get",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestParsePort(t *testing.T) {

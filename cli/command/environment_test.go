@@ -49,21 +49,9 @@ func TestCreateEnvironment(t *testing.T) {
 }
 
 func TestCreateEnvironmentInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewEnvironmentCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 environment create",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestDeleteEnvironment(t *testing.T) {
@@ -85,21 +73,9 @@ func TestDeleteEnvironment(t *testing.T) {
 }
 
 func TestDeleteEnvironmentInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewEnvironmentCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 environment delete",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestListEnvironments(t *testing.T) {
@@ -135,21 +111,9 @@ func TestReadEnvironment(t *testing.T) {
 }
 
 func TestReadEnvironmentInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewEnvironmentCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 environment get",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestLinkEnvironments(t *testing.T) {
@@ -239,22 +203,10 @@ func TestLinkEnvironmentsBidirectional(t *testing.T) {
 }
 
 func TestLinkEnvironmentsInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewEnvironmentCommand(nil).Command(), map[string]string{
 		"Missing SOURCE arg": "l0 environment link",
 		"Missing DEST arg":   "l0 environment link src",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
 
 func TestUnlinkEnvironments(t *testing.T) {
@@ -352,20 +304,8 @@ func TestUnlinkEnvironmentsBidirectional(t *testing.T) {
 }
 
 func TestUnlinkEnvironmentsInputErrors(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.CommandBase()).Command()
-
-	cases := map[string]string{
+	testInputErrors(t, NewEnvironmentCommand(nil).Command(), map[string]string{
 		"Missing SOURCE arg": "l0 environment unlink",
 		"Missing DEST arg":   "l0 environment unlink src",
-	}
-
-	for name, input := range cases {
-		t.Run(name, func(t *testing.T) {
-			if err := testutils.RunApp(command, input); err == nil {
-				t.Fatal("error was nil!")
-			}
-		})
-	}
+	})
 }
