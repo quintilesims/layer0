@@ -4,16 +4,16 @@ import (
 	"net/url"
 	"testing"
 
+	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/stretchr/testify/assert"
-	"github.com/urfave/cli"
 )
 
 func TestCreateTask(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase())
+	command := NewTaskCommand(base.CommandBase()).Command()
 
 	base.Resolver.EXPECT().
 		Resolve("environment", "env_name").
@@ -23,34 +23,36 @@ func TestCreateTask(t *testing.T) {
 		Resolve("deploy", "dpl_name").
 		Return([]string{"dpl_id"}, nil)
 
-	req := models.CreateTaskRequest{
-		TaskName:      "tsk_name",
-		EnvironmentID: "env_id",
-		DeployID:      "dpl_id",
-		ContainerOverrides: []models.ContainerOverride{
+	validateInput := func(req models.CreateTaskRequest) {
+		assert.Equal(t, "tsk_name", req.TaskName)
+		assert.Equal(t, "env_id", req.EnvironmentID)
+		assert.Equal(t, "dpl_id", req.DeployID)
+
+		overrides := []models.ContainerOverride{
 			{ContainerName: "c1", EnvironmentOverrides: map[string]string{"k1": "v1"}},
 			{ContainerName: "c2", EnvironmentOverrides: map[string]string{"k2": "v2"}},
-		},
+		}
+
+		assert.Len(t, req.ContainerOverrides, len(overrides))
+		assert.Contains(t, req.ContainerOverrides, overrides[0])
+		assert.Contains(t, req.ContainerOverrides, overrides[1])
 	}
 
-	// todo: use .Do(...) because map doesn't work
 	base.Client.EXPECT().
-		CreateTask(req).
+		CreateTask(gomock.Any()).
+		Do(validateInput).
 		Return("tsk_id", nil)
 
 	base.Client.EXPECT().
 		ReadTask("tsk_id").
 		Return(&models.Task{}, nil)
 
-	flags := map[string]interface{}{
-		"env": []string{
-			"c1:k1=v1",
-			"c2:k2=v2",
-		},
-	}
+	input := "l0 task create "
+	input += "--env c1:k1=v1 "
+	input += "--env c2:k2=v2 "
+	input += "env_name tsk_name dpl_name"
 
-	c := testutils.NewTestContext(t, []string{"env_name", "tsk_name", "dpl_name"}, flags)
-	if err := command.create(c); err != nil {
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -58,17 +60,17 @@ func TestCreateTask(t *testing.T) {
 func TestCreateTaskInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase())
+	command := NewTaskCommand(base.CommandBase()).Command()
 
-	cases := map[string]*cli.Context{
-		"Missing ENVIRONMENT arg": testutils.NewTestContext(t, nil, nil),
-		"Missing NAME arg":        testutils.NewTestContext(t, []string{"env_name"}, nil),
-		"Missing DEPLOY arg":      testutils.NewTestContext(t, []string{"env_name", "tsk_name"}, nil),
+	cases := map[string]string{
+		"Missing ENVIRONMENT arg": "l0 task create",
+		"Missing NAME arg":        "l0 task create env",
+		"Missing DEPLOY arg":      "l0 task create env name",
 	}
 
-	for name, c := range cases {
+	for name, input := range cases {
 		t.Run(name, func(t *testing.T) {
-			if err := command.create(c); err == nil {
+			if err := testutils.RunApp(command, input); err == nil {
 				t.Fatal("error was nil!")
 			}
 		})
@@ -78,7 +80,7 @@ func TestCreateTaskInputErrors(t *testing.T) {
 func TestDeleteTask(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase())
+	command := NewTaskCommand(base.CommandBase()).Command()
 
 	base.Resolver.EXPECT().
 		Resolve("task", "tsk_name").
@@ -88,8 +90,7 @@ func TestDeleteTask(t *testing.T) {
 		DeleteTask("tsk_id").
 		Return(nil)
 
-	c := testutils.NewTestContext(t, []string{"tsk_name"}, nil)
-	if err := command.delete(c); err != nil {
+	if err := testutils.RunApp(command, "l0 task delete tsk_name"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -97,15 +98,15 @@ func TestDeleteTask(t *testing.T) {
 func TestDeleteTaskInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase())
+	command := NewTaskCommand(base.CommandBase()).Command()
 
-	cases := map[string]*cli.Context{
-		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
+	cases := map[string]string{
+		"Missing NAME arg": "l0 task delete",
 	}
 
-	for name, c := range cases {
+	for name, input := range cases {
 		t.Run(name, func(t *testing.T) {
-			if err := command.delete(c); err == nil {
+			if err := testutils.RunApp(command, input); err == nil {
 				t.Fatal("error was nil!")
 			}
 		})
@@ -115,14 +116,13 @@ func TestDeleteTaskInputErrors(t *testing.T) {
 func TestListTasks(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase())
+	command := NewTaskCommand(base.CommandBase()).Command()
 
 	base.Client.EXPECT().
 		ListTasks().
 		Return([]models.TaskSummary{}, nil)
 
-	c := testutils.NewTestContext(t, nil, nil)
-	if err := command.list(c); err != nil {
+	if err := testutils.RunApp(command, "l0 task list"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -130,7 +130,7 @@ func TestListTasks(t *testing.T) {
 func TestReadTask(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase())
+	command := NewTaskCommand(base.CommandBase()).Command()
 
 	base.Resolver.EXPECT().
 		Resolve("task", "tsk_name").
@@ -140,8 +140,7 @@ func TestReadTask(t *testing.T) {
 		ReadTask("tsk_id").
 		Return(&models.Task{}, nil)
 
-	c := testutils.NewTestContext(t, []string{"tsk_name"}, nil)
-	if err := command.read(c); err != nil {
+	if err := testutils.RunApp(command, "l0 task get tsk_name"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -149,15 +148,15 @@ func TestReadTask(t *testing.T) {
 func TestReadTaskInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase())
+	command := NewTaskCommand(base.CommandBase()).Command()
 
-	cases := map[string]*cli.Context{
-		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
+	cases := map[string]string{
+		"Missing NAME arg": "l0 task get",
 	}
 
-	for name, c := range cases {
+	for name, input := range cases {
 		t.Run(name, func(t *testing.T) {
-			if err := command.read(c); err == nil {
+			if err := testutils.RunApp(command, input); err == nil {
 				t.Fatal("error was nil!")
 			}
 		})
@@ -167,7 +166,7 @@ func TestReadTaskInputErrors(t *testing.T) {
 func TestReadTaskLogs(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase())
+	command := NewTaskCommand(base.CommandBase()).Command()
 
 	base.Resolver.EXPECT().
 		Resolve("task", "tsk_name").
@@ -183,14 +182,8 @@ func TestReadTaskLogs(t *testing.T) {
 		ReadTaskLogs("tsk_id", query).
 		Return([]models.LogFile{}, nil)
 
-	flags := map[string]interface{}{
-		"tail":  100,
-		"start": "start",
-		"end":   "end",
-	}
-
-	c := testutils.NewTestContext(t, []string{"tsk_name"}, flags)
-	if err := command.logs(c); err != nil {
+	input := "l0 task logs --tail 100 --start start --end end tsk_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -198,15 +191,15 @@ func TestReadTaskLogs(t *testing.T) {
 func TestReadTaskLogsInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	command := NewTaskCommand(base.CommandBase())
+	command := NewTaskCommand(base.CommandBase()).Command()
 
-	cases := map[string]*cli.Context{
-		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
+	cases := map[string]string{
+		"Missing NAME arg": "l0 task logs",
 	}
 
-	for name, c := range cases {
+	for name, input := range cases {
 		t.Run(name, func(t *testing.T) {
-			if err := command.logs(c); err == nil {
+			if err := testutils.RunApp(command, input); err == nil {
 				t.Fatal("error was nil!")
 			}
 		})
