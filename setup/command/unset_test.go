@@ -16,17 +16,14 @@ func TestUnset(t *testing.T) {
 	instanceFactory := func(name string) instance.Instance {
 		mockInstance := mock_instance.NewMockInstance(ctrl)
 		mockInstance.EXPECT().
-			Unset("key").
+			Unset("k1").
 			Return(nil)
 
 		return mockInstance
 	}
 
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Unset())
-
-	c := testutils.NewTestContext(t, []string{"name", "key"}, nil)
-	if err := action(c); err != nil {
+	factory := NewCommandFactory(instanceFactory, nil)
+	if err := testutils.RunApp(factory.Unset(), "l0-setup unset name k1"); err != nil {
 		t.Fatal(err)
 	}
 }

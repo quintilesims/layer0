@@ -22,11 +22,8 @@ func TestApply(t *testing.T) {
 		return mockInstance
 	}
 
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Apply())
-
-	c := testutils.NewTestContext(t, []string{"name"}, nil)
-	if err := action(c); err != nil {
+	factory := NewCommandFactory(instanceFactory, nil)
+	if err := testutils.RunApp(factory.Apply(), "l0-setup apply --push=false name"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -44,11 +41,8 @@ func TestApplyQuick(t *testing.T) {
 		return mockInstance
 	}
 
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Apply())
-
-	c := testutils.NewTestContext(t, []string{"name"}, map[string]interface{}{"quick": "true"})
-	if err := action(c); err != nil {
+	factory := NewCommandFactory(instanceFactory, nil)
+	if err := testutils.RunApp(factory.Apply(), "l0-setup apply --push=false --quick name"); err != nil {
 		t.Fatal(err)
 	}
 }

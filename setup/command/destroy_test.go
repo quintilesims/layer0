@@ -22,11 +22,8 @@ func TestDestroy(t *testing.T) {
 		return mockInstance
 	}
 
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Destroy())
-
-	c := testutils.NewTestContext(t, []string{"name"}, nil)
-	if err := action(c); err != nil {
+	factory := NewCommandFactory(instanceFactory, nil)
+	if err := testutils.RunApp(factory.Destroy(), "l0-setup destroy name"); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -44,11 +41,8 @@ func TestDestroyForce(t *testing.T) {
 		return mockInstance
 	}
 
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Destroy())
-
-	c := testutils.NewTestContext(t, []string{"name"}, map[string]interface{}{"force": "true"})
-	if err := action(c); err != nil {
+	factory := NewCommandFactory(instanceFactory, nil)
+	if err := testutils.RunApp(factory.Destroy(), "l0-setup destroy --force name"); err != nil {
 		t.Fatal(err)
 	}
 }
