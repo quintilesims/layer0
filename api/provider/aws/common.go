@@ -67,23 +67,23 @@ func describeTaskDefinition(ecsapi ecsiface.ECSAPI, taskDefinitionARN string) (*
 }
 
 func getLaunchTypeFromEnvironmentID(store tag.Store, environmentID string) (string, error) {
-	var launchType string
 	tags, err := store.SelectByTypeAndID("environment", environmentID)
 	if err != nil {
 		return "", err
 	}
 
 	if tag, ok := tags.WithKey("type").First(); ok {
-		if tag.Value == models.EnvironmentTypeDynamic {
-			launchType = ecs.LaunchTypeFargate
-		}
-
-		if tag.Value == models.EnvironmentTypeStatic {
-			launchType = ecs.LaunchTypeEc2
+		switch tag.Value {
+		case models.EnvironmentTypeDynamic:
+			return ecs.LaunchTypeFargate, nil
+		case models.EnvironmentTypeStatic:
+			return ecs.LaunchTypeEc2, nil
+		default:
+			return "", fmt.Errorf("Could not find instance launch type for environment '%s'", environmentID)
 		}
 	}
 
-	return launchType, nil
+	return "", fmt.Errorf("Could not find instance launch type for environment '%s'", environmentID)
 }
 
 func lookupDeployIDFromTaskDefinitionARN(store tag.Store, taskDefinitionARN string) (string, error) {
