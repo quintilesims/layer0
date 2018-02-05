@@ -23,7 +23,7 @@ func TestCreateTask(t *testing.T) {
 		Resolve("deploy", "dpl_name").
 		Return([]string{"dpl_id"}, nil)
 
-	validateInput := func(req models.CreateTaskRequest) {
+	validateRequest := func(req models.CreateTaskRequest) {
 		assert.Equal(t, "tsk_name", req.TaskName)
 		assert.Equal(t, "env_id", req.EnvironmentID)
 		assert.Equal(t, "dpl_id", req.DeployID)
@@ -40,7 +40,7 @@ func TestCreateTask(t *testing.T) {
 
 	base.Client.EXPECT().
 		CreateTask(gomock.Any()).
-		Do(validateInput).
+		Do(validateRequest).
 		Return("tsk_id", nil)
 
 	base.Client.EXPECT().

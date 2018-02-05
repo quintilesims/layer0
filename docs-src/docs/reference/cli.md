@@ -249,6 +249,7 @@ l0 environment delete [--wait] environmentName
 
 #### Optional arguments
 * `--wait` - Wait until the deletion is complete before exiting.
+* `-r --recursive` - This will attempt to delete all dependencies (loadbalancers, services, tasks) on environment and then delete environment.
 
 #### Additional information
 This operation performs several tasks asynchronously. When run without the `--wait` option, this operation will most likely exit before all of these tasks are complete; when run with the `--wait` option, this operation will only exit once these tasks have completed.
