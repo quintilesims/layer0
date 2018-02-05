@@ -5,7 +5,6 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/quintilesims/layer0/client"
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -45,17 +44,11 @@ func resourceLayer0DeployCreate(d *schema.ResourceData, meta interface{}) error 
 		DeployFile: []byte(d.Get("content").(string)),
 	}
 
-	jobID, err := apiClient.CreateDeploy(req)
+	deployID, err := apiClient.CreateDeploy(req)
 	if err != nil {
 		return err
 	}
 
-	job, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout)
-	if err != nil {
-		return err
-	}
-
-	deployID := job.Result
 	d.SetId(deployID)
 
 	return resourceLayer0DeployRead(d, meta)
@@ -87,12 +80,7 @@ func resourceLayer0DeployDelete(d *schema.ResourceData, meta interface{}) error 
 	apiClient := meta.(client.Client)
 	deployID := d.Id()
 
-	jobID, err := apiClient.DeleteDeploy(deployID)
-	if err != nil {
-		return err
-	}
-
-	if _, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout); err != nil {
+	if err := apiClient.DeleteDeploy(deployID); err != nil {
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.DeployDoesNotExist {
 			return nil
 		}

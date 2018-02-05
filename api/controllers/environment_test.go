@@ -4,9 +4,7 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	"github.com/quintilesims/layer0/api/job/mock_job"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
-	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -16,34 +14,32 @@ func TestCreateEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
+	controller := NewEnvironmentController(mockEnvironmentProvider)
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName: "env",
+		EnvironmentType: "static",
 		InstanceType:    "t2.small",
-		MinScale:        1,
-		MaxScale:        3,
+		Scale:           3,
 		OperatingSystem: "linux",
 		AMIID:           "ami123",
 	}
 
-	mockJobStore.EXPECT().
-		Insert(models.CreateEnvironmentJob, gomock.Any()).
-		Return("jid", nil)
+	mockEnvironmentProvider.EXPECT().
+		Create(req).
+		Return("env_id", nil)
 
 	c := newFireballContext(t, req, nil)
-	resp, err := controller.CreateEnvironment(c)
+	resp, err := controller.createEnvironment(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Job
+	var response models.CreateEntityResponse
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, "jid", response.JobID)
+	assert.Equal(t, "env_id", response.EntityID)
 }
 
 func TestDeleteEnvironment(t *testing.T) {
@@ -51,64 +47,20 @@ func TestDeleteEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
-
-	mockJobStore.EXPECT().
-		Insert(models.DeleteEnvironmentJob, "eid").
-		Return("jid", nil)
-
-	c := newFireballContext(t, nil, map[string]string{"id": "eid"})
-	resp, err := controller.DeleteEnvironment(c)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	var response models.Job
-	recorder := unmarshalBody(t, resp, &response)
-
-	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, "jid", response.JobID)
-}
-
-func TestGetEnvironment(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
-
-	environmentModel := models.Environment{
-		EnvironmentID:   "e1",
-		EnvironmentName: "env",
-		InstanceType:    "t2.small",
-		MinScale:        1,
-		CurrentScale:    2,
-		MaxScale:        3,
-		SecurityGroupID: "sg1",
-		OperatingSystem: "linux",
-		AMIID:           "ami123",
-		Links:           []string{"e2"},
-	}
+	controller := NewEnvironmentController(mockEnvironmentProvider)
 
 	mockEnvironmentProvider.EXPECT().
-		Read("e1").
-		Return(&environmentModel, nil)
+		Delete("env_id").
+		Return(nil)
 
-	c := newFireballContext(t, nil, map[string]string{"id": "e1"})
-	resp, err := controller.GetEnvironment(c)
+	c := newFireballContext(t, nil, map[string]string{"id": "env_id"})
+	resp, err := controller.deleteEnvironment(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Environment
-	recorder := unmarshalBody(t, resp, &response)
-
+	recorder := unmarshalBody(t, resp, nil)
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, environmentModel, response)
 }
 
 func TestListEnvironments(t *testing.T) {
@@ -116,29 +68,27 @@ func TestListEnvironments(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
+	controller := NewEnvironmentController(mockEnvironmentProvider)
 
-	environmentSummaries := []models.EnvironmentSummary{
+	expected := []models.EnvironmentSummary{
 		{
-			EnvironmentID:   "e1",
-			EnvironmentName: "env1",
+			EnvironmentID:   "env_id1",
+			EnvironmentName: "env_name1",
 			OperatingSystem: "linux",
 		},
 		{
-			EnvironmentID:   "e2",
-			EnvironmentName: "env2",
+			EnvironmentID:   "env_id2",
+			EnvironmentName: "envd_name2",
 			OperatingSystem: "windows",
 		},
 	}
 
 	mockEnvironmentProvider.EXPECT().
 		List().
-		Return(environmentSummaries, nil)
+		Return(expected, nil)
 
 	c := newFireballContext(t, nil, nil)
-	resp, err := controller.ListEnvironments(c)
+	resp, err := controller.listEnvironments(c)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -147,7 +97,44 @@ func TestListEnvironments(t *testing.T) {
 	recorder := unmarshalBody(t, resp, &response)
 
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, environmentSummaries, response)
+	assert.Equal(t, expected, response)
+}
+
+func TestReadEnvironment(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	expected := models.Environment{
+		EnvironmentID:   "env_id",
+		EnvironmentName: "env_name",
+		EnvironmentType: "static",
+		CurrentScale:    2,
+		DesiredScale:    3,
+		InstanceType:    "instance_type",
+		SecurityGroupID: "security_group_id",
+		OperatingSystem: "linux",
+		AMIID:           "ami_id",
+		Links:           []string{"link1", "link2"},
+	}
+
+	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
+	controller := NewEnvironmentController(mockEnvironmentProvider)
+
+	mockEnvironmentProvider.EXPECT().
+		Read("env_id").
+		Return(&expected, nil)
+
+	c := newFireballContext(t, nil, map[string]string{"id": "env_id"})
+	resp, err := controller.readEnvironment(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	var response models.Environment
+	recorder := unmarshalBody(t, resp, &response)
+
+	assert.Equal(t, 200, recorder.Code)
+	assert.Equal(t, expected, response)
 }
 
 func TestUpdateEnvironment(t *testing.T) {
@@ -155,33 +142,25 @@ func TestUpdateEnvironment(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
-	mockJobStore := mock_job.NewMockStore(ctrl)
-	tagStore := tag.NewMemoryStore()
-	controller := NewEnvironmentController(mockEnvironmentProvider, mockJobStore, tagStore)
+	controller := NewEnvironmentController(mockEnvironmentProvider)
 
-	minScale := 2
-	maxScale := 5
-	links := []string{"e2"}
-
+	scale := 1
+	links := []string{"link1", "link2"}
 	req := models.UpdateEnvironmentRequest{
-		MinScale: &minScale,
-		MaxScale: &maxScale,
-		Links:    &links,
+		Scale: &scale,
+		Links: &links,
 	}
 
-	mockJobStore.EXPECT().
-		Insert(models.UpdateEnvironmentJob, gomock.Any()).
-		Return("jid", nil)
+	mockEnvironmentProvider.EXPECT().
+		Update("env_id", req).
+		Return(nil)
 
-	c := newFireballContext(t, req, nil)
-	resp, err := controller.UpdateEnvironment(c)
+	c := newFireballContext(t, req, map[string]string{"id": "env_id"})
+	resp, err := controller.updateEnvironment(c)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	var response models.Job
-	recorder := unmarshalBody(t, resp, &response)
-
+	recorder := unmarshalBody(t, resp, nil)
 	assert.Equal(t, 200, recorder.Code)
-	assert.Equal(t, "jid", response.JobID)
 }

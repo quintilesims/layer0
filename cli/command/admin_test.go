@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 )
 
 func TestDebugAdmin(t *testing.T) {
@@ -15,7 +16,7 @@ func TestDebugAdmin(t *testing.T) {
 		Return(&models.APIConfig{}, nil)
 
 	adminCommand := NewAdminCommand(base.Command())
-	c := NewContext(t, nil, nil)
+	c := testutils.NewTestContext(t, nil, nil)
 
 	if err := adminCommand.debug(c); err != nil {
 		t.Fatal(err)

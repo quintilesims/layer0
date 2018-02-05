@@ -6,11 +6,6 @@ import (
 	swagger "github.com/zpatrick/go-plugin-swagger"
 )
 
-type UpdateServiceRequestJob struct {
-	ServiceID string
-	UpdateServiceRequest
-}
-
 type UpdateServiceRequest struct {
 	DeployID *string `json:"deploy_id"`
 	Scale    *int    `json:"scale"`

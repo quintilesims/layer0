@@ -5,11 +5,12 @@
 package mock_aws
 
 import (
-	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
+
 	aws "github.com/aws/aws-sdk-go/aws"
 	request "github.com/aws/aws-sdk-go/aws/request"
 	autoscaling "github.com/aws/aws-sdk-go/service/autoscaling"
-	reflect "reflect"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockAutoScalingAPI is a mock of AutoScalingAPI interface

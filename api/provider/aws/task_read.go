@@ -42,6 +42,12 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 
 	model.Containers = make([]models.Container, len(task.Containers))
 	for i, c := range task.Containers {
+		// When a container cannot pull an image, no exit code is returned from AWS.
+		// We set it to 1 manually to signal an error.
+		if strings.Contains(aws.StringValue(c.Reason), "CannotPullContainerError") {
+			c.SetExitCode(1)
+		}
+
 		model.Containers[i] = models.Container{
 			ContainerName: aws.StringValue(c.Name),
 			Status:        aws.StringValue(c.LastStatus),

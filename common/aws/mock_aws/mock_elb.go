@@ -5,11 +5,12 @@
 package mock_aws
 
 import (
-	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
+
 	aws "github.com/aws/aws-sdk-go/aws"
 	request "github.com/aws/aws-sdk-go/aws/request"
 	elb "github.com/aws/aws-sdk-go/service/elb"
-	reflect "reflect"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockELBAPI is a mock of ELBAPI interface

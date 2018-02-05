@@ -1,4 +1,4 @@
-package command
+package testutils
 
 import (
 	"flag"
@@ -10,11 +10,9 @@ import (
 	"github.com/urfave/cli"
 )
 
-type Args []string
-type Flags map[string]interface{}
 type Option func(t *testing.T, c *cli.Context, flagSet *flag.FlagSet)
 
-func NewContext(t *testing.T, args Args, flags Flags, options ...Option) *cli.Context {
+func NewTestContext(t *testing.T, args []string, flags map[string]interface{}, options ...Option) *cli.Context {
 	flagSet := &flag.FlagSet{}
 	c := cli.NewContext(&cli.App{}, flagSet, nil)
 
@@ -22,22 +20,24 @@ func NewContext(t *testing.T, args Args, flags Flags, options ...Option) *cli.Co
 		switch v := val.(type) {
 		case bool:
 			flagSet.Bool(key, v, "")
+			c.Set(key, strconv.FormatBool(v))
+		case int:
+			flagSet.Int(key, v, "")
+			c.Set(key, strconv.Itoa(v))
 		case string:
 			flagSet.String(key, v, "")
+			c.Set(key, v)
 		case []string:
 			slice := cli.StringSlice(v)
 			flagSet.Var(&slice, key, "")
-		case int:
-			flagSet.Int(key, v, "")
 		default:
 			t.Fatalf("Unexpected flag type for '%s'", key)
 		}
 	}
 
 	// add default global flags
-	flagSet.String(config.FLAG_OUTPUT, "text", "")
-	flagSet.String(config.FLAG_TIMEOUT, "15m", "")
-	flagSet.Bool(config.FLAG_NO_WAIT, false, "")
+	flagSet.String(config.FLAG_OUTPUT, config.DefaultOutput, "")
+	flagSet.String(config.FLAG_TIMEOUT, config.DefaultTimeout.String(), "")
 
 	for _, option := range options {
 		option(t, c, flagSet)
@@ -56,10 +56,6 @@ func SetGlobalFlag(key, val string) Option {
 			t.Fatal(err)
 		}
 	}
-}
-
-func SetNoWait(b bool) Option {
-	return SetGlobalFlag(config.FLAG_NO_WAIT, strconv.FormatBool(b))
 }
 
 func SetTimeout(d time.Duration) Option {

@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	"github.com/quintilesims/layer0/client"
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -23,48 +22,49 @@ func NewLayer0TestClient(t *testing.T, endpoint, token string) *Layer0TestClient
 	}
 }
 
-func (l *Layer0TestClient) jobHelper(fn func() (string, error)) string {
-	jobID, err := fn()
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	job, err := client.WaitForJob(l.Client, jobID, config.DefaultTimeout)
-	if err != nil {
-		l.T.Fatal(err)
-	}
-
-	return job.Result
-}
-
 func (l *Layer0TestClient) CreateTask(req models.CreateTaskRequest) string {
-	return l.jobHelper(func() (string, error) {
-		return l.Client.CreateTask(req)
-	})
+	taskID, err := l.Client.CreateTask(req)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return taskID
 }
 
 func (l *Layer0TestClient) CreateEnvironment(req models.CreateEnvironmentRequest) string {
-	return l.jobHelper(func() (string, error) {
-		return l.Client.CreateEnvironment(req)
-	})
+	environmentID, err := l.Client.CreateEnvironment(req)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return environmentID
 }
 
 func (l *Layer0TestClient) CreateDeploy(req models.CreateDeployRequest) string {
-	return l.jobHelper(func() (string, error) {
-		return l.Client.CreateDeploy(req)
-	})
+	deployID, err := l.Client.CreateDeploy(req)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return deployID
 }
 
 func (l *Layer0TestClient) CreateLoadBalancer(req models.CreateLoadBalancerRequest) string {
-	return l.jobHelper(func() (string, error) {
-		return l.Client.CreateLoadBalancer(req)
-	})
+	loadBalancerID, err := l.Client.CreateLoadBalancer(req)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return loadBalancerID
 }
 
 func (l *Layer0TestClient) CreateService(req models.CreateServiceRequest) string {
-	return l.jobHelper(func() (string, error) {
-		return l.Client.CreateService(req)
-	})
+	serviceID, err := l.Client.CreateService(req)
+	if err != nil {
+		l.T.Fatal(err)
+	}
+
+	return serviceID
 }
 
 func (l *Layer0TestClient) ReadDeploy(deployID string) *models.Deploy {
@@ -112,7 +112,7 @@ func (l *Layer0TestClient) ReadEnvironment(environmentID string) *models.Environ
 	return environment
 }
 
-func (l *Layer0TestClient) ListTasks() []*models.TaskSummary {
+func (l *Layer0TestClient) ListTasks() []models.TaskSummary {
 	tasks, err := l.Client.ListTasks()
 	if err != nil {
 		l.T.Fatal(err)
@@ -121,14 +121,14 @@ func (l *Layer0TestClient) ListTasks() []*models.TaskSummary {
 	return tasks
 }
 
-func (l *Layer0TestClient) UpdateEnvironment(environmentID string, req models.UpdateEnvironmentRequest) string {
-	return l.jobHelper(func() (string, error) {
-		return l.Client.UpdateEnvironment(environmentID, req)
-	})
+func (l *Layer0TestClient) UpdateEnvironment(environmentID string, req models.UpdateEnvironmentRequest) {
+	if err := l.Client.UpdateEnvironment(environmentID, req); err != nil {
+		l.T.Fatal(err)
+	}
 }
 
-func (l *Layer0TestClient) UpdateService(serviceID string, req models.UpdateServiceRequest) string {
-	return l.jobHelper(func() (string, error) {
-		return l.Client.UpdateService(serviceID, req)
-	})
+func (l *Layer0TestClient) UpdateService(serviceID string, req models.UpdateServiceRequest) {
+	if err := l.Client.UpdateService(serviceID, req); err != nil {
+		l.T.Fatal(err)
+	}
 }

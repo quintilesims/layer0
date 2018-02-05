@@ -28,9 +28,9 @@ func TestImport(t *testing.T) {
 	log.Printf("[DEBUG] Creating test resources")
 	createEnvironmentReq := models.CreateEnvironmentRequest{
 		EnvironmentName: "import",
+		EnvironmentType: "static",
 		InstanceType:    "t2.micro",
-		MinScale:        1,
-		MaxScale:        2,
+		Scale:           2,
 		OperatingSystem: "linux",
 	}
 
@@ -40,8 +40,8 @@ func TestImport(t *testing.T) {
 		LoadBalancerName: "sts",
 		EnvironmentID:    environmentID,
 		IsPublic:         true,
-		Ports:            []models.Port{config.DefaultLoadBalancerPort},
-		HealthCheck:      config.DefaultLoadBalancerHealthCheck,
+		Ports:            []models.Port{config.DefaultLoadBalancerPort()},
+		HealthCheck:      config.DefaultLoadBalancerHealthCheck(),
 	}
 
 	loadBalancerID := s.Layer0.CreateLoadBalancer(createLoadBalancerReq)

@@ -23,16 +23,7 @@ func TestResourceEnvironmentLinksCreateRead(t *testing.T) {
 
 	mockClient.EXPECT().
 		UpdateEnvironment("env_id1", req).
-		Return("job_id", nil)
-
-	job := &models.Job{
-		Status: models.CompletedJobStatus,
-		Result: "env_id",
-	}
-
-	mockClient.EXPECT().
-		ReadJob("job_id").
-		Return(job, nil)
+		Return(nil)
 
 	environment := &models.Environment{
 		EnvironmentID: "env_id1",
@@ -70,16 +61,7 @@ func TestResourceEnvironmentLinksDelete(t *testing.T) {
 
 	mockClient.EXPECT().
 		UpdateEnvironment("env_id1", req).
-		Return("job_id", nil)
-
-	job := &models.Job{
-		Status: models.CompletedJobStatus,
-		Result: "env_id",
-	}
-
-	mockClient.EXPECT().
-		ReadJob("job_id").
-		Return(job, nil)
+		Return(nil)
 
 	environmentLinksResource := Provider().(*schema.Provider).ResourcesMap["layer0_environment_links"]
 	d := schema.TestResourceDataRaw(t, environmentLinksResource.Schema, map[string]interface{}{})

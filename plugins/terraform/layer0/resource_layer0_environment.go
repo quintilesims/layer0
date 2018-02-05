@@ -28,17 +28,17 @@ func resourceLayer0Environment() *schema.Resource {
 			"instance_type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				Default:  config.DefaultEnvironmentInstanceType,
 				ForceNew: true,
 			},
-			"min_scale": {
+			"environment_type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				Default:  config.DefaultEnvironmentType,
+				ForceNew: true,
+			},
+			"scale": {
 				Type:     schema.TypeInt,
 				Default:  0,
-				Optional: true,
-			},
-			"max_scale": {
-				Type:     schema.TypeInt,
-				Default:  config.DefaultEnvironmentMaxScale,
 				Optional: true,
 			},
 			"user_data": {
@@ -76,26 +76,23 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  d.Get("name").(string),
 		InstanceType:     d.Get("instance_type").(string),
+		EnvironmentType:  d.Get("environment_type").(string),
 		UserDataTemplate: []byte(d.Get("user_data").(string)),
-		MinScale:         d.Get("min_scale").(int),
-		MaxScale:         d.Get("max_scale").(int),
+		Scale:            d.Get("scale").(int),
 		OperatingSystem:  d.Get("os").(string),
 		AMIID:            d.Get("ami").(string),
 	}
 
-	jobID, err := apiClient.CreateEnvironment(req)
+	if err := req.Validate(); err != nil {
+		return err
+	}
+
+	environmentID, err := apiClient.CreateEnvironment(req)
 	if err != nil {
 		return err
 	}
 
-	job, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout)
-	if err != nil {
-		return err
-	}
-
-	environmentID := job.Result
 	d.SetId(environmentID)
-
 	return resourceLayer0EnvironmentRead(d, meta)
 }
 
@@ -116,9 +113,8 @@ func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) err
 
 	d.Set("name", environment.EnvironmentName)
 	d.Set("instance_type", environment.InstanceType)
-	d.Set("min_scale", environment.MinScale)
-	d.Set("current_scale", environment.CurrentScale)
-	d.Set("max_scale", environment.MaxScale)
+	d.Set("environment_type", environment.EnvironmentType)
+	d.Set("scale", environment.DesiredScale)
 	d.Set("security_group_id", environment.SecurityGroupID)
 	d.Set("os", environment.OperatingSystem)
 	d.Set("ami", environment.AMIID)
@@ -131,23 +127,13 @@ func resourceLayer0EnvironmentUpdate(d *schema.ResourceData, meta interface{}) e
 	environmentID := d.Id()
 
 	req := models.UpdateEnvironmentRequest{}
-	if d.HasChange("min_scale") {
-		minScale := d.Get("min_scale").(int)
-		req.MinScale = &minScale
+	if d.HasChange("scale") {
+		scale := d.Get("scale").(int)
+		req.Scale = &scale
 	}
 
-	if d.HasChange("max_scale") {
-		maxScale := d.Get("max_scale").(int)
-		req.MaxScale = &maxScale
-	}
-
-	if req.MinScale != nil || req.MaxScale != nil {
-		jobID, err := apiClient.UpdateEnvironment(environmentID, req)
-		if err != nil {
-			return err
-		}
-
-		if _, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout); err != nil {
+	if req.Scale != nil {
+		if err := apiClient.UpdateEnvironment(environmentID, req); err != nil {
 			return err
 		}
 	}
@@ -159,12 +145,7 @@ func resourceLayer0EnvironmentDelete(d *schema.ResourceData, meta interface{}) e
 	apiClient := meta.(client.Client)
 	environmentID := d.Id()
 
-	jobID, err := apiClient.DeleteEnvironment(environmentID)
-	if err != nil {
-		return err
-	}
-
-	if _, err := client.WaitForJob(apiClient, jobID, config.DefaultTimeout); err != nil {
+	if err := apiClient.DeleteEnvironment(environmentID); err != nil {
 		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.EnvironmentDoesNotExist {
 			return nil
 		}

@@ -9,26 +9,25 @@ import (
 )
 
 func (c *APIClient) CreateService(req models.CreateServiceRequest) (string, error) {
-	var resp models.CreateJobResponse
+	var resp models.CreateEntityResponse
 	if err := c.client.Post("/service", req, &resp); err != nil {
 		return "", err
 	}
 
-	return resp.JobID, nil
+	return resp.EntityID, nil
 }
 
-func (c *APIClient) DeleteService(serviceID string) (string, error) {
-	var resp models.CreateJobResponse
+func (c *APIClient) DeleteService(serviceID string) error {
 	path := fmt.Sprintf("/service/%s", serviceID)
-	if err := c.client.Delete(path, nil, &resp); err != nil {
-		return "", err
+	if err := c.client.Delete(path, nil, nil); err != nil {
+		return err
 	}
 
-	return resp.JobID, nil
+	return nil
 }
 
-func (c *APIClient) ListServices() ([]*models.ServiceSummary, error) {
-	var services []*models.ServiceSummary
+func (c *APIClient) ListServices() ([]models.ServiceSummary, error) {
+	var services []models.ServiceSummary
 	if err := c.client.Get("/service", &services); err != nil {
 		return nil, err
 	}
@@ -46,8 +45,8 @@ func (c *APIClient) ReadService(serviceID string) (*models.Service, error) {
 	return service, nil
 }
 
-func (c *APIClient) ReadServiceLogs(serviceID string, query url.Values) ([]*models.LogFile, error) {
-	var logs []*models.LogFile
+func (c *APIClient) ReadServiceLogs(serviceID string, query url.Values) ([]models.LogFile, error) {
+	var logs []models.LogFile
 	path := fmt.Sprintf("/service/%s/logs", serviceID)
 	if err := c.client.Get(path, &logs, rclient.Query(query)); err != nil {
 		return nil, err
@@ -56,12 +55,11 @@ func (c *APIClient) ReadServiceLogs(serviceID string, query url.Values) ([]*mode
 	return logs, nil
 }
 
-func (c *APIClient) UpdateService(serviceID string, req models.UpdateServiceRequest) (string, error) {
-	var resp models.CreateJobResponse
+func (c *APIClient) UpdateService(serviceID string, req models.UpdateServiceRequest) error {
 	path := fmt.Sprintf("/service/%s", serviceID)
-	if err := c.client.Patch(path, req, &resp); err != nil {
-		return "", err
+	if err := c.client.Patch(path, req, nil); err != nil {
+		return err
 	}
 
-	return resp.JobID, nil
+	return nil
 }

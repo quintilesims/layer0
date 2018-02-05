@@ -3,6 +3,7 @@ package command
 import (
 	"fmt"
 	"io/ioutil"
+	"strconv"
 
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
@@ -34,14 +35,9 @@ func (e *EnvironmentCommand) Command() cli.Command {
 						Usage: "type of the ec2 instances to use in the environment cluster",
 					},
 					cli.IntFlag{
-						Name:  "min-scale",
+						Name:  "scale",
 						Value: 0,
-						Usage: "minimum allowed scale of the environment cluster",
-					},
-					cli.IntFlag{
-						Name:  "max-scale",
-						Value: config.DefaultEnvironmentMaxScale,
-						Usage: "maximum allowed scale of the environment cluster",
+						Usage: "specifies the number of instances in the cluster. Setting this value will create a static environment",
 					},
 					cli.StringFlag{
 						Name:  "user-data",
@@ -49,7 +45,7 @@ func (e *EnvironmentCommand) Command() cli.Command {
 					},
 					cli.StringFlag{
 						Name:  "os",
-						Value: "linux",
+						Value: config.DefaultEnvironmentOS,
 						Usage: "specifies if the environment will run windows or linux containers",
 					},
 					cli.StringFlag{
@@ -77,20 +73,10 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				ArgsUsage: "ENVIRONMENT_NAME",
 			},
 			{
-				Name:      "set-scale",
-				Usage:     "update the min/max scale of an environment cluster",
+				Name:      "scale",
+				Usage:     "update the scale of a static environment cluster",
 				Action:    e.setScale,
-				ArgsUsage: "ENVIRONMENT_NAME",
-				Flags: []cli.Flag{
-					cli.IntFlag{
-						Name:  "min-scale",
-						Usage: "minimum allowed scale of the environment cluster",
-					},
-					cli.IntFlag{
-						Name:  "max-scale",
-						Usage: "maximum allowed scale of the environment cluster",
-					},
-				},
+				ArgsUsage: "ENVIRONMENT_NAME SCALE",
 			},
 			{
 				Name:      "link",
@@ -139,36 +125,50 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  args["ENVIRONMENT_NAME"],
 		InstanceType:     c.String("type"),
-		MinScale:         c.Int("min-scale"),
-		MaxScale:         c.Int("max-scale"),
+		Scale:            c.Int("scale"),
+		EnvironmentType:  config.DefaultEnvironmentType,
 		UserDataTemplate: userData,
 		OperatingSystem:  c.String("os"),
 		AMIID:            c.String("ami"),
+	}
+
+	if c.IsSet("scale") {
+		req.EnvironmentType = models.EnvironmentTypeStatic
+	}
+
+	if !c.IsSet("os") {
+		req.OperatingSystem = config.DefaultEnvironmentOS
 	}
 
 	if err := req.Validate(); err != nil {
 		return err
 	}
 
-	jobID, err := e.client.CreateEnvironment(req)
+	environmentID, err := e.client.CreateEnvironment(req)
 	if err != nil {
 		return err
 	}
 
-	return e.waitOnJobHelper(c, jobID, "creating", func(environmentID string) error {
-		environment, err := e.client.ReadEnvironment(environmentID)
-		if err != nil {
-			return err
-		}
+	environment, err := e.client.ReadEnvironment(environmentID)
+	if err != nil {
+		return err
+	}
 
-		return e.printer.PrintEnvironments(environment)
-	})
+	return e.printer.PrintEnvironments(environment)
 }
 
 func (e *EnvironmentCommand) delete(c *cli.Context) error {
-	return e.deleteHelper(c, "environment", func(environmentID string) (string, error) {
-		return e.client.DeleteEnvironment(environmentID)
-	})
+	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME")
+	if err != nil {
+		return err
+	}
+
+	environmentID, err := e.resolveSingleEntityIDHelper("environment", args["ENVIRONMENT_NAME"])
+	if err != nil {
+		return err
+	}
+
+	return e.client.DeleteEnvironment(environmentID)
 }
 
 func (e *EnvironmentCommand) list(c *cli.Context) error {
@@ -205,20 +205,18 @@ func (e *EnvironmentCommand) read(c *cli.Context) error {
 }
 
 func (e *EnvironmentCommand) setScale(c *cli.Context) error {
-	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME")
+	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME", "SCALE")
 	if err != nil {
 		return err
 	}
 
-	req := models.UpdateEnvironmentRequest{}
-	if c.IsSet("min-scale") {
-		minScale := c.Int("min-scale")
-		req.MinScale = &minScale
+	scale, err := strconv.Atoi(args["SCALE"])
+	if err != nil {
+		return err
 	}
 
-	if c.IsSet("max-scale") {
-		maxScale := c.Int("max-scale")
-		req.MaxScale = &maxScale
+	req := models.UpdateEnvironmentRequest{
+		Scale: &scale,
 	}
 
 	if err := req.Validate(); err != nil {
@@ -230,108 +228,91 @@ func (e *EnvironmentCommand) setScale(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := e.client.UpdateEnvironment(environmentID, req)
+	if err := e.client.UpdateEnvironment(environmentID, req); err != nil {
+		return err
+	}
+
+	environment, err := e.client.ReadEnvironment(environmentID)
 	if err != nil {
 		return err
 	}
 
-	return e.waitOnJobHelper(c, jobID, "updating", func(environmentID string) error {
-		environment, err := e.client.ReadEnvironment(environmentID)
-		if err != nil {
-			return err
-		}
-
-		return e.printer.PrintEnvironments(environment)
-	})
+	return e.printer.PrintEnvironments(environment)
 }
 
 func (e *EnvironmentCommand) link(c *cli.Context) error {
-	generateAddLinkRequest := func(sourceEnvironmentID, destEnvironmentID string) (models.UpdateEnvironmentRequest, error) {
-		env, err := e.client.ReadEnvironment(sourceEnvironmentID)
-		if err != nil {
-			return models.UpdateEnvironmentRequest{}, err
-		}
-
-		appendedLinks := []string{}
-		envLinks := models.LinkTags(env.Links)
-		if !envLinks.Contains(destEnvironmentID) {
-			appendedLinks = append(env.Links, destEnvironmentID)
-		}
-
-		req := models.UpdateEnvironmentRequest{Links: &appendedLinks}
-		return req, nil
+	fn := func(src, dst *models.Environment) models.UpdateEnvironmentRequest {
+		src.Links = append(src.Links, dst.EnvironmentID)
+		return models.UpdateEnvironmentRequest{Links: &src.Links}
 	}
 
-	return e.updateEnvironmentLinksHelper(c, generateAddLinkRequest)
+	return e.updateLinksHelper(c, fn)
 }
 
 func (e *EnvironmentCommand) unlink(c *cli.Context) error {
-	generateRemoveLinkRequest := func(sourceEnvironmentID, destEnvironmentID string) (models.UpdateEnvironmentRequest, error) {
-		env, err := e.client.ReadEnvironment(sourceEnvironmentID)
-		if err != nil {
-			return models.UpdateEnvironmentRequest{}, err
-		}
-
-		updatedLinks := []string{}
-		for _, link := range env.Links {
-			if link != destEnvironmentID {
-				updatedLinks = append(updatedLinks, link)
+	fn := func(src, dst *models.Environment) models.UpdateEnvironmentRequest {
+		for i, environmentID := range src.Links {
+			if environmentID == dst.EnvironmentID {
+				src.Links = append(src.Links[:i], src.Links[i+1:]...)
+				i--
 			}
 		}
 
-		req := models.UpdateEnvironmentRequest{Links: &updatedLinks}
-
-		return req, nil
+		return models.UpdateEnvironmentRequest{Links: &src.Links}
 	}
 
-	return e.updateEnvironmentLinksHelper(c, generateRemoveLinkRequest)
+	return e.updateLinksHelper(c, fn)
 }
 
-func (e *EnvironmentCommand) updateEnvironmentLinksHelper(
+func (e *EnvironmentCommand) updateLinksHelper(
 	c *cli.Context,
-	generateReq func(string, string) (models.UpdateEnvironmentRequest, error),
+	createReqFN func(src, dst *models.Environment) models.UpdateEnvironmentRequest,
 ) error {
 	args, err := extractArgs(c.Args(), "SOURCE_ENVIRONMENT_NAME", "DESTINATION_ENVIRONMENT_NAME")
 	if err != nil {
 		return err
 	}
 
-	sourceEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["SOURCE_ENVIRONMENT_NAME"])
+	srcEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["SOURCE_ENVIRONMENT_NAME"])
 	if err != nil {
 		return err
 	}
 
-	destEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["DESTINATION_ENVIRONMENT_NAME"])
+	dstEnvironmentID, err := e.resolveSingleEntityIDHelper("environment", args["DESTINATION_ENVIRONMENT_NAME"])
 	if err != nil {
 		return err
 	}
 
-	if sourceEnvironmentID == destEnvironmentID {
-		return fmt.Errorf("Cannot unlink an environment from itself")
+	if srcEnvironmentID == dstEnvironmentID {
+		return fmt.Errorf("Cannot link/unlink an environment to/from itself")
 	}
 
-	updateLinkFN := func(sourceEnvID, destEnvID string) error {
-		updateEnvReq, err := generateReq(sourceEnvID, destEnvID)
-		if err != nil {
+	srcEnvironment, err := e.client.ReadEnvironment(srcEnvironmentID)
+	if err != nil {
+		return err
+	}
+
+	dstEnvironment, err := e.client.ReadEnvironment(dstEnvironmentID)
+	if err != nil {
+		return err
+	}
+
+	updateLinkFN := func(src, dst *models.Environment) error {
+		req := createReqFN(src, dst)
+		if err := e.client.UpdateEnvironment(src.EnvironmentID, req); err != nil {
 			return err
 		}
 
-		jobID, err := e.client.UpdateEnvironment(sourceEnvID, updateEnvReq)
-		if err != nil {
-			return err
-		}
-
-		return e.waitOnJobHelper(c, jobID, "updating", func(environmentID string) error {
-			e.printer.Printf("Environment update successfull")
-			return nil
-		})
+		return nil
 	}
 
-	updateLinkFN(sourceEnvironmentID, destEnvironmentID)
+	if err := updateLinkFN(srcEnvironment, dstEnvironment); err != nil {
+		return err
+	}
 
 	if !c.Bool("bi-directional") {
 		return nil
 	}
 
-	return updateLinkFN(destEnvironmentID, sourceEnvironmentID)
+	return updateLinkFN(dstEnvironment, srcEnvironment)
 }

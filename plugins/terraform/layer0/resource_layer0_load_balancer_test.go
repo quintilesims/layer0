@@ -60,16 +60,7 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 
 	mockClient.EXPECT().
 		CreateLoadBalancer(req).
-		Return("job_id", nil)
-
-	job := &models.Job{
-		Status: models.CompletedJobStatus,
-		Result: "lb_id",
-	}
-
-	mockClient.EXPECT().
-		ReadJob("job_id").
-		Return(job, nil)
+		Return("lb_id", nil)
 
 	loadBalancer := &models.LoadBalancer{
 		LoadBalancerID:   "lb_id",
@@ -114,11 +105,7 @@ func TestResourceLoadBalancerDelete(t *testing.T) {
 
 	mockClient.EXPECT().
 		DeleteLoadBalancer("lb_id").
-		Return("job_id", nil)
-
-	mockClient.EXPECT().
-		ReadJob("job_id").
-		Return(&models.Job{Status: models.CompletedJobStatus}, nil)
+		Return(nil)
 
 	loadBalancerResource := Provider().(*schema.Provider).ResourcesMap["layer0_load_balancer"]
 	d := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{})

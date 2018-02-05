@@ -5,11 +5,12 @@
 package mock_aws
 
 import (
-	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
+
 	aws "github.com/aws/aws-sdk-go/aws"
 	request "github.com/aws/aws-sdk-go/aws/request"
 	ecs "github.com/aws/aws-sdk-go/service/ecs"
-	reflect "reflect"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockECSAPI is a mock of ECSAPI interface

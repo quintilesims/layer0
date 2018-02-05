@@ -5,7 +5,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/quintilesims/layer0/client"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func extractArgs(received []string, names ...string) (map[string]string, error) {
@@ -25,15 +25,15 @@ func buildLogQueryHelper(start, end string, tail int) url.Values {
 	query := url.Values{}
 
 	if tail > 0 {
-		query.Set(client.LogQueryParamTail, strconv.Itoa(tail))
+		query.Set(models.LogQueryParamTail, strconv.Itoa(tail))
 	}
 
 	if start != "" {
-		query.Set(client.LogQueryParamStart, start)
+		query.Set(models.LogQueryParamStart, start)
 	}
 
 	if end != "" {
-		query.Set(client.LogQueryParamEnd, end)
+		query.Set(models.LogQueryParamEnd, end)
 	}
 
 	return query

@@ -6,6 +6,7 @@ import (
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/quintilesims/layer0/client"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 func dataSourceLayer0Environment() *schema.Resource {
@@ -24,15 +25,11 @@ func dataSourceLayer0Environment() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"min_scale": {
-				Type:     schema.TypeInt,
+			"environment_type": {
+				Type:     schema.TypeString,
 				Computed: true,
 			},
-			"current_scale": {
-				Type:     schema.TypeInt,
-				Computed: true,
-			},
-			"max_scale": {
+			"scale": {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
@@ -56,8 +53,8 @@ func dataSourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	apiClient := meta.(client.Client)
 
 	query := url.Values{}
-	query.Set(client.TagQueryParamType, "environment")
-	query.Set(client.TagQueryParamName, d.Get("name").(string))
+	query.Set(models.TagQueryParamType, "environment")
+	query.Set(models.TagQueryParamName, d.Get("name").(string))
 
 	tags, err := apiClient.ListTags(query)
 	if err != nil {
@@ -77,9 +74,8 @@ func dataSourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	d.SetId(environment.EnvironmentID)
 	d.Set("name", environment.EnvironmentName)
 	d.Set("instance_type", environment.InstanceType)
-	d.Set("min_scale", environment.MinScale)
-	d.Set("current_scale", environment.CurrentScale)
-	d.Set("max_scale", environment.MaxScale)
+	d.Set("environment_type", environment.EnvironmentType)
+	d.Set("scale", environment.DesiredScale)
 	d.Set("security_group_id", environment.SecurityGroupID)
 	d.Set("os", environment.OperatingSystem)
 	d.Set("ami", environment.AMIID)

@@ -4,11 +4,6 @@ import (
 	swagger "github.com/zpatrick/go-plugin-swagger"
 )
 
-type UpdateLoadBalancerRequestJob struct {
-	LoadBalancerID string
-	UpdateLoadBalancerRequest
-}
-
 type UpdateLoadBalancerRequest struct {
 	Ports       *[]Port      `json:"ports"`
 	HealthCheck *HealthCheck `json:"health_check"`

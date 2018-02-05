@@ -7,26 +7,25 @@ import (
 )
 
 func (c *APIClient) CreateLoadBalancer(req models.CreateLoadBalancerRequest) (string, error) {
-	var resp models.CreateJobResponse
+	var resp models.CreateEntityResponse
 	if err := c.client.Post("/loadbalancer", req, &resp); err != nil {
 		return "", err
 	}
 
-	return resp.JobID, nil
+	return resp.EntityID, nil
 }
 
-func (c *APIClient) DeleteLoadBalancer(loadBalancerID string) (string, error) {
-	var resp models.CreateJobResponse
+func (c *APIClient) DeleteLoadBalancer(loadBalancerID string) error {
 	path := fmt.Sprintf("/loadbalancer/%s", loadBalancerID)
-	if err := c.client.Delete(path, nil, &resp); err != nil {
-		return "", err
+	if err := c.client.Delete(path, nil, nil); err != nil {
+		return err
 	}
 
-	return resp.JobID, nil
+	return nil
 }
 
-func (c *APIClient) ListLoadBalancers() ([]*models.LoadBalancerSummary, error) {
-	var loadbalancers []*models.LoadBalancerSummary
+func (c *APIClient) ListLoadBalancers() ([]models.LoadBalancerSummary, error) {
+	var loadbalancers []models.LoadBalancerSummary
 	if err := c.client.Get("/loadbalancer", &loadbalancers); err != nil {
 		return nil, err
 	}
@@ -44,12 +43,11 @@ func (c *APIClient) ReadLoadBalancer(loadBalancerID string) (*models.LoadBalance
 	return loadbalancer, nil
 }
 
-func (c *APIClient) UpdateLoadBalancer(loadBalancerID string, req models.UpdateLoadBalancerRequest) (string, error) {
-	var resp models.CreateJobResponse
+func (c *APIClient) UpdateLoadBalancer(loadBalancerID string, req models.UpdateLoadBalancerRequest) error {
 	path := fmt.Sprintf("/loadbalancer/%s", loadBalancerID)
-	if err := c.client.Patch(path, req, &resp); err != nil {
-		return "", err
+	if err := c.client.Patch(path, req, nil); err != nil {
+		return err
 	}
 
-	return resp.JobID, nil
+	return nil
 }

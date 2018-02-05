@@ -4,43 +4,18 @@ import (
 	"fmt"
 	"os"
 	"strings"
-	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/ryanuber/columnize"
 )
 
-const TIME_FORMAT = "2006-01-02 15:04:05"
-
-type TextPrinter struct {
-	spinner *spinner.Spinner
-}
-
-func (t *TextPrinter) StartSpinner(prefix string) {
-	if t.spinner != nil {
-		t.spinner.Stop()
-	}
-
-	t.spinner = spinner.New(spinner.CharSets[26], 1*time.Second)
-	t.spinner.Prefix = prefix
-	t.spinner.Start()
-}
-
-func (t *TextPrinter) StopSpinner() {
-	if t.spinner != nil {
-		t.spinner.Stop()
-		fmt.Println()
-	}
-}
+type TextPrinter struct{}
 
 func (t *TextPrinter) Printf(format string, tokens ...interface{}) {
-	t.StopSpinner()
 	fmt.Printf(format, tokens...)
 }
 
 func (t *TextPrinter) Println(tokens ...interface{}) {
-	t.StopSpinner()
 	fmt.Println(tokens...)
 }
 
@@ -61,7 +36,7 @@ func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
 	return nil
 }
 
-func (t *TextPrinter) PrintDeploySummaries(deploys ...*models.DeploySummary) error {
+func (t *TextPrinter) PrintDeploySummaries(deploys ...models.DeploySummary) error {
 	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION"}
 	for _, d := range deploys {
 		row := fmt.Sprintf("%s | %s |  %s", d.DeployID, d.DeployName, d.Version)
@@ -73,10 +48,6 @@ func (t *TextPrinter) PrintDeploySummaries(deploys ...*models.DeploySummary) err
 }
 
 func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) error {
-	getScale := func(e *models.Environment) string {
-		return fmt.Sprintf("%d:%d:%d", e.MinScale, e.CurrentScale, e.MaxScale)
-	}
-
 	getLink := func(e *models.Environment, i int) string {
 		if i > len(e.Links)-1 {
 			return ""
@@ -85,21 +56,20 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 		return e.Links[i]
 	}
 
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS | SCALE | INSTANCE TYPE | LINKS"}
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | TYPE | OS | LINKS"}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s | %s",
+		row := fmt.Sprintf("%s | %s | %s | %s | %s",
 			e.EnvironmentID,
 			e.EnvironmentName,
+			e.EnvironmentType,
 			e.OperatingSystem,
-			getScale(e),
-			e.InstanceType,
 			getLink(e, 0))
 
 		rows = append(rows, row)
 
 		// add the extra link rows
 		for i := 1; i < len(e.Links); i++ {
-			row := fmt.Sprintf(" | | | | | %s", getLink(e, i))
+			row := fmt.Sprintf(" | | | | %s", getLink(e, i))
 			rows = append(rows, row)
 		}
 	}
@@ -108,26 +78,10 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 	return nil
 }
 
-func (t *TextPrinter) PrintEnvironmentSummaries(environments ...*models.EnvironmentSummary) error {
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS "}
+func (t *TextPrinter) PrintEnvironmentSummaries(environments ...models.EnvironmentSummary) error {
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | TYPE | OS "}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s | %s", e.EnvironmentID, e.EnvironmentName, e.OperatingSystem)
-		rows = append(rows, row)
-	}
-
-	t.Println(columnize.SimpleFormat(rows))
-	return nil
-}
-
-func (t *TextPrinter) PrintJobs(jobs ...*models.Job) error {
-	rows := []string{"JOB ID | TYPE | STATUS | CREATED"}
-	for _, j := range jobs {
-		row := fmt.Sprintf("%s | %s | %s | %s ",
-			j.JobID,
-			j.Type,
-			j.Status,
-			j.Created.Format(TIME_FORMAT))
-
+		row := fmt.Sprintf("%s | %s | %s | %s", e.EnvironmentID, e.EnvironmentName, e.EnvironmentType, e.OperatingSystem)
 		rows = append(rows, row)
 	}
 
@@ -185,8 +139,8 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 	return nil
 }
 
-func (t *TextPrinter) PrintLoadBalancerSummaries(loadBalancers ...*models.LoadBalancerSummary) error {
-	getEnvironment := func(l *models.LoadBalancerSummary) string {
+func (t *TextPrinter) PrintLoadBalancerSummaries(loadBalancers ...models.LoadBalancerSummary) error {
+	getEnvironment := func(l models.LoadBalancerSummary) string {
 		if l.EnvironmentName != "" {
 			return l.EnvironmentName
 		}
@@ -234,8 +188,7 @@ func (t *TextPrinter) PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBala
 	return nil
 }
 
-func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
-	t.StopSpinner()
+func (t *TextPrinter) PrintLogs(logs ...models.LogFile) error {
 	for _, l := range logs {
 		fmt.Println(l.ContainerName)
 		for i := 0; i < len(l.ContainerName); i++ {
@@ -249,16 +202,6 @@ func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
 		fmt.Println()
 	}
 
-	return nil
-}
-
-func (t *TextPrinter) PrintScalerRunInfo(runInfo *models.ScalerRunInfo) error {
-	rows := []string{
-		"ENVIRONMENT | CURRENT SCALE | DESIRED SCALE",
-		fmt.Sprintf("%s | %d | %d", runInfo.EnvironmentID, runInfo.ScaleBeforeRun, runInfo.ActualScaleAfterRun),
-	}
-
-	t.Println(columnize.SimpleFormat(rows))
 	return nil
 }
 
@@ -329,8 +272,8 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 	return nil
 }
 
-func (t *TextPrinter) PrintServiceSummaries(services ...*models.ServiceSummary) error {
-	getEnvironment := func(s *models.ServiceSummary) string {
+func (t *TextPrinter) PrintServiceSummaries(services ...models.ServiceSummary) error {
+	getEnvironment := func(s models.ServiceSummary) string {
 		if s.EnvironmentName != "" {
 			return s.EnvironmentName
 		}
@@ -385,8 +328,8 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 	return nil
 }
 
-func (t *TextPrinter) PrintTaskSummaries(tasks ...*models.TaskSummary) error {
-	getEnvironment := func(t *models.TaskSummary) string {
+func (t *TextPrinter) PrintTaskSummaries(tasks ...models.TaskSummary) error {
+	getEnvironment := func(t models.TaskSummary) string {
 		if t.EnvironmentName != "" {
 			return t.EnvironmentName
 		}

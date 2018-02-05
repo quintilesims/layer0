@@ -2,7 +2,6 @@ package command
 
 import (
 	"fmt"
-	"log"
 	"strings"
 
 	"github.com/quintilesims/layer0/common/models"
@@ -108,25 +107,31 @@ func (t *TaskCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	jobID, err := t.client.CreateTask(req)
+	taskID, err := t.client.CreateTask(req)
 	if err != nil {
 		return err
 	}
 
-	return t.waitOnJobHelper(c, jobID, "creating", func(taskID string) error {
-		task, err := t.client.ReadTask(taskID)
-		if err != nil {
-			return err
-		}
+	task, err := t.client.ReadTask(taskID)
+	if err != nil {
+		return err
+	}
 
-		return t.printer.PrintTasks(task)
-	})
+	return t.printer.PrintTasks(task)
 }
 
 func (t *TaskCommand) delete(c *cli.Context) error {
-	return t.deleteHelper(c, "task", func(taskID string) (string, error) {
-		return t.client.DeleteTask(taskID)
-	})
+	args, err := extractArgs(c.Args(), "TASK_NAME")
+	if err != nil {
+		return err
+	}
+
+	taskID, err := t.resolveSingleEntityIDHelper("task", args["TASK_NAME"])
+	if err != nil {
+		return err
+	}
+
+	return t.client.DeleteTask(taskID)
 }
 
 func (t *TaskCommand) list(c *cli.Context) error {
@@ -149,29 +154,14 @@ func (t *TaskCommand) read(c *cli.Context) error {
 		return err
 	}
 
-	taskSummaries, err := t.client.ListTasks()
-	if err != nil {
-		return err
-	}
-
-	taskExists := map[string]bool{}
-	for _, taskSummary := range taskSummaries {
-		taskExists[taskSummary.TaskID] = true
-	}
-
-	tasks := make([]*models.Task, 0, len(taskIDs))
-	for _, taskID := range taskIDs {
-		if !taskExists[taskID] {
-			log.Printf("[DEBUG] Resolver returned an expired task '%s'", taskID)
-			continue
-		}
-
+	tasks := make([]*models.Task, len(taskIDs))
+	for i, taskID := range taskIDs {
 		task, err := t.client.ReadTask(taskID)
 		if err != nil {
 			return err
 		}
 
-		tasks = append(tasks, task)
+		tasks[i] = task
 	}
 
 	return t.printer.PrintTasks(tasks...)
@@ -229,5 +219,4 @@ func parseOverrides(overrides []string) ([]models.ContainerOverride, error) {
 	}
 
 	return models, nil
-
 }

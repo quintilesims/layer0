@@ -7,14 +7,17 @@ import (
 	"github.com/urfave/cli"
 )
 
-const DefaultTimeout = time.Minute * 15
+const (
+	DefaultTimeout = time.Minute * 15
+	DefaultOutput  = "text"
+)
 
 func CLIFlags() []cli.Flag {
 	return []cli.Flag{
 		cli.StringFlag{
 			Name:   fmt.Sprintf("o, %s", FLAG_OUTPUT),
 			EnvVar: FLAG_OUTPUT,
-			Value:  "text",
+			Value:  DefaultOutput,
 			Usage:  "output format [text,json]",
 		},
 		cli.DurationFlag{
@@ -49,11 +52,6 @@ func CLIFlags() []cli.Flag {
 			EnvVar: ENVVAR_SKIP_VERIFY_VERSION,
 			Usage:  "If set, will skip version verification",
 		},
-		cli.BoolFlag{
-			Name:   FLAG_NO_WAIT,
-			EnvVar: ENVVAR_NO_WAIT,
-			Usage:  "If set, will not wait for job operations to complete",
-		},
 	}
 }
 
@@ -64,7 +62,7 @@ func ValidateCLIContext(c *cli.Context) error {
 
 	for _, name := range requiredVars {
 		if !c.IsSet(name) {
-			return fmt.Errorf("Required Variable %s is not set!", name)
+			return fmt.Errorf("Required Variable '%s' is not set!", name)
 		}
 	}
 

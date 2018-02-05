@@ -5,11 +5,12 @@
 package mock_aws
 
 import (
-	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
+
 	aws "github.com/aws/aws-sdk-go/aws"
 	request "github.com/aws/aws-sdk-go/aws/request"
 	s3 "github.com/aws/aws-sdk-go/service/s3"
-	reflect "reflect"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockS3API is a mock of S3API interface

@@ -3,397 +3,232 @@ package command
 import (
 	"testing"
 
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/stretchr/testify/assert"
 	"github.com/urfave/cli"
 )
 
-func TestAddPortToLoadBalancer(t *testing.T) {
-	testWaitHelper(t, func(t *testing.T, wait bool) {
-		base, ctrl := newTestCommand(t)
-		defer ctrl.Finish()
-
-		base.Resolver.EXPECT().
-			Resolve("load_balancer", "lb_name").
-			Return([]string{"lb_id"}, nil)
-
-		ports := []models.Port{
-			models.Port{
-				ContainerPort: 80,
-				HostPort:      80,
-				Protocol:      "tcp",
-			},
-		}
-
-		loadBalancer := &models.LoadBalancer{
-			LoadBalancerID:   "lb_id",
-			LoadBalancerName: "lb_name",
-			Ports:            ports,
-		}
-
-		base.Client.EXPECT().
-			ReadLoadBalancer("lb_id").
-			Return(loadBalancer, nil)
-
-		ports = append(ports, models.Port{
-			ContainerPort: 81,
-			HostPort:      81,
-			Protocol:      "tcp",
-		})
-
-		req := models.UpdateLoadBalancerRequest{Ports: &ports}
-
-		base.Client.EXPECT().
-			UpdateLoadBalancer("lb_id", req).
-			Return("jid", nil)
-
-		job := &models.Job{
-			Status: "Completed",
-			Result: "lb_id",
-		}
-
-		if wait {
-			base.Client.EXPECT().
-				ReadJob("jid").
-				Return(job, nil)
-
-			base.Client.EXPECT().
-				ReadLoadBalancer("lb_id").
-				Return(&models.LoadBalancer{}, nil)
-		}
-
-		args := Args{"lb_name", "81:81/tcp"}
-		c := NewContext(t, args, nil, SetNoWait(!wait))
-
-		loadBalancerCommand := NewLoadBalancerCommand(base.Command())
-		if err := loadBalancerCommand.addport(c); err != nil {
-			t.Fatal(err)
-		}
-	})
-}
-
-func TestAddPortToLoadBalancer_UserInputError(t *testing.T) {
+func TestLoadBalancerAddPort(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.Command())
+
+	base.Resolver.EXPECT().
+		Resolve("load_balancer", "lb_name").
+		Return([]string{"lb_id"}, nil)
+
+	base.Client.EXPECT().
+		ReadLoadBalancer("lb_id").
+		Return(&models.LoadBalancer{}, nil)
+
+	ports := []models.Port{
+		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+	}
+
+	req := models.UpdateLoadBalancerRequest{
+		Ports: &ports,
+	}
+
+	base.Client.EXPECT().
+		UpdateLoadBalancer("lb_id", req).
+		Return(nil)
+
+	base.Client.EXPECT().
+		ReadLoadBalancer("lb_id").
+		Return(&models.LoadBalancer{}, nil)
+
+	flags := map[string]interface{}{
+		"certificate": "cert",
+	}
+
+	c := testutils.NewTestContext(t, []string{"lb_name", "443:80/https"}, flags)
+	if err := command.addPort(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadBalancerAddPortInputErrors(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
-		"Missing PORT arg": NewContext(t, Args{"name"}, nil),
+		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
+		"Missing PORT arg": testutils.NewTestContext(t, []string{"lb_name"}, nil),
 	}
 
 	for name, c := range contexts {
-		if err := loadBalancerCommand.addport(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.addPort(c); err == nil {
+				t.Fatal("error was nil!")
+			}
+		})
 	}
 }
 
 func TestCreateLoadBalancer(t *testing.T) {
-	testWaitHelper(t, func(t *testing.T, wait bool) {
-		base, ctrl := newTestCommand(t)
-		defer ctrl.Finish()
-
-		base.Resolver.EXPECT().
-			Resolve("environment", "ename").
-			Return([]string{"eid"}, nil)
-
-		ports := []models.Port{
-			models.Port{
-				ContainerPort: 80,
-				HostPort:      80,
-				Protocol:      "tcp",
-			},
-		}
-
-		healthCheck := config.DefaultLoadBalancerHealthCheck
-
-		req := models.CreateLoadBalancerRequest{
-			LoadBalancerName: "lb_name",
-			EnvironmentID:    "eid",
-			IsPublic:         true,
-			Ports:            ports,
-			HealthCheck:      healthCheck,
-		}
-
-		base.Client.EXPECT().
-			CreateLoadBalancer(req).
-			Return("jid", nil)
-
-		job := &models.Job{
-			Status: "Completed",
-			Result: "lb_id",
-		}
-
-		if wait {
-			base.Client.EXPECT().
-				ReadJob("jid").
-				Return(job, nil)
-
-			base.Client.EXPECT().
-				ReadLoadBalancer("lb_id").
-				Return(&models.LoadBalancer{}, nil)
-		}
-
-		args := Args{"ename", "lb_name"}
-		flags := Flags{
-			"healthcheck-target":              healthCheck.Target,
-			"healthcheck-interval":            healthCheck.Interval,
-			"healthcheck-timeout":             healthCheck.Timeout,
-			"healthcheck-healthy-threshold":   healthCheck.HealthyThreshold,
-			"healthcheck-unhealthy-threshold": healthCheck.UnhealthyThreshold,
-			"port": []string{"80:80/tcp"},
-		}
-
-		c := NewContext(t, args, flags, SetNoWait(!wait))
-
-		loadBalancerCommand := NewLoadBalancerCommand(base.Command())
-		if err := loadBalancerCommand.create(c); err != nil {
-			t.Fatal(err)
-		}
-	})
-}
-
-func TestCreateLoadBalancer_UserInputError(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.Command())
+
+	base.Resolver.EXPECT().
+		Resolve("environment", "env_name").
+		Return([]string{"env_id"}, nil)
+
+	req := models.CreateLoadBalancerRequest{
+		LoadBalancerName: "lb_name",
+		EnvironmentID:    "env_id",
+		IsPublic:         false,
+		Ports: []models.Port{
+			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+			{HostPort: 22, ContainerPort: 22, Protocol: "tcp", CertificateName: "cert"},
+		},
+		HealthCheck: models.HealthCheck{
+			Target:             "tcp:80",
+			Interval:           5,
+			Timeout:            6,
+			HealthyThreshold:   7,
+			UnhealthyThreshold: 8,
+		},
+	}
+
+	base.Client.EXPECT().
+		CreateLoadBalancer(req).
+		Return("lb_id", nil)
+
+	base.Client.EXPECT().
+		ReadLoadBalancer("lb_id").
+		Return(&models.LoadBalancer{}, nil)
+
+	flags := map[string]interface{}{
+		"private": true,
+		"port": []string{
+			"443:80/https",
+			"22:22/tcp",
+		},
+		"certificate":                     "cert",
+		"healthcheck-target":              "tcp:80",
+		"healthcheck-interval":            5,
+		"healthcheck-timeout":             6,
+		"healthcheck-healthy-threshold":   7,
+		"healthcheck-unhealthy-threshold": 8,
+	}
+
+	c := testutils.NewTestContext(t, []string{"env_name", "lb_name"}, flags)
+	if err := command.create(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCreateLoadBalancerInputErrors(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing ENVIRONMENT arg": NewContext(t, nil, nil),
-		"Missing NAME arg":        NewContext(t, Args{"environment"}, nil),
+		"Missing ENVIRONMENT arg": testutils.NewTestContext(t, nil, nil),
+		"Missing NAME arg":        testutils.NewTestContext(t, []string{"env_name"}, nil),
 	}
 
 	for name, c := range contexts {
-		if err := loadBalancerCommand.create(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.create(c); err == nil {
+				t.Fatal("error was nil!")
+			}
+		})
 	}
 }
 
 func TestDeleteLoadBalancer(t *testing.T) {
-	testWaitHelper(t, func(t *testing.T, wait bool) {
-		base, ctrl := newTestCommand(t)
-		defer ctrl.Finish()
-
-		base.Resolver.EXPECT().
-			Resolve("load_balancer", "lb_name").
-			Return([]string{"lb_id"}, nil)
-
-		base.Client.EXPECT().
-			DeleteLoadBalancer("lb_id").
-			Return("jid", nil)
-
-		job := &models.Job{
-			Status: "Completed",
-			Result: "lb_id",
-		}
-
-		if wait {
-			base.Client.EXPECT().
-				ReadJob("jid").
-				Return(job, nil)
-		}
-
-		args := Args{"lb_name"}
-		c := NewContext(t, args, nil, SetNoWait(!wait))
-
-		loadBalancerCommand := NewLoadBalancerCommand(base.Command())
-		if err := loadBalancerCommand.delete(c); err != nil {
-			t.Fatal(err)
-		}
-	})
-}
-
-func TestDeleteLoadBalancer_UserInputError(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
+	command := NewLoadBalancerCommand(base.Command())
+
+	base.Resolver.EXPECT().
+		Resolve("load_balancer", "lb_name").
+		Return([]string{"lb_id"}, nil)
+
+	base.Client.EXPECT().
+		DeleteLoadBalancer("lb_id").
+		Return(nil)
+
+	c := testutils.NewTestContext(t, []string{"lb_name"}, nil)
+	if err := command.delete(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestDeleteLoadBalancerInputErrors(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
 	for name, c := range contexts {
-		if err := loadBalancerCommand.delete(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.delete(c); err == nil {
+				t.Fatal("error was nil!")
+			}
+		})
 	}
 }
 
-func TestDropPortFromLoadBalancer(t *testing.T) {
-	testWaitHelper(t, func(t *testing.T, wait bool) {
-		base, ctrl := newTestCommand(t)
-		defer ctrl.Finish()
-
-		base.Resolver.EXPECT().
-			Resolve("load_balancer", "lb_name").
-			Return([]string{"lb_id"}, nil)
-
-		ports := []models.Port{
-			models.Port{
-				ContainerPort: 80,
-				HostPort:      80,
-				Protocol:      "tcp",
-			},
-			models.Port{
-				ContainerPort: 81,
-				HostPort:      81,
-				Protocol:      "tcp",
-			},
-		}
-
-		loadBalancer := &models.LoadBalancer{
-			LoadBalancerID:   "lb_id",
-			LoadBalancerName: "lb_name",
-			Ports:            ports,
-		}
-
-		base.Client.EXPECT().
-			ReadLoadBalancer("lb_id").
-			Return(loadBalancer, nil)
-
-		ports = ports[:1]
-
-		req := models.UpdateLoadBalancerRequest{Ports: &ports}
-
-		base.Client.EXPECT().
-			UpdateLoadBalancer("lb_id", req).
-			Return("jid", nil)
-
-		job := &models.Job{
-			Status: "Completed",
-			Result: "lb_id",
-		}
-
-		if wait {
-			base.Client.EXPECT().
-				ReadJob("jid").
-				Return(job, nil)
-
-			base.Client.EXPECT().
-				ReadLoadBalancer("lb_id").
-				Return(&models.LoadBalancer{}, nil)
-		}
-
-		args := Args{"lb_name", "81"}
-		c := NewContext(t, args, nil, SetNoWait(!wait))
-
-		loadBalancerCommand := NewLoadBalancerCommand(base.Command())
-		if err := loadBalancerCommand.dropport(c); err != nil {
-			t.Fatal(err)
-		}
-	})
-}
-
-func TestDropPortFromLoadBalancer_UserInputError(t *testing.T) {
+func TestLoadBalancerDropPort(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
-
-	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
-		"Missing PORT arg": NewContext(t, Args{"name"}, nil),
-	}
-
-	for name, c := range contexts {
-		if err := loadBalancerCommand.dropport(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
-	}
-}
-
-func TestDisplayHealthCheck(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(base.Command())
 
 	base.Resolver.EXPECT().
 		Resolve("load_balancer", "lb_name").
 		Return([]string{"lb_id"}, nil)
 
 	loadBalancer := &models.LoadBalancer{
-		LoadBalancerID:   "lb_id",
-		LoadBalancerName: "lb_name",
+		Ports: []models.Port{
+			{HostPort: 443},
+		},
 	}
 
 	base.Client.EXPECT().
 		ReadLoadBalancer("lb_id").
 		Return(loadBalancer, nil)
 
-	args := Args{"lb_name"}
-	c := NewContext(t, args, nil)
+	ports := []models.Port{}
+	req := models.UpdateLoadBalancerRequest{
+		Ports: &ports,
+	}
 
-	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
-	if err := loadBalancerCommand.healthcheck(c); err != nil {
+	base.Client.EXPECT().
+		UpdateLoadBalancer("lb_id", req).
+		Return(nil)
+
+	base.Client.EXPECT().
+		ReadLoadBalancer("lb_id").
+		Return(&models.LoadBalancer{}, nil)
+
+	c := testutils.NewTestContext(t, []string{"lb_name", "443"}, nil)
+	if err := command.dropPort(c); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestUpdateHealthCheck(t *testing.T) {
-	testWaitHelper(t, func(t *testing.T, wait bool) {
-		base, ctrl := newTestCommand(t)
-		defer ctrl.Finish()
-
-		base.Resolver.EXPECT().
-			Resolve("load_balancer", "lb_name").
-			Return([]string{"lb_id"}, nil)
-
-		healthCheck := models.HealthCheck{Target: "TCP:80"}
-		loadBalancer := &models.LoadBalancer{
-			HealthCheck:      healthCheck,
-			LoadBalancerID:   "lb_id",
-			LoadBalancerName: "lb_name",
-		}
-
-		base.Client.EXPECT().
-			ReadLoadBalancer("lb_id").
-			Return(loadBalancer, nil)
-
-		healthCheck = models.HealthCheck{Target: "TCP:81"}
-		req := models.UpdateLoadBalancerRequest{HealthCheck: &healthCheck}
-
-		base.Client.EXPECT().
-			UpdateLoadBalancer("lb_id", req).
-			Return("jid", nil)
-
-		job := &models.Job{
-			Status: "Completed",
-			Result: "lb_id",
-		}
-
-		if wait {
-			base.Client.EXPECT().
-				ReadJob("jid").
-				Return(job, nil)
-
-			base.Client.EXPECT().
-				ReadLoadBalancer("lb_id").
-				Return(&models.LoadBalancer{}, nil)
-		}
-
-		args := Args{"lb_name"}
-		flags := Flags{"healthcheck-target": "TCP:81"}
-		c := NewContext(t, args, flags, SetNoWait(!wait))
-
-		loadBalancerCommand := NewLoadBalancerCommand(base.Command())
-		if err := loadBalancerCommand.healthcheck(c); err != nil {
-			t.Fatal(err)
-		}
-	})
-}
-
-func TestUpdateHealthCheck_UserInputError(t *testing.T) {
+func TestLoadBalancerDropPortInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(base.Command())
 
-	contexts := map[string]*cli.Context{"Missing NAME arg": NewContext(t, nil, nil)}
+	contexts := map[string]*cli.Context{
+		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
+		"Missing PORT arg": testutils.NewTestContext(t, []string{"lb_name"}, nil),
+	}
 
-	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 	for name, c := range contexts {
 		t.Run(name, func(t *testing.T) {
-			if err := loadBalancerCommand.healthcheck(c); err == nil {
-				t.Fatalf("%s: error was nil!", name)
+			if err := command.dropPort(c); err == nil {
+				t.Fatal("error was nil!")
 			}
 		})
 	}
@@ -402,14 +237,14 @@ func TestUpdateHealthCheck_UserInputError(t *testing.T) {
 func TestListLoadBalancers(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(base.Command())
 
 	base.Client.EXPECT().
-		ListLoadBalancers()
+		ListLoadBalancers().
+		Return([]models.LoadBalancerSummary{}, nil)
 
-	c := NewContext(t, nil, nil)
-
-	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
-	if err := loadBalancerCommand.list(c); err != nil {
+	c := testutils.NewTestContext(t, nil, nil)
+	if err := command.list(c); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -417,41 +252,37 @@ func TestListLoadBalancers(t *testing.T) {
 func TestReadLoadBalancer(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
-
-	loadBalancerIDs := []string{"lb_id1", "lb_id2"}
+	command := NewLoadBalancerCommand(base.Command())
 
 	base.Resolver.EXPECT().
-		Resolve("load_balancer", "*").
-		Return(loadBalancerIDs, nil)
+		Resolve("load_balancer", "lb_name").
+		Return([]string{"lb_id"}, nil)
 
-	for _, id := range loadBalancerIDs {
-		base.Client.EXPECT().
-			ReadLoadBalancer(id).
-			Return(&models.LoadBalancer{}, nil)
-	}
+	base.Client.EXPECT().
+		ReadLoadBalancer("lb_id").
+		Return(&models.LoadBalancer{}, nil)
 
-	args := Args{"*"}
-	c := NewContext(t, args, nil)
-
-	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
-	if err := loadBalancerCommand.read(c); err != nil {
+	c := testutils.NewTestContext(t, []string{"lb_name"}, nil)
+	if err := command.read(c); err != nil {
 		t.Fatal(err)
 	}
 }
 
-func TestReadLoadBalancer_UserInputError(t *testing.T) {
+func TestReadLoadBalancerInputErrors(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(base.Command())
 
 	contexts := map[string]*cli.Context{
-		"Missing NAME arg": NewContext(t, nil, nil),
+		"Missing NAME arg": testutils.NewTestContext(t, nil, nil),
 	}
 
-	loadBalancerCommand := NewLoadBalancerCommand(base.Command())
 	for name, c := range contexts {
-		if err := loadBalancerCommand.read(c); err == nil {
-			t.Fatalf("%s: error was nil!", name)
-		}
+		t.Run(name, func(t *testing.T) {
+			if err := command.read(c); err == nil {
+				t.Fatal("error was nil!")
+			}
+		})
 	}
 }
 
@@ -539,7 +370,7 @@ func TestParsePortErrors(t *testing.T) {
 	for name, c := range cases {
 		t.Run(name, func(t *testing.T) {
 			if _, err := parsePort(c, ""); err == nil {
-				t.Fatalf("%s: error was nil!", name)
+				t.Fatal("error was nil!")
 			}
 		})
 	}
@@ -555,7 +386,7 @@ func TestValidateTarget(t *testing.T) {
 	for _, target := range cases {
 		t.Run(target, func(t *testing.T) {
 			if err := validateTarget(target); err != nil {
-				t.Fatalf("%s: error was not nil!", target)
+				t.Fatal("error was not nil!")
 			}
 		})
 	}
@@ -570,7 +401,7 @@ func TestValidateTargetErrors(t *testing.T) {
 	for _, target := range cases {
 		t.Run(target, func(t *testing.T) {
 			if err := validateTarget(target); err == nil {
-				t.Fatalf("%s: error was nil!", target)
+				t.Fatal("error was nil!")
 			}
 		})
 	}
