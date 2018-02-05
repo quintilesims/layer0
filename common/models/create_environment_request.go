@@ -41,6 +41,26 @@ func (r CreateEnvironmentRequest) Validate() error {
 		return fmt.Errorf("setting `Scale` is not valid for dynamic environments")
 	}
 
+	if r.EnvironmentType == "" {
+		return fmt.Errorf("EnvironmentType is required, please specify 'static' or 'dynamic'")
+	}
+
+	if r.InstanceType == "" {
+		return fmt.Errorf("Instancetype is required see - https://aws.amazon.com/ec2/instance-types/")
+	}
+
+	if r.UserDataTemplate == nil {
+		return fmt.Errorf("UserDataTemplate is required")
+	}
+
+	if r.OperatingSystem == "" {
+		return fmt.Errorf("OperatingSystem is required, please specify 'windows' or 'linux'")
+	}
+
+	if r.AMIID == "" {
+		return fmt.Errorf("AMIID is required")
+	}
+
 	return nil
 }
 

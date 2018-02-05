@@ -23,6 +23,10 @@ func (c CreateServiceRequest) Validate() error {
 		return fmt.Errorf("EnvironmmentID is required")
 	}
 
+	if c.EnvironmentID == "" {
+		return fmt.Errorf("LoadBalancerID is required")
+	}
+
 	if c.ServiceName == "" {
 		return fmt.Errorf("ServiceName is required")
 	}
