@@ -221,7 +221,7 @@ func (l *LoadBalancerProvider) portsToListeners(ports []models.Port) ([]*elb.Lis
 
 		certificate := port.Certificate
 		if certificate != "" {
-			if strings.HasPrefix(strings.ToLower(certificate), "arn:") {
+			if !strings.HasPrefix(strings.ToLower(certificate), "arn:") {
 				certificateARN, err := l.lookupCertificateARN(port.Certificate)
 				if err != nil {
 					return nil, err
