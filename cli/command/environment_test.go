@@ -72,6 +72,73 @@ func TestDeleteEnvironment(t *testing.T) {
 	}
 }
 
+func TestEnvironmentDeleteRecursive(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewEnvironmentCommand(base.CommandBase()).Command()
+
+	loadBalancerToDelete := []models.LoadBalancerSummary{
+		{
+			LoadBalancerID: "lb_id",
+			EnvironmentID:  "env_id",
+		},
+	}
+
+	base.Client.EXPECT().
+		ListLoadBalancers().
+		Return(loadBalancerToDelete, nil)
+
+	base.Client.EXPECT().
+		DeleteLoadBalancer("lb_id").
+		Return(nil)
+
+	taskToDelete := []models.TaskSummary{
+		{
+			TaskID:        "tsk_id",
+			EnvironmentID: "env_id",
+		},
+	}
+
+	base.Client.EXPECT().
+		ListTasks().
+		Return(taskToDelete, nil)
+
+	base.Client.EXPECT().
+		DeleteTask("tsk_id").
+		Return(nil)
+
+	serviceToDelete := []models.ServiceSummary{
+		{
+			ServiceID:     "svc_id",
+			EnvironmentID: "env_id",
+		},
+	}
+
+	base.Client.EXPECT().
+		ListServices().
+		Return(serviceToDelete, nil)
+
+	base.Client.EXPECT().
+		DeleteService("svc_id").
+		Return(nil)
+
+	base.Resolver.EXPECT().
+		Resolve("environment", "env_name").
+		Return([]string{"env_id"}, nil)
+
+	base.Client.EXPECT().
+		DeleteEnvironment("env_id").
+		Return(nil)
+
+	input := "l0 environment delete "
+	input += "--recursive "
+	input += "env_name"
+
+	if err := testutils.RunApp(command, input); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestDeleteEnvironmentInputErrors(t *testing.T) {
 	testInputErrors(t, NewEnvironmentCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 environment delete",
@@ -315,72 +382,4 @@ func TestUnlinkEnvironmentsInputErrors(t *testing.T) {
 		"Missing SOURCE arg": "l0 environment unlink",
 		"Missing DEST arg":   "l0 environment unlink src",
 	})
-}
-
-func TestEnvironmentRecursiveDelete(t *testing.T) {
-	base, ctrl := newTestCommand(t)
-	defer ctrl.Finish()
-	command := NewEnvironmentCommand(base.Command())
-
-	loadBalancerToDelete := []models.LoadBalancerSummary{
-		{
-			LoadBalancerID: "lb_id",
-			EnvironmentID:  "env_id",
-		},
-	}
-
-	base.Client.EXPECT().
-		ListLoadBalancers().
-		Return(loadBalancerToDelete, nil)
-
-	base.Client.EXPECT().
-		DeleteLoadBalancer("lb_id").
-		Return(nil)
-
-	taskToDelete := []models.TaskSummary{
-		{
-			TaskID:        "tsk_id",
-			EnvironmentID: "env_id",
-		},
-	}
-
-	base.Client.EXPECT().
-		ListTasks().
-		Return(taskToDelete, nil)
-
-	base.Client.EXPECT().
-		DeleteTask("tsk_id").
-		Return(nil)
-
-	serviceToDelete := []models.ServiceSummary{
-		{
-			ServiceID:     "svc_id",
-			EnvironmentID: "env_id",
-		},
-	}
-
-	base.Client.EXPECT().
-		ListServices().
-		Return(serviceToDelete, nil)
-
-	base.Client.EXPECT().
-		DeleteService("svc_id").
-		Return(nil)
-
-	base.Resolver.EXPECT().
-		Resolve("environment", "env_name").
-		Return([]string{"env_id"}, nil)
-
-	base.Client.EXPECT().
-		DeleteEnvironment("env_id").
-		Return(nil)
-
-	flags := map[string]interface{}{
-		"recursive": true,
-	}
-
-	c := testutils.NewTestContext(t, []string{"env_name"}, flags)
-	if err := command.delete(c); err != nil {
-		t.Fatal(err)
-	}
 }
