@@ -1,12 +1,14 @@
 package aws
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/errors"
 )
 
 // Delete is used to delete an ECS Cluster using the specified environmentID. The environmentID
@@ -16,6 +18,10 @@ import (
 // is subsequently used when the DeleteSecurityGroup request is made to AWS. The ECS Cluster is deleted
 // by making a DeleteCluster request to AWS.
 func (e *EnvironmentProvider) Delete(environmentID string) error {
+	if err := e.checkEnvironmentDependencies(environmentID); err != nil {
+		return err
+	}
+
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
 	autoScalingGroupName := fqEnvironmentID
@@ -48,6 +54,36 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 
 	if err := deleteEntityTags(e.TagStore, "environment", environmentID); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func (e *EnvironmentProvider) checkEnvironmentDependencies(environmentID string) error {
+	checkDependentEntityTags := func(entityType string) error {
+		tags, err := e.TagStore.SelectByType(entityType)
+		if err != nil {
+			return err
+		}
+
+		dependentTags := tags.WithKey("environment_id").WithValue(environmentID)
+		if len(dependentTags) > 0 {
+			entityIDs := []string{}
+			for _, tag := range dependentTags {
+				entityIDs = append(entityIDs, tag.EntityID)
+			}
+
+			msg := fmt.Sprintf("Cannot delete environment '%s' because it contains dependent %ss: ", environmentID, entityType)
+			msg += strings.Join(entityIDs, ", ")
+			return errors.Newf(errors.DependencyError, msg)
+		}
+		return nil
+	}
+
+	for _, entity := range []string{"load_balancer", "service", "task"} {
+		if err := checkDependentEntityTags(entity); err != nil {
+			return err
+		}
 	}
 
 	return nil

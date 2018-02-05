@@ -12,6 +12,7 @@ import (
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/config/mock_config"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -115,5 +116,48 @@ func TestDeleteEnvironmentIdempotence(t *testing.T) {
 	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("env_id"); err != nil {
 		t.Fatal(err)
+	}
+}
+
+func TestCheckEnvironmentDependencies(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAWS := awsc.NewMockClient(ctrl)
+	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+
+	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+
+	cases := []string{"load_balancer", "service", "task"}
+	for _, c := range cases {
+		tagStore := tag.NewMemoryStore()
+		tags := []models.Tag{
+			models.Tag{
+				EntityID:   "env_id",
+				EntityType: "environment",
+				Key:        "name",
+				Value:      "env_name",
+			},
+			models.Tag{
+				EntityID:   "id",
+				EntityType: c,
+				Key:        "environment_id",
+				Value:      "env_id",
+			},
+		}
+
+		for _, tag := range tags {
+			if err := tagStore.Insert(tag); err != nil {
+				t.Fatal(err)
+			}
+		}
+
+		target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
+		err := target.Delete("env_id")
+		if err, ok := err.(*errors.ServerError); ok {
+			assert.Equal(t, errors.DependencyError, err.Code)
+		} else {
+			t.Fatalf("Error was not of type *errors.ServerError: %#v", err)
+		}
 	}
 }
