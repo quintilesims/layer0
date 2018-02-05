@@ -1,5 +1,7 @@
 package daemon
 
+import "github.com/docker/go-metrics"
+
 var (
 	containerActions          metrics.LabeledTimer
 	imageActions              metrics.LabeledTimer

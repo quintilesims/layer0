@@ -3,10 +3,9 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/zpatrick/rclient"
 	"log"
 	"net/http"
-
-	"github.com/zpatrick/rclient"
 )
 
 type repository struct {

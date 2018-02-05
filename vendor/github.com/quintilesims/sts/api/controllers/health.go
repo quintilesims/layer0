@@ -3,13 +3,12 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/quintilesims/sts/models"
+	"github.com/zpatrick/fireball"
 	"log"
 	"os"
 	"strings"
 	"time"
-
-	"github.com/quintilesims/sts/models"
-	"github.com/zpatrick/fireball"
 )
 
 const TIME_FORMAT = ""

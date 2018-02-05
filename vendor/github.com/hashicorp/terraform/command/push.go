@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/hashicorp/atlas-go/archive"
+	"github.com/hashicorp/atlas-go/v1"
 	"github.com/hashicorp/terraform/backend"
 	"github.com/hashicorp/terraform/config"
 	"github.com/hashicorp/terraform/version"

@@ -2,13 +2,12 @@ package main
 
 import (
 	"fmt"
-	"log"
-	"net/http"
-	"os"
-
 	"github.com/quintilesims/sts/api/controllers"
 	"github.com/urfave/cli"
 	"github.com/zpatrick/fireball"
+	"log"
+	"net/http"
+	"os"
 )
 
 func main() {
