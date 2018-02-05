@@ -49,10 +49,6 @@ func (r CreateEnvironmentRequest) Validate() error {
 		return fmt.Errorf("Instancetype is required see - https://aws.amazon.com/ec2/instance-types/")
 	}
 
-	if r.UserDataTemplate == nil {
-		return fmt.Errorf("UserDataTemplate is required")
-	}
-
 	if r.OperatingSystem == "" {
 		return fmt.Errorf("OperatingSystem is required, please specify 'windows' or 'linux'")
 	}
