@@ -41,8 +41,8 @@ func TestCreateTask(t *testing.T) {
 		assert.Equal(t, "env_id", req.EnvironmentID)
 
 		assert.Len(t, req.ContainerOverrides, 2)
-		for _, override := range req.ContainerOverrides {
-			assert.Contains(t, expected, override)
+		for _, e := range expected {
+			assert.Contains(t, req.ContainerOverrides, e)
 		}
 	}
 
