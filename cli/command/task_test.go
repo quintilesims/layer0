@@ -78,7 +78,8 @@ func TestDeleteTask(t *testing.T) {
 		DeleteTask("tsk_id").
 		Return(nil)
 
-	if err := testutils.RunApp(command, "l0 task delete tsk_name"); err != nil {
+	input := "l0 task delete tsk_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -98,7 +99,8 @@ func TestListTasks(t *testing.T) {
 		ListTasks().
 		Return([]models.TaskSummary{}, nil)
 
-	if err := testutils.RunApp(command, "l0 task list"); err != nil {
+	input := "l0 task list"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -116,7 +118,8 @@ func TestReadTask(t *testing.T) {
 		ReadTask("tsk_id").
 		Return(&models.Task{}, nil)
 
-	if err := testutils.RunApp(command, "l0 task get tsk_name"); err != nil {
+	input := "l0 task get tsk_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -146,7 +149,12 @@ func TestReadTaskLogs(t *testing.T) {
 		ReadTaskLogs("tsk_id", query).
 		Return([]models.LogFile{}, nil)
 
-	input := "l0 task logs --tail 100 --start start --end end tsk_name"
+	input := "l0 task logs "
+	input += "--tail 100 "
+	input += "--start start "
+	input += "--end end "
+	input += "tsk_name"
+
 	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}

@@ -30,8 +30,9 @@ func TestEndpoint(t *testing.T) {
 		return mockInstance
 	}
 
+	input := "l0-setup endpoint name"
 	factory := NewCommandFactory(instanceFactory, nil)
-	if err := testutils.RunApp(factory.Endpoint(), "l0-setup endpoint name"); err != nil {
+	if err := testutils.RunApp(factory.Endpoint(), input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -72,8 +73,12 @@ func TestEndpointDev(t *testing.T) {
 		return mockInstance
 	}
 
+	input := "l0-setup endpoint "
+	input += "--dev "
+	input += "name"
+
 	factory := NewCommandFactory(instanceFactory, nil)
-	if err := testutils.RunApp(factory.Endpoint(), "l0-setup endpoint -d name"); err != nil {
+	if err := testutils.RunApp(factory.Endpoint(), input); err != nil {
 		t.Fatal(err)
 	}
 }

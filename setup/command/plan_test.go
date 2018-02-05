@@ -22,8 +22,9 @@ func TestPlan(t *testing.T) {
 		return mockInstance
 	}
 
+	input := "l0-setup plan name"
 	factory := NewCommandFactory(instanceFactory, nil)
-	if err := testutils.RunApp(factory.Plan(), "l0-setup plan name"); err != nil {
+	if err := testutils.RunApp(factory.Plan(), input); err != nil {
 		t.Fatal(err)
 	}
 }

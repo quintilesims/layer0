@@ -18,9 +18,9 @@ func TestCreateEnvironment(t *testing.T) {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "env_name",
+		EnvironmentType:  "static",
 		InstanceType:     "t2.small",
-		MinScale:         2,
-		MaxScale:         5,
+		Scale:            2,
 		UserDataTemplate: []byte("user_data"),
 		OperatingSystem:  "linux",
 		AMIID:            "ami123",
@@ -36,8 +36,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 	input := "l0 environment create "
 	input += "--type t2.small "
-	input += "--min-scale 2 "
-	input += "--max-scale 5 "
+	input += "--scale 2 "
 	input += "--os linux "
 	input += "--ami ami123 "
 	input += fmt.Sprintf("--user-data %s ", file.Name())
@@ -67,7 +66,8 @@ func TestDeleteEnvironment(t *testing.T) {
 		DeleteEnvironment("env_id").
 		Return(nil)
 
-	if err := testutils.RunApp(command, "l0 environment delete env_name"); err != nil {
+	input := "l0 environment delete env_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -87,7 +87,8 @@ func TestListEnvironments(t *testing.T) {
 		ListEnvironments().
 		Return([]models.EnvironmentSummary{}, nil)
 
-	if err := testutils.RunApp(command, "l0 environment list"); err != nil {
+	input := "l0 environment list"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -105,7 +106,8 @@ func TestReadEnvironment(t *testing.T) {
 		ReadEnvironment("env_id").
 		Return(&models.Environment{}, nil)
 
-	if err := testutils.RunApp(command, "l0 environment get env_name"); err != nil {
+	input := "l0 environment get env_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -150,7 +152,10 @@ func TestLinkEnvironments(t *testing.T) {
 		UpdateEnvironment("env_id1", req).
 		Return(nil)
 
-	input := "l0 environment link --bi-directional=false env_name1 env_name2"
+	input := "l0 environment link "
+	input += "--bi-directional=false "
+	input += "env_name1 env_name2"
+
 	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
@@ -250,7 +255,9 @@ func TestUnlinkEnvironments(t *testing.T) {
 		UpdateEnvironment("env_id1", req).
 		Return(nil)
 
-	input := "l0 environment unlink --bi-directional=false env_name1 env_name2"
+	input := "l0 environment unlink "
+	input += "--bi-directional=false "
+	input += "env_name1 env_name2"
 	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}

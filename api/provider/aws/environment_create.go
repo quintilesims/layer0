@@ -26,40 +26,8 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	environmentID := entityIDGenerator(req.EnvironmentName)
 	fqEnvironmentID := addLayer0Prefix(e.Config.Instance(), environmentID)
 
-	instanceType := config.DefaultEnvironmentInstanceType
-	if req.InstanceType != "" {
-		instanceType = req.InstanceType
-	}
-
-	var userDataTemplate []byte
-	var amiID string
-
 	if req.OperatingSystem == "" {
 		req.OperatingSystem = config.DefaultEnvironmentOS
-	}
-
-	switch strings.ToLower(req.OperatingSystem) {
-	case "linux":
-		userDataTemplate = []byte(DefaultLinuxUserdataTemplate)
-		amiID = e.Config.LinuxAMI()
-	case "windows":
-		userDataTemplate = []byte(DefaultWindowsUserdataTemplate)
-		amiID = e.Config.WindowsAMI()
-	default:
-		return "", fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)
-	}
-
-	if req.AMIID != "" {
-		amiID = req.AMIID
-	}
-
-	if len(req.UserDataTemplate) > 0 {
-		userDataTemplate = req.UserDataTemplate
-	}
-
-	userData, err := RenderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
-	if err != nil {
-		return "", err
 	}
 
 	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
@@ -81,31 +49,61 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		return "", err
 	}
 
-	launchConfigName := fqEnvironmentID
-	if err := e.createLC(
-		launchConfigName,
-		aws.StringValue(securityGroup.GroupId),
-		instanceType,
-		e.Config.InstanceProfile(),
-		e.Config.SSHKeyPair(),
-		amiID,
-		userData); err != nil {
-		return "", err
-	}
+	// creating asg, lc isn't required for dynamic environments
+	if strings.ToLower(req.EnvironmentType) != models.EnvironmentTypeDynamic {
+		var userDataTemplate []byte
+		var amiID string
 
-	maxScale := config.DefaultEnvironmentMaxScale
-	if req.MaxScale != 0 {
-		maxScale = req.MaxScale
-	}
+		switch strings.ToLower(req.OperatingSystem) {
+		case models.LinuxOS:
+			userDataTemplate = []byte(DefaultLinuxUserdataTemplate)
+			amiID = e.Config.LinuxAMI()
+		case models.WindowsOS:
+			userDataTemplate = []byte(DefaultWindowsUserdataTemplate)
+			amiID = e.Config.WindowsAMI()
+		default:
+			return "", fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)
+		}
 
-	autoScalingGroupName := fqEnvironmentID
-	if err := e.createASG(
-		autoScalingGroupName,
-		launchConfigName,
-		int64(req.MinScale),
-		int64(maxScale),
-		e.Config.PrivateSubnets()); err != nil {
-		return "", err
+		if req.AMIID != "" {
+			amiID = req.AMIID
+		}
+
+		instanceType := config.DefaultEnvironmentInstanceType
+		if req.InstanceType != "" {
+			instanceType = req.InstanceType
+		}
+
+		if len(req.UserDataTemplate) > 0 {
+			userDataTemplate = req.UserDataTemplate
+		}
+
+		userData, err := RenderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
+		if err != nil {
+			return "", err
+		}
+
+		launchConfigName := fqEnvironmentID
+		if err := e.createLC(
+			launchConfigName,
+			aws.StringValue(securityGroup.GroupId),
+			instanceType,
+			e.Config.InstanceProfile(),
+			e.Config.SSHKeyPair(),
+			amiID,
+			userData); err != nil {
+			return "", err
+		}
+
+		autoScalingGroupName := fqEnvironmentID
+		if err := e.createASG(
+			autoScalingGroupName,
+			launchConfigName,
+			int64(req.Scale),
+			int64(req.Scale),
+			e.Config.PrivateSubnets()); err != nil {
+			return "", err
+		}
 	}
 
 	clusterName := fqEnvironmentID
@@ -113,7 +111,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		return "", err
 	}
 
-	if err := e.createTags(environmentID, req.EnvironmentName, req.OperatingSystem); err != nil {
+	if err := e.createTags(environmentID, req.EnvironmentName, req.EnvironmentType, req.OperatingSystem); err != nil {
 		return "", err
 	}
 
@@ -213,7 +211,7 @@ func (e *EnvironmentProvider) createCluster(clusterName string) error {
 	return nil
 }
 
-func (e *EnvironmentProvider) createTags(environmentID, environmentName, operatingSystem string) error {
+func (e *EnvironmentProvider) createTags(environmentID, environmentName, environmentType, operatingSystem string) error {
 	tags := []models.Tag{
 		{
 			EntityID:   environmentID,
@@ -226,6 +224,12 @@ func (e *EnvironmentProvider) createTags(environmentID, environmentName, operati
 			EntityType: "environment",
 			Key:        "os",
 			Value:      strings.ToLower(operatingSystem),
+		},
+		{
+			EntityID:   environmentID,
+			EntityType: "environment",
+			Key:        "type",
+			Value:      strings.ToLower(environmentType),
 		},
 	}
 

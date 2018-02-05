@@ -22,8 +22,9 @@ func TestUpgrade(t *testing.T) {
 		return mockInstance
 	}
 
+	input := "l0-setup upgrade name v1.0.0"
 	factory := NewCommandFactory(instanceFactory, nil)
-	if err := testutils.RunApp(factory.Upgrade(), "l0-setup upgrade name v1.0.0"); err != nil {
+	if err := testutils.RunApp(factory.Upgrade(), input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -41,8 +42,12 @@ func TestUpgradeForce(t *testing.T) {
 		return mockInstance
 	}
 
+	input := "l0-setup upgrade "
+	input += "--force "
+	input += "name v1.0.0"
+
 	factory := NewCommandFactory(instanceFactory, nil)
-	if err := testutils.RunApp(factory.Upgrade(), "l0-setup upgrade --force name v1.0.0"); err != nil {
+	if err := testutils.RunApp(factory.Upgrade(), input); err != nil {
 		t.Fatal(err)
 	}
 }

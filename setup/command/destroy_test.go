@@ -22,8 +22,9 @@ func TestDestroy(t *testing.T) {
 		return mockInstance
 	}
 
+	input := "l0-setup destroy name"
 	factory := NewCommandFactory(instanceFactory, nil)
-	if err := testutils.RunApp(factory.Destroy(), "l0-setup destroy name"); err != nil {
+	if err := testutils.RunApp(factory.Destroy(), input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -41,8 +42,12 @@ func TestDestroyForce(t *testing.T) {
 		return mockInstance
 	}
 
+	input := "l0-setup destroy "
+	input += "--force "
+	input += "name"
+
 	factory := NewCommandFactory(instanceFactory, nil)
-	if err := testutils.RunApp(factory.Destroy(), "l0-setup destroy --force name"); err != nil {
+	if err := testutils.RunApp(factory.Destroy(), input); err != nil {
 		t.Fatal(err)
 	}
 }

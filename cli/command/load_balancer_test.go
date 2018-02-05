@@ -37,7 +37,10 @@ func TestLoadBalancerAddPort(t *testing.T) {
 		ReadLoadBalancer("lb_id").
 		Return(&models.LoadBalancer{}, nil)
 
-	input := "l0 loadbalancer addport --certificate cert lb_name 443:80/https"
+	input := "l0 loadbalancer addport "
+	input += "--certificate cert "
+	input += "lb_name 443:80/https"
+
 	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
@@ -121,7 +124,8 @@ func TestDeleteLoadBalancer(t *testing.T) {
 		DeleteLoadBalancer("lb_id").
 		Return(nil)
 
-	if err := testutils.RunApp(command, "l0 loadbalancer delete lb_name"); err != nil {
+	input := "l0 loadbalancer delete lb_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -164,7 +168,8 @@ func TestLoadBalancerDropPort(t *testing.T) {
 		ReadLoadBalancer("lb_id").
 		Return(&models.LoadBalancer{}, nil)
 
-	if err := testutils.RunApp(command, "l0 loadbalancer dropport lb_name 443"); err != nil {
+	input := "l0 loadbalancer dropport lb_name 443"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -185,7 +190,8 @@ func TestListLoadBalancers(t *testing.T) {
 		ListLoadBalancers().
 		Return([]models.LoadBalancerSummary{}, nil)
 
-	if err := testutils.RunApp(command, "l0 loadbalancer list"); err != nil {
+	input := "l0 loadbalancer list"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -203,7 +209,8 @@ func TestReadLoadBalancer(t *testing.T) {
 		ReadLoadBalancer("lb_id").
 		Return(&models.LoadBalancer{}, nil)
 
-	if err := testutils.RunApp(command, "l0 loadbalancer get lb_name"); err != nil {
+	input := "l0 loadbalancer get lb_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }

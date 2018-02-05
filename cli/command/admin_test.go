@@ -16,7 +16,8 @@ func TestDebugAdmin(t *testing.T) {
 		ReadConfig().
 		Return(&models.APIConfig{}, nil)
 
-	if err := testutils.RunApp(command, "l0 admin debug"); err != nil {
+	input := "l0 admin debug"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }

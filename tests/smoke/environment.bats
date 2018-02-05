@@ -2,7 +2,7 @@
 
 @test "create" {
   l0 environment create env_name1
-  l0 environment create --user-data common/user_data.sh --os windows --type t2.small env_name2
+  l0 environment create --user-data common/user_data.sh --os linux --type t2.small --scale 1 env_name2
 }
 
 @test "get" {

@@ -57,7 +57,8 @@ func TestDeleteDeploy(t *testing.T) {
 		DeleteDeploy("dpl_id").
 		Return(nil)
 
-	if err := testutils.RunApp(command, "l0 deploy delete dpl_name"); err != nil {
+	input := "l0 deploy delete dpl_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -81,7 +82,8 @@ func TestReadDeploy(t *testing.T) {
 		ReadDeploy("dpl_id").
 		Return(&models.Deploy{}, nil)
 
-	if err := testutils.RunApp(command, "l0 deploy get dpl_name"); err != nil {
+	input := "l0 deploy get dpl_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -101,7 +103,8 @@ func TestListDeploys(t *testing.T) {
 		ListDeploys().
 		Return([]models.DeploySummary{}, nil)
 
-	if err := testutils.RunApp(command, "l0 deploy list"); err != nil {
+	input := "l0 deploy list"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }

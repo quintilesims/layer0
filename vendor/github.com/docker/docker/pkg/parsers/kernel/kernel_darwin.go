@@ -8,6 +8,8 @@ import (
 	"fmt"
 	"os/exec"
 	"strings"
+
+	"github.com/mattn/go-shellwords"
 )
 
 // GetKernelVersion gets the current kernel version.

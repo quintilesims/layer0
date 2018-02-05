@@ -16,20 +16,8 @@ output "environment_name_expected" {
   value = "${layer0_environment.datasources.name}"
 }
 
-output "environment_size" {
-  value = "${data.layer0_environment.datasources.size}"
-}
-
-output "environment_size_expected" {
-  value = "${layer0_environment.datasources.size}"
-}
-
-output "environment_min_count" {
-  value = "${data.layer0_environment.datasources.min_count}"
-}
-
-output "environment_min_count_expected" {
-  value = "${layer0_environment.datasources.cluster_count}"
+output "environment_scale" {
+  value = "${data.layer0_environment.datasources.scale}"
 }
 
 output "environment_os" {

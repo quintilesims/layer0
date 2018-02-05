@@ -72,7 +72,8 @@ func TestDeleteService(t *testing.T) {
 		DeleteService("svc_id").
 		Return(nil)
 
-	if err := testutils.RunApp(command, "l0 service delete svc_name"); err != nil {
+	input := "l0 service delete svc_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -92,7 +93,8 @@ func TestListServices(t *testing.T) {
 		ListServices().
 		Return([]models.ServiceSummary{}, nil)
 
-	if err := testutils.RunApp(command, "l0 service list"); err != nil {
+	input := "l0 service list"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -110,7 +112,8 @@ func TestReadService(t *testing.T) {
 		ReadService("svc_id").
 		Return(&models.Service{}, nil)
 
-	if err := testutils.RunApp(command, "l0 service get svc_name"); err != nil {
+	input := "l0 service get svc_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -140,7 +143,12 @@ func TestReadServiceLogs(t *testing.T) {
 		ReadServiceLogs("svc_id", query).
 		Return([]models.LogFile{}, nil)
 
-	input := "l0 service logs --tail 100 --start start --end end svc_name"
+	input := "l0 service logs "
+	input += "--tail 100 "
+	input += "--start start "
+	input += "--end end "
+	input += "svc_name"
+
 	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
@@ -174,7 +182,8 @@ func TestScaleService(t *testing.T) {
 		ReadService("svc_id").
 		Return(&models.Service{}, nil)
 
-	if err := testutils.RunApp(command, "l0 service scale svc_name 3"); err != nil {
+	input := "l0 service scale svc_name 3"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -213,7 +222,8 @@ func TestUpdateService(t *testing.T) {
 		ReadService("svc_id").
 		Return(&models.Service{}, nil)
 
-	if err := testutils.RunApp(command, "l0 service update svc_name dpl_name"); err != nil {
+	input := "l0 service update svc_name dpl_name"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }

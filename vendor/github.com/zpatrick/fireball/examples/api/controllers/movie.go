@@ -3,7 +3,6 @@ package controllers
 import (
 	"encoding/json"
 	"fmt"
-
 	"github.com/zpatrick/fireball"
 	"github.com/zpatrick/fireball/examples/api/models"
 )

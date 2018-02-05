@@ -17,13 +17,12 @@ func TestCreateEnvironment(t *testing.T) {
 	controller := NewEnvironmentController(mockEnvironmentProvider)
 
 	req := models.CreateEnvironmentRequest{
-		EnvironmentName:  "env_name",
-		InstanceType:     "instance_type",
-		UserDataTemplate: []byte("user_data_template"),
-		MinScale:         1,
-		MaxScale:         2,
-		OperatingSystem:  "linux",
-		AMIID:            "ami_id",
+		EnvironmentName: "env",
+		EnvironmentType: "static",
+		InstanceType:    "t2.small",
+		Scale:           3,
+		OperatingSystem: "linux",
+		AMIID:           "ami123",
 	}
 
 	mockEnvironmentProvider.EXPECT().
@@ -108,9 +107,9 @@ func TestReadEnvironment(t *testing.T) {
 	expected := models.Environment{
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
-		MinScale:        1,
+		EnvironmentType: "static",
 		CurrentScale:    2,
-		MaxScale:        3,
+		DesiredScale:    3,
 		InstanceType:    "instance_type",
 		SecurityGroupID: "security_group_id",
 		OperatingSystem: "linux",
@@ -145,13 +144,11 @@ func TestUpdateEnvironment(t *testing.T) {
 	mockEnvironmentProvider := mock_provider.NewMockEnvironmentProvider(ctrl)
 	controller := NewEnvironmentController(mockEnvironmentProvider)
 
-	min := 1
-	max := 2
+	scale := 1
 	links := []string{"link1", "link2"}
 	req := models.UpdateEnvironmentRequest{
-		MinScale: &min,
-		MaxScale: &max,
-		Links:    &links,
+		Scale: &scale,
+		Links: &links,
 	}
 
 	mockEnvironmentProvider.EXPECT().

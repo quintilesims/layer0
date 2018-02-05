@@ -32,8 +32,8 @@ At the command prompt, execute the following:
 We should see output like the following:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium
+ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS     SCALE  INSTANCE TYPE  LINKS
+demoenv0fe11    demo-env          dynamic  linux  n/a    m3.medium
 ```
 
 We can inspect our environments in a couple of different ways:
@@ -41,24 +41,24 @@ We can inspect our environments in a couple of different ways:
 - `l0 environment list` will give us a brief summary of all environments:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME
-demo00e6aa9     demo-env
-api             api
+ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS
+demo00e6aa9     demo-env          dynamic  linux
+api             api                        linux
 ```
 
 - `l0 environment get demo-env` will show us more information about the **demo-env** environment we just created:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium
+ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS     LINKS
+demoenv0fe11    demo-env          dynamic  linux
 ```
 
 - `l0 environment get \*` illustrates wildcard matching (you could also have used `demo*` in the above command), and it will return detailed information for _each_ environment, not just one - it's like a detailed `list`:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium
-api             api               2              m3.medium
+ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS     LINKS
+demoenv0fe11    demo-env          dynamic  linux
+api             api                        linux
 ```
 
 ---
@@ -349,10 +349,10 @@ You can follow [this link](/reference/terraform-plugin/) to learn more about Lay
 
 ### Part 1: Terraform Get
 
-This deployment uses modules, so we'll need to fetch those source materials.
-At the command prompt, execute the following command:
+This deployment uses modules, and our customer layer0 provider so we'll need 
+to fetch those source materials. At the command prompt, execute the following command:
 
-`terraform get`
+`terraform init`
 
 We should see output like the following:
 
@@ -442,13 +442,14 @@ Note: You didn't specify an "-out" parameter to save this plan, so when
 "apply" is called, Terraform can't guarantee this is what will execute.
 
 + layer0_environment.demo
-    ami:               "<computed>"
-    cluster_count:     "<computed>"
-    links:             "<computed>"
-    name:              "demo"
-    os:                "linux"
-    security_group_id: "<computed>"
-    size:              "m3.medium"
+    ami:               "" => "<computed>"
+    current_scale:     "" => "<computed>"
+    environment_type:  "" => "dynamic"
+    instance_type:     "" => "m3.medium"
+    name:              "" => "demo"
+    os:                "" => "linux"
+    scale:             "" => "0"
+    security_group_id: "" => "<computed>"
 
 + module.guestbook.layer0_deploy.guestbook
     content: "{\n    \"AWSEBDockerrunVersion\": 2,\n    \"containerDefinitions\": [\n        {\n            \"name\": \"guestbook\",\n            \"image\": \"quintilesims/guestbook\",\n            \"essential\": true,\n      \"memory\": 128,\n            \"environment\": [\n                {\n                    \"name\": \"GUESTBOOK_BACKEND_TYPE\",\n                    \"value\": \"memory\"\n                },\n                {\n          \"name\": \"GUESTBOOK_BACKEND_CONFIG\",\n                    \"value\": \"\"\n                },\n           {\n                    \"name\": \"AWS_ACCESS_KEY_ID\",\n                    \"value\": \"\"\n        },\n                {\n                    \"name\": \"AWS_SECRET_ACCESS_KEY\",\n                    \"value\": \"\"\n                },\n                {\n                    \"name\": \"AWS_REGION\",\n      \"value\": \"us-west-2\"\n                }\n            ],\n            \"portMappings\": [\n   {\n                    \"hostPort\": 80,\n                    \"containerPort\": 80\n                }\n      ]\n        }\n    ]\n}\n"

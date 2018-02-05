@@ -22,8 +22,9 @@ func TestUnset(t *testing.T) {
 		return mockInstance
 	}
 
+	input := "l0-setup unset name k1"
 	factory := NewCommandFactory(instanceFactory, nil)
-	if err := testutils.RunApp(factory.Unset(), "l0-setup unset name k1"); err != nil {
+	if err := testutils.RunApp(factory.Unset(), input); err != nil {
 		t.Fatal(err)
 	}
 }

@@ -48,10 +48,6 @@ func (t *TextPrinter) PrintDeploySummaries(deploys ...models.DeploySummary) erro
 }
 
 func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) error {
-	getScale := func(e *models.Environment) string {
-		return fmt.Sprintf("%d:%d:%d", e.MinScale, e.CurrentScale, e.MaxScale)
-	}
-
 	getLink := func(e *models.Environment, i int) string {
 		if i > len(e.Links)-1 {
 			return ""
@@ -60,21 +56,20 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 		return e.Links[i]
 	}
 
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS | SCALE | INSTANCE TYPE | LINKS"}
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | TYPE | OS | LINKS"}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s | %s",
+		row := fmt.Sprintf("%s | %s | %s | %s | %s",
 			e.EnvironmentID,
 			e.EnvironmentName,
+			e.EnvironmentType,
 			e.OperatingSystem,
-			getScale(e),
-			e.InstanceType,
 			getLink(e, 0))
 
 		rows = append(rows, row)
 
 		// add the extra link rows
 		for i := 1; i < len(e.Links); i++ {
-			row := fmt.Sprintf(" | | | | | %s", getLink(e, i))
+			row := fmt.Sprintf(" | | | | %s", getLink(e, i))
 			rows = append(rows, row)
 		}
 	}
@@ -84,9 +79,9 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 }
 
 func (t *TextPrinter) PrintEnvironmentSummaries(environments ...models.EnvironmentSummary) error {
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS "}
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | TYPE | OS "}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s | %s", e.EnvironmentID, e.EnvironmentName, e.OperatingSystem)
+		row := fmt.Sprintf("%s | %s | %s | %s", e.EnvironmentID, e.EnvironmentName, e.EnvironmentType, e.OperatingSystem)
 		rows = append(rows, row)
 	}
 

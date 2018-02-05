@@ -25,8 +25,12 @@ func TestSet(t *testing.T) {
 		return mockInstance
 	}
 
+	input := "l0-setup set "
+	input += "--input k1=v1 "
+	input += "--input k2=v2 "
+	input += "name"
+
 	factory := NewCommandFactory(instanceFactory, nil)
-	input := "l0-setup set name --input k1=v1 --input k2=v2"
 	if err := testutils.RunApp(factory.Set(), input); err != nil {
 		t.Fatal(err)
 	}

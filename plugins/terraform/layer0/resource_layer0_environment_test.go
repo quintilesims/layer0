@@ -19,9 +19,9 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "env_name",
 		InstanceType:     "t2.small",
+		EnvironmentType:  "static",
 		UserDataTemplate: []byte("template"),
-		MinScale:         1,
-		MaxScale:         3,
+		Scale:            3,
 		OperatingSystem:  "linux",
 		AMIID:            "ami123",
 	}
@@ -33,9 +33,8 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 	environment := &models.Environment{
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
-		MinScale:        1,
-		CurrentScale:    2,
-		MaxScale:        3,
+		EnvironmentType: "static",
+		DesiredScale:    3,
 		InstanceType:    "t2.small",
 		SecurityGroupID: "sgid",
 		OperatingSystem: "linux",
@@ -48,13 +47,13 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 
 	environmentResource := Provider().(*schema.Provider).ResourcesMap["layer0_environment"]
 	d := schema.TestResourceDataRaw(t, environmentResource.Schema, map[string]interface{}{
-		"name":          "env_name",
-		"instance_type": "t2.small",
-		"user_data":     "template",
-		"min_scale":     1,
-		"max_scale":     3,
-		"os":            "linux",
-		"ami":           "ami123",
+		"name":             "env_name",
+		"instance_type":    "t2.small",
+		"environment_type": "static",
+		"user_data":        "template",
+		"scale":            3,
+		"os":               "linux",
+		"ami":              "ami123",
 	})
 
 	if err := resourceLayer0EnvironmentCreate(d, mockClient); err != nil {
@@ -63,10 +62,9 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 
 	assert.Equal(t, "env_id", d.Id())
 	assert.Equal(t, "env_name", d.Get("name").(string))
+	assert.Equal(t, "static", d.Get("environment_type").(string))
 	assert.Equal(t, "t2.small", d.Get("instance_type").(string))
-	assert.Equal(t, 1, d.Get("min_scale").(int))
-	assert.Equal(t, 2, d.Get("current_scale").(int))
-	assert.Equal(t, 3, d.Get("max_scale").(int))
+	assert.Equal(t, 3, d.Get("scale").(int))
 	assert.Equal(t, "sgid", d.Get("security_group_id").(string))
 	assert.Equal(t, "linux", d.Get("os").(string))
 	assert.Equal(t, "ami123", d.Get("ami").(string))

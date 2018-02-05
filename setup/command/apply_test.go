@@ -22,8 +22,12 @@ func TestApply(t *testing.T) {
 		return mockInstance
 	}
 
+	input := "l0-setup apply "
+	input += "--push=false "
+	input += "name"
+
 	factory := NewCommandFactory(instanceFactory, nil)
-	if err := testutils.RunApp(factory.Apply(), "l0-setup apply --push=false name"); err != nil {
+	if err := testutils.RunApp(factory.Apply(), input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -41,8 +45,13 @@ func TestApplyQuick(t *testing.T) {
 		return mockInstance
 	}
 
+	input := "l0-setup apply "
+	input += "--push=false "
+	input += "--quick "
+	input += "name"
+
 	factory := NewCommandFactory(instanceFactory, nil)
-	if err := testutils.RunApp(factory.Apply(), "l0-setup apply --push=false --quick name"); err != nil {
+	if err := testutils.RunApp(factory.Apply(), input); err != nil {
 		t.Fatal(err)
 	}
 }
