@@ -20,7 +20,7 @@ func (c CreateServiceRequest) Validate() error {
 	}
 
 	if c.EnvironmentID == "" {
-		return fmt.Errorf("EnvironmmentID is required")
+		return fmt.Errorf("EnvironmentID is required")
 	}
 
 	if c.EnvironmentID == "" {
