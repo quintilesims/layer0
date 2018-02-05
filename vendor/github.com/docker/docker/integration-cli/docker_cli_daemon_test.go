@@ -25,7 +25,7 @@ import (
 	icmd "github.com/docker/docker/pkg/integration/cmd"
 	"github.com/docker/docker/pkg/mount"
 	"github.com/docker/docker/pkg/stringid"
-	units "github.com/docker/go-units"
+	"github.com/docker/go-units"
 	"github.com/docker/libnetwork/iptables"
 	"github.com/docker/libtrust"
 	"github.com/go-check/check"

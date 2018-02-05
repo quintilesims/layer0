@@ -7,6 +7,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/codegangsta/cli"
+	"github.com/opencontainers/runtime-spec/specs-go"
 )
 
 // gitCommit will be the hash that the binary was built from

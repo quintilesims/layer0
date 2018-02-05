@@ -14,6 +14,7 @@ import (
 	"github.com/opencontainers/runc/libcontainer"
 	"github.com/opencontainers/runc/libcontainer/cgroups/systemd"
 	"github.com/opencontainers/runc/libcontainer/specconv"
+	"github.com/opencontainers/runtime-spec/specs-go"
 )
 
 var errEmptyID = errors.New("container id cannot be empty")

@@ -5,6 +5,8 @@ package system
 import (
 	"strings"
 	"testing"
+
+	"github.com/docker/go-units"
 )
 
 // TestMemInfo tests parseMemInfo with a static meminfo string

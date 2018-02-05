@@ -12,6 +12,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	"github.com/docker/go-units"
 )
 
 const cgroupNamePrefix = "name="
