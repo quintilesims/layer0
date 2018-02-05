@@ -3,8 +3,8 @@ package hclwrite
 import (
 	"sort"
 
-	"github.com/hashicorp/hcl2/hcl"
 	"github.com/hashicorp/hcl2/hcl/hclsyntax"
+	"github.com/hashicorp/hcl2/hcl"
 )
 
 // Our "parser" here is actually not doing any parsing of its own. Instead,
