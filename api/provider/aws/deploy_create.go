@@ -3,6 +3,7 @@ package aws
 import (
 	"encoding/json"
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -47,6 +48,20 @@ func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition
 		input.SetNetworkMode(nm)
 	}
 
+	// https://github.com/aws/aws-sdk-go/blob/master/service/ecs/api.go#L8172
+	for _, compatibility := range taskDefinition.RequiresCompatibilities {
+		if aws.StringValue(compatibility) == ecs.LaunchTypeFargate {
+			cpu := aws.StringValue(taskDefinition.Cpu)
+			memory := aws.StringValue(taskDefinition.Memory)
+			if cpu == "" || memory == "" {
+				return nil, fmt.Errorf("Fargate task definitions require 'cpu' and 'memory' values")
+			}
+
+			input.SetCpu(cpu)
+			input.SetMemory(memory)
+		}
+	}
+
 	if err := input.Validate(); err != nil {
 		return nil, err
 	}
@@ -55,6 +70,8 @@ func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition
 	if err != nil {
 		return nil, err
 	}
+
+	log.Printf("[DEBUG] [createTaskDefinition] output.TaskDefinition: %#v", output.TaskDefinition)
 
 	return output.TaskDefinition, nil
 }
@@ -84,6 +101,8 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 			container.SetLogConfiguration(logConfig)
 		}
 	}
+
+	fmt.Printf("\n[DEBUG] [renderTaskDefinition] Rendered Task Definition: %#v\n", taskDefinition)
 
 	return taskDefinition, nil
 }
