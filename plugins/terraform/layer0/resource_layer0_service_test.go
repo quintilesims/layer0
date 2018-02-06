@@ -5,6 +5,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/hashicorp/terraform/helper/schema"
+	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/client/mock_client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -15,6 +16,8 @@ func TestResourceServiceCreateRead(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient := mock_client.NewMockClient(ctrl)
+
+	defer client.SetTimeMultiplier(0)()
 
 	req := models.CreateServiceRequest{
 		ServiceName:    "svc_name",

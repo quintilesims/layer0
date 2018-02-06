@@ -70,13 +70,13 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		}
 
 		if len(req.UserDataTemplate) > 0 {
-                        userDataTemplate = req.UserDataTemplate
-                }
+			userDataTemplate = req.UserDataTemplate
+		}
 
 		userData, err := RenderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
-                if err != nil {
-                        return "", err
-                }
+		if err != nil {
+			return "", err
+		}
 
 		instanceType := config.DefaultEnvironmentInstanceType
 		if req.InstanceType != "" {

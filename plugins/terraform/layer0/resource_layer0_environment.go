@@ -38,8 +38,8 @@ func resourceLayer0Environment() *schema.Resource {
 			},
 			"scale": {
 				Type:     schema.TypeInt,
-				Default:  0,
 				Optional: true,
+				Default:  0,
 			},
 			"user_data": {
 				Type:     schema.TypeString,
