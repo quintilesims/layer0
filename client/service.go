@@ -9,6 +9,10 @@ import (
 )
 
 func (c *APIClient) CreateService(req models.CreateServiceRequest) (string, error) {
+	if err := req.Validate(); err != nil {
+		return "", err
+	}
+
 	var resp models.CreateEntityResponse
 	if err := c.client.Post("/service", req, &resp); err != nil {
 		return "", err
@@ -56,6 +60,10 @@ func (c *APIClient) ReadServiceLogs(serviceID string, query url.Values) ([]model
 }
 
 func (c *APIClient) UpdateService(serviceID string, req models.UpdateServiceRequest) error {
+	if err := req.Validate(); err != nil {
+		return err
+	}
+
 	path := fmt.Sprintf("/service/%s", serviceID)
 	if err := c.client.Patch(path, req, nil); err != nil {
 		return err
