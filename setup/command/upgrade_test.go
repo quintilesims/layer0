@@ -22,11 +22,9 @@ func TestUpgrade(t *testing.T) {
 		return mockInstance
 	}
 
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Upgrade())
-
-	c := testutils.NewTestContext(t, []string{"name", "v1.0.0"}, nil)
-	if err := action(c); err != nil {
+	input := "l0-setup upgrade name v1.0.0"
+	factory := NewCommandFactory(instanceFactory, nil)
+	if err := testutils.RunApp(factory.Upgrade(), input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -44,11 +42,12 @@ func TestUpgradeForce(t *testing.T) {
 		return mockInstance
 	}
 
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Upgrade())
+	input := "l0-setup upgrade "
+	input += "--force "
+	input += "name v1.0.0"
 
-	c := testutils.NewTestContext(t, []string{"name", "v1.0.0"}, map[string]interface{}{"force": "true"})
-	if err := action(c); err != nil {
+	factory := NewCommandFactory(instanceFactory, nil)
+	if err := testutils.RunApp(factory.Upgrade(), input); err != nil {
 		t.Fatal(err)
 	}
 }

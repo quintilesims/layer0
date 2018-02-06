@@ -25,15 +25,13 @@ func TestSet(t *testing.T) {
 		return mockInstance
 	}
 
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Set())
+	input := "l0-setup set "
+	input += "--input k1=v1 "
+	input += "--input k2=v2 "
+	input += "name"
 
-	flags := map[string]interface{}{
-		"input": []string{"k1=v1", "k2=v2"},
-	}
-
-	c := testutils.NewTestContext(t, []string{"name"}, flags)
-	if err := action(c); err != nil {
+	factory := NewCommandFactory(instanceFactory, nil)
+	if err := testutils.RunApp(factory.Set(), input); err != nil {
 		t.Fatal(err)
 	}
 }
