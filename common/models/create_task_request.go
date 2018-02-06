@@ -7,10 +7,10 @@ import (
 )
 
 type CreateTaskRequest struct {
-	ContainerOverrides []ContainerOverride `json:"container_overrides"`
 	TaskName           string              `json:"task_name"`
 	EnvironmentID      string              `json:"environment_id"`
 	DeployID           string              `json:"deploy_id"`
+	ContainerOverrides []ContainerOverride `json:"container_overrides"`
 }
 
 func (c CreateTaskRequest) Validate() error {
@@ -24,6 +24,12 @@ func (c CreateTaskRequest) Validate() error {
 
 	if c.DeployID == "" {
 		return fmt.Errorf("DeployID is required")
+	}
+
+	for _, o := range c.ContainerOverrides {
+		if err := o.Validate(); err != nil {
+			return err
+		}
 	}
 
 	return nil

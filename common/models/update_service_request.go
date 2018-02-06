@@ -13,7 +13,7 @@ type UpdateServiceRequest struct {
 
 func (u UpdateServiceRequest) Validate() error {
 	if u.DeployID != nil && *u.DeployID == "" {
-		return fmt.Errorf("DeployID must be omitted or non-empty string")
+		return fmt.Errorf("DeployID must be omitted or a non-empty string")
 	}
 
 	if u.Scale != nil && *u.Scale < 0 {
