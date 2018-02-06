@@ -83,10 +83,6 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 		AMIID:            d.Get("ami").(string),
 	}
 
-	if err := req.Validate(); err != nil {
-		return err
-	}
-
 	environmentID, err := apiClient.CreateEnvironment(req)
 	if err != nil {
 		return err

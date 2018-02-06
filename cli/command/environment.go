@@ -146,10 +146,6 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 		req.OperatingSystem = config.DefaultEnvironmentOS
 	}
 
-	if err := req.Validate(); err != nil {
-		return err
-	}
-
 	environmentID, err := e.client.CreateEnvironment(req)
 	if err != nil {
 		return err
@@ -264,10 +260,6 @@ func (e *EnvironmentCommand) setScale(c *cli.Context) error {
 
 	req := models.UpdateEnvironmentRequest{
 		Scale: &scale,
-	}
-
-	if err := req.Validate(); err != nil {
-		return err
 	}
 
 	environmentID, err := e.resolveSingleEntityIDHelper("environment", args["ENVIRONMENT_NAME"])
