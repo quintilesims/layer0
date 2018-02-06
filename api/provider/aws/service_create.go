@@ -2,6 +2,7 @@ package aws
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -11,6 +12,15 @@ import (
 func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error) {
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
 	cluster := fqEnvironmentID
+
+	var securityGroupIDs []*string
+	environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
+	environmentSecurityGroup, err := readSG(s.AWS.EC2, environmentSecurityGroupName)
+	if err != nil {
+		return "", err
+	}
+
+	securityGroupIDs = append(securityGroupIDs, environmentSecurityGroup.GroupId)
 
 	launchType, err := getLaunchTypeFromEnvironmentID(s.TagStore, req.EnvironmentID)
 	if err != nil {
@@ -33,6 +43,16 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		loadBalancerDescription, err := describeLoadBalancer(s.AWS.ELB, fqLoadBalancerID)
 		if err != nil {
 			return "", err
+		}
+
+		if aws.StringValue(loadBalancerDescription.Scheme) == "internet-facing" {
+			loadBalancerSecurityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
+			loadBalancerSecurityGroup, err := readSG(s.AWS.EC2, loadBalancerSecurityGroupName)
+			if err != nil {
+				return "", err
+			}
+
+			securityGroupIDs = append(securityGroupIDs, loadBalancerSecurityGroup.GroupId)
 		}
 
 		taskDefinition, err := describeTaskDefinition(s.AWS.ECS, taskDefinitionARN)
@@ -63,6 +83,12 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		scale = 1
 	}
 
+	privateSubnets := s.Config.PrivateSubnets()
+	subnets := make([]*string, len(privateSubnets))
+	for i := range privateSubnets {
+		subnets[i] = aws.String(privateSubnets[i])
+	}
+
 	if err := s.createService(
 		cluster,
 		launchType,
@@ -70,7 +96,9 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		taskDefinitionARN,
 		scale,
 		loadBalancerRole,
-		loadBalancer); err != nil {
+		loadBalancer,
+		securityGroupIDs,
+		subnets); err != nil {
 		return "", err
 	}
 
@@ -89,6 +117,8 @@ func (s *ServiceProvider) createService(
 	desiredCount int,
 	loadBalancerRole string,
 	loadBalancer *ecs.LoadBalancer,
+	securityGroupIDs []*string,
+	subnets []*string,
 ) error {
 	input := &ecs.CreateServiceInput{}
 	input.SetCluster(cluster)
@@ -96,6 +126,34 @@ func (s *ServiceProvider) createService(
 	input.SetLaunchType(launchType)
 	input.SetServiceName(serviceName)
 	input.SetTaskDefinition(taskDefinition)
+
+	// LAUNCH TYPE TESTING
+
+	awsvpcConfig := &ecs.AwsVpcConfiguration{}
+	awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled) // DISABLED by default
+
+	// environment's security group; add load balancer sg as well if exists and is public
+	// (look into the security groups of a public vs private load balancer)
+	awsvpcConfig.SetSecurityGroups(securityGroupIDs)
+
+	// get from config (maybe config.privateSubnets or something)
+	awsvpcConfig.SetSubnets(subnets)
+
+	networkConfig := &ecs.NetworkConfiguration{}
+	networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
+
+	input.SetNetworkConfiguration(networkConfig)
+
+	// possibly unnecessary
+	input.SetPlatformVersion("LATEST")
+
+	// may also need to do this (unsure if these are created by default):
+	// deploymentConfig := &ecs.DeploymentConfiguration{}
+	// deploymentConfig.Set[somethingsabouthealthypercent]
+	// input.SetDeploymentConfiguration(deploymentConfig)
+
+	// END OF LAUNCH TYPE TESTING
+
 	if loadBalancer != nil {
 		input.SetLoadBalancers([]*ecs.LoadBalancer{loadBalancer})
 		input.SetRole(loadBalancerRole)
@@ -104,6 +162,8 @@ func (s *ServiceProvider) createService(
 	if err := input.Validate(); err != nil {
 		return err
 	}
+
+	log.Printf("[DEBUG] [createService] CreateServiceInput: %#v", input)
 
 	if _, err := s.AWS.ECS.CreateService(input); err != nil {
 		return err
