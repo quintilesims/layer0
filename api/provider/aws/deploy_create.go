@@ -38,6 +38,7 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (string, error) 
 }
 
 func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition) (*ecs.TaskDefinition, error) {
+	log.Printf("[DEBUG] [createTaskDefinition] task role arn: %#v", aws.StringValue(taskDefinition.TaskRoleArn))
 	input := &ecs.RegisterTaskDefinitionInput{}
 	input.SetFamily(aws.StringValue(taskDefinition.Family))
 	input.SetTaskRoleArn(aws.StringValue(taskDefinition.TaskRoleArn))
@@ -59,6 +60,16 @@ func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition
 
 			input.SetCpu(cpu)
 			input.SetMemory(memory)
+
+			ecsRoleName := d.Config.ECSRole()
+			ecsRoleARN, err := getRoleARNFromRoleName(d.AWS.IAM, ecsRoleName)
+			if err != nil {
+				return nil, err
+			}
+
+			input.SetExecutionRoleArn(ecsRoleARN)
+
+			input.SetRequiresCompatibilities([]*string{aws.String(ecs.LaunchTypeFargate)})
 		}
 	}
 
@@ -82,6 +93,8 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 	if err := json.Unmarshal(body, &taskDefinition); err != nil {
 		return nil, fmt.Errorf("Failed to decode deploy: %s", err.Error())
 	}
+
+	log.Printf("[DEBUG] [renderTaskDefinition] Unmarshaled Task Definition: %#v", taskDefinition)
 
 	if len(taskDefinition.ContainerDefinitions) == 0 {
 		return nil, fmt.Errorf("Deploy must have at least one container definition")
