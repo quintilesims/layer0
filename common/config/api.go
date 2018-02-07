@@ -105,6 +105,10 @@ func APIFlags() []cli.Flag {
 			Value:  50,
 			EnvVar: ENVVAR_AWS_MAX_RETRIES,
 		},
+		cli.StringFlag{
+			Name:   FLAG_ECS_ROLE,
+			EnvVar: ENVVAR_ECS_ROLE,
+		},
 	}
 }
 
@@ -130,6 +134,7 @@ type APIConfig interface {
 	LockExpiry() time.Duration
 	TimeBetweenRequests() time.Duration
 	MaxRetries() int
+	ECSRole() string
 }
 
 type ContextAPIConfig struct {
@@ -267,4 +272,8 @@ func (c *ContextAPIConfig) TimeBetweenRequests() time.Duration {
 
 func (c *ContextAPIConfig) MaxRetries() int {
 	return c.C.Int(FLAG_AWS_MAX_RETRIES)
+}
+
+func (c *ContextAPIConfig) ECSRole() string {
+	return c.C.String(FLAG_ECS_ROLE)
 }

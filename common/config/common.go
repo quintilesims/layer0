@@ -29,6 +29,7 @@ const (
 	FLAG_AWS_LOG_GROUP_NAME        = "log-group-name"
 	FLAG_AWS_TIME_BETWEEN_REQUESTS = "aws-time-between-requests"
 	FLAG_AWS_MAX_RETRIES           = "aws-max-retries"
+	FLAG_ECS_ROLE                  = "ecs-role"
 )
 
 const (
@@ -60,4 +61,5 @@ const (
 	ENVVAR_AWS_LOG_GROUP_NAME        = "LAYER0_AWS_LOG_GROUP_NAME"
 	ENVVAR_AWS_TIME_BETWEEN_REQUESTS = "LAYER0_AWS_TIME_BETWEEN_REQUESTS"
 	ENVVAR_AWS_MAX_RETRIES           = "LAYER0_AWS_MAX_RETRIES"
+	ENVVAR_ECS_ROLE                  = "LAYER0_ECS_ROLE"
 )
