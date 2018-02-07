@@ -2,7 +2,7 @@
     "docs": [
         {
             "location": "/", 
-            "text": "Build, Manage, and Deploy Your Application\n#\n\n\n\n\nMeet Layer0\n#\n\n\nLayer0 is a framework that helps you deploy web applications to the cloud with minimal fuss. Using a simple command line interface (CLI), you can manage the entire life cycle of your application without having to focus on infrastructure.\n\n\nReady to learn more about Layer0? See our \nintroduction page\n to learn about some important concepts. When you're ready to get started, take a look at the \ninstallation page\n for information about setting up Layer0.\n\n\nDownload\n#\n\n\n\n\n\n\n\n\nDownload \nv0.10.5\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\n\n\nContact Us\n#\n\n\nIf you have questions about Layer0, email the development team at \ncarbon@us.imshealth.com\n.", 
+            "text": "Build, Manage, and Deploy Your Application\n#\n\n\n\n\nMeet Layer0\n#\n\n\nLayer0 is a framework that helps you deploy web applications to the cloud with minimal fuss. Using a simple command line interface (CLI), you can manage the entire life cycle of your application without having to focus on infrastructure.\n\n\nReady to learn more about Layer0? See our \nintroduction page\n to learn about some important concepts. When you're ready to get started, take a look at the \ninstallation page\n for information about setting up Layer0.\n\n\nDownload\n#\n\n\n\n\n\n\n\n\nDownload \nv0.10.6\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\n\n\nContact Us\n#\n\n\nIf you have questions about Layer0, email the development team at \ncarbon@us.imshealth.com\n.", 
             "title": "Home"
         }, 
         {
@@ -17,7 +17,7 @@
         }, 
         {
             "location": "/#download", 
-            "text": "Download  v0.10.5             macOS  Linux  Windows", 
+            "text": "Download  v0.10.6             macOS  Linux  Windows", 
             "title": "Download"
         }, 
         {
@@ -27,7 +27,7 @@
         }, 
         {
             "location": "/releases/", 
-            "text": "Version\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\n\n\n\n\nv0.8.4\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.9.0\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.0\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.1\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.2\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.3\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.4\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.5\n\n\nmacOS\n\n\nLinux\n\n\nWindows", 
+            "text": "Version\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\n\n\n\n\nv0.8.4\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.9.0\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.0\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.1\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.2\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.3\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.4\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.5\n\n\nmacOS\n\n\nLinux\n\n\nWindows\n\n\n\n\n\n\nv0.10.6\n\n\nmacOS\n\n\nLinux\n\n\nWindows", 
             "title": "Releases"
         }, 
         {
