@@ -23,7 +23,7 @@ func TestLoadBalancerAddPort(t *testing.T) {
 		Return(&models.LoadBalancer{}, nil)
 
 	ports := []models.Port{
-		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name"},
 	}
 
 	req := models.UpdateLoadBalancerRequest{
@@ -39,7 +39,7 @@ func TestLoadBalancerAddPort(t *testing.T) {
 		Return(&models.LoadBalancer{}, nil)
 
 	flags := map[string]interface{}{
-		"certificate": "cert",
+		"certificate": "arn:aws:iam::12345:server-certificate/crt_name",
 	}
 
 	c := testutils.NewTestContext(t, []string{"lb_name", "443:80/https"}, flags)
@@ -81,8 +81,8 @@ func TestCreateLoadBalancer(t *testing.T) {
 		EnvironmentID:    "env_id",
 		IsPublic:         false,
 		Ports: []models.Port{
-			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
-			{HostPort: 22, ContainerPort: 22, Protocol: "tcp", CertificateName: "cert"},
+			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name"},
+			{HostPort: 22, ContainerPort: 22, Protocol: "tcp", CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name"},
 		},
 		HealthCheck: models.HealthCheck{
 			Target:             "tcp:80",
@@ -107,7 +107,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 			"443:80/https",
 			"22:22/tcp",
 		},
-		"certificate":                     "cert",
+		"certificate":                     "arn:aws:iam::12345:server-certificate/crt_name",
 		"healthcheck-target":              "tcp:80",
 		"healthcheck-interval":            5,
 		"healthcheck-timeout":             6,
@@ -318,32 +318,22 @@ func TestParsePort(t *testing.T) {
 		},
 		{
 			Target:      "80:80/https",
-			Certificate: "crt_name",
-			Expected: models.Port{
-				HostPort:      80,
-				ContainerPort: 80,
-				Protocol:      "https",
-				Certificate:   "crt_name",
-			},
-		},
-		{
-			Target:      "80:80/https",
 			Certificate: "arn:aws:iam::12345:server-certificate/crt_name",
 			Expected: models.Port{
-				HostPort:      80,
-				ContainerPort: 80,
-				Protocol:      "https",
-				Certificate:   "arn:aws:iam::12345:server-certificate/crt_name",
+				HostPort:       80,
+				ContainerPort:  80,
+				Protocol:       "https",
+				CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
 			},
 		},
 		{
 			Target:      "80:80/https",
 			Certificate: "arn:aws:acm::12345:certificate/crt_name",
 			Expected: models.Port{
-				HostPort:      80,
-				ContainerPort: 80,
-				Protocol:      "https",
-				Certificate:   "arn:aws:acm::12345:certificate/crt_name",
+				HostPort:       80,
+				ContainerPort:  80,
+				Protocol:       "https",
+				CertificateARN: "arn:aws:acm::12345:certificate/crt_name",
 			},
 		},
 	}

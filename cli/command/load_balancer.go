@@ -36,7 +36,7 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 				Flags: []cli.Flag{
 					cli.StringFlag{
 						Name:  "certificate",
-						Usage: "Name of SSL certificate to use for port configuration (only required for https)",
+						Usage: "ARN of an SSL certificate to use for port configuration (only required for https)",
 					},
 				},
 			},
@@ -53,7 +53,7 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 					},
 					cli.StringFlag{
 						Name:  "certificate",
-						Usage: "Name or ARN of SSL certificate to use for port configuration (only required for https)",
+						Usage: "ARN of an SSL certificate to use for port configuration (only required for https)",
 					},
 					cli.BoolFlag{
 						Name:  "private",
@@ -435,11 +435,15 @@ func parsePort(port, certificate string) (*models.Port, error) {
 		return nil, fmt.Errorf("HTTPS protocol specified in a port, but no certificate provided")
 	}
 
+	if certificate != "" && !strings.HasPrefix(strings.ToLower(certificate), "arn:") {
+		return nil, fmt.Errorf("SSL Certificate must be in ARN format")
+	}
+
 	model := &models.Port{
-		HostPort:      hostPort,
-		ContainerPort: containerPort,
-		Protocol:      protocol,
-		Certificate:   certificate,
+		HostPort:       hostPort,
+		ContainerPort:  containerPort,
+		Protocol:       protocol,
+		CertificateARN: certificate,
 	}
 
 	return model, nil

@@ -62,7 +62,7 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 							Type:     schema.TypeString,
 							Required: true,
 						},
-						"certificate": {
+						"certificate_arn": {
 							Type:     schema.TypeString,
 							Optional: true,
 						},
@@ -210,7 +210,7 @@ func resourceLayer0PortHash(v interface{}) int {
 	buf.WriteString(fmt.Sprintf("%d-", containerPort))
 	buf.WriteString(fmt.Sprintf("%s-", protocol))
 
-	if v, ok := m["certificate"]; ok {
+	if v, ok := m["certificate_arn"]; ok {
 		buf.WriteString(fmt.Sprintf("%s-", v.(string)))
 	}
 
@@ -261,8 +261,8 @@ func expandPorts(flattened []interface{}) []models.Port {
 			Protocol:      data["protocol"].(string),
 		}
 
-		if v, ok := data["certificate"]; ok {
-			port.Certificate = v.(string)
+		if v, ok := data["certificate_arn"]; ok {
+			port.CertificateARN = v.(string)
 		}
 
 		ports = append(ports, port)
@@ -281,8 +281,8 @@ func flattenPorts(ports []models.Port) []map[string]interface{} {
 			"protocol":       port.Protocol,
 		}
 
-		if port.Certificate != "" {
-			data["certificate"] = port.Certificate
+		if port.CertificateARN != "" {
+			data["certificate_arn"] = port.CertificateARN
 		}
 
 		flattened = append(flattened, data)

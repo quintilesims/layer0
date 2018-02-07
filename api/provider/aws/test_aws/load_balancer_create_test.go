@@ -40,16 +40,16 @@ func TestLoadBalancerCreate(t *testing.T) {
 		IsPublic:         true,
 		Ports: []models.Port{
 			{
-				Certificate:   "cert",
-				ContainerPort: 88,
-				HostPort:      80,
-				Protocol:      "http",
+				CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
+				ContainerPort:  88,
+				HostPort:       80,
+				Protocol:       "http",
 			},
 			{
-				Certificate:   "cert",
-				ContainerPort: 4444,
-				HostPort:      443,
-				Protocol:      "https",
+				CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
+				ContainerPort:  4444,
+				HostPort:       443,
+				Protocol:       "https",
 			},
 		},
 		HealthCheck: models.HealthCheck{
@@ -105,7 +105,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 		PutRolePolicy(putIAMPolicyInput).
 		Return(&iam.PutRolePolicyOutput{}, nil)
 
-	certificateARN := "arn:aws:iam::123456789012:server-certificate/cert"
+	certificateARN := "arn:aws:iam::12345:server-certificate/crt_name"
 	serverCertificateMetadata := &iam.ServerCertificateMetadata{}
 	serverCertificateMetadata.SetArn(certificateARN)
 	serverCertificateMetadata.SetServerCertificateName("cert")

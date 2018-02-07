@@ -7,10 +7,10 @@ import (
 )
 
 type Port struct {
-	Certificate   string `json:"certificate"`
-	ContainerPort int64  `json:"container_port"`
-	HostPort      int64  `json:"host_port"`
-	Protocol      string `json:"protocol"`
+	CertificateARN string `json:"certificate_arn"`
+	ContainerPort  int64  `json:"container_port"`
+	HostPort       int64  `json:"host_port"`
+	Protocol       string `json:"protocol"`
 }
 
 func (p Port) Validate() error {
@@ -33,10 +33,10 @@ func (p Port) Definition() swagger.Definition {
 	return swagger.Definition{
 		Type: "object",
 		Properties: map[string]swagger.Property{
-			"certificate":    swagger.NewStringProperty(),
-			"container_port": swagger.NewIntProperty(),
-			"host_port":      swagger.NewIntProperty(),
-			"protocol":       swagger.NewStringProperty(),
+			"certificate_arn": swagger.NewStringProperty(),
+			"container_port":  swagger.NewIntProperty(),
+			"host_port":       swagger.NewIntProperty(),
+			"protocol":        swagger.NewStringProperty(),
 		},
 	}
 }

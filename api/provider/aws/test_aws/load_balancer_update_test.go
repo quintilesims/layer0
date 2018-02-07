@@ -28,16 +28,16 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	requestPorts := []models.Port{
 		models.Port{
-			Certificate:   "cert",
-			ContainerPort: 8080,
-			HostPort:      8088,
-			Protocol:      "http",
+			CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
+			ContainerPort:  8080,
+			HostPort:       8088,
+			Protocol:       "http",
 		},
 		models.Port{
-			Certificate:   "cert",
-			ContainerPort: 4444,
-			HostPort:      444,
-			Protocol:      "https",
+			CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
+			ContainerPort:  4444,
+			HostPort:       444,
+			Protocol:       "https",
 		},
 	}
 
