@@ -6,7 +6,7 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types/blkiodev"
-	units "github.com/docker/go-units"
+	"github.com/docker/go-units"
 )
 
 // ValidatorThrottleFctType defines a validator function that returns a validated struct and/or an error.

@@ -1,8 +1,7 @@
-#!/usr/bin/env bats
-
 @test "create" {
   l0 environment create env_name1
   l0 environment create --user-data common/user_data.sh --os linux --type t2.small --scale 1 env_name2
+  l0 environment create env_name3
 }
 
 @test "get" {
@@ -26,4 +25,5 @@
 @test "delete" {
   l0 environment delete env_name1
   l0 environment delete env_name2
+  l0 environment delete --recursive env_name3
 }

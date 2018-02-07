@@ -10,15 +10,14 @@ import (
 func TestDebugAdmin(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
+	command := NewAdminCommand(base.CommandBase()).Command()
 
 	base.Client.EXPECT().
 		ReadConfig().
 		Return(&models.APIConfig{}, nil)
 
-	adminCommand := NewAdminCommand(base.Command())
-	c := testutils.NewTestContext(t, nil, nil)
-
-	if err := adminCommand.debug(c); err != nil {
+	input := "l0 admin debug"
+	if err := testutils.RunApp(command, input); err != nil {
 		t.Fatal(err)
 	}
 }

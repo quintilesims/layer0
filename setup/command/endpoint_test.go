@@ -30,15 +30,9 @@ func TestEndpoint(t *testing.T) {
 		return mockInstance
 	}
 
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Endpoint())
-
-	flags := map[string]interface{}{
-		"syntax": "bash",
-	}
-
-	c := testutils.NewTestContext(t, []string{"name"}, flags)
-	if err := action(c); err != nil {
+	input := "l0-setup endpoint name"
+	factory := NewCommandFactory(instanceFactory, nil)
+	if err := testutils.RunApp(factory.Endpoint(), input); err != nil {
 		t.Fatal(err)
 	}
 }
@@ -79,16 +73,12 @@ func TestEndpointDev(t *testing.T) {
 		return mockInstance
 	}
 
-	commandFactory := NewCommandFactory(instanceFactory, nil)
-	action := extractAction(t, commandFactory.Endpoint())
+	input := "l0-setup endpoint "
+	input += "--dev "
+	input += "name"
 
-	flags := map[string]interface{}{
-		"syntax": "bash",
-		"dev":    "true",
-	}
-
-	c := testutils.NewTestContext(t, []string{"name"}, flags)
-	if err := action(c); err != nil {
+	factory := NewCommandFactory(instanceFactory, nil)
+	if err := testutils.RunApp(factory.Endpoint(), input); err != nil {
 		t.Fatal(err)
 	}
 }
