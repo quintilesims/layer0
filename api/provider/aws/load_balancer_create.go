@@ -219,8 +219,8 @@ func (l *LoadBalancerProvider) portsToListeners(ports []models.Port) ([]*elb.Lis
 		listener.SetLoadBalancerPort(port.HostPort)
 		listener.SetInstancePort(port.ContainerPort)
 
-		if certificate := port.CertificateARN; certificate != "" {
-			listener.SetSSLCertificateId(certificate)
+		if port.CertificateARN != "" {
+			listener.SetSSLCertificateId(port.CertificateARN)
 		}
 
 		// terminate ssl/https on load balancer

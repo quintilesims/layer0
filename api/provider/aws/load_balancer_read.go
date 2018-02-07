@@ -28,7 +28,6 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		}
 
 		if certificateARN := aws.StringValue(description.Listener.SSLCertificateId); certificateARN != "" {
-			// certificate arn format:  arn:aws:iam:region:012345678910:certificate/path/to/name
 			port.CertificateARN = certificateARN
 		}
 

@@ -1466,11 +1466,10 @@ output &quot;environment_id&quot; {
 <ul>
 <li><code>id</code> - The id of the environment</li>
 <li><code>name</code> - The name of the environment</li>
-<li><code>environment_type</code> - Default: dynamic. Can be either static or dynamic.</li>
-<li><code>instance_type</code> - The ec2 instance size of a static environment</li>
-<li><code>scale</code> - The current number instances in a static type environment</li>
+<li><code>size</code> - The size of the instances in the environment</li>
+<li><code>min_count</code> - The current number instances in the environment</li>
 <li><code>os</code> - The operating system used for the environment</li>
-<li><code>ami</code> - The AMI ID used for a static environment</li>
+<li><code>ami</code> - The AMI ID used for the environment</li>
 </ul>
 <hr />
 <h2 id="load-balancer-data-source">Load Balancer Data Source<a class="headerlink" href="#load-balancer-data-source" title="Permanent link">#</a></h2>
@@ -1578,7 +1577,12 @@ resource &quot;layer0_deploy&quot; &quot;guestbook&quot; {
 <h3 id="example-usage_7">Example Usage<a class="headerlink" href="#example-usage_7" title="Permanent link">#</a></h3>
 <div class="codehilite"><pre><span></span># Create a new environment
 resource &quot;layer0_environment&quot; &quot;demo&quot; {
-  name             = &quot;demo&quot;
+  name      = &quot;demo&quot;
+  size      = &quot;m3.medium&quot;
+  min_count = 0
+  user_data = &quot;echo hello, world&quot;
+  os        = &quot;linux&quot;
+  ami       = &quot;ami123&quot;
 }
 </pre></div>
 
@@ -1587,15 +1591,14 @@ resource &quot;layer0_environment&quot; &quot;demo&quot; {
 <p>The following arguments are supported:</p>
 <ul>
 <li><code>name</code> - (Required) The name of the environment</li>
-<li><code>environment_type</code> - (Optional, Values: "dynamic, static" Default: "dynamic") Use static when you need to customize ec2 instances that the containers run on or for a Windows os environment.</li>
-<li><code>instance_type</code> - (Optional, Default: "m3.medium") The size of the instances in the environment.
+<li><code>size</code> - (Optional, Default: "m3.medium") The size of the instances in the environment.
 Available instance sizes can be found <a href="https://aws.amazon.com/ec2/instance-types/">here</a></li>
-<li><code>scale</code> - (Optional, Default: 0) The desired number of instances allowed in a static environment.</li>
-<li><code>user-data</code> - (Optional) The user data template to use for a static environment's autoscaling group.
+<li><code>min_count</code> - (Optional, Default: 0) The minimum number of instances allowed in the environment</li>
+<li><code>user-data</code> - (Optional) The user data template to use for the environment's autoscaling group.
 See the <a href="../../reference/cli/#environment">cli reference</a> for the default template.</li>
 <li><code>os</code> - (Optional, Default: "linux") Specifies the type of operating system used in the environment.
 Options are "linux" or "windows".</li>
-<li><code>ami</code> - (Optional) A custom AMI ID to use for a static environment. 
+<li><code>ami</code> - (Optional) A custom AMI ID to use in the environment. 
 If not specified, Layer0 will use its default AMI ID for the specified operating system.</li>
 </ul>
 <h3 id="attribute-reference_6">Attribute Reference<a class="headerlink" href="#attribute-reference_6" title="Permanent link">#</a></h3>
@@ -1603,9 +1606,8 @@ If not specified, Layer0 will use its default AMI ID for the specified operating
 <ul>
 <li><code>id</code> - The id of the environment</li>
 <li><code>name</code> - The name of the environment</li>
-<li><code>environment_type</code> - The current number instances in a static type environment</li>
-<li><code>instance_type</code> - The ec2 instance size of a static environment</li>
-<li><code>scale</code> - The current number instances in a static type environment</li>
+<li><code>size</code> - The size of the instances in the environment</li>
+<li><code>cluster_count</code> - The current number instances in the environment</li>
 <li><code>security_group_id</code> - The ID of the environment's security group</li>
 <li><code>os</code> - The operating system used for the environment</li>
 <li><code>ami</code> - The AMI ID used for the environment</li>
