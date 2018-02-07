@@ -38,7 +38,7 @@ func TestLoadBalancerAddPort(t *testing.T) {
 		Return(&models.LoadBalancer{}, nil)
 
 	input := "l0 loadbalancer addport "
-	input += "--certificate cert "
+	input += "--certificate arn:aws:iam::12345:server-certificate/crt_name "
 	input += "lb_name 443:80/https"
 
 	if err := testutils.RunApp(command, input); err != nil {
@@ -89,7 +89,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	input := "l0 loadbalancer create "
 	input += "--private "
-	input += "--certificate cert "
+	input += "--certificate arn:aws:iam::12345:server-certificate/crt_name "
 	input += "--port 443:80/https "
 	input += "--port 22:22/tcp "
 	input += "--healthcheck-target tcp:80 "

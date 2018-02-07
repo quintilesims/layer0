@@ -5,9 +5,8 @@
 package mock_resolver
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
+	reflect "reflect"
 )
 
 // MockResolver is a mock of Resolver interface
