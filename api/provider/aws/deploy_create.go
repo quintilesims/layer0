@@ -11,6 +11,8 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
+const ecsTaskExecutionRoleName = "ecsTaskExecutionRole"
+
 // Create registers an ECS Task Definition using the specified Create Deploy Request.
 // The Create Deploy Request contains the name of the Deploy and the JSON
 // representation of the Task Definition to create.
@@ -61,13 +63,12 @@ func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition
 			input.SetCpu(cpu)
 			input.SetMemory(memory)
 
-			ecsRoleName := d.Config.ECSRole()
-			ecsRoleARN, err := getRoleARNFromRoleName(d.AWS.IAM, ecsRoleName)
+			ecsTaskExecutionRoleARN, err := getRoleARNFromRoleName(d.AWS.IAM, ecsTaskExecutionRoleName)
 			if err != nil {
 				return nil, err
 			}
 
-			input.SetExecutionRoleArn(ecsRoleARN)
+			input.SetExecutionRoleArn(ecsTaskExecutionRoleARN)
 
 			input.SetRequiresCompatibilities([]*string{aws.String(ecs.LaunchTypeFargate)})
 		}
