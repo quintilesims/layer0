@@ -65,7 +65,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		ConfigureHealthCheck(configureHealthCheckInput).
 		Return(configureHealthCheckOutput, nil)
 
-	certificateARN := "arn:aws:iam::123456789012:server-certificate/cert"
+	certificateARN := "arn:aws:iam::12345:server-certificate/crt_name"
 	serverCertificateMetadata := &iam.ServerCertificateMetadata{}
 	serverCertificateMetadata.SetArn(certificateARN)
 	serverCertificateMetadata.SetServerCertificateName("cert")
