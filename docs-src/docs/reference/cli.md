@@ -382,7 +382,7 @@ Use the `create` subcommand to create a new load balancer.
 
 #### Usage
 ```
-l0 loadbalancer create [--port port ... | --certificate nameOrARN | 
+l0 loadbalancer create [--port port ... | --certificate certificateARN | 
     --private | --healthcheck-target target | --healthcheck-interval interval | 
     --healthcheck-timeout timeout | --healthcheck-healthy-threshold healthyThreshold | 
     --healthcheck-unhealthy-threshold unhealthyThreshold] environmentName loadBalancerName
@@ -397,7 +397,7 @@ l0 loadbalancer create [--port port ... | --certificate nameOrARN |
     * `hostPort` - The port that the load balancer will listen for traffic on.
     * `containerPort` - The port that the load balancer will forward traffic to.
     * `protocol` - The protocol to use when forwarding traffic (acceptable values: TCP, SSL, HTTP, and HTTPS).
-* `--certificate nameOrARN` - The name or ARN of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.
+* `--certificate certificateARN` - The ARN of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.
 * `--private` - When you use this option, the load balancer will only be accessible from within the Layer0 environment.
 * `--healthcheck-target target` - The target of the check. Valid pattern is `PROTOCOL:PORT/PATH` (default: `"TCP:80"`). 
     * If `PROTOCOL` is `HTTP` or `HTTPS`, both `PORT` and `PATH` are required. Example: `HTTP:80/admin/healthcheck`. 

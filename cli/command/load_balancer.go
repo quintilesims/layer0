@@ -411,7 +411,7 @@ func (l *LoadBalancerCommand) read(c *cli.Context) error {
 	return l.printer.PrintLoadBalancers(loadBalancers...)
 }
 
-func parsePort(port, certificate string) (*models.Port, error) {
+func parsePort(port, certificateARN string) (*models.Port, error) {
 	split := strings.FieldsFunc(port, func(r rune) bool {
 		return r == ':' || r == '/'
 	})
@@ -431,11 +431,11 @@ func parsePort(port, certificate string) (*models.Port, error) {
 	}
 
 	protocol := split[2]
-	if strings.ToLower(protocol) == "https" && certificate == "" {
+	if strings.ToLower(protocol) == "https" && certificateARN == "" {
 		return nil, fmt.Errorf("HTTPS protocol specified in a port, but no certificate provided")
 	}
 
-	if certificate != "" && !strings.HasPrefix(strings.ToLower(certificate), "arn:") {
+	if certificateARN != "" && !strings.HasPrefix(strings.ToLower(certificateARN), "arn:") {
 		return nil, fmt.Errorf("SSL Certificate must be in ARN format")
 	}
 
@@ -443,7 +443,7 @@ func parsePort(port, certificate string) (*models.Port, error) {
 		HostPort:       hostPort,
 		ContainerPort:  containerPort,
 		Protocol:       protocol,
-		CertificateARN: certificate,
+		CertificateARN: certificateARN,
 	}
 
 	return model, nil
