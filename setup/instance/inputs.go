@@ -192,7 +192,10 @@ func RequiredStringPrompter(m ModuleInput, current interface{}) (interface{}, er
 
 			// Allow spaces for input
 			reader := bufio.NewReader(os.Stdin)
-			bytes, _, _ := reader.ReadLine()
+			bytes, _, err := reader.ReadLine()
+			if err != nil {
+				continue
+			}
 			input := string(bytes)
 
 			// user pressed 'enter' with a value already in place
