@@ -16,6 +16,15 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskID := entityIDGenerator(req.TaskName)
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
 
+	var securityGroupIDs []*string
+	environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
+	environmentSecurityGroup, err := readSG(t.AWS.EC2, environmentSecurityGroupName)
+	if err != nil {
+		return "", err
+	}
+
+	securityGroupIDs = append(securityGroupIDs, environmentSecurityGroup.GroupId)
+
 	launchType, err := getLaunchTypeFromEnvironmentID(t.TagStore, req.EnvironmentID)
 	if err != nil {
 		return "", err
@@ -32,7 +41,21 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskDefinitionVersion := deployVersion
 	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
 
-	task, err := t.runTask(clusterName, launchType, startedBy, taskDefinitionFamily, taskDefinitionVersion, taskOverrides)
+	privateSubnets := t.Config.PrivateSubnets()
+	subnets := make([]*string, len(privateSubnets))
+	for i := range privateSubnets {
+		subnets[i] = aws.String(privateSubnets[i])
+	}
+
+	task, err := t.runTask(
+		clusterName,
+		launchType,
+		startedBy,
+		taskDefinitionFamily,
+		taskDefinitionVersion,
+		securityGroupIDs,
+		subnets,
+		taskOverrides)
 	if err != nil {
 		return "", err
 	}
@@ -70,12 +93,48 @@ func convertContainerOverrides(overrides []models.ContainerOverride) *ecs.TaskOv
 	return taskOverride
 }
 
-func (t *TaskProvider) runTask(clusterName, launchType, startedBy, taskDefinitionFamily, taskDefinitionRevision string, overrides *ecs.TaskOverride) (*ecs.Task, error) {
+func (t *TaskProvider) runTask(
+	clusterName,
+	launchType,
+	startedBy,
+	taskDefinitionFamily,
+	taskDefinitionRevision string,
+	securityGroupIDs,
+	subnets []*string,
+	overrides *ecs.TaskOverride,
+) (*ecs.Task, error) {
 	input := &ecs.RunTaskInput{}
 	input.SetCluster(clusterName)
 	input.SetLaunchType(launchType)
 	input.SetStartedBy(startedBy)
 	input.SetOverrides(overrides)
+
+	// LAUNCH TYPE TESTING
+
+	awsvpcConfig := &ecs.AwsVpcConfiguration{}
+	awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled) // DISABLED by default
+
+	// environment's security group; add load balancer sg as well if exists and is public
+	// (look into the security groups of a public vs private load balancer)
+	awsvpcConfig.SetSecurityGroups(securityGroupIDs)
+
+	// get from config (maybe config.privateSubnets or something)
+	awsvpcConfig.SetSubnets(subnets)
+
+	networkConfig := &ecs.NetworkConfiguration{}
+	networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
+
+	input.SetNetworkConfiguration(networkConfig)
+
+	// possibly unnecessary
+	input.SetPlatformVersion("LATEST")
+
+	// may also need to do this (unsure if these are created by default):
+	// deploymentConfig := &ecs.DeploymentConfiguration{}
+	// deploymentConfig.Set[somethingsabouthealthypercent]
+	// input.SetDeploymentConfiguration(deploymentConfig)
+
+	// END OF LAUNCH TYPE TESTING
 
 	taskFamilyRevision := fmt.Sprintf("%s:%s", taskDefinitionFamily, taskDefinitionRevision)
 	input.SetTaskDefinition(taskFamilyRevision)
