@@ -144,32 +144,16 @@ func (s *ServiceProvider) createService(
 	input.SetServiceName(serviceName)
 	input.SetTaskDefinition(taskDefinition)
 
-	// LAUNCH TYPE TESTING
-
-	awsvpcConfig := &ecs.AwsVpcConfiguration{}
-	awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled) // DISABLED by default
-
-	// environment's security group; add load balancer sg as well if exists and is public
-	// (look into the security groups of a public vs private load balancer)
-	awsvpcConfig.SetSecurityGroups(securityGroupIDs)
-
-	// get from config (maybe config.privateSubnets or something)
-	awsvpcConfig.SetSubnets(subnets)
-
-	networkConfig := &ecs.NetworkConfiguration{}
-	networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
-
-	input.SetNetworkConfiguration(networkConfig)
-
-	// possibly unnecessary
-	input.SetPlatformVersion("LATEST")
-
-	// may also need to do this (unsure if these are created by default):
-	// deploymentConfig := &ecs.DeploymentConfiguration{}
-	// deploymentConfig.Set[somethingsabouthealthypercent]
-	// input.SetDeploymentConfiguration(deploymentConfig)
-
-	// END OF LAUNCH TYPE TESTING
+	if launchType == ecs.LaunchTypeFargate {
+		awsvpcConfig := &ecs.AwsVpcConfiguration{}
+		awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled)
+		awsvpcConfig.SetSecurityGroups(securityGroupIDs)
+		awsvpcConfig.SetSubnets(subnets)
+		networkConfig := &ecs.NetworkConfiguration{}
+		networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
+		input.SetNetworkConfiguration(networkConfig)
+		input.SetPlatformVersion("LATEST")
+	}
 
 	if loadBalancer != nil {
 		input.SetLoadBalancers([]*ecs.LoadBalancer{loadBalancer})
@@ -179,8 +163,6 @@ func (s *ServiceProvider) createService(
 	if err := input.Validate(); err != nil {
 		return err
 	}
-
-	log.Printf("[DEBUG] [createService] CreateServiceInput: %#v", input)
 
 	if _, err := s.AWS.ECS.CreateService(input); err != nil {
 		return err

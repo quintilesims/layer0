@@ -3,15 +3,12 @@ package aws
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 )
-
-const ecsTaskExecutionRoleName = "ecsTaskExecutionRole"
 
 // Create registers an ECS Task Definition using the specified Create Deploy Request.
 // The Create Deploy Request contains the name of the Deploy and the JSON
@@ -40,7 +37,6 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (string, error) 
 }
 
 func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition) (*ecs.TaskDefinition, error) {
-	log.Printf("[DEBUG] [createTaskDefinition] task role arn: %#v", aws.StringValue(taskDefinition.TaskRoleArn))
 	input := &ecs.RegisterTaskDefinitionInput{}
 	input.SetFamily(aws.StringValue(taskDefinition.Family))
 	input.SetTaskRoleArn(aws.StringValue(taskDefinition.TaskRoleArn))
@@ -51,11 +47,29 @@ func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition
 		input.SetNetworkMode(nm)
 	}
 
-	// https://github.com/aws/aws-sdk-go/blob/master/service/ecs/api.go#L8172
+	// We'll be explicit here and set any and all compatibilities that a user specifies in the task definition.
+	// At the moment, that should only be "FARGATE" and "EC2".
+	requiresCompatibilities := []*string{}
 	for _, compatibility := range taskDefinition.RequiresCompatibilities {
+		requiresCompatibilities = append(requiresCompatibilities, compatibility)
+
+		// There are some additional requirements for a task definition to be considered Fargate-compatible:
+		// https://github.com/aws/aws-sdk-go/blob/master/service/ecs/api.go#L8172
+		// https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size
+		//
+		// For the most part, there are four things that should be specified in a Fargate task definition
+		// that aren't required for an EC2 task definition:
+		//   "requiresCompatibilities": [ "FARGATE" ],
+		//   "networkMode": "awsvpc",
+		//   "cpu": "<an appropriate value>",
+		//   "memory": "<an appropriate value>"
 		if aws.StringValue(compatibility) == ecs.LaunchTypeFargate {
 			cpu := aws.StringValue(taskDefinition.Cpu)
 			memory := aws.StringValue(taskDefinition.Memory)
+
+			// Question: Do we want to be proactive here and error for certain configurations of a task
+			// definition that we know to be bad? They would come out of AWS when the user tried to use the
+			// deploy in a service or a task, but it might be nice UX to save them a step.
 			if cpu == "" || memory == "" {
 				return nil, fmt.Errorf("Fargate task definitions require 'cpu' and 'memory' values")
 			}
@@ -63,16 +77,15 @@ func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition
 			input.SetCpu(cpu)
 			input.SetMemory(memory)
 
-			ecsTaskExecutionRoleARN, err := getRoleARNFromRoleName(d.AWS.IAM, ecsTaskExecutionRoleName)
-			if err != nil {
-				return nil, err
-			}
-
+			// hard-coding an ARN isn't usually the best thing, but we know exactly what this ARN will look like
+			// and the only variable in it is the account ID
+			accountID := d.Config.AccountID()
+			ecsTaskExecutionRoleARN := fmt.Sprintf("arn:aws:iam::%s:role/ecsTaskExecutionRole", accountID)
 			input.SetExecutionRoleArn(ecsTaskExecutionRoleARN)
-
-			input.SetRequiresCompatibilities([]*string{aws.String(ecs.LaunchTypeFargate)})
 		}
 	}
+
+	input.SetRequiresCompatibilities(requiresCompatibilities)
 
 	if err := input.Validate(); err != nil {
 		return nil, err
@@ -83,8 +96,6 @@ func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition
 		return nil, err
 	}
 
-	log.Printf("[DEBUG] [createTaskDefinition] output.TaskDefinition: %#v", output.TaskDefinition)
-
 	return output.TaskDefinition, nil
 }
 
@@ -94,8 +105,6 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 	if err := json.Unmarshal(body, &taskDefinition); err != nil {
 		return nil, fmt.Errorf("Failed to decode deploy: %s", err.Error())
 	}
-
-	log.Printf("[DEBUG] [renderTaskDefinition] Unmarshaled Task Definition: %#v", taskDefinition)
 
 	if len(taskDefinition.ContainerDefinitions) == 0 {
 		return nil, fmt.Errorf("Deploy must have at least one container definition")
@@ -115,8 +124,6 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 			container.SetLogConfiguration(logConfig)
 		}
 	}
-
-	fmt.Printf("\n[DEBUG] [renderTaskDefinition] Rendered Task Definition: %#v\n", taskDefinition)
 
 	return taskDefinition, nil
 }
