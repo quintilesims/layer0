@@ -191,12 +191,13 @@ func RequiredStringPrompter(m ModuleInput, current interface{}) (interface{}, er
 			fmt.Printf("\tInput: ")
 
 			// Allow spaces for input
-			reader := bufio.NewReader(os.Stdin)
-			bytes, _, err := reader.ReadLine()
-			if err != nil {
-				continue
+			scanner := bufio.NewScanner(os.Stdin)
+			scanner.Scan()
+			if err := scanner.Err(); err != nil {
+				return nil, fmt.Errorf("Error for '%s': %e", m.Name, err)
 			}
-			input := string(bytes)
+
+			input := scanner.Text()
 
 			// user pressed 'enter' with a value already in place
 			if input == "" && currentOrDefault != nil {
