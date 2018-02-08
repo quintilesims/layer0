@@ -194,7 +194,7 @@ func RequiredStringPrompter(m ModuleInput, current interface{}) (interface{}, er
 			scanner := bufio.NewScanner(os.Stdin)
 			scanner.Scan()
 			if err := scanner.Err(); err != nil {
-				return nil, fmt.Errorf("Error for '%s': %e", m.Name, err)
+				return nil, fmt.Errorf("Error for '%s': %s", m.Name, err.Error())
 			}
 
 			input := scanner.Text()
