@@ -21,7 +21,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		EnvironmentID:    "env_id",
 		IsPublic:         true,
 		Ports: []models.Port{
-			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name"},
 			{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
 		},
 		HealthCheck: models.HealthCheck{
@@ -124,7 +124,7 @@ func TestReadLoadBalancer(t *testing.T) {
 		IsPublic:         true,
 		URL:              "url",
 		Ports: []models.Port{
-			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name"},
 			{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
 		},
 		HealthCheck: models.HealthCheck{
@@ -164,7 +164,7 @@ func TestUpdateLoadBalancer(t *testing.T) {
 	controller := NewLoadBalancerController(mockLoadBalancerProvider)
 
 	ports := []models.Port{
-		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name"},
 		{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
 	}
 

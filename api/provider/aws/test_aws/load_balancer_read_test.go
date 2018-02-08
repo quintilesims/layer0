@@ -84,10 +84,10 @@ func TestLoadBalancerRead(t *testing.T) {
 
 	ports := []models.Port{
 		models.Port{
-			CertificateName: "cert",
-			ContainerPort:   4444,
-			HostPort:        443,
-			Protocol:        "https",
+			CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
+			ContainerPort:  4444,
+			HostPort:       443,
+			Protocol:       "https",
 		},
 		models.Port{
 			ContainerPort: 88,
@@ -96,7 +96,7 @@ func TestLoadBalancerRead(t *testing.T) {
 		},
 	}
 
-	certificateARN := "arn:aws:iam::123456789012:server-certificate/cert"
+	certificateARN := "arn:aws:iam::12345:server-certificate/crt_name"
 	serverCertificateMetadata := &iam.ServerCertificateMetadata{}
 	serverCertificateMetadata.SetArn(certificateARN)
 	serverCertificateMetadata.SetServerCertificateName("cert")

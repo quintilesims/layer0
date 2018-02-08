@@ -219,13 +219,8 @@ func (l *LoadBalancerProvider) portsToListeners(ports []models.Port) ([]*elb.Lis
 		listener.SetLoadBalancerPort(port.HostPort)
 		listener.SetInstancePort(port.ContainerPort)
 
-		if port.CertificateName != "" {
-			certificateARN, err := l.lookupCertificateARN(port.CertificateName)
-			if err != nil {
-				return nil, err
-			}
-
-			listener.SetSSLCertificateId(certificateARN)
+		if port.CertificateARN != "" {
+			listener.SetSSLCertificateId(port.CertificateARN)
 		}
 
 		// terminate ssl/https on load balancer
@@ -242,21 +237,6 @@ func (l *LoadBalancerProvider) portsToListeners(ports []models.Port) ([]*elb.Lis
 	}
 
 	return listeners, nil
-}
-
-func (l *LoadBalancerProvider) lookupCertificateARN(certificateName string) (string, error) {
-	output, err := l.AWS.IAM.ListServerCertificates(&iam.ListServerCertificatesInput{})
-	if err != nil {
-		return "", err
-	}
-
-	for _, meta := range output.ServerCertificateMetadataList {
-		if aws.StringValue(meta.ServerCertificateName) == certificateName {
-			return aws.StringValue(meta.Arn), nil
-		}
-	}
-
-	return "", fmt.Errorf("Certificate with name '%s' does not exist", certificateName)
 }
 
 func (l *LoadBalancerProvider) createTags(loadBalancerID, loadBalancerName, environmentID string) error {

@@ -22,7 +22,7 @@ func TestLoadBalancerAddPort(t *testing.T) {
 		Return(&models.LoadBalancer{}, nil)
 
 	ports := []models.Port{
-		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name"},
 	}
 
 	req := models.UpdateLoadBalancerRequest{
@@ -38,7 +38,7 @@ func TestLoadBalancerAddPort(t *testing.T) {
 		Return(&models.LoadBalancer{}, nil)
 
 	input := "l0 loadbalancer addport "
-	input += "--certificate cert "
+	input += "--certificate arn:aws:iam::12345:server-certificate/crt_name "
 	input += "lb_name 443:80/https"
 
 	if err := testutils.RunApp(command, input); err != nil {
@@ -67,8 +67,8 @@ func TestCreateLoadBalancer(t *testing.T) {
 		EnvironmentID:    "env_id",
 		IsPublic:         false,
 		Ports: []models.Port{
-			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
-			{HostPort: 22, ContainerPort: 22, Protocol: "tcp", CertificateName: "cert"},
+			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name"},
+			{HostPort: 22, ContainerPort: 22, Protocol: "tcp", CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name"},
 		},
 		HealthCheck: models.HealthCheck{
 			Target:             "tcp:80",
@@ -89,7 +89,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	input := "l0 loadbalancer create "
 	input += "--private "
-	input += "--certificate cert "
+	input += "--certificate arn:aws:iam::12345:server-certificate/crt_name "
 	input += "--port 443:80/https "
 	input += "--port 22:22/tcp "
 	input += "--healthcheck-target tcp:80 "
@@ -222,40 +222,64 @@ func TestReadLoadBalancerInputErrors(t *testing.T) {
 }
 
 func TestParsePort(t *testing.T) {
-	cases := map[string]*models.Port{
-		"80:80/tcp": {
-			HostPort:        80,
-			ContainerPort:   80,
-			Protocol:        "tcp",
-			CertificateName: "",
+	cases := []struct {
+		Target      string
+		Certificate string
+		Expected    models.Port
+	}{
+		{
+			Target: "80:80/tcp",
+			Expected: models.Port{
+				HostPort:      80,
+				ContainerPort: 80,
+				Protocol:      "tcp",
+			},
 		},
-		"80:80/http": {
-			HostPort:        80,
-			ContainerPort:   80,
-			Protocol:        "http",
-			CertificateName: "",
+		{
+			Target: "80:80/http",
+			Expected: models.Port{
+				HostPort:      80,
+				ContainerPort: 80,
+				Protocol:      "http",
+			},
 		},
-		"8080:80/http": {
-			HostPort:        8080,
-			ContainerPort:   80,
-			Protocol:        "http",
-			CertificateName: "",
+		{
+			Target: "8080:80/http",
+			Expected: models.Port{
+				HostPort:      8080,
+				ContainerPort: 80,
+				Protocol:      "http",
+			},
 		},
-		"443:80/https": {
-			HostPort:        443,
-			ContainerPort:   80,
-			Protocol:        "https",
-			CertificateName: "cert_name",
+		{
+			Target:      "80:80/https",
+			Certificate: "arn:aws:iam::12345:server-certificate/crt_name",
+			Expected: models.Port{
+				HostPort:       80,
+				ContainerPort:  80,
+				Protocol:       "https",
+				CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
+			},
+		},
+		{
+			Target:      "80:80/https",
+			Certificate: "arn:aws:acm::12345:certificate/crt_name",
+			Expected: models.Port{
+				HostPort:       80,
+				ContainerPort:  80,
+				Protocol:       "https",
+				CertificateARN: "arn:aws:acm::12345:certificate/crt_name",
+			},
 		},
 	}
 
-	for input, expected := range cases {
-		model, err := parsePort(input, expected.CertificateName)
+	for _, c := range cases {
+		result, err := parsePort(c.Target, c.Certificate)
 		if err != nil {
 			t.Fatal(err)
 		}
 
-		assert.Equal(t, expected, model)
+		assert.Equal(t, *result, c.Expected)
 	}
 }
 

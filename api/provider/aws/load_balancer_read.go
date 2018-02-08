@@ -1,8 +1,6 @@
 package aws
 
 import (
-	"strings"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -30,10 +28,7 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		}
 
 		if certificateARN := aws.StringValue(description.Listener.SSLCertificateId); certificateARN != "" {
-			// certificate arn format:  arn:aws:iam:region:012345678910:certificate/path/to/name
-			split := strings.SplitN(certificateARN, "/", -1)
-			certificateName := split[len(split)-1]
-			port.CertificateName = certificateName
+			port.CertificateARN = certificateARN
 		}
 
 		model.Ports[i] = port

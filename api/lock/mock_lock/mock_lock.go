@@ -5,10 +5,8 @@
 package mock_lock
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
-	lock "github.com/quintilesims/layer0/api/lock"
+	reflect "reflect"
 )
 
 // MockLock is a mock of Lock interface
@@ -45,19 +43,6 @@ func (m *MockLock) Acquire(arg0 string) (bool, error) {
 // Acquire indicates an expected call of Acquire
 func (mr *MockLockMockRecorder) Acquire(arg0 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Acquire", reflect.TypeOf((*MockLock)(nil).Acquire), arg0)
-}
-
-// List mocks base method
-func (m *MockLock) List() ([]lock.LockSchema, error) {
-	ret := m.ctrl.Call(m, "List")
-	ret0, _ := ret[0].([]lock.LockSchema)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
-}
-
-// List indicates an expected call of List
-func (mr *MockLockMockRecorder) List() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockLock)(nil).List))
 }
 
 // Release mocks base method

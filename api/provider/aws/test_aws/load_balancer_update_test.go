@@ -28,16 +28,16 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	requestPorts := []models.Port{
 		models.Port{
-			CertificateName: "cert",
-			ContainerPort:   8080,
-			HostPort:        8088,
-			Protocol:        "http",
+			CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
+			ContainerPort:  8080,
+			HostPort:       8088,
+			Protocol:       "http",
 		},
 		models.Port{
-			CertificateName: "cert",
-			ContainerPort:   4444,
-			HostPort:        444,
-			Protocol:        "https",
+			CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
+			ContainerPort:  4444,
+			HostPort:       444,
+			Protocol:       "https",
 		},
 	}
 
@@ -65,7 +65,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		ConfigureHealthCheck(configureHealthCheckInput).
 		Return(configureHealthCheckOutput, nil)
 
-	certificateARN := "arn:aws:iam::123456789012:server-certificate/cert"
+	certificateARN := "arn:aws:iam::12345:server-certificate/crt_name"
 	serverCertificateMetadata := &iam.ServerCertificateMetadata{}
 	serverCertificateMetadata.SetArn(certificateARN)
 	serverCertificateMetadata.SetServerCertificateName("cert")
