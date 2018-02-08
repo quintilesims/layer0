@@ -12,8 +12,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/elb/elbiface"
-	"github.com/aws/aws-sdk-go/service/iam"
-	"github.com/aws/aws-sdk-go/service/iam/iamiface"
 	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
@@ -86,21 +84,6 @@ func getLaunchTypeFromEnvironmentID(store tag.Store, environmentID string) (stri
 	}
 
 	return "", fmt.Errorf("Could not find instance launch type for environment '%s'", environmentID)
-}
-
-func getRoleARNFromRoleName(iamapi iamiface.IAMAPI, roleName string) (string, error) {
-	input := &iam.GetRoleInput{}
-	input.SetRoleName(roleName)
-	if err := input.Validate(); err != nil {
-		return "", err
-	}
-
-	output, err := iamapi.GetRole(input)
-	if err != nil {
-		return "", err
-	}
-
-	return aws.StringValue(output.Role.Arn), nil
 }
 
 func lookupDeployIDFromTaskDefinitionARN(store tag.Store, taskDefinitionARN string) (string, error) {
