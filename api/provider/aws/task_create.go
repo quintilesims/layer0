@@ -109,32 +109,16 @@ func (t *TaskProvider) runTask(
 	input.SetStartedBy(startedBy)
 	input.SetOverrides(overrides)
 
-	// LAUNCH TYPE TESTING
-
-	awsvpcConfig := &ecs.AwsVpcConfiguration{}
-	awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled) // DISABLED by default
-
-	// environment's security group; add load balancer sg as well if exists and is public
-	// (look into the security groups of a public vs private load balancer)
-	awsvpcConfig.SetSecurityGroups(securityGroupIDs)
-
-	// get from config (maybe config.privateSubnets or something)
-	awsvpcConfig.SetSubnets(subnets)
-
-	networkConfig := &ecs.NetworkConfiguration{}
-	networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
-
-	input.SetNetworkConfiguration(networkConfig)
-
-	// possibly unnecessary
-	input.SetPlatformVersion("LATEST")
-
-	// may also need to do this (unsure if these are created by default):
-	// deploymentConfig := &ecs.DeploymentConfiguration{}
-	// deploymentConfig.Set[somethingsabouthealthypercent]
-	// input.SetDeploymentConfiguration(deploymentConfig)
-
-	// END OF LAUNCH TYPE TESTING
+	if launchType == ecs.LaunchTypeFargate {
+		awsvpcConfig := &ecs.AwsVpcConfiguration{}
+		awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled)
+		awsvpcConfig.SetSecurityGroups(securityGroupIDs)
+		awsvpcConfig.SetSubnets(subnets)
+		networkConfig := &ecs.NetworkConfiguration{}
+		networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
+		input.SetNetworkConfiguration(networkConfig)
+		input.SetPlatformVersion("LATEST")
+	}
 
 	taskFamilyRevision := fmt.Sprintf("%s:%s", taskDefinitionFamily, taskDefinitionRevision)
 	input.SetTaskDefinition(taskFamilyRevision)
