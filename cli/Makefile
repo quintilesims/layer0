@@ -12,7 +12,7 @@ release:
 test:
 	go test ./...
 
-install-smoketest:
+install:
 	go install
 	mv $(GOPATH)/bin/cli $(GOPATH)/bin/l0
 

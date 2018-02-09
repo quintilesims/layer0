@@ -1,6 +1,16 @@
 SHELL:=/bin/bash
 L0_VERSION?=$(shell git describe --tags)
 
+build: 
+	$(MAKE) -C api build        
+	$(MAKE) -C setup build       
+	$(MAKE) -C cli build      
+
+install:
+	$(MAKE) -C cli install
+	$(MAKE) -C setup install
+	$(MAKE) -C api release
+
 release:
 	$(MAKE) -C api release
 	$(MAKE) -C cli release
@@ -28,17 +38,5 @@ smoketest:
 
 systemtest:
 	 $(MAKE) -C tests/system test
-
-install-smoketest:
-	$(MAKE) -C cli install-smoketest
-	$(MAKE) -C setup install-smoketest
-	$(MAKE) -C api deps
-	$(MAKE) -C api release
-
-apply-smoketest:
-	$(MAKE) -C setup apply-smoketest
-
-destroy-smoketest:
-	$(MAKE) -C setup destroy-smoketest
 
 .PHONY: release unittest smoketest install-smoketest apply-smoketest destroy-smoketest systemtest
