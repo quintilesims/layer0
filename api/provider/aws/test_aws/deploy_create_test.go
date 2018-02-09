@@ -77,6 +77,7 @@ func TestDeployCreate(t *testing.T) {
 	registerTaskDefinitionInput := &ecs.RegisterTaskDefinitionInput{}
 	registerTaskDefinitionInput.SetTaskRoleArn("arn:aws:iam::012345678910:role/test-role")
 	registerTaskDefinitionInput.SetFamily("l0-test-dpl_name")
+	registerTaskDefinitionInput.SetRequiresCompatibilities([]*string{})
 	registerTaskDefinitionInput.SetContainerDefinitions(containers)
 
 	taskDefinitionOutput := &ecs.TaskDefinition{}
