@@ -4,6 +4,19 @@
 
 Sometimes, your Layer0 instance might get into an unresponsive and unrecoverable state. This section describes the AWS resources that are created when you create a Layer0 instance and what resources needs to be removed by hand in such an event.
 
+!!! Tip
+    An unresponsive state means that the Layer0 API isn't responding to typical commands (from the CLI or through Terraform). If Layer0 is unresponsive, it might still be recoverable. You should try these tips first if you're running into problems.
+
+    [l0-setup init](../reference/setup-cli#init) and [l0-setup apply](../reference/setup-cli#apply)
+
+    Terraform might be able to refresh the resources it created when the Layer0 instance was first created. You can use `l0-setup init` and `l0-setup apply` to double check your instance's initial settings and attempt to rebuild core VPC or API resources if they were accidentally altered.
+
+    Use [l0-setup endpoint](../reference/setup-cli#endpoint) to double check your instance's environment variables.
+
+    Are your `LAYER0_*` environment variables set correctly? Is the URL of your Layer0 API correct? Are the AWS Access Key and Secret Access Key values still valid?
+
+    If you are unable to recover your Layer0 instance's state and need to delete your instance and start over, continue reading this guide.
+
 Each instance of `<prefix>` is the name of the Layer0 instance you specified when using `l0-setup`
 
 * VPC
