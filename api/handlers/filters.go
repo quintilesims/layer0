@@ -13,7 +13,7 @@ func LogRequest(req *restful.Request, resp *restful.Response, chain *restful.Fil
 	chain.ProcessFilter(req, resp)
 	duration := time.Since(start)
 
-	if req.Request.URL.String() != "/admin/health" {
+	if req.Request.URL.String() != "/health" {
 		logrus.Infof("request %s %s (%v) %v", req.Request.Method, req.Request.URL, resp.StatusCode(), duration)
 	}
 }
