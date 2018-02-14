@@ -69,3 +69,7 @@ output "dynamo_tag_table" {
 output "dynamo_lock_table" {
   value = "${module.api.dynamo_lock_table}"
 }
+
+output "region" {
+  value = "${var.region}"
+}

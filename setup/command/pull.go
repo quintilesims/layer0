@@ -23,6 +23,7 @@ func (f *CommandFactory) Pull() cli.Command {
 				return err
 			}
 
+			// Use the default AWS region first to retrieve the list of buckets
 			provider, err := f.newAWSClientHelper(c, common_aws.DEFAULT_AWS_REGION)
 			if err != nil {
 				return err
