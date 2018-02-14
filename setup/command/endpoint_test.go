@@ -62,6 +62,7 @@ func TestEndpointDev(t *testing.T) {
 			instance.OUTPUT_WINDOWS_SERVICE_AMI,
 			instance.OUTPUT_AWS_DYNAMO_TAG_TABLE,
 			instance.OUTPUT_AWS_DYNAMO_LOCK_TABLE,
+			instance.OUTPUT_AWS_REGION,
 		}
 
 		for _, output := range outputs {

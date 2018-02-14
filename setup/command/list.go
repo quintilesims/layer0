@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sort"
 
+	"github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/setup/instance"
 	"github.com/urfave/cli"
 )
@@ -58,7 +59,7 @@ func (f *CommandFactory) List() cli.Command {
 }
 
 func (f *CommandFactory) addRemoteInstances(c *cli.Context, current map[string]status) error {
-	provider, err := f.newAWSClientHelper(c)
+	provider, err := f.newAWSClientHelper(c, aws.DEFAULT_AWS_REGION)
 	if err != nil {
 		return err
 	}

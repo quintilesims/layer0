@@ -53,3 +53,7 @@ output "dynamo_tag_table" {
 output "dynamo_lock_table" {
   value = "${aws_dynamodb_table.lock.id}"
 }
+
+output "region" {
+  value = "${var.region}"
+}
