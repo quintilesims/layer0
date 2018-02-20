@@ -20,4 +20,5 @@ const (
 	OUTPUT_AWS_DYNAMO_TAG_TABLE        = "dynamo_tag_table"
 	OUTPUT_AWS_DYNAMO_LOCK_TABLE       = "dynamo_lock_table"
 	OUTPUT_AWS_LOG_GROUP_NAME          = "log_group_name"
+	OUTPUT_AWS_REGION                  = "region"
 )
