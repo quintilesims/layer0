@@ -39,12 +39,6 @@ func (f *CommandFactory) Pull() cli.Command {
 				return err
 			}
 
-			if region == "" {
-				// See: https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketGETlocation.html
-				// When GetBucketLocation returns an empty string, the bucket is in us-east-1
-				region = "us-east-1"
-			}
-
 			// Change the AWS provider configuration to match the region of the bucket
 			// to pull from
 			provider, err = f.newAWSClientHelper(c, region)
@@ -77,7 +71,7 @@ func getRemoteInstanceBucket(s s3iface.S3API, instanceName string) (string, erro
 		}
 	}
 
-	return "", fmt.Errorf("No S3 bucket found for given instance name")
+	return "", fmt.Errorf("No S3 bucket found for instance '%s'", instanceName)
 }
 
 func getBucketLocation(s s3iface.S3API, bucketName string) (string, error) {
@@ -89,5 +83,12 @@ func getBucketLocation(s s3iface.S3API, bucketName string) (string, error) {
 		return "", err
 	}
 
-	return aws.StringValue(getBucketLocationOutput.LocationConstraint), nil
+	region := aws.StringValue(getBucketLocationOutput.LocationConstraint)
+	if region == "" {
+		// See: https://docs.aws.amazon.com/AmazonS3/latest/API/RESTBucketGETlocation.html
+		// When GetBucketLocation returns an empty string, the bucket is in us-east-1
+		region = "us-east-1"
+	}
+
+	return region, nil
 }
