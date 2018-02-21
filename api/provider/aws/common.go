@@ -79,7 +79,7 @@ func getLaunchTypeFromEnvironmentID(store tag.Store, environmentID string) (stri
 		case models.EnvironmentTypeStatic:
 			return ecs.LaunchTypeEc2, nil
 		default:
-			return "", fmt.Errorf("Could not find instance launch type for environment '%s'", environmentID)
+			return "", fmt.Errorf("Environment '%s' has invalid 'type' tag: '%s'.", environmentID, tag.Value)
 		}
 	}
 
