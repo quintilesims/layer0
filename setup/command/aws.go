@@ -24,15 +24,10 @@ var awsFlags = []cli.Flag{
 		Usage:  "secret key portion on an AWS key",
 		EnvVar: config.ENVVAR_AWS_SECRET_KEY,
 	},
-	cli.StringFlag{
-		Name:   "aws-region",
-		Usage:  "AWS region",
-		EnvVar: config.ENVVAR_AWS_REGION,
-	},
 }
 
-func (f *CommandFactory) newAWSClientHelper(c *cli.Context) (*awsc.Client, error) {
-	// use default credentials and region settings
+func (f *CommandFactory) newAWSClientHelper(c *cli.Context, region string) (*awsc.Client, error) {
+	// first grab default config settings
 	awsConfig := defaults.Get().Config
 
 	// use static credentials if passed in by the user
@@ -56,14 +51,9 @@ func (f *CommandFactory) newAWSClientHelper(c *cli.Context) (*awsc.Client, error
 		return nil, err
 	}
 
-	// use region if passed in by the user
-	awsConfig.WithRegion(config.DefaultAWSRegion)
-	if region := c.String("aws-region"); region != "" {
-		awsConfig.WithRegion(region)
-	} else {
-		log.Println("[DEBUG] aws-region was not specified. Using default")
-	}
-
+	// ensure that the correct region is set for AWS services
+	// that have region-specific operations
+	awsConfig.WithRegion(region)
 	sess := session.New(awsConfig)
 	return f.NewAWSClient(sess), nil
 }
