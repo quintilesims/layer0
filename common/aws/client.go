@@ -20,6 +20,8 @@ import (
 	"github.com/aws/aws-sdk-go/service/s3/s3iface"
 )
 
+const DEFAULT_AWS_REGION = "us-west-2"
+
 type Client struct {
 	AutoScaling    autoscalingiface.AutoScalingAPI
 	CloudTrail     cloudtrailiface.CloudTrailAPI

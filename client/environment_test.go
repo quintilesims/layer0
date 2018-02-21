@@ -11,11 +11,11 @@ import (
 func TestCreateEnvironment(t *testing.T) {
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "env_name",
+		EnvironmentType:  models.EnvironmentTypeStatic,
 		InstanceType:     "instance_type",
 		UserDataTemplate: []byte("user_data_template"),
-		MinScale:         1,
-		MaxScale:         2,
-		OperatingSystem:  "linux",
+		Scale:            2,
+		OperatingSystem:  models.LinuxOS,
 		AMIID:            "ami_id",
 	}
 
@@ -93,9 +93,8 @@ func TestReadEnvironment(t *testing.T) {
 	expected := models.Environment{
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
-		MinScale:        1,
 		CurrentScale:    2,
-		MaxScale:        3,
+		DesiredScale:    3,
 		InstanceType:    "instance_type",
 		SecurityGroupID: "security_group_id",
 		OperatingSystem: "linux",
@@ -122,14 +121,12 @@ func TestReadEnvironment(t *testing.T) {
 }
 
 func TestUpdateEnvironment(t *testing.T) {
-	minScale := 1
-	maxScale := 2
+	scale := 2
 	links := []string{"link1", "link2"}
 
 	req := models.UpdateEnvironmentRequest{
-		MinScale: &minScale,
-		MaxScale: &maxScale,
-		Links:    &links,
+		Scale: &scale,
+		Links: &links,
 	}
 
 	handler := func(w http.ResponseWriter, r *http.Request) {

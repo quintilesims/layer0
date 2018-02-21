@@ -126,10 +126,6 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 		Scale:          c.Int("scale"),
 	}
 
-	if err := req.Validate(); err != nil {
-		return err
-	}
-
 	serviceID, err := s.client.CreateService(req)
 	if err != nil {
 		return err

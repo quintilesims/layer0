@@ -1,8 +1,10 @@
 package instance
 
 import (
+	"bufio"
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/quintilesims/layer0/common/config"
 )
@@ -188,8 +190,14 @@ func RequiredStringPrompter(m ModuleInput, current interface{}) (interface{}, er
 		for i := 0; i < 3; i++ {
 			fmt.Printf("\tInput: ")
 
-			var input string
-			fmt.Scanln(&input)
+			// Allow spaces for input
+			scanner := bufio.NewScanner(os.Stdin)
+			scanner.Scan()
+			if err := scanner.Err(); err != nil {
+				return nil, fmt.Errorf("Error for '%s': %s", m.Name, err.Error())
+			}
+
+			input := scanner.Text()
 
 			// user pressed 'enter' with a value already in place
 			if input == "" && currentOrDefault != nil {

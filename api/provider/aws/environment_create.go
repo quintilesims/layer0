@@ -49,8 +49,8 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		return "", err
 	}
 
-	// creating asg, lc isn't required for dynamic environments
-	if strings.ToLower(req.EnvironmentType) != models.EnvironmentTypeDynamic {
+	// creating asg and lc is only required for static environments
+	if strings.ToLower(req.EnvironmentType) == models.EnvironmentTypeStatic {
 		var userDataTemplate []byte
 		var amiID string
 
@@ -69,11 +69,6 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 			amiID = req.AMIID
 		}
 
-		instanceType := config.DefaultEnvironmentInstanceType
-		if req.InstanceType != "" {
-			instanceType = req.InstanceType
-		}
-
 		if len(req.UserDataTemplate) > 0 {
 			userDataTemplate = req.UserDataTemplate
 		}
@@ -81,6 +76,11 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		userData, err := RenderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
 		if err != nil {
 			return "", err
+		}
+
+		instanceType := config.DefaultEnvironmentInstanceType
+		if req.InstanceType != "" {
+			instanceType = req.InstanceType
 		}
 
 		launchConfigName := fqEnvironmentID

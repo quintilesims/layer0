@@ -16,7 +16,7 @@ type CreateLoadBalancerRequest struct {
 
 func (c CreateLoadBalancerRequest) Validate() error {
 	if c.LoadBalancerName == "" {
-		return fmt.Errorf("LoadBalancer Name is required")
+		return fmt.Errorf("LoadBalancerName is required")
 	}
 
 	if c.EnvironmentID == "" {
