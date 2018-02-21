@@ -30,7 +30,7 @@ Each instance of `<prefix>` is the name of the Layer0 instance you specified whe
         * `l0-<prefix>-rt-public`
     * Internet Gateway: `l0-<prefix>-igw`
     * NAT Gateway: nameless but associated with the VPC
-    * Network ACL: nameless but assocaited with the VPC
+    * Network ACL: nameless but associated with the VPC
     * Security Groups
         * `default`
         * `l0-<prefix>-api-lb`
@@ -66,7 +66,7 @@ Each instance of `<prefix>` is the name of the Layer0 instance you specified whe
         * `l0-<prefix>-tags`
 
 
-Most resources can be removed through the AWS Console, but some need to be removed from the AWS CLI
+Most resources can be removed through the AWS Console, but some need to be removed from the AWS CLI.
 
 **IAM Instance Profile**
 
@@ -113,9 +113,7 @@ Alternatively, you can use the [dos2unix file converter](https://sourceforge.net
 
 * At the command line, type the following:
 
-```
-dos2unix --remove-bom -n DockerrunFile DockerrunFileNew
-```
+    `dos2unix --remove-bom -n DockerrunFile DockerrunFileNew`
 
 Replace DockerrunFile with the path to your Dockerrun file, and DockerrunFileNew with a new name for the Dockerrun file without the BOM.
 
