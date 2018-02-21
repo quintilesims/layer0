@@ -13,7 +13,7 @@ type UpdateEnvironmentRequest struct {
 
 func (u UpdateEnvironmentRequest) Validate() error {
 	if u.Scale != nil && *u.Scale < 0 {
-		return fmt.Errorf("Scale must be a positive integer")
+		return fmt.Errorf("Scale must be omitted or a positive integer")
 	}
 
 	return nil

@@ -7,6 +7,10 @@ import (
 )
 
 func (c *APIClient) CreateEnvironment(req models.CreateEnvironmentRequest) (string, error) {
+	if err := req.Validate(); err != nil {
+		return "", err
+	}
+
 	var resp models.CreateEntityResponse
 	if err := c.client.Post("/environment", req, &resp); err != nil {
 		return "", err
@@ -44,6 +48,10 @@ func (c *APIClient) ReadEnvironment(environmentID string) (*models.Environment, 
 }
 
 func (c *APIClient) UpdateEnvironment(environmentID string, req models.UpdateEnvironmentRequest) error {
+	if err := req.Validate(); err != nil {
+		return err
+	}
+
 	path := fmt.Sprintf("/environment/%s", environmentID)
 	if err := c.client.Patch(path, req, nil); err != nil {
 		return err

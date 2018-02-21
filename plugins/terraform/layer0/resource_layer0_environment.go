@@ -38,8 +38,8 @@ func resourceLayer0Environment() *schema.Resource {
 			},
 			"scale": {
 				Type:     schema.TypeInt,
-				Default:  0,
 				Optional: true,
+				Default:  0,
 			},
 			"user_data": {
 				Type:     schema.TypeString,
@@ -81,10 +81,6 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 		Scale:            d.Get("scale").(int),
 		OperatingSystem:  d.Get("os").(string),
 		AMIID:            d.Get("ami").(string),
-	}
-
-	if err := req.Validate(); err != nil {
-		return err
 	}
 
 	environmentID, err := apiClient.CreateEnvironment(req)
