@@ -41,19 +41,21 @@ func Test_getLaunchTypeFromEnvironmentID(t *testing.T) {
 	}
 
 	for id, expected := range cases {
-		result, err := getLaunchTypeFromEnvironmentID(tagStore, id)
-		if err != nil {
-			t.Fatal(err)
-		}
+		t.Run(id, func(t *testing.T) {
+			result, err := getLaunchTypeFromEnvironmentID(tagStore, id)
+			if err != nil {
+				t.Fatal(err)
+			}
 
-		assert.Equal(t, expected, result)
+			assert.Equal(t, expected, result)
+		})
 	}
 }
 
 func Test_getLaunchTypeFromEnvironmentID_Errors(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 
-	envIDs := []string{"env_id0", "env_id1"}
+	envIDs := []string{"env_id0", "env_id1", "env_id2"}
 
 	tags := models.Tags{
 		{
@@ -64,6 +66,12 @@ func Test_getLaunchTypeFromEnvironmentID_Errors(t *testing.T) {
 		},
 		{
 			EntityID:   envIDs[1],
+			EntityType: "environment",
+			Key:        "type",
+			Value:      "neither static nor dynamic",
+		},
+		{
+			EntityID:   envIDs[2],
 			EntityType: "environment",
 			Key:        "",
 			Value:      "",
@@ -77,9 +85,11 @@ func Test_getLaunchTypeFromEnvironmentID_Errors(t *testing.T) {
 	}
 
 	for _, id := range envIDs {
-		if _, err := getLaunchTypeFromEnvironmentID(tagStore, id); err == nil {
-			t.Fatal("Err was nil!")
-		}
+		t.Run(id, func(t *testing.T) {
+			if _, err := getLaunchTypeFromEnvironmentID(tagStore, id); err == nil {
+				t.Fatal("Err was nil!")
+			}
+		})
 	}
 }
 
