@@ -52,7 +52,7 @@ func Test_getLaunchTypeFromEnvironmentID(t *testing.T) {
 	}
 }
 
-func Test_getLaunchTypeFromEnvironmentID_Errors(t *testing.T) {
+func Test_getLaunchTypeFromEnvironmentID_errors(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 
 	envIDs := []string{"env_id0", "env_id1", "env_id2"}
