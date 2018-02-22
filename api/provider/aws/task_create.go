@@ -124,6 +124,7 @@ func (t *TaskProvider) runTask(
 		awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled)
 		awsvpcConfig.SetSecurityGroups(securityGroupIDs)
 		awsvpcConfig.SetSubnets(s)
+
 		networkConfig := &ecs.NetworkConfiguration{}
 		networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
 		input.SetNetworkConfiguration(networkConfig)
