@@ -15,6 +15,9 @@ const (
 	DefaultEnvironmentType         = models.EnvironmentTypeDynamic
 	DefaultEnvironmentOS           = "linux"
 	DefaultServiceScale            = 1
+
+	// https://docs.aws.amazon.com/AmazonECS/latest/developerguide/platform_versions.html
+	DefaultFargatePlatformVersion = "1.0.0"
 )
 
 func DefaultLoadBalancerHealthCheck() models.HealthCheck {
