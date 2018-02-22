@@ -102,12 +102,13 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 			launchType,
 			serviceName,
 			taskDefinitionARN,
-			scale,
 			loadBalancerRole,
-			loadBalancer,
-			securityGroupIDs,
+			fargatePlatformVersion,
+			scale,
 			subnets,
-			fargatePlatformVersion); err != nil {
+			securityGroupIDs,
+			loadBalancer,
+		); err != nil {
 			if strings.Contains(err.Error(), "Unable to assume role") {
 				log.Printf("[DEBUG] Failed service create, will retry (%v)", err)
 				return true, nil
@@ -131,16 +132,16 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 }
 
 func (s *ServiceProvider) createService(
-	cluster string,
-	launchType string,
-	serviceName string,
-	taskDefinition string,
-	desiredCount int,
-	loadBalancerRole string,
-	loadBalancer *ecs.LoadBalancer,
-	securityGroupIDs []*string,
-	subnets []string,
+	cluster,
+	launchType,
+	serviceName,
+	taskDefinition,
+	loadBalancerRole,
 	fargatePlatformVersion string,
+	desiredCount int,
+	subnets []string,
+	securityGroupIDs []*string,
+	loadBalancer *ecs.LoadBalancer,
 ) error {
 	input := &ecs.CreateServiceInput{}
 	input.SetCluster(cluster)
