@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestServiceCreate(t *testing.T) {
+func TestServiceCreate_dynamicDefaults(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -143,7 +143,7 @@ func TestServiceCreate(t *testing.T) {
 	createServiceInput.SetServiceName("l0-test-svc_id")
 	createServiceInput.SetTaskDefinition("dpl_arn")
 	createServiceInput.SetNetworkConfiguration(networkConfig)
-	createServiceInput.SetPlatformVersion("LATEST")
+	createServiceInput.SetPlatformVersion(config.DefaultFargatePlatformVersion)
 
 	loadBalancer := &ecs.LoadBalancer{}
 	loadBalancer.SetContainerName("ctn_name")
@@ -200,7 +200,7 @@ func TestServiceCreate(t *testing.T) {
 	}
 }
 
-func TestServiceCreate_defaults(t *testing.T) {
+func TestServiceCreate_staticDefaults(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -232,26 +232,6 @@ func TestServiceCreate_defaults(t *testing.T) {
 	}
 
 	defer provider.SetEntityIDGenerator("svc_id")()
-
-	ec2Filter := &ec2.Filter{}
-	ec2Filter.SetName("group-name")
-	ec2Filter.SetValues([]*string{aws.String("l0-test-env_id-env")})
-
-	describeSecurityGroupsInput := &ec2.DescribeSecurityGroupsInput{}
-	describeSecurityGroupsInput.SetFilters([]*ec2.Filter{ec2Filter})
-
-	securityGroup := &ec2.SecurityGroup{}
-	securityGroup.SetGroupName("l0-test-env_id-env")
-	securityGroup.SetGroupId("sg-test")
-	securityGroups := []*ec2.SecurityGroup{securityGroup}
-	describeSecurityGroupsOutput := &ec2.DescribeSecurityGroupsOutput{}
-	describeSecurityGroupsOutput.SetSecurityGroups(securityGroups)
-
-	mockAWS.EC2.EXPECT().
-		DescribeSecurityGroups(describeSecurityGroupsInput).
-		Return(describeSecurityGroupsOutput, nil)
-
-	mockConfig.EXPECT().PrivateSubnets().Return([]string{"subnet-test"})
 
 	createServiceInput := &ecs.CreateServiceInput{}
 	createServiceInput.SetCluster("l0-test-env_id")
