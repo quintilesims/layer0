@@ -9,6 +9,10 @@ import (
 )
 
 func (c *APIClient) CreateTask(req models.CreateTaskRequest) (string, error) {
+	if err := req.Validate(); err != nil {
+		return "", err
+	}
+
 	var resp models.CreateEntityResponse
 	if err := c.client.Post("/task", req, &resp); err != nil {
 		return "", err

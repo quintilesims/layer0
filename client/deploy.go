@@ -7,6 +7,10 @@ import (
 )
 
 func (c *APIClient) CreateDeploy(req models.CreateDeployRequest) (string, error) {
+	if err := req.Validate(); err != nil {
+		return "", err
+	}
+
 	var resp models.CreateEntityResponse
 	if err := c.client.Post("/deploy", req, &resp); err != nil {
 		return "", err

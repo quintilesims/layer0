@@ -7,6 +7,10 @@ import (
 )
 
 func (c *APIClient) CreateLoadBalancer(req models.CreateLoadBalancerRequest) (string, error) {
+	if err := req.Validate(); err != nil {
+		return "", err
+	}
+
 	var resp models.CreateEntityResponse
 	if err := c.client.Post("/loadbalancer", req, &resp); err != nil {
 		return "", err
@@ -44,6 +48,10 @@ func (c *APIClient) ReadLoadBalancer(loadBalancerID string) (*models.LoadBalance
 }
 
 func (c *APIClient) UpdateLoadBalancer(loadBalancerID string, req models.UpdateLoadBalancerRequest) error {
+	if err := req.Validate(); err != nil {
+		return err
+	}
+
 	path := fmt.Sprintf("/loadbalancer/%s", loadBalancerID)
 	if err := c.client.Patch(path, req, nil); err != nil {
 		return err

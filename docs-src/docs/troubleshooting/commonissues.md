@@ -1,5 +1,86 @@
 #Common issues and their solutions
 
+##Manually deleting a Layer0 instance from AWS
+
+Sometimes, your Layer0 instance might get into an unresponsive and unrecoverable state. This section describes the AWS resources that are created when you create a Layer0 instance and what resources needs to be removed by hand in such an event.
+
+!!! Tip
+    An unresponsive state means that the Layer0 API isn't responding to typical commands (from the CLI or through Terraform). If Layer0 is unresponsive, it might still be recoverable. You should try these tips first if you're running into problems.
+
+    [l0-setup init](../reference/setup-cli#init) and [l0-setup apply](../reference/setup-cli#apply)
+
+    Terraform might be able to refresh the resources it created when the Layer0 instance was first created. You can use `l0-setup init` and `l0-setup apply` to double check your instance's initial settings and attempt to rebuild core VPC or API resources if they were accidentally altered.
+
+    Use [l0-setup endpoint](../reference/setup-cli#endpoint) to double check your instance's environment variables.
+
+    Are your `LAYER0_*` environment variables set correctly? Is the URL of your Layer0 API correct? Are the AWS Access Key and Secret Access Key values still valid?
+
+    If you are unable to recover your Layer0 instance's state and need to delete your instance and start over, continue reading this guide.
+
+Each instance of `<prefix>` is the name of the Layer0 instance you specified when using `l0-setup`
+
+* VPC
+    * Name: `l0-<prefix>`
+    * Subnets
+        * 3 Public subnets: `l0-<prefix>-subnet-public-<region & availability zone>`
+        * 3 Private subnets: `l0-<prefix>-subnet-private-<region & availability zone>`
+    * Route Tables
+        * A blank default
+        * `l0-<prefix>-rt-private`
+        * `l0-<prefix>-rt-public`
+    * Internet Gateway: `l0-<prefix>-igw`
+    * NAT Gateway: nameless but associated with the VPC
+    * Network ACL: nameless but associated with the VPC
+    * Security Groups
+        * `default`
+        * `l0-<prefix>-api-lb`
+        * `l0-<prefix>-api-env`
+
+* EC2
+    * Auto Scaling Group: `l0-<prefix>-api`
+    * Launch Configuration: `l0-<prefix>-api-<timestamp>`
+    * Instances
+        * 2 EC2 instances named `l0-<prefix>-api`
+    * Load Balancer: `l0-<prefix>-api`
+
+* EC2 Container Service
+    * Cluster: `l0-<prefix>-api`
+    * Task Definition: `l0-<prefix>-api`
+
+* IAM
+    * Group: `l0-<prefix>`
+    * User: `l0-<prefix>-user`
+    * Role: `l0-<prefix>-ecs-role`
+    * Instance profile: `l0-<prefix>-ecs-instance-profile`
+    * Server certificate: `l0-<prefix>-api`
+
+* S3
+    * Bucket: `layer0-<prefix>-<accountnumber>`
+
+* CloudWatch
+    * Log Group: `l0-<prefix>`
+
+* DynamoDB
+    * Tables
+        * `l0-<prefix>-lock`
+        * `l0-<prefix>-tags`
+
+
+Most resources can be removed through the AWS Console, but some need to be removed from the AWS CLI.
+
+**IAM Instance Profile**
+
+`aws iam list-instance-profiles` to list
+
+`aws iam delete-instance-profile --instance-profile-name [name]` to delete
+
+**IAM Server Certificate**
+
+`aws iam list-server-certificates` to list
+
+`aws iam delete-server-certificate --server-certificate-name [name]`
+
+
 ##"Connection refused" error when executing Layer0 commands
 
 When executing commands using the Layer0 CLI, you may see the following error message: 
@@ -32,9 +113,7 @@ Alternatively, you can use the [dos2unix file converter](https://sourceforge.net
 
 * At the command line, type the following:
 
-```
-dos2unix --remove-bom -n DockerrunFile DockerrunFileNew
-```
+    `dos2unix --remove-bom -n DockerrunFile DockerrunFileNew`
 
 Replace DockerrunFile with the path to your Dockerrun file, and DockerrunFileNew with a new name for the Dockerrun file without the BOM.
 
