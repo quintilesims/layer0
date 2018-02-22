@@ -246,6 +246,7 @@ func (e *ECSLoadBalancerManager) CreateLoadBalancer(
 	isPublic bool,
 	ports []models.Port,
 	healthCheck models.HealthCheck,
+	idleTimeout int64,
 ) (*models.LoadBalancer, error) {
 	// we generate a hashed id for load balancers since aws does not enforce unique load balancer names
 	loadBalancerID := id.GenerateHashedEntityID(loadBalancerName)
@@ -261,6 +262,11 @@ func (e *ECSLoadBalancerManager) CreateLoadBalancer(
 		return nil, err
 	}
 
+	// Then set the load balancer's idle timeout
+	if err := e.setIdleTimeout(ecsLoadBalancerID, idleTimeout); err != nil {
+		return nil, err
+	}
+
 	model := &models.LoadBalancer{
 		LoadBalancerID:   ecsLoadBalancerID.L0LoadBalancerID(),
 		LoadBalancerName: loadBalancerName,
@@ -268,6 +274,7 @@ func (e *ECSLoadBalancerManager) CreateLoadBalancer(
 		IsPublic:         isPublic,
 		Ports:            ports,
 		HealthCheck:      healthCheck,
+		IdleTimeout:      idleTimeout,
 	}
 
 	return model, nil
@@ -359,6 +366,10 @@ func (e *ECSLoadBalancerManager) updateHealthCheck(ecsLoadBalancerID id.ECSLoadB
 	)
 
 	return e.ELB.ConfigureHealthCheck(ecsLoadBalancerID.String(), elbHealthCheck)
+}
+
+func (e *ECSLoadBalancerManager) setIdleTimeout(ecsLoadBalancerID id.ECSLoadBalancerID, idleTimeout int64) error {
+	return e.ELB.SetIdleTimeout(ecsLoadBalancerID.String(), idleTimeout)
 }
 
 func (e *ECSLoadBalancerManager) UpdateLoadBalancerPorts(loadBalancerID string, ports []models.Port) (*models.LoadBalancer, error) {

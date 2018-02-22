@@ -77,6 +77,11 @@ func (l *LoadBalancerCommand) GetCommand() cli.Command {
 						Value: 2,
 						Usage: "number of consecutive failures required to count as unhealthy",
 					},
+					cli.Int64Flag{
+						Name:  "idle-timeout",
+						Value: 60,
+						Usage: "idle timeout of the load balancer in seconds",
+					},
 				},
 			},
 			{
@@ -210,7 +215,8 @@ func (l *LoadBalancerCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	loadBalancer, err := l.Client.CreateLoadBalancer(args["NAME"], environmentID, healthCheck, ports, !c.Bool("private"))
+	idleTimeout := c.Int64("idle-timeout")
+	loadBalancer, err := l.Client.CreateLoadBalancer(args["NAME"], environmentID, healthCheck, ports, !c.Bool("private"), idleTimeout)
 	if err != nil {
 		return err
 	}

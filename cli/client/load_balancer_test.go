@@ -44,6 +44,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		testutils.AssertEqual(t, req.IsPublic, true)
 		testutils.AssertEqual(t, req.HealthCheck, healthCheck)
 		testutils.AssertEqual(t, req.Ports, ports)
+		testutils.AssertEqual(t, req.IdleTimeout, int64(60))
 
 		MarshalAndWrite(t, w, models.LoadBalancer{LoadBalancerID: "id"}, 200)
 	}
@@ -51,7 +52,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	loadBalancer, err := client.CreateLoadBalancer("name", "environmentID", healthCheck, ports, true)
+	loadBalancer, err := client.CreateLoadBalancer("name", "environmentID", healthCheck, ports, true, int64(60))
 	if err != nil {
 		t.Fatal(err)
 	}

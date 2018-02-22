@@ -99,6 +99,7 @@ func (l *L0LoadBalancerLogic) CreateLoadBalancer(req models.CreateLoadBalancerRe
 		req.IsPublic,
 		req.Ports,
 		req.HealthCheck,
+		req.IdleTimeout,
 	)
 
 	if err != nil {

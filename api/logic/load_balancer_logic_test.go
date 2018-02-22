@@ -127,10 +127,11 @@ func TestCreateLoadBalancer(t *testing.T) {
 		IsPublic:       true,
 		Ports:          []models.Port{},
 		HealthCheck:    healthCheck,
+		IdleTimeout:    int64(60),
 	}
 
 	testLogic.Backend.EXPECT().
-		CreateLoadBalancer("name", "e1", true, []models.Port{}, healthCheck).
+		CreateLoadBalancer("name", "e1", true, []models.Port{}, healthCheck, int64(60)).
 		Return(retLoadBalancer, nil)
 
 	request := models.CreateLoadBalancerRequest{
@@ -139,6 +140,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		IsPublic:         true,
 		Ports:            []models.Port{},
 		HealthCheck:      healthCheck,
+		IdleTimeout:      int64(60),
 	}
 
 	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
@@ -154,6 +156,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		IsPublic:         true,
 		Ports:            []models.Port{},
 		HealthCheck:      healthCheck,
+		IdleTimeout:      int64(60),
 	}
 
 	testutils.AssertEqual(t, received, expected)

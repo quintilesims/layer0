@@ -19,6 +19,7 @@ type Provider interface {
 	DeregisterInstancesFromLoadBalancer(loadBalancerName string, instanceIDs []string) error
 	CreateLoadBalancerListeners(loadBalancerName string, listeners []*Listener) error
 	DeleteLoadBalancerListeners(loadBalancerName string, listeners []*Listener) error
+	SetIdleTimeout(loadBalancerName string, idleTimeout int64) error
 }
 
 type Listener struct {
@@ -126,6 +127,7 @@ type ELBInternal interface {
 	DeregisterInstancesFromLoadBalancer(input *elb.DeregisterInstancesFromLoadBalancerInput) (*elb.DeregisterInstancesFromLoadBalancerOutput, error)
 	CreateLoadBalancerListeners(input *elb.CreateLoadBalancerListenersInput) (*elb.CreateLoadBalancerListenersOutput, error)
 	DeleteLoadBalancerListeners(input *elb.DeleteLoadBalancerListenersInput) (*elb.DeleteLoadBalancerListenersOutput, error)
+	ModifyLoadBalancerAttributes(input *elb.ModifyLoadBalancerAttributesInput) (*elb.ModifyLoadBalancerAttributesOutput, error)
 }
 
 func NewELB(credProvider provider.CredProvider, region string) (Provider, error) {
@@ -367,4 +369,24 @@ func (this *ELB) DeleteLoadBalancerListeners(loadBalancerName string, listeners 
 	}
 
 	return nil
+}
+
+func (this *ELB) SetIdleTimeout(loadBalancerName string, idleTimeout int64) error {
+	connectionSettings := &elb.ConnectionSettings{}
+	connectionSettings.SetIdleTimeout(idleTimeout)
+
+	loadBalancerAttributes := &elb.LoadBalancerAttributes{}
+	loadBalancerAttributes.SetConnectionSettings(connectionSettings)
+
+	input := &elb.ModifyLoadBalancerAttributesInput{}
+	input.SetLoadBalancerName(loadBalancerName)
+	input.SetLoadBalancerAttributes(loadBalancerAttributes)
+
+	connection, err := this.Connect()
+	if err != nil {
+		return err
+	}
+
+	_, err = connection.ModifyLoadBalancerAttributes(input)
+	return err
 }

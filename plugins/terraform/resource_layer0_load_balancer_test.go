@@ -22,7 +22,7 @@ func TestLoadBalancerCreate_defaults(t *testing.T) {
 	}
 
 	mockClient.EXPECT().
-		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, ports, true).
+		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, ports, true, int64(60)).
 		Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil)
 
 	mockClient.EXPECT().
@@ -31,9 +31,10 @@ func TestLoadBalancerCreate_defaults(t *testing.T) {
 
 	loadBalancerResource := provider.ResourcesMap["layer0_load_balancer"]
 	d := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{
-		"name":        "test-lb",
-		"environment": "test-env",
-		"port":        flattenPorts(ports),
+		"name":         "test-lb",
+		"environment":  "test-env",
+		"port":         flattenPorts(ports),
+		"idle_timeout": int64(60),
 	})
 
 	client := &Layer0Client{API: mockClient}
@@ -67,7 +68,7 @@ func TestLoadBalancerCreate_specifyPorts(t *testing.T) {
 	}
 
 	mockClient.EXPECT().
-		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, ports, false).
+		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, ports, false, 60).
 		Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil)
 
 	mockClient.EXPECT().
@@ -76,10 +77,11 @@ func TestLoadBalancerCreate_specifyPorts(t *testing.T) {
 
 	loadBalancerResource := provider.ResourcesMap["layer0_load_balancer"]
 	d := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{
-		"name":        "test-lb",
-		"environment": "test-env",
-		"port":        flattenPorts(ports),
-		"private":     true,
+		"name":         "test-lb",
+		"environment":  "test-env",
+		"port":         flattenPorts(ports),
+		"private":      true,
+		"idle_timeout": 60,
 	})
 
 	client := &Layer0Client{API: mockClient}
@@ -93,7 +95,7 @@ func TestLoadBalancerCreate_specifyHealthCheck(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient.EXPECT().
-		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"HTTP:80/admin/healthcheck", 25, 10, 4, 3}, []models.Port{}, true).
+		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"HTTP:80/admin/healthcheck", 25, 10, 4, 3}, []models.Port{}, true, 60).
 		Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil)
 
 	mockClient.EXPECT().
@@ -111,6 +113,7 @@ func TestLoadBalancerCreate_specifyHealthCheck(t *testing.T) {
 			HealthyThreshold:   4,
 			UnhealthyThreshold: 3,
 		}),
+		"idle_timeout": 60,
 	})
 
 	client := &Layer0Client{API: mockClient}
@@ -143,7 +146,7 @@ func TestLoadBalancerUpdate_ports(t *testing.T) {
 
 	gomock.InOrder(
 		mockClient.EXPECT().
-			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true).
+			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true, 60).
 			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
 
 		mockClient.EXPECT().
@@ -175,6 +178,7 @@ func TestLoadBalancerUpdate_ports(t *testing.T) {
 				Protocol:      "http",
 			},
 		}),
+		"idle_timeout": 60,
 	})
 
 	d2.SetId("lbid")
@@ -195,7 +199,7 @@ func TestLoadBalancerUpdate_healthCheck(t *testing.T) {
 
 	gomock.InOrder(
 		mockClient.EXPECT().
-			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true).
+			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true, 60).
 			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
 
 		mockClient.EXPECT().
@@ -227,6 +231,7 @@ func TestLoadBalancerUpdate_healthCheck(t *testing.T) {
 			HealthyThreshold:   4,
 			UnhealthyThreshold: 3,
 		}),
+		"idle_timeout": 60,
 	})
 
 	d2.SetId("lbid")

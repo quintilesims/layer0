@@ -167,7 +167,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	}
 
 	tc.Client.EXPECT().
-		CreateLoadBalancer("name", "environmentID", healthCheck, ports, false).
+		CreateLoadBalancer("name", "environmentID", healthCheck, ports, false, int64(60)).
 		Return(&models.LoadBalancer{}, nil)
 
 	flags := map[string]interface{}{
@@ -179,6 +179,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		"healthcheck-timeout":             5,
 		"healthcheck-healthy-threshold":   10,
 		"healthcheck-unhealthy-threshold": 2,
+		"idle-timeout":                    60,
 	}
 
 	c := testutils.GetCLIContext(t, []string{"environment", "name"}, flags)

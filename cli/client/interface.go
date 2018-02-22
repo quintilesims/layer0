@@ -25,7 +25,7 @@ type Client interface {
 	ListJobs() ([]*models.Job, error)
 	WaitForJob(jobID string, timeout time.Duration) error
 
-	CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool) (*models.LoadBalancer, error)
+	CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool, idleTimeout int64) (*models.LoadBalancer, error)
 	DeleteLoadBalancer(id string) (string, error)
 	GetLoadBalancer(id string) (*models.LoadBalancer, error)
 	ListLoadBalancers() ([]*models.LoadBalancerSummary, error)

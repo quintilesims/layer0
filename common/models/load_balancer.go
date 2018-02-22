@@ -4,6 +4,7 @@ type LoadBalancer struct {
 	EnvironmentID    string      `json:"environment_id"`
 	EnvironmentName  string      `json:"environment_name"`
 	HealthCheck      HealthCheck `json:"health_check"`
+	IdleTimeout      int64       `json:"idle_timeout"`
 	IsPublic         bool        `json:"is_public"`
 	LoadBalancerID   string      `json:"load_balancer_id"`
 	LoadBalancerName string      `json:"load_balancer_name"`

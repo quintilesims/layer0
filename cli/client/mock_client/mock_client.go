@@ -5,11 +5,10 @@
 package mock_client
 
 import (
-	reflect "reflect"
-	time "time"
-
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
+	reflect "reflect"
+	time "time"
 )
 
 // MockClient is a mock of Client interface
@@ -74,16 +73,16 @@ func (mr *MockClientMockRecorder) CreateLink(arg0, arg1 interface{}) *gomock.Cal
 }
 
 // CreateLoadBalancer mocks base method
-func (m *MockClient) CreateLoadBalancer(arg0, arg1 string, arg2 models.HealthCheck, arg3 []models.Port, arg4 bool) (*models.LoadBalancer, error) {
-	ret := m.ctrl.Call(m, "CreateLoadBalancer", arg0, arg1, arg2, arg3, arg4)
+func (m *MockClient) CreateLoadBalancer(arg0, arg1 string, arg2 models.HealthCheck, arg3 []models.Port, arg4 bool, arg5 int64) (*models.LoadBalancer, error) {
+	ret := m.ctrl.Call(m, "CreateLoadBalancer", arg0, arg1, arg2, arg3, arg4, arg5)
 	ret0, _ := ret[0].(*models.LoadBalancer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateLoadBalancer indicates an expected call of CreateLoadBalancer
-func (mr *MockClientMockRecorder) CreateLoadBalancer(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLoadBalancer", reflect.TypeOf((*MockClient)(nil).CreateLoadBalancer), arg0, arg1, arg2, arg3, arg4)
+func (mr *MockClientMockRecorder) CreateLoadBalancer(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLoadBalancer", reflect.TypeOf((*MockClient)(nil).CreateLoadBalancer), arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
 // CreateService mocks base method

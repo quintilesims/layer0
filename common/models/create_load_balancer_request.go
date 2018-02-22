@@ -6,4 +6,5 @@ type CreateLoadBalancerRequest struct {
 	IsPublic         bool        `json:"is_public"`
 	Ports            []Port      `json:"ports"`
 	HealthCheck      HealthCheck `json:"health_check"`
+	IdleTimeout      int64       `json:"idle_timeout"`
 }
