@@ -8,6 +8,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/retry"
@@ -17,18 +18,26 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
 	cluster := fqEnvironmentID
 
-	var securityGroupIDs []*string
-	environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
-	environmentSecurityGroup, err := readSG(s.AWS.EC2, environmentSecurityGroupName)
+	launchType, err := getLaunchTypeFromEnvironmentID(s.TagStore, req.EnvironmentID)
 	if err != nil {
 		return "", err
 	}
 
-	securityGroupIDs = append(securityGroupIDs, environmentSecurityGroup.GroupId)
+	var fargatePlatformVersion string
+	var securityGroupIDs []*string
+	var subnets []string
+	if launchType == ecs.LaunchTypeFargate {
+		fargatePlatformVersion = config.DefaultFargatePlatformVersion
 
-	launchType, err := getLaunchTypeFromEnvironmentID(s.TagStore, req.EnvironmentID)
-	if err != nil {
-		return "", err
+		environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
+		environmentSecurityGroup, err := readSG(s.AWS.EC2, environmentSecurityGroupName)
+		if err != nil {
+			return "", err
+		}
+
+		securityGroupIDs = append(securityGroupIDs, environmentSecurityGroup.GroupId)
+
+		subnets = s.Config.PrivateSubnets()
 	}
 
 	serviceID := entityIDGenerator(req.ServiceName)
@@ -87,12 +96,6 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		scale = 1
 	}
 
-	privateSubnets := s.Config.PrivateSubnets()
-	subnets := make([]*string, len(privateSubnets))
-	for i := range privateSubnets {
-		subnets[i] = aws.String(privateSubnets[i])
-	}
-
 	fn := func() (shouldRetry bool, err error) {
 		if err := s.createService(
 			cluster,
@@ -103,7 +106,8 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 			loadBalancerRole,
 			loadBalancer,
 			securityGroupIDs,
-			subnets); err != nil {
+			subnets,
+			fargatePlatformVersion); err != nil {
 			if strings.Contains(err.Error(), "Unable to assume role") {
 				log.Printf("[DEBUG] Failed service create, will retry (%v)", err)
 				return true, nil
@@ -135,7 +139,8 @@ func (s *ServiceProvider) createService(
 	loadBalancerRole string,
 	loadBalancer *ecs.LoadBalancer,
 	securityGroupIDs []*string,
-	subnets []*string,
+	subnets []string,
+	fargatePlatformVersion string,
 ) error {
 	input := &ecs.CreateServiceInput{}
 	input.SetCluster(cluster)
@@ -145,14 +150,19 @@ func (s *ServiceProvider) createService(
 	input.SetTaskDefinition(taskDefinition)
 
 	if launchType == ecs.LaunchTypeFargate {
+		s := make([]*string, len(subnets))
+		for i := range subnets {
+			s[i] = aws.String(subnets[i])
+		}
+
 		awsvpcConfig := &ecs.AwsVpcConfiguration{}
 		awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled)
 		awsvpcConfig.SetSecurityGroups(securityGroupIDs)
-		awsvpcConfig.SetSubnets(subnets)
+		awsvpcConfig.SetSubnets(s)
 		networkConfig := &ecs.NetworkConfiguration{}
 		networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
 		input.SetNetworkConfiguration(networkConfig)
-		input.SetPlatformVersion("LATEST")
+		input.SetPlatformVersion(fargatePlatformVersion)
 	}
 
 	if loadBalancer != nil {
