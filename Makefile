@@ -9,7 +9,6 @@ build:
 install:
 	$(MAKE) -C cli install
 	$(MAKE) -C setup install
-	$(MAKE) -C api release
 
 release:
 	$(MAKE) -C api release
