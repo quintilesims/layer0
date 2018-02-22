@@ -73,7 +73,7 @@ func (mr *MockClientMockRecorder) CreateLink(arg0, arg1 interface{}) *gomock.Cal
 }
 
 // CreateLoadBalancer mocks base method
-func (m *MockClient) CreateLoadBalancer(arg0, arg1 string, arg2 models.HealthCheck, arg3 []models.Port, arg4 bool, arg5 int64) (*models.LoadBalancer, error) {
+func (m *MockClient) CreateLoadBalancer(arg0, arg1 string, arg2 models.HealthCheck, arg3 []models.Port, arg4 bool, arg5 int) (*models.LoadBalancer, error) {
 	ret := m.ctrl.Call(m, "CreateLoadBalancer", arg0, arg1, arg2, arg3, arg4, arg5)
 	ret0, _ := ret[0].(*models.LoadBalancer)
 	ret1, _ := ret[1].(error)

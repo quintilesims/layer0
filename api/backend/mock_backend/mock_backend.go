@@ -73,7 +73,7 @@ func (mr *MockBackendMockRecorder) CreateEnvironmentLink(arg0, arg1 interface{})
 }
 
 // CreateLoadBalancer mocks base method
-func (m *MockBackend) CreateLoadBalancer(arg0, arg1 string, arg2 bool, arg3 []models.Port, arg4 models.HealthCheck, arg5 int64) (*models.LoadBalancer, error) {
+func (m *MockBackend) CreateLoadBalancer(arg0, arg1 string, arg2 bool, arg3 []models.Port, arg4 models.HealthCheck, arg5 int) (*models.LoadBalancer, error) {
 	ret := m.ctrl.Call(m, "CreateLoadBalancer", arg0, arg1, arg2, arg3, arg4, arg5)
 	ret0, _ := ret[0].(*models.LoadBalancer)
 	ret1, _ := ret[1].(error)

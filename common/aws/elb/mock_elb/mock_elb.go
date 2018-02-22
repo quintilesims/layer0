@@ -158,7 +158,7 @@ func (mr *MockProviderMockRecorder) RegisterInstancesWithLoadBalancer(arg0, arg1
 }
 
 // SetIdleTimeout mocks base method
-func (m *MockProvider) SetIdleTimeout(arg0 string, arg1 int64) error {
+func (m *MockProvider) SetIdleTimeout(arg0 string, arg1 int) error {
 	ret := m.ctrl.Call(m, "SetIdleTimeout", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0

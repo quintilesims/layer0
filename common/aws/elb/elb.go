@@ -19,7 +19,7 @@ type Provider interface {
 	DeregisterInstancesFromLoadBalancer(loadBalancerName string, instanceIDs []string) error
 	CreateLoadBalancerListeners(loadBalancerName string, listeners []*Listener) error
 	DeleteLoadBalancerListeners(loadBalancerName string, listeners []*Listener) error
-	SetIdleTimeout(loadBalancerName string, idleTimeout int64) error
+	SetIdleTimeout(loadBalancerName string, idleTimeout int) error
 }
 
 type Listener struct {
@@ -371,9 +371,9 @@ func (this *ELB) DeleteLoadBalancerListeners(loadBalancerName string, listeners 
 	return nil
 }
 
-func (this *ELB) SetIdleTimeout(loadBalancerName string, idleTimeout int64) error {
+func (this *ELB) SetIdleTimeout(loadBalancerName string, idleTimeout int) error {
 	connectionSettings := &elb.ConnectionSettings{}
-	connectionSettings.SetIdleTimeout(idleTimeout)
+	connectionSettings.SetIdleTimeout(int64(idleTimeout))
 
 	loadBalancerAttributes := &elb.LoadBalancerAttributes{}
 	loadBalancerAttributes.SetConnectionSettings(connectionSettings)

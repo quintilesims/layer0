@@ -167,7 +167,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	}
 
 	tc.Client.EXPECT().
-		CreateLoadBalancer("name", "environmentID", healthCheck, ports, false, int64(60)).
+		CreateLoadBalancer("name", "environmentID", healthCheck, ports, false, 60).
 		Return(&models.LoadBalancer{}, nil)
 
 	flags := map[string]interface{}{

@@ -4,7 +4,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func (c *APIClient) CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool, idleTimeout int64) (*models.LoadBalancer, error) {
+func (c *APIClient) CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool, idleTimeout int) (*models.LoadBalancer, error) {
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: name,
 		EnvironmentID:    environmentID,

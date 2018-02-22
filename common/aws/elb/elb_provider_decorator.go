@@ -98,7 +98,7 @@ func (this *ProviderDecorator) DeleteLoadBalancerListeners(p0 string, p1 []*List
 	err = this.Decorator("DeleteLoadBalancerListeners", call)
 	return err
 }
-func (this *ProviderDecorator) SetIdleTimeout(p0 string, p1 int64) (err error) {
+func (this *ProviderDecorator) SetIdleTimeout(p0 string, p1 int) (err error) {
 	call := func() error {
 		var err error
 		err = this.Inner.SetIdleTimeout(p0, p1)

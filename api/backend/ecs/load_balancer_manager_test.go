@@ -222,13 +222,13 @@ func TestCreateLoadBalancer(t *testing.T) {
 					ConfigureHealthCheck(loadBalancerID.String(), elbHealthCheck)
 
 				mockLB.ELB.EXPECT().
-					SetIdleTimeout(loadBalancerID.String(), int64(60))
+					SetIdleTimeout(loadBalancerID.String(), 60)
 
 				return mockLB.LoadBalancer()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSLoadBalancerManager)
-				manager.CreateLoadBalancer("lb_name", "envid", true, nil, models.HealthCheck{}, int64(60))
+				manager.CreateLoadBalancer("lb_name", "envid", true, nil, models.HealthCheck{}, 60)
 			},
 		},
 		{

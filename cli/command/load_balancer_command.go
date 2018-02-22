@@ -215,7 +215,7 @@ func (l *LoadBalancerCommand) Create(c *cli.Context) error {
 		return err
 	}
 
-	idleTimeout := c.Int64("idle-timeout")
+	idleTimeout := c.Int("idle-timeout")
 	loadBalancer, err := l.Client.CreateLoadBalancer(args["NAME"], environmentID, healthCheck, ports, !c.Bool("private"), idleTimeout)
 	if err != nil {
 		return err
