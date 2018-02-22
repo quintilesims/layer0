@@ -77,7 +77,7 @@ func (l *LoadBalancerCommand) GetCommand() cli.Command {
 						Value: 2,
 						Usage: "number of consecutive failures required to count as unhealthy",
 					},
-					cli.Int64Flag{
+					cli.IntFlag{
 						Name:  "idle-timeout",
 						Value: 60,
 						Usage: "idle timeout of the load balancer in seconds",
@@ -135,6 +135,12 @@ func (l *LoadBalancerCommand) GetCommand() cli.Command {
 						Usage: "number of consecutive failures required to count as unhealthy",
 					},
 				},
+			},
+			{
+				Name:      "idletimeout",
+				Usage:     "update the idle timeout for a load balancer",
+				Action:    wrapAction(l.Command, l.IdleTimeout),
+				ArgsUsage: "NAME TIMEOUT",
 			},
 			{
 				Name:      "list",
@@ -377,6 +383,32 @@ func (l *LoadBalancerCommand) HealthCheck(c *cli.Context) error {
 		if err != nil {
 			return err
 		}
+	}
+
+	return l.Printer.PrintLoadBalancerHealthCheck(loadBalancer)
+}
+
+func (l *LoadBalancerCommand) IdleTimeout(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "NAME", "TIMEOUT")
+	if err != nil {
+		return err
+	}
+
+	idleTimeout := c.Int("idle-timeout")
+
+	id, err := l.resolveSingleID("load_balancer", args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	loadBalancer, err := l.Client.GetLoadBalancer(id)
+	if err != nil {
+		return err
+	}
+
+	loadBalancer, err = l.Client.UpdateLoadBalancerIdleTimeout(id, idleTimeout)
+	if err != nil {
+		return err
 	}
 
 	return l.Printer.PrintLoadBalancerHealthCheck(loadBalancer)

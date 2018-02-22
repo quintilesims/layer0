@@ -97,6 +97,19 @@ func (mr *MockLoadBalancerLogicMockRecorder) UpdateLoadBalancerHealthCheck(arg0,
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLoadBalancerHealthCheck", reflect.TypeOf((*MockLoadBalancerLogic)(nil).UpdateLoadBalancerHealthCheck), arg0, arg1)
 }
 
+// UpdateLoadBalancerIdleTimeout mocks base method
+func (m *MockLoadBalancerLogic) UpdateLoadBalancerIdleTimeout(arg0 string, arg1 int) (*models.LoadBalancer, error) {
+	ret := m.ctrl.Call(m, "UpdateLoadBalancerIdleTimeout", arg0, arg1)
+	ret0, _ := ret[0].(*models.LoadBalancer)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateLoadBalancerIdleTimeout indicates an expected call of UpdateLoadBalancerIdleTimeout
+func (mr *MockLoadBalancerLogicMockRecorder) UpdateLoadBalancerIdleTimeout(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLoadBalancerIdleTimeout", reflect.TypeOf((*MockLoadBalancerLogic)(nil).UpdateLoadBalancerIdleTimeout), arg0, arg1)
+}
+
 // UpdateLoadBalancerPorts mocks base method
 func (m *MockLoadBalancerLogic) UpdateLoadBalancerPorts(arg0 string, arg1 []models.Port) (*models.LoadBalancer, error) {
 	ret := m.ctrl.Call(m, "UpdateLoadBalancerPorts", arg0, arg1)

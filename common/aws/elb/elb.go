@@ -14,6 +14,7 @@ type Provider interface {
 	DescribeLoadBalancer(loadBalancerName string) (*LoadBalancerDescription, error)
 	DescribeLoadBalancers() ([]*LoadBalancerDescription, error)
 	DescribeInstanceHealth(loadBalancerName string) ([]*InstanceState, error)
+	DescribeLoadBalancerAttributes(loadBalancerName string) (*LoadBalancerAttributes, error)
 	DeleteLoadBalancer(loadBalancerName string) error
 	RegisterInstancesWithLoadBalancer(loadBalancerName string, instanceIDs []string) error
 	DeregisterInstancesFromLoadBalancer(loadBalancerName string, instanceIDs []string) error
@@ -94,6 +95,20 @@ func NewListener(instancePort int64, instanceProtocol string, lbPort int64, lbPr
 	return listener
 }
 
+type LoadBalancerAttributes struct {
+	*elb.LoadBalancerAttributes
+}
+
+func NewLoadBalancerAttributes() *LoadBalancerAttributes {
+	return &LoadBalancerAttributes{
+		&elb.LoadBalancerAttributes{
+			ConnectionSettings: &elb.ConnectionSettings{
+				IdleTimeout: aws.Int64(60),
+			},
+		},
+	}
+}
+
 func NewHealthCheck(target string, interval, timeout, healthyThresh, unhealthyThresh int64) *HealthCheck {
 	return &HealthCheck{
 		&elb.HealthCheck{
@@ -128,6 +143,7 @@ type ELBInternal interface {
 	CreateLoadBalancerListeners(input *elb.CreateLoadBalancerListenersInput) (*elb.CreateLoadBalancerListenersOutput, error)
 	DeleteLoadBalancerListeners(input *elb.DeleteLoadBalancerListenersInput) (*elb.DeleteLoadBalancerListenersOutput, error)
 	ModifyLoadBalancerAttributes(input *elb.ModifyLoadBalancerAttributesInput) (*elb.ModifyLoadBalancerAttributesOutput, error)
+	DescribeLoadBalancerAttributes(input *elb.DescribeLoadBalancerAttributesInput) (*elb.DescribeLoadBalancerAttributesOutput, error)
 }
 
 func NewELB(credProvider provider.CredProvider, region string) (Provider, error) {
@@ -248,6 +264,25 @@ func (this *ELB) DescribeInstanceHealth(loadBalancerName string) ([]*InstanceSta
 	}
 
 	return states, err
+}
+
+func (this *ELB) DescribeLoadBalancerAttributes(loadBalancerName string) (*LoadBalancerAttributes, error) {
+	input := &elb.DescribeLoadBalancerAttributesInput{}
+	input.SetLoadBalancerName(loadBalancerName)
+
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := connection.DescribeLoadBalancerAttributes(input)
+	if err != nil {
+		return nil, err
+	}
+
+	lbAttributes := &LoadBalancerAttributes{LoadBalancerAttributes: out.LoadBalancerAttributes}
+
+	return lbAttributes, nil
 }
 
 func (this *ELB) ConfigureHealthCheck(loadBalancerName string, check *HealthCheck) error {

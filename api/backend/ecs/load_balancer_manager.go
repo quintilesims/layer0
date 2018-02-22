@@ -71,7 +71,14 @@ func (e *ECSLoadBalancerManager) GetLoadBalancer(loadBalancerID string) (*models
 		return nil, err
 	}
 
-	return e.populateModel(loadBalancer), nil
+	lbAttributes, err := e.ELB.DescribeLoadBalancerAttributes((*loadBalancer.LoadBalancerName))
+	if err != nil {
+		if ContainsErrCode(err, "LoadBalancerAttributeNotFound") {
+			return nil, errors.New(errors.LoadBalancerAttributeNotFound, err)
+		}
+	}
+
+	return e.populateModel(loadBalancer, lbAttributes), nil
 }
 
 func (e *ECSLoadBalancerManager) DeleteLoadBalancer(loadBalancerID string) error {
@@ -184,7 +191,7 @@ func (e *ECSLoadBalancerManager) waitUntilRoleDeleted(roleName string) error {
 	return waiter.Wait()
 }
 
-func (e *ECSLoadBalancerManager) populateModel(description *elb.LoadBalancerDescription) *models.LoadBalancer {
+func (e *ECSLoadBalancerManager) populateModel(description *elb.LoadBalancerDescription, lbAttributes *elb.LoadBalancerAttributes) *models.LoadBalancer {
 	ecsLoadBalancerID := id.ECSLoadBalancerID(*description.LoadBalancerName)
 
 	ports := []models.Port{}
@@ -206,6 +213,7 @@ func (e *ECSLoadBalancerManager) populateModel(description *elb.LoadBalancerDesc
 		IsPublic:       stringOrEmpty(description.Scheme) == "internet-facing",
 		URL:            stringOrEmpty(description.DNSName),
 		HealthCheck:    healthCheck,
+		IdleTimeout:    int(*lbAttributes.ConnectionSettings.IdleTimeout),
 	}
 
 	return model
@@ -350,6 +358,15 @@ func (e *ECSLoadBalancerManager) createLoadBalancer(
 func (e *ECSLoadBalancerManager) UpdateLoadBalancerHealthCheck(loadBalancerID string, healthCheck models.HealthCheck) (*models.LoadBalancer, error) {
 	ecsLoadBalancerID := id.L0LoadBalancerID(loadBalancerID).ECSLoadBalancerID()
 	if err := e.updateHealthCheck(ecsLoadBalancerID, healthCheck); err != nil {
+		return nil, err
+	}
+
+	return e.GetLoadBalancer(loadBalancerID)
+}
+
+func (e *ECSLoadBalancerManager) UpdateLoadBalancerIdleTimeout(loadBalancerID string, idleTimeout int) (*models.LoadBalancer, error) {
+	ecsLoadBalancerID := id.L0LoadBalancerID(loadBalancerID).ECSLoadBalancerID()
+	if err := e.setIdleTimeout(ecsLoadBalancerID, idleTimeout); err != nil {
 		return nil, err
 	}
 

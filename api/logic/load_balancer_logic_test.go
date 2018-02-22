@@ -266,3 +266,22 @@ func TestUpdateLoadBalancerHealthCheck(t *testing.T) {
 
 	testutils.AssertEqual(t, received.HealthCheck, healthCheck)
 }
+
+func TestUpdateLoadBalancerIdleTimeout(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	idleTimeout := 60
+
+	testLogic.Backend.EXPECT().
+		UpdateLoadBalancerIdleTimeout("lb_id", idleTimeout).
+		Return(&models.LoadBalancer{IdleTimeout: idleTimeout}, nil)
+
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+	received, err := loadBalancerLogic.UpdateLoadBalancerIdleTimeout("lb_id", idleTimeout)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutils.AssertEqual(t, received.IdleTimeout, idleTimeout)
+}

@@ -31,6 +31,7 @@ type Client interface {
 	ListLoadBalancers() ([]*models.LoadBalancerSummary, error)
 	UpdateLoadBalancerHealthCheck(id string, healthCheck models.HealthCheck) (*models.LoadBalancer, error)
 	UpdateLoadBalancerPorts(id string, ports []models.Port) (*models.LoadBalancer, error)
+	UpdateLoadBalancerIdleTimeout(id string, idleTimeout int) (*models.LoadBalancer, error)
 
 	CreateService(name, environmentID, deployID, loadBalancerID string) (*models.Service, error)
 	DeleteService(id string) (string, error)

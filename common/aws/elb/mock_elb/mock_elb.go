@@ -132,6 +132,19 @@ func (mr *MockProviderMockRecorder) DescribeLoadBalancer(arg0 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLoadBalancer", reflect.TypeOf((*MockProvider)(nil).DescribeLoadBalancer), arg0)
 }
 
+// DescribeLoadBalancerAttributes mocks base method
+func (m *MockProvider) DescribeLoadBalancerAttributes(arg0 string) (*elb.LoadBalancerAttributes, error) {
+	ret := m.ctrl.Call(m, "DescribeLoadBalancerAttributes", arg0)
+	ret0, _ := ret[0].(*elb.LoadBalancerAttributes)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeLoadBalancerAttributes indicates an expected call of DescribeLoadBalancerAttributes
+func (mr *MockProviderMockRecorder) DescribeLoadBalancerAttributes(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLoadBalancerAttributes", reflect.TypeOf((*MockProvider)(nil).DescribeLoadBalancerAttributes), arg0)
+}
+
 // DescribeLoadBalancers mocks base method
 func (m *MockProvider) DescribeLoadBalancers() ([]*elb.LoadBalancerDescription, error) {
 	ret := m.ctrl.Call(m, "DescribeLoadBalancers")

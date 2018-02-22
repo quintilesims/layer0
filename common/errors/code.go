@@ -29,6 +29,7 @@ const (
 	EnvironmentDoesNotExist
 	JobDoesNotExist
 	LoadBalancerDoesNotExist
+	LoadBalancerAttributeNotFound
 	ServiceDoesNotExist
 	TaskDoesNotExist
 )

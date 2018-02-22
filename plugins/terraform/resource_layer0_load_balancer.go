@@ -184,6 +184,14 @@ func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
+	if d.HasChange("idle_timeout") {
+		idleTimeout := d.Get("idle_timeout").(int)
+
+		if _, err := client.API.UpdateLoadBalancerIdleTimeout(loadBalancerID, idleTimeout); err != nil {
+			return err
+		}
+	}
+
 	return resourceLayer0LoadBalancerRead(d, meta)
 }
 

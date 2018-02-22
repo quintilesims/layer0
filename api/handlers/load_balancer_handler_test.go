@@ -356,3 +356,32 @@ func TestUpdateLoadBalancerHealthCheck(t *testing.T) {
 
 	RunHandlerTestCases(t, testCases)
 }
+
+func TestUpdateLoadBalancerIdleTimeout(t *testing.T) {
+	request := models.UpdateLoadBalancerIdleTimeoutRequest{IdleTimeout: 60}
+
+	testCases := []HandlerTestCase{
+		{
+			Name: "Should call UpdateLoadBalancerIdleTimeout with correct params",
+			Request: &TestRequest{
+				Parameters: map[string]string{"id": "some_id"},
+				Body:       request,
+			},
+			Setup: func(ctrl *gomock.Controller) interface{} {
+				mockLogic := mock_logic.NewMockLoadBalancerLogic(ctrl)
+				mockJob := mock_logic.NewMockJobLogic(ctrl)
+
+				mockLogic.EXPECT().
+					UpdateLoadBalancerIdleTimeout("some_id", request.IdleTimeout)
+
+				return NewLoadBalancerHandler(mockLogic, mockJob)
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
+				handler := target.(*LoadBalancerHandler)
+				handler.UpdateLoadBalancerIdleTimeout(req, resp)
+			},
+		},
+	}
+
+	RunHandlerTestCases(t, testCases)
+}

@@ -74,3 +74,16 @@ func (c *APIClient) UpdateLoadBalancerPorts(id string, ports []models.Port) (*mo
 
 	return loadBalancer, nil
 }
+
+func (c *APIClient) UpdateLoadBalancerIdleTimeout(id string, idleTimeout int) (*models.LoadBalancer, error) {
+	req := models.UpdateLoadBalancerIdleTimeoutRequest{
+		IdleTimeout: idleTimeout,
+	}
+
+	var loadBalancer *models.LoadBalancer
+	if err := c.Execute(c.Sling("loadbalancer/").Put(id+"/idletimeout").BodyJSON(req), &loadBalancer); err != nil {
+		return nil, err
+	}
+
+	return loadBalancer, nil
+}

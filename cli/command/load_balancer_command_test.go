@@ -396,3 +396,45 @@ func TestHealthCheck_userInputErrors(t *testing.T) {
 		}
 	}
 }
+
+func TestLoadBalancerIdleTimeout(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(tc.Command())
+
+	tc.Resolver.EXPECT().
+		Resolve("load_balancer", "name").
+		Return([]string{"id"}, nil)
+
+	tc.Client.EXPECT().
+		GetLoadBalancer("id").
+		Return(&models.LoadBalancer{}, nil)
+
+	idleTimeout := 60
+
+	tc.Client.EXPECT().
+		UpdateLoadBalancerIdleTimeout("id", idleTimeout).
+		Return(&models.LoadBalancer{}, nil)
+
+	c := testutils.GetCLIContext(t, nil, nil)
+	if err := command.IdleTimeout(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadBalancerIdleTimeout_userInputErrors(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(tc.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing NAME arg":    testutils.GetCLIContext(t, nil, nil),
+		"Missing TIMEOUT arg": testutils.GetCLIContext(t, []string{"name"}, nil),
+	}
+
+	for name, c := range contexts {
+		if err := command.IdleTimeout(c); err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
+	}
+}

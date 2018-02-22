@@ -53,6 +53,15 @@ func (this *ProviderDecorator) DescribeInstanceHealth(p0 string) (v0 []*Instance
 	err = this.Decorator("DescribeInstanceHealth", call)
 	return v0, err
 }
+func (this *ProviderDecorator) DescribeLoadBalancerAttributes(p0 string) (v0 *LoadBalancerAttributes, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.DescribeLoadBalancerAttributes(p0)
+		return err
+	}
+	err = this.Decorator("DescribeLoadBalancerAttributes", call)
+	return v0, err
+}
 func (this *ProviderDecorator) DeleteLoadBalancer(p0 string) (err error) {
 	call := func() error {
 		var err error
