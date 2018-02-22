@@ -15,7 +15,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDeployCreate(t *testing.T) {
+func TestDeployCreate_ec2(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -56,10 +56,13 @@ func TestDeployCreate(t *testing.T) {
 
 	containers := []*ecs.ContainerDefinition{cntr1, cntr2}
 
+	compatibilities := []*string{aws.String("EC2")}
+
 	// define request
 	reqDeployFile := &ecs.TaskDefinition{}
 	reqDeployFile.SetContainerDefinitions(containers)
 	reqDeployFile.SetTaskRoleArn("arn:aws:iam::012345678910:role/test-role")
+	reqDeployFile.SetRequiresCompatibilities(compatibilities)
 	deployFile, err := json.Marshal(reqDeployFile)
 	if err != nil {
 		t.Fatal(err)
@@ -77,7 +80,7 @@ func TestDeployCreate(t *testing.T) {
 	registerTaskDefinitionInput := &ecs.RegisterTaskDefinitionInput{}
 	registerTaskDefinitionInput.SetTaskRoleArn("arn:aws:iam::012345678910:role/test-role")
 	registerTaskDefinitionInput.SetFamily("l0-test-dpl_name")
-	registerTaskDefinitionInput.SetRequiresCompatibilities([]*string{})
+	registerTaskDefinitionInput.SetRequiresCompatibilities(compatibilities)
 	registerTaskDefinitionInput.SetContainerDefinitions(containers)
 
 	taskDefinitionOutput := &ecs.TaskDefinition{}

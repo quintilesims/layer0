@@ -10,6 +10,7 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -112,7 +113,7 @@ func TestTaskCreate(t *testing.T) {
 	runTaskInput.SetTaskDefinition("l0-test-dpl_name:version")
 	runTaskInput.SetOverrides(taskOverride)
 	runTaskInput.SetNetworkConfiguration(networkConfig)
-	runTaskInput.SetPlatformVersion("LATEST")
+	runTaskInput.SetPlatformVersion(config.DefaultFargatePlatformVersion)
 
 	task := &ecs.Task{}
 	task.SetTaskArn("arn:aws:ecs:region:012345678910:task/arn")
