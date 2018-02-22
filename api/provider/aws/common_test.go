@@ -12,17 +12,15 @@ import (
 func Test_getLaunchTypeFromEnvironmentID(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 
-	envIDs := []string{"env_id0", "env_id1"}
-
 	tags := models.Tags{
 		{
-			EntityID:   envIDs[0],
+			EntityID:   "env_id1",
 			EntityType: "environment",
 			Key:        "type",
 			Value:      models.EnvironmentTypeDynamic,
 		},
 		{
-			EntityID:   envIDs[1],
+			EntityID:   "env_id2",
 			EntityType: "environment",
 			Key:        "type",
 			Value:      models.EnvironmentTypeStatic,
@@ -36,8 +34,8 @@ func Test_getLaunchTypeFromEnvironmentID(t *testing.T) {
 	}
 
 	cases := map[string]string{
-		envIDs[0]: ecs.LaunchTypeFargate,
-		envIDs[1]: ecs.LaunchTypeEc2,
+		"env_id1": ecs.LaunchTypeFargate,
+		"env_id2": ecs.LaunchTypeEc2,
 	}
 
 	for id, expected := range cases {
@@ -55,7 +53,7 @@ func Test_getLaunchTypeFromEnvironmentID(t *testing.T) {
 func Test_getLaunchTypeFromEnvironmentID_errors(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 
-	envIDs := []string{"env_id0", "env_id1", "env_id2"}
+	envIDs := []string{"env_id1", "env_id2", "env_id3"}
 
 	tags := models.Tags{
 		{
