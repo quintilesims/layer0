@@ -49,10 +49,8 @@ func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition
 
 	// We'll be explicit here and set any and all compatibilities that a user specifies in the task definition.
 	// At the moment, that should only be "FARGATE" and "EC2".
-	requiresCompatibilities := []*string{}
+	input.SetRequiresCompatibilities(taskDefinition.RequiresCompatibilities)
 	for _, compatibility := range taskDefinition.RequiresCompatibilities {
-		requiresCompatibilities = append(requiresCompatibilities, compatibility)
-
 		// There are some additional requirements for a task definition to be considered Fargate-compatible:
 		// https://github.com/aws/aws-sdk-go/blob/master/service/ecs/api.go#L8172
 		// https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size
@@ -84,8 +82,6 @@ func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition
 			input.SetExecutionRoleArn(ecsTaskExecutionRoleARN)
 		}
 	}
-
-	input.SetRequiresCompatibilities(requiresCompatibilities)
 
 	if err := input.Validate(); err != nil {
 		return nil, err
