@@ -18,7 +18,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestServiceCreate_dynamicDefaults(t *testing.T) {
+func TestServiceCreate_defaults(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -34,12 +34,6 @@ func TestServiceCreate_dynamicDefaults(t *testing.T) {
 			EntityType: "deploy",
 			Key:        "arn",
 			Value:      "dpl_arn",
-		},
-		{
-			EntityID:   "env_id",
-			EntityType: "environment",
-			Key:        "type",
-			Value:      models.EnvironmentTypeDynamic,
 		},
 	}
 
@@ -197,109 +191,5 @@ func TestServiceCreate_dynamicDefaults(t *testing.T) {
 
 	for _, tag := range expectedTags {
 		assert.Contains(t, tagStore.Tags(), tag)
-	}
-}
-
-func TestServiceCreate_staticDefaults(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockAWS := awsc.NewMockClient(ctrl)
-	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
-
-	tags := models.Tags{
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "arn",
-			Value:      "dpl_arn",
-		},
-		{
-			EntityID:   "env_id",
-			EntityType: "environment",
-			Key:        "type",
-			Value:      models.EnvironmentTypeStatic,
-		},
-	}
-
-	for _, tag := range tags {
-		if err := tagStore.Insert(tag); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	defer provider.SetEntityIDGenerator("svc_id")()
-
-	createServiceInput := &ecs.CreateServiceInput{}
-	createServiceInput.SetCluster("l0-test-env_id")
-	createServiceInput.SetDesiredCount(1)
-	createServiceInput.SetLaunchType(ecs.LaunchTypeEc2)
-	createServiceInput.SetServiceName("l0-test-svc_id")
-	createServiceInput.SetTaskDefinition("dpl_arn")
-
-	mockAWS.ECS.EXPECT().
-		CreateService(createServiceInput).
-		Return(&ecs.CreateServiceOutput{}, nil)
-
-	req := models.CreateServiceRequest{
-		DeployID:      "dpl_id",
-		EnvironmentID: "env_id",
-		ServiceName:   "svc_name",
-	}
-
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
-	if _, err := target.Create(req); err != nil {
-		t.Fatal(err)
-	}
-}
-
-func TestServiceCreateRetry(t *testing.T) {
-	ctrl := gomock.NewController(t)
-	defer ctrl.Finish()
-
-	mockAWS := awsc.NewMockClient(ctrl)
-	tagStore := tag.NewMemoryStore()
-	mockConfig := mock_config.NewMockAPIConfig(ctrl)
-
-	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
-
-	tags := models.Tags{
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "arn",
-			Value:      "dpl_arn",
-		},
-	}
-
-	for _, tag := range tags {
-		if err := tagStore.Insert(tag); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	defer provider.SetEntityIDGenerator("svc_id")()
-
-	gomock.InOrder(
-		mockAWS.ECS.EXPECT().
-			CreateService(gomock.Any()).
-			Return(nil, fmt.Errorf("Unable to assume role and validate ports")),
-		mockAWS.ECS.EXPECT().
-			CreateService(gomock.Any()).
-			Return(&ecs.CreateServiceOutput{}, nil),
-	)
-
-	req := models.CreateServiceRequest{
-		DeployID:      "dpl_id",
-		EnvironmentID: "env_id",
-		ServiceName:   "svc_name",
-	}
-
-	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
-	if _, err := target.Create(req); err != nil {
-		t.Fatal(err)
 	}
 }

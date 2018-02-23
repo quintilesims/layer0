@@ -14,7 +14,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/elb/elbiface"
 	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
-	"github.com/quintilesims/layer0/common/models"
 )
 
 func describeLoadBalancer(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerDescription, error) {
@@ -64,26 +63,6 @@ func describeTaskDefinition(ecsapi ecsiface.ECSAPI, taskDefinitionARN string) (*
 	}
 
 	return output.TaskDefinition, nil
-}
-
-func getLaunchTypeFromEnvironmentID(store tag.Store, environmentID string) (string, error) {
-	tags, err := store.SelectByTypeAndID("environment", environmentID)
-	if err != nil {
-		return "", err
-	}
-
-	if tag, ok := tags.WithKey("type").First(); ok {
-		switch tag.Value {
-		case models.EnvironmentTypeDynamic:
-			return ecs.LaunchTypeFargate, nil
-		case models.EnvironmentTypeStatic:
-			return ecs.LaunchTypeEc2, nil
-		default:
-			return "", fmt.Errorf("Environment '%s' has invalid 'type' tag: '%s'.", environmentID, tag.Value)
-		}
-	}
-
-	return "", fmt.Errorf("Could not find instance launch type for environment '%s'", environmentID)
 }
 
 func lookupDeployIDFromTaskDefinitionARN(store tag.Store, taskDefinitionARN string) (string, error) {
