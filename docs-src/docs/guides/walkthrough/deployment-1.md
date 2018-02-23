@@ -444,7 +444,6 @@ Note: You didn't specify an "-out" parameter to save this plan, so when
 + layer0_environment.demo
     ami:               "" => "<computed>"
     current_scale:     "" => "<computed>"
-    environment_type:  "" => "dynamic"
     instance_type:     "" => "m3.medium"
     name:              "" => "demo"
     os:                "" => "linux"

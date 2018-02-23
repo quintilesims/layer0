@@ -9,7 +9,6 @@ resource "layer0_environment" "ws" {
   os               = "windows"
   scale            = 1
   instance_type    = "m3.large"
-  environment_type = "static"
 }
 
 module "windows" {
