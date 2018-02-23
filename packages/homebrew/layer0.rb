@@ -1,5 +1,5 @@
 class Layer0 < Formula
-  desc "Framework that helps you deploy to the AWS with minimal fuss"
+  desc "Framework that helps you deploy to AWS with minimal fuss"
   homepage "http://layer0.ims.io"
   url "https://github.com/quintilesims/layer0/archive/v0.10.6.tar.gz"
   sha256 "9612109680d42106a9f26ed1a5d7d2d5a8cf55219b895a535bb73058dacb51d1"
