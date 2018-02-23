@@ -394,7 +394,16 @@ func (l *LoadBalancerCommand) IdleTimeout(c *cli.Context) error {
 		return err
 	}
 
-	idleTimeout := c.Int("idle-timeout")
+	idleTimeout := 0
+
+	if timeout := args["TIMEOUT"]; timeout != "" {
+		u, err := strconv.Atoi(timeout)
+		if err != nil {
+			return err
+		}
+
+		idleTimeout = u
+	}
 
 	id, err := l.resolveSingleID("load_balancer", args["NAME"])
 	if err != nil {

@@ -410,8 +410,8 @@ func TestLoadBalancerIdleTimeout(t *testing.T) {
 		GetLoadBalancer("id").
 		Return(&models.LoadBalancer{}, nil)
 
-	//tc.Client.EXPECT().
-	//	UpdateLoadBalancerIdleTimeout("id", 75)
+	tc.Client.EXPECT().
+		UpdateLoadBalancerIdleTimeout("id", 75)
 
 	c := testutils.GetCLIContext(t, []string{"lb_name", "75"}, nil)
 	if err := command.IdleTimeout(c); err != nil {

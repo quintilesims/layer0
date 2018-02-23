@@ -417,8 +417,6 @@ func (this *ELB) SetIdleTimeout(loadBalancerName string, idleTimeout int) error 
 	input.SetLoadBalancerName(loadBalancerName)
 	input.SetLoadBalancerAttributes(loadBalancerAttributes)
 
-	fmt.Printf("input: %#v", input)
-
 	connection, err := this.Connect()
 	if err != nil {
 		return err
