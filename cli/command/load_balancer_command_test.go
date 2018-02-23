@@ -403,20 +403,17 @@ func TestLoadBalancerIdleTimeout(t *testing.T) {
 	command := NewLoadBalancerCommand(tc.Command())
 
 	tc.Resolver.EXPECT().
-		Resolve("load_balancer", "name").
+		Resolve("load_balancer", "lb_name").
 		Return([]string{"id"}, nil)
 
 	tc.Client.EXPECT().
 		GetLoadBalancer("id").
 		Return(&models.LoadBalancer{}, nil)
 
-	idleTimeout := 60
+	//tc.Client.EXPECT().
+	//	UpdateLoadBalancerIdleTimeout("id", 75)
 
-	tc.Client.EXPECT().
-		UpdateLoadBalancerIdleTimeout("id", idleTimeout).
-		Return(&models.LoadBalancer{}, nil)
-
-	c := testutils.GetCLIContext(t, nil, nil)
+	c := testutils.GetCLIContext(t, []string{"lb_name", "75"}, nil)
 	if err := command.IdleTimeout(c); err != nil {
 		t.Fatal(err)
 	}

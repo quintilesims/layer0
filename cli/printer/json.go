@@ -83,6 +83,10 @@ func (j *JSONPrinter) PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBala
 	return j.print(loadBalancer)
 }
 
+func (j *JSONPrinter) PrintLoadBalancerIdleTimeout(loadBalancer *models.LoadBalancer) error {
+	return j.print(loadBalancer)
+}
+
 func (j *JSONPrinter) PrintLogs(logs ...*models.LogFile) error {
 	return j.print(logs)
 }

@@ -411,7 +411,7 @@ func (l *LoadBalancerCommand) IdleTimeout(c *cli.Context) error {
 		return err
 	}
 
-	return l.Printer.PrintLoadBalancerHealthCheck(loadBalancer)
+	return l.Printer.PrintLoadBalancerIdleTimeout(loadBalancer)
 }
 
 func (l *LoadBalancerCommand) List(c *cli.Context) error {
