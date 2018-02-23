@@ -132,14 +132,9 @@ func (e *EnvironmentCommand) create(c *cli.Context) error {
 		EnvironmentName:  args["ENVIRONMENT_NAME"],
 		InstanceType:     c.String("type"),
 		Scale:            c.Int("scale"),
-		EnvironmentType:  config.DefaultEnvironmentType,
 		UserDataTemplate: userData,
 		OperatingSystem:  c.String("os"),
 		AMIID:            c.String("ami"),
-	}
-
-	if c.IsSet("scale") {
-		req.EnvironmentType = models.EnvironmentTypeStatic
 	}
 
 	if !c.IsSet("os") {

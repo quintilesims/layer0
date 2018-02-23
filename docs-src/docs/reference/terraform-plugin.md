@@ -152,7 +152,6 @@ The following attributes are exported:
 
 * `id` - The id of the environment
 * `name` - The name of the environment
-* `environment_type` - Default: dynamic. Can be either static or dynamic.
 * `instance_type` - The ec2 instance size of a static environment
 * `scale` - The current number instances in a static type environment
 * `os` - The operating system used for the environment
@@ -297,7 +296,6 @@ resource "layer0_environment" "demo" {
 The following arguments are supported:
 
 * `name` - (Required) The name of the environment
-* `environment_type` - (Optional, Values: "dynamic, static" Default: "dynamic") Use static when you need to customize ec2 instances that the containers run on or for a Windows os environment.
 * `instance_type` - (Optional, Default: "m3.medium") The size of the instances in the environment.
 Available instance sizes can be found [here](https://aws.amazon.com/ec2/instance-types/)
 * `scale` - (Optional, Default: 0) The desired number of instances allowed in a static environment.
@@ -314,7 +312,6 @@ The following attributes are exported:
 
 * `id` - The id of the environment
 * `name` - The name of the environment
-* `environment_type` - The current number instances in a static type environment
 * `instance_type` - The ec2 instance size of a static environment
 * `scale` - The current number instances in a static type environment
 * `security_group_id` - The ID of the environment's security group

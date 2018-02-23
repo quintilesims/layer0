@@ -19,7 +19,6 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "env_name",
 		InstanceType:     "t2.small",
-		EnvironmentType:  "static",
 		UserDataTemplate: []byte("template"),
 		Scale:            3,
 		OperatingSystem:  "linux",
@@ -33,7 +32,6 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 	environment := &models.Environment{
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
-		EnvironmentType: "static",
 		DesiredScale:    3,
 		InstanceType:    "t2.small",
 		SecurityGroupID: "sgid",
@@ -47,13 +45,12 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 
 	environmentResource := Provider().(*schema.Provider).ResourcesMap["layer0_environment"]
 	d := schema.TestResourceDataRaw(t, environmentResource.Schema, map[string]interface{}{
-		"name":             "env_name",
-		"instance_type":    "t2.small",
-		"environment_type": "static",
-		"user_data":        "template",
-		"scale":            3,
-		"os":               "linux",
-		"ami":              "ami123",
+		"name":          "env_name",
+		"instance_type": "t2.small",
+		"user_data":     "template",
+		"scale":         3,
+		"os":            "linux",
+		"ami":           "ami123",
 	})
 
 	if err := resourceLayer0EnvironmentCreate(d, mockClient); err != nil {
@@ -62,7 +59,6 @@ func TestResourceEnvironmentCreateRead(t *testing.T) {
 
 	assert.Equal(t, "env_id", d.Id())
 	assert.Equal(t, "env_name", d.Get("name").(string))
-	assert.Equal(t, "static", d.Get("environment_type").(string))
 	assert.Equal(t, "t2.small", d.Get("instance_type").(string))
 	assert.Equal(t, 3, d.Get("scale").(int))
 	assert.Equal(t, "sgid", d.Get("security_group_id").(string))

@@ -36,12 +36,6 @@ func TestEnvironmentRead(t *testing.T) {
 		{
 			EntityID:   "env_id",
 			EntityType: "environment",
-			Key:        "type",
-			Value:      "static",
-		},
-		{
-			EntityID:   "env_id",
-			EntityType: "environment",
 			Key:        "os",
 			Value:      "linux",
 		},
@@ -108,7 +102,6 @@ func TestEnvironmentRead(t *testing.T) {
 	expected := &models.Environment{
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
-		EnvironmentType: "static",
 		OperatingSystem: "linux",
 		InstanceType:    "t2.small",
 		SecurityGroupID: "sg_id",

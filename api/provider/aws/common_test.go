@@ -3,93 +3,10 @@ package aws
 import (
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
-
-func Test_getLaunchTypeFromEnvironmentID(t *testing.T) {
-	tagStore := tag.NewMemoryStore()
-
-	tags := models.Tags{
-		{
-			EntityID:   "env_id1",
-			EntityType: "environment",
-			Key:        "type",
-			Value:      models.EnvironmentTypeDynamic,
-		},
-		{
-			EntityID:   "env_id2",
-			EntityType: "environment",
-			Key:        "type",
-			Value:      models.EnvironmentTypeStatic,
-		},
-	}
-
-	for _, tag := range tags {
-		if err := tagStore.Insert(tag); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	cases := map[string]string{
-		"env_id1": ecs.LaunchTypeFargate,
-		"env_id2": ecs.LaunchTypeEc2,
-	}
-
-	for id, expected := range cases {
-		t.Run(id, func(t *testing.T) {
-			result, err := getLaunchTypeFromEnvironmentID(tagStore, id)
-			if err != nil {
-				t.Fatal(err)
-			}
-
-			assert.Equal(t, expected, result)
-		})
-	}
-}
-
-func Test_getLaunchTypeFromEnvironmentID_errors(t *testing.T) {
-	tagStore := tag.NewMemoryStore()
-
-	envIDs := []string{"env_id1", "env_id2", "env_id3"}
-
-	tags := models.Tags{
-		{
-			EntityID:   envIDs[0],
-			EntityType: "environment",
-			Key:        "type",
-			Value:      "",
-		},
-		{
-			EntityID:   envIDs[1],
-			EntityType: "environment",
-			Key:        "type",
-			Value:      "neither static nor dynamic",
-		},
-		{
-			EntityID:   envIDs[2],
-			EntityType: "environment",
-			Key:        "",
-			Value:      "",
-		},
-	}
-
-	for _, tag := range tags {
-		if err := tagStore.Insert(tag); err != nil {
-			t.Fatal(err)
-		}
-	}
-
-	for _, id := range envIDs {
-		t.Run(id, func(t *testing.T) {
-			if _, err := getLaunchTypeFromEnvironmentID(tagStore, id); err == nil {
-				t.Fatal("Err was nil!")
-			}
-		})
-	}
-}
 
 func Test_lookupDeployIDFromTaskDefinitionARN(t *testing.T) {
 	tagStore := tag.NewMemoryStore()

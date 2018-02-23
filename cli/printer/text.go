@@ -56,12 +56,11 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 		return e.Links[i]
 	}
 
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | TYPE | OS | LINKS"}
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS | LINKS"}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s",
+		row := fmt.Sprintf("%s | %s | %s | %s",
 			e.EnvironmentID,
 			e.EnvironmentName,
-			e.EnvironmentType,
 			e.OperatingSystem,
 			getLink(e, 0))
 
@@ -79,9 +78,9 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 }
 
 func (t *TextPrinter) PrintEnvironmentSummaries(environments ...models.EnvironmentSummary) error {
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | TYPE | OS "}
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS "}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s | %s | %s", e.EnvironmentID, e.EnvironmentName, e.EnvironmentType, e.OperatingSystem)
+		row := fmt.Sprintf("%s | %s | %s", e.EnvironmentID, e.EnvironmentName, e.OperatingSystem)
 		rows = append(rows, row)
 	}
 

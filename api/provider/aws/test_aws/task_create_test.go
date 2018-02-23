@@ -40,12 +40,6 @@ func TestTaskCreate(t *testing.T) {
 			Key:        "version",
 			Value:      "version",
 		},
-		{
-			EntityID:   "env_id",
-			EntityType: "environment",
-			Key:        "type",
-			Value:      models.EnvironmentTypeDynamic,
-		},
 	}
 
 	for _, tag := range tags {
