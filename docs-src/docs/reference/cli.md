@@ -374,7 +374,8 @@ l0 job list
 ---
 
 ## Load Balancer
-A load balancer is a component of a Layer0 environment. Load balancers listen for traffic on certain ports, and then forward that traffic to Layer0 [services](#service). The `loadbalancer` command is used with the following subcommands: [create](#loadbalancer-create), [delete](#loadbalancer-delete), [addport](#loadbalancer-addport), [dropport](#loadbalancer-dropport), [get](#loadbalancer-get), [list](#loadbalancer-list), and [healthcheck](#loadbalancer-healthcheck).
+A load balancer is a component of a Layer0 environment. Load balancers listen for traffic on certain ports, and then forward that traffic to Layer0 [services](#service). The `loadbalancer` command is used with the following subcommands: [create](#loadbalancer-create), [delete](#loadbalancer-delete), [addport](#loadbalancer-addport), [dropport](#loadbalancer-dropport), [get](#loadbalancer-get), [list](#loadbalancer-list), [healthcheck](#loadbalancer-healthcheck), and
+[idletimeout](#loadbalancer-idletimeout).
 
 ### loadbalancer create
 Use the `create` subcommand to create a new load balancer.
@@ -384,7 +385,7 @@ Use the `create` subcommand to create a new load balancer.
 l0 loadbalancer create [--port port ... | --certificate nameOrARN | 
     --private | --healthcheck-target target | --healthcheck-interval interval | 
     --healthcheck-timeout timeout | --healthcheck-healthy-threshold healthyThreshold | 
-    --healthcheck-unhealthy-threshold unhealthyThreshold] environmentName loadBalancerName
+    --healthcheck-unhealthy-threshold unhealthyThreshold | --idle-timeout idleTimeout] environmentName loadBalancerName
 ```
 
 #### Required parameters
@@ -405,6 +406,7 @@ l0 loadbalancer create [--port port ... | --certificate nameOrARN |
 * `--healthcheck-timeout timeout` - The length of time before the check times out (default: `5`).
 * `--healthcheck-healthy-threshold healthyThreshold` - The number of checks before the instance is declared healthy (default: `2`).
 * `--healthcheck-unhealthy-threshold unhealthyThreshold` - The number of checks before the instance is declared unhealthy (default: `2`).
+* `--idle-timeout idleTimeout` - The ELB Idle Timeout in seconds.
 
 !!! info "Ports and Health Checks"
     When both the `--port` and the `--healthcheck-target` options are omitted, Layer0 configures the load balancer with some default values: `80:80/TCP` for ports and `TCP:80` for healthcheck target.
@@ -511,6 +513,18 @@ l0 loadbalancer healthcheck [--set-target target | --set-interval interval |
 
 #### Additional information
 Calling the subcommand without flags will display the current configuration of the load balancer's health check. Setting any of the flags will update the corresponding field in the health check, and all omitted flags will leave the corresponding fields unchanged.
+
+### loadbalancer idletimeout
+Use the `idletimeout` subcommand to update the ELB Idle Timout of a load balancer.
+
+#### Usage
+```
+l0 loadbalancer idletimeout loadbalancerName idleTimeout
+```
+
+#### Required parameters
+* `loadBalancerName` - The name of the existing Layer0 load balancer you are modifying.
+* `idleTimeout` - The ELB Idle Timeout in seconds.
 
 ---
 

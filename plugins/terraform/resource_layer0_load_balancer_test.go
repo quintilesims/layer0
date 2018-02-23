@@ -31,10 +31,9 @@ func TestLoadBalancerCreate_defaults(t *testing.T) {
 
 	loadBalancerResource := provider.ResourcesMap["layer0_load_balancer"]
 	d := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{
-		"name":         "test-lb",
-		"environment":  "test-env",
-		"port":         flattenPorts(ports),
-		"idle_timeout": 60,
+		"name":        "test-lb",
+		"environment": "test-env",
+		"port":        flattenPorts(ports),
 	})
 
 	client := &Layer0Client{API: mockClient}
@@ -77,11 +76,10 @@ func TestLoadBalancerCreate_specifyPorts(t *testing.T) {
 
 	loadBalancerResource := provider.ResourcesMap["layer0_load_balancer"]
 	d := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{
-		"name":         "test-lb",
-		"environment":  "test-env",
-		"port":         flattenPorts(ports),
-		"private":      true,
-		"idle_timeout": 60,
+		"name":        "test-lb",
+		"environment": "test-env",
+		"port":        flattenPorts(ports),
+		"private":     true,
 	})
 
 	client := &Layer0Client{API: mockClient}
@@ -113,7 +111,6 @@ func TestLoadBalancerCreate_specifyHealthCheck(t *testing.T) {
 			HealthyThreshold:   4,
 			UnhealthyThreshold: 3,
 		}),
-		"idle_timeout": 60,
 	})
 
 	client := &Layer0Client{API: mockClient}
@@ -157,6 +154,10 @@ func TestLoadBalancerUpdate_ports(t *testing.T) {
 			UpdateLoadBalancerPorts("lbid", []models.Port{{"", "", 80, 80, "http"}}).
 			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
 
+		// The Idle Timeout is set when the load balancer is first created
+		mockClient.EXPECT().
+			UpdateLoadBalancerIdleTimeout("lbid", 60),
+
 		mockClient.EXPECT().
 			GetLoadBalancer("lbid").
 			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
@@ -178,7 +179,6 @@ func TestLoadBalancerUpdate_ports(t *testing.T) {
 				Protocol:      "http",
 			},
 		}),
-		"idle_timeout": 60,
 	})
 
 	d2.SetId("lbid")
@@ -210,6 +210,10 @@ func TestLoadBalancerUpdate_healthCheck(t *testing.T) {
 			UpdateLoadBalancerHealthCheck("lbid", models.HealthCheck{"HTTP:80/admin/healthcheck", 25, 10, 4, 3}).
 			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
 
+		// The Idle Timeout is set when the load balancer is first created
+		mockClient.EXPECT().
+			UpdateLoadBalancerIdleTimeout("lbid", 60),
+
 		mockClient.EXPECT().
 			GetLoadBalancer("lbid").
 			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
@@ -231,7 +235,53 @@ func TestLoadBalancerUpdate_healthCheck(t *testing.T) {
 			HealthyThreshold:   4,
 			UnhealthyThreshold: 3,
 		}),
-		"idle_timeout": 60,
+	})
+
+	d2.SetId("lbid")
+
+	client := &Layer0Client{API: mockClient}
+	if err := loadBalancerResource.Create(d1, client); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := loadBalancerResource.Update(d2, client); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadBalancerUpdate_idleTimeout(t *testing.T) {
+	ctrl, mockClient, provider := setupUnitTest(t)
+	defer ctrl.Finish()
+
+	gomock.InOrder(
+		mockClient.EXPECT().
+			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true, 95).
+			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
+
+		mockClient.EXPECT().
+			GetLoadBalancer("lbid").
+			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
+
+		mockClient.EXPECT().
+			UpdateLoadBalancerIdleTimeout("lbid", 120).
+			Return(&models.LoadBalancer{LoadBalancerID: "lbid", IdleTimeout: 120}, nil),
+
+		mockClient.EXPECT().
+			GetLoadBalancer("lbid").
+			Return(&models.LoadBalancer{LoadBalancerID: "lbid", IdleTimeout: 120}, nil),
+	)
+
+	loadBalancerResource := provider.ResourcesMap["layer0_load_balancer"]
+	d1 := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{
+		"name":         "test-lb",
+		"environment":  "test-env",
+		"idle_timeout": 95,
+	})
+
+	d2 := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{
+		"name":         "test-lb",
+		"environment":  "test-env",
+		"idle_timeout": 120,
 	})
 
 	d2.SetId("lbid")

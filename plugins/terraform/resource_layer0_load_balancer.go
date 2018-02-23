@@ -160,6 +160,7 @@ func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("private", !loadBalancer.IsPublic)
 	d.Set("port", flattenPorts(loadBalancer.Ports))
 	d.Set("url", loadBalancer.URL)
+	d.Set("idle_timeout", loadBalancer.IdleTimeout)
 
 	return nil
 }

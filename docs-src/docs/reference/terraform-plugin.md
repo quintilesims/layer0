@@ -353,6 +353,8 @@ resource "layer0_load_balancer" "guestbook" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
   }
+
+  idle_timeout = 300
 }
 ```
 
@@ -365,6 +367,7 @@ The following arguments are supported:
 * `private` - (Optional) If true, the load balancer will not be exposed to the public internet
 * `port` - (Optional, Default: 80:80/tcp) A list of port blocks. Ports documented below
 * `health_check` - (Optional, Default: `{"TCP:80" 30 5 2 2}`) A health_check block. Health check documented below
+* `idle_timeout` - (Optiona, Default: 60) The ELB Idle Timeout of the load balancer in seconds
 
 Ports (`port`) support the following:
 
