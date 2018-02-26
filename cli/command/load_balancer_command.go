@@ -394,17 +394,6 @@ func (l *LoadBalancerCommand) IdleTimeout(c *cli.Context) error {
 		return err
 	}
 
-	idleTimeout := 0
-
-	if timeout := args["TIMEOUT"]; timeout != "" {
-		u, err := strconv.Atoi(timeout)
-		if err != nil {
-			return err
-		}
-
-		idleTimeout = u
-	}
-
 	id, err := l.resolveSingleID("load_balancer", args["NAME"])
 	if err != nil {
 		return err
@@ -415,9 +404,16 @@ func (l *LoadBalancerCommand) IdleTimeout(c *cli.Context) error {
 		return err
 	}
 
-	loadBalancer, err = l.Client.UpdateLoadBalancerIdleTimeout(id, idleTimeout)
-	if err != nil {
-		return err
+	if timeout := args["TIMEOUT"]; timeout != "" {
+		idleTimeout, err := strconv.Atoi(timeout)
+		if err != nil {
+			return err
+		}
+
+		loadBalancer, err = l.Client.UpdateLoadBalancerIdleTimeout(id, idleTimeout)
+		if err != nil {
+			return err
+		}
 	}
 
 	return l.Printer.PrintLoadBalancerIdleTimeout(loadBalancer)
