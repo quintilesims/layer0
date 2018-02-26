@@ -7,11 +7,12 @@ import (
 )
 
 type CreateServiceRequest struct {
-	ServiceName    string `json:"service_name"`
-	EnvironmentID  string `json:"environment_id"`
 	DeployID       string `json:"deploy_id"`
+	EnvironmentID  string `json:"environment_id"`
 	LoadBalancerID string `json:"load_balancer_id"`
 	Scale          int    `json:"scale"`
+	ServiceName    string `json:"service_name"`
+	ServiceType    string `json:"service_type"`
 }
 
 func (c CreateServiceRequest) Validate() error {
@@ -41,8 +42,9 @@ func (s CreateServiceRequest) Definition() swagger.Definition {
 			"deploy_id":        swagger.NewStringProperty(),
 			"environment_id":   swagger.NewStringProperty(),
 			"load_balancer_id": swagger.NewStringProperty(),
-			"service_name":     swagger.NewStringProperty(),
 			"scale":            swagger.NewIntProperty(),
+			"service_name":     swagger.NewStringProperty(),
+			"service_type":     swagger.NewStringProperty(),
 		},
 	}
 }

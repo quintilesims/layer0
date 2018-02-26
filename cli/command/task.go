@@ -31,6 +31,10 @@ func (t *TaskCommand) Command() cli.Command {
 						Name:  "env",
 						Usage: "environment variable override in format 'CONTAINER:VAR=VAL' (can be specified multiple times)",
 					},
+					cli.BoolFlag{
+						Name:  "stateful",
+						Usage: "use 'EC2' launch type instead of 'FARGATE'",
+					},
 				},
 			},
 			{
@@ -96,11 +100,17 @@ func (t *TaskCommand) create(c *cli.Context) error {
 		return err
 	}
 
+	taskType := models.DeployCompatibilityStateless
+	if c.Bool("stateful") {
+		taskType = models.DeployCompatibilityStateful
+	}
+
 	req := models.CreateTaskRequest{
-		TaskName:           args["TASK_NAME"],
-		EnvironmentID:      environmentID,
-		DeployID:           deployID,
 		ContainerOverrides: overrides,
+		DeployID:           deployID,
+		EnvironmentID:      environmentID,
+		TaskName:           args["TASK_NAME"],
+		TaskType:           taskType,
 	}
 
 	taskID, err := t.client.CreateTask(req)
