@@ -121,6 +121,16 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 		}
 	}
 
+	// If a user does not specify any requiresCompatibilities in the task definition, we default
+	// to setting them both in order to accurately judge the launch type(s) with which the task
+	// definition is compatible.
+	if len(taskDefinition.RequiresCompatibilities) == 0 {
+		taskDefinition.SetRequiresCompatibilities([]*string{
+			aws.String(ecs.LaunchTypeEc2),
+			aws.String(ecs.LaunchTypeFargate),
+		})
+	}
+
 	return taskDefinition, nil
 }
 

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -22,12 +23,14 @@ func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
 		return nil, err
 	}
 
+	deployCompatibilities := taskDefinition.Compatibilities
+
 	deployFile, err := json.Marshal(taskDefinition)
 	if err != nil {
 		return nil, fmt.Errorf("Failed to extract deploy file: %s", err.Error())
 	}
 
-	return d.makeDeployModel(deployID, deployFile)
+	return d.makeDeployModel(deployID, deployCompatibilities, deployFile)
 }
 
 func (d *DeployProvider) lookupTaskDefinitionARN(deployID string) (string, error) {
@@ -47,7 +50,7 @@ func (d *DeployProvider) lookupTaskDefinitionARN(deployID string) (string, error
 	return "", fmt.Errorf("Failed to find ARN for deploy '%s'", deployID)
 }
 
-func (d *DeployProvider) makeDeployModel(deployID string, deployFile []byte) (*models.Deploy, error) {
+func (d *DeployProvider) makeDeployModel(deployID string, deployCompatibilities []*string, deployFile []byte) (*models.Deploy, error) {
 	model := &models.Deploy{
 		DeployID: deployID,
 	}
@@ -63,6 +66,10 @@ func (d *DeployProvider) makeDeployModel(deployID string, deployFile []byte) (*m
 
 	if tag, ok := tags.WithKey("version").First(); ok {
 		model.Version = tag.Value
+	}
+
+	for _, compatibility := range deployCompatibilities {
+		model.Compatibilities = append(model.Compatibilities, aws.StringValue(compatibility))
 	}
 
 	model.DeployFile = deployFile

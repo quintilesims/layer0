@@ -32,6 +32,10 @@ func (s *ServiceCommand) Command() cli.Command {
 						Name:  "loadbalancer",
 						Usage: "attach the service to the specified load balancer",
 					},
+					cli.BoolFlag{
+						Name:  "stateful",
+						Usage: "use 'EC2' launch type instead of 'FARGATE'",
+					},
 					cli.IntFlag{
 						Name:  "scale",
 						Value: config.DefaultServiceScale,
@@ -118,12 +122,18 @@ func (s *ServiceCommand) create(c *cli.Context) error {
 		loadBalancerID = id
 	}
 
+	serviceType := models.DeployCompatibilityStateless
+	if c.Bool("stateful") {
+		serviceType = models.DeployCompatibilityStateful
+	}
+
 	req := models.CreateServiceRequest{
 		DeployID:       deployID,
 		EnvironmentID:  environmentID,
 		LoadBalancerID: loadBalancerID,
-		ServiceName:    args["SERVICE_NAME"],
 		Scale:          c.Int("scale"),
+		ServiceName:    args["SERVICE_NAME"],
+		ServiceType:    serviceType,
 	}
 
 	serviceID, err := s.client.CreateService(req)

@@ -5,6 +5,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/ryanuber/columnize"
 )
@@ -26,10 +27,36 @@ func (t *TextPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
 }
 
 func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
-	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION"}
+	getCompatibilities := func(d *models.Deploy, i int) string {
+		if i > len(d.Compatibilities)-1 {
+			return ""
+		}
+
+		switch d.Compatibilities[i] {
+		case ecs.LaunchTypeEc2:
+			return models.DeployCompatibilityStateful
+		case ecs.LaunchTypeFargate:
+			return models.DeployCompatibilityStateless
+		default:
+			return ""
+		}
+	}
+
+	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION | COMPATIBILITIES"}
 	for _, d := range deploys {
-		row := fmt.Sprintf("%s | %s |  %s", d.DeployID, d.DeployName, d.Version)
+		row := fmt.Sprintf("%s | %s | %s | %s",
+			d.DeployID,
+			d.DeployName,
+			d.Version,
+			getCompatibilities(d, 0))
+
 		rows = append(rows, row)
+
+		// add the extra compatibility rows
+		for i := 1; i < len(d.Compatibilities); i++ {
+			row := fmt.Sprintf(" | | | %s", getCompatibilities(d, i))
+			rows = append(rows, row)
+		}
 	}
 
 	t.Println(columnize.SimpleFormat(rows))
