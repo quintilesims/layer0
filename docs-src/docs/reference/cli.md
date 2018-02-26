@@ -517,6 +517,8 @@ Calling the subcommand without flags will display the current configuration of t
 ### loadbalancer idletimeout
 Use the `idletimeout` subcommand to update the idle timeout of a load balancer.
 
+The load balancer manages an idle timeout that is triggered when no data is sent over a connection for the specified time period. If no data has been sent or received by the time that the idle timeout period elapses, the load balancer closes the connection. See the following documentation for more information: <https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html#connection-idle-timeout>
+
 #### Usage
 ```
 l0 loadbalancer idletimeout loadbalancerName idleTimeout
