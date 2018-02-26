@@ -406,7 +406,7 @@ l0 loadbalancer create [--port port ... | --certificate nameOrARN |
 * `--healthcheck-timeout timeout` - The length of time before the check times out (default: `5`).
 * `--healthcheck-healthy-threshold healthyThreshold` - The number of checks before the instance is declared healthy (default: `2`).
 * `--healthcheck-unhealthy-threshold unhealthyThreshold` - The number of checks before the instance is declared unhealthy (default: `2`).
-* `--idle-timeout idleTimeout` - The ELB Idle Timeout in seconds.
+* `--idle-timeout idleTimeout` - The idle timeout in seconds.
 
 !!! info "Ports and Health Checks"
     When both the `--port` and the `--healthcheck-target` options are omitted, Layer0 configures the load balancer with some default values: `80:80/TCP` for ports and `TCP:80` for healthcheck target.
@@ -515,7 +515,7 @@ l0 loadbalancer healthcheck [--set-target target | --set-interval interval |
 Calling the subcommand without flags will display the current configuration of the load balancer's health check. Setting any of the flags will update the corresponding field in the health check, and all omitted flags will leave the corresponding fields unchanged.
 
 ### loadbalancer idletimeout
-Use the `idletimeout` subcommand to update the ELB Idle Timout of a load balancer.
+Use the `idletimeout` subcommand to update the idle timeout of a load balancer.
 
 #### Usage
 ```
@@ -524,7 +524,7 @@ l0 loadbalancer idletimeout loadbalancerName idleTimeout
 
 #### Required parameters
 * `loadBalancerName` - The name of the existing Layer0 load balancer you are modifying.
-* `idleTimeout` - The ELB Idle Timeout in seconds.
+* `idleTimeout` - The idle timeout in seconds.
 
 ---
 
