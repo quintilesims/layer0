@@ -17,15 +17,10 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskID := entityIDGenerator(req.TaskName)
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
 
-	launchType, err := getLaunchTypeFromEnvironmentID(t.TagStore, req.EnvironmentID)
-	if err != nil {
-		return "", err
-	}
-
 	var fargatePlatformVersion string
 	var securityGroupIDs []*string
 	var subnets []string
-	if launchType == ecs.LaunchTypeFargate {
+	if req.TaskType == models.DeployCompatibilityStateless {
 		fargatePlatformVersion = config.DefaultFargatePlatformVersion
 
 		environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
@@ -52,7 +47,7 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 
 	task, err := t.runTask(
 		clusterName,
-		launchType,
+		req.TaskType,
 		startedBy,
 		taskDefinitionFamily,
 		taskDefinitionVersion,
@@ -99,7 +94,7 @@ func convertContainerOverrides(overrides []models.ContainerOverride) *ecs.TaskOv
 
 func (t *TaskProvider) runTask(
 	clusterName,
-	launchType,
+	taskType,
 	startedBy,
 	taskDefinitionFamily,
 	taskDefinitionRevision,
@@ -110,11 +105,13 @@ func (t *TaskProvider) runTask(
 ) (*ecs.Task, error) {
 	input := &ecs.RunTaskInput{}
 	input.SetCluster(clusterName)
-	input.SetLaunchType(launchType)
 	input.SetStartedBy(startedBy)
 	input.SetOverrides(overrides)
 
-	if launchType == ecs.LaunchTypeFargate {
+	launchType := ecs.LaunchTypeEc2
+	if taskType == models.DeployCompatibilityStateless {
+		launchType = ecs.LaunchTypeFargate
+
 		s := make([]*string, len(subnets))
 		for i := range subnets {
 			s[i] = aws.String(subnets[i])
@@ -130,6 +127,8 @@ func (t *TaskProvider) runTask(
 		input.SetNetworkConfiguration(networkConfig)
 		input.SetPlatformVersion(fargatePlatformVersion)
 	}
+
+	input.SetLaunchType(launchType)
 
 	taskFamilyRevision := fmt.Sprintf("%s:%s", taskDefinitionFamily, taskDefinitionRevision)
 	input.SetTaskDefinition(taskFamilyRevision)

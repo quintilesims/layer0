@@ -18,15 +18,10 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
 	cluster := fqEnvironmentID
 
-	launchType, err := getLaunchTypeFromEnvironmentID(s.TagStore, req.EnvironmentID)
-	if err != nil {
-		return "", err
-	}
-
 	var fargatePlatformVersion string
 	var securityGroupIDs []*string
 	var subnets []string
-	if launchType == ecs.LaunchTypeFargate {
+	if req.ServiceType == models.DeployCompatibilityStateless {
 		fargatePlatformVersion = config.DefaultFargatePlatformVersion
 
 		environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
@@ -99,7 +94,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	fn := func() (shouldRetry bool, err error) {
 		if err := s.createService(
 			cluster,
-			launchType,
+			req.ServiceType,
 			serviceName,
 			taskDefinitionARN,
 			loadBalancerRole,
@@ -133,7 +128,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 
 func (s *ServiceProvider) createService(
 	cluster,
-	launchType,
+	serviceType,
 	serviceName,
 	taskDefinition,
 	loadBalancerRole,
@@ -146,11 +141,13 @@ func (s *ServiceProvider) createService(
 	input := &ecs.CreateServiceInput{}
 	input.SetCluster(cluster)
 	input.SetDesiredCount(int64(desiredCount))
-	input.SetLaunchType(launchType)
 	input.SetServiceName(serviceName)
 	input.SetTaskDefinition(taskDefinition)
 
-	if launchType == ecs.LaunchTypeFargate {
+	launchType := ecs.LaunchTypeEc2
+	if serviceType == models.DeployCompatibilityStateless {
+		launchType = ecs.LaunchTypeFargate
+
 		s := make([]*string, len(subnets))
 		for i := range subnets {
 			s[i] = aws.String(subnets[i])
@@ -165,6 +162,8 @@ func (s *ServiceProvider) createService(
 		input.SetNetworkConfiguration(networkConfig)
 		input.SetPlatformVersion(fargatePlatformVersion)
 	}
+
+	input.SetLaunchType(launchType)
 
 	if loadBalancer != nil {
 		input.SetLoadBalancers([]*ecs.LoadBalancer{loadBalancer})
