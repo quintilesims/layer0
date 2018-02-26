@@ -7,6 +7,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/aws/aws-sdk-go/aws"
 	awselb "github.com/aws/aws-sdk-go/service/elb"
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
@@ -71,9 +72,10 @@ func (e *ECSLoadBalancerManager) GetLoadBalancer(loadBalancerID string) (*models
 		return nil, err
 	}
 
-	lbAttributes, err := e.ELB.DescribeLoadBalancerAttributes((*loadBalancer.LoadBalancerName))
+	lbAttributes, err := e.ELB.DescribeLoadBalancerAttributes(aws.StringValue(loadBalancer.LoadBalancerName))
 	if err != nil {
 		if ContainsErrCode(err, "LoadBalancerAttributeNotFound") {
+			err := fmt.Errorf("LoadBalancer attributes cannot be described for LoadBalancer with id '%s'", loadBalancerID)
 			return nil, errors.New(errors.LoadBalancerAttributeNotFound, err)
 		}
 	}
@@ -213,7 +215,7 @@ func (e *ECSLoadBalancerManager) populateModel(description *elb.LoadBalancerDesc
 		IsPublic:       stringOrEmpty(description.Scheme) == "internet-facing",
 		URL:            stringOrEmpty(description.DNSName),
 		HealthCheck:    healthCheck,
-		IdleTimeout:    int(*lbAttributes.ConnectionSettings.IdleTimeout),
+		IdleTimeout:    int(aws.Int64Value(lbAttributes.ConnectionSettings.IdleTimeout)),
 	}
 
 	return model

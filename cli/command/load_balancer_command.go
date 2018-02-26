@@ -404,16 +404,14 @@ func (l *LoadBalancerCommand) IdleTimeout(c *cli.Context) error {
 		return err
 	}
 
-	if timeout := args["TIMEOUT"]; timeout != "" {
-		idleTimeout, err := strconv.Atoi(timeout)
-		if err != nil {
-			return err
-		}
+	idleTimeout, err := strconv.Atoi(args["TIMEOUT"])
+	if err != nil {
+		return err
+	}
 
-		loadBalancer, err = l.Client.UpdateLoadBalancerIdleTimeout(id, idleTimeout)
-		if err != nil {
-			return err
-		}
+	loadBalancer, err = l.Client.UpdateLoadBalancerIdleTimeout(id, idleTimeout)
+	if err != nil {
+		return err
 	}
 
 	return l.Printer.PrintLoadBalancerIdleTimeout(loadBalancer)

@@ -234,7 +234,8 @@ func TestCreateLoadBalancer(t *testing.T) {
 					ConfigureHealthCheck(loadBalancerID.String(), elbHealthCheck)
 
 				mockLB.ELB.EXPECT().
-					SetIdleTimeout(loadBalancerID.String(), 60)
+					SetIdleTimeout(loadBalancerID.String(), 60).
+					Return(nil)
 
 				return mockLB.LoadBalancer()
 			},
@@ -723,7 +724,8 @@ func TestUpdateLoadBalancerIdleTimeout(t *testing.T) {
 					Return(loadBalancerAttributes, nil)
 
 				mockLB.ELB.EXPECT().
-					SetIdleTimeout(loadBalancerID.String(), 60)
+					SetIdleTimeout(loadBalancerID.String(), 60).
+					Return(nil)
 
 				return mockLB.LoadBalancer()
 			},
