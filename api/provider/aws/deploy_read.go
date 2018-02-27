@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -23,7 +24,7 @@ func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
 		return nil, err
 	}
 
-	deployCompatibilities := taskDefinition.Compatibilities
+	deployCompatibilities := d.extractDeployCompatibilities(taskDefinition)
 
 	deployFile, err := json.Marshal(taskDefinition)
 	if err != nil {
@@ -31,6 +32,20 @@ func (d *DeployProvider) Read(deployID string) (*models.Deploy, error) {
 	}
 
 	return d.makeDeployModel(deployID, deployCompatibilities, deployFile)
+}
+
+func (d *DeployProvider) extractDeployCompatibilities(taskDefinition *ecs.TaskDefinition) []string {
+	compatibilities := []string{}
+	for _, compatibility := range taskDefinition.Compatibilities {
+		switch aws.StringValue(compatibility) {
+		case ecs.LaunchTypeEc2:
+			compatibilities = append(compatibilities, models.DeployCompatibilityStateful)
+		case ecs.LaunchTypeFargate:
+			compatibilities = append(compatibilities, models.DeployCompatibilityStateless)
+		}
+	}
+
+	return compatibilities
 }
 
 func (d *DeployProvider) lookupTaskDefinitionARN(deployID string) (string, error) {
@@ -50,7 +65,7 @@ func (d *DeployProvider) lookupTaskDefinitionARN(deployID string) (string, error
 	return "", fmt.Errorf("Failed to find ARN for deploy '%s'", deployID)
 }
 
-func (d *DeployProvider) makeDeployModel(deployID string, deployCompatibilities []*string, deployFile []byte) (*models.Deploy, error) {
+func (d *DeployProvider) makeDeployModel(deployID string, deployCompatibilities []string, deployFile []byte) (*models.Deploy, error) {
 	model := &models.Deploy{
 		DeployID: deployID,
 	}
@@ -68,10 +83,7 @@ func (d *DeployProvider) makeDeployModel(deployID string, deployCompatibilities 
 		model.Version = tag.Value
 	}
 
-	for _, compatibility := range deployCompatibilities {
-		model.Compatibilities = append(model.Compatibilities, aws.StringValue(compatibility))
-	}
-
+	model.Compatibilities = deployCompatibilities
 	model.DeployFile = deployFile
 
 	return model, nil
