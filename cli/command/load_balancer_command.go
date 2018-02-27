@@ -394,6 +394,11 @@ func (l *LoadBalancerCommand) IdleTimeout(c *cli.Context) error {
 		return err
 	}
 
+	idleTimeout, err := strconv.ParseInt(args["TIMEOUT"], 10, 64)
+	if err != nil {
+		return err
+	}
+
 	id, err := l.resolveSingleID("load_balancer", args["NAME"])
 	if err != nil {
 		return err
@@ -404,12 +409,7 @@ func (l *LoadBalancerCommand) IdleTimeout(c *cli.Context) error {
 		return err
 	}
 
-	idleTimeout, err := strconv.Atoi(args["TIMEOUT"])
-	if err != nil {
-		return err
-	}
-
-	loadBalancer, err = l.Client.UpdateLoadBalancerIdleTimeout(id, idleTimeout)
+	loadBalancer, err = l.Client.UpdateLoadBalancerIdleTimeout(id, int(idleTimeout))
 	if err != nil {
 		return err
 	}
