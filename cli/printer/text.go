@@ -32,14 +32,7 @@ func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
 			return ""
 		}
 
-		switch d.Compatibilities[i] {
-		case ecs.LaunchTypeEc2:
-			return models.DeployCompatibilityStateful
-		case ecs.LaunchTypeFargate:
-			return models.DeployCompatibilityStateless
-		default:
-			return ""
-		}
+		return d.Compatibilities[i]
 	}
 
 	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION | COMPATIBILITIES"}
