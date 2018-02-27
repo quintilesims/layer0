@@ -44,6 +44,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		testutils.AssertEqual(t, req.IsPublic, true)
 		testutils.AssertEqual(t, req.HealthCheck, healthCheck)
 		testutils.AssertEqual(t, req.Ports, ports)
+		testutils.AssertEqual(t, req.IdleTimeout, 60)
 
 		MarshalAndWrite(t, w, models.LoadBalancer{LoadBalancerID: "id"}, 200)
 	}
@@ -51,7 +52,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	loadBalancer, err := client.CreateLoadBalancer("name", "environmentID", healthCheck, ports, true)
+	loadBalancer, err := client.CreateLoadBalancer("name", "environmentID", healthCheck, ports, true, 60)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -192,6 +193,32 @@ func TestUpdateLoadBalancerPorts(t *testing.T) {
 	defer server.Close()
 
 	loadBalancer, err := client.UpdateLoadBalancerPorts("id", ports)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutils.AssertEqual(t, loadBalancer.LoadBalancerID, "id")
+}
+
+func TestUpdateLoadBalancerIdleTimeout(t *testing.T) {
+	idleTimeout := 60
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		testutils.AssertEqual(t, r.Method, "PUT")
+		testutils.AssertEqual(t, r.URL.Path, "/loadbalancer/id/idletimeout")
+
+		var req models.UpdateLoadBalancerIdleTimeoutRequest
+		Unmarshal(t, r, &req)
+
+		testutils.AssertEqual(t, req.IdleTimeout, idleTimeout)
+
+		MarshalAndWrite(t, w, models.LoadBalancer{LoadBalancerID: "id"}, 200)
+	}
+
+	client, server := newClientAndServer(handler)
+	defer server.Close()
+
+	loadBalancer, err := client.UpdateLoadBalancerIdleTimeout("id", idleTimeout)
 	if err != nil {
 		t.Fatal(err)
 	}

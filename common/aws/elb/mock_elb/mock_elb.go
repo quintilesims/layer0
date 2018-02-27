@@ -5,10 +5,9 @@
 package mock_elb
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	elb "github.com/quintilesims/layer0/common/aws/elb"
+	reflect "reflect"
 )
 
 // MockProvider is a mock of Provider interface
@@ -133,6 +132,19 @@ func (mr *MockProviderMockRecorder) DescribeLoadBalancer(arg0 interface{}) *gomo
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLoadBalancer", reflect.TypeOf((*MockProvider)(nil).DescribeLoadBalancer), arg0)
 }
 
+// DescribeLoadBalancerAttributes mocks base method
+func (m *MockProvider) DescribeLoadBalancerAttributes(arg0 string) (*elb.LoadBalancerAttributes, error) {
+	ret := m.ctrl.Call(m, "DescribeLoadBalancerAttributes", arg0)
+	ret0, _ := ret[0].(*elb.LoadBalancerAttributes)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// DescribeLoadBalancerAttributes indicates an expected call of DescribeLoadBalancerAttributes
+func (mr *MockProviderMockRecorder) DescribeLoadBalancerAttributes(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DescribeLoadBalancerAttributes", reflect.TypeOf((*MockProvider)(nil).DescribeLoadBalancerAttributes), arg0)
+}
+
 // DescribeLoadBalancers mocks base method
 func (m *MockProvider) DescribeLoadBalancers() ([]*elb.LoadBalancerDescription, error) {
 	ret := m.ctrl.Call(m, "DescribeLoadBalancers")
@@ -156,4 +168,16 @@ func (m *MockProvider) RegisterInstancesWithLoadBalancer(arg0 string, arg1 []str
 // RegisterInstancesWithLoadBalancer indicates an expected call of RegisterInstancesWithLoadBalancer
 func (mr *MockProviderMockRecorder) RegisterInstancesWithLoadBalancer(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterInstancesWithLoadBalancer", reflect.TypeOf((*MockProvider)(nil).RegisterInstancesWithLoadBalancer), arg0, arg1)
+}
+
+// SetIdleTimeout mocks base method
+func (m *MockProvider) SetIdleTimeout(arg0 string, arg1 int) error {
+	ret := m.ctrl.Call(m, "SetIdleTimeout", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetIdleTimeout indicates an expected call of SetIdleTimeout
+func (mr *MockProviderMockRecorder) SetIdleTimeout(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetIdleTimeout", reflect.TypeOf((*MockProvider)(nil).SetIdleTimeout), arg0, arg1)
 }

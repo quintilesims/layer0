@@ -5,11 +5,10 @@
 package mock_backend
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	id "github.com/quintilesims/layer0/api/backend/ecs/id"
 	models "github.com/quintilesims/layer0/common/models"
+	reflect "reflect"
 )
 
 // MockBackend is a mock of Backend interface
@@ -74,16 +73,16 @@ func (mr *MockBackendMockRecorder) CreateEnvironmentLink(arg0, arg1 interface{})
 }
 
 // CreateLoadBalancer mocks base method
-func (m *MockBackend) CreateLoadBalancer(arg0, arg1 string, arg2 bool, arg3 []models.Port, arg4 models.HealthCheck) (*models.LoadBalancer, error) {
-	ret := m.ctrl.Call(m, "CreateLoadBalancer", arg0, arg1, arg2, arg3, arg4)
+func (m *MockBackend) CreateLoadBalancer(arg0, arg1 string, arg2 bool, arg3 []models.Port, arg4 models.HealthCheck, arg5 int) (*models.LoadBalancer, error) {
+	ret := m.ctrl.Call(m, "CreateLoadBalancer", arg0, arg1, arg2, arg3, arg4, arg5)
 	ret0, _ := ret[0].(*models.LoadBalancer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateLoadBalancer indicates an expected call of CreateLoadBalancer
-func (mr *MockBackendMockRecorder) CreateLoadBalancer(arg0, arg1, arg2, arg3, arg4 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLoadBalancer", reflect.TypeOf((*MockBackend)(nil).CreateLoadBalancer), arg0, arg1, arg2, arg3, arg4)
+func (mr *MockBackendMockRecorder) CreateLoadBalancer(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLoadBalancer", reflect.TypeOf((*MockBackend)(nil).CreateLoadBalancer), arg0, arg1, arg2, arg3, arg4, arg5)
 }
 
 // CreateService mocks base method
@@ -403,6 +402,19 @@ func (m *MockBackend) UpdateLoadBalancerHealthCheck(arg0 string, arg1 models.Hea
 // UpdateLoadBalancerHealthCheck indicates an expected call of UpdateLoadBalancerHealthCheck
 func (mr *MockBackendMockRecorder) UpdateLoadBalancerHealthCheck(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLoadBalancerHealthCheck", reflect.TypeOf((*MockBackend)(nil).UpdateLoadBalancerHealthCheck), arg0, arg1)
+}
+
+// UpdateLoadBalancerIdleTimeout mocks base method
+func (m *MockBackend) UpdateLoadBalancerIdleTimeout(arg0 string, arg1 int) (*models.LoadBalancer, error) {
+	ret := m.ctrl.Call(m, "UpdateLoadBalancerIdleTimeout", arg0, arg1)
+	ret0, _ := ret[0].(*models.LoadBalancer)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateLoadBalancerIdleTimeout indicates an expected call of UpdateLoadBalancerIdleTimeout
+func (mr *MockBackendMockRecorder) UpdateLoadBalancerIdleTimeout(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLoadBalancerIdleTimeout", reflect.TypeOf((*MockBackend)(nil).UpdateLoadBalancerIdleTimeout), arg0, arg1)
 }
 
 // UpdateLoadBalancerPorts mocks base method

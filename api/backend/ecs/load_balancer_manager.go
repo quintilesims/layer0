@@ -7,6 +7,7 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
+	"github.com/aws/aws-sdk-go/aws"
 	awselb "github.com/aws/aws-sdk-go/service/elb"
 	"github.com/quintilesims/layer0/api/backend"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
@@ -71,7 +72,15 @@ func (e *ECSLoadBalancerManager) GetLoadBalancer(loadBalancerID string) (*models
 		return nil, err
 	}
 
-	return e.populateModel(loadBalancer), nil
+	lbAttributes, err := e.ELB.DescribeLoadBalancerAttributes(aws.StringValue(loadBalancer.LoadBalancerName))
+	if err != nil {
+		if ContainsErrCode(err, "LoadBalancerAttributeNotFound") {
+			err := fmt.Errorf("LoadBalancer attributes cannot be described for LoadBalancer with id '%s'", loadBalancerID)
+			return nil, errors.New(errors.LoadBalancerAttributeNotFound, err)
+		}
+	}
+
+	return e.populateModel(loadBalancer, lbAttributes), nil
 }
 
 func (e *ECSLoadBalancerManager) DeleteLoadBalancer(loadBalancerID string) error {
@@ -184,7 +193,7 @@ func (e *ECSLoadBalancerManager) waitUntilRoleDeleted(roleName string) error {
 	return waiter.Wait()
 }
 
-func (e *ECSLoadBalancerManager) populateModel(description *elb.LoadBalancerDescription) *models.LoadBalancer {
+func (e *ECSLoadBalancerManager) populateModel(description *elb.LoadBalancerDescription, lbAttributes *elb.LoadBalancerAttributes) *models.LoadBalancer {
 	ecsLoadBalancerID := id.ECSLoadBalancerID(*description.LoadBalancerName)
 
 	ports := []models.Port{}
@@ -206,6 +215,7 @@ func (e *ECSLoadBalancerManager) populateModel(description *elb.LoadBalancerDesc
 		IsPublic:       stringOrEmpty(description.Scheme) == "internet-facing",
 		URL:            stringOrEmpty(description.DNSName),
 		HealthCheck:    healthCheck,
+		IdleTimeout:    int(aws.Int64Value(lbAttributes.ConnectionSettings.IdleTimeout)),
 	}
 
 	return model
@@ -246,6 +256,7 @@ func (e *ECSLoadBalancerManager) CreateLoadBalancer(
 	isPublic bool,
 	ports []models.Port,
 	healthCheck models.HealthCheck,
+	idleTimeout int,
 ) (*models.LoadBalancer, error) {
 	// we generate a hashed id for load balancers since aws does not enforce unique load balancer names
 	loadBalancerID := id.GenerateHashedEntityID(loadBalancerName)
@@ -261,6 +272,11 @@ func (e *ECSLoadBalancerManager) CreateLoadBalancer(
 		return nil, err
 	}
 
+	// Then set the load balancer's idle timeout
+	if err := e.setIdleTimeout(ecsLoadBalancerID, idleTimeout); err != nil {
+		return nil, err
+	}
+
 	model := &models.LoadBalancer{
 		LoadBalancerID:   ecsLoadBalancerID.L0LoadBalancerID(),
 		LoadBalancerName: loadBalancerName,
@@ -268,6 +284,7 @@ func (e *ECSLoadBalancerManager) CreateLoadBalancer(
 		IsPublic:         isPublic,
 		Ports:            ports,
 		HealthCheck:      healthCheck,
+		IdleTimeout:      idleTimeout,
 	}
 
 	return model, nil
@@ -349,6 +366,15 @@ func (e *ECSLoadBalancerManager) UpdateLoadBalancerHealthCheck(loadBalancerID st
 	return e.GetLoadBalancer(loadBalancerID)
 }
 
+func (e *ECSLoadBalancerManager) UpdateLoadBalancerIdleTimeout(loadBalancerID string, idleTimeout int) (*models.LoadBalancer, error) {
+	ecsLoadBalancerID := id.L0LoadBalancerID(loadBalancerID).ECSLoadBalancerID()
+	if err := e.setIdleTimeout(ecsLoadBalancerID, idleTimeout); err != nil {
+		return nil, err
+	}
+
+	return e.GetLoadBalancer(loadBalancerID)
+}
+
 func (e *ECSLoadBalancerManager) updateHealthCheck(ecsLoadBalancerID id.ECSLoadBalancerID, healthCheck models.HealthCheck) error {
 	elbHealthCheck := elb.NewHealthCheck(
 		healthCheck.Target,
@@ -359,6 +385,10 @@ func (e *ECSLoadBalancerManager) updateHealthCheck(ecsLoadBalancerID id.ECSLoadB
 	)
 
 	return e.ELB.ConfigureHealthCheck(ecsLoadBalancerID.String(), elbHealthCheck)
+}
+
+func (e *ECSLoadBalancerManager) setIdleTimeout(ecsLoadBalancerID id.ECSLoadBalancerID, idleTimeout int) error {
+	return e.ELB.SetIdleTimeout(ecsLoadBalancerID.String(), idleTimeout)
 }
 
 func (e *ECSLoadBalancerManager) UpdateLoadBalancerPorts(loadBalancerID string, ports []models.Port) (*models.LoadBalancer, error) {

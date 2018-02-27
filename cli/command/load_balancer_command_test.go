@@ -167,7 +167,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	}
 
 	tc.Client.EXPECT().
-		CreateLoadBalancer("name", "environmentID", healthCheck, ports, false).
+		CreateLoadBalancer("name", "environmentID", healthCheck, ports, false, 60).
 		Return(&models.LoadBalancer{}, nil)
 
 	flags := map[string]interface{}{
@@ -179,6 +179,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		"healthcheck-timeout":             5,
 		"healthcheck-healthy-threshold":   10,
 		"healthcheck-unhealthy-threshold": 2,
+		"idle-timeout":                    60,
 	}
 
 	c := testutils.GetCLIContext(t, []string{"environment", "name"}, flags)
@@ -391,6 +392,45 @@ func TestHealthCheck_userInputErrors(t *testing.T) {
 
 	for name, c := range contexts {
 		if err := command.HealthCheck(c); err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
+	}
+}
+
+func TestLoadBalancerIdleTimeout(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(tc.Command())
+
+	tc.Resolver.EXPECT().
+		Resolve("load_balancer", "lb_name").
+		Return([]string{"id"}, nil)
+
+	tc.Client.EXPECT().
+		GetLoadBalancer("id").
+		Return(&models.LoadBalancer{}, nil)
+
+	tc.Client.EXPECT().
+		UpdateLoadBalancerIdleTimeout("id", 75)
+
+	c := testutils.GetCLIContext(t, []string{"lb_name", "75"}, nil)
+	if err := command.IdleTimeout(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadBalancerIdleTimeout_userInputErrors(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(tc.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing NAME arg":    testutils.GetCLIContext(t, nil, nil),
+		"Missing TIMEOUT arg": testutils.GetCLIContext(t, []string{"name"}, nil),
+	}
+
+	for name, c := range contexts {
+		if err := command.IdleTimeout(c); err == nil {
 			t.Fatalf("%s: error was nil!", name)
 		}
 	}
