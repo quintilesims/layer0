@@ -47,41 +47,23 @@ func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition
 		input.SetNetworkMode(nm)
 	}
 
-	// We'll be explicit here and set any and all compatibilities that a user specifies in the task definition.
-	// At the moment, that should only be "FARGATE" and "EC2".
+	// Because of the logic in renderTaskDefinition(), taskDefinition.RequiresCompatibilities
+	// should always contain one or both of "EC2" and "FARGATE"
 	input.SetRequiresCompatibilities(taskDefinition.RequiresCompatibilities)
-	for _, compatibility := range taskDefinition.RequiresCompatibilities {
-		// There are some additional requirements for a task definition to be considered Fargate-compatible:
-		// https://github.com/aws/aws-sdk-go/blob/master/service/ecs/api.go#L8172
-		// https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task_definition_parameters.html#task_size
-		//
-		// For the most part, there are four things that should be specified in a Fargate task definition
-		// that aren't required for an EC2 task definition:
-		//   "requiresCompatibilities": [ "FARGATE" ],
-		//   "networkMode": "awsvpc",
-		//   "cpu": "<an appropriate value>",
-		//   "memory": "<an appropriate value>"
-		if aws.StringValue(compatibility) == ecs.LaunchTypeFargate {
-			cpu := aws.StringValue(taskDefinition.Cpu)
-			memory := aws.StringValue(taskDefinition.Memory)
 
-			// Question: Do we want to be proactive here and error for certain configurations of a task
-			// definition that we know to be bad? They would come out of AWS when the user tried to use the
-			// deploy in a service or a task, but it might be nice UX to save them a step.
-			if cpu == "" || memory == "" {
-				return nil, fmt.Errorf("Fargate task definitions require 'cpu' and 'memory' values")
-			}
-
-			input.SetCpu(cpu)
-			input.SetMemory(memory)
-
-			// hard-coding an ARN isn't usually the best thing, but we know exactly what this ARN will look like
-			// and the only variable in it is the account ID
-			accountID := d.Config.AccountID()
-			ecsTaskExecutionRoleARN := fmt.Sprintf("arn:aws:iam::%s:role/ecsTaskExecutionRole", accountID)
-			input.SetExecutionRoleArn(ecsTaskExecutionRoleARN)
-		}
+	if cpu := aws.StringValue(taskDefinition.Cpu); cpu != "" {
+		input.SetCpu(cpu)
 	}
+
+	if mem := aws.StringValue(taskDefinition.Memory); mem != "" {
+		input.SetMemory(mem)
+	}
+
+	// Hard-coding an ARN isn't usually the best thing, but we know exactly what this ARN will look like
+	// and the only variable in it is the account ID, which Layer0 already knows about.
+	accountID := d.Config.AccountID()
+	ecsTaskExecutionRoleARN := fmt.Sprintf("arn:aws:iam::%s:role/ecsTaskExecutionRole", accountID)
+	input.SetExecutionRoleArn(ecsTaskExecutionRoleARN)
 
 	if err := input.Validate(); err != nil {
 		return nil, err
