@@ -14,11 +14,13 @@ type Provider interface {
 	DescribeLoadBalancer(loadBalancerName string) (*LoadBalancerDescription, error)
 	DescribeLoadBalancers() ([]*LoadBalancerDescription, error)
 	DescribeInstanceHealth(loadBalancerName string) ([]*InstanceState, error)
+	DescribeLoadBalancerAttributes(loadBalancerName string) (*LoadBalancerAttributes, error)
 	DeleteLoadBalancer(loadBalancerName string) error
 	RegisterInstancesWithLoadBalancer(loadBalancerName string, instanceIDs []string) error
 	DeregisterInstancesFromLoadBalancer(loadBalancerName string, instanceIDs []string) error
 	CreateLoadBalancerListeners(loadBalancerName string, listeners []*Listener) error
 	DeleteLoadBalancerListeners(loadBalancerName string, listeners []*Listener) error
+	SetIdleTimeout(loadBalancerName string, idleTimeout int) error
 }
 
 type Listener struct {
@@ -93,6 +95,20 @@ func NewListener(instancePort int64, instanceProtocol string, lbPort int64, lbPr
 	return listener
 }
 
+type LoadBalancerAttributes struct {
+	*elb.LoadBalancerAttributes
+}
+
+func NewLoadBalancerAttributes() *LoadBalancerAttributes {
+	return &LoadBalancerAttributes{
+		&elb.LoadBalancerAttributes{
+			ConnectionSettings: &elb.ConnectionSettings{
+				IdleTimeout: aws.Int64(60),
+			},
+		},
+	}
+}
+
 func NewHealthCheck(target string, interval, timeout, healthyThresh, unhealthyThresh int64) *HealthCheck {
 	return &HealthCheck{
 		&elb.HealthCheck{
@@ -126,6 +142,8 @@ type ELBInternal interface {
 	DeregisterInstancesFromLoadBalancer(input *elb.DeregisterInstancesFromLoadBalancerInput) (*elb.DeregisterInstancesFromLoadBalancerOutput, error)
 	CreateLoadBalancerListeners(input *elb.CreateLoadBalancerListenersInput) (*elb.CreateLoadBalancerListenersOutput, error)
 	DeleteLoadBalancerListeners(input *elb.DeleteLoadBalancerListenersInput) (*elb.DeleteLoadBalancerListenersOutput, error)
+	ModifyLoadBalancerAttributes(input *elb.ModifyLoadBalancerAttributesInput) (*elb.ModifyLoadBalancerAttributesOutput, error)
+	DescribeLoadBalancerAttributes(input *elb.DescribeLoadBalancerAttributesInput) (*elb.DescribeLoadBalancerAttributesOutput, error)
 }
 
 func NewELB(credProvider provider.CredProvider, region string) (Provider, error) {
@@ -248,6 +266,25 @@ func (this *ELB) DescribeInstanceHealth(loadBalancerName string) ([]*InstanceSta
 	return states, err
 }
 
+func (this *ELB) DescribeLoadBalancerAttributes(loadBalancerName string) (*LoadBalancerAttributes, error) {
+	input := &elb.DescribeLoadBalancerAttributesInput{}
+	input.SetLoadBalancerName(loadBalancerName)
+
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	out, err := connection.DescribeLoadBalancerAttributes(input)
+	if err != nil {
+		return nil, err
+	}
+
+	lbAttributes := &LoadBalancerAttributes{LoadBalancerAttributes: out.LoadBalancerAttributes}
+
+	return lbAttributes, nil
+}
+
 func (this *ELB) ConfigureHealthCheck(loadBalancerName string, check *HealthCheck) error {
 	input := &elb.ConfigureHealthCheckInput{
 		HealthCheck:      check.HealthCheck,
@@ -367,4 +404,24 @@ func (this *ELB) DeleteLoadBalancerListeners(loadBalancerName string, listeners 
 	}
 
 	return nil
+}
+
+func (this *ELB) SetIdleTimeout(loadBalancerName string, idleTimeout int) error {
+	connectionSettings := &elb.ConnectionSettings{}
+	connectionSettings.SetIdleTimeout(int64(idleTimeout))
+
+	loadBalancerAttributes := &elb.LoadBalancerAttributes{}
+	loadBalancerAttributes.SetConnectionSettings(connectionSettings)
+
+	input := &elb.ModifyLoadBalancerAttributesInput{}
+	input.SetLoadBalancerName(loadBalancerName)
+	input.SetLoadBalancerAttributes(loadBalancerAttributes)
+
+	connection, err := this.Connect()
+	if err != nil {
+		return err
+	}
+
+	_, err = connection.ModifyLoadBalancerAttributes(input)
+	return err
 }

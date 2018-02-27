@@ -5,11 +5,10 @@
 package mock_logic
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
 	types "github.com/quintilesims/layer0/common/types"
+	reflect "reflect"
 )
 
 // MockJobLogic is a mock of JobLogic interface

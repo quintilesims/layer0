@@ -164,16 +164,17 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 		return fmt.Sprintf("%d:%d/%s", p.HostPort, p.ContainerPort, strings.ToUpper(p.Protocol))
 	}
 
-	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT | SERVICE | PORTS | PUBLIC | URL "}
+	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT | SERVICE | PORTS | PUBLIC | URL | IDLE TIMEOUT "}
 	for _, l := range loadBalancers {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s | %t | %s",
+		row := fmt.Sprintf("%s | %s | %s | %s | %s | %t | %s | %d",
 			l.LoadBalancerID,
 			l.LoadBalancerName,
 			getEnvironment(l),
 			getService(l),
 			getPort(l, 0),
 			l.IsPublic,
-			l.URL)
+			l.URL,
+			l.IdleTimeout)
 
 		rows = append(rows, row)
 
@@ -230,6 +231,28 @@ func (t *TextPrinter) PrintLoadBalancerHealthCheck(loadBalancer *models.LoadBala
 		loadBalancer.HealthCheck.Timeout,
 		loadBalancer.HealthCheck.HealthyThreshold,
 		loadBalancer.HealthCheck.UnhealthyThreshold)
+
+	rows = append(rows, row)
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
+func (t *TextPrinter) PrintLoadBalancerIdleTimeout(loadBalancer *models.LoadBalancer) error {
+	getEnvironment := func(l *models.LoadBalancer) string {
+		if l.EnvironmentName != "" {
+			return l.EnvironmentName
+		}
+
+		return l.EnvironmentID
+	}
+
+	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT | IDLE TIMEOUT "}
+	row := fmt.Sprintf("%s | %s | %s | %d",
+		loadBalancer.LoadBalancerID,
+		loadBalancer.LoadBalancerName,
+		getEnvironment(loadBalancer),
+		loadBalancer.IdleTimeout)
 
 	rows = append(rows, row)
 

@@ -60,6 +60,12 @@ func TestGetLoadBalancer(t *testing.T) {
 					DescribeLoadBalancer(loadBalancerID.String()).
 					Return(loadBalancer, nil)
 
+				loadBalancerAttributes := elb.NewLoadBalancerAttributes()
+
+				mockLB.ELB.EXPECT().
+					DescribeLoadBalancerAttributes(gomock.Any()).
+					Return(loadBalancerAttributes, nil)
+
 				return mockLB.LoadBalancer()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -78,6 +84,12 @@ func TestGetLoadBalancer(t *testing.T) {
 				mockLB.ELB.EXPECT().
 					DescribeLoadBalancer(gomock.Any()).
 					Return(loadBalancer, nil)
+
+				loadBalancerAttributes := elb.NewLoadBalancerAttributes()
+
+				mockLB.ELB.EXPECT().
+					DescribeLoadBalancerAttributes(gomock.Any()).
+					Return(loadBalancerAttributes, nil)
 
 				return mockLB.LoadBalancer()
 			},
@@ -221,11 +233,15 @@ func TestCreateLoadBalancer(t *testing.T) {
 				mockLB.ELB.EXPECT().
 					ConfigureHealthCheck(loadBalancerID.String(), elbHealthCheck)
 
+				mockLB.ELB.EXPECT().
+					SetIdleTimeout(loadBalancerID.String(), 60).
+					Return(nil)
+
 				return mockLB.LoadBalancer()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSLoadBalancerManager)
-				manager.CreateLoadBalancer("lb_name", "envid", true, nil, models.HealthCheck{})
+				manager.CreateLoadBalancer("lb_name", "envid", true, nil, models.HealthCheck{}, 60)
 			},
 		},
 		{
@@ -266,11 +282,15 @@ func TestCreateLoadBalancer(t *testing.T) {
 					ConfigureHealthCheck(gomock.Any(), gomock.Any()).
 					Return(nil)
 
+				mockLB.ELB.EXPECT().
+					SetIdleTimeout(gomock.Any(), gomock.Any()).
+					Return(nil)
+
 				return mockLB.LoadBalancer()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSLoadBalancerManager)
-				manager.CreateLoadBalancer("lb_name", "envid", false, nil, models.HealthCheck{})
+				manager.CreateLoadBalancer("lb_name", "envid", false, nil, models.HealthCheck{}, 60)
 			},
 		},
 		{
@@ -309,11 +329,14 @@ func TestCreateLoadBalancer(t *testing.T) {
 				mockLB.ELB.EXPECT().
 					ConfigureHealthCheck(gomock.Any(), gomock.Any())
 
+				mockLB.ELB.EXPECT().
+					SetIdleTimeout(gomock.Any(), gomock.Any())
+
 				return mockLB.LoadBalancer()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSLoadBalancerManager)
-				manager.CreateLoadBalancer("lb_name", "envid", true, nil, models.HealthCheck{})
+				manager.CreateLoadBalancer("lb_name", "envid", true, nil, models.HealthCheck{}, 60)
 			},
 		},
 		{
@@ -351,6 +374,9 @@ func TestCreateLoadBalancer(t *testing.T) {
 				mockLB.ELB.EXPECT().
 					ConfigureHealthCheck(gomock.Any(), gomock.Any())
 
+				mockLB.ELB.EXPECT().
+					SetIdleTimeout(gomock.Any(), gomock.Any())
+
 				return mockLB.LoadBalancer()
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
@@ -359,7 +385,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 				loadBalancerID := id.L0LoadBalancerID("lbid")
 				environmentID := id.L0EnvironmentID("envid")
 
-				model, err := manager.CreateLoadBalancer("lb_name", environmentID.String(), true, nil, models.HealthCheck{})
+				model, err := manager.CreateLoadBalancer("lb_name", environmentID.String(), true, nil, models.HealthCheck{}, 60)
 				if err != nil {
 					reporter.Fatal(err)
 				}
@@ -421,7 +447,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 					g.Set(i+1, fmt.Errorf("some error"))
 
 					manager := setup(g).(*ECSLoadBalancerManager)
-					if _, err := manager.CreateLoadBalancer("", "", true, nil, models.HealthCheck{}); err == nil {
+					if _, err := manager.CreateLoadBalancer("", "", true, nil, models.HealthCheck{}, 60); err == nil {
 						reporter.Errorf("Error on variation %d, Error was nil!", i)
 					}
 				}
@@ -642,6 +668,12 @@ func TestUpdateLoadBalancerHealthCheck(t *testing.T) {
 					DescribeLoadBalancer(loadBalancerID.String()).
 					Return(loadBalancer, nil)
 
+				loadBalancerAttributes := elb.NewLoadBalancerAttributes()
+
+				mockLB.ELB.EXPECT().
+					DescribeLoadBalancerAttributes(gomock.Any()).
+					Return(loadBalancerAttributes, nil)
+
 				mockLB.ELB.EXPECT().
 					ConfigureHealthCheck(loadBalancerID.String(), elb.NewHealthCheck("TCP:80", 30, 5, 2, 2))
 
@@ -664,6 +696,50 @@ func TestUpdateLoadBalancerHealthCheck(t *testing.T) {
 				}
 
 				reporter.AssertEqual(healthCheck, model.HealthCheck)
+			},
+		},
+	}
+
+	testutils.RunTests(t, testCases)
+}
+
+func TestUpdateLoadBalancerIdleTimeout(t *testing.T) {
+	testCases := []testutils.TestCase{
+		{
+			Name: "Should pass proper params to ELB.SetIdleTimeout.",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				mockLB := NewMockECSLoadBalancerManager(ctrl)
+
+				loadBalancerID := id.L0LoadBalancerID("lbid").ECSLoadBalancerID()
+				loadBalancer := elb.NewLoadBalancerDescription(loadBalancerID.String(), "", nil)
+
+				mockLB.ELB.EXPECT().
+					DescribeLoadBalancer(loadBalancerID.String()).
+					Return(loadBalancer, nil)
+
+				loadBalancerAttributes := elb.NewLoadBalancerAttributes()
+
+				mockLB.ELB.EXPECT().
+					DescribeLoadBalancerAttributes(gomock.Any()).
+					Return(loadBalancerAttributes, nil)
+
+				mockLB.ELB.EXPECT().
+					SetIdleTimeout(loadBalancerID.String(), 60).
+					Return(nil)
+
+				return mockLB.LoadBalancer()
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				manager := target.(*ECSLoadBalancerManager)
+
+				idleTimeout := 60
+
+				model, err := manager.UpdateLoadBalancerIdleTimeout("lbid", idleTimeout)
+				if err != nil {
+					reporter.Fatal(err)
+				}
+
+				reporter.AssertEqual(idleTimeout, model.IdleTimeout)
 			},
 		},
 	}

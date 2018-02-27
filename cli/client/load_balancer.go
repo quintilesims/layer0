@@ -4,13 +4,14 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func (c *APIClient) CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool) (*models.LoadBalancer, error) {
+func (c *APIClient) CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool, idleTimeout int) (*models.LoadBalancer, error) {
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: name,
 		EnvironmentID:    environmentID,
 		HealthCheck:      healthCheck,
 		Ports:            ports,
 		IsPublic:         isPublic,
+		IdleTimeout:      idleTimeout,
 	}
 
 	var loadBalancer *models.LoadBalancer
@@ -68,6 +69,19 @@ func (c *APIClient) UpdateLoadBalancerPorts(id string, ports []models.Port) (*mo
 
 	var loadBalancer *models.LoadBalancer
 	if err := c.Execute(c.Sling("loadbalancer/").Put(id+"/ports").BodyJSON(req), &loadBalancer); err != nil {
+		return nil, err
+	}
+
+	return loadBalancer, nil
+}
+
+func (c *APIClient) UpdateLoadBalancerIdleTimeout(id string, idleTimeout int) (*models.LoadBalancer, error) {
+	req := models.UpdateLoadBalancerIdleTimeoutRequest{
+		IdleTimeout: idleTimeout,
+	}
+
+	var loadBalancer *models.LoadBalancer
+	if err := c.Execute(c.Sling("loadbalancer/").Put(id+"/idletimeout").BodyJSON(req), &loadBalancer); err != nil {
 		return nil, err
 	}
 

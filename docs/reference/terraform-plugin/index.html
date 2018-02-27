@@ -1638,6 +1638,8 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
     healthy_threshold   = 2
     unhealthy_threshold = 2
   }
+
+  idle_timeout = 300
 }
 </pre></div>
 
@@ -1650,6 +1652,7 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <li><code>private</code> - (Optional) If true, the load balancer will not be exposed to the public internet</li>
 <li><code>port</code> - (Optional, Default: 80:80/tcp) A list of port blocks. Ports documented below</li>
 <li><code>health_check</code> - (Optional, Default: <code>{"TCP:80" 30 5 2 2}</code>) A health_check block. Health check documented below</li>
+<li><code>idle_timeout</code> - (Optiona, Default: 60) The idle timeout of the load balancer in seconds</li>
 </ul>
 <p>Ports (<code>port</code>) support the following:</p>
 <ul>
@@ -1670,6 +1673,7 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <li><code>healthy_threshold</code> - (Required) The number of checks before the instance is declared healthy.</li>
 <li><code>unhealthy_threshold</code> - (Required) The number of checks before the instance is declared unhealthy.</li>
 </ul>
+<p>The Idle Timeout (<code>idle_timeout</code>) is managed by the load balancer and is triggered when no data is sent over a connection for the specified time period. If no data has been sent or received by the time that the idle timeout period elapses, the load balancer closes the connection. See the following documentation for more information: <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html#connection-idle-timeout">https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html#connection-idle-timeout</a></p>
 <h3 id="attribute-reference_7">Attribute Reference<a class="headerlink" href="#attribute-reference_7" title="Permanent link">#</a></h3>
 <p>The following attributes are exported:</p>
 <ul>

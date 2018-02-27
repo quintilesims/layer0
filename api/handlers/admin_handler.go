@@ -36,10 +36,6 @@ func (this AdminHandler) Routes() *restful.WebService {
 		To(this.GetVersion).
 		Doc("Returns Current API version"))
 
-	service.Route(service.GET("/health").
-		To(this.GetHealth).
-		Doc("Returns Health of API Server"))
-
 	service.Route(service.PUT("/scale/{id}").
 		Filter(basicAuthenticate).
 		To(this.RunEnvironmentScaler).
@@ -85,10 +81,6 @@ func (this *AdminHandler) GetConfig(request *restful.Request, response *restful.
 	}
 
 	response.WriteAsJson(model)
-}
-
-func (this *AdminHandler) GetHealth(request *restful.Request, response *restful.Response) {
-	response.WriteAsJson("")
 }
 
 func (this *AdminHandler) RunEnvironmentScaler(request *restful.Request, response *restful.Response) {

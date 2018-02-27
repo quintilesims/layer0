@@ -14,6 +14,7 @@ type LoadBalancerLogic interface {
 	CreateLoadBalancer(req models.CreateLoadBalancerRequest) (*models.LoadBalancer, error)
 	UpdateLoadBalancerPorts(loadBalancerID string, ports []models.Port) (*models.LoadBalancer, error)
 	UpdateLoadBalancerHealthCheck(loadBalancerID string, healthCheck models.HealthCheck) (*models.LoadBalancer, error)
+	UpdateLoadBalancerIdleTimeout(loadBalancerID string, idleTimeout int) (*models.LoadBalancer, error)
 }
 
 type L0LoadBalancerLogic struct {
@@ -99,6 +100,7 @@ func (l *L0LoadBalancerLogic) CreateLoadBalancer(req models.CreateLoadBalancerRe
 		req.IsPublic,
 		req.Ports,
 		req.HealthCheck,
+		req.IdleTimeout,
 	)
 
 	if err != nil {
@@ -137,6 +139,19 @@ func (l *L0LoadBalancerLogic) UpdateLoadBalancerPorts(loadBalancerID string, por
 
 func (l *L0LoadBalancerLogic) UpdateLoadBalancerHealthCheck(loadBalancerID string, healthCheck models.HealthCheck) (*models.LoadBalancer, error) {
 	loadBalancer, err := l.Backend.UpdateLoadBalancerHealthCheck(loadBalancerID, healthCheck)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := l.populateModel(loadBalancer); err != nil {
+		return nil, err
+	}
+
+	return loadBalancer, nil
+}
+
+func (l *L0LoadBalancerLogic) UpdateLoadBalancerIdleTimeout(loadBalancerID string, idleTimeout int) (*models.LoadBalancer, error) {
+	loadBalancer, err := l.Backend.UpdateLoadBalancerIdleTimeout(loadBalancerID, idleTimeout)
 	if err != nil {
 		return nil, err
 	}
