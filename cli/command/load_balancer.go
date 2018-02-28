@@ -238,6 +238,7 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		IsPublic:         !c.Bool("private"),
 		Ports:            ports,
 		HealthCheck:      healthCheck,
+		IdleTimeout:      c.Int("idle-timeout"),
 	}
 
 	loadBalancerID, err := l.client.CreateLoadBalancer(req)
