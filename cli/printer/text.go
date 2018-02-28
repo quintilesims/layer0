@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/ryanuber/columnize"
 )
@@ -88,7 +87,7 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 
 		// add the extra link rows
 		for i := 1; i < len(e.Links); i++ {
-			row := fmt.Sprintf(" | | | | %s", getLink(e, i))
+			row := fmt.Sprintf(" | | | %s", getLink(e, i))
 			rows = append(rows, row)
 		}
 	}
