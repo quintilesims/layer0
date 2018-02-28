@@ -120,6 +120,11 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		return "", err
 	}
 
+	idleTimeout := req.IdleTimeout
+	if err := l.setIdleTimeout(fqLoadBalancerID, idleTimeout); err != nil {
+		return "", err
+	}
+
 	if err := l.createTags(loadBalancerID, req.LoadBalancerName, req.EnvironmentID); err != nil {
 		return "", err
 	}
