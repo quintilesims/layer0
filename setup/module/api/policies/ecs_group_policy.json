@@ -17,18 +17,26 @@
             ],
             "Resource": "*"
         },
-	{
+        {
             "Effect": "Allow",
             "Action": [
-		"ecs:StartTask",
-		"ecs:StopTask"
+                "ecs:StartTask",
+                "ecs:StopTask"
             ],
             "Resource": "*",
-	    "Condition": {
-		"ArnEquals": {
-		    "ecs:cluster": "arn:aws:ecs:${region}:${account_id}:cluster/l0-${name}-*"
-		}
-	    }
+            "Condition": {
+                "ArnEquals": {
+                    "ecs:cluster": "arn:aws:ecs:${region}:${account_id}:cluster/l0-${name}-*"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:PassRole",
+                "iam:GetRole"
+            ],
+            "Resource": "arn:aws:iam::${account_id}:role/ecsTaskExecutionRole"
         },
         {
             "Effect": "Allow",
@@ -36,8 +44,8 @@
                 "ecs:DeleteCluster"
             ],
             "Resource": [
-		"arn:aws:ecs:${region}:${account_id}:cluster/l0-${name}-*"
-	    ]
+                "arn:aws:ecs:${region}:${account_id}:cluster/l0-${name}-*"
+            ]
         }
     ]
 }

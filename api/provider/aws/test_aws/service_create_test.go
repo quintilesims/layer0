@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/golang/mock/gomock"
@@ -16,7 +17,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestServiceCreate(t *testing.T) {
+func TestServiceCreate_dynamicDefaults(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -33,6 +34,12 @@ func TestServiceCreate(t *testing.T) {
 			Key:        "arn",
 			Value:      "dpl_arn",
 		},
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
+			Key:        "type",
+			Value:      models.EnvironmentTypeDynamic,
+		},
 	}
 
 	for _, tag := range tags {
@@ -42,6 +49,26 @@ func TestServiceCreate(t *testing.T) {
 	}
 
 	defer provider.SetEntityIDGenerator("svc_id")()
+
+	ec2Filter := &ec2.Filter{}
+	ec2Filter.SetName("group-name")
+	ec2Filter.SetValues([]*string{aws.String("l0-test-env_id-env")})
+
+	describeSecurityGroupsInput := &ec2.DescribeSecurityGroupsInput{}
+	describeSecurityGroupsInput.SetFilters([]*ec2.Filter{ec2Filter})
+
+	securityGroup := &ec2.SecurityGroup{}
+	securityGroup.SetGroupName("l0-test-env_id-env")
+	securityGroup.SetGroupId("sg-test")
+	securityGroups := []*ec2.SecurityGroup{securityGroup}
+	describeSecurityGroupsOutput := &ec2.DescribeSecurityGroupsOutput{}
+	describeSecurityGroupsOutput.SetSecurityGroups(securityGroups)
+
+	mockAWS.EC2.EXPECT().
+		DescribeSecurityGroups(describeSecurityGroupsInput).
+		Return(describeSecurityGroupsOutput, nil)
+
+	mockConfig.EXPECT().PrivateSubnets().Return([]string{"subnet-test"})
 
 	loadBalancerInput := &elb.DescribeLoadBalancersInput{}
 	loadBalancerInput.SetLoadBalancerNames([]*string{aws.String("l0-test-lb_id")})
@@ -101,11 +128,21 @@ func TestServiceCreate(t *testing.T) {
 		DescribeTaskDefinition(taskDefinitionInput).
 		Return(taskDefinitionOutput, nil)
 
+	awsvpcConfig := &ecs.AwsVpcConfiguration{}
+	awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled)
+	awsvpcConfig.SetSecurityGroups([]*string{aws.String("sg-test")})
+	awsvpcConfig.SetSubnets([]*string{aws.String("subnet-test")})
+	networkConfig := &ecs.NetworkConfiguration{}
+	networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
+
 	createServiceInput := &ecs.CreateServiceInput{}
 	createServiceInput.SetCluster("l0-test-env_id")
 	createServiceInput.SetDesiredCount(1)
+	createServiceInput.SetLaunchType(ecs.LaunchTypeFargate)
 	createServiceInput.SetServiceName("l0-test-svc_id")
 	createServiceInput.SetTaskDefinition("dpl_arn")
+	createServiceInput.SetNetworkConfiguration(networkConfig)
+	createServiceInput.SetPlatformVersion(config.DefaultFargatePlatformVersion)
 
 	loadBalancer := &ecs.LoadBalancer{}
 	loadBalancer.SetContainerName("ctn_name")
@@ -162,7 +199,7 @@ func TestServiceCreate(t *testing.T) {
 	}
 }
 
-func TestServiceCreate_defaults(t *testing.T) {
+func TestServiceCreate_staticDefaults(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -179,6 +216,12 @@ func TestServiceCreate_defaults(t *testing.T) {
 			Key:        "arn",
 			Value:      "dpl_arn",
 		},
+		{
+			EntityID:   "env_id",
+			EntityType: "environment",
+			Key:        "type",
+			Value:      models.EnvironmentTypeStatic,
+		},
 	}
 
 	for _, tag := range tags {
@@ -192,6 +235,7 @@ func TestServiceCreate_defaults(t *testing.T) {
 	createServiceInput := &ecs.CreateServiceInput{}
 	createServiceInput.SetCluster("l0-test-env_id")
 	createServiceInput.SetDesiredCount(1)
+	createServiceInput.SetLaunchType(ecs.LaunchTypeEc2)
 	createServiceInput.SetServiceName("l0-test-svc_id")
 	createServiceInput.SetTaskDefinition("dpl_arn")
 

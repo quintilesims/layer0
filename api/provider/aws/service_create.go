@@ -5,12 +5,35 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error) {
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
 	cluster := fqEnvironmentID
+
+	launchType, err := getLaunchTypeFromEnvironmentID(s.TagStore, req.EnvironmentID)
+	if err != nil {
+		return "", err
+	}
+
+	var fargatePlatformVersion string
+	var securityGroupIDs []*string
+	var subnets []string
+	if launchType == ecs.LaunchTypeFargate {
+		fargatePlatformVersion = config.DefaultFargatePlatformVersion
+
+		environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
+		environmentSecurityGroup, err := readSG(s.AWS.EC2, environmentSecurityGroupName)
+		if err != nil {
+			return "", err
+		}
+
+		securityGroupIDs = append(securityGroupIDs, environmentSecurityGroup.GroupId)
+
+		subnets = s.Config.PrivateSubnets()
+	}
 
 	serviceID := entityIDGenerator(req.ServiceName)
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
@@ -28,6 +51,16 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		loadBalancerDescription, err := describeLoadBalancer(s.AWS.ELB, fqLoadBalancerID)
 		if err != nil {
 			return "", err
+		}
+
+		if aws.StringValue(loadBalancerDescription.Scheme) == "internet-facing" {
+			loadBalancerSecurityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
+			loadBalancerSecurityGroup, err := readSG(s.AWS.EC2, loadBalancerSecurityGroupName)
+			if err != nil {
+				return "", err
+			}
+
+			securityGroupIDs = append(securityGroupIDs, loadBalancerSecurityGroup.GroupId)
 		}
 
 		taskDefinition, err := describeTaskDefinition(s.AWS.ECS, taskDefinitionARN)
@@ -60,11 +93,16 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 
 	if err := s.createService(
 		cluster,
+		launchType,
 		serviceName,
 		taskDefinitionARN,
-		scale,
 		loadBalancerRole,
-		loadBalancer); err != nil {
+		fargatePlatformVersion,
+		scale,
+		subnets,
+		securityGroupIDs,
+		loadBalancer,
+	); err != nil {
 		return "", err
 	}
 
@@ -76,18 +114,40 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 }
 
 func (s *ServiceProvider) createService(
-	cluster string,
-	serviceName string,
-	taskDefinition string,
+	cluster,
+	launchType,
+	serviceName,
+	taskDefinition,
+	loadBalancerRole,
+	fargatePlatformVersion string,
 	desiredCount int,
-	loadBalancerRole string,
+	subnets []string,
+	securityGroupIDs []*string,
 	loadBalancer *ecs.LoadBalancer,
 ) error {
 	input := &ecs.CreateServiceInput{}
 	input.SetCluster(cluster)
 	input.SetDesiredCount(int64(desiredCount))
+	input.SetLaunchType(launchType)
 	input.SetServiceName(serviceName)
 	input.SetTaskDefinition(taskDefinition)
+
+	if launchType == ecs.LaunchTypeFargate {
+		s := make([]*string, len(subnets))
+		for i := range subnets {
+			s[i] = aws.String(subnets[i])
+		}
+
+		awsvpcConfig := &ecs.AwsVpcConfiguration{}
+		awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled)
+		awsvpcConfig.SetSecurityGroups(securityGroupIDs)
+		awsvpcConfig.SetSubnets(s)
+		networkConfig := &ecs.NetworkConfiguration{}
+		networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
+		input.SetNetworkConfiguration(networkConfig)
+		input.SetPlatformVersion(fargatePlatformVersion)
+	}
+
 	if loadBalancer != nil {
 		input.SetLoadBalancers([]*ecs.LoadBalancer{loadBalancer})
 		input.SetRole(loadBalancerRole)

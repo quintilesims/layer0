@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -15,6 +16,28 @@ import (
 func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskID := entityIDGenerator(req.TaskName)
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
+
+	launchType, err := getLaunchTypeFromEnvironmentID(t.TagStore, req.EnvironmentID)
+	if err != nil {
+		return "", err
+	}
+
+	var fargatePlatformVersion string
+	var securityGroupIDs []*string
+	var subnets []string
+	if launchType == ecs.LaunchTypeFargate {
+		fargatePlatformVersion = config.DefaultFargatePlatformVersion
+
+		environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
+		environmentSecurityGroup, err := readSG(t.AWS.EC2, environmentSecurityGroupName)
+		if err != nil {
+			return "", err
+		}
+
+		securityGroupIDs = append(securityGroupIDs, environmentSecurityGroup.GroupId)
+
+		subnets = t.Config.PrivateSubnets()
+	}
 
 	deployName, deployVersion, err := lookupDeployNameAndVersion(t.TagStore, req.DeployID)
 	if err != nil {
@@ -27,7 +50,16 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskDefinitionVersion := deployVersion
 	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
 
-	task, err := t.runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionVersion, taskOverrides)
+	task, err := t.runTask(
+		clusterName,
+		launchType,
+		startedBy,
+		taskDefinitionFamily,
+		taskDefinitionVersion,
+		fargatePlatformVersion,
+		subnets,
+		securityGroupIDs,
+		taskOverrides)
 	if err != nil {
 		return "", err
 	}
@@ -65,11 +97,39 @@ func convertContainerOverrides(overrides []models.ContainerOverride) *ecs.TaskOv
 	return taskOverride
 }
 
-func (t *TaskProvider) runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionRevision string, overrides *ecs.TaskOverride) (*ecs.Task, error) {
+func (t *TaskProvider) runTask(
+	clusterName,
+	launchType,
+	startedBy,
+	taskDefinitionFamily,
+	taskDefinitionRevision,
+	fargatePlatformVersion string,
+	subnets []string,
+	securityGroupIDs []*string,
+	overrides *ecs.TaskOverride,
+) (*ecs.Task, error) {
 	input := &ecs.RunTaskInput{}
 	input.SetCluster(clusterName)
+	input.SetLaunchType(launchType)
 	input.SetStartedBy(startedBy)
 	input.SetOverrides(overrides)
+
+	if launchType == ecs.LaunchTypeFargate {
+		s := make([]*string, len(subnets))
+		for i := range subnets {
+			s[i] = aws.String(subnets[i])
+		}
+
+		awsvpcConfig := &ecs.AwsVpcConfiguration{}
+		awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled)
+		awsvpcConfig.SetSecurityGroups(securityGroupIDs)
+		awsvpcConfig.SetSubnets(s)
+
+		networkConfig := &ecs.NetworkConfiguration{}
+		networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
+		input.SetNetworkConfiguration(networkConfig)
+		input.SetPlatformVersion(fargatePlatformVersion)
+	}
 
 	taskFamilyRevision := fmt.Sprintf("%s:%s", taskDefinitionFamily, taskDefinitionRevision)
 	input.SetTaskDefinition(taskFamilyRevision)

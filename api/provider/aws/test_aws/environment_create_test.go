@@ -261,6 +261,50 @@ func TestEnvironmentCreateDefaults(t *testing.T) {
 		AuthorizeSecurityGroupIngress(gomock.Any()).
 		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
 
+	mockAWS.ECS.EXPECT().
+		CreateCluster(gomock.Any()).
+		Return(&ecs.CreateClusterOutput{}, nil)
+
+	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
+	if _, err := target.Create(req); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestEnvironmentCreateDefaults_static(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAWS := awsc.NewMockClient(ctrl)
+	tagStore := tag.NewMemoryStore()
+	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+
+	// todo: setup helper for config
+	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	mockConfig.EXPECT().LinuxAMI().Return("lx_ami").AnyTimes()
+	mockConfig.EXPECT().WindowsAMI().Return("win_ami").AnyTimes()
+	mockConfig.EXPECT().S3Bucket().Return("bucket").AnyTimes()
+	mockConfig.EXPECT().VPC().Return("vpc_id").AnyTimes()
+	mockConfig.EXPECT().InstanceProfile().Return("profile").AnyTimes()
+	mockConfig.EXPECT().PrivateSubnets().Return([]string{"priv1", "priv2"}).AnyTimes()
+	mockConfig.EXPECT().SSHKeyPair().Return("keypair").AnyTimes()
+
+	defer provider.SetEntityIDGenerator("env_id")()
+
+	req := models.CreateEnvironmentRequest{
+		EnvironmentName: "env_name",
+		EnvironmentType: "static",
+		Scale:           1,
+	}
+
+	// using create/read helpers instead of gomock.Any() for readability
+	createSGHelper(t, mockAWS, "l0-test-env_id-env", "vpc_id")
+	readSGHelper(mockAWS, "l0-test-env_id-env", "sg_id")
+
+	mockAWS.EC2.EXPECT().
+		AuthorizeSecurityGroupIngress(gomock.Any()).
+		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
+
 	// ensure we pass the default instance type, ami id, and user data to the launch configuration
 	renderedUserData, err := provider.RenderUserData(
 		"l0-test-env_id",
