@@ -136,9 +136,9 @@ func ExampleTextPrintLoadBalancers() {
 
 	printer.PrintLoadBalancers(loadBalancers...)
 	// Output:
-	// LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS         PUBLIC  URL   IDLE TIMEOUT
-	// id1              lb1                ename1       sname1   80:80/HTTP    true    url1  80
-	// id2              lb2                eid2         sid2     443:80/HTTPS  false   url2  90
+	// LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS         PUBLIC  URL
+	// id1              lb1                ename1       sname1   80:80/HTTP    true    url1
+	// id2              lb2                eid2         sid2     443:80/HTTPS  false   url2
 	//                                                           22:22/TCP
 
 }

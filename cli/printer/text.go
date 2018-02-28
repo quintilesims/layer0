@@ -115,17 +115,16 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 		return fmt.Sprintf("%d:%d/%s", p.HostPort, p.ContainerPort, strings.ToUpper(p.Protocol))
 	}
 
-	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT | SERVICE | PORTS | PUBLIC | URL | IDLE TIMEOUT"}
+	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT | SERVICE | PORTS | PUBLIC | URL"}
 	for _, l := range loadBalancers {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s | %t | %s | %d",
+		row := fmt.Sprintf("%s | %s | %s | %s | %s | %t | %s",
 			l.LoadBalancerID,
 			l.LoadBalancerName,
 			getEnvironment(l),
 			getService(l),
 			getPort(l, 0),
 			l.IsPublic,
-			l.URL,
-			l.IdleTimeout)
+			l.URL)
 
 		rows = append(rows, row)
 
