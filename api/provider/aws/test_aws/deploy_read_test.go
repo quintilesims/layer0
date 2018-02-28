@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
@@ -58,6 +59,7 @@ func TestDeployRead(t *testing.T) {
 
 	// Set Task Definition Defaults
 	taskDefinition := &ecs.TaskDefinition{}
+	taskDefinition.SetCompatibilities([]*string{aws.String("EC2"), aws.String("FARGATE")})
 	taskDefinition.SetContainerDefinitions(containerDefinitions)
 
 	// Set up ECS mock inputs and outputs
@@ -83,10 +85,11 @@ func TestDeployRead(t *testing.T) {
 	}
 
 	expected := &models.Deploy{
-		DeployFile: deployFile,
-		DeployID:   "dpl_id",
-		DeployName: "dpl_name",
-		Version:    "dpl_version",
+		Compatibilities: []string{models.DeployCompatibilityStateful, models.DeployCompatibilityStateless},
+		DeployFile:      deployFile,
+		DeployID:        "dpl_id",
+		DeployName:      "dpl_name",
+		Version:         "dpl_version",
 	}
 
 	assert.Equal(t, expected, result)
