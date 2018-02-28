@@ -27,6 +27,8 @@ func TestServiceCreate_defaults(t *testing.T) {
 
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
+	defer provider.SetEntityIDGenerator("svc_id")()
+
 	tags := models.Tags{
 		{
 			EntityID:   "dpl_id",
@@ -41,8 +43,6 @@ func TestServiceCreate_defaults(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-
-	defer provider.SetEntityIDGenerator("svc_id")()
 
 	ec2Filter := &ec2.Filter{}
 	ec2Filter.SetName("group-name")
@@ -157,6 +157,7 @@ func TestServiceCreate_defaults(t *testing.T) {
 		EnvironmentID:  "env_id",
 		LoadBalancerID: "lb_id",
 		ServiceName:    "svc_name",
+		ServiceType:    models.DeployCompatibilityStateless,
 	}
 
 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
