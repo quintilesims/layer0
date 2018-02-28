@@ -109,7 +109,6 @@ func ExampleTextPrintLoadBalancers() {
 					Protocol:      "http",
 				},
 			},
-			IdleTimeout: 80,
 		},
 		{
 			LoadBalancerID:   "id2",
@@ -130,7 +129,6 @@ func ExampleTextPrintLoadBalancers() {
 					Protocol:      "tcp",
 				},
 			},
-			IdleTimeout: 90,
 		},
 	}
 
