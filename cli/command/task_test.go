@@ -85,16 +85,8 @@ func TestCreateTask_stateful(t *testing.T) {
 		assert.Contains(t, req.ContainerOverrides, overrides[1])
 	}
 
-	req := models.CreateTaskRequest{
-		ContainerOverrides: overrides,
-		DeployID:           "dpl_id",
-		EnvironmentID:      "env_id",
-		TaskName:           "tsk_name",
-		TaskType:           models.DeployCompatibilityStateful,
-	}
-
 	base.Client.EXPECT().
-		CreateTask(req).
+		CreateTask(gomock.Any()).
 		Do(validateRequest).
 		Return("tsk_id", nil)
 

@@ -2,6 +2,7 @@ package aws
 
 import (
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -22,6 +23,11 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 	ecsService, err := readService(s.AWS.ECS, clusterName, fqServiceID)
 	if err != nil {
 		return nil, err
+	}
+
+	serviceType := models.DeployCompatibilityStateless
+	if aws.StringValue(ecsService.LaunchType) == ecs.LaunchTypeEc2 {
+		serviceType = models.DeployCompatibilityStateful
 	}
 
 	var deployments []models.Deployment
@@ -55,7 +61,7 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 		loadBalancerID = delLayer0Prefix(s.Config.Instance(), fqLoadBalancerID)
 	}
 
-	model, err := s.makeServiceModel(environmentID, loadBalancerID, serviceID)
+	model, err := s.makeServiceModel(environmentID, loadBalancerID, serviceID, serviceType)
 	if err != nil {
 		return nil, err
 	}
@@ -89,11 +95,12 @@ func (s *ServiceProvider) makeDeploymentModel(deployID string) (*models.Deployme
 	return model, nil
 }
 
-func (s *ServiceProvider) makeServiceModel(environmentID, loadBalancerID, serviceID string) (*models.Service, error) {
+func (s *ServiceProvider) makeServiceModel(environmentID, loadBalancerID, serviceID, serviceType string) (*models.Service, error) {
 	model := &models.Service{
 		EnvironmentID:  environmentID,
 		LoadBalancerID: loadBalancerID,
 		ServiceID:      serviceID,
+		ServiceType:    serviceType,
 	}
 
 	tags, err := s.TagStore.SelectByTypeAndID("service", serviceID)
