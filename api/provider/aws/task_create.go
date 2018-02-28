@@ -9,13 +9,31 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Create runs an ECS Task using the specified Create Task Request. The Create Task
-// Request contains the Task name, the Environment ID, and the Deploy ID.
-// The Deploy ID is used to look up the ECS Task Definition family and version of the
-// Task to run.
+// Create runs an ECS Task using the specified CreateTaskRequest.
+// The CreateTaskRequest contains the ContainerOverrides, the DeployID, the
+// EnvironmentID, the TaskName, and the TaskType.
+//
+// The Deploy ID is used to look up the ECS TaskDefinition Family and Version
+// of the Task to run. The TaskType parameter is one of "stateful" or "stateless"
+// and indicates which ECS LaunchType the user wishes to use ("EC2" or "FARGATE"
+// respectively).
+//
+// Create does not generate any custom errors of its own, but will bubble up errors
+// found in its helper functions as well as errors returned by AWS.
 func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskID := entityIDGenerator(req.TaskName)
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
+	clusterName := fqEnvironmentID
+	startedBy := t.Config.Instance()
+	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
+
+	deployName, deployVersion, err := lookupDeployNameAndVersion(t.TagStore, req.DeployID)
+	if err != nil {
+		return "", err
+	}
+
+	taskDefinitionFamily := addLayer0Prefix(t.Config.Instance(), deployName)
+	taskDefinitionVersion := deployVersion
 
 	var fargatePlatformVersion string
 	var securityGroupIDs []*string
@@ -33,17 +51,6 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 
 		subnets = t.Config.PrivateSubnets()
 	}
-
-	deployName, deployVersion, err := lookupDeployNameAndVersion(t.TagStore, req.DeployID)
-	if err != nil {
-		return "", err
-	}
-
-	clusterName := fqEnvironmentID
-	startedBy := t.Config.Instance()
-	taskDefinitionFamily := addLayer0Prefix(t.Config.Instance(), deployName)
-	taskDefinitionVersion := deployVersion
-	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
 
 	task, err := t.runTask(
 		clusterName,
@@ -124,6 +131,7 @@ func (t *TaskProvider) runTask(
 
 		networkConfig := &ecs.NetworkConfiguration{}
 		networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
+
 		input.SetNetworkConfiguration(networkConfig)
 		input.SetPlatformVersion(fargatePlatformVersion)
 	}

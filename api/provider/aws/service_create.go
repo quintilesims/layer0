@@ -14,9 +14,35 @@ import (
 	"github.com/quintilesims/layer0/common/retry"
 )
 
+// Create runs an ECS Service using the specified CreateServiceRequest.
+// The CreateServiceRequest contains the DeployID, the EnvironmentID,
+// the LoadBalancerID (optional), the Scale, the ServiceName, and the ServiceType.
+//
+// The DeployID is used to look up the ARN of the ECS TaskDefinition to run. If a
+// LoadbalancerID is supplied, it will be used in conjunction with the TaskDefinition
+// ARN to compare the ports specified in the TaskDefinition with those specified on
+// the LoadBalancer. The ServiceType parameter is one of "stateful" or "stateless"
+// and indicates which ECS LaunchType the user wishes to use ("EC2" or "FARGATE"
+// respectively).
+//
+// Create does not generate any custom errors of its own, but will bubble up errors
+// found in its helper functions as well as errors returned by AWS.
 func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error) {
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
 	cluster := fqEnvironmentID
+	serviceID := entityIDGenerator(req.ServiceName)
+	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
+	serviceName := fqServiceID
+
+	scale := req.Scale
+	if req.Scale == 0 {
+		scale = 1
+	}
+
+	taskDefinitionARN, err := lookupTaskDefinitionARNFromDeployID(s.TagStore, req.DeployID)
+	if err != nil {
+		return "", err
+	}
 
 	var fargatePlatformVersion string
 	var securityGroupIDs []*string
@@ -33,15 +59,6 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		securityGroupIDs = append(securityGroupIDs, environmentSecurityGroup.GroupId)
 
 		subnets = s.Config.PrivateSubnets()
-	}
-
-	serviceID := entityIDGenerator(req.ServiceName)
-	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
-	serviceName := fqServiceID
-
-	taskDefinitionARN, err := lookupTaskDefinitionARNFromDeployID(s.TagStore, req.DeployID)
-	if err != nil {
-		return "", err
 	}
 
 	var loadBalancer *ecs.LoadBalancer
@@ -84,11 +101,6 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 				}
 			}
 		}
-	}
-
-	scale := req.Scale
-	if req.Scale == 0 {
-		scale = 1
 	}
 
 	fn := func() (shouldRetry bool, err error) {
@@ -157,8 +169,10 @@ func (s *ServiceProvider) createService(
 		awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled)
 		awsvpcConfig.SetSecurityGroups(securityGroupIDs)
 		awsvpcConfig.SetSubnets(s)
+
 		networkConfig := &ecs.NetworkConfiguration{}
 		networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
+
 		input.SetNetworkConfiguration(networkConfig)
 		input.SetPlatformVersion(fargatePlatformVersion)
 	}
