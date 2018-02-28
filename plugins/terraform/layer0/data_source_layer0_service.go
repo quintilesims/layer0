@@ -33,6 +33,10 @@ func dataSourcelayer0Service() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"stateful": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -65,6 +69,7 @@ func dataSourceLayer0ServiceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("environment_id", service.EnvironmentID)
 	d.Set("environment_name", service.EnvironmentName)
 	d.Set("scale", service.DesiredCount)
+	d.Set("stateful", bool(service.ServiceType == models.DeployCompatibilityStateful))
 
 	return nil
 }
