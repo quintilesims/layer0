@@ -104,6 +104,11 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 					},
 				},
 			},
+			"idle_timeout": {
+				Type:     schema.TypeInt,
+				Optional: true,
+				Default:  60,
+			},
 		},
 	}
 }
@@ -122,6 +127,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 		IsPublic:         !d.Get("private").(bool),
 		Ports:            ports,
 		HealthCheck:      expandHealthCheck(d.Get("health_check")),
+		IdleTimeout:      d.Get("idle_timeout").(int),
 	}
 
 	loadBalancerID, err := apiClient.CreateLoadBalancer(req)
@@ -154,6 +160,7 @@ func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("health_check", flattenHealthCheck(loadBalancer.HealthCheck))
 	d.Set("port", flattenPorts(loadBalancer.Ports))
 	d.Set("url", loadBalancer.URL)
+	d.Set("idle_timeout", loadBalancer.IdleTimeout)
 
 	return nil
 }
@@ -172,6 +179,11 @@ func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) 
 	if d.HasChange("health_check") {
 		healthCheck := expandHealthCheck(d.Get("health_check"))
 		req.HealthCheck = &healthCheck
+	}
+
+	if d.HasChange("idle_timeout") {
+		idleTimeout := d.Get("idle_timeout").(int)
+		req.IdleTimeout = idleTimeout
 	}
 
 	if req.Ports != nil || req.HealthCheck != nil {
