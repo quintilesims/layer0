@@ -3,30 +3,32 @@ package models
 import swagger "github.com/zpatrick/go-plugin-swagger"
 
 type Task struct {
-	TaskID          string      `json:"task_id"`
-	TaskName        string      `json:"task_name"`
-	EnvironmentID   string      `json:"environment_id"`
-	EnvironmentName string      `json:"environment_name"`
+	Containers      []Container `json:"containers"`
 	DeployID        string      `json:"deploy_id"`
 	DeployName      string      `json:"deploy_name"`
 	DeployVersion   string      `json:"deploy_version"`
+	EnvironmentID   string      `json:"environment_id"`
+	EnvironmentName string      `json:"environment_name"`
 	Status          string      `json:"status"`
-	Containers      []Container `json:"containers"`
+	TaskID          string      `json:"task_id"`
+	TaskName        string      `json:"task_name"`
+	TaskType        string      `json:"task_type"`
 }
 
 func (t Task) Definition() swagger.Definition {
 	return swagger.Definition{
 		Type: "object",
 		Properties: map[string]swagger.Property{
-			"task_id":          swagger.NewStringProperty(),
-			"task_name":        swagger.NewStringProperty(),
-			"environment_id":   swagger.NewStringProperty(),
-			"environment_name": swagger.NewStringProperty(),
+			"containers":       swagger.NewObjectSliceProperty("Container"),
 			"deploy_id":        swagger.NewStringProperty(),
 			"deploy_name":      swagger.NewStringProperty(),
 			"deploy_version":   swagger.NewStringProperty(),
+			"environment_id":   swagger.NewStringProperty(),
+			"environment_name": swagger.NewStringProperty(),
 			"status":           swagger.NewStringProperty(),
-			"containers":       swagger.NewObjectSliceProperty("Container"),
+			"task_id":          swagger.NewStringProperty(),
+			"task_name":        swagger.NewStringProperty(),
+			"task_type":        swagger.NewStringProperty(),
 		},
 	}
 }
