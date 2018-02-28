@@ -51,7 +51,7 @@ func TestTask_makeTaskModel(t *testing.T) {
 		}
 	}
 
-	result, err := task.makeTaskModel("tsk_id", "env_id", "dpl_id")
+	result, err := task.makeTaskModel("tsk_id", "env_id", "dpl_id", models.DeployCompatibilityStateless)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -60,4 +60,5 @@ func TestTask_makeTaskModel(t *testing.T) {
 	assert.Equal(t, "env_name", result.EnvironmentName)
 	assert.Equal(t, "dpl_name", result.DeployName)
 	assert.Equal(t, "dpl_version", result.DeployVersion)
+	assert.Equal(t, "stateless", result.TaskType)
 }
