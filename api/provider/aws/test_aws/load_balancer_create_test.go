@@ -59,6 +59,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 			HealthyThreshold:   4,
 			UnhealthyThreshold: 3,
 		},
+		IdleTimeout: 90,
 	}
 
 	readSGHelper(mockAWS, "l0-test-env_id-env", "env_sg")
@@ -145,6 +146,21 @@ func TestLoadBalancerCreate(t *testing.T) {
 		ConfigureHealthCheck(configureHealthCheckInput).
 		Return(&elb.ConfigureHealthCheckOutput{}, nil)
 
+	idleTimeout := req.IdleTimeout
+	connectionSettings := &elb.ConnectionSettings{}
+	connectionSettings.SetIdleTimeout(int64(idleTimeout))
+
+	loadBalancerAttributes := &elb.LoadBalancerAttributes{}
+	loadBalancerAttributes.SetConnectionSettings(connectionSettings)
+
+	modifyLoadBalancerAttributesInput := &elb.ModifyLoadBalancerAttributesInput{}
+	modifyLoadBalancerAttributesInput.SetLoadBalancerName("l0-test-lb_id")
+	modifyLoadBalancerAttributesInput.SetLoadBalancerAttributes(loadBalancerAttributes)
+
+	mockAWS.ELB.EXPECT().
+		ModifyLoadBalancerAttributes(modifyLoadBalancerAttributesInput).
+		Return(&elb.ModifyLoadBalancerAttributesOutput{}, nil)
+
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.Create(req)
 	if err != nil {
@@ -194,6 +210,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		EnvironmentID:    "env_id",
 		Ports:            []models.Port{},
 		HealthCheck:      models.HealthCheck{},
+		IdleTimeout:      60,
 	}
 
 	readSGHelper(mockAWS, "l0-test-env_id-env", "env_sg")
@@ -233,6 +250,21 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 	mockAWS.ELB.EXPECT().
 		ConfigureHealthCheck(configureHealthCheckInput).
 		Return(&elb.ConfigureHealthCheckOutput{}, nil)
+
+	idleTimeout := req.IdleTimeout
+	connectionSettings := &elb.ConnectionSettings{}
+	connectionSettings.SetIdleTimeout(int64(idleTimeout))
+
+	loadBalancerAttributes := &elb.LoadBalancerAttributes{}
+	loadBalancerAttributes.SetConnectionSettings(connectionSettings)
+
+	modifyLoadBalancerAttributesInput := &elb.ModifyLoadBalancerAttributesInput{}
+	modifyLoadBalancerAttributesInput.SetLoadBalancerName("l0-test-lb_id")
+	modifyLoadBalancerAttributesInput.SetLoadBalancerAttributes(loadBalancerAttributes)
+
+	mockAWS.ELB.EXPECT().
+		ModifyLoadBalancerAttributes(modifyLoadBalancerAttributesInput).
+		Return(&elb.ModifyLoadBalancerAttributesOutput{}, nil)
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.Create(req)

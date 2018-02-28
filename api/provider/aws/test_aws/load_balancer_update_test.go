@@ -49,9 +49,12 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		UnhealthyThreshold: 4,
 	}
 
+	idleTimeout := 90
+
 	req := models.UpdateLoadBalancerRequest{
 		Ports:       &requestPorts,
 		HealthCheck: requestHealthCheck,
+		IdleTimeout: idleTimeout,
 	}
 
 	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}
@@ -142,6 +145,20 @@ func TestLoadBalancerUpdate(t *testing.T) {
 	mockAWS.EC2.EXPECT().
 		AuthorizeSecurityGroupIngress(authorizeIngressInput).
 		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
+
+	connectionSettings := &elb.ConnectionSettings{}
+	connectionSettings.SetIdleTimeout(int64(idleTimeout))
+
+	loadBalancerAttributes := &elb.LoadBalancerAttributes{}
+	loadBalancerAttributes.SetConnectionSettings(connectionSettings)
+
+	modifyLoadBalancerAttributesInput := &elb.ModifyLoadBalancerAttributesInput{}
+	modifyLoadBalancerAttributesInput.SetLoadBalancerName("l0-test-lb_name")
+	modifyLoadBalancerAttributesInput.SetLoadBalancerAttributes(loadBalancerAttributes)
+
+	mockAWS.ELB.EXPECT().
+		ModifyLoadBalancerAttributes(modifyLoadBalancerAttributesInput).
+		Return(&elb.ModifyLoadBalancerAttributesOutput{}, nil)
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Update("lb_name", req); err != nil {
