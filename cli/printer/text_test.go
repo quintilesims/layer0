@@ -9,15 +9,29 @@ import (
 func ExampleTextPrintDeploys() {
 	printer := &TextPrinter{}
 	deploys := []*models.Deploy{
-		{DeployID: "id1", DeployName: "name1", Version: "1"},
-		{DeployID: "id2", DeployName: "name2", Version: "2"},
+		{
+			Compatibilities: []string{models.DeployCompatibilityStateless},
+			DeployID:        "id1",
+			DeployName:      "name1",
+			Version:         "1",
+		},
+		{
+			Compatibilities: []string{
+				models.DeployCompatibilityStateless,
+				models.DeployCompatibilityStateful,
+			},
+			DeployID:   "id2",
+			DeployName: "name2",
+			Version:    "2",
+		},
 	}
 
 	printer.PrintDeploys(deploys...)
 	// Output:
-	// DEPLOY ID  DEPLOY NAME  VERSION
-	// id1        name1        1
-	// id2        name2        2
+	// DEPLOY ID  DEPLOY NAME  VERSION  COMPATIBILITIES
+	// id1        name1        1        stateless
+	// id2        name2        2        stateless
+	//                                  stateful
 }
 
 func ExampleTextPrintDeploySummaries() {
@@ -64,11 +78,11 @@ func ExampleTextPrintEnvironments() {
 
 	printer.PrintEnvironments(environments...)
 	// Output:
-	// ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS       LINKS
-	// id1             name1             static   linux    id2
-	// id2             name2             static   windows  id1
-	//                                                     api
-	// id3             name3             dynamic  linux
+	// ENVIRONMENT ID  ENVIRONMENT NAME  OS       LINKS
+	// id1             name1             linux    id2
+	// id2             name2             windows  id1
+	//                                            api
+	// id3             name3             linux
 }
 
 func ExampleTextPrintEnvironmentSummaries() {
