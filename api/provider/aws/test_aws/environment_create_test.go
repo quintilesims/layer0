@@ -12,7 +12,6 @@ import (
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
 	awsc "github.com/quintilesims/layer0/common/aws"
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/config/mock_config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
@@ -260,30 +259,6 @@ func TestEnvironmentCreateDefaults(t *testing.T) {
 	mockAWS.EC2.EXPECT().
 		AuthorizeSecurityGroupIngress(gomock.Any()).
 		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
-
-	// ensure we pass the default instance type, ami id, and user data to the launch configuration
-	renderedUserData, err := provider.RenderUserData(
-		"l0-test-env_id",
-		"bucket",
-		[]byte(provider.DefaultLinuxUserdataTemplate))
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	validateCreateLCInput := func(input *autoscaling.CreateLaunchConfigurationInput) {
-		assert.Equal(t, config.DefaultEnvironmentInstanceType, aws.StringValue(input.InstanceType))
-		assert.Equal(t, "lx_ami", aws.StringValue(input.ImageId))
-		assert.Equal(t, renderedUserData, aws.StringValue(input.UserData))
-	}
-
-	mockAWS.AutoScaling.EXPECT().
-		CreateLaunchConfiguration(gomock.Any()).
-		Do(validateCreateLCInput).
-		Return(&autoscaling.CreateLaunchConfigurationOutput{}, nil)
-
-	mockAWS.AutoScaling.EXPECT().
-		CreateAutoScalingGroup(gomock.Any()).
-		Return(&autoscaling.CreateAutoScalingGroupOutput{}, nil)
 
 	mockAWS.ECS.EXPECT().
 		CreateCluster(gomock.Any()).
