@@ -355,6 +355,8 @@ resource "layer0_load_balancer" "guestbook" {
     healthy_threshold   = 2
     unhealthy_threshold = 2
   }
+
+  idle_timeout = 300
 }
 ```
 
@@ -367,6 +369,7 @@ The following arguments are supported:
 * `private` - (Optional) If true, the load balancer will not be exposed to the public internet
 * `port` - (Optional, Default: 80:80/tcp) A list of port blocks. Ports documented below
 * `health_check` - (Optional, Default: `{"TCP:80" 30 5 2 2}`) A health_check block. Health check documented below
+* `idle_timeout` - (Optiona, Default: 60) The idle timeout of the load balancer in seconds
 
 Ports (`port`) support the following:
 
@@ -384,6 +387,8 @@ Healthcheck (`health_check`) supports the following:
 * `timeout` - (Required) The length of time before the check times out.
 * `healthy_threshold` - (Required) The number of checks before the instance is declared healthy.
 * `unhealthy_threshold` - (Required) The number of checks before the instance is declared unhealthy.
+
+The Idle Timeout (`idle_timeout`) is managed by the load balancer and is triggered when no data is sent over a connection for the specified time period. If no data has been sent or received by the time that the idle timeout period elapses, the load balancer closes the connection. See the following documentation for more information: <https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html#connection-idle-timeout>
 
 ### Attribute Reference
 
