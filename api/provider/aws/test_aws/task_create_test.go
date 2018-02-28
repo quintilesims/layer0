@@ -16,7 +16,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestTaskCreate(t *testing.T) {
+func TestTaskCreate_defaults(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -25,6 +25,7 @@ func TestTaskCreate(t *testing.T) {
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+
 	defer provider.SetEntityIDGenerator("tsk_id")()
 
 	tags := models.Tags{
@@ -76,10 +77,11 @@ func TestTaskCreate(t *testing.T) {
 	}
 
 	req := models.CreateTaskRequest{
+		ContainerOverrides: containerOverride,
 		DeployID:           "dpl_id",
 		EnvironmentID:      "env_id",
 		TaskName:           "tsk_name",
-		ContainerOverrides: containerOverride,
+		TaskType:           models.DeployCompatibilityStateless,
 	}
 
 	kvp := &ecs.KeyValuePair{}
