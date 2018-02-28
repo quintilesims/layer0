@@ -375,8 +375,7 @@ l0 job list
 ---
 
 ## Load Balancer
-A load balancer is a component of a Layer0 environment. Load balancers listen for traffic on certain ports, and then forward that traffic to Layer0 [services](#service). The `loadbalancer` command is used with the following subcommands: [create](#loadbalancer-create), [delete](#loadbalancer-delete), [addport](#loadbalancer-addport), [dropport](#loadbalancer-dropport), [get](#loadbalancer-get), [list](#loadbalancer-list), [healthcheck](#loadbalancer-healthcheck), and
-[idletimeout](#loadbalancer-idletimeout).
+A load balancer is a component of a Layer0 environment. Load balancers listen for traffic on certain ports, and then forward that traffic to Layer0 [services](#service). The `loadbalancer` command is used with the following subcommands: [create](#loadbalancer-create), [delete](#loadbalancer-delete), [addport](#loadbalancer-addport), [dropport](#loadbalancer-dropport), [get](#loadbalancer-get), [list](#loadbalancer-list), [healthcheck](#loadbalancer-healthcheck), and [idletimeout](#loadbalancer-idletimeout).
 
 ### loadbalancer create
 Use the `create` subcommand to create a new load balancer.
