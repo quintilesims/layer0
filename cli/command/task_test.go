@@ -57,6 +57,62 @@ func TestCreateTask(t *testing.T) {
 	}
 }
 
+func TestCreateTask_stateful(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewTaskCommand(base.CommandBase()).Command()
+
+	base.Resolver.EXPECT().
+		Resolve("environment", "env_name").
+		Return([]string{"env_id"}, nil)
+
+	base.Resolver.EXPECT().
+		Resolve("deploy", "dpl_name").
+		Return([]string{"dpl_id"}, nil)
+
+	overrides := []models.ContainerOverride{
+		{ContainerName: "c1", EnvironmentOverrides: map[string]string{"k1": "v1"}},
+		{ContainerName: "c2", EnvironmentOverrides: map[string]string{"k2": "v2"}},
+	}
+
+	validateRequest := func(req models.CreateTaskRequest) {
+		assert.Equal(t, "tsk_name", req.TaskName)
+		assert.Equal(t, "env_id", req.EnvironmentID)
+		assert.Equal(t, "dpl_id", req.DeployID)
+
+		assert.Len(t, req.ContainerOverrides, len(overrides))
+		assert.Contains(t, req.ContainerOverrides, overrides[0])
+		assert.Contains(t, req.ContainerOverrides, overrides[1])
+	}
+
+	req := models.CreateTaskRequest{
+		ContainerOverrides: overrides,
+		DeployID:           "dpl_id",
+		EnvironmentID:      "env_id",
+		TaskName:           "tsk_name",
+		TaskType:           models.DeployCompatibilityStateful,
+	}
+
+	base.Client.EXPECT().
+		CreateTask(req).
+		Do(validateRequest).
+		Return("tsk_id", nil)
+
+	base.Client.EXPECT().
+		ReadTask("tsk_id").
+		Return(&models.Task{}, nil)
+
+	input := "l0 task create "
+	input += "--stateful "
+	input += "--env c1:k1=v1 "
+	input += "--env c2:k2=v2 "
+	input += "env_name tsk_name dpl_name"
+
+	if err := testutils.RunApp(command, input); err != nil {
+		t.Fatal(err)
+	}
+}
+
 func TestCreateTaskInputErrors(t *testing.T) {
 	testInputErrors(t, NewTaskCommand(nil).Command(), map[string]string{
 		"Missing ENVIRONMENT arg": "l0 task create",
