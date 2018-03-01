@@ -39,17 +39,26 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		scale = 1
 	}
 
+	var fargatePlatformVersion string
+	if req.ServiceType == models.DeployCompatibilityStateless {
+		fargatePlatformVersion = config.DefaultFargatePlatformVersion
+	}
+
 	taskDefinitionARN, err := lookupTaskDefinitionARNFromDeployID(s.TagStore, req.DeployID)
 	if err != nil {
 		return "", err
 	}
 
-	var fargatePlatformVersion string
+	taskDefinition, err := describeTaskDefinition(s.AWS.ECS, taskDefinitionARN)
+	if err != nil {
+		return "", err
+	}
+
+	networkMode := aws.StringValue(taskDefinition.NetworkMode)
+
 	var securityGroupIDs []*string
 	var subnets []string
-	if req.ServiceType == models.DeployCompatibilityStateless {
-		fargatePlatformVersion = config.DefaultFargatePlatformVersion
-
+	if networkMode == "awsvpc" {
 		environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
 		environmentSecurityGroup, err := readSG(s.AWS.EC2, environmentSecurityGroupName)
 		if err != nil {
@@ -80,11 +89,6 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 			securityGroupIDs = append(securityGroupIDs, loadBalancerSecurityGroup.GroupId)
 		}
 
-		taskDefinition, err := describeTaskDefinition(s.AWS.ECS, taskDefinitionARN)
-		if err != nil {
-			return "", err
-		}
-
 		for _, containerDefinition := range taskDefinition.ContainerDefinitions {
 			for _, portMapping := range containerDefinition.PortMappings {
 				for _, listenerDescription := range loadBalancerDescription.ListenerDescriptions {
@@ -110,6 +114,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 			serviceName,
 			taskDefinitionARN,
 			loadBalancerRole,
+			networkMode,
 			fargatePlatformVersion,
 			scale,
 			subnets,
@@ -142,8 +147,9 @@ func (s *ServiceProvider) createService(
 	cluster,
 	serviceType,
 	serviceName,
-	taskDefinition,
+	taskDefinitionARN,
 	loadBalancerRole,
+	networkMode,
 	fargatePlatformVersion string,
 	desiredCount int,
 	subnets []string,
@@ -154,12 +160,17 @@ func (s *ServiceProvider) createService(
 	input.SetCluster(cluster)
 	input.SetDesiredCount(int64(desiredCount))
 	input.SetServiceName(serviceName)
-	input.SetTaskDefinition(taskDefinition)
+	input.SetTaskDefinition(taskDefinitionARN)
 
 	launchType := ecs.LaunchTypeEc2
 	if serviceType == models.DeployCompatibilityStateless {
 		launchType = ecs.LaunchTypeFargate
+		input.SetPlatformVersion(fargatePlatformVersion)
+	}
 
+	input.SetLaunchType(launchType)
+
+	if networkMode == "awsvpc" {
 		s := make([]*string, len(subnets))
 		for i := range subnets {
 			s[i] = aws.String(subnets[i])
@@ -174,10 +185,7 @@ func (s *ServiceProvider) createService(
 		networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
 
 		input.SetNetworkConfiguration(networkConfig)
-		input.SetPlatformVersion(fargatePlatformVersion)
 	}
-
-	input.SetLaunchType(launchType)
 
 	if loadBalancer != nil {
 		input.SetLoadBalancers([]*ecs.LoadBalancer{loadBalancer})

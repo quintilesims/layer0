@@ -47,7 +47,7 @@ func TestServiceCreate_loadBalancer(t *testing.T) {
 	}
 
 	// define expected ec2.DescribeSecurityGroups
-	// (part of stateless workflow)
+	// (part of "awsvpc" NetworkMode workflow)
 	ec2Filter := &ec2.Filter{}
 	ec2Filter.SetName("group-name")
 	ec2Filter.SetValues([]*string{aws.String("l0-test-env_id-env")})
@@ -99,7 +99,6 @@ func TestServiceCreate_loadBalancer(t *testing.T) {
 		Return(loadBalancerOutput, nil)
 
 	// define expected ecs.DescribeTaskDefinition
-	// (part of loadbalancer workflow)
 	taskDefinitionInput := &ecs.DescribeTaskDefinitionInput{}
 	taskDefinitionInput.SetTaskDefinition("dpl_arn")
 
@@ -118,8 +117,11 @@ func TestServiceCreate_loadBalancer(t *testing.T) {
 		containerDefinition,
 	}
 
+	networkMode := "awsvpc"
+
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: containerDefinitions,
+		NetworkMode:          &networkMode,
 	}
 
 	taskDefinitionOutput := &ecs.DescribeTaskDefinitionOutput{}
@@ -233,7 +235,7 @@ func TestServiceCreate_stateless(t *testing.T) {
 	}
 
 	// define expected ec2.DescribeSecurityGroups
-	// (part of stateless workflow)
+	// (part of "awsvpc" NetworkMode workflow)
 	ec2Filter := &ec2.Filter{}
 	ec2Filter.SetName("group-name")
 	ec2Filter.SetValues([]*string{aws.String("l0-test-env_id-env")})
@@ -253,6 +255,39 @@ func TestServiceCreate_stateless(t *testing.T) {
 	mockAWS.EC2.EXPECT().
 		DescribeSecurityGroups(describeSecurityGroupsInput).
 		Return(describeSecurityGroupsOutput, nil)
+
+	// define expected ecs.DescribeTaskDefinition
+	taskDefinitionInput := &ecs.DescribeTaskDefinitionInput{}
+	taskDefinitionInput.SetTaskDefinition("dpl_arn")
+
+	portMapping := &ecs.PortMapping{}
+	portMapping.SetContainerPort(int64(80))
+
+	portMappings := []*ecs.PortMapping{
+		portMapping,
+	}
+
+	containerDefinition := &ecs.ContainerDefinition{}
+	containerDefinition.SetName("ctn_name")
+	containerDefinition.SetPortMappings(portMappings)
+
+	containerDefinitions := []*ecs.ContainerDefinition{
+		containerDefinition,
+	}
+
+	networkMode := "awsvpc"
+
+	taskDefinition := &ecs.TaskDefinition{
+		ContainerDefinitions: containerDefinitions,
+		NetworkMode:          &networkMode,
+	}
+
+	taskDefinitionOutput := &ecs.DescribeTaskDefinitionOutput{}
+	taskDefinitionOutput.SetTaskDefinition(taskDefinition)
+
+	mockAWS.ECS.EXPECT().
+		DescribeTaskDefinition(taskDefinitionInput).
+		Return(taskDefinitionOutput, nil)
 
 	// define expected ecs.CreateService
 	awsvpcConfig := &ecs.AwsVpcConfiguration{}
@@ -338,6 +373,36 @@ func TestServiceCreate_stateful(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+
+	// define expected ecs.DescribeTaskDefinition
+	taskDefinitionInput := &ecs.DescribeTaskDefinitionInput{}
+	taskDefinitionInput.SetTaskDefinition("dpl_arn")
+
+	portMapping := &ecs.PortMapping{}
+	portMapping.SetContainerPort(int64(80))
+
+	portMappings := []*ecs.PortMapping{
+		portMapping,
+	}
+
+	containerDefinition := &ecs.ContainerDefinition{}
+	containerDefinition.SetName("ctn_name")
+	containerDefinition.SetPortMappings(portMappings)
+
+	containerDefinitions := []*ecs.ContainerDefinition{
+		containerDefinition,
+	}
+
+	taskDefinition := &ecs.TaskDefinition{
+		ContainerDefinitions: containerDefinitions,
+	}
+
+	taskDefinitionOutput := &ecs.DescribeTaskDefinitionOutput{}
+	taskDefinitionOutput.SetTaskDefinition(taskDefinition)
+
+	mockAWS.ECS.EXPECT().
+		DescribeTaskDefinition(taskDefinitionInput).
+		Return(taskDefinitionOutput, nil)
 
 	// define expected CreateService
 	createServiceInput := &ecs.CreateServiceInput{}
