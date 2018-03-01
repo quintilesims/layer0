@@ -33,14 +33,8 @@ func TestTaskCreate_stateless(t *testing.T) {
 		{
 			EntityID:   "dpl_id",
 			EntityType: "deploy",
-			Key:        "name",
-			Value:      "dpl_name",
-		},
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "version",
-			Value:      "version",
+			Key:        "arn",
+			Value:      "dpl_arn",
 		},
 	}
 
@@ -51,7 +45,7 @@ func TestTaskCreate_stateless(t *testing.T) {
 	}
 
 	// define expected ec2.DescribeSecurityGroups
-	// (part of stateless workflow)
+	// (part of "awsvpc" NetworkMode workflow)
 	ec2Filter := &ec2.Filter{}
 	ec2Filter.SetName("group-name")
 	ec2Filter.SetValues([]*string{aws.String("l0-test-env_id-env")})
@@ -71,6 +65,39 @@ func TestTaskCreate_stateless(t *testing.T) {
 	mockAWS.EC2.EXPECT().
 		DescribeSecurityGroups(describeSecurityGroupsInput).
 		Return(describeSecurityGroupsOutput, nil)
+
+	// define expected ecs.DescribeTaskDefinition
+	taskDefinitionInput := &ecs.DescribeTaskDefinitionInput{}
+	taskDefinitionInput.SetTaskDefinition("dpl_arn")
+
+	portMapping := &ecs.PortMapping{}
+	portMapping.SetContainerPort(int64(80))
+
+	portMappings := []*ecs.PortMapping{
+		portMapping,
+	}
+
+	containerDefinition := &ecs.ContainerDefinition{}
+	containerDefinition.SetName("ctn_name")
+	containerDefinition.SetPortMappings(portMappings)
+
+	containerDefinitions := []*ecs.ContainerDefinition{
+		containerDefinition,
+	}
+
+	networkMode := "awsvpc"
+
+	taskDefinition := &ecs.TaskDefinition{
+		ContainerDefinitions: containerDefinitions,
+		NetworkMode:          &networkMode,
+	}
+
+	taskDefinitionOutput := &ecs.DescribeTaskDefinitionOutput{}
+	taskDefinitionOutput.SetTaskDefinition(taskDefinition)
+
+	mockAWS.ECS.EXPECT().
+		DescribeTaskDefinition(taskDefinitionInput).
+		Return(taskDefinitionOutput, nil)
 
 	// define expected RunTask
 	kvp := &ecs.KeyValuePair{}
@@ -99,7 +126,7 @@ func TestTaskCreate_stateless(t *testing.T) {
 	runTaskInput.SetOverrides(taskOverride)
 	runTaskInput.SetPlatformVersion(config.DefaultFargatePlatformVersion)
 	runTaskInput.SetStartedBy("test")
-	runTaskInput.SetTaskDefinition("l0-test-dpl_name:version")
+	runTaskInput.SetTaskDefinition("dpl_arn")
 
 	task := &ecs.Task{}
 	task.SetTaskArn("arn:aws:ecs:region:012345678910:task/arn")
@@ -177,14 +204,8 @@ func TestTaskCreate_stateful(t *testing.T) {
 		{
 			EntityID:   "dpl_id",
 			EntityType: "deploy",
-			Key:        "name",
-			Value:      "dpl_name",
-		},
-		{
-			EntityID:   "dpl_id",
-			EntityType: "deploy",
-			Key:        "version",
-			Value:      "version",
+			Key:        "arn",
+			Value:      "dpl_arn",
 		},
 	}
 
@@ -193,6 +214,36 @@ func TestTaskCreate_stateful(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
+
+	// define expected ecs.DescribeTaskDefinition
+	taskDefinitionInput := &ecs.DescribeTaskDefinitionInput{}
+	taskDefinitionInput.SetTaskDefinition("dpl_arn")
+
+	portMapping := &ecs.PortMapping{}
+	portMapping.SetContainerPort(int64(80))
+
+	portMappings := []*ecs.PortMapping{
+		portMapping,
+	}
+
+	containerDefinition := &ecs.ContainerDefinition{}
+	containerDefinition.SetName("ctn_name")
+	containerDefinition.SetPortMappings(portMappings)
+
+	containerDefinitions := []*ecs.ContainerDefinition{
+		containerDefinition,
+	}
+
+	taskDefinition := &ecs.TaskDefinition{
+		ContainerDefinitions: containerDefinitions,
+	}
+
+	taskDefinitionOutput := &ecs.DescribeTaskDefinitionOutput{}
+	taskDefinitionOutput.SetTaskDefinition(taskDefinition)
+
+	mockAWS.ECS.EXPECT().
+		DescribeTaskDefinition(taskDefinitionInput).
+		Return(taskDefinitionOutput, nil)
 
 	// define expected RunTask
 	kvp := &ecs.KeyValuePair{}
@@ -219,7 +270,7 @@ func TestTaskCreate_stateful(t *testing.T) {
 	runTaskInput.SetLaunchType(ecs.LaunchTypeEc2)
 	runTaskInput.SetOverrides(taskOverride)
 	runTaskInput.SetStartedBy("test")
-	runTaskInput.SetTaskDefinition("l0-test-dpl_name:version")
+	runTaskInput.SetTaskDefinition("dpl_arn")
 
 	task := &ecs.Task{}
 	task.SetTaskArn("arn:aws:ecs:region:012345678910:task/arn")
