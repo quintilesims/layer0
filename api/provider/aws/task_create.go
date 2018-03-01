@@ -27,20 +27,26 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	startedBy := t.Config.Instance()
 	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
 
-	deployName, deployVersion, err := lookupDeployNameAndVersion(t.TagStore, req.DeployID)
+	var fargatePlatformVersion string
+	if req.TaskType == models.DeployCompatibilityStateless {
+		fargatePlatformVersion = config.DefaultFargatePlatformVersion
+	}
+
+	taskDefinitionARN, err := lookupTaskDefinitionARNFromDeployID(t.TagStore, req.DeployID)
 	if err != nil {
 		return "", err
 	}
 
-	taskDefinitionFamily := addLayer0Prefix(t.Config.Instance(), deployName)
-	taskDefinitionVersion := deployVersion
+	taskDefinition, err := describeTaskDefinition(t.AWS.ECS, taskDefinitionARN)
+	if err != nil {
+		return "", err
+	}
 
-	var fargatePlatformVersion string
+	networkMode := aws.StringValue(taskDefinition.NetworkMode)
+
 	var securityGroupIDs []*string
 	var subnets []string
-	if req.TaskType == models.DeployCompatibilityStateless {
-		fargatePlatformVersion = config.DefaultFargatePlatformVersion
-
+	if networkMode == "awsvpc" {
 		environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
 		environmentSecurityGroup, err := readSG(t.AWS.EC2, environmentSecurityGroupName)
 		if err != nil {
@@ -56,8 +62,8 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 		clusterName,
 		req.TaskType,
 		startedBy,
-		taskDefinitionFamily,
-		taskDefinitionVersion,
+		taskDefinitionARN,
+		networkMode,
 		fargatePlatformVersion,
 		subnets,
 		securityGroupIDs,
@@ -103,8 +109,8 @@ func (t *TaskProvider) runTask(
 	clusterName,
 	taskType,
 	startedBy,
-	taskDefinitionFamily,
-	taskDefinitionRevision,
+	taskDefinitionARN,
+	networkMode,
 	fargatePlatformVersion string,
 	subnets []string,
 	securityGroupIDs []*string,
@@ -118,7 +124,12 @@ func (t *TaskProvider) runTask(
 	launchType := ecs.LaunchTypeEc2
 	if taskType == models.DeployCompatibilityStateless {
 		launchType = ecs.LaunchTypeFargate
+		input.SetPlatformVersion(fargatePlatformVersion)
+	}
 
+	input.SetLaunchType(launchType)
+
+	if networkMode == "awsvpc" {
 		s := make([]*string, len(subnets))
 		for i := range subnets {
 			s[i] = aws.String(subnets[i])
@@ -133,13 +144,9 @@ func (t *TaskProvider) runTask(
 		networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
 
 		input.SetNetworkConfiguration(networkConfig)
-		input.SetPlatformVersion(fargatePlatformVersion)
 	}
 
-	input.SetLaunchType(launchType)
-
-	taskFamilyRevision := fmt.Sprintf("%s:%s", taskDefinitionFamily, taskDefinitionRevision)
-	input.SetTaskDefinition(taskFamilyRevision)
+	input.SetTaskDefinition(taskDefinitionARN)
 
 	if err := input.Validate(); err != nil {
 		return nil, err
