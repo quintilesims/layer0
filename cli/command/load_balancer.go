@@ -403,7 +403,7 @@ func (l *LoadBalancerCommand) idletimeout(c *cli.Context) error {
 	}
 
 	req := models.UpdateLoadBalancerRequest{
-		IdleTimeout: idleTimeout,
+		IdleTimeout: &idleTimeout,
 	}
 
 	if err := l.client.UpdateLoadBalancer(loadBalancerID, req); err != nil {
