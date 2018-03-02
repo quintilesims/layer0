@@ -32,15 +32,12 @@ func (t *TaskProvider) Read(taskID string) (*models.Task, error) {
 		return nil, err
 	}
 
-	taskType := models.DeployCompatibilityStateless
-	if aws.StringValue(task.LaunchType) == ecs.LaunchTypeEc2 {
-		taskType = models.DeployCompatibilityStateful
-	}
+	stateful := bool(aws.StringValue(task.LaunchType) == ecs.LaunchTypeEc2)
 
 	taskFamily, _ := taskFamilyRevisionFromARN(aws.StringValue(task.TaskDefinitionArn))
 	deployID := delLayer0Prefix(t.Config.Instance(), taskFamily)
 
-	model, err := t.makeTaskModel(taskID, environmentID, deployID, taskType)
+	model, err := t.makeTaskModel(taskID, environmentID, deployID, stateful)
 	if err != nil {
 		return nil, err
 	}
@@ -112,12 +109,12 @@ func (t *TaskProvider) lookupTaskARN(taskID string) (string, error) {
 	return "", fmt.Errorf("Failed to find ARN for task '%s'", taskID)
 }
 
-func (t *TaskProvider) makeTaskModel(taskID, environmentID, deployID, taskType string) (*models.Task, error) {
+func (t *TaskProvider) makeTaskModel(taskID, environmentID, deployID string, stateful bool) (*models.Task, error) {
 	model := &models.Task{
 		DeployID:      deployID,
 		EnvironmentID: environmentID,
 		TaskID:        taskID,
-		TaskType:      taskType,
+		Stateful:      stateful,
 	}
 
 	taskTags, err := t.TagStore.SelectByTypeAndID("task", taskID)

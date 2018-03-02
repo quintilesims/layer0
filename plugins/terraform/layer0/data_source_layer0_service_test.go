@@ -27,12 +27,12 @@ func TestDataSourceLayer0ServiceRead_stateless(t *testing.T) {
 		Return([]models.Tag{{EntityID: "svc_id"}}, nil)
 
 	service := &models.Service{
-		ServiceID:       "svc_id",
-		ServiceName:     "svc_name",
-		ServiceType:     models.DeployCompatibilityStateless,
+		DesiredCount:    2,
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
-		DesiredCount:    2,
+		ServiceID:       "svc_id",
+		ServiceName:     "svc_name",
+		Stateful:        false,
 	}
 
 	mockClient.EXPECT().
@@ -73,12 +73,12 @@ func TestDataSourceLayer0ServiceRead_stateful(t *testing.T) {
 		Return([]models.Tag{{EntityID: "svc_id"}}, nil)
 
 	service := &models.Service{
-		ServiceID:       "svc_id",
-		ServiceName:     "svc_name",
-		ServiceType:     models.DeployCompatibilityStateful,
+		DesiredCount:    2,
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
-		DesiredCount:    2,
+		ServiceID:       "svc_id",
+		ServiceName:     "svc_name",
+		Stateful:        true,
 	}
 
 	mockClient.EXPECT().

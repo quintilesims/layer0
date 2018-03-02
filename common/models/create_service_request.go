@@ -12,7 +12,7 @@ type CreateServiceRequest struct {
 	LoadBalancerID string `json:"load_balancer_id"`
 	Scale          int    `json:"scale"`
 	ServiceName    string `json:"service_name"`
-	ServiceType    string `json:"service_type"`
+	Stateful       bool   `json:"stateful"`
 }
 
 func (c CreateServiceRequest) Validate() error {
@@ -44,7 +44,7 @@ func (s CreateServiceRequest) Definition() swagger.Definition {
 			"load_balancer_id": swagger.NewStringProperty(),
 			"scale":            swagger.NewIntProperty(),
 			"service_name":     swagger.NewStringProperty(),
-			"service_type":     swagger.NewStringProperty(),
+			"stateful":         swagger.NewBoolProperty(),
 		},
 	}
 }

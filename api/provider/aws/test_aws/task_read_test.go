@@ -99,15 +99,15 @@ func TestTaskRead_stateless(t *testing.T) {
 	}
 
 	expected := &models.Task{
-		TaskID:        "tsk_id",
-		TaskName:      "tsk_name",
-		TaskType:      models.DeployCompatibilityStateless,
-		EnvironmentID: "env_id",
+		Containers:    []models.Container{container},
 		DeployID:      "dpl_id",
 		DeployName:    "dpl_name",
 		DeployVersion: "deployVersion",
+		EnvironmentID: "env_id",
+		TaskID:        "tsk_id",
+		TaskName:      "tsk_name",
+		Stateful:      false,
 		Status:        "RUNNING",
-		Containers:    []models.Container{container},
 	}
 
 	assert.Equal(t, expected, result)
@@ -198,15 +198,15 @@ func TestTaskRead_stateful(t *testing.T) {
 	}
 
 	expected := &models.Task{
-		TaskID:        "tsk_id",
-		TaskName:      "tsk_name",
-		TaskType:      models.DeployCompatibilityStateful,
-		EnvironmentID: "env_id",
+		Containers:    []models.Container{container},
 		DeployID:      "dpl_id",
 		DeployName:    "dpl_name",
 		DeployVersion: "deployVersion",
+		EnvironmentID: "env_id",
+		TaskID:        "tsk_id",
+		TaskName:      "tsk_name",
+		Stateful:      true,
 		Status:        "RUNNING",
-		Containers:    []models.Container{container},
 	}
 
 	assert.Equal(t, expected, result)

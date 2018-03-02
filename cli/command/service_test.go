@@ -31,7 +31,7 @@ func TestCreateService(t *testing.T) {
 		LoadBalancerID: "lb_id",
 		Scale:          3,
 		ServiceName:    "svc_name",
-		ServiceType:    models.DeployCompatibilityStateless,
+		Stateful:       false,
 	}
 
 	base.Client.EXPECT().
@@ -75,7 +75,7 @@ func TestCreateService_stateful(t *testing.T) {
 		LoadBalancerID: "lb_id",
 		Scale:          3,
 		ServiceName:    "svc_name",
-		ServiceType:    models.DeployCompatibilityStateful,
+		Stateful:       true,
 	}
 
 	base.Client.EXPECT().

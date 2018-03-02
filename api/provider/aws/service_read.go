@@ -25,10 +25,7 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 		return nil, err
 	}
 
-	serviceType := models.DeployCompatibilityStateless
-	if aws.StringValue(ecsService.LaunchType) == ecs.LaunchTypeEc2 {
-		serviceType = models.DeployCompatibilityStateful
-	}
+	stateful := bool(aws.StringValue(ecsService.LaunchType) == ecs.LaunchTypeEc2)
 
 	var deployments []models.Deployment
 	for _, d := range ecsService.Deployments {
@@ -61,7 +58,7 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 		loadBalancerID = delLayer0Prefix(s.Config.Instance(), fqLoadBalancerID)
 	}
 
-	model, err := s.makeServiceModel(environmentID, loadBalancerID, serviceID, serviceType)
+	model, err := s.makeServiceModel(environmentID, loadBalancerID, serviceID, stateful)
 	if err != nil {
 		return nil, err
 	}
@@ -95,12 +92,12 @@ func (s *ServiceProvider) makeDeploymentModel(deployID string) (*models.Deployme
 	return model, nil
 }
 
-func (s *ServiceProvider) makeServiceModel(environmentID, loadBalancerID, serviceID, serviceType string) (*models.Service, error) {
+func (s *ServiceProvider) makeServiceModel(environmentID, loadBalancerID, serviceID string, stateful bool) (*models.Service, error) {
 	model := &models.Service{
 		EnvironmentID:  environmentID,
 		LoadBalancerID: loadBalancerID,
 		ServiceID:      serviceID,
-		ServiceType:    serviceType,
+		Stateful:       stateful,
 	}
 
 	tags, err := s.TagStore.SelectByTypeAndID("service", serviceID)

@@ -48,7 +48,6 @@ func resourceLayer0Service() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
-				Computed: true,
 			},
 		},
 	}
@@ -57,18 +56,13 @@ func resourceLayer0Service() *schema.Resource {
 func resourceLayer0ServiceCreate(d *schema.ResourceData, meta interface{}) error {
 	apiClient := meta.(client.Client)
 
-	serviceType := models.DeployCompatibilityStateless
-	if d.Get("stateful").(bool) == true {
-		serviceType = models.DeployCompatibilityStateful
-	}
-
 	req := models.CreateServiceRequest{
 		ServiceName:    d.Get("name").(string),
 		EnvironmentID:  d.Get("environment").(string),
 		DeployID:       d.Get("deploy").(string),
 		LoadBalancerID: d.Get("load_balancer").(string),
 		Scale:          d.Get("scale").(int),
-		ServiceType:    serviceType,
+		Stateful:       d.Get("stateful").(bool),
 	}
 
 	serviceID, err := apiClient.CreateService(req)
@@ -104,7 +98,7 @@ func resourceLayer0ServiceRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("environment", service.EnvironmentID)
 	d.Set("load_balancer", service.LoadBalancerID)
 	d.Set("scale", service.DesiredCount)
-	d.Set("stateful", bool(service.ServiceType == models.DeployCompatibilityStateful))
+	d.Set("stateful", service.Stateful)
 
 	for _, deployment := range service.Deployments {
 		if deployment.Status == "PRIMARY" {

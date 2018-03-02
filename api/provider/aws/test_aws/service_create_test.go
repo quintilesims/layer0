@@ -117,7 +117,7 @@ func TestServiceCreate_loadBalancer(t *testing.T) {
 		containerDefinition,
 	}
 
-	networkMode := "awsvpc"
+	networkMode := ecs.NetworkModeAwsvpc
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: containerDefinitions,
@@ -169,7 +169,7 @@ func TestServiceCreate_loadBalancer(t *testing.T) {
 		EnvironmentID:  "env_id",
 		LoadBalancerID: "lb_id",
 		ServiceName:    "svc_name",
-		ServiceType:    models.DeployCompatibilityStateless,
+		Stateful:       false,
 	}
 
 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
@@ -275,7 +275,7 @@ func TestServiceCreate_stateless(t *testing.T) {
 		containerDefinition,
 	}
 
-	networkMode := "awsvpc"
+	networkMode := ecs.NetworkModeAwsvpc
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: containerDefinitions,
@@ -316,7 +316,7 @@ func TestServiceCreate_stateless(t *testing.T) {
 		DeployID:      "dpl_id",
 		EnvironmentID: "env_id",
 		ServiceName:   "svc_name",
-		ServiceType:   models.DeployCompatibilityStateless,
+		Stateful:      false,
 	}
 
 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
@@ -421,7 +421,7 @@ func TestServiceCreate_stateful(t *testing.T) {
 		DeployID:      "dpl_id",
 		EnvironmentID: "env_id",
 		ServiceName:   "svc_name",
-		ServiceType:   models.DeployCompatibilityStateful,
+		Stateful:      true,
 	}
 
 	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)

@@ -281,7 +281,7 @@ func ExampleTextPrintServices() {
 			RunningCount:     1,
 			ServiceID:        "id1",
 			ServiceName:      "svc1",
-			ServiceType:      models.DeployCompatibilityStateless,
+			Stateful:         false,
 		},
 		{
 			Deployments: []models.Deployment{
@@ -293,7 +293,7 @@ func ExampleTextPrintServices() {
 			RunningCount:   1,
 			ServiceID:      "id2",
 			ServiceName:    "svc2",
-			ServiceType:    models.DeployCompatibilityStateful,
+			Stateful:       true,
 		},
 		{
 			Deployments: []models.Deployment{
@@ -305,7 +305,7 @@ func ExampleTextPrintServices() {
 			RunningCount:  0,
 			ServiceID:     "id3",
 			ServiceName:   "svc3",
-			ServiceType:   models.DeployCompatibilityStateless,
+			Stateful:      false,
 		},
 		{
 			Deployments: []models.Deployment{
@@ -317,7 +317,7 @@ func ExampleTextPrintServices() {
 			RunningCount:  1,
 			ServiceID:     "id4",
 			ServiceName:   "svc4",
-			ServiceType:   models.DeployCompatibilityStateful,
+			Stateful:      true,
 		},
 		{
 			Deployments: []models.Deployment{
@@ -329,18 +329,18 @@ func ExampleTextPrintServices() {
 			RunningCount:  2,
 			ServiceID:     "id5",
 			ServiceName:   "svc5",
-			ServiceType:   models.DeployCompatibilityStateful,
+			Stateful:      true,
 		},
 	}
 
 	printer.PrintServices(services...)
 	// Output:
-	// SERVICE ID  SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE    TYPE
-	// id1         svc1          ename1       lname1        d1:1         1/1      stateless
-	// id2         svc2          eid2         lid2          d2:1         1/1      stateful
-	// id3         svc3          eid3                       d3:1*        0/1 (1)  stateless
-	// id4         svc4          eid4                       d4:1*        1/2 (1)  stateful
-	// id5         svc5          eid5                       d5:1*        2/1      stateful
+	// SERVICE ID  SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE    STATEFUL
+	// id1         svc1          ename1       lname1        d1:1         1/1      false
+	// id2         svc2          eid2         lid2          d2:1         1/1      true
+	// id3         svc3          eid3                       d3:1*        0/1 (1)  false
+	// id4         svc4          eid4                       d4:1*        1/2 (1)  true
+	// id5         svc5          eid5                       d5:1*        2/1      true
 	//                                                      d5:2*
 }
 
@@ -369,7 +369,7 @@ func ExampleTextPrintTasks() {
 			Status:          "RUNNING",
 			TaskID:          "id1",
 			TaskName:        "tsk1",
-			TaskType:        models.DeployCompatibilityStateless,
+			Stateful:        false,
 		},
 		{
 			DeployID:      "d2.1",
@@ -377,7 +377,7 @@ func ExampleTextPrintTasks() {
 			Status:        "RUNNING",
 			TaskID:        "id2",
 			TaskName:      "tsk2",
-			TaskType:      models.DeployCompatibilityStateful,
+			Stateful:      true,
 		},
 		{
 			DeployID:      "d3.1",
@@ -385,7 +385,7 @@ func ExampleTextPrintTasks() {
 			Status:        "RUNNING",
 			TaskID:        "id3",
 			TaskName:      "tsk3",
-			TaskType:      models.DeployCompatibilityStateless,
+			Stateful:      false,
 		},
 		{
 			DeployID:      "d4.1",
@@ -393,17 +393,17 @@ func ExampleTextPrintTasks() {
 			Status:        "RUNNING",
 			TaskID:        "id4",
 			TaskName:      "tsk4",
-			TaskType:      models.DeployCompatibilityStateful,
+			Stateful:      true,
 		},
 	}
 
 	printer.PrintTasks(tasks...)
 	// Output:
-	// TASK ID  TASK NAME  ENVIRONMENT  DEPLOY  STATUS   TYPE
-	// id1      tsk1       ename1       d1:1    RUNNING  stateless
-	// id2      tsk2       eid2         d2:1    RUNNING  stateful
-	// id3      tsk3       eid3         d3:1    RUNNING  stateless
-	// id4      tsk4       eid4         d4:1    RUNNING  stateful
+	// TASK ID  TASK NAME  ENVIRONMENT  DEPLOY  STATUS   STATEFUL
+	// id1      tsk1       ename1       d1:1    RUNNING  false
+	// id2      tsk2       eid2         d2:1    RUNNING  true
+	// id3      tsk3       eid3         d3:1    RUNNING  false
+	// id4      tsk4       eid4         d4:1    RUNNING  true
 }
 
 func ExampleTextPrintTaskSummaries() {
