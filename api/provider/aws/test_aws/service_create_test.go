@@ -168,6 +168,7 @@ func TestServiceCreate_loadBalancer(t *testing.T) {
 		DeployID:       "dpl_id",
 		EnvironmentID:  "env_id",
 		LoadBalancerID: "lb_id",
+		Scale:          1,
 		ServiceName:    "svc_name",
 		Stateful:       false,
 	}
@@ -300,7 +301,7 @@ func TestServiceCreate_stateless(t *testing.T) {
 
 	createServiceInput := &ecs.CreateServiceInput{}
 	createServiceInput.SetCluster("l0-test-env_id")
-	createServiceInput.SetDesiredCount(1)
+	createServiceInput.SetDesiredCount(0)
 	createServiceInput.SetLaunchType(ecs.LaunchTypeFargate)
 	createServiceInput.SetNetworkConfiguration(networkConfig)
 	createServiceInput.SetPlatformVersion(config.DefaultFargatePlatformVersion)
@@ -407,7 +408,7 @@ func TestServiceCreate_stateful(t *testing.T) {
 	// define expected CreateService
 	createServiceInput := &ecs.CreateServiceInput{}
 	createServiceInput.SetCluster("l0-test-env_id")
-	createServiceInput.SetDesiredCount(1)
+	createServiceInput.SetDesiredCount(2)
 	createServiceInput.SetLaunchType(ecs.LaunchTypeEc2)
 	createServiceInput.SetServiceName("l0-test-svc_id")
 	createServiceInput.SetTaskDefinition("dpl_arn")
@@ -420,6 +421,7 @@ func TestServiceCreate_stateful(t *testing.T) {
 	req := models.CreateServiceRequest{
 		DeployID:      "dpl_id",
 		EnvironmentID: "env_id",
+		Scale:         2,
 		ServiceName:   "svc_name",
 		Stateful:      true,
 	}

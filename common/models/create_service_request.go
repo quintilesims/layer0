@@ -28,7 +28,7 @@ func (c CreateServiceRequest) Validate() error {
 		return fmt.Errorf("DeployID is required")
 	}
 
-	if c.Scale < 0 {
+	if c.Scale < 1 {
 		return fmt.Errorf("Scale must be a positive integer")
 	}
 
