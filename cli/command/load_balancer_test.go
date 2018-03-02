@@ -192,8 +192,9 @@ func TestLoadBalancerIdleTimeout(t *testing.T) {
 		Resolve("load_balancer", "lb_name").
 		Return([]string{"lb_id"}, nil)
 
+	idleTimeout := 80
 	req := models.UpdateLoadBalancerRequest{
-		IdleTimeout: 80,
+		IdleTimeout: &idleTimeout,
 	}
 
 	base.Client.EXPECT().
@@ -214,6 +215,7 @@ func TestLoadBalancerIdleTimeoutInputErrors(t *testing.T) {
 	testInputErrors(t, NewLoadBalancerCommand(nil).Command(), map[string]string{
 		"Missing LOAD_BALANCER_NAME arg": "l0 loadbalancer idletimeout",
 		"Missing TIMEOUT arg":            "l0 loadbalancer idletimeout name",
+		"Invalid TIMEOUT arg":            "l0 loadbalancer idletimeout name foo",
 	})
 }
 

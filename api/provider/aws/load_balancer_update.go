@@ -82,9 +82,9 @@ func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLo
 		}
 	}
 
-	if req.IdleTimeout != 0 {
+	if req.IdleTimeout != nil {
 		idleTimeout := req.IdleTimeout
-		if err := l.setIdleTimeout(loadBalancerName, idleTimeout); err != nil {
+		if err := l.setIdleTimeout(loadBalancerName, *idleTimeout); err != nil {
 			return err
 		}
 	}

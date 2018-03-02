@@ -7,7 +7,7 @@ import (
 type UpdateLoadBalancerRequest struct {
 	Ports       *[]Port      `json:"ports"`
 	HealthCheck *HealthCheck `json:"health_check"`
-	IdleTimeout int          `json:"idle_timeout"`
+	IdleTimeout *int         `json:"idle_timeout"`
 }
 
 func (u UpdateLoadBalancerRequest) Validate() error {

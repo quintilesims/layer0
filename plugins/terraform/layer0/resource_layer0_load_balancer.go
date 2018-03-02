@@ -183,10 +183,10 @@ func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) 
 
 	if d.HasChange("idle_timeout") {
 		idleTimeout := d.Get("idle_timeout").(int)
-		req.IdleTimeout = idleTimeout
+		req.IdleTimeout = &idleTimeout
 	}
 
-	if req.Ports != nil || req.HealthCheck != nil || req.IdleTimeout != 0 {
+	if req.Ports != nil || req.HealthCheck != nil || req.IdleTimeout != nil {
 		if err := apiClient.UpdateLoadBalancer(loadBalancerID, req); err != nil {
 			return err
 		}

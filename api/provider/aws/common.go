@@ -43,10 +43,6 @@ func describeLoadBalancerAttributes(elbapi elbiface.ELBAPI, loadBalancerName str
 
 	output, err := elbapi.DescribeLoadBalancerAttributes(input)
 	if err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerAttributeNotFound" {
-			return nil, errors.Newf(errors.LoadBalancerAttributeNotFound, "LoadBalancer attributes cannot be described for LoadBalancer '%s'", loadBalancerName)
-		}
-
 		return nil, err
 	}
 

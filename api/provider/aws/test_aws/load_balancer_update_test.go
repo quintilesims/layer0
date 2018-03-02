@@ -54,7 +54,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 	req := models.UpdateLoadBalancerRequest{
 		Ports:       &requestPorts,
 		HealthCheck: requestHealthCheck,
-		IdleTimeout: idleTimeout,
+		IdleTimeout: &idleTimeout,
 	}
 
 	configureHealthCheckInput := &elb.ConfigureHealthCheckInput{}

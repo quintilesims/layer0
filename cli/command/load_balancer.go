@@ -394,7 +394,7 @@ func (l *LoadBalancerCommand) idletimeout(c *cli.Context) error {
 
 	idleTimeout, err := strconv.Atoi(args["TIMEOUT"])
 	if err != nil {
-		return fmt.Errorf("Failed to parse TIMEOUT argument: %v", args["TIMEOUT"])
+		return fmt.Errorf("Failed to parse TIMEOUT argument: %v", err)
 	}
 
 	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOAD_BALANCER_NAME"])
