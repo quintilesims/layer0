@@ -17,6 +17,7 @@ func (t *TestPrinter) PrintEnvironmentSummaries(...models.EnvironmentSummary) er
 func (t *TestPrinter) PrintLoadBalancers(...*models.LoadBalancer) error               { return nil }
 func (t *TestPrinter) PrintLoadBalancerSummaries(...models.LoadBalancerSummary) error { return nil }
 func (t *TestPrinter) PrintLoadBalancerHealthCheck(*models.LoadBalancer) error        { return nil }
+func (t *TestPrinter) PrintLoadBalancerIdleTimeout(*models.LoadBalancer) error        { return nil }
 func (t *TestPrinter) PrintLogs(...models.LogFile) error                              { return nil }
 func (t *TestPrinter) PrintServices(...*models.Service) error                         { return nil }
 func (t *TestPrinter) PrintServiceSummaries(...models.ServiceSummary) error           { return nil }

@@ -193,6 +193,46 @@ func ExampleTextPrintLoadBalancerHealthCheck() {
 	// id2              lb2                eid1         http:80/health  6         10       3                  5
 }
 
+func ExampleTextPrintLoadBalancerIdleTimeout() {
+	printer := &TextPrinter{}
+	loadBalancer1 := &models.LoadBalancer{
+		LoadBalancerID:   "id1",
+		LoadBalancerName: "lb1",
+		EnvironmentID:    "eid1",
+		EnvironmentName:  "ename1",
+		HealthCheck: models.HealthCheck{
+			Target:             "tcp:22",
+			Interval:           5,
+			Timeout:            30,
+			HealthyThreshold:   10,
+			UnhealthyThreshold: 2,
+		},
+		IdleTimeout: 75,
+	}
+
+	loadBalancer2 := &models.LoadBalancer{
+		LoadBalancerID:   "id2",
+		LoadBalancerName: "lb2",
+		EnvironmentID:    "eid1",
+		HealthCheck: models.HealthCheck{
+			Target:             "http:80/health",
+			Interval:           6,
+			Timeout:            10,
+			HealthyThreshold:   3,
+			UnhealthyThreshold: 5,
+		},
+		IdleTimeout: 85,
+	}
+
+	printer.PrintLoadBalancerIdleTimeout(loadBalancer1)
+	printer.PrintLoadBalancerIdleTimeout(loadBalancer2)
+	// Output:
+	// LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  IDLE TIMEOUT
+	// id1              lb1                ename1       75
+	// LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  IDLE TIMEOUT
+	// id2              lb2                eid1         85
+}
+
 func ExampleTextPrintLogs() {
 	printer := &TextPrinter{}
 	logs := []models.LogFile{

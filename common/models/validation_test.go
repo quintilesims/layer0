@@ -49,7 +49,7 @@ func TestRequestModelValidation(t *testing.T) {
 			EnvironmentID:    "env_id",
 			IsPublic:         true,
 			Ports: []Port{
-				{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+				{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "cert"},
 				{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
 			},
 			HealthCheck: HealthCheck{
@@ -108,10 +108,10 @@ func TestRequestModelValidation(t *testing.T) {
 
 	port := func(fn func(*Port)) *Port {
 		p := &Port{
-			HostPort:        443,
-			ContainerPort:   80,
-			Protocol:        "https",
-			CertificateName: "cert",
+			HostPort:       443,
+			ContainerPort:  80,
+			Protocol:       "https",
+			CertificateARN: "cert",
 		}
 
 		fn(p)
