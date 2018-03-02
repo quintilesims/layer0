@@ -154,7 +154,7 @@ func TestServiceRead_loadBalancer(t *testing.T) {
 		RunningCount:     1,
 		ServiceID:        "svc_id",
 		ServiceName:      "svc_name",
-		ServiceType:      models.DeployCompatibilityStateless,
+		Stateful:         false,
 	}
 
 	assert.Equal(t, expected, result)
@@ -276,7 +276,7 @@ func TestServiceRead_stateless(t *testing.T) {
 		RunningCount:    1,
 		ServiceID:       "svc_id",
 		ServiceName:     "svc_name",
-		ServiceType:     models.DeployCompatibilityStateless,
+		Stateful:        false,
 	}
 
 	assert.Equal(t, expected, result)
@@ -399,7 +399,7 @@ func TestServiceRead_stateful(t *testing.T) {
 		RunningCount:    1,
 		ServiceID:       "svc_id",
 		ServiceName:     "svc_name",
-		ServiceType:     models.DeployCompatibilityStateful,
+		Stateful:        true,
 	}
 
 	assert.Equal(t, expected, result)

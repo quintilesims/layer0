@@ -85,7 +85,7 @@ func TestTaskCreate_stateless(t *testing.T) {
 		containerDefinition,
 	}
 
-	networkMode := "awsvpc"
+	networkMode := ecs.NetworkModeAwsvpc
 
 	taskDefinition := &ecs.TaskDefinition{
 		ContainerDefinitions: containerDefinitions,
@@ -151,7 +151,7 @@ func TestTaskCreate_stateless(t *testing.T) {
 		DeployID:           "dpl_id",
 		EnvironmentID:      "env_id",
 		TaskName:           "tsk_name",
-		TaskType:           models.DeployCompatibilityStateless,
+		Stateful:           false,
 	}
 
 	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)
@@ -295,7 +295,7 @@ func TestTaskCreate_stateful(t *testing.T) {
 		DeployID:           "dpl_id",
 		EnvironmentID:      "env_id",
 		TaskName:           "tsk_name",
-		TaskType:           models.DeployCompatibilityStateful,
+		Stateful:           true,
 	}
 
 	target := provider.NewTaskProvider(mockAWS.Client(), tagStore, mockConfig)

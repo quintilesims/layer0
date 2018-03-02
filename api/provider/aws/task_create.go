@@ -28,7 +28,7 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
 
 	var fargatePlatformVersion string
-	if req.TaskType == models.DeployCompatibilityStateless {
+	if !req.Stateful {
 		fargatePlatformVersion = config.DefaultFargatePlatformVersion
 	}
 
@@ -46,7 +46,7 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 
 	var securityGroupIDs []*string
 	var subnets []string
-	if networkMode == "awsvpc" {
+	if networkMode == ecs.NetworkModeAwsvpc {
 		environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
 		environmentSecurityGroup, err := readSG(t.AWS.EC2, environmentSecurityGroupName)
 		if err != nil {
@@ -60,11 +60,11 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 
 	task, err := t.runTask(
 		clusterName,
-		req.TaskType,
 		startedBy,
 		taskDefinitionARN,
 		networkMode,
 		fargatePlatformVersion,
+		req.Stateful,
 		subnets,
 		securityGroupIDs,
 		taskOverrides)
@@ -107,11 +107,11 @@ func convertContainerOverrides(overrides []models.ContainerOverride) *ecs.TaskOv
 
 func (t *TaskProvider) runTask(
 	clusterName,
-	taskType,
 	startedBy,
 	taskDefinitionARN,
 	networkMode,
 	fargatePlatformVersion string,
+	stateful bool,
 	subnets []string,
 	securityGroupIDs []*string,
 	overrides *ecs.TaskOverride,
@@ -122,14 +122,14 @@ func (t *TaskProvider) runTask(
 	input.SetOverrides(overrides)
 
 	launchType := ecs.LaunchTypeEc2
-	if taskType == models.DeployCompatibilityStateless {
+	if !stateful {
 		launchType = ecs.LaunchTypeFargate
 		input.SetPlatformVersion(fargatePlatformVersion)
 	}
 
 	input.SetLaunchType(launchType)
 
-	if networkMode == "awsvpc" {
+	if networkMode == ecs.NetworkModeAwsvpc {
 		s := make([]*string, len(subnets))
 		for i := range subnets {
 			s[i] = aws.String(subnets[i])

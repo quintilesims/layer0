@@ -69,7 +69,7 @@ func dataSourceLayer0ServiceRead(d *schema.ResourceData, meta interface{}) error
 	d.Set("environment_id", service.EnvironmentID)
 	d.Set("environment_name", service.EnvironmentName)
 	d.Set("scale", service.DesiredCount)
-	d.Set("stateful", bool(service.ServiceType == models.DeployCompatibilityStateful))
+	d.Set("stateful", service.Stateful)
 
 	return nil
 }

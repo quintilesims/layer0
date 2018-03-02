@@ -35,7 +35,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	}
 
 	var fargatePlatformVersion string
-	if req.ServiceType == models.DeployCompatibilityStateless {
+	if !req.Stateful {
 		fargatePlatformVersion = config.DefaultFargatePlatformVersion
 	}
 
@@ -53,7 +53,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 
 	var securityGroupIDs []*string
 	var subnets []string
-	if networkMode == "awsvpc" {
+	if networkMode == ecs.NetworkModeAwsvpc {
 		environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
 		environmentSecurityGroup, err := readSG(s.AWS.EC2, environmentSecurityGroupName)
 		if err != nil {
@@ -104,12 +104,12 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 
 	if err := s.createService(
 		cluster,
-		req.ServiceType,
 		serviceName,
 		taskDefinitionARN,
 		loadBalancerRole,
 		networkMode,
 		fargatePlatformVersion,
+		req.Stateful,
 		scale,
 		subnets,
 		securityGroupIDs,
@@ -127,12 +127,12 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 
 func (s *ServiceProvider) createService(
 	cluster,
-	serviceType,
 	serviceName,
 	taskDefinitionARN,
 	loadBalancerRole,
 	networkMode,
 	fargatePlatformVersion string,
+	stateful bool,
 	desiredCount int,
 	subnets []string,
 	securityGroupIDs []*string,
@@ -145,14 +145,14 @@ func (s *ServiceProvider) createService(
 	input.SetTaskDefinition(taskDefinitionARN)
 
 	launchType := ecs.LaunchTypeEc2
-	if serviceType == models.DeployCompatibilityStateless {
+	if !stateful {
 		launchType = ecs.LaunchTypeFargate
 		input.SetPlatformVersion(fargatePlatformVersion)
 	}
 
 	input.SetLaunchType(launchType)
 
-	if networkMode == "awsvpc" {
+	if networkMode == ecs.NetworkModeAwsvpc {
 		s := make([]*string, len(subnets))
 		for i := range subnets {
 			s[i] = aws.String(subnets[i])
