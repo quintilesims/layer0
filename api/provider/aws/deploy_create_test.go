@@ -47,9 +47,7 @@ func TestDeploy_createTags(t *testing.T) {
 		},
 	}
 
-	for _, tag := range expectedTags {
-		assert.Contains(t, tagStore.Tags(), tag)
-	}
+	assert.Equal(t, expectedTags, tagStore.Tags())
 }
 
 func TestDeploy_renderTaskDefinition(t *testing.T) {
@@ -74,7 +72,7 @@ func TestDeploy_renderTaskDefinition(t *testing.T) {
 	taskDef.SetContainerDefinitions(containers)
 	taskDef.SetFamily("test_family")
 	taskDef.SetNetworkMode("bridge")
-	taskDef.SetRequiresCompatibilities([]*string{aws.String("EC2")})
+	taskDef.SetRequiresCompatibilities([]*string{aws.String(ecs.LaunchTypeEc2)})
 
 	bytes, err := json.Marshal(taskDef)
 	if err != nil {
@@ -137,7 +135,7 @@ func TestDeploy_renderTaskDefinition_defaults(t *testing.T) {
 	expected := &ecs.TaskDefinition{}
 	expected.SetContainerDefinitions(expectedContainers)
 	expected.SetFamily("test_family")
-	expected.SetRequiresCompatibilities([]*string{aws.String("EC2"), aws.String("FARGATE")})
+	expected.SetRequiresCompatibilities([]*string{aws.String(ecs.LaunchTypeEc2), aws.String(ecs.LaunchTypeFargate)})
 
 	assert.Equal(t, expected, renderedTaskDef)
 }

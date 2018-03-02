@@ -32,9 +32,7 @@ func TestEnvironment_createTags(t *testing.T) {
 		},
 	}
 
-	for _, tag := range expectedTags {
-		assert.Contains(t, tagStore.Tags(), tag)
-	}
+	assert.Equal(t, expectedTags, tagStore.Tags())
 }
 
 func TestEnvironment_RenderUserData(t *testing.T) {

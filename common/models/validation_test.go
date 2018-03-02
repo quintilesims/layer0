@@ -129,7 +129,6 @@ func TestRequestModelValidation(t *testing.T) {
 		return req
 	}
 
-	// todo: dynamic environment checks? may not be required depending on changes
 	cases := map[string]Validator{
 		"ContainerOverride: Missing ContainerName": containerOverride(func(c *ContainerOverride) {
 			c.ContainerName = ""
