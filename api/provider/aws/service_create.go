@@ -33,16 +33,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	serviceID := entityIDGenerator(req.ServiceName)
 	fqServiceID := addLayer0Prefix(s.Config.Instance(), serviceID)
 	serviceName := fqServiceID
-
 	scale := req.Scale
-	if req.Scale == 0 {
-		scale = 1
-	}
-
-	var fargatePlatformVersion string
-	if !req.Stateful {
-		fargatePlatformVersion = config.DefaultFargatePlatformVersion
-	}
 
 	taskDefinitionARN, err := lookupTaskDefinitionARNFromDeployID(s.TagStore, req.DeployID)
 	if err != nil {
@@ -114,7 +105,6 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 			taskDefinitionARN,
 			loadBalancerRole,
 			networkMode,
-			fargatePlatformVersion,
 			req.Stateful,
 			scale,
 			subnets,
@@ -148,8 +138,7 @@ func (s *ServiceProvider) createService(
 	serviceName,
 	taskDefinitionARN,
 	loadBalancerRole,
-	networkMode,
-	fargatePlatformVersion string,
+	networkMode string,
 	stateful bool,
 	desiredCount int,
 	subnets []string,
@@ -165,7 +154,7 @@ func (s *ServiceProvider) createService(
 	launchType := ecs.LaunchTypeEc2
 	if !stateful {
 		launchType = ecs.LaunchTypeFargate
-		input.SetPlatformVersion(fargatePlatformVersion)
+		input.SetPlatformVersion(config.DefaultFargatePlatformVersion)
 	}
 
 	input.SetLaunchType(launchType)

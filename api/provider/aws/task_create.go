@@ -27,11 +27,6 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	startedBy := t.Config.Instance()
 	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
 
-	var fargatePlatformVersion string
-	if !req.Stateful {
-		fargatePlatformVersion = config.DefaultFargatePlatformVersion
-	}
-
 	taskDefinitionARN, err := lookupTaskDefinitionARNFromDeployID(t.TagStore, req.DeployID)
 	if err != nil {
 		return "", err
@@ -63,7 +58,6 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 		startedBy,
 		taskDefinitionARN,
 		networkMode,
-		fargatePlatformVersion,
 		req.Stateful,
 		subnets,
 		securityGroupIDs,
@@ -109,8 +103,7 @@ func (t *TaskProvider) runTask(
 	clusterName,
 	startedBy,
 	taskDefinitionARN,
-	networkMode,
-	fargatePlatformVersion string,
+	networkMode string,
 	stateful bool,
 	subnets []string,
 	securityGroupIDs []*string,
@@ -124,7 +117,7 @@ func (t *TaskProvider) runTask(
 	launchType := ecs.LaunchTypeEc2
 	if !stateful {
 		launchType = ecs.LaunchTypeFargate
-		input.SetPlatformVersion(fargatePlatformVersion)
+		input.SetPlatformVersion(config.DefaultFargatePlatformVersion)
 	}
 
 	input.SetLaunchType(launchType)

@@ -80,9 +80,7 @@ func TestCreateTask_stateful(t *testing.T) {
 		assert.Equal(t, "env_id", req.EnvironmentID)
 		assert.Equal(t, "dpl_id", req.DeployID)
 
-		assert.Len(t, req.ContainerOverrides, len(overrides))
-		assert.Contains(t, req.ContainerOverrides, overrides[0])
-		assert.Contains(t, req.ContainerOverrides, overrides[1])
+		assert.ElementsMatch(t, req.ContainerOverrides, overrides)
 	}
 
 	base.Client.EXPECT().

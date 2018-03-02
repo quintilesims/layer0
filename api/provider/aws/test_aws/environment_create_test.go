@@ -157,7 +157,6 @@ func TestEnvironmentCreateDefaults(t *testing.T) {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName: "env_name",
-		Scale:           1,
 	}
 
 	// using create/read helpers instead of gomock.Any() for readability

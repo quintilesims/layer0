@@ -17,7 +17,7 @@ func (u UpdateServiceRequest) Validate() error {
 	}
 
 	if u.Scale != nil && *u.Scale < 0 {
-		return fmt.Errorf("Scale must be omitted or a positive integer")
+		return fmt.Errorf("Scale must be omitted or a non-negative integer")
 	}
 
 	return nil
