@@ -20,12 +20,12 @@ func TestResourceServiceCreateRead_stateless(t *testing.T) {
 	defer client.SetTimeMultiplier(0)()
 
 	req := models.CreateServiceRequest{
-		ServiceName:    "svc_name",
+		DeployID:       "dpl_id",
 		EnvironmentID:  "env_id",
 		LoadBalancerID: "lb_id",
-		DeployID:       "dpl_id",
 		Scale:          3,
-		ServiceType:    models.DeployCompatibilityStateless,
+		ServiceName:    "svc_name",
+		Stateful:       false,
 	}
 
 	mockClient.EXPECT().
@@ -33,15 +33,15 @@ func TestResourceServiceCreateRead_stateless(t *testing.T) {
 		Return("svc_id", nil)
 
 	service := &models.Service{
-		ServiceID:      "svc_id",
-		ServiceName:    "svc_name",
-		ServiceType:    models.DeployCompatibilityStateless,
-		EnvironmentID:  "env_id",
-		LoadBalancerID: "lb_id",
-		DesiredCount:   3,
 		Deployments: []models.Deployment{
 			{DeployID: "dpl_id", Status: "PRIMARY", DesiredCount: 1, RunningCount: 1},
 		},
+		DesiredCount:   3,
+		EnvironmentID:  "env_id",
+		LoadBalancerID: "lb_id",
+		ServiceID:      "svc_id",
+		ServiceName:    "svc_name",
+		Stateful:       false,
 	}
 
 	mockClient.EXPECT().
@@ -81,12 +81,12 @@ func TestResourceServiceCreateRead_stateful(t *testing.T) {
 	defer client.SetTimeMultiplier(0)()
 
 	req := models.CreateServiceRequest{
-		ServiceName:    "svc_name",
+		DeployID:       "dpl_id",
 		EnvironmentID:  "env_id",
 		LoadBalancerID: "lb_id",
-		DeployID:       "dpl_id",
 		Scale:          3,
-		ServiceType:    models.DeployCompatibilityStateful,
+		ServiceName:    "svc_name",
+		Stateful:       true,
 	}
 
 	mockClient.EXPECT().
@@ -94,15 +94,15 @@ func TestResourceServiceCreateRead_stateful(t *testing.T) {
 		Return("svc_id", nil)
 
 	service := &models.Service{
-		ServiceID:      "svc_id",
-		ServiceName:    "svc_name",
-		ServiceType:    models.DeployCompatibilityStateful,
-		EnvironmentID:  "env_id",
-		LoadBalancerID: "lb_id",
-		DesiredCount:   3,
 		Deployments: []models.Deployment{
 			{DeployID: "dpl_id", Status: "PRIMARY", DesiredCount: 1, RunningCount: 1},
 		},
+		DesiredCount:   3,
+		EnvironmentID:  "env_id",
+		LoadBalancerID: "lb_id",
+		ServiceID:      "svc_id",
+		ServiceName:    "svc_name",
+		Stateful:       true,
 	}
 
 	mockClient.EXPECT().

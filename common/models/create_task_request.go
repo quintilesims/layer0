@@ -11,7 +11,7 @@ type CreateTaskRequest struct {
 	DeployID           string              `json:"deploy_id"`
 	EnvironmentID      string              `json:"environment_id"`
 	TaskName           string              `json:"task_name"`
-	TaskType           string              `json:"task_type"`
+	Stateful           bool                `json:"stateful"`
 }
 
 func (c CreateTaskRequest) Validate() error {
@@ -45,7 +45,7 @@ func (c CreateTaskRequest) Definition() swagger.Definition {
 			"deploy_id":           swagger.NewStringProperty(),
 			"environment_id":      swagger.NewStringProperty(),
 			"task_name":           swagger.NewStringProperty(),
-			"task_type":           swagger.NewStringProperty(),
+			"stateful":            swagger.NewBoolProperty(),
 		},
 	}
 }

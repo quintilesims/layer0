@@ -13,7 +13,7 @@ type Service struct {
 	RunningCount     int          `json:"running_count"`
 	ServiceID        string       `json:"service_id"`
 	ServiceName      string       `json:"service_name"`
-	ServiceType      string       `json:"service_type"`
+	Stateful         bool         `json:"stateful"`
 }
 
 func (s Service) Definition() swagger.Definition {
@@ -30,7 +30,7 @@ func (s Service) Definition() swagger.Definition {
 			"running_count":      swagger.NewIntProperty(),
 			"service_id":         swagger.NewStringProperty(),
 			"service_name":       swagger.NewStringProperty(),
-			"service_type":       swagger.NewStringProperty(),
+			"stateful":           swagger.NewBoolProperty(),
 		},
 	}
 }

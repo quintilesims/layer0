@@ -74,7 +74,7 @@ func TestService_makeServiceModel(t *testing.T) {
 		}
 	}
 
-	result, err := service.makeServiceModel("env_id", "lb_id", "svc_id", models.DeployCompatibilityStateless)
+	result, err := service.makeServiceModel("env_id", "lb_id", "svc_id", false)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -85,5 +85,5 @@ func TestService_makeServiceModel(t *testing.T) {
 	assert.Equal(t, "lb_name", result.LoadBalancerName)
 	assert.Equal(t, "svc_id", result.ServiceID)
 	assert.Equal(t, "svc_name", result.ServiceName)
-	assert.Equal(t, "stateless", result.ServiceType)
+	assert.Equal(t, false, result.Stateful)
 }

@@ -289,16 +289,16 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 		return scale
 	}
 
-	rows := []string{"SERVICE ID | SERVICE NAME | ENVIRONMENT | LOADBALANCER | DEPLOYMENTS | SCALE | TYPE"}
+	rows := []string{"SERVICE ID | SERVICE NAME | ENVIRONMENT | LOADBALANCER | DEPLOYMENTS | SCALE | STATEFUL"}
 	for _, s := range services {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s | %s | %s",
+		row := fmt.Sprintf("%s | %s | %s | %s | %s | %s | %t",
 			s.ServiceID,
 			s.ServiceName,
 			getEnvironment(s),
 			getLoadBalancer(s),
 			getDeployment(s, 0),
 			getScale(s),
-			s.ServiceType)
+			s.Stateful)
 
 		rows = append(rows, row)
 
@@ -353,15 +353,15 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 		return strings.Replace(t.DeployID, ".", ":", 1)
 	}
 
-	rows := []string{"TASK ID | TASK NAME | ENVIRONMENT | DEPLOY | STATUS | TYPE "}
+	rows := []string{"TASK ID | TASK NAME | ENVIRONMENT | DEPLOY | STATUS | STATEFUL "}
 	for _, t := range tasks {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s | %s",
+		row := fmt.Sprintf("%s | %s | %s | %s | %s | %t",
 			t.TaskID,
 			t.TaskName,
 			getEnvironment(t),
 			getDeploy(t),
 			t.Status,
-			t.TaskType)
+			t.Stateful)
 
 		rows = append(rows, row)
 	}

@@ -12,7 +12,7 @@ type Task struct {
 	Status          string      `json:"status"`
 	TaskID          string      `json:"task_id"`
 	TaskName        string      `json:"task_name"`
-	TaskType        string      `json:"task_type"`
+	Stateful        bool        `json:"stateful"`
 }
 
 func (t Task) Definition() swagger.Definition {
@@ -28,7 +28,7 @@ func (t Task) Definition() swagger.Definition {
 			"status":           swagger.NewStringProperty(),
 			"task_id":          swagger.NewStringProperty(),
 			"task_name":        swagger.NewStringProperty(),
-			"task_type":        swagger.NewStringProperty(),
+			"stateful":         swagger.NewBoolProperty(),
 		},
 	}
 }

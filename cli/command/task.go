@@ -100,17 +100,12 @@ func (t *TaskCommand) create(c *cli.Context) error {
 		return err
 	}
 
-	taskType := models.DeployCompatibilityStateless
-	if c.Bool("stateful") {
-		taskType = models.DeployCompatibilityStateful
-	}
-
 	req := models.CreateTaskRequest{
 		ContainerOverrides: overrides,
 		DeployID:           deployID,
 		EnvironmentID:      environmentID,
 		TaskName:           args["TASK_NAME"],
-		TaskType:           taskType,
+		Stateful:           c.Bool("stateful"),
 	}
 
 	taskID, err := t.client.CreateTask(req)
