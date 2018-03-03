@@ -1,5 +1,9 @@
 {
     "AWSEBDockerrunVersion": 2,
+    "requiresCompatibilities": [ "FARGATE" ],
+    "cpu": "256",
+    "memory": "0.5GB",
+    "networkMode": "awsvpc",
     "containerDefinitions": [
         {
             "name": "guestbook",
