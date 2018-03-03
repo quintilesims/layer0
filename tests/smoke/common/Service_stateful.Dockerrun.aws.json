@@ -1,0 +1,18 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "requiresCompatibilities": [ "EC2" ],
+    "containerDefinitions": [
+        {
+            "name": "guestbook",
+            "image": "quintilesims/guestbook:latest",
+            "essential": true,
+            "memory": 128,
+            "portMappings": [
+                {
+                    "hostPort": 80,
+                    "containerPort": 80
+                }
+            ]
+        }
+    ]
+}
