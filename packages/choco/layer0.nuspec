@@ -2,10 +2,13 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2015/06/nuspec.xsd">
   <metadata>
     <id>layer0</id>
-    <version>0.11.0</version>
+    <version>0.10.7</version>
     <title>layer0</title>
     <authors>IQVia</authors>
     <projectUrl>https://github.com/quintilesims/layer0</projectUrl>
+    <docsUrl>http://layer0.ims.io</docsUrl>
+    <bugTrackerUrl>https://github.com/quintilesims/layer0/issues</bugTrackerUrl>
+    <projectSourceUrl>https://github.com/quintilesims/layer0</projectSourceUrl>
     <iconUrl>https://quintilesims.github.io/layer0/static/logo_rs.png</iconUrl>
     <tags>layer0 l0 l0-setup</tags>
     <summary>Layer0 is a framework that helps you deploy web applications to the cloud with minimal fuss.</summary>
