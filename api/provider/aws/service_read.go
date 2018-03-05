@@ -25,7 +25,7 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 		return nil, err
 	}
 
-	stateful := bool(aws.StringValue(ecsService.LaunchType) == ecs.LaunchTypeEc2)
+	stateful := aws.StringValue(ecsService.LaunchType) == ecs.LaunchTypeEc2
 
 	var deployments []models.Deployment
 	for _, d := range ecsService.Deployments {
