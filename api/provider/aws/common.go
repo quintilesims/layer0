@@ -37,6 +37,18 @@ func describeLoadBalancer(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb
 	return output.LoadBalancerDescriptions[0], nil
 }
 
+func describeLoadBalancerAttributes(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerAttributes, error) {
+	input := &elb.DescribeLoadBalancerAttributesInput{}
+	input.SetLoadBalancerName(loadBalancerName)
+
+	output, err := elbapi.DescribeLoadBalancerAttributes(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return output.LoadBalancerAttributes, nil
+}
+
 func describeTaskDefinition(ecsapi ecsiface.ECSAPI, taskDefinitionARN string) (*ecs.TaskDefinition, error) {
 	input := &ecs.DescribeTaskDefinitionInput{}
 	input.SetTaskDefinition(taskDefinitionARN)

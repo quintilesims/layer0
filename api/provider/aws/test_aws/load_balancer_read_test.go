@@ -96,6 +96,8 @@ func TestLoadBalancerRead(t *testing.T) {
 		},
 	}
 
+	idleTimeout := 90
+
 	certificateARN := "arn:aws:iam::12345:server-certificate/crt_name"
 	serverCertificateMetadata := &iam.ServerCertificateMetadata{}
 	serverCertificateMetadata.SetArn(certificateARN)
@@ -121,6 +123,22 @@ func TestLoadBalancerRead(t *testing.T) {
 		DescribeLoadBalancers(describeLoadBalancersInput).
 		Return(describeLoadBalancersOutput, nil)
 
+	describeLoadBalancerAttributesInput := &elb.DescribeLoadBalancerAttributesInput{}
+	describeLoadBalancerAttributesInput.SetLoadBalancerName("l0-test-lb_id")
+
+	connectionSettings := &elb.ConnectionSettings{}
+	connectionSettings.SetIdleTimeout(int64(idleTimeout))
+
+	loadBalancerAttributes := &elb.LoadBalancerAttributes{}
+	loadBalancerAttributes.SetConnectionSettings(connectionSettings)
+
+	describeLoadBalancerAttributesOutput := &elb.DescribeLoadBalancerAttributesOutput{}
+	describeLoadBalancerAttributesOutput.SetLoadBalancerAttributes(loadBalancerAttributes)
+
+	mockAWS.ELB.EXPECT().
+		DescribeLoadBalancerAttributes(describeLoadBalancerAttributesInput).
+		Return(describeLoadBalancerAttributesOutput, nil)
+
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.Read("lb_id")
 	if err != nil {
@@ -136,6 +154,7 @@ func TestLoadBalancerRead(t *testing.T) {
 		ServiceName:      "svc_name",
 		HealthCheck:      healthCheck,
 		Ports:            ports,
+		IdleTimeout:      idleTimeout,
 	}
 
 	assert.Equal(t, expected, result)

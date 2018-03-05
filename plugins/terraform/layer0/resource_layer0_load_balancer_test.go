@@ -44,12 +44,15 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 		UnhealthyThreshold: 2,
 	}
 
+	idleTimeout := 90
+
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
 		EnvironmentID:    "env_id",
 		IsPublic:         false,
 		Ports:            ports,
 		HealthCheck:      healthCheck,
+		IdleTimeout:      idleTimeout,
 	}
 
 	mockClient.EXPECT().
@@ -63,6 +66,7 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 		Ports:            ports,
 		HealthCheck:      healthCheck,
 		URL:              "some_url",
+		IdleTimeout:      idleTimeout,
 	}
 
 	mockClient.EXPECT().
@@ -76,6 +80,7 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 		"private":      true,
 		"port":         flattenPorts(ports),
 		"health_check": flattenHealthCheck(healthCheck),
+		"idle_timeout": idleTimeout,
 	})
 
 	if err := resourceLayer0LoadBalancerCreate(d, mockClient); err != nil {
@@ -89,6 +94,7 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 	assert.Equal(t, ports, expandPorts(d.Get("port").(*schema.Set).List()))
 	assert.Equal(t, healthCheck, expandHealthCheck(d.Get("health_check")))
 	assert.Equal(t, "some_url", d.Get("url"))
+	assert.Equal(t, idleTimeout, d.Get("idle_timeout"))
 }
 
 func TestResourceLoadBalancerDelete(t *testing.T) {

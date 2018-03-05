@@ -12,6 +12,7 @@ type CreateLoadBalancerRequest struct {
 	IsPublic         bool        `json:"is_public"`
 	Ports            []Port      `json:"ports"`
 	HealthCheck      HealthCheck `json:"health_check"`
+	IdleTimeout      int         `json:"idle_timeout"`
 }
 
 func (c CreateLoadBalancerRequest) Validate() error {
@@ -45,6 +46,7 @@ func (l CreateLoadBalancerRequest) Definition() swagger.Definition {
 			"is_public":          swagger.NewBoolProperty(),
 			"ports":              swagger.NewObjectSliceProperty("Port"),
 			"health_check":       swagger.NewObjectProperty("HealthCheck"),
+			"idle_timeout":       swagger.NewIntProperty(),
 		},
 	}
 }

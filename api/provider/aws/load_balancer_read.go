@@ -14,6 +14,11 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		return nil, err
 	}
 
+	loadBalancerAttributes, err := describeLoadBalancerAttributes(l.AWS.ELB, fqLoadBalancerID)
+	if err != nil {
+		return nil, err
+	}
+
 	model, err := l.makeLoadBalancerModel(loadBalancerID)
 	if err != nil {
 		return nil, err
@@ -44,6 +49,7 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 
 	model.IsPublic = aws.StringValue(loadBalancer.Scheme) == "internet-facing"
 	model.URL = aws.StringValue(loadBalancer.DNSName)
+	model.IdleTimeout = int(aws.Int64Value(loadBalancerAttributes.ConnectionSettings.IdleTimeout))
 
 	return model, nil
 }
