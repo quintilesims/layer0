@@ -7,6 +7,7 @@ import (
 type UpdateLoadBalancerRequest struct {
 	Ports       *[]Port      `json:"ports"`
 	HealthCheck *HealthCheck `json:"health_check"`
+	IdleTimeout *int         `json:"idle_timeout"`
 }
 
 func (u UpdateLoadBalancerRequest) Validate() error {
@@ -33,6 +34,7 @@ func (u UpdateLoadBalancerRequest) Definition() swagger.Definition {
 		Properties: map[string]swagger.Property{
 			"ports":        swagger.NewObjectSliceProperty("Port"),
 			"health_check": swagger.NewObjectProperty("HealthCheck"),
+			"idle_timeout": swagger.NewIntProperty(),
 		},
 	}
 }

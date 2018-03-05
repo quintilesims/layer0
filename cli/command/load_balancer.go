@@ -84,6 +84,11 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 						Value: dhc.UnhealthyThreshold,
 						Usage: "Number of consecutive failures required to count as unhealthy",
 					},
+					cli.IntFlag{
+						Name:  "idle-timeout",
+						Value: 60,
+						Usage: "Idle timeout of the load balancer in seconds",
+					},
 				},
 			},
 			{
@@ -131,6 +136,12 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 						Usage: "Number of consecutive failures required to count as unhealthy",
 					},
 				},
+			},
+			{
+				Name:      "idletimeout",
+				Usage:     "Update the idle timeout of a load balancer",
+				Action:    l.idletimeout,
+				ArgsUsage: "LOAD_BALANCER_NAME TIMEOUT",
 			},
 			{
 				Name:      "list",
@@ -227,6 +238,7 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		IsPublic:         !c.Bool("private"),
 		Ports:            ports,
 		HealthCheck:      healthCheck,
+		IdleTimeout:      c.Int("idle-timeout"),
 	}
 
 	loadBalancerID, err := l.client.CreateLoadBalancer(req)
@@ -372,6 +384,38 @@ func (l *LoadBalancerCommand) healthcheck(c *cli.Context) error {
 	}
 
 	return l.printer.PrintLoadBalancerHealthCheck(loadBalancer)
+}
+
+func (l *LoadBalancerCommand) idletimeout(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "LOAD_BALANCER_NAME", "TIMEOUT")
+	if err != nil {
+		return err
+	}
+
+	idleTimeout, err := strconv.Atoi(args["TIMEOUT"])
+	if err != nil {
+		return fmt.Errorf("Failed to parse TIMEOUT argument: %v", err)
+	}
+
+	loadBalancerID, err := l.resolveSingleEntityIDHelper("load_balancer", args["LOAD_BALANCER_NAME"])
+	if err != nil {
+		return err
+	}
+
+	req := models.UpdateLoadBalancerRequest{
+		IdleTimeout: &idleTimeout,
+	}
+
+	if err := l.client.UpdateLoadBalancer(loadBalancerID, req); err != nil {
+		return err
+	}
+
+	loadBalancer, err := l.client.ReadLoadBalancer(loadBalancerID)
+	if err != nil {
+		return err
+	}
+
+	return l.printer.PrintLoadBalancerIdleTimeout(loadBalancer)
 }
 
 func (l *LoadBalancerCommand) list(c *cli.Context) error {

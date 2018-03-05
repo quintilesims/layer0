@@ -77,6 +77,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 			HealthyThreshold:   7,
 			UnhealthyThreshold: 8,
 		},
+		IdleTimeout: 90,
 	}
 
 	base.Client.EXPECT().
@@ -97,6 +98,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	input += "--healthcheck-timeout 6 "
 	input += "--healthcheck-healthy-threshold 7 "
 	input += "--healthcheck-unhealthy-threshold 8 "
+	input += "--idle-timeout 90 "
 	input += "env_name lb_name"
 
 	if err := testutils.RunApp(command, input); err != nil {
@@ -178,6 +180,42 @@ func TestLoadBalancerDropPortInputErrors(t *testing.T) {
 	testInputErrors(t, NewLoadBalancerCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 loadbalancer dropport",
 		"Missing PORT arg": "l0 loadbalancer dropport name",
+	})
+}
+
+func TestLoadBalancerIdleTimeout(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(base.CommandBase()).Command()
+
+	base.Resolver.EXPECT().
+		Resolve("load_balancer", "lb_name").
+		Return([]string{"lb_id"}, nil)
+
+	idleTimeout := 80
+	req := models.UpdateLoadBalancerRequest{
+		IdleTimeout: &idleTimeout,
+	}
+
+	base.Client.EXPECT().
+		UpdateLoadBalancer("lb_id", req).
+		Return(nil)
+
+	base.Client.EXPECT().
+		ReadLoadBalancer("lb_id").
+		Return(&models.LoadBalancer{}, nil)
+
+	input := "l0 loadbalancer idletimeout lb_name 80"
+	if err := testutils.RunApp(command, input); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadBalancerIdleTimeoutInputErrors(t *testing.T) {
+	testInputErrors(t, NewLoadBalancerCommand(nil).Command(), map[string]string{
+		"Missing LOAD_BALANCER_NAME arg": "l0 loadbalancer idletimeout",
+		"Missing TIMEOUT arg":            "l0 loadbalancer idletimeout name",
+		"Invalid TIMEOUT arg":            "l0 loadbalancer idletimeout name foo",
 	})
 }
 

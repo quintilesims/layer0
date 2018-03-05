@@ -82,6 +82,13 @@ func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLo
 		}
 	}
 
+	if req.IdleTimeout != nil {
+		idleTimeout := req.IdleTimeout
+		if err := l.setIdleTimeout(loadBalancerName, *idleTimeout); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -95,6 +102,28 @@ func (l *LoadBalancerProvider) updateHealthCheck(loadBalancerName string, health
 	}
 
 	if _, err := l.AWS.ELB.ConfigureHealthCheck(input); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (l *LoadBalancerProvider) setIdleTimeout(loadBalancerName string, idleTimeout int) error {
+	connectionSettings := &elb.ConnectionSettings{}
+	connectionSettings.SetIdleTimeout(int64(idleTimeout))
+
+	loadBalancerAttributes := &elb.LoadBalancerAttributes{}
+	loadBalancerAttributes.SetConnectionSettings(connectionSettings)
+
+	input := &elb.ModifyLoadBalancerAttributesInput{}
+	input.SetLoadBalancerName(loadBalancerName)
+	input.SetLoadBalancerAttributes(loadBalancerAttributes)
+
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	if _, err := l.AWS.ELB.ModifyLoadBalancerAttributes(input); err != nil {
 		return err
 	}
 
