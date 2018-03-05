@@ -19,6 +19,12 @@ Ready to learn more about Layer0? See our [introduction page](intro.md) to learn
 | [macOS](https://s3.amazonaws.com/xfra-layer0/release/v0.10.4/layer0_v0.10.4_darwin.zip) | [Linux](https://s3.amazonaws.com/xfra-layer0/release/v0.10.4/layer0_v0.10.4_linux.zip) | [Windows](https://s3.amazonaws.com/xfra-layer0/release/v0.10.4/layer0_v0.10.4_windows.zip) |
 
 
-## Contact Us
+## Package Install
+#### [Brew](https://brew.sh)
+`brew install quintilesims/layer0/layer0`
 
+#### [Choco](https://chocolatey.org)
+`choco install layer0`
+
+## Contact Us
 If you have questions about Layer0, email the development team at [carbon@us.imshealth.com](mailto:carbon@us.imshealth.com).

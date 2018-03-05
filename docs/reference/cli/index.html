@@ -3402,6 +3402,7 @@ start ecs
 <h4 id="optional-arguments_1">Optional arguments<a class="headerlink" href="#optional-arguments_1" title="Permanent link">#</a></h4>
 <ul>
 <li><code>--wait</code> - Wait until the deletion is complete before exiting.</li>
+<li><code>-r --recursive</code> - This will attempt to delete all dependencies (loadbalancers, services, tasks) on environment and then delete environment.</li>
 </ul>
 <h4 id="additional-information_3">Additional information<a class="headerlink" href="#additional-information_3" title="Permanent link">#</a></h4>
 <p>This operation performs several tasks asynchronously. When run without the <code>--wait</code> option, this operation will most likely exit before all of these tasks are complete; when run with the <code>--wait</code> option, this operation will only exit once these tasks have completed.</p>
@@ -3524,7 +3525,7 @@ The <code>job</code> command is used with the following subcommands: <a href="#j
 <h3 id="loadbalancer-create">loadbalancer create<a class="headerlink" href="#loadbalancer-create" title="Permanent link">#</a></h3>
 <p>Use the <code>create</code> subcommand to create a new load balancer.</p>
 <h4 id="usage_19">Usage<a class="headerlink" href="#usage_19" title="Permanent link">#</a></h4>
-<div class="codehilite"><pre><span></span>l0 loadbalancer create [--port port ... | --certificate certifiateName | 
+<div class="codehilite"><pre><span></span>l0 loadbalancer create [--port port ... | --certificate certificateARN | 
     --private | --healthcheck-target target | --healthcheck-interval interval | 
     --healthcheck-timeout timeout | --healthcheck-healthy-threshold healthyThreshold | 
     --healthcheck-unhealthy-threshold unhealthyThreshold] environmentName loadBalancerName
@@ -3544,7 +3545,7 @@ The <code>job</code> command is used with the following subcommands: <a href="#j
 <li><code>protocol</code> - The protocol to use when forwarding traffic (acceptable values: TCP, SSL, HTTP, and HTTPS).</li>
 </ul>
 </li>
-<li><code>--certificate certificateName</code> - The name of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.</li>
+<li><code>--certificate certificateARN</code> - The ARN of an existing Layer0 certificate. You must include this option if you are using an HTTPS port configuration.</li>
 <li><code>--private</code> - When you use this option, the load balancer will only be accessible from within the Layer0 environment.</li>
 <li><code>--healthcheck-target target</code> - The target of the check. Valid pattern is <code>PROTOCOL:PORT/PATH</code> (default: <code>"TCP:80"</code>). <ul>
 <li>If <code>PROTOCOL</code> is <code>HTTP</code> or <code>HTTPS</code>, both <code>PORT</code> and <code>PATH</code> are required. Example: <code>HTTP:80/admin/healthcheck</code>. </li>

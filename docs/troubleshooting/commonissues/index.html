@@ -565,6 +565,13 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#manually-deleting-a-layer0-instance-from-aws" title="Manually deleting a Layer0 instance from AWS" class="md-nav__link">
+    Manually deleting a Layer0 instance from AWS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#connection-refused-error-when-executing-layer0-commands" title=""Connection refused" error when executing Layer0 commands" class="md-nav__link">
     "Connection refused" error when executing Layer0 commands
   </a>
@@ -645,6 +652,13 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#manually-deleting-a-layer0-instance-from-aws" title="Manually deleting a Layer0 instance from AWS" class="md-nav__link">
+    Manually deleting a Layer0 instance from AWS
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#connection-refused-error-when-executing-layer0-commands" title=""Connection refused" error when executing Layer0 commands" class="md-nav__link">
     "Connection refused" error when executing Layer0 commands
   </a>
@@ -696,6 +710,104 @@
                 
                 
                 <h1 id="common-issues-and-their-solutions">Common issues and their solutions<a class="headerlink" href="#common-issues-and-their-solutions" title="Permanent link">#</a></h1>
+<h2 id="manually-deleting-a-layer0-instance-from-aws">Manually deleting a Layer0 instance from AWS<a class="headerlink" href="#manually-deleting-a-layer0-instance-from-aws" title="Permanent link">#</a></h2>
+<p>Sometimes, your Layer0 instance might get into an unresponsive and unrecoverable state. This section describes the AWS resources that are created when you create a Layer0 instance and what resources needs to be removed by hand in such an event.</p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>An unresponsive state means that the Layer0 API isn't responding to typical commands (from the CLI or through Terraform). If Layer0 is unresponsive, it might still be recoverable. You should try these tips first if you're running into problems.</p>
+<p><a href="../../reference/setup-cli#init">l0-setup init</a> and <a href="../../reference/setup-cli#apply">l0-setup apply</a></p>
+<p>Terraform might be able to refresh the resources it created when the Layer0 instance was first created. You can use <code>l0-setup init</code> and <code>l0-setup apply</code> to double check your instance's initial settings and attempt to rebuild core VPC or API resources if they were accidentally altered.</p>
+<p>Use <a href="../../reference/setup-cli#endpoint">l0-setup endpoint</a> to double check your instance's environment variables.</p>
+<p>Are your <code>LAYER0_*</code> environment variables set correctly? Is the URL of your Layer0 API correct? Are the AWS Access Key and Secret Access Key values still valid?</p>
+<p>If you are unable to recover your Layer0 instance's state and need to delete your instance and start over, continue reading this guide.</p>
+</div>
+<p>Each instance of <code>&lt;prefix&gt;</code> is the name of the Layer0 instance you specified when using <code>l0-setup</code></p>
+<ul>
+<li>
+<p>VPC</p>
+<ul>
+<li>Name: <code>l0-&lt;prefix&gt;</code></li>
+<li>Subnets<ul>
+<li>3 Public subnets: <code>l0-&lt;prefix&gt;-subnet-public-&lt;region &amp; availability zone&gt;</code></li>
+<li>3 Private subnets: <code>l0-&lt;prefix&gt;-subnet-private-&lt;region &amp; availability zone&gt;</code></li>
+</ul>
+</li>
+<li>Route Tables<ul>
+<li>A blank default</li>
+<li><code>l0-&lt;prefix&gt;-rt-private</code></li>
+<li><code>l0-&lt;prefix&gt;-rt-public</code></li>
+</ul>
+</li>
+<li>Internet Gateway: <code>l0-&lt;prefix&gt;-igw</code></li>
+<li>NAT Gateway: nameless but associated with the VPC</li>
+<li>Network ACL: nameless but associated with the VPC</li>
+<li>Security Groups<ul>
+<li><code>default</code></li>
+<li><code>l0-&lt;prefix&gt;-api-lb</code></li>
+<li><code>l0-&lt;prefix&gt;-api-env</code></li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<p>EC2</p>
+<ul>
+<li>Auto Scaling Group: <code>l0-&lt;prefix&gt;-api</code></li>
+<li>Launch Configuration: <code>l0-&lt;prefix&gt;-api-&lt;timestamp&gt;</code></li>
+<li>Instances<ul>
+<li>2 EC2 instances named <code>l0-&lt;prefix&gt;-api</code></li>
+</ul>
+</li>
+<li>Load Balancer: <code>l0-&lt;prefix&gt;-api</code></li>
+</ul>
+</li>
+<li>
+<p>EC2 Container Service</p>
+<ul>
+<li>Cluster: <code>l0-&lt;prefix&gt;-api</code></li>
+<li>Task Definition: <code>l0-&lt;prefix&gt;-api</code></li>
+</ul>
+</li>
+<li>
+<p>IAM</p>
+<ul>
+<li>Group: <code>l0-&lt;prefix&gt;</code></li>
+<li>User: <code>l0-&lt;prefix&gt;-user</code></li>
+<li>Role: <code>l0-&lt;prefix&gt;-ecs-role</code></li>
+<li>Instance profile: <code>l0-&lt;prefix&gt;-ecs-instance-profile</code></li>
+<li>Server certificate: <code>l0-&lt;prefix&gt;-api</code></li>
+</ul>
+</li>
+<li>
+<p>S3</p>
+<ul>
+<li>Bucket: <code>layer0-&lt;prefix&gt;-&lt;accountnumber&gt;</code></li>
+</ul>
+</li>
+<li>
+<p>CloudWatch</p>
+<ul>
+<li>Log Group: <code>l0-&lt;prefix&gt;</code></li>
+</ul>
+</li>
+<li>
+<p>DynamoDB</p>
+<ul>
+<li>Tables<ul>
+<li><code>l0-&lt;prefix&gt;-lock</code></li>
+<li><code>l0-&lt;prefix&gt;-tags</code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Most resources can be removed through the AWS Console, but some need to be removed from the AWS CLI.</p>
+<p><strong>IAM Instance Profile</strong></p>
+<p><code>aws iam list-instance-profiles</code> to list</p>
+<p><code>aws iam delete-instance-profile --instance-profile-name [name]</code> to delete</p>
+<p><strong>IAM Server Certificate</strong></p>
+<p><code>aws iam list-server-certificates</code> to list</p>
+<p><code>aws iam delete-server-certificate --server-certificate-name [name]</code></p>
 <h2 id="connection-refused-error-when-executing-layer0-commands">"Connection refused" error when executing Layer0 commands<a class="headerlink" href="#connection-refused-error-when-executing-layer0-commands" title="Permanent link">#</a></h2>
 <p>When executing commands using the Layer0 CLI, you may see the following error message: </p>
 <p><code>Get http://localhost:9090/command/: dial tcp 127.0.0.1:9090: connection refused</code></p>
@@ -719,12 +831,11 @@
 <p>Alternatively, you can use the <a href="https://sourceforge.net/projects/dos2unix/">dos2unix file converter</a> to remove the BOM from your Dockerrun files. Dos2unix is available for Windows, Linux and Mac OS.</p>
 <p><strong>To remove the BOM using dos2unix:</strong></p>
 <ul>
-<li>At the command line, type the following:</li>
+<li>
+<p>At the command line, type the following:</p>
+<p><code>dos2unix --remove-bom -n DockerrunFile DockerrunFileNew</code></p>
+</li>
 </ul>
-<div class="codehilite"><pre><span></span>dos2unix --remove-bom -n DockerrunFile DockerrunFileNew
-</pre></div>
-
-
 <p>Replace DockerrunFile with the path to your Dockerrun file, and DockerrunFileNew with a new name for the Dockerrun file without the BOM.</p>
 <hr />
 <h2 id="aws-error-the-key-pair-does-not-exist-code-validationerror-with-l0-setup">"AWS Error: the key pair '<keyvalue>' does not exist (code 'ValidationError')" with l0-setup<a class="headerlink" href="#aws-error-the-key-pair-does-not-exist-code-validationerror-with-l0-setup" title="Permanent link">#</a></h2>
