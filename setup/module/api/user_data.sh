@@ -1,3 +1,7 @@
+# The majority of this script was largely taken from AWS's documentation
+# on using CloudWatch logs with container instances
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_cloudwatch_logs.html
+
 Content-Type: multipart/mixed; boundary="==BOUNDARY=="
 MIME-Version: 1.0
 
