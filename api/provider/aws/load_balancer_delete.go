@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/quintilesims/layer0/common/errors"
 )
 
 // Delete is used to delete an Elastic Load Balancer using the specified loadBalancerID.
@@ -42,6 +43,19 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		if err := deleteSG(l.AWS.EC2, groupID); err != nil {
 			return err
 		}
+	}
+
+	// Confirm Delete
+	describeFN := func(id string) error {
+		_, err := describeLoadBalancer(l.AWS.ELB, id)
+		if serverError, ok := err.(*errors.ServerError); ok && serverError.Code == "LoadBalancerDoesNotExist" {
+			return nil
+		}
+		return err
+	}
+
+	if err := Retry(fqLoadBalancerID, describeFN); err != nil {
+		return err
 	}
 
 	if err := l.deleteTags(loadBalancerID); err != nil {

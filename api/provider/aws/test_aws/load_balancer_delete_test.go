@@ -3,6 +3,7 @@ package test_aws
 import (
 	"testing"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
@@ -71,6 +72,16 @@ func TestLoadBalancerDelete(t *testing.T) {
 
 	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
 	deleteSGHelper(mockAWS, "lb_sg")
+
+	describeLoadBalancersInput := &elb.DescribeLoadBalancersInput{}
+	describeLoadBalancersInput.SetLoadBalancerNames([]*string{aws.String("l0-test-lb_id")})
+	describeLoadBalancersInput.SetPageSize(1)
+
+	describeLoadBalancersOutput := &elb.DescribeLoadBalancersOutput{}
+
+	mockAWS.ELB.EXPECT().
+		DescribeLoadBalancers(describeLoadBalancersInput).
+		Return(describeLoadBalancersOutput, nil)
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("lb_id"); err != nil {
