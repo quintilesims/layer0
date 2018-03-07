@@ -56,10 +56,24 @@ func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
 }
 
 func (t *TextPrinter) PrintDeploySummaries(deploys ...models.DeploySummary) error {
-	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION"}
+	getCompatibilities := func(d models.DeploySummary, i int) string {
+		if i > len(d.Compatibilities)-1 {
+			return ""
+		}
+
+		return d.Compatibilities[i]
+	}
+
+	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION | COMPATIBILITIES"}
 	for _, d := range deploys {
-		row := fmt.Sprintf("%s | %s |  %s", d.DeployID, d.DeployName, d.Version)
+		row := fmt.Sprintf("%s | %s | %s | %s", d.DeployID, d.DeployName, d.Version, getCompatibilities(d, 0))
 		rows = append(rows, row)
+
+		// add the extra compatibility rows
+		for i := 1; i < len(d.Compatibilities); i++ {
+			row := fmt.Sprintf(" | | | %s", getCompatibilities(d, i))
+			rows = append(rows, row)
+		}
 	}
 
 	t.Println(columnize.SimpleFormat(rows))

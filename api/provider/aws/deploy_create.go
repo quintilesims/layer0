@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -27,9 +28,20 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (string, error) 
 		return "", err
 	}
 
+	taskDefCompatibilities := []string{}
+	for _, c := range taskDefinition.Compatibilities {
+		switch aws.StringValue(c) {
+		case ecs.LaunchTypeFargate:
+			taskDefCompatibilities = append(taskDefCompatibilities, models.DeployCompatibilityStateless)
+		case ecs.LaunchTypeEc2:
+			taskDefCompatibilities = append(taskDefCompatibilities, models.DeployCompatibilityStateful)
+		}
+	}
+
 	version := int(aws.Int64Value(taskDefinition.Revision))
 	taskDefinitionARN := aws.StringValue(taskDefinition.TaskDefinitionArn)
-	if err := d.createTags(deployID, req.DeployName, strconv.Itoa(version), taskDefinitionARN); err != nil {
+	compatibilities := strings.Join(taskDefCompatibilities, ",")
+	if err := d.createTags(deployID, req.DeployName, strconv.Itoa(version), taskDefinitionARN, compatibilities); err != nil {
 		return "", err
 	}
 
@@ -116,7 +128,7 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 	return taskDefinition, nil
 }
 
-func (d *DeployProvider) createTags(deployID, deployName, deployVersion, taskDefinitionARN string) error {
+func (d *DeployProvider) createTags(deployID, deployName, deployVersion, taskDefinitionARN, compatibilities string) error {
 	tags := []models.Tag{
 		{
 			EntityID:   deployID,
@@ -135,6 +147,12 @@ func (d *DeployProvider) createTags(deployID, deployName, deployVersion, taskDef
 			EntityType: "deploy",
 			Key:        "arn",
 			Value:      taskDefinitionARN,
+		},
+		{
+			EntityID:   deployID,
+			EntityType: "deploy",
+			Key:        "compatibilities",
+			Value:      compatibilities,
 		},
 	}
 

@@ -2,6 +2,7 @@ package aws
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -21,8 +22,9 @@ func TestDeploy_createTags(t *testing.T) {
 	id := "deploy_id"
 	version := "deploy_version"
 	arn := "deploy_arn"
+	compatibilities := fmt.Sprintf("%s,%s", models.DeployCompatibilityStateful, models.DeployCompatibilityStateless)
 
-	if err := deploy.createTags(id, name, version, arn); err != nil {
+	if err := deploy.createTags(id, name, version, arn, compatibilities); err != nil {
 		t.Fatal(err)
 	}
 
@@ -44,6 +46,12 @@ func TestDeploy_createTags(t *testing.T) {
 			EntityType: "deploy",
 			Key:        "arn",
 			Value:      arn,
+		},
+		{
+			EntityID:   id,
+			EntityType: "deploy",
+			Key:        "compatibilities",
+			Value:      fmt.Sprintf("%s,%s", models.DeployCompatibilityStateful, models.DeployCompatibilityStateless),
 		},
 	}
 
