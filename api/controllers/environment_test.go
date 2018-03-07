@@ -18,7 +18,6 @@ func TestCreateEnvironment(t *testing.T) {
 
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName: "env",
-		EnvironmentType: "static",
 		InstanceType:    "t2.small",
 		Scale:           3,
 		OperatingSystem: "linux",
@@ -107,7 +106,6 @@ func TestReadEnvironment(t *testing.T) {
 	expected := models.Environment{
 		EnvironmentID:   "env_id",
 		EnvironmentName: "env_name",
-		EnvironmentType: "static",
 		CurrentScale:    2,
 		DesiredScale:    3,
 		InstanceType:    "instance_type",

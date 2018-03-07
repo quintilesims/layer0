@@ -11,7 +11,6 @@ import (
 func TestCreateEnvironment(t *testing.T) {
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  "env_name",
-		EnvironmentType:  models.EnvironmentTypeStatic,
 		InstanceType:     "instance_type",
 		UserDataTemplate: []byte("user_data_template"),
 		Scale:            2,

@@ -32,7 +32,6 @@ func TestRequestModelValidation(t *testing.T) {
 	createEnvironmentRequest := func(fn func(*CreateEnvironmentRequest)) *CreateEnvironmentRequest {
 		req := &CreateEnvironmentRequest{
 			EnvironmentName: "env",
-			EnvironmentType: "static",
 			InstanceType:    "t2.small",
 			Scale:           3,
 			OperatingSystem: "linux",
@@ -130,7 +129,6 @@ func TestRequestModelValidation(t *testing.T) {
 		return req
 	}
 
-	// todo: dynamic environment checks? may not be required depending on changes
 	cases := map[string]Validator{
 		"ContainerOverride: Missing ContainerName": containerOverride(func(c *ContainerOverride) {
 			c.ContainerName = ""
@@ -146,12 +144,6 @@ func TestRequestModelValidation(t *testing.T) {
 		}),
 		"CreateEnvironmentRequest: Missing EnvironmentName": createEnvironmentRequest(func(req *CreateEnvironmentRequest) {
 			req.EnvironmentName = ""
-		}),
-		"CreateEnvironmentRequest: Missing EnvironmentType": createEnvironmentRequest(func(req *CreateEnvironmentRequest) {
-			req.EnvironmentType = ""
-		}),
-		"CreateEnvironmentRequest: Invalid EnvironmentType": createEnvironmentRequest(func(req *CreateEnvironmentRequest) {
-			req.EnvironmentType = "composite"
 		}),
 		"CreateEnvironmentRequest: Missing OperatingSystem": createEnvironmentRequest(func(req *CreateEnvironmentRequest) {
 			req.OperatingSystem = ""

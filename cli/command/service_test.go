@@ -26,11 +26,12 @@ func TestCreateService(t *testing.T) {
 		Return([]string{"lb_id"}, nil)
 
 	req := models.CreateServiceRequest{
-		ServiceName:    "svc_name",
-		EnvironmentID:  "env_id",
 		DeployID:       "dpl_id",
+		EnvironmentID:  "env_id",
 		LoadBalancerID: "lb_id",
 		Scale:          3,
+		ServiceName:    "svc_name",
+		Stateful:       false,
 	}
 
 	base.Client.EXPECT().
@@ -42,6 +43,51 @@ func TestCreateService(t *testing.T) {
 		Return(&models.Service{}, nil)
 
 	input := "l0 service create "
+	input += "--loadbalancer lb_name "
+	input += "--scale 3 "
+	input += "env_name svc_name dpl_name"
+
+	if err := testutils.RunApp(command, input); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestCreateService_stateful(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewServiceCommand(base.CommandBase()).Command()
+
+	base.Resolver.EXPECT().
+		Resolve("environment", "env_name").
+		Return([]string{"env_id"}, nil)
+
+	base.Resolver.EXPECT().
+		Resolve("deploy", "dpl_name").
+		Return([]string{"dpl_id"}, nil)
+
+	base.Resolver.EXPECT().
+		Resolve("load_balancer", "lb_name").
+		Return([]string{"lb_id"}, nil)
+
+	req := models.CreateServiceRequest{
+		DeployID:       "dpl_id",
+		EnvironmentID:  "env_id",
+		LoadBalancerID: "lb_id",
+		Scale:          3,
+		ServiceName:    "svc_name",
+		Stateful:       true,
+	}
+
+	base.Client.EXPECT().
+		CreateService(req).
+		Return("svc_id", nil)
+
+	base.Client.EXPECT().
+		ReadService("svc_id").
+		Return(&models.Service{}, nil)
+
+	input := "l0 service create "
+	input += "--stateful "
 	input += "--loadbalancer lb_name "
 	input += "--scale 3 "
 	input += "env_name svc_name dpl_name"

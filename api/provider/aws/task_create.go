@@ -5,29 +5,63 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Create runs an ECS Task using the specified Create Task Request. The Create Task
-// Request contains the Task name, the Environment ID, and the Deploy ID.
-// The Deploy ID is used to look up the ECS Task Definition family and version of the
-// Task to run.
+// Create runs an ECS Task using the specified CreateTaskRequest.
+// The CreateTaskRequest contains the ContainerOverrides, the DeployID, the
+// EnvironmentID, the TaskName, and the TaskType.
+//
+// The Deploy ID is used to look up the ECS TaskDefinition Family and Version
+// of the Task to run. The TaskType parameter is one of "stateful" or "stateless"
+// and indicates which ECS LaunchType the user wishes to use ("EC2" or "FARGATE"
+// respectively).
+//
+// Create does not generate any custom errors of its own, but will bubble up errors
+// found in its helper functions as well as errors returned by AWS.
 func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskID := entityIDGenerator(req.TaskName)
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
+	clusterName := fqEnvironmentID
+	startedBy := t.Config.Instance()
+	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
 
-	deployName, deployVersion, err := lookupDeployNameAndVersion(t.TagStore, req.DeployID)
+	taskDefinitionARN, err := lookupTaskDefinitionARNFromDeployID(t.TagStore, req.DeployID)
 	if err != nil {
 		return "", err
 	}
 
-	clusterName := fqEnvironmentID
-	startedBy := t.Config.Instance()
-	taskDefinitionFamily := addLayer0Prefix(t.Config.Instance(), deployName)
-	taskDefinitionVersion := deployVersion
-	taskOverrides := convertContainerOverrides(req.ContainerOverrides)
+	taskDefinition, err := describeTaskDefinition(t.AWS.ECS, taskDefinitionARN)
+	if err != nil {
+		return "", err
+	}
 
-	task, err := t.runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionVersion, taskOverrides)
+	networkMode := aws.StringValue(taskDefinition.NetworkMode)
+
+	var securityGroupIDs []*string
+	var subnets []string
+	if networkMode == ecs.NetworkModeAwsvpc {
+		environmentSecurityGroupName := getEnvironmentSGName(fqEnvironmentID)
+		environmentSecurityGroup, err := readSG(t.AWS.EC2, environmentSecurityGroupName)
+		if err != nil {
+			return "", err
+		}
+
+		securityGroupIDs = append(securityGroupIDs, environmentSecurityGroup.GroupId)
+
+		subnets = t.Config.PrivateSubnets()
+	}
+
+	task, err := t.runTask(
+		clusterName,
+		startedBy,
+		taskDefinitionARN,
+		networkMode,
+		req.Stateful,
+		subnets,
+		securityGroupIDs,
+		taskOverrides)
 	if err != nil {
 		return "", err
 	}
@@ -65,14 +99,47 @@ func convertContainerOverrides(overrides []models.ContainerOverride) *ecs.TaskOv
 	return taskOverride
 }
 
-func (t *TaskProvider) runTask(clusterName, startedBy, taskDefinitionFamily, taskDefinitionRevision string, overrides *ecs.TaskOverride) (*ecs.Task, error) {
+func (t *TaskProvider) runTask(
+	clusterName,
+	startedBy,
+	taskDefinitionARN,
+	networkMode string,
+	stateful bool,
+	subnets []string,
+	securityGroupIDs []*string,
+	overrides *ecs.TaskOverride,
+) (*ecs.Task, error) {
 	input := &ecs.RunTaskInput{}
 	input.SetCluster(clusterName)
 	input.SetStartedBy(startedBy)
 	input.SetOverrides(overrides)
 
-	taskFamilyRevision := fmt.Sprintf("%s:%s", taskDefinitionFamily, taskDefinitionRevision)
-	input.SetTaskDefinition(taskFamilyRevision)
+	launchType := ecs.LaunchTypeEc2
+	if !stateful {
+		launchType = ecs.LaunchTypeFargate
+		input.SetPlatformVersion(config.DefaultFargatePlatformVersion)
+	}
+
+	input.SetLaunchType(launchType)
+
+	if networkMode == ecs.NetworkModeAwsvpc {
+		s := make([]*string, len(subnets))
+		for i := range subnets {
+			s[i] = aws.String(subnets[i])
+		}
+
+		awsvpcConfig := &ecs.AwsVpcConfiguration{}
+		awsvpcConfig.SetAssignPublicIp(ecs.AssignPublicIpDisabled)
+		awsvpcConfig.SetSecurityGroups(securityGroupIDs)
+		awsvpcConfig.SetSubnets(s)
+
+		networkConfig := &ecs.NetworkConfiguration{}
+		networkConfig.SetAwsvpcConfiguration(awsvpcConfig)
+
+		input.SetNetworkConfiguration(networkConfig)
+	}
+
+	input.SetTaskDefinition(taskDefinitionARN)
 
 	if err := input.Validate(); err != nil {
 		return nil, err

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
@@ -27,9 +28,20 @@ func (d *DeployProvider) Create(req models.CreateDeployRequest) (string, error) 
 		return "", err
 	}
 
+	taskDefCompatibilities := []string{}
+	for _, c := range taskDefinition.Compatibilities {
+		switch aws.StringValue(c) {
+		case ecs.LaunchTypeFargate:
+			taskDefCompatibilities = append(taskDefCompatibilities, models.DeployCompatibilityStateless)
+		case ecs.LaunchTypeEc2:
+			taskDefCompatibilities = append(taskDefCompatibilities, models.DeployCompatibilityStateful)
+		}
+	}
+
 	version := int(aws.Int64Value(taskDefinition.Revision))
 	taskDefinitionARN := aws.StringValue(taskDefinition.TaskDefinitionArn)
-	if err := d.createTags(deployID, req.DeployName, strconv.Itoa(version), taskDefinitionARN); err != nil {
+	compatibilities := strings.Join(taskDefCompatibilities, ",")
+	if err := d.createTags(deployID, req.DeployName, strconv.Itoa(version), taskDefinitionARN, compatibilities); err != nil {
 		return "", err
 	}
 
@@ -46,6 +58,24 @@ func (d *DeployProvider) createTaskDefinition(taskDefinition *ecs.TaskDefinition
 	if nm := aws.StringValue(taskDefinition.NetworkMode); nm != "" {
 		input.SetNetworkMode(nm)
 	}
+
+	// Because of the logic in renderTaskDefinition(), taskDefinition.RequiresCompatibilities
+	// should always contain one or both of "EC2" and "FARGATE"
+	input.SetRequiresCompatibilities(taskDefinition.RequiresCompatibilities)
+
+	if cpu := aws.StringValue(taskDefinition.Cpu); cpu != "" {
+		input.SetCpu(cpu)
+	}
+
+	if mem := aws.StringValue(taskDefinition.Memory); mem != "" {
+		input.SetMemory(mem)
+	}
+
+	// Hard-coding an ARN isn't usually the best thing, but we know exactly what this ARN will look like
+	// and the only variable in it is the account ID, which Layer0 already knows about.
+	accountID := d.Config.AccountID()
+	ecsTaskExecutionRoleARN := fmt.Sprintf("arn:aws:iam::%s:role/ecsTaskExecutionRole", accountID)
+	input.SetExecutionRoleArn(ecsTaskExecutionRoleARN)
 
 	if err := input.Validate(); err != nil {
 		return nil, err
@@ -85,10 +115,20 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 		}
 	}
 
+	// If a user does not specify any requiresCompatibilities in the task definition, we default
+	// to setting them both in order to accurately judge the launch type(s) with which the task
+	// definition is compatible.
+	if len(taskDefinition.RequiresCompatibilities) == 0 {
+		taskDefinition.SetRequiresCompatibilities([]*string{
+			aws.String(ecs.LaunchTypeEc2),
+			aws.String(ecs.LaunchTypeFargate),
+		})
+	}
+
 	return taskDefinition, nil
 }
 
-func (d *DeployProvider) createTags(deployID, deployName, deployVersion, taskDefinitionARN string) error {
+func (d *DeployProvider) createTags(deployID, deployName, deployVersion, taskDefinitionARN, compatibilities string) error {
 	tags := []models.Tag{
 		{
 			EntityID:   deployID,
@@ -107,6 +147,12 @@ func (d *DeployProvider) createTags(deployID, deployName, deployVersion, taskDef
 			EntityType: "deploy",
 			Key:        "arn",
 			Value:      taskDefinitionARN,
+		},
+		{
+			EntityID:   deployID,
+			EntityType: "deploy",
+			Key:        "compatibilities",
+			Value:      compatibilities,
 		},
 	}
 

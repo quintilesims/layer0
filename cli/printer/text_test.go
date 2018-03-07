@@ -9,29 +9,59 @@ import (
 func ExampleTextPrintDeploys() {
 	printer := &TextPrinter{}
 	deploys := []*models.Deploy{
-		{DeployID: "id1", DeployName: "name1", Version: "1"},
-		{DeployID: "id2", DeployName: "name2", Version: "2"},
+		{
+			Compatibilities: []string{models.DeployCompatibilityStateless},
+			DeployID:        "id1",
+			DeployName:      "name1",
+			Version:         "1",
+		},
+		{
+			Compatibilities: []string{
+				models.DeployCompatibilityStateless,
+				models.DeployCompatibilityStateful,
+			},
+			DeployID:   "id2",
+			DeployName: "name2",
+			Version:    "2",
+		},
 	}
 
 	printer.PrintDeploys(deploys...)
 	// Output:
-	// DEPLOY ID  DEPLOY NAME  VERSION
-	// id1        name1        1
-	// id2        name2        2
+	// DEPLOY ID  DEPLOY NAME  VERSION  COMPATIBILITIES
+	// id1        name1        1        stateless
+	// id2        name2        2        stateless
+	//                                  stateful
 }
 
 func ExampleTextPrintDeploySummaries() {
 	printer := &TextPrinter{}
 	deploys := []models.DeploySummary{
-		{DeployID: "id1", DeployName: "name1", Version: "1"},
-		{DeployID: "id2", DeployName: "name2", Version: "2"},
+		{
+			Compatibilities: []string{
+				models.DeployCompatibilityStateful,
+				models.DeployCompatibilityStateless,
+			},
+			DeployID:   "id1",
+			DeployName: "name1",
+			Version:    "1",
+		},
+		{
+			Compatibilities: []string{
+				models.DeployCompatibilityStateful,
+			},
+			DeployID:   "id2",
+			DeployName: "name2",
+			Version:    "2",
+		},
 	}
 
 	printer.PrintDeploySummaries(deploys...)
 	// Output:
-	// DEPLOY ID  DEPLOY NAME  VERSION
-	// id1        name1        1
-	// id2        name2        2
+	// DEPLOY ID  DEPLOY NAME  VERSION  COMPATIBILITIES
+	// id1        name1        1        stateful
+	//                                  stateless
+	// id2        name2        2        stateful
 }
 
 func ExampleTextPrintEnvironments() {
@@ -40,7 +70,6 @@ func ExampleTextPrintEnvironments() {
 		{
 			EnvironmentID:   "id1",
 			EnvironmentName: "name1",
-			EnvironmentType: "static",
 			OperatingSystem: "linux",
 			CurrentScale:    2,
 			DesiredScale:    3,
@@ -50,7 +79,6 @@ func ExampleTextPrintEnvironments() {
 		{
 			EnvironmentID:   "id2",
 			EnvironmentName: "name2",
-			EnvironmentType: "static",
 			OperatingSystem: "windows",
 			CurrentScale:    2,
 			DesiredScale:    5,
@@ -60,34 +88,33 @@ func ExampleTextPrintEnvironments() {
 		{
 			EnvironmentID:   "id3",
 			EnvironmentName: "name3",
-			EnvironmentType: "dynamic",
 			OperatingSystem: "linux",
 		},
 	}
 
 	printer.PrintEnvironments(environments...)
 	// Output:
-	// ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS       LINKS
-	// id1             name1             static   linux    id2
-	// id2             name2             static   windows  id1
-	//                                                     api
-	// id3             name3             dynamic  linux
+	// ENVIRONMENT ID  ENVIRONMENT NAME  OS       LINKS
+	// id1             name1             linux    id2
+	// id2             name2             windows  id1
+	//                                            api
+	// id3             name3             linux
 }
 
 func ExampleTextPrintEnvironmentSummaries() {
 	printer := &TextPrinter{}
 	environments := []models.EnvironmentSummary{
-		{EnvironmentID: "id1", EnvironmentName: "name1", OperatingSystem: "linux", EnvironmentType: "static"},
-		{EnvironmentID: "id2", EnvironmentName: "name2", OperatingSystem: "linux", EnvironmentType: "dynamic"},
-		{EnvironmentID: "id3", EnvironmentName: "name3", OperatingSystem: "windows", EnvironmentType: "static"},
+		{EnvironmentID: "id1", EnvironmentName: "name1", OperatingSystem: "linux"},
+		{EnvironmentID: "id2", EnvironmentName: "name2", OperatingSystem: "linux"},
+		{EnvironmentID: "id3", EnvironmentName: "name3", OperatingSystem: "windows"},
 	}
 
 	printer.PrintEnvironmentSummaries(environments...)
 	// Output:
-	// ENVIRONMENT ID  ENVIRONMENT NAME  TYPE     OS
-	// id1             name1             static   linux
-	// id2             name2             dynamic  linux
-	// id3             name3             static   windows
+	// ENVIRONMENT ID  ENVIRONMENT NAME  OS
+	// id1             name1             linux
+	// id2             name2             linux
+	// id3             name3             windows
 }
 
 func ExampleTextPrintLoadBalancers() {
@@ -259,72 +286,77 @@ func ExampleTextPrintServices() {
 	printer := &TextPrinter{}
 	services := []*models.Service{
 		{
-			ServiceID:        "id1",
-			ServiceName:      "svc1",
+			Deployments: []models.Deployment{
+				{DeployName: "d1", DeployVersion: "1"},
+			},
+			DesiredCount:     1,
 			EnvironmentID:    "eid1",
 			EnvironmentName:  "ename1",
 			LoadBalancerID:   "lid1",
 			LoadBalancerName: "lname1",
 			RunningCount:     1,
-			DesiredCount:     1,
-			Deployments: []models.Deployment{
-				{DeployName: "d1", DeployVersion: "1"},
-			},
+			ServiceID:        "id1",
+			ServiceName:      "svc1",
+			Stateful:         false,
 		},
 		{
-			ServiceID:      "id2",
-			ServiceName:    "svc2",
-			EnvironmentID:  "eid2",
-			LoadBalancerID: "lid2",
-			RunningCount:   1,
-			DesiredCount:   1,
 			Deployments: []models.Deployment{
 				{DeployID: "d2.1"},
 			},
+			DesiredCount:   1,
+			EnvironmentID:  "eid2",
+			LoadBalancerID: "lid2",
+			RunningCount:   1,
+			ServiceID:      "id2",
+			ServiceName:    "svc2",
+			Stateful:       true,
 		},
 		{
-			ServiceID:     "id3",
-			ServiceName:   "svc3",
-			EnvironmentID: "eid3",
-			RunningCount:  0,
-			DesiredCount:  1,
-			PendingCount:  1,
 			Deployments: []models.Deployment{
 				{DeployID: "d3.1", RunningCount: 0, DesiredCount: 1},
 			},
+			DesiredCount:  1,
+			EnvironmentID: "eid3",
+			PendingCount:  1,
+			RunningCount:  0,
+			ServiceID:     "id3",
+			ServiceName:   "svc3",
+			Stateful:      false,
 		},
 		{
-			ServiceID:     "id4",
-			ServiceName:   "svc4",
-			EnvironmentID: "eid4",
-			RunningCount:  1,
-			DesiredCount:  2,
-			PendingCount:  1,
 			Deployments: []models.Deployment{
 				{DeployID: "d4.1", RunningCount: 1, DesiredCount: 2},
 			},
+			DesiredCount:  2,
+			EnvironmentID: "eid4",
+			PendingCount:  1,
+			RunningCount:  1,
+			ServiceID:     "id4",
+			ServiceName:   "svc4",
+			Stateful:      true,
 		},
 		{
-			ServiceID:     "id5",
-			ServiceName:   "svc5",
-			EnvironmentID: "eid5",
-			RunningCount:  2,
-			DesiredCount:  1,
 			Deployments: []models.Deployment{
 				{DeployID: "d5.1", RunningCount: 1, DesiredCount: 0},
 				{DeployID: "d5.2", RunningCount: 0, DesiredCount: 1},
 			},
+			DesiredCount:  1,
+			EnvironmentID: "eid5",
+			RunningCount:  2,
+			ServiceID:     "id5",
+			ServiceName:   "svc5",
+			Stateful:      true,
 		},
 	}
 
 	printer.PrintServices(services...)
 	// Output:
-	// SERVICE ID  SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE
-	// id1         svc1          ename1       lname1        d1:1         1/1
-	// id2         svc2          eid2         lid2          d2:1         1/1
-	// id3         svc3          eid3                       d3:1*        0/1 (1)
-	// id4         svc4          eid4                       d4:1*        1/2 (1)
-	// id5         svc5          eid5                       d5:1*        2/1
+	// SERVICE ID  SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE    STATEFUL
+	// id1         svc1          ename1       lname1        d1:1         1/1      false
+	// id2         svc2          eid2         lid2          d2:1         1/1      true
+	// id3         svc3          eid3                       d3:1*        0/1 (1)  false
+	// id4         svc4          eid4                       d4:1*        1/2 (1)  true
+	// id5         svc5          eid5                       d5:1*        2/1      true
 	//                                                      d5:2*
 }
 
@@ -346,44 +378,48 @@ func ExampleTextPrintTasks() {
 	printer := &TextPrinter{}
 	tasks := []*models.Task{
 		{
-			TaskID:          "id1",
-			TaskName:        "tsk1",
-			EnvironmentID:   "eid1",
-			EnvironmentName: "ename1",
 			DeployName:      "d1",
 			DeployVersion:   "1",
+			EnvironmentID:   "eid1",
+			EnvironmentName: "ename1",
 			Status:          "RUNNING",
+			TaskID:          "id1",
+			TaskName:        "tsk1",
+			Stateful:        false,
 		},
 		{
+			DeployID:      "d2.1",
+			EnvironmentID: "eid2",
+			Status:        "RUNNING",
 			TaskID:        "id2",
 			TaskName:      "tsk2",
-			EnvironmentID: "eid2",
-			DeployID:      "d2.1",
-			Status:        "RUNNING",
+			Stateful:      true,
 		},
 		{
+			DeployID:      "d3.1",
+			EnvironmentID: "eid3",
+			Status:        "RUNNING",
 			TaskID:        "id3",
 			TaskName:      "tsk3",
-			EnvironmentID: "eid3",
-			DeployID:      "d3.1",
-			Status:        "RUNNING",
+			Stateful:      false,
 		},
 		{
+			DeployID:      "d4.1",
+			EnvironmentID: "eid4",
+			Status:        "RUNNING",
 			TaskID:        "id4",
 			TaskName:      "tsk4",
-			EnvironmentID: "eid4",
-			DeployID:      "d4.1",
-			Status:        "RUNNING",
+			Stateful:      true,
 		},
 	}
 
 	printer.PrintTasks(tasks...)
 	// Output:
-	// TASK ID  TASK NAME  ENVIRONMENT  DEPLOY  STATUS
-	// id1      tsk1       ename1       d1:1    RUNNING
-	// id2      tsk2       eid2         d2:1    RUNNING
-	// id3      tsk3       eid3         d3:1    RUNNING
-	// id4      tsk4       eid4         d4:1    RUNNING
+	// TASK ID  TASK NAME  ENVIRONMENT  DEPLOY  STATUS   STATEFUL
+	// id1      tsk1       ename1       d1:1    RUNNING  false
+	// id2      tsk2       eid2         d2:1    RUNNING  true
+	// id3      tsk3       eid3         d3:1    RUNNING  false
+	// id4      tsk4       eid4         d4:1    RUNNING  true
 }
 
 func ExampleTextPrintTaskSummaries() {

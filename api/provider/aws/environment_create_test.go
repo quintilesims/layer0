@@ -13,7 +13,7 @@ func TestEnvironment_createTags(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	environment := NewEnvironmentProvider(nil, tagStore, nil)
 
-	if err := environment.createTags("env_id", "env_name", "static", "env_os"); err != nil {
+	if err := environment.createTags("env_id", "env_name", "env_os"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -27,20 +27,12 @@ func TestEnvironment_createTags(t *testing.T) {
 		{
 			EntityID:   "env_id",
 			EntityType: "environment",
-			Key:        "type",
-			Value:      "static",
-		},
-		{
-			EntityID:   "env_id",
-			EntityType: "environment",
 			Key:        "os",
 			Value:      "env_os",
 		},
 	}
 
-	for _, tag := range expectedTags {
-		assert.Contains(t, tagStore.Tags(), tag)
-	}
+	assert.Equal(t, expectedTags, tagStore.Tags())
 }
 
 func TestEnvironment_RenderUserData(t *testing.T) {

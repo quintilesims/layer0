@@ -44,6 +44,11 @@ func resourceLayer0Service() *schema.Resource {
 				Optional: true,
 				Default:  1,
 			},
+			"stateful": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				ForceNew: true,
+			},
 		},
 	}
 }
@@ -57,6 +62,7 @@ func resourceLayer0ServiceCreate(d *schema.ResourceData, meta interface{}) error
 		DeployID:       d.Get("deploy").(string),
 		LoadBalancerID: d.Get("load_balancer").(string),
 		Scale:          d.Get("scale").(int),
+		Stateful:       d.Get("stateful").(bool),
 	}
 
 	serviceID, err := apiClient.CreateService(req)
@@ -92,6 +98,7 @@ func resourceLayer0ServiceRead(d *schema.ResourceData, meta interface{}) error {
 	d.Set("environment", service.EnvironmentID)
 	d.Set("load_balancer", service.LoadBalancerID)
 	d.Set("scale", service.DesiredCount)
+	d.Set("stateful", service.Stateful)
 
 	for _, deployment := range service.Deployments {
 		if deployment.Status == "PRIMARY" {
