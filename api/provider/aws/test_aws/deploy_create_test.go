@@ -113,6 +113,12 @@ func TestDeployCreate_defaults(t *testing.T) {
 			Key:        "arn",
 			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id:1",
 		},
+		{
+			EntityID:   "dpl_id",
+			EntityType: "deploy",
+			Key:        "compatibilities",
+			Value:      models.DeployCompatibilityStateful,
+		},
 	}
 
 	for _, tag := range expectedTags {
@@ -238,6 +244,12 @@ func TestDeployCreate(t *testing.T) {
 			EntityType: "deploy",
 			Key:        "arn",
 			Value:      "arn:aws:ecs:region:012345678910:task-definition/l0-test-dpl_id:1",
+		},
+		{
+			EntityID:   "dpl_id",
+			EntityType: "deploy",
+			Key:        "compatibilities",
+			Value:      models.DeployCompatibilityStateful,
 		},
 	}
 

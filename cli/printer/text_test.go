@@ -37,15 +37,31 @@ func ExampleTextPrintDeploys() {
 func ExampleTextPrintDeploySummaries() {
 	printer := &TextPrinter{}
 	deploys := []models.DeploySummary{
-		{DeployID: "id1", DeployName: "name1", Version: "1"},
-		{DeployID: "id2", DeployName: "name2", Version: "2"},
+		{
+			Compatibilities: []string{
+				models.DeployCompatibilityStateful,
+				models.DeployCompatibilityStateless,
+			},
+			DeployID:   "id1",
+			DeployName: "name1",
+			Version:    "1",
+		},
+		{
+			Compatibilities: []string{
+				models.DeployCompatibilityStateful,
+			},
+			DeployID:   "id2",
+			DeployName: "name2",
+			Version:    "2",
+		},
 	}
 
 	printer.PrintDeploySummaries(deploys...)
 	// Output:
-	// DEPLOY ID  DEPLOY NAME  VERSION
-	// id1        name1        1
-	// id2        name2        2
+	// DEPLOY ID  DEPLOY NAME  VERSION  COMPATIBILITIES
+	// id1        name1        1        stateful
+	//                                  stateless
+	// id2        name2        2        stateful
 }
 
 func ExampleTextPrintEnvironments() {
