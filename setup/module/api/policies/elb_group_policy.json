@@ -4,7 +4,9 @@
 	{
             "Effect": "Allow",
             "Action": [
-                "elasticloadbalancing:Describe*"
+                "elasticloadbalancing:Describe*",
+                "elasticloadbalancing:Create*",
+                "elasticloadbalancing:Delete*"
             ],
             "Resource": "*"
         },

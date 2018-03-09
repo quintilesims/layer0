@@ -84,6 +84,10 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 						Value: dhc.UnhealthyThreshold,
 						Usage: "Number of consecutive failures required to count as unhealthy",
 					},
+					cli.StringFlag{
+						Name:  "type",
+						Usage: "Type of load balancer, either 'ELB' or 'ALB' (default is 'ELB')",
+					},
 				},
 			},
 			{
@@ -223,10 +227,19 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: args["LOAD_BALANCER_NAME"],
+		LoadBalancerType: config.DefaultLoadBalancerType,
 		EnvironmentID:    environmentID,
 		IsPublic:         !c.Bool("private"),
 		Ports:            ports,
 		HealthCheck:      healthCheck,
+	}
+
+	if c.IsSet("type") {
+		req.LoadBalancerType = c.String("type")
+	}
+
+	if err := req.Validate(); err != nil {
+		return err
 	}
 
 	loadBalancerID, err := l.client.CreateLoadBalancer(req)

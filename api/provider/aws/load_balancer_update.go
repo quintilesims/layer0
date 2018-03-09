@@ -15,72 +15,72 @@ import (
 // EC2 Security Group ingress rules are removed first and then new listeners and
 // Security Group ingress rules are created based on the provided list of ports.
 func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLoadBalancerRequest) error {
-	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
-	loadBalancerName := fqLoadBalancerID
+	// fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
+	// loadBalancerName := fqLoadBalancerID
 
-	if req.HealthCheck != nil {
-		healthCheck := &elb.HealthCheck{
-			Target:             aws.String(req.HealthCheck.Target),
-			Interval:           aws.Int64(int64(req.HealthCheck.Interval)),
-			Timeout:            aws.Int64(int64(req.HealthCheck.Timeout)),
-			HealthyThreshold:   aws.Int64(int64(req.HealthCheck.HealthyThreshold)),
-			UnhealthyThreshold: aws.Int64(int64(req.HealthCheck.UnhealthyThreshold)),
-		}
+	// if req.HealthCheck != nil {
+	// 	healthCheck := &elb.HealthCheck{
+	// 		Target:             aws.String(req.HealthCheck.Target),
+	// 		Interval:           aws.Int64(int64(req.HealthCheck.Interval)),
+	// 		Timeout:            aws.Int64(int64(req.HealthCheck.Timeout)),
+	// 		HealthyThreshold:   aws.Int64(int64(req.HealthCheck.HealthyThreshold)),
+	// 		UnhealthyThreshold: aws.Int64(int64(req.HealthCheck.UnhealthyThreshold)),
+	// 	}
 
-		if err := l.updateHealthCheck(loadBalancerName, healthCheck); err != nil {
-			return err
-		}
-	}
+	// 	if err := l.updateHealthCheck(loadBalancerName, healthCheck); err != nil {
+	// 		return err
+	// 	}
+	// }
 
-	if req.Ports != nil {
-		listeners, err := l.portsToListeners(*req.Ports)
-		if err != nil {
-			return err
-		}
+	// if req.Ports != nil {
+	// 	listeners, err := l.portsToListeners(*req.Ports)
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		securityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
-		securityGroup, err := readSG(l.AWS.EC2, securityGroupName)
-		if err != nil {
-			return err
-		}
+	// 	securityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
+	// 	securityGroup, err := readSG(l.AWS.EC2, securityGroupName)
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		securityGroupID := aws.StringValue(securityGroup.GroupId)
+	// 	securityGroupID := aws.StringValue(securityGroup.GroupId)
 
-		loadBalancerDescription, err := describeLoadBalancer(l.AWS.ELB, loadBalancerName)
-		if err != nil {
-			return err
-		}
+	// 	loadBalancerDescription, err := describeLoadBalancer(l.AWS.ELB, loadBalancerName)
+	// 	if err != nil {
+	// 		return err
+	// 	}
 
-		// remove all of the current listeners and security group ingress rules from the
-		// load balancer and its security group
-		portNumbers := make([]int64, len(loadBalancerDescription.ListenerDescriptions))
-		for i, listenerDescription := range loadBalancerDescription.ListenerDescriptions {
-			portNumber := aws.Int64Value(listenerDescription.Listener.LoadBalancerPort)
-			portNumbers[i] = portNumber
+	// 	// remove all of the current listeners and security group ingress rules from the
+	// 	// load balancer and its security group
+	// 	portNumbers := make([]int64, len(loadBalancerDescription.ListenerDescriptions))
+	// 	for i, listenerDescription := range loadBalancerDescription.ListenerDescriptions {
+	// 		portNumber := aws.Int64Value(listenerDescription.Listener.LoadBalancerPort)
+	// 		portNumbers[i] = portNumber
 
-			if err := l.revokeSGIngressFromPort(securityGroupID, portNumber); err != nil {
-				return err
-			}
-		}
+	// 		if err := l.revokeSGIngressFromPort(securityGroupID, portNumber); err != nil {
+	// 			return err
+	// 		}
+	// 	}
 
-		if err := l.removeListeners(loadBalancerName, portNumbers); err != nil {
-			return err
-		}
+	// 	if err := l.removeListeners(loadBalancerName, portNumbers); err != nil {
+	// 		return err
+	// 	}
 
-		// add all of the new listeners and security group ingress rules to the
-		// load balancer and its security group
-		if err := l.addListeners(loadBalancerName, listeners); err != nil {
-			return err
-		}
+	// 	// add all of the new listeners and security group ingress rules to the
+	// 	// load balancer and its security group
+	// 	if err := l.addListeners(loadBalancerName, listeners); err != nil {
+	// 		return err
+	// 	}
 
-		for _, listener := range listeners {
-			loadBalancerListenerPort := aws.Int64Value(listener.LoadBalancerPort)
+	// 	for _, listener := range listeners {
+	// 		loadBalancerListenerPort := aws.Int64Value(listener.LoadBalancerPort)
 
-			if err := l.authorizeSGIngressFromPort(securityGroupID, loadBalancerListenerPort); err != nil {
-				return err
-			}
-		}
-	}
+	// 		if err := l.authorizeSGIngressFromPort(securityGroupID, loadBalancerListenerPort); err != nil {
+	// 			return err
+	// 		}
+	// 	}
+	// }
 
 	return nil
 }

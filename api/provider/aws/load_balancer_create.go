@@ -9,14 +9,15 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Create is used to create an Elastic Load Balancer using the specified Create
-// Load Balancer Request. The Create Load Balancer Request contains the name of
-// the Load Balancer, the Environment ID in which to create the Load Balancer,
+// Create is used to create an Elastic or an Application Load Balancer using the
+// specified Create Load Balancer Request. The Create Load Balancer Request contains
+// the name of the Load Balancer, the Environment ID in which to create the Load Balancer,
 // a flag to determine if the Load Balancer will be Internet-facing or internal,
 // a list of ports to configure as the listeners, and a Health Check to determine
 // if attached EC2 instances are in service or not. An IAM Role is created and
@@ -90,41 +91,111 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		return "", err
 	}
 
-	listeners, err := l.portsToListeners(req.Ports)
-	if err != nil {
-		return "", err
+	if strings.EqualFold(req.LoadBalancerType, models.ClassicLoadBalancerType) {
+		listeners, err := l.portsToListeners(req.Ports)
+		if err != nil {
+			return "", err
+		}
+
+		if err := l.createLoadBalancer(
+			fqLoadBalancerID,
+			scheme,
+			securityGroupIDs,
+			subnets,
+			listeners); err != nil {
+			return "", err
+		}
+
+		if req.HealthCheck == (models.HealthCheck{}) {
+			req.HealthCheck = config.DefaultLoadBalancerHealthCheck()
+		}
+
+		healthCheck := &elb.HealthCheck{
+			Target:             aws.String(req.HealthCheck.Target),
+			Interval:           aws.Int64(int64(req.HealthCheck.Interval)),
+			Timeout:            aws.Int64(int64(req.HealthCheck.Timeout)),
+			HealthyThreshold:   aws.Int64(int64(req.HealthCheck.HealthyThreshold)),
+			UnhealthyThreshold: aws.Int64(int64(req.HealthCheck.UnhealthyThreshold)),
+		}
+
+		if err := l.updateHealthCheck(fqLoadBalancerID, healthCheck); err != nil {
+			return "", err
+		}
 	}
 
-	if err := l.createLoadBalancer(
-		fqLoadBalancerID,
-		scheme,
-		securityGroupIDs,
-		subnets,
-		listeners); err != nil {
-		return "", err
+	if strings.EqualFold(req.LoadBalancerType, models.ApplicationLoadBalancerType) {
+		lb, err := l.createApplicationLoadBalancer(
+			fqLoadBalancerID,
+			scheme,
+			securityGroupIDs,
+			subnets)
+
+		if err != nil {
+			return "", err
+		}
+
+		targetGroupName := fqLoadBalancerID
+		tg, err := l.createTargetGroup(targetGroupName)
+		if err != nil {
+			return "", err
+		}
+
+		if _, err := l.createListener(lb.LoadBalancerArn, tg.TargetGroupArn); err != nil {
+			return "", err
+		}
 	}
 
-	if req.HealthCheck == (models.HealthCheck{}) {
-		req.HealthCheck = config.DefaultLoadBalancerHealthCheck()
-	}
-
-	healthCheck := &elb.HealthCheck{
-		Target:             aws.String(req.HealthCheck.Target),
-		Interval:           aws.Int64(int64(req.HealthCheck.Interval)),
-		Timeout:            aws.Int64(int64(req.HealthCheck.Timeout)),
-		HealthyThreshold:   aws.Int64(int64(req.HealthCheck.HealthyThreshold)),
-		UnhealthyThreshold: aws.Int64(int64(req.HealthCheck.UnhealthyThreshold)),
-	}
-
-	if err := l.updateHealthCheck(fqLoadBalancerID, healthCheck); err != nil {
-		return "", err
-	}
-
-	if err := l.createTags(loadBalancerID, req.LoadBalancerName, req.EnvironmentID); err != nil {
+	if err := l.createTags(loadBalancerID, req.LoadBalancerName, req.LoadBalancerType, req.EnvironmentID); err != nil {
 		return "", err
 	}
 
 	return loadBalancerID, nil
+}
+
+func (l *LoadBalancerProvider) createTargetGroup(groupName string) (*alb.TargetGroup, error) {
+	input := &alb.CreateTargetGroupInput{}
+	input.SetName(groupName)
+	input.SetPort(80)
+	input.SetProtocol("HTTP")
+	input.SetVpcId(l.Config.VPC())
+	input.SetTargetType(alb.TargetTypeEnumIp)
+
+	// todo: add health check information here also
+
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
+	output, err := l.AWS.ALB.CreateTargetGroup(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return output.TargetGroups[0], nil
+}
+
+func (l *LoadBalancerProvider) createListener(loadBalancerArn, targetGroupArn *string) (*alb.Listener, error) {
+	input := &alb.CreateListenerInput{}
+	input.SetPort(80)
+	input.SetProtocol("HTTP")
+	input.LoadBalancerArn = loadBalancerArn
+	input.SetDefaultActions([]*alb.Action{
+		{
+			TargetGroupArn: targetGroupArn,
+			Type:           aws.String(alb.ActionTypeEnumForward),
+		},
+	})
+
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
+	output, err := l.AWS.ALB.CreateListener(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return output.Listeners[0], nil
 }
 
 func (l *LoadBalancerProvider) createRole(roleName, policy string) (*iam.Role, error) {
@@ -211,6 +282,41 @@ func (l *LoadBalancerProvider) createLoadBalancer(
 	return nil
 }
 
+func (l *LoadBalancerProvider) createApplicationLoadBalancer(
+	loadBalancerName string,
+	scheme string,
+	securityGroupIDs []string,
+	subnetIDs []string,
+) (*alb.LoadBalancer, error) {
+	securityGroups := make([]*string, len(securityGroupIDs))
+	for i, securityGroupID := range securityGroupIDs {
+		securityGroups[i] = aws.String(securityGroupID)
+	}
+
+	subnets := make([]*string, len(subnetIDs))
+	for i, subnetID := range subnetIDs {
+		subnets[i] = aws.String(subnetID)
+	}
+
+	input := &alb.CreateLoadBalancerInput{}
+	input.SetName(loadBalancerName)
+	input.SetScheme(scheme)
+	input.SetSecurityGroups(securityGroups)
+	input.SetSubnets(subnets)
+	input.SetType(alb.LoadBalancerTypeEnumApplication)
+
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
+	createLBOutput, err := l.AWS.ALB.CreateLoadBalancer(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return createLBOutput.LoadBalancers[0], nil
+}
+
 func (l *LoadBalancerProvider) portsToListeners(ports []models.Port) ([]*elb.Listener, error) {
 	listeners := make([]*elb.Listener, len(ports))
 	for i, port := range ports {
@@ -239,7 +345,7 @@ func (l *LoadBalancerProvider) portsToListeners(ports []models.Port) ([]*elb.Lis
 	return listeners, nil
 }
 
-func (l *LoadBalancerProvider) createTags(loadBalancerID, loadBalancerName, environmentID string) error {
+func (l *LoadBalancerProvider) createTags(loadBalancerID, loadBalancerName, loadBalancerType, environmentID string) error {
 	tags := []models.Tag{
 		{
 			EntityID:   loadBalancerID,
@@ -252,6 +358,12 @@ func (l *LoadBalancerProvider) createTags(loadBalancerID, loadBalancerName, envi
 			EntityType: "load_balancer",
 			Key:        "environment_id",
 			Value:      environmentID,
+		},
+		{
+			EntityID:   loadBalancerID,
+			EntityType: "load_balancer",
+			Key:        "type",
+			Value:      loadBalancerType,
 		},
 	}
 

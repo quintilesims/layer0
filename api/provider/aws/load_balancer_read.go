@@ -9,41 +9,44 @@ import (
 // is used when the DescribeLoadBalancers request is made to AWS.
 func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer, error) {
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
-	loadBalancer, err := describeLoadBalancer(l.AWS.ELB, fqLoadBalancerID)
-	if err != nil {
-		return nil, err
-	}
 
 	model, err := l.makeLoadBalancerModel(loadBalancerID)
 	if err != nil {
 		return nil, err
 	}
 
-	model.Ports = make([]models.Port, len(loadBalancer.ListenerDescriptions))
-	for i, description := range loadBalancer.ListenerDescriptions {
-		port := models.Port{
-			ContainerPort: aws.Int64Value(description.Listener.InstancePort),
-			HostPort:      aws.Int64Value(description.Listener.LoadBalancerPort),
-			Protocol:      aws.StringValue(description.Listener.Protocol),
-		}
-
-		if certificateARN := aws.StringValue(description.Listener.SSLCertificateId); certificateARN != "" {
-			port.CertificateARN = certificateARN
-		}
-
-		model.Ports[i] = port
+	loadBalancer, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, fqLoadBalancerID)
+	if err != nil {
+		return nil, err
 	}
 
-	model.HealthCheck = models.HealthCheck{
-		Target:             aws.StringValue(loadBalancer.HealthCheck.Target),
-		Interval:           int(aws.Int64Value(loadBalancer.HealthCheck.Interval)),
-		Timeout:            int(aws.Int64Value(loadBalancer.HealthCheck.Timeout)),
-		HealthyThreshold:   int(aws.Int64Value(loadBalancer.HealthCheck.HealthyThreshold)),
-		UnhealthyThreshold: int(aws.Int64Value(loadBalancer.HealthCheck.UnhealthyThreshold)),
+	if loadBalancer.ELB != nil {
+		model.Ports = make([]models.Port, len(loadBalancer.ELB.ListenerDescriptions))
+		for i, description := range loadBalancer.ELB.ListenerDescriptions {
+			port := models.Port{
+				ContainerPort: aws.Int64Value(description.Listener.InstancePort),
+				HostPort:      aws.Int64Value(description.Listener.LoadBalancerPort),
+				Protocol:      aws.StringValue(description.Listener.Protocol),
+			}
+
+			if certificateARN := aws.StringValue(description.Listener.SSLCertificateId); certificateARN != "" {
+				port.CertificateARN = certificateARN
+			}
+
+			model.Ports[i] = port
+		}
+
+		model.HealthCheck = models.HealthCheck{
+			Target:             aws.StringValue(loadBalancer.ELB.HealthCheck.Target),
+			Interval:           int(aws.Int64Value(loadBalancer.ELB.HealthCheck.Interval)),
+			Timeout:            int(aws.Int64Value(loadBalancer.ELB.HealthCheck.Timeout)),
+			HealthyThreshold:   int(aws.Int64Value(loadBalancer.ELB.HealthCheck.HealthyThreshold)),
+			UnhealthyThreshold: int(aws.Int64Value(loadBalancer.ELB.HealthCheck.UnhealthyThreshold)),
+		}
 	}
 
-	model.IsPublic = aws.StringValue(loadBalancer.Scheme) == "internet-facing"
-	model.URL = aws.StringValue(loadBalancer.DNSName)
+	model.IsPublic = aws.StringValue(loadBalancer.GetScheme()) == "internet-facing"
+	model.URL = aws.StringValue(loadBalancer.GetDNSName())
 
 	return model, nil
 }
@@ -60,6 +63,10 @@ func (l *LoadBalancerProvider) makeLoadBalancerModel(loadBalancerID string) (*mo
 
 	if tag, ok := tags.WithKey("name").First(); ok {
 		model.LoadBalancerName = tag.Value
+	}
+
+	if tag, ok := tags.WithKey("type").First(); ok {
+		model.LoadBalancerType = tag.Value
 	}
 
 	if tag, ok := tags.WithKey("environment_id").First(); ok {

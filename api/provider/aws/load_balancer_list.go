@@ -3,6 +3,7 @@ package aws
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/elb"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -26,7 +27,9 @@ func (l *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 
 func (l *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 	loadBalancerNames := []string{}
-	fn := func(output *elb.DescribeLoadBalancersOutput, lastPage bool) bool {
+
+	// list classic load balancer
+	fnELB := func(output *elb.DescribeLoadBalancersOutput, lastPage bool) bool {
 		for _, description := range output.LoadBalancerDescriptions {
 			loadBalancerName := aws.StringValue(description.LoadBalancerName)
 
@@ -38,7 +41,24 @@ func (l *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 		return !lastPage
 	}
 
-	if err := l.AWS.ELB.DescribeLoadBalancersPages(&elb.DescribeLoadBalancersInput{}, fn); err != nil {
+	if err := l.AWS.ELB.DescribeLoadBalancersPages(&elb.DescribeLoadBalancersInput{}, fnELB); err != nil {
+		return nil, err
+	}
+
+	// list application load balancers
+	fnALB := func(output *alb.DescribeLoadBalancersOutput, lastPage bool) bool {
+		for _, description := range output.LoadBalancers {
+			loadBalancerName := aws.StringValue(description.LoadBalancerName)
+
+			if hasLayer0Prefix(l.Config.Instance(), loadBalancerName) {
+				loadBalancerNames = append(loadBalancerNames, loadBalancerName)
+			}
+		}
+
+		return !lastPage
+	}
+
+	if err := l.AWS.ALB.DescribeLoadBalancersPages(&alb.DescribeLoadBalancersInput{}, fnALB); err != nil {
 		return nil, err
 	}
 
@@ -62,6 +82,10 @@ func (l *LoadBalancerProvider) makeLoadBalancerSummaryModels(loadBalancerIDs []s
 
 		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("name").First(); ok {
 			models[i].LoadBalancerName = tag.Value
+		}
+
+		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("type").First(); ok {
+			models[i].LoadBalancerType = tag.Value
 		}
 
 		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("environment_id").First(); ok {

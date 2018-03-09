@@ -6,7 +6,9 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/elb"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/quintilesims/layer0/common/models"
 )
 
 // Delete is used to delete an Elastic Load Balancer using the specified loadBalancerID.
@@ -16,10 +18,6 @@ import (
 // by making a DeleteLoadBalancer request to AWS.
 func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
-
-	if err := l.deleteLoadBalancer(fqLoadBalancerID); err != nil {
-		return err
-	}
 
 	roleName := getLoadBalancerRoleName(fqLoadBalancerID)
 	policyName := roleName
@@ -44,23 +42,48 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		}
 	}
 
-	if err := l.deleteTags(loadBalancerID); err != nil {
+	model, err := l.makeLoadBalancerModel(loadBalancerID)
+	if err != nil {
 		return err
 	}
 
-	return nil
+	if err := l.deleteLoadBalancer(fqLoadBalancerID, model.LoadBalancerType); err != nil {
+		return err
+	}
+
+	return l.deleteTags(loadBalancerID)
 }
 
-func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error {
-	input := &elb.DeleteLoadBalancerInput{}
-	input.SetLoadBalancerName(loadBalancerName)
+func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string, loadBalancerType string) error {
+	if loadBalancerType == models.ClassicLoadBalancerType {
+		input := &elb.DeleteLoadBalancerInput{}
+		input.SetLoadBalancerName(loadBalancerName)
 
-	if _, err := l.AWS.ELB.DeleteLoadBalancer(input); err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
-			return nil
+		if _, err := l.AWS.ELB.DeleteLoadBalancer(input); err != nil {
+			if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
+				return nil
+			}
+
+			return err
+		}
+	}
+
+	if loadBalancerType == models.ApplicationLoadBalancerType {
+		lb, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName)
+		if err != nil {
+			return err
 		}
 
-		return err
+		input := &alb.DeleteLoadBalancerInput{}
+		input.SetLoadBalancerArn(aws.StringValue(lb.ALB.LoadBalancerArn))
+
+		if _, err := l.AWS.ALB.DeleteLoadBalancer(input); err != nil {
+			if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
+				return nil
+			}
+
+			return err
+		}
 	}
 
 	return nil

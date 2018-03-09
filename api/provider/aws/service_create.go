@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -60,12 +61,12 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	var loadBalancerRole string
 	if req.LoadBalancerID != "" {
 		fqLoadBalancerID := addLayer0Prefix(s.Config.Instance(), req.LoadBalancerID)
-		loadBalancerDescription, err := describeLoadBalancer(s.AWS.ELB, fqLoadBalancerID)
+		lb, err := describeLoadBalancer(s.AWS.ELB, s.AWS.ALB, fqLoadBalancerID)
 		if err != nil {
 			return "", err
 		}
 
-		if aws.StringValue(loadBalancerDescription.Scheme) == "internet-facing" {
+		if aws.StringValue(lb.GetScheme()) == "internet-facing" {
 			loadBalancerSecurityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
 			loadBalancerSecurityGroup, err := readSG(s.AWS.EC2, loadBalancerSecurityGroupName)
 			if err != nil {
@@ -75,21 +76,54 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 			securityGroupIDs = append(securityGroupIDs, loadBalancerSecurityGroup.GroupId)
 		}
 
-		for _, containerDefinition := range taskDefinition.ContainerDefinitions {
-			for _, portMapping := range containerDefinition.PortMappings {
-				for _, listenerDescription := range loadBalancerDescription.ListenerDescriptions {
-					listener := listenerDescription.Listener
-					if aws.Int64Value(listener.InstancePort) == aws.Int64Value(portMapping.ContainerPort) {
-						loadBalancer = &ecs.LoadBalancer{
-							ContainerName:    containerDefinition.Name,
-							ContainerPort:    portMapping.ContainerPort,
-							LoadBalancerName: loadBalancerDescription.LoadBalancerName,
+		var assignLoadBalancer = func() error {
+			for _, containerDefinition := range taskDefinition.ContainerDefinitions {
+				for _, portMapping := range containerDefinition.PortMappings {
+					var loadBalancerName *string
+					var targetGroupArn *string
+
+					// todo: check if this verifying this is actually needed
+					// why do we need to verify at least one container exposes a port that the elb
+					// has a listener for?
+					if lb.isELB {
+						loadBalancerName = lb.ELB.LoadBalancerName
+						// for _, listenerDescription := range lb.ELB.ListenerDescriptions {
+						// 	if aws.Int64Value(listenerDescription.Listener.InstancePort) != aws.Int64Value(portMapping.ContainerPort) {
+						// 		continue
+						// 	}
+						// }
+					}
+
+					// if load balancer is an application load balancer we need to assign TargetGroupArn
+					// instead of the LoadBalancerName property of ecs.LoadBalancer
+					if lb.isALB {
+						targetGroupName := &fqLoadBalancerID
+						targetGroup, err := s.getTargetGroupArn(targetGroupName)
+						if err != nil {
+							return err
 						}
 
-						loadBalancerRole = fmt.Sprintf("%s-lb", fqLoadBalancerID)
+						targetGroupArn = targetGroup.TargetGroupArn
 					}
+
+					loadBalancer = &ecs.LoadBalancer{
+						ContainerName:    containerDefinition.Name,
+						ContainerPort:    portMapping.ContainerPort,
+						LoadBalancerName: loadBalancerName,
+						TargetGroupArn:   targetGroupArn, //aws.String("arn:aws:elasticloadbalancing:us-east-1:856306994068:targetgroup/manual-target-group/b01810e9517e1ed9"), //loadBalancerDescription.LoadBalancerName,
+					}
+
+					loadBalancerRole = fmt.Sprintf("%s-lb", fqLoadBalancerID)
+
+					return nil
 				}
 			}
+
+			return nil
+		}
+
+		if err := assignLoadBalancer(); err != nil {
+			return "", err
 		}
 	}
 
@@ -113,6 +147,22 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	}
 
 	return serviceID, nil
+}
+
+func (s *ServiceProvider) getTargetGroupArn(targetGroupName *string) (*alb.TargetGroup, error) {
+	input := &alb.DescribeTargetGroupsInput{}
+	input.SetNames([]*string{targetGroupName})
+
+	output, err := s.AWS.ALB.DescribeTargetGroups(input)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(output.TargetGroups) == 0 {
+		return nil, fmt.Errorf("target group with name '%s' does not exist", targetGroupName)
+	}
+
+	return output.TargetGroups[0], nil
 }
 
 func (s *ServiceProvider) createService(
@@ -157,10 +207,11 @@ func (s *ServiceProvider) createService(
 
 		input.SetNetworkConfiguration(networkConfig)
 	}
-
 	if loadBalancer != nil {
 		input.SetLoadBalancers([]*ecs.LoadBalancer{loadBalancer})
-		input.SetRole(loadBalancerRole)
+		if networkMode != ecs.NetworkModeAwsvpc {
+			input.SetRole(loadBalancerRole)
+		}
 	}
 
 	if err := input.Validate(); err != nil {
