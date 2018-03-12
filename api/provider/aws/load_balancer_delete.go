@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/iam"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
 )
 
@@ -46,15 +47,47 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	}
 
 	// Confirm Delete
-	describeFN := func(id string) error {
-		_, err := describeLoadBalancer(l.AWS.ELB, id)
+	consistencyCheckFN := func() error {
+		// Check IAM Role
+		getRoleInput := &iam.GetRoleInput{}
+		getRoleInput.SetRoleName(roleName)
+
+		if _, err := l.AWS.IAM.GetRole(getRoleInput); err != nil {
+			if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
+				return nil
+			}
+
+			return err
+		}
+
+		// Check Role Policy
+		getRolePolicyInput := &iam.GetRolePolicyInput{}
+		getRolePolicyInput.SetRoleName(roleName)
+		getRolePolicyInput.SetPolicyName(policyName)
+
+		if _, err := l.AWS.IAM.GetRolePolicy(getRolePolicyInput); err != nil {
+			if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
+				return nil
+			}
+
+			return err
+		}
+
+		// Check Security Group
+		_, err := readSG(l.AWS.EC2, securityGroupName)
+		if err != nil && !strings.Contains(err.Error(), "does not exist") {
+			return err
+		}
+
+		_, err = describeLoadBalancer(l.AWS.ELB, fqLoadBalancerID)
 		if serverError, ok := err.(*errors.ServerError); ok && serverError.Code == "LoadBalancerDoesNotExist" {
 			return nil
 		}
+
 		return err
 	}
 
-	if err := Retry(fqLoadBalancerID, describeFN); err != nil {
+	if err := retry(config.DefaultRetryTimeout, config.DefaultRetryTick, consistencyCheckFN); err != nil {
 		return err
 	}
 
@@ -104,7 +137,6 @@ func (l *LoadBalancerProvider) deleteRole(roleName string) error {
 	input := &iam.DeleteRoleInput{}
 	input.SetRoleName(roleName)
 
-	// todo: validate NoSuchEntity is correct error code
 	if _, err := l.AWS.IAM.DeleteRole(input); err != nil {
 		if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
 			return nil

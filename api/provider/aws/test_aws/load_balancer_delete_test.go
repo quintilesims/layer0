@@ -73,15 +73,31 @@ func TestLoadBalancerDelete(t *testing.T) {
 	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
 	deleteSGHelper(mockAWS, "lb_sg")
 
+	getRoleInput := &iam.GetRoleInput{}
+	getRoleInput.SetRoleName("l0-test-lb_id-lb")
+
+	mockAWS.IAM.EXPECT().
+		GetRole(getRoleInput).
+		Return(&iam.GetRoleOutput{}, nil).
+		AnyTimes()
+
+	getRolePolicyInput := &iam.GetRolePolicyInput{}
+	getRolePolicyInput.SetRoleName("l0-test-lb_id-lb")
+	getRolePolicyInput.SetPolicyName("l0-test-lb_id-lb")
+
+	mockAWS.IAM.EXPECT().
+		GetRolePolicy(getRolePolicyInput).
+		Return(&iam.GetRolePolicyOutput{}, nil).
+		AnyTimes()
+
 	describeLoadBalancersInput := &elb.DescribeLoadBalancersInput{}
 	describeLoadBalancersInput.SetLoadBalancerNames([]*string{aws.String("l0-test-lb_id")})
 	describeLoadBalancersInput.SetPageSize(1)
 
-	describeLoadBalancersOutput := &elb.DescribeLoadBalancersOutput{}
-
 	mockAWS.ELB.EXPECT().
 		DescribeLoadBalancers(describeLoadBalancersInput).
-		Return(describeLoadBalancersOutput, nil)
+		Return(&elb.DescribeLoadBalancersOutput{}, nil).
+		AnyTimes()
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("lb_id"); err != nil {
@@ -115,7 +131,23 @@ func TestLoadBalancerDeleteIdempotence(t *testing.T) {
 
 	mockAWS.EC2.EXPECT().
 		DescribeSecurityGroups(gomock.Any()).
-		Return(&ec2.DescribeSecurityGroupsOutput{}, nil)
+		Return(&ec2.DescribeSecurityGroupsOutput{}, nil).
+		AnyTimes()
+
+	mockAWS.IAM.EXPECT().
+		GetRole(gomock.Any()).
+		Return(&iam.GetRoleOutput{}, nil).
+		AnyTimes()
+
+	mockAWS.IAM.EXPECT().
+		GetRolePolicy(gomock.Any()).
+		Return(&iam.GetRolePolicyOutput{}, nil).
+		AnyTimes()
+
+	mockAWS.ELB.EXPECT().
+		DescribeLoadBalancers(gomock.Any()).
+		Return(&elb.DescribeLoadBalancersOutput{}, nil).
+		AnyTimes()
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("lb_id"); err != nil {
