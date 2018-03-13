@@ -15,6 +15,8 @@ const (
 	DefaultEnvironmentOS           = "linux"
 	DefaultServiceScale            = 1
 	DefaultLoadBalancerType        = "elb"
+	DefaultTargetGroupPort         = "80"
+	DefaultTargetGroupProtocol     = "HTTP"
 
 	// https://docs.aws.amazon.com/AmazonECS/latest/developerguide/platform_versions.html
 	DefaultFargatePlatformVersion = "1.0.0"

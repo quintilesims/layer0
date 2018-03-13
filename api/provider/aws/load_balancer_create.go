@@ -126,6 +126,11 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 			return "", err
 		}
 
+		if req.HealthCheck == (models.HealthCheck{}) {
+			req.HealthCheck = config.DefaultLoadBalancerHealthCheck()
+		}
+		req.HealthCheck.Target = "/"
+
 		targetGroupName := fqLoadBalancerID
 		tg, err := l.createTargetGroup(targetGroupName, req.HealthCheck)
 		if err != nil {
@@ -147,8 +152,8 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 func (l *LoadBalancerProvider) createTargetGroup(groupName string, healthCheck models.HealthCheck) (*alb.TargetGroup, error) {
 	input := &alb.CreateTargetGroupInput{}
 	input.SetName(groupName)
-	input.SetPort(config.DefaultLoadBalancerPort().HostPort)
-	input.SetProtocol(config.DefaultLoadBalancerPort().Protocol)
+	input.SetPort(config.DefaultTargetGroupPort)
+	input.SetProtocol(config.DefaultTargetGroupProtocol)
 	input.SetVpcId(l.Config.VPC())
 	input.SetTargetType(alb.TargetTypeEnumIp)
 
@@ -173,8 +178,8 @@ func (l *LoadBalancerProvider) createTargetGroup(groupName string, healthCheck m
 
 func (l *LoadBalancerProvider) createListener(loadBalancerArn, targetGroupArn *string) (*alb.Listener, error) {
 	input := &alb.CreateListenerInput{}
-	input.SetPort(config.DefaultLoadBalancerPort().HostPort)
-	input.SetProtocol(config.DefaultLoadBalancerPort().Protocol)
+	input.SetPort(config.DefaultTargetGroupPort)
+	input.SetProtocol(config.DefaultTargetGroupProtocol)
 	input.LoadBalancerArn = loadBalancerArn
 	input.SetDefaultActions([]*alb.Action{
 		{
