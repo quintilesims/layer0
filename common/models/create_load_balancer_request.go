@@ -41,11 +41,7 @@ func (c CreateLoadBalancerRequest) Validate() error {
 		}
 	}
 
-	if err := c.HealthCheck.Validate(); err != nil {
-		return err
-	}
-
-	return nil
+	return c.HealthCheck.Validate()
 }
 
 func (l CreateLoadBalancerRequest) Definition() swagger.Definition {

@@ -18,33 +18,6 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 )
 
-type genericLoadBalancer struct {
-	ELB   *elb.LoadBalancerDescription
-	ALB   *alb.LoadBalancer
-	isALB bool
-	isELB bool
-}
-
-func (c genericLoadBalancer) GetScheme() *string {
-	if c.isELB {
-		return c.ELB.Scheme
-	} else if c.isALB {
-		return c.ALB.Scheme
-	}
-
-	return nil
-}
-
-func (c genericLoadBalancer) GetDNSName() *string {
-	if c.isELB {
-		return c.ELB.DNSName
-	} else if c.isALB {
-		return c.ALB.DNSName
-	}
-
-	return nil
-}
-
 // searches for the load balancer name as both classic and application load balancers and returns
 // the first found result or an error if the neither classic or application lb could be found for
 // the give lb name

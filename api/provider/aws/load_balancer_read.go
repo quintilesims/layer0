@@ -1,7 +1,10 @@
 package aws
 
 import (
+	"fmt"
+
 	"github.com/aws/aws-sdk-go/aws"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -20,7 +23,7 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		return nil, err
 	}
 
-	if loadBalancer.ELB != nil {
+	if loadBalancer.isELB {
 		model.Ports = make([]models.Port, len(loadBalancer.ELB.ListenerDescriptions))
 		for i, description := range loadBalancer.ELB.ListenerDescriptions {
 			port := models.Port{
@@ -45,10 +48,66 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		}
 	}
 
+	if loadBalancer.isALB {
+		securityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
+		securityGroup, err := readSG(l.AWS.EC2, securityGroupName)
+		if err != nil {
+			return nil, err
+		}
+
+		model.Ports = make([]models.Port, len(securityGroup.IpPermissions))
+		for i, p := range securityGroup.IpPermissions {
+			port := models.Port{
+				ContainerPort: aws.Int64Value(p.FromPort),
+				HostPort:      aws.Int64Value(p.FromPort),
+				Protocol:      aws.StringValue(p.IpProtocol),
+			}
+
+			//todo: read cert information - how?
+			//iterate through all targets?
+
+			model.Ports[i] = port
+		}
+
+		targetGroupID := fqLoadBalancerID
+		targetGroup, err := l.readTargetGroup(targetGroupID)
+
+		if err != nil {
+			return nil, err
+		}
+
+		model.HealthCheck = models.HealthCheck{
+			Target:             aws.StringValue(targetGroup.HealthCheckPath),
+			Interval:           int(aws.Int64Value(targetGroup.HealthCheckIntervalSeconds)),
+			Timeout:            int(aws.Int64Value(targetGroup.HealthCheckTimeoutSeconds)),
+			HealthyThreshold:   int(aws.Int64Value(targetGroup.HealthyThresholdCount)),
+			UnhealthyThreshold: int(aws.Int64Value(targetGroup.UnhealthyThresholdCount)),
+		}
+	}
+
 	model.IsPublic = aws.StringValue(loadBalancer.GetScheme()) == "internet-facing"
 	model.URL = aws.StringValue(loadBalancer.GetDNSName())
 
 	return model, nil
+}
+
+func (l *LoadBalancerProvider) readTargetGroup(targetGroupID string) (*alb.TargetGroup, error) {
+	input := &alb.DescribeTargetGroupsInput{}
+	input.SetNames([]*string{aws.String(targetGroupID)})
+
+	output, err := l.AWS.ALB.DescribeTargetGroups(input)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(output.TargetGroups) == 0 {
+		return nil, fmt.Errorf(
+			"'%s% target group id expected 1 result but got %d",
+			targetGroupID,
+			len(output.TargetGroups))
+	}
+
+	return output.TargetGroups[0], nil
 }
 
 func (l *LoadBalancerProvider) makeLoadBalancerModel(loadBalancerID string) (*models.LoadBalancer, error) {

@@ -110,15 +110,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 			req.HealthCheck = config.DefaultLoadBalancerHealthCheck()
 		}
 
-		healthCheck := &elb.HealthCheck{
-			Target:             aws.String(req.HealthCheck.Target),
-			Interval:           aws.Int64(int64(req.HealthCheck.Interval)),
-			Timeout:            aws.Int64(int64(req.HealthCheck.Timeout)),
-			HealthyThreshold:   aws.Int64(int64(req.HealthCheck.HealthyThreshold)),
-			UnhealthyThreshold: aws.Int64(int64(req.HealthCheck.UnhealthyThreshold)),
-		}
-
-		if err := l.updateHealthCheck(fqLoadBalancerID, healthCheck); err != nil {
+		if err := l.updateELBHealthCheck(fqLoadBalancerID, req.HealthCheck); err != nil {
 			return "", err
 		}
 	}
@@ -135,7 +127,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		}
 
 		targetGroupName := fqLoadBalancerID
-		tg, err := l.createTargetGroup(targetGroupName)
+		tg, err := l.createTargetGroup(targetGroupName, req.HealthCheck)
 		if err != nil {
 			return "", err
 		}
@@ -152,15 +144,20 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	return loadBalancerID, nil
 }
 
-func (l *LoadBalancerProvider) createTargetGroup(groupName string) (*alb.TargetGroup, error) {
+func (l *LoadBalancerProvider) createTargetGroup(groupName string, healthCheck models.HealthCheck) (*alb.TargetGroup, error) {
 	input := &alb.CreateTargetGroupInput{}
 	input.SetName(groupName)
-	input.SetPort(80)
-	input.SetProtocol("HTTP")
+	input.SetPort(config.DefaultLoadBalancerPort().HostPort)
+	input.SetProtocol(config.DefaultLoadBalancerPort().Protocol)
 	input.SetVpcId(l.Config.VPC())
 	input.SetTargetType(alb.TargetTypeEnumIp)
 
-	// todo: add health check information here also
+	// set health check
+	input.SetHealthCheckPath(healthCheck.Target)
+	input.SetHealthCheckIntervalSeconds(int64(healthCheck.Interval))
+	input.SetHealthCheckTimeoutSeconds(int64(healthCheck.Timeout))
+	input.SetHealthyThresholdCount(int64(healthCheck.HealthyThreshold))
+	input.SetUnhealthyThresholdCount(int64(healthCheck.UnhealthyThreshold))
 
 	if err := input.Validate(); err != nil {
 		return nil, err
@@ -176,8 +173,8 @@ func (l *LoadBalancerProvider) createTargetGroup(groupName string) (*alb.TargetG
 
 func (l *LoadBalancerProvider) createListener(loadBalancerArn, targetGroupArn *string) (*alb.Listener, error) {
 	input := &alb.CreateListenerInput{}
-	input.SetPort(80)
-	input.SetProtocol("HTTP")
+	input.SetPort(config.DefaultLoadBalancerPort().HostPort)
+	input.SetProtocol(config.DefaultLoadBalancerPort().Protocol)
 	input.LoadBalancerArn = loadBalancerArn
 	input.SetDefaultActions([]*alb.Action{
 		{
