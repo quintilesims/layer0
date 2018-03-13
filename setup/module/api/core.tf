@@ -22,6 +22,19 @@ resource "aws_s3_bucket" "mod" {
   force_destroy = true
 }
 
+resource "aws_s3_bucket_policy" "cloudtrail" {
+  bucket = "${aws_s3_bucket.mod.id}"
+  policy = "${data.template_file.s3_cloudtrail_bucket_policy.rendered}"
+}
+
+data "template_file" "s3_cloudtrail_bucket_policy" {
+  template = "${file("${path.module}/policies/s3_cloudtrail_bucket_policy.json")}"
+
+  vars {
+    s3_bucket = "${aws_s3_bucket.mod.id}"
+  }
+}
+
 resource "aws_s3_bucket_object" "dockercfg" {
   bucket  = "${aws_s3_bucket.mod.id}"
   key     = "bootstrap/dockercfg"
@@ -32,14 +45,34 @@ resource "aws_cloudwatch_log_group" "mod" {
   name = "l0-${var.name}"
 }
 
+resource "aws_cloudtrail" "mod" {
+  name                       = "l0-${var.name}"
+  s3_bucket_name             = "${aws_s3_bucket.mod.id}"
+  cloud_watch_logs_role_arn  = "${aws_iam_role.cloudtrail.arn}"
+  cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.mod.arn}"
+  is_multi_region_trail      = true
+
+  depends_on = ["aws_s3_bucket.mod"]
+}
+
 data "template_file" "ecs_assume_role_policy" {
   template = "${file("${path.module}/policies/ecs_assume_role_policy.json")}"
+}
+
+data "template_file" "cloudtrail_assume_role_policy" {
+  template = "${file("${path.module}/policies/cloudtrail_assume_role_policy.json")}"
 }
 
 resource "aws_iam_role" "ecs" {
   name               = "l0-${var.name}-ecs-role"
   path               = "/l0/l0-${var.name}/"
   assume_role_policy = "${data.template_file.ecs_assume_role_policy.rendered}"
+}
+
+resource "aws_iam_role" "cloudtrail" {
+  name               = "l0-${var.name}-cloudtrail-role"
+  path               = "/l0/l0-${var.name}/"
+  assume_role_policy = "${data.template_file.cloudtrail_assume_role_policy.rendered}"
 }
 
 data "template_file" "ecs_role_policy" {
@@ -53,10 +86,26 @@ data "template_file" "ecs_role_policy" {
   }
 }
 
+data "template_file" "cloudtrail_role_policy" {
+  template = "${file("${path.module}/policies/cloudtrail_role_policy.json")}"
+
+  vars {
+    name       = "${var.name}"
+    region     = "${var.region}"
+    account_id = "${data.aws_caller_identity.current.account_id}"
+  }
+}
+
 resource "aws_iam_role_policy" "ecs" {
   name   = "l0-${var.name}-ecs-role-policy"
   role   = "${aws_iam_role.ecs.id}"
   policy = "${data.template_file.ecs_role_policy.rendered}"
+}
+
+resource "aws_iam_role_policy" "cloudtrail" {
+  name   = "l0-${var.name}-cloudtrail-role-policy"
+  role   = "${aws_iam_role.cloudtrail.id}"
+  policy = "${data.template_file.cloudtrail_role_policy.rendered}"
 }
 
 resource "aws_iam_instance_profile" "ecs" {
