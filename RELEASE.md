@@ -47,6 +47,7 @@ git push -u origin release
 ## Merge Release into Master
 
 With the release notes and documentation updated, [create a pull request](https://github.com/quintilesims/layer0/compare) from the `release` branch targeting the `master` branch (_base: master, compare: release_). 
+Merge using **squash and merge.**
 Wait for the unit tests and smoketests to pass before merging. 
 Once the pull request has finished, make sure to delete the `release` branch. 
 
