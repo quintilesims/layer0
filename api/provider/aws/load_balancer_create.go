@@ -129,7 +129,6 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		if req.HealthCheck == (models.HealthCheck{}) {
 			req.HealthCheck = config.DefaultLoadBalancerHealthCheck()
 		}
-		req.HealthCheck.Target = "/"
 
 		targetGroupName := fqLoadBalancerID
 		tg, err := l.createTargetGroup(targetGroupName, req.HealthCheck)
@@ -158,7 +157,7 @@ func (l *LoadBalancerProvider) createTargetGroup(groupName string, healthCheck m
 	input.SetTargetType(alb.TargetTypeEnumIp)
 
 	// set health check
-	input.SetHealthCheckPath(healthCheck.Target)
+	input.SetHealthCheckPath(healthCheck.Path)
 	input.SetHealthCheckIntervalSeconds(int64(healthCheck.Interval))
 	input.SetHealthCheckTimeoutSeconds(int64(healthCheck.Timeout))
 	input.SetHealthyThresholdCount(int64(healthCheck.HealthyThreshold))

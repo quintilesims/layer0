@@ -5,7 +5,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
-	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -97,8 +96,8 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 					// if load balancer is an application load balancer we need to assign TargetGroupArn
 					// instead of the LoadBalancerName property of ecs.LoadBalancer
 					if lb.isALB {
-						targetGroupName := &fqLoadBalancerID
-						targetGroup, err := s.getTargetGroupArn(targetGroupName)
+						targetGroupName := fqLoadBalancerID
+						targetGroup, err := getTargetGroupArn(s.AWS.ALB, targetGroupName)
 						if err != nil {
 							return err
 						}
@@ -110,7 +109,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 						ContainerName:    containerDefinition.Name,
 						ContainerPort:    portMapping.ContainerPort,
 						LoadBalancerName: loadBalancerName,
-						TargetGroupArn:   targetGroupArn, //aws.String("arn:aws:elasticloadbalancing:us-east-1:856306994068:targetgroup/manual-target-group/b01810e9517e1ed9"), //loadBalancerDescription.LoadBalancerName,
+						TargetGroupArn:   targetGroupArn,
 					}
 
 					loadBalancerRole = fmt.Sprintf("%s-lb", fqLoadBalancerID)
@@ -147,22 +146,6 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	}
 
 	return serviceID, nil
-}
-
-func (s *ServiceProvider) getTargetGroupArn(targetGroupName *string) (*alb.TargetGroup, error) {
-	input := &alb.DescribeTargetGroupsInput{}
-	input.SetNames([]*string{targetGroupName})
-
-	output, err := s.AWS.ALB.DescribeTargetGroups(input)
-	if err != nil {
-		return nil, err
-	}
-
-	if len(output.TargetGroups) == 0 {
-		return nil, fmt.Errorf("target group with name '%s' does not exist", targetGroupName)
-	}
-
-	return output.TargetGroups[0], nil
 }
 
 func (s *ServiceProvider) createService(

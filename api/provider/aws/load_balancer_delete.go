@@ -8,7 +8,6 @@ import (
 	"github.com/aws/aws-sdk-go/service/elb"
 	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/aws/aws-sdk-go/service/iam"
-	"github.com/quintilesims/layer0/common/models"
 )
 
 // Delete is used to delete an Elastic Load Balancer using the specified loadBalancerID.
@@ -55,7 +54,16 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 }
 
 func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string, loadBalancerType string) error {
-	if loadBalancerType == models.ClassicLoadBalancerType {
+	lb, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName)
+	if err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
+			return nil
+		}
+
+		return err
+	}
+
+	if lb.isELB {
 		input := &elb.DeleteLoadBalancerInput{}
 		input.SetLoadBalancerName(loadBalancerName)
 
@@ -68,12 +76,7 @@ func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string, loadB
 		}
 	}
 
-	if loadBalancerType == models.ApplicationLoadBalancerType {
-		lb, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName)
-		if err != nil {
-			return err
-		}
-
+	if lb.isALB {
 		input := &alb.DeleteLoadBalancerInput{}
 		input.SetLoadBalancerArn(aws.StringValue(lb.ALB.LoadBalancerArn))
 
