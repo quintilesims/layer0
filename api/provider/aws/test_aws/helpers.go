@@ -44,7 +44,8 @@ func readSGHelper(mockAWS *awsc.MockClient, securityGroupName, securityGroupID s
 	// todo: check input
 	mockAWS.EC2.EXPECT().
 		DescribeSecurityGroups(input).
-		Return(output, nil)
+		Return(output, nil).
+		AnyTimes()
 }
 
 func deleteSGHelper(mockAWS *awsc.MockClient, securityGroupID string) {

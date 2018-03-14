@@ -3,6 +3,7 @@ package client
 import (
 	"fmt"
 
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -21,8 +22,15 @@ func (c *APIClient) CreateLoadBalancer(req models.CreateLoadBalancerRequest) (st
 
 func (c *APIClient) DeleteLoadBalancer(loadBalancerID string) error {
 	path := fmt.Sprintf("/loadbalancer/%s", loadBalancerID)
-	if err := c.client.Delete(path, nil, nil); err != nil {
-		return err
+	// Retry if Timeout
+	for i := 0; i < 2; i++ {
+		if err := c.client.Delete(path, nil, nil); err != nil {
+			if serverError, ok := err.(*errors.ServerError); ok && serverError.Code != "FailedRequestTimeout" {
+				return err
+			}
+			continue
+		}
+		break
 	}
 
 	return nil

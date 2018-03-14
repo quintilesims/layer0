@@ -14,7 +14,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		EnvironmentID:    "env_id",
 		IsPublic:         true,
 		Ports: []models.Port{
-			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "cert"},
 			{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
 		},
 		HealthCheck: models.HealthCheck{
@@ -64,6 +64,8 @@ func TestDeleteLoadBalancer(t *testing.T) {
 	}
 }
 
+// TODO: Write Retry Test
+
 func TestListLoadBalancers(t *testing.T) {
 	expected := []models.LoadBalancerSummary{
 		{
@@ -109,7 +111,7 @@ func TestReadLoadBalancer(t *testing.T) {
 		IsPublic:         true,
 		URL:              "url",
 		Ports: []models.Port{
-			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "cert"},
 			{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
 		},
 		HealthCheck: models.HealthCheck{
@@ -141,7 +143,7 @@ func TestReadLoadBalancer(t *testing.T) {
 
 func TestUpdateLoadBalancer(t *testing.T) {
 	ports := []models.Port{
-		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateName: "cert"},
+		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "cert"},
 		{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
 	}
 
