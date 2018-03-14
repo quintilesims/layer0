@@ -4,9 +4,30 @@
 	{
             "Effect": "Allow",
             "Action": [
-                "elasticloadbalancing:Describe*",
-                "elasticloadbalancing:Create*",
-                "elasticloadbalancing:Delete*"
+                "elasticloadbalancing:ModifyListener",
+                "elasticloadbalancing:CreateLoadBalancer",
+                "elasticloadbalancing:RegisterTargets",
+                "elasticloadbalancing:CreateTargetGroup",
+                "elasticloadbalancing:*",
+                "elasticloadbalancing:DeregisterTargets",
+                "elasticloadbalancing:SetIpAddressType",
+                "elasticloadbalancing:SetSubnets",
+                "elasticloadbalancing:SetRulePriorities",
+                "elasticloadbalancing:DeleteTargetGroup",
+                "elasticloadbalancing:DeleteLoadBalancer",
+                "elasticloadbalancing:DescribeLoadBalancers",
+                "elasticloadbalancing:RemoveTags",
+                "elasticloadbalancing:CreateListener",
+                "elasticloadbalancing:DescribeListeners",
+                "elasticloadbalancing:ModifyRule",
+                "elasticloadbalancing:DescribeTargetHealth",
+                "elasticloadbalancing:CreateRule",
+                "elasticloadbalancing:SetSecurityGroups",
+                "elasticloadbalancing:DescribeTargetGroups",
+                "elasticloadbalancing:DescribeRules",
+                "elasticloadbalancing:DeleteRule",
+                "elasticloadbalancing:ModifyTargetGroup",
+                "elasticloadbalancing:DeleteListener"
             ],
             "Resource": "*"
         },

@@ -41,19 +41,20 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		}
 	}
 
-	model, err := l.makeLoadBalancerModel(loadBalancerID)
-	if err != nil {
+	if err := l.deleteLoadBalancer(fqLoadBalancerID); err != nil {
 		return err
 	}
 
-	if err := l.deleteLoadBalancer(fqLoadBalancerID, model.LoadBalancerType); err != nil {
+	//todo: wait for the loadbalancer to be deleted before attempting to delete the target group?
+	targetGroupID := fqLoadBalancerID
+	if err := l.deleteTargetGroup(targetGroupID); err != nil {
 		return err
 	}
 
 	return l.deleteTags(loadBalancerID)
 }
 
-func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string, loadBalancerType string) error {
+func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error {
 	lb, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName)
 	if err != nil {
 		if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
@@ -87,6 +88,27 @@ func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string, loadB
 
 			return err
 		}
+	}
+
+	return nil
+}
+
+func (l *LoadBalancerProvider) deleteTargetGroup(targetGroupID string) error {
+	tg, err := l.readTargetGroup(targetGroupID)
+	if err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == alb.ErrCodeTargetGroupNotFoundException {
+			return nil
+		}
+
+		return err
+	}
+
+	input := &alb.DeleteTargetGroupInput{
+		TargetGroupArn: tg.TargetGroupArn,
+	}
+
+	if _, err := l.AWS.ALB.DeleteTargetGroup(input); err != nil {
+		return err
 	}
 
 	return nil

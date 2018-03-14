@@ -1,8 +1,6 @@
 package aws
 
 import (
-	"fmt"
-
 	"github.com/aws/aws-sdk-go/aws"
 	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/quintilesims/layer0/common/models"
@@ -58,6 +56,7 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		model.Ports = make([]models.Port, len(securityGroup.IpPermissions))
 		for i, p := range securityGroup.IpPermissions {
 			port := models.Port{
+				// container port isn't used for ALBs
 				ContainerPort: aws.Int64Value(p.FromPort),
 				HostPort:      aws.Int64Value(p.FromPort),
 				Protocol:      aws.StringValue(p.IpProtocol),
@@ -77,7 +76,7 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		}
 
 		model.HealthCheck = models.HealthCheck{
-			Target:             aws.StringValue(targetGroup.HealthCheckPath),
+			Path:               aws.StringValue(targetGroup.HealthCheckPath),
 			Interval:           int(aws.Int64Value(targetGroup.HealthCheckIntervalSeconds)),
 			Timeout:            int(aws.Int64Value(targetGroup.HealthCheckTimeoutSeconds)),
 			HealthyThreshold:   int(aws.Int64Value(targetGroup.HealthyThresholdCount)),
@@ -98,13 +97,6 @@ func (l *LoadBalancerProvider) readTargetGroup(targetGroupID string) (*alb.Targe
 	output, err := l.AWS.ALB.DescribeTargetGroups(input)
 	if err != nil {
 		return nil, err
-	}
-
-	if len(output.TargetGroups) == 0 {
-		return nil, fmt.Errorf(
-			"'%s% target group id expected 1 result but got %d",
-			targetGroupID,
-			len(output.TargetGroups))
 	}
 
 	return output.TargetGroups[0], nil

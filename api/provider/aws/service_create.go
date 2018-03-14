@@ -82,8 +82,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 					var targetGroupArn *string
 
 					// todo: check if this verifying this is actually needed
-					// why do we need to verify at least one container exposes a port that the elb
-					// has a listener for?
+					// why do we need to verify at least one container exposes a port that the elb has a listener for?
 					if lb.isELB {
 						loadBalancerName = lb.ELB.LoadBalancerName
 						// for _, listenerDescription := range lb.ELB.ListenerDescriptions {

@@ -124,6 +124,10 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 						Name:  "healthcheck-target",
 						Usage: "Health check target in format 'PROTOCOL:PORT' or 'PROTOCOL:PORT/WITH/PATH'",
 					},
+					cli.StringFlag{
+						Name:  "healthcheck-path",
+						Usage: "Health check path for ALB type load balancers in format /PATH'",
+					},
 					cli.IntFlag{
 						Name:  "healthcheck-interval",
 						Usage: "Health check interval in seconds",

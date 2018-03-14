@@ -20,9 +20,9 @@ import (
 
 // searches for the load balancer name as both classic and application load balancers and returns
 // the first found result or an error if the neither classic or application lb could be found for
-// the give lb name
+// the given lb name
 func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, loadBalancerName string) (*genericLoadBalancer, error) {
-	// search for classic ELB
+	// search classic elastic load balancers
 	searchELB := func() (*genericLoadBalancer, error) {
 		input := &elb.DescribeLoadBalancersInput{}
 		input.SetLoadBalancerNames([]*string{aws.String(loadBalancerName)})
@@ -48,7 +48,7 @@ func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, load
 		return result, nil
 	}
 
-	// return error is it isn't a 'LoadBalancerNotFound' error
+	// return error if it isn't a 'LoadBalancerNotFound' error
 	if err, ok := err.(awserr.Error); ok && err.Code() != "LoadBalancerNotFound" {
 		return nil, err
 	}

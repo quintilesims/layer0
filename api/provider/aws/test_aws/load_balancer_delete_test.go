@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
@@ -91,6 +92,26 @@ func TestLoadBalancerDelete(t *testing.T) {
 		DeleteRole(deleteRoleInput).
 		Return(&iam.DeleteRoleOutput{}, nil)
 
+	describeTGInput := &alb.DescribeTargetGroupsInput{}
+	describeTGInput.SetNames([]*string{aws.String("l0-test-lb_id")})
+	describeTGOutput := &alb.DescribeTargetGroupsOutput{}
+	describeTGOutput.SetTargetGroups([]*alb.TargetGroup{
+		{
+			TargetGroupArn: aws.String("arn:l0-test-lb_id"),
+		},
+	})
+
+	mockAWS.ALB.EXPECT().
+		DescribeTargetGroups(describeTGInput).
+		Return(describeTGOutput, nil)
+
+	deleteTGInput := &alb.DeleteTargetGroupInput{}
+	deleteTGInput.SetTargetGroupArn("arn:l0-test-lb_id")
+
+	mockAWS.ALB.EXPECT().
+		DeleteTargetGroup(deleteTGInput).
+		Return(&alb.DeleteTargetGroupOutput{}, nil)
+
 	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
 	deleteSGHelper(mockAWS, "lb_sg")
 
@@ -116,12 +137,6 @@ func TestLoadBalancerDeleteIdempotence(t *testing.T) {
 		DescribeLoadBalancers(gomock.Any()).
 		Return(nil, awserr.New("NoSuchEntity", "", nil))
 
-	// the above describe failing returning 'NoSuchEntity' error
-	// will skip the below call to DeleteLoadBalancer
-	// mockAWS.ELB.EXPECT().
-	// 	DeleteLoadBalancer(gomock.Any()).
-	// 	Return(nil, awserr.New("NoSuchEntity", "", nil))
-
 	mockAWS.IAM.EXPECT().
 		DeleteRolePolicy(gomock.Any()).
 		Return(nil, awserr.New("NoSuchEntity", "", nil))
@@ -133,6 +148,10 @@ func TestLoadBalancerDeleteIdempotence(t *testing.T) {
 	mockAWS.EC2.EXPECT().
 		DescribeSecurityGroups(gomock.Any()).
 		Return(&ec2.DescribeSecurityGroupsOutput{}, nil)
+
+	mockAWS.ALB.EXPECT().
+		DescribeTargetGroups(gomock.Any()).
+		Return(nil, awserr.New("TargetGroupNotFound", "", nil))
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("lb_id"); err != nil {
