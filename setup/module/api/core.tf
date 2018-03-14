@@ -52,7 +52,7 @@ resource "aws_cloudtrail" "mod" {
   cloud_watch_logs_group_arn = "${aws_cloudwatch_log_group.mod.arn}"
   is_multi_region_trail      = true
 
-  depends_on = ["aws_s3_bucket.mod"]
+  depends_on = ["aws_s3_bucket_policy.cloudtrail"]
 }
 
 data "template_file" "ecs_assume_role_policy" {
