@@ -17,6 +17,10 @@ type HealthCheck struct {
 }
 
 func (h HealthCheck) Validate() error {
+	if h.Path == "" && h.Target == "" {
+		return fmt.Errorf("Path or Target is requried")
+	}
+
 	if h.Path != "" && !strings.HasPrefix(h.Path, "/") {
 		return fmt.Errorf("expected healthcheck path '%s' to start with '/'", h.Path)
 	}
