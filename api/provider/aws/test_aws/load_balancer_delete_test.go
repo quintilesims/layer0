@@ -1,6 +1,7 @@
 package test_aws
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -153,4 +154,96 @@ func TestLoadBalancerDeleteIdempotence(t *testing.T) {
 	if err := target.Delete("lb_id"); err != nil {
 		t.Fatal(err)
 	}
+}
+
+func TestLoadBalancerDelete_Fail(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAWS := awsc.NewMockClient(ctrl)
+	tagStore := tag.NewMemoryStore()
+	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+
+	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+
+	tags := models.Tags{
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "name",
+			Value:      "lb_name",
+		},
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "environment_id",
+			Value:      "env_id",
+		},
+	}
+
+	for _, tag := range tags {
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	deleteLBInput := &elb.DeleteLoadBalancerInput{}
+	deleteLBInput.SetLoadBalancerName("l0-test-lb_id")
+
+	mockAWS.ELB.EXPECT().
+		DeleteLoadBalancer(deleteLBInput).
+		Return(&elb.DeleteLoadBalancerOutput{}, nil)
+
+	deleteRolePolicyInput := &iam.DeleteRolePolicyInput{}
+	deleteRolePolicyInput.SetRoleName("l0-test-lb_id-lb")
+	deleteRolePolicyInput.SetPolicyName("l0-test-lb_id-lb")
+
+	mockAWS.IAM.EXPECT().
+		DeleteRolePolicy(deleteRolePolicyInput).
+		Return(&iam.DeleteRolePolicyOutput{}, nil)
+
+	deleteRoleInput := &iam.DeleteRoleInput{}
+	deleteRoleInput.SetRoleName("l0-test-lb_id-lb")
+
+	mockAWS.IAM.EXPECT().
+		DeleteRole(deleteRoleInput).
+		Return(&iam.DeleteRoleOutput{}, nil)
+
+	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
+	deleteSGHelper(mockAWS, "lb_sg")
+
+	getRoleInput := &iam.GetRoleInput{}
+	getRoleInput.SetRoleName("l0-test-lb_id-lb")
+
+	mockAWS.IAM.EXPECT().
+		GetRole(getRoleInput).
+		Return(&iam.GetRoleOutput{}, nil).
+		AnyTimes()
+
+	getRolePolicyInput := &iam.GetRolePolicyInput{}
+	getRolePolicyInput.SetRoleName("l0-test-lb_id-lb")
+	getRolePolicyInput.SetPolicyName("l0-test-lb_id-lb")
+
+	mockAWS.IAM.EXPECT().
+		GetRolePolicy(getRolePolicyInput).
+		Return(&iam.GetRolePolicyOutput{}, nil).
+		AnyTimes()
+
+	describeLoadBalancersInput := &elb.DescribeLoadBalancersInput{}
+	describeLoadBalancersInput.SetLoadBalancerNames([]*string{aws.String("l0-test-lb_id")})
+	describeLoadBalancersInput.SetPageSize(1)
+
+	mockAWS.ELB.EXPECT().
+		DescribeLoadBalancers(describeLoadBalancersInput).
+		Return(&elb.DescribeLoadBalancersOutput{}, fmt.Errorf("Error")).
+		AnyTimes()
+
+	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
+	if err := target.Delete("lb_id"); err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() != "FailedRequestTimeout" {
+			t.Fatal(err)
+		}
+	}
+
+	assert.Len(t, tagStore.Tags(), 2)
 }

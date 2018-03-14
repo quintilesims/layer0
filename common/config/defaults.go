@@ -15,8 +15,6 @@ const (
 	DefaultEnvironmentType         = models.EnvironmentTypeDynamic
 	DefaultEnvironmentOS           = "linux"
 	DefaultServiceScale            = 1
-	DefaultRetryTimeout            = time.Second * 60
-	DefaultRetryTick               = time.Second
 )
 
 func DefaultLoadBalancerHealthCheck() models.HealthCheck {

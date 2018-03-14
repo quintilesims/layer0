@@ -6,17 +6,24 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 )
 
-func retry(timeout, tick time.Duration, fn func() error) error {
+func retry(timeout, tick time.Duration, ch chan<- error, fn func() error) {
+	var lastError error
 	after := time.After(timeout)
+	ticker := time.NewTicker(tick)
+	defer ticker.Stop()
 
 	for {
 		select {
-		case <-time.Tick(tick):
-			if err := fn(); err == nil {
-				return nil
+		case <-ticker.C:
+			if err := fn(); err != nil {
+				lastError = err
+				break
 			}
+			ch <- nil
+			return
 		case <-after:
-			return errors.New(errors.FailedRequestTimeout, nil)
+			ch <- errors.New(errors.FailedRequestTimeout, lastError)
+			return
 		}
 	}
 }

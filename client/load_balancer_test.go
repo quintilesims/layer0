@@ -64,6 +64,8 @@ func TestDeleteLoadBalancer(t *testing.T) {
 	}
 }
 
+// TODO: Write Retry Test
+
 func TestListLoadBalancers(t *testing.T) {
 	expected := []models.LoadBalancerSummary{
 		{
