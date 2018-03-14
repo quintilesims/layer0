@@ -38,6 +38,7 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 
 	healthCheck := models.HealthCheck{
 		Target:             "tcp:80",
+		Path:               "/",
 		Interval:           10,
 		Timeout:            15,
 		HealthyThreshold:   5,
@@ -46,6 +47,7 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
+		LoadBalancerType: "elb",
 		EnvironmentID:    "env_id",
 		IsPublic:         false,
 		Ports:            ports,

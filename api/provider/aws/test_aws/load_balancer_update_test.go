@@ -24,6 +24,33 @@ func TestLoadBalancerUpdate(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	mockConfig := mock_config.NewMockAPIConfig(ctrl)
 
+	tags := models.Tags{
+		{
+			EntityID:   "lb_name",
+			EntityType: "load_balancer",
+			Key:        "name",
+			Value:      "lb_name",
+		},
+		{
+			EntityID:   "lb_name",
+			EntityType: "load_balancer",
+			Key:        "environment_id",
+			Value:      "env_id",
+		},
+		{
+			EntityID:   "lb_name",
+			EntityType: "load_balancer",
+			Key:        "type",
+			Value:      "elb",
+		},
+	}
+
+	for _, tag := range tags {
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
 	requestPorts := []models.Port{
@@ -43,6 +70,7 @@ func TestLoadBalancerUpdate(t *testing.T) {
 
 	requestHealthCheck := &models.HealthCheck{
 		Target:             "HTTPS:444/path/to/site",
+		Path:               "/",
 		Interval:           15,
 		Timeout:            10,
 		HealthyThreshold:   5,
@@ -79,7 +107,29 @@ func TestLoadBalancerUpdate(t *testing.T) {
 		Return(listServerCertificatesOutput, nil).
 		AnyTimes()
 
-	readSGHelper(mockAWS, "l0-test-lb_name-lb", "lb_sg")
+	filter := &ec2.Filter{}
+	filter.SetName("group-name")
+	filter.SetValues([]*string{aws.String("l0-test-lb_name-lb")})
+
+	input := &ec2.DescribeSecurityGroupsInput{}
+	input.SetFilters([]*ec2.Filter{filter})
+
+	securityGroup := &ec2.SecurityGroup{}
+	securityGroup.SetGroupName("l0-test-lb_name-lb")
+	securityGroup.SetGroupId("lb_sg")
+	securityGroup.IpPermissions = []*ec2.IpPermission{
+		{
+			FromPort: aws.Int64(config.DefaultLoadBalancerPort().HostPort),
+		},
+	}
+
+	output := &ec2.DescribeSecurityGroupsOutput{}
+	output.SetSecurityGroups([]*ec2.SecurityGroup{securityGroup})
+
+	mockAWS.EC2.EXPECT().
+		DescribeSecurityGroups(input).
+		Return(output, nil)
+
 	listenerDescription := &elb.ListenerDescription{}
 	listenerDescription.SetListener(listenerHelper(config.DefaultLoadBalancerPort()))
 

@@ -3,6 +3,7 @@ package test_aws
 import (
 	"testing"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
@@ -26,6 +27,21 @@ func TestLoadBalancerDelete(t *testing.T) {
 
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
+	describeLBInput := &elb.DescribeLoadBalancersInput{}
+	describeLBInput.LoadBalancerNames = []*string{aws.String("l0-test-lb_id")}
+	describeLBInput.SetPageSize(1)
+
+	describeLBOutput := &elb.DescribeLoadBalancersOutput{}
+	describeLBOutput.LoadBalancerDescriptions = []*elb.LoadBalancerDescription{
+		{
+			LoadBalancerName: aws.String("l0-test-lb_id"),
+		},
+	}
+
+	mockAWS.ELB.EXPECT().
+		DescribeLoadBalancers(describeLBInput).
+		Return(describeLBOutput, nil)
+
 	tags := models.Tags{
 		{
 			EntityID:   "lb_id",
@@ -38,6 +54,12 @@ func TestLoadBalancerDelete(t *testing.T) {
 			EntityType: "load_balancer",
 			Key:        "environment_id",
 			Value:      "env_id",
+		},
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "type",
+			Value:      "elb",
 		},
 	}
 
@@ -91,8 +113,14 @@ func TestLoadBalancerDeleteIdempotence(t *testing.T) {
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
 	mockAWS.ELB.EXPECT().
-		DeleteLoadBalancer(gomock.Any()).
+		DescribeLoadBalancers(gomock.Any()).
 		Return(nil, awserr.New("NoSuchEntity", "", nil))
+
+	// the above describe failing returning 'NoSuchEntity' error
+	// will skip the below call to DeleteLoadBalancer
+	// mockAWS.ELB.EXPECT().
+	// 	DeleteLoadBalancer(gomock.Any()).
+	// 	Return(nil, awserr.New("NoSuchEntity", "", nil))
 
 	mockAWS.IAM.EXPECT().
 		DeleteRolePolicy(gomock.Any()).

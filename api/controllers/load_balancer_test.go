@@ -18,6 +18,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
+		LoadBalancerType: "elb",
 		EnvironmentID:    "env_id",
 		IsPublic:         true,
 		Ports: []models.Port{
@@ -26,6 +27,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		},
 		HealthCheck: models.HealthCheck{
 			Target:             "tcp:80",
+			Path:               "/",
 			Interval:           5,
 			Timeout:            6,
 			HealthyThreshold:   7,
