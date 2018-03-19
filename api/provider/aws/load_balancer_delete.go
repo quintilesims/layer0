@@ -2,6 +2,7 @@ package aws
 
 import (
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -45,7 +46,6 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		}
 	}
 
-	//todo: wait for the loadbalancer to be deleted before attempting to delete the target group?
 	targetGroupID := fqLoadBalancerID
 	if err := l.deleteTargetGroup(targetGroupID); err != nil {
 		return err
@@ -95,6 +95,9 @@ func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error
 		if err := l.AWS.ALB.WaitUntilLoadBalancersDeleted(waitInput); err != nil {
 			return err
 		}
+
+		// todo: remove this hack just to get consistent results during testing
+		time.Sleep(3000 * time.Millisecond)
 	}
 
 	return nil
