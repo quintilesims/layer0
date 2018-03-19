@@ -135,7 +135,11 @@ func TestLoadBalancerDeleteIdempotence(t *testing.T) {
 
 	mockAWS.ELB.EXPECT().
 		DescribeLoadBalancers(gomock.Any()).
-		Return(nil, awserr.New("NoSuchEntity", "", nil))
+		Return(nil, awserr.New("LoadBalancerNotFound", "", nil))
+
+	mockAWS.ALB.EXPECT().
+		DescribeLoadBalancers(gomock.Any()).
+		Return(nil, awserr.New("LoadBalancerNotFound", "", nil))
 
 	mockAWS.IAM.EXPECT().
 		DeleteRolePolicy(gomock.Any()).
