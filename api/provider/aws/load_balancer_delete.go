@@ -23,6 +23,11 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		return err
 	}
 
+	targetGroupID := fqLoadBalancerID
+	if err := l.deleteTargetGroup(targetGroupID); err != nil {
+		return err
+	}
+
 	roleName := getLoadBalancerRoleName(fqLoadBalancerID)
 	policyName := roleName
 	if err := l.deleteRolePolicy(roleName, policyName); err != nil {
@@ -44,11 +49,6 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		if err := deleteSG(l.AWS.EC2, groupID); err != nil {
 			return err
 		}
-	}
-
-	targetGroupID := fqLoadBalancerID
-	if err := l.deleteTargetGroup(targetGroupID); err != nil {
-		return err
 	}
 
 	return l.deleteTags(loadBalancerID)
