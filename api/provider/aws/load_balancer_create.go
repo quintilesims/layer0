@@ -15,7 +15,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Create is used to create an Elastic or an Application Load Balancer using the
+// Create is used to create an Classic or an Application Load Balancer using the
 // specified Create Load Balancer Request. The Create Load Balancer Request contains
 // the name of the Load Balancer, the Environment ID in which to create the Load Balancer,
 // a flag to determine if the Load Balancer will be Internet-facing or internal,
@@ -116,7 +116,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	}
 
 	if strings.EqualFold(req.LoadBalancerType, models.ApplicationLoadBalancerType) {
-		lb, err := l.createApplicationLoadBalancer(
+		_, err := l.createApplicationLoadBalancer(
 			fqLoadBalancerID,
 			scheme,
 			securityGroupIDs,
@@ -136,7 +136,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 			return "", err
 		}
 
-		if _, err := l.createListener(lb.LoadBalancerArn, tg.TargetGroupArn); err != nil {
+		if _, err := l.createListener(tg.TargetGroupArn, req.Ports); err != nil {
 			return "", err
 		}
 	}
@@ -175,17 +175,32 @@ func (l *LoadBalancerProvider) createTargetGroup(groupName string, healthCheck m
 	return output.TargetGroups[0], nil
 }
 
-func (l *LoadBalancerProvider) createListener(loadBalancerArn, targetGroupArn *string) (*alb.Listener, error) {
+func (l *LoadBalancerProvider) createListener(targetGroupArn *string, ports []models.Port) (*alb.Listener, error) {
+	var certArn *string
+	for _, port := range ports {
+		if port.CertificateARN != "" {
+			certArn = aws.String(port.CertificateARN)
+			break
+		}
+	}
+
 	input := &alb.CreateListenerInput{}
 	input.SetPort(config.DefaultTargetGroupPort)
 	input.SetProtocol(config.DefaultTargetGroupProtocol)
-	input.LoadBalancerArn = loadBalancerArn
 	input.SetDefaultActions([]*alb.Action{
 		{
 			TargetGroupArn: targetGroupArn,
 			Type:           aws.String(alb.ActionTypeEnumForward),
 		},
 	})
+
+	if certArn != nil {
+		input.SetCertificates([]*alb.Certificate{
+			{
+				CertificateArn: certArn,
+			},
+		})
+	}
 
 	if err := input.Validate(); err != nil {
 		return nil, err

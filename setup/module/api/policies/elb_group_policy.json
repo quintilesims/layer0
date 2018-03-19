@@ -8,7 +8,6 @@
                 "elasticloadbalancing:CreateLoadBalancer",
                 "elasticloadbalancing:RegisterTargets",
                 "elasticloadbalancing:CreateTargetGroup",
-                "elasticloadbalancing:*",
                 "elasticloadbalancing:DeregisterTargets",
                 "elasticloadbalancing:SetIpAddressType",
                 "elasticloadbalancing:SetSubnets",

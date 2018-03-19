@@ -10,7 +10,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-// Update is used to update an Classic and Application Load Balancers using the
+// Update is used to update Classic and Application Load Balancers using the
 // specified Update Load Balancer Request. The Update Load Balancer Request
 // contains the Load Balancer ID, a list of ports to configure as the listeners,
 // and a Health Check to determine the state of the attached EC2 instances in the

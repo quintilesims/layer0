@@ -62,9 +62,6 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 				Protocol:      aws.StringValue(p.IpProtocol),
 			}
 
-			//todo: read cert information - how?
-			//iterate through all targets?
-
 			model.Ports[i] = port
 		}
 
@@ -81,6 +78,20 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 			Timeout:            int(aws.Int64Value(targetGroup.HealthCheckTimeoutSeconds)),
 			HealthyThreshold:   int(aws.Int64Value(targetGroup.HealthyThresholdCount)),
 			UnhealthyThreshold: int(aws.Int64Value(targetGroup.UnhealthyThresholdCount)),
+		}
+
+		cert, err := l.readCertificate(loadBalancer.ALB.LoadBalancerArn)
+		if err != nil {
+			return nil, err
+		}
+
+		if cert != nil {
+			for _, p := range model.Ports {
+				if aws.Int64Value(targetGroup.Port) == p.HostPort {
+					p.CertificateARN = aws.StringValue(cert.CertificateArn)
+					break
+				}
+			}
 		}
 	}
 
@@ -100,6 +111,24 @@ func (l *LoadBalancerProvider) readTargetGroup(targetGroupID string) (*alb.Targe
 	}
 
 	return output.TargetGroups[0], nil
+}
+
+func (l *LoadBalancerProvider) readCertificate(loadBalancerArn *string) (*alb.Certificate, error) {
+	input := &alb.DescribeListenersInput{}
+	input.LoadBalancerArn = loadBalancerArn
+
+	output, err := l.AWS.ALB.DescribeListeners(input)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, l := range output.Listeners {
+		for _, c := range l.Certificates {
+			return c, nil
+		}
+	}
+
+	return nil, nil
 }
 
 func (l *LoadBalancerProvider) makeLoadBalancerModel(loadBalancerID string) (*models.LoadBalancer, error) {
