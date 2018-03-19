@@ -18,6 +18,10 @@ import (
 func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 
+	if err := l.deleteLoadBalancer(fqLoadBalancerID); err != nil {
+		return err
+	}
+
 	roleName := getLoadBalancerRoleName(fqLoadBalancerID)
 	policyName := roleName
 	if err := l.deleteRolePolicy(roleName, policyName); err != nil {
@@ -41,10 +45,6 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		}
 	}
 
-	if err := l.deleteLoadBalancer(fqLoadBalancerID); err != nil {
-		return err
-	}
-
 	//todo: wait for the loadbalancer to be deleted before attempting to delete the target group?
 	targetGroupID := fqLoadBalancerID
 	if err := l.deleteTargetGroup(targetGroupID); err != nil {
@@ -57,7 +57,7 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error {
 	lb, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName)
 	if err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
 			return nil
 		}
 
@@ -86,6 +86,13 @@ func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error
 				return nil
 			}
 
+			return err
+		}
+
+		waitInput := &alb.DescribeLoadBalancersInput{}
+		waitInput.SetLoadBalancerArns([]*string{lb.ALB.LoadBalancerArn})
+
+		if err := l.AWS.ALB.WaitUntilLoadBalancersDeleted(waitInput); err != nil {
 			return err
 		}
 	}

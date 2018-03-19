@@ -116,7 +116,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	}
 
 	if strings.EqualFold(req.LoadBalancerType, models.ApplicationLoadBalancerType) {
-		_, err := l.createApplicationLoadBalancer(
+		lb, err := l.createApplicationLoadBalancer(
 			fqLoadBalancerID,
 			scheme,
 			securityGroupIDs,
@@ -136,7 +136,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 			return "", err
 		}
 
-		if _, err := l.createListener(tg.TargetGroupArn, req.Ports); err != nil {
+		if _, err := l.createListener(lb.LoadBalancerArn, tg.TargetGroupArn, req.Ports); err != nil {
 			return "", err
 		}
 	}
@@ -175,7 +175,7 @@ func (l *LoadBalancerProvider) createTargetGroup(groupName string, healthCheck m
 	return output.TargetGroups[0], nil
 }
 
-func (l *LoadBalancerProvider) createListener(targetGroupArn *string, ports []models.Port) (*alb.Listener, error) {
+func (l *LoadBalancerProvider) createListener(loadBalancerArn, targetGroupArn *string, ports []models.Port) (*alb.Listener, error) {
 	var certArn *string
 	for _, port := range ports {
 		if port.CertificateARN != "" {
@@ -193,6 +193,7 @@ func (l *LoadBalancerProvider) createListener(targetGroupArn *string, ports []mo
 			Type:           aws.String(alb.ActionTypeEnumForward),
 		},
 	})
+	input.LoadBalancerArn = loadBalancerArn
 
 	if certArn != nil {
 		input.SetCertificates([]*alb.Certificate{
