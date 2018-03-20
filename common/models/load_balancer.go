@@ -9,6 +9,7 @@ type LoadBalancer struct {
 	IsPublic         bool        `json:"is_public"`
 	LoadBalancerID   string      `json:"load_balancer_id"`
 	LoadBalancerName string      `json:"load_balancer_name"`
+	LoadBalancerType string      `json:"load_balancer_type"`
 	Ports            []Port      `json:"ports"`
 	ServiceID        string      `json:"service_id"`
 	ServiceName      string      `json:"service_name"`
@@ -25,6 +26,7 @@ func (l LoadBalancer) Definition() swagger.Definition {
 			"is_public":          swagger.NewBoolProperty(),
 			"load_balancer_id":   swagger.NewStringProperty(),
 			"load_balancer_name": swagger.NewStringProperty(),
+			"load_balancer_type": swagger.NewStringProperty(),
 			"ports":              swagger.NewObjectSliceProperty("Port"),
 			"service_id":         swagger.NewStringProperty(),
 			"service_name":       swagger.NewStringProperty(),

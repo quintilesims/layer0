@@ -12,29 +12,51 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/elb/elbiface"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
+	albiface "github.com/aws/aws-sdk-go/service/elbv2/elbv2iface"
 	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 )
 
-func describeLoadBalancer(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerDescription, error) {
-	input := &elb.DescribeLoadBalancersInput{}
-	input.SetLoadBalancerNames([]*string{aws.String(loadBalancerName)})
-	input.SetPageSize(1)
+// searches for the load balancer name as both classic and application load balancers and returns
+// the first found result or an error if the neither classic or application lb could be found for
+// the given lb name
+func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, loadBalancerName string) (*genericLoadBalancer, error) {
+	// search classic load balancers
+	elbInput := &elb.DescribeLoadBalancersInput{}
+	elbInput.SetLoadBalancerNames([]*string{aws.String(loadBalancerName)})
+	elbInput.SetPageSize(1)
 
-	output, err := elbapi.DescribeLoadBalancers(input)
+	elbExists := true
+	elbOutput, err := elbapi.DescribeLoadBalancers(elbInput)
 	if err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
-			return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
+		if err, ok := err.(awserr.Error); !ok || err.Code() != "LoadBalancerNotFound" {
+			return nil, err
 		}
 
+		elbExists = false
+	}
+
+	if elbExists {
+		return &genericLoadBalancer{
+			ELB:   elbOutput.LoadBalancerDescriptions[0],
+			isELB: true,
+		}, nil
+	}
+
+	// search application load balancers
+	albInput := &alb.DescribeLoadBalancersInput{}
+	albInput.SetNames([]*string{aws.String(loadBalancerName)})
+
+	albOutput, err := albapi.DescribeLoadBalancers(albInput)
+	if err != nil {
 		return nil, err
 	}
 
-	if len(output.LoadBalancerDescriptions) != 1 {
-		return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
-	}
-
-	return output.LoadBalancerDescriptions[0], nil
+	return &genericLoadBalancer{
+		ALB:   albOutput.LoadBalancers[0],
+		isALB: true,
+	}, nil
 }
 
 func describeTaskDefinition(ecsapi ecsiface.ECSAPI, taskDefinitionARN string) (*ecs.TaskDefinition, error) {
@@ -265,4 +287,20 @@ func readService(ecsapi ecsiface.ECSAPI, clusterName, serviceID string) (*ecs.Se
 	}
 
 	return output.Services[0], nil
+}
+
+func getTargetGroupArn(albapi albiface.ELBV2API, targetGroupName string) (*alb.TargetGroup, error) {
+	input := &alb.DescribeTargetGroupsInput{}
+	input.SetNames([]*string{aws.String(targetGroupName)})
+
+	output, err := albapi.DescribeTargetGroups(input)
+	if err != nil {
+		return nil, err
+	}
+
+	if len(output.TargetGroups) == 0 {
+		return nil, fmt.Errorf("target group with name '%s' does not exist", targetGroupName)
+	}
+
+	return output.TargetGroups[0], nil
 }

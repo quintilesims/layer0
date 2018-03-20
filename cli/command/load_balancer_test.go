@@ -64,6 +64,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
+		LoadBalancerType: "elb",
 		EnvironmentID:    "env_id",
 		IsPublic:         false,
 		Ports: []models.Port{
@@ -72,6 +73,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		},
 		HealthCheck: models.HealthCheck{
 			Target:             "tcp:80",
+			Path:               "/",
 			Interval:           5,
 			Timeout:            6,
 			HealthyThreshold:   7,
@@ -89,6 +91,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	input := "l0 loadbalancer create "
 	input += "--private "
+	input += "--type elb "
 	input += "--certificate arn:aws:iam::12345:server-certificate/crt_name "
 	input += "--port 443:80/https "
 	input += "--port 22:22/tcp "
@@ -309,8 +312,15 @@ func TestValidateTarget(t *testing.T) {
 	}
 
 	for _, target := range cases {
+		hc := models.HealthCheck{
+			Target:             target,
+			Interval:           1,
+			Timeout:            1,
+			HealthyThreshold:   1,
+			UnhealthyThreshold: 1,
+		}
 		t.Run(target, func(t *testing.T) {
-			if err := validateTarget(target); err != nil {
+			if err := hc.Validate(); err != nil {
 				t.Fatal("error was not nil!")
 			}
 		})
@@ -324,8 +334,60 @@ func TestValidateTargetErrors(t *testing.T) {
 	}
 
 	for _, target := range cases {
+		hc := models.HealthCheck{
+			Target:             target,
+			Interval:           1,
+			Timeout:            1,
+			HealthyThreshold:   1,
+			UnhealthyThreshold: 1,
+		}
 		t.Run(target, func(t *testing.T) {
-			if err := validateTarget(target); err == nil {
+			if err := hc.Validate(); err == nil {
+				t.Fatal("error was nil!")
+			}
+		})
+	}
+}
+
+func TestValidatePath(t *testing.T) {
+	cases := []string{
+		"/",
+		"/ping/this/path",
+	}
+
+	for _, path := range cases {
+		hc := models.HealthCheck{
+			Path:               path,
+			Interval:           1,
+			Timeout:            1,
+			HealthyThreshold:   1,
+			UnhealthyThreshold: 1,
+		}
+		t.Run(path, func(t *testing.T) {
+			if err := hc.Validate(); err != nil {
+				t.Fatal("error was not nil!")
+			}
+		})
+	}
+}
+
+func TestValidatePathErrors(t *testing.T) {
+	cases := []string{
+		"ping/this/path",
+		"TCP:80",
+		"HTTP:80/ping/this/path",
+	}
+
+	for _, path := range cases {
+		hc := models.HealthCheck{
+			Path:               path,
+			Interval:           1,
+			Timeout:            1,
+			HealthyThreshold:   1,
+			UnhealthyThreshold: 1,
+		}
+		t.Run(path, func(t *testing.T) {
+			if err := hc.Validate(); err == nil {
 				t.Fatal("error was nil!")
 			}
 		})

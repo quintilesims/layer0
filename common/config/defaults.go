@@ -14,6 +14,9 @@ const (
 	DefaultEnvironmentInstanceType = "t2.small"
 	DefaultEnvironmentOS           = "linux"
 	DefaultServiceScale            = 1
+	DefaultLoadBalancerType        = "elb"
+	DefaultTargetGroupPort         = 80
+	DefaultTargetGroupProtocol     = "HTTP"
 
 	// https://docs.aws.amazon.com/AmazonECS/latest/developerguide/platform_versions.html
 	DefaultFargatePlatformVersion = "1.0.0"
@@ -22,13 +25,13 @@ const (
 func DefaultLoadBalancerHealthCheck() models.HealthCheck {
 	return models.HealthCheck{
 		Target:             "TCP:80",
+		Path:               "/",
 		Interval:           30,
 		Timeout:            5,
 		HealthyThreshold:   2,
 		UnhealthyThreshold: 2,
 	}
 }
-
 func DefaultLoadBalancerPort() models.Port {
 	return models.Port{
 		ContainerPort: 80,

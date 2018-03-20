@@ -62,7 +62,12 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 					cli.StringFlag{
 						Name:  "healthcheck-target",
 						Value: dhc.Target,
-						Usage: "Health check target in format 'PROTOCOL:PORT' or 'PROTOCOL:PORT/WITH/PATH'",
+						Usage: "Health check target in format 'PROTOCOL:PORT' or 'PROTOCOL:PORT/WITH/PATH', used for load balancer type 'ELB'",
+					},
+					cli.StringFlag{
+						Name:  "healthcheck-path",
+						Value: dhc.Path,
+						Usage: "Health check path '/PATH', used for load balancer type 'ALB'",
 					},
 					cli.IntFlag{
 						Name:  "healthcheck-interval",
@@ -83,6 +88,11 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 						Name:  "healthcheck-unhealthy-threshold",
 						Value: dhc.UnhealthyThreshold,
 						Usage: "Number of consecutive failures required to count as unhealthy",
+					},
+					cli.StringFlag{
+						Name:  "type",
+						Value: config.DefaultLoadBalancerType,
+						Usage: "Type of load balancer, either 'ELB' or 'ALB' for a classic or application, load balancer (default is 'ELB')",
 					},
 				},
 			},
@@ -113,6 +123,10 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 					cli.StringFlag{
 						Name:  "healthcheck-target",
 						Usage: "Health check target in format 'PROTOCOL:PORT' or 'PROTOCOL:PORT/WITH/PATH'",
+					},
+					cli.StringFlag{
+						Name:  "healthcheck-path",
+						Usage: "Health check path for ALB type load balancers in format /PATH'",
 					},
 					cli.IntFlag{
 						Name:  "healthcheck-interval",
@@ -207,14 +221,9 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		ports = append(ports, *port)
 	}
 
-	if target := c.String("healthcheck-target"); target != "" {
-		if err := validateTarget(target); err != nil {
-			return err
-		}
-	}
-
 	healthCheck := models.HealthCheck{
 		Target:             c.String("healthcheck-target"),
+		Path:               c.String("healthcheck-path"),
 		Interval:           c.Int("healthcheck-interval"),
 		Timeout:            c.Int("healthcheck-timeout"),
 		HealthyThreshold:   c.Int("healthcheck-healthy-threshold"),
@@ -223,10 +232,15 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: args["LOAD_BALANCER_NAME"],
+		LoadBalancerType: c.String("type"),
 		EnvironmentID:    environmentID,
 		IsPublic:         !c.Bool("private"),
 		Ports:            ports,
 		HealthCheck:      healthCheck,
+	}
+
+	if err := req.Validate(); err != nil {
+		return err
 	}
 
 	loadBalancerID, err := l.client.CreateLoadBalancer(req)
@@ -326,11 +340,12 @@ func (l *LoadBalancerCommand) healthcheck(c *cli.Context) error {
 	requiresUpdate := false
 
 	if target := c.String("healthcheck-target"); target != "" {
-		if err := validateTarget(target); err != nil {
-			return err
-		}
-
 		healthCheck.Target = target
+		requiresUpdate = true
+	}
+
+	if path := c.String("healthcheck-path"); path != "" {
+		healthCheck.Path = path
 		requiresUpdate = true
 	}
 
@@ -360,6 +375,10 @@ func (l *LoadBalancerCommand) healthcheck(c *cli.Context) error {
 
 	req := models.UpdateLoadBalancerRequest{
 		HealthCheck: &healthCheck,
+	}
+
+	if err := req.Validate(); err != nil {
+		return err
 	}
 
 	if err := l.client.UpdateLoadBalancer(loadBalancerID, req); err != nil {
@@ -443,19 +462,4 @@ func parsePort(port, certificateARN string) (*models.Port, error) {
 	}
 
 	return model, nil
-}
-
-func validateTarget(target string) error {
-	split := strings.FieldsFunc(target, func(r rune) bool {
-		return r == ':' || r == '/'
-	})
-
-	protocol := strings.ToLower(split[0])
-	if len(split) < 3 && (protocol == "https" || protocol == "http") {
-		text := "HTTP & HTTPS targets must specify a port followed by a path.\n"
-		text += "For example, HTTPS:443/health"
-		return fmt.Errorf(text)
-	}
-
-	return nil
 }
