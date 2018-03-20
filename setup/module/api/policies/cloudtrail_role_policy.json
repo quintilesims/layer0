@@ -4,12 +4,12 @@
         {
             "Effect": "Allow",
             "Action": "logs:CreateLogStream",
-            "Resource": "arn:aws:logs:${region}:${account_id}:log-group:l0-${name}:log-stream:l0-${name}-cloudtrail*"
+            "Resource": "arn:aws:logs:${region}:${account_id}:log-group:l0-${name}:log-stream:${account_id}_CloudTrail_${region}*"
         },
         {
             "Effect": "Allow",
             "Action": "logs:PutLogEvents",
-            "Resource": "arn:aws:logs:${region}:${account_id}:log-group:l0-${name}:log-stream:l0-${mame}-cloudtrail*"
+            "Resource": "arn:aws:logs:${region}:${account_id}:log-group:l0-${name}:log-stream:${account_id}_CloudTrail_${region}*"
         }
     ]
 }
