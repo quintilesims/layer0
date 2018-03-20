@@ -3,6 +3,7 @@ package aws
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -53,9 +54,30 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 	var loadBalancerID string
 	if len(ecsService.LoadBalancers) != 0 {
 		loadBalancer := ecsService.LoadBalancers[0]
-		loadBalancerName := aws.StringValue(loadBalancer.LoadBalancerName)
-		fqLoadBalancerID := loadBalancerName
-		loadBalancerID = delLayer0Prefix(s.Config.Instance(), fqLoadBalancerID)
+
+		// classic load balancer
+		if loadBalancer.LoadBalancerName != nil {
+			fqLoadBalancerID := aws.StringValue(loadBalancer.LoadBalancerName)
+			loadBalancerID = delLayer0Prefix(s.Config.Instance(), fqLoadBalancerID)
+		}
+
+		// application load balancer
+		if loadBalancerID == "" && loadBalancer.TargetGroupArn != nil {
+			tgInput := &alb.DescribeTargetGroupsInput{}
+			tgInput.SetTargetGroupArns([]*string{
+				loadBalancer.TargetGroupArn,
+			})
+
+			tgOutput, err := s.AWS.ALB.DescribeTargetGroups(tgInput)
+			if err != nil {
+				return nil, err
+			}
+
+			if len(tgOutput.TargetGroups) != 0 {
+				fqLoadBalancerID := aws.StringValue(tgOutput.TargetGroups[0].TargetGroupName)
+				loadBalancerID = delLayer0Prefix(s.Config.Instance(), fqLoadBalancerID)
+			}
+		}
 	}
 
 	model, err := s.makeServiceModel(environmentID, loadBalancerID, serviceID, stateful)
