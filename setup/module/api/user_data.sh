@@ -1,12 +1,11 @@
-# The majority of this script was largely taken from AWS's documentation
-# on using CloudWatch logs with container instances
-# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_cloudwatch_logs.html
-
 Content-Type: multipart/mixed; boundary="==BOUNDARY=="
 MIME-Version: 1.0
 
 --==BOUNDARY==
 #!/bin/bash
+# The majority of this script was largely taken from AWS's documentation
+# on using CloudWatch logs with container instances
+# https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_cloudwatch_logs.html
 exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1
 echo ECS_CLUSTER=${cluster_id} >> /etc/ecs/ecs.config
 echo ECS_ENGINE_AUTH_TYPE=dockercfg >> /etc/ecs/ecs.config
