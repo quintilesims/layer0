@@ -40,5 +40,5 @@ func (s *ServiceProvider) Logs(serviceID string, tail int, start, end time.Time)
 	}
 
 	logGroupName := s.Config.LogGroupName()
-	return GetLogsFromTaskARNs(s.AWS.CloudWatchLogs, logGroupName, taskARNs, tail, start, end)
+	return GetLogsFromTaskARNs(s.AWS.CloudWatchLogs, logGroupName, clusterName, taskARNs, tail, start, end)
 }
