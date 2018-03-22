@@ -5,6 +5,24 @@ import (
 	alb "github.com/aws/aws-sdk-go/service/elbv2"
 )
 
+func newGenericLoadBalancer(CLB *elb.LoadBalancerDescription, ALB *alb.LoadBalancer) *genericLoadBalancer {
+	if CLB != nil {
+		return &genericLoadBalancer{
+			CLB:   CLB,
+			isCLB: true,
+		}
+	}
+
+	if ALB != nil {
+		return &genericLoadBalancer{
+			ALB:   ALB,
+			isALB: true,
+		}
+	}
+
+	return nil
+}
+
 type genericLoadBalancer struct {
 	CLB   *elb.LoadBalancerDescription
 	ALB   *alb.LoadBalancer

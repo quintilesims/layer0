@@ -38,10 +38,7 @@ func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, load
 	}
 
 	if elbExists {
-		return &genericLoadBalancer{
-			CLB:   elbOutput.LoadBalancerDescriptions[0],
-			isCLB: true,
-		}, nil
+		return newGenericLoadBalancer(elbOutput.LoadBalancerDescriptions[0], nil), nil
 	}
 
 	// search application load balancers
@@ -53,10 +50,7 @@ func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, load
 		return nil, err
 	}
 
-	return &genericLoadBalancer{
-		ALB:   albOutput.LoadBalancers[0],
-		isALB: true,
-	}, nil
+	return newGenericLoadBalancer(nil, albOutput.LoadBalancers[0]), nil
 }
 
 func describeTaskDefinition(ecsapi ecsiface.ECSAPI, taskDefinitionARN string) (*ecs.TaskDefinition, error) {
