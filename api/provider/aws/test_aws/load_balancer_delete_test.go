@@ -169,6 +169,7 @@ func TestApplicationLoadBalancerDelete(t *testing.T) {
 
 	describeALBInput := &alb.DescribeLoadBalancersInput{}
 	describeALBInput.SetNames([]*string{aws.String("l0-test-lb_id")})
+	describeALBInput.SetPageSize(1)
 	describeALBOutput := &alb.DescribeLoadBalancersOutput{
 		LoadBalancers: []*alb.LoadBalancer{
 			{

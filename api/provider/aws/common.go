@@ -44,6 +44,7 @@ func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, load
 	// search application load balancers
 	albInput := &alb.DescribeLoadBalancersInput{}
 	albInput.SetNames([]*string{aws.String(loadBalancerName)})
+	albInput.SetPageSize(1)
 
 	albOutput, err := albapi.DescribeLoadBalancers(albInput)
 	if err != nil {
@@ -290,10 +291,6 @@ func readTargetGroup(albapi albiface.ELBV2API, targetGroupName string) (*alb.Tar
 	output, err := albapi.DescribeTargetGroups(input)
 	if err != nil {
 		return nil, err
-	}
-
-	if len(output.TargetGroups) == 0 {
-		return nil, fmt.Errorf("target group with name '%s' does not exist", targetGroupName)
 	}
 
 	return output.TargetGroups[0], nil
