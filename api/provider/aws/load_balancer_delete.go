@@ -2,7 +2,6 @@ package aws
 
 import (
 	"strings"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -95,9 +94,6 @@ func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error
 		if err := l.AWS.ALB.WaitUntilLoadBalancersDeleted(waitInput); err != nil {
 			return err
 		}
-
-		// todo: remove this hack just to get consistent results during testing
-		time.Sleep(3000 * time.Millisecond)
 	}
 
 	return nil

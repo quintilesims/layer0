@@ -14,7 +14,7 @@ const (
 	DefaultEnvironmentInstanceType = "t2.small"
 	DefaultEnvironmentOS           = "linux"
 	DefaultServiceScale            = 1
-	DefaultLoadBalancerType        = "elb"
+	DefaultLoadBalancerType        = "alb"
 	DefaultTargetGroupPort         = 80
 	DefaultTargetGroupProtocol     = "HTTP"
 
@@ -36,6 +36,6 @@ func DefaultLoadBalancerPort() models.Port {
 	return models.Port{
 		ContainerPort: 80,
 		HostPort:      80,
-		Protocol:      "TCP",
+		Protocol:      "HTTP",
 	}
 }

@@ -45,30 +45,20 @@ func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLo
 	}
 
 	if req.Ports != nil {
+		loadBalancer, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName)
+		if err != nil {
+			return err
+		}
+
 		if isClassicELB {
-			listeners, err := l.portsToListeners(*req.Ports)
-			if err != nil {
+			if err := l.updateELBListeners(*req.Ports, loadBalancer.ELB.ListenerDescriptions, loadBalancerName); err != nil {
 				return err
 			}
+		}
 
-			loadBalancerDescription, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName)
-			if err != nil {
-				return err
-			}
-
-			// remove all of the current listeners
-			portNumbers := make([]int64, len(loadBalancerDescription.ELB.ListenerDescriptions))
-			for i, listenerDescription := range loadBalancerDescription.ELB.ListenerDescriptions {
-				portNumbers[i] = aws.Int64Value(listenerDescription.Listener.LoadBalancerPort)
-			}
-
-			if err := l.removeListeners(loadBalancerName, portNumbers); err != nil {
-				return err
-			}
-
-			// add all of the new listeners and security group ingress rules to the
-			// load balancer and its security group
-			if err := l.addListeners(loadBalancerName, listeners); err != nil {
+		if isAppLB {
+			targetGroupName := loadBalancerName
+			if err := l.updateALBListeners(*req.Ports, targetGroupName, loadBalancer.ALB.LoadBalancerArn); err != nil {
 				return err
 			}
 		}
@@ -118,6 +108,168 @@ func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLo
 	return nil
 }
 
+func (l *LoadBalancerProvider) updateELBListeners(ports []models.Port, listenerDescriptions []*elb.ListenerDescription, loadBalancerName string) error {
+	// remove listener not in ports
+	var listenersToRemove []*int64
+	for _, ld := range listenerDescriptions {
+		removeListener := true
+		for _, p := range ports {
+			if p.HostPort == aws.Int64Value(ld.Listener.LoadBalancerPort) {
+				removeListener = false
+				break
+			}
+		}
+
+		if removeListener {
+			listenersToRemove = append(listenersToRemove, ld.Listener.LoadBalancerPort)
+		}
+	}
+
+	if len(listenersToRemove) > 0 {
+		input := &elb.DeleteLoadBalancerListenersInput{}
+		input.SetLoadBalancerName(loadBalancerName)
+		input.SetLoadBalancerPorts(listenersToRemove)
+
+		if err := input.Validate(); err != nil {
+			return err
+		}
+
+		if _, err := l.AWS.ELB.DeleteLoadBalancerListeners(input); err != nil {
+			return err
+		}
+	}
+
+	// add listener which doesn't exist in ports
+	var listenersToAdd []*elb.Listener
+	for _, p := range ports {
+		addListener := true
+		for _, ld := range listenerDescriptions {
+			if p.HostPort == aws.Int64Value(ld.Listener.LoadBalancerPort) {
+				addListener = false
+				break
+			}
+		}
+
+		if addListener {
+			newListener, err := l.portsToListeners([]models.Port{p})
+			if err != nil {
+				return err
+			}
+
+			listenersToAdd = append(listenersToAdd, newListener[0])
+		}
+	}
+
+	if len(listenersToAdd) > 0 {
+		input := &elb.CreateLoadBalancerListenersInput{}
+		input.SetLoadBalancerName(loadBalancerName)
+		input.SetListeners(listenersToAdd)
+
+		if err := input.Validate(); err != nil {
+			return err
+		}
+
+		if _, err := l.AWS.ELB.CreateLoadBalancerListeners(input); err != nil {
+			return err
+		}
+
+		return nil
+	}
+
+	return nil
+}
+
+func (l *LoadBalancerProvider) updateALBListeners(ports []models.Port, targetGroupName string, loadBalancerArn *string) error {
+	targetGroup, err := readTargetGroup(l.AWS.ALB, targetGroupName)
+	if err != nil {
+		return err
+	}
+
+	targetGroupArn := targetGroup.TargetGroupArn
+	var listeners []alb.Listener
+
+	descListenersInput := &alb.DescribeListenersInput{}
+	descListenersInput.LoadBalancerArn = loadBalancerArn
+	descListenersInput.SetPageSize(10)
+	fnPage := func(output *alb.DescribeListenersOutput, lastPage bool) bool {
+		for _, l := range output.Listeners {
+			listeners = append(listeners, *l)
+		}
+
+		return !lastPage
+	}
+
+	if err := l.AWS.ALB.DescribeListenersPages(descListenersInput, fnPage); err != nil {
+		return err
+	}
+
+	// remove listeners
+	for _, listener := range listeners {
+		removeListener := true
+		for _, p := range ports {
+			if aws.Int64Value(listener.Port) == p.HostPort {
+				removeListener = false
+				break
+			}
+		}
+
+		if removeListener {
+			removeListenerInput := &alb.DeleteListenerInput{}
+			removeListenerInput.ListenerArn = listener.ListenerArn
+
+			if err := removeListenerInput.Validate(); err != nil {
+				return err
+			}
+
+			if _, err := l.AWS.ALB.DeleteListener(removeListenerInput); err != nil {
+				return err
+			}
+		}
+	}
+
+	// add listeners
+	for _, p := range ports {
+		addListener := true
+		for _, listener := range listeners {
+			if aws.Int64Value(listener.Port) == p.HostPort {
+				addListener = false
+				break
+			}
+		}
+
+		if addListener {
+			createListenerInput := &alb.CreateListenerInput{}
+			createListenerInput.SetPort(p.HostPort)
+			createListenerInput.SetProtocol(p.Protocol)
+			createListenerInput.LoadBalancerArn = loadBalancerArn
+			createListenerInput.SetDefaultActions([]*alb.Action{
+				{
+					TargetGroupArn: targetGroupArn,
+					Type:           aws.String(alb.ActionTypeEnumForward),
+				},
+			})
+
+			if p.CertificateARN != "" {
+				createListenerInput.SetCertificates([]*alb.Certificate{
+					{
+						CertificateArn: aws.String(p.CertificateARN),
+					},
+				})
+			}
+
+			if err := createListenerInput.Validate(); err != nil {
+				return err
+			}
+
+			if _, err := l.AWS.ALB.CreateListener(createListenerInput); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
 func (l *LoadBalancerProvider) updateELBHealthCheck(loadBalancerName string, healthCheck models.HealthCheck) error {
 	hc := &elb.HealthCheck{
 		Target:             aws.String(healthCheck.Target),
@@ -144,7 +296,7 @@ func (l *LoadBalancerProvider) updateELBHealthCheck(loadBalancerName string, hea
 
 func (l *LoadBalancerProvider) updateALBHealthCheck(loadBalancerName string, healthCheck models.HealthCheck) error {
 	targetGroupName := loadBalancerName
-	targetGroup, err := getTargetGroupArn(l.AWS.ALB, targetGroupName)
+	targetGroup, err := readTargetGroup(l.AWS.ALB, targetGroupName)
 	if err != nil {
 		return err
 	}
@@ -162,43 +314,6 @@ func (l *LoadBalancerProvider) updateALBHealthCheck(loadBalancerName string, hea
 	}
 
 	if _, err := l.AWS.ALB.ModifyTargetGroup(input); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (l *LoadBalancerProvider) removeListeners(loadBalancerName string, portNumbers []int64) error {
-	input := &elb.DeleteLoadBalancerListenersInput{}
-	input.SetLoadBalancerName(loadBalancerName)
-
-	ports := make([]*int64, len(portNumbers))
-	for i, p := range portNumbers {
-		ports[i] = aws.Int64(p)
-	}
-	input.SetLoadBalancerPorts(ports)
-
-	if err := input.Validate(); err != nil {
-		return err
-	}
-
-	if _, err := l.AWS.ELB.DeleteLoadBalancerListeners(input); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (l *LoadBalancerProvider) addListeners(loadBalancerName string, listeners []*elb.Listener) error {
-	input := &elb.CreateLoadBalancerListenersInput{}
-	input.SetLoadBalancerName(loadBalancerName)
-	input.SetListeners(listeners)
-
-	if err := input.Validate(); err != nil {
-		return err
-	}
-
-	if _, err := l.AWS.ELB.CreateLoadBalancerListeners(input); err != nil {
 		return err
 	}
 

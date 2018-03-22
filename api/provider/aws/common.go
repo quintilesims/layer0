@@ -289,7 +289,7 @@ func readService(ecsapi ecsiface.ECSAPI, clusterName, serviceID string) (*ecs.Se
 	return output.Services[0], nil
 }
 
-func getTargetGroupArn(albapi albiface.ELBV2API, targetGroupName string) (*alb.TargetGroup, error) {
+func readTargetGroup(albapi albiface.ELBV2API, targetGroupName string) (*alb.TargetGroup, error) {
 	input := &alb.DescribeTargetGroupsInput{}
 	input.SetNames([]*string{aws.String(targetGroupName)})
 

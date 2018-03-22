@@ -47,7 +47,7 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
-		LoadBalancerType: "elb",
+		LoadBalancerType: "alb",
 		EnvironmentID:    "env_id",
 		IsPublic:         false,
 		Ports:            ports,
@@ -61,6 +61,7 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 	loadBalancer := &models.LoadBalancer{
 		LoadBalancerID:   "lb_id",
 		LoadBalancerName: "lb_name",
+		LoadBalancerType: "alb",
 		EnvironmentID:    "env_id",
 		Ports:            ports,
 		HealthCheck:      healthCheck,
@@ -86,6 +87,7 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 
 	assert.Equal(t, "lb_id", d.Id())
 	assert.Equal(t, "lb_name", d.Get("name"))
+	assert.Equal(t, "alb", d.Get("load_balancer_type"))
 	assert.Equal(t, "env_id", d.Get("environment"))
 	assert.Equal(t, true, d.Get("private"))
 	assert.Equal(t, ports, expandPorts(d.Get("port").(*schema.Set).List()))

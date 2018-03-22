@@ -96,7 +96,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 					// instead of the LoadBalancerName property of ecs.LoadBalancer
 					if lb.isALB {
 						targetGroupName := fqLoadBalancerID
-						targetGroup, err := getTargetGroupArn(s.AWS.ALB, targetGroupName)
+						targetGroup, err := readTargetGroup(s.AWS.ALB, targetGroupName)
 						if err != nil {
 							return err
 						}

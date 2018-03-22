@@ -136,7 +136,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 			return "", err
 		}
 
-		if _, err := l.createListener(lb.LoadBalancerArn, tg.TargetGroupArn, req.Ports); err != nil {
+		if err := l.createListener(lb.LoadBalancerArn, tg.TargetGroupArn, req.Ports); err != nil {
 			return "", err
 		}
 	}
@@ -175,44 +175,37 @@ func (l *LoadBalancerProvider) createTargetGroup(groupName string, healthCheck m
 	return output.TargetGroups[0], nil
 }
 
-func (l *LoadBalancerProvider) createListener(loadBalancerArn, targetGroupArn *string, ports []models.Port) (*alb.Listener, error) {
-	var certArn *string
+func (l *LoadBalancerProvider) createListener(loadBalancerArn, targetGroupArn *string, ports []models.Port) error {
 	for _, port := range ports {
+		input := &alb.CreateListenerInput{}
+		input.SetPort(port.HostPort)
+		input.SetProtocol(port.Protocol)
+		input.SetDefaultActions([]*alb.Action{
+			{
+				TargetGroupArn: targetGroupArn,
+				Type:           aws.String(alb.ActionTypeEnumForward),
+			},
+		})
+		input.LoadBalancerArn = loadBalancerArn
+
 		if port.CertificateARN != "" {
-			certArn = aws.String(port.CertificateARN)
-			break
+			input.SetCertificates([]*alb.Certificate{
+				{
+					CertificateArn: aws.String(port.CertificateARN),
+				},
+			})
+		}
+
+		if err := input.Validate(); err != nil {
+			return err
+		}
+
+		if _, err := l.AWS.ALB.CreateListener(input); err != nil {
+			return err
 		}
 	}
 
-	input := &alb.CreateListenerInput{}
-	input.SetPort(config.DefaultTargetGroupPort)
-	input.SetProtocol(config.DefaultTargetGroupProtocol)
-	input.SetDefaultActions([]*alb.Action{
-		{
-			TargetGroupArn: targetGroupArn,
-			Type:           aws.String(alb.ActionTypeEnumForward),
-		},
-	})
-	input.LoadBalancerArn = loadBalancerArn
-
-	if certArn != nil {
-		input.SetCertificates([]*alb.Certificate{
-			{
-				CertificateArn: certArn,
-			},
-		})
-	}
-
-	if err := input.Validate(); err != nil {
-		return nil, err
-	}
-
-	output, err := l.AWS.ALB.CreateListener(input)
-	if err != nil {
-		return nil, err
-	}
-
-	return output.Listeners[0], nil
+	return nil
 }
 
 func (l *LoadBalancerProvider) createRole(roleName, policy string) (*iam.Role, error) {
@@ -328,6 +321,15 @@ func (l *LoadBalancerProvider) createApplicationLoadBalancer(
 
 	createLBOutput, err := l.AWS.ALB.CreateLoadBalancer(input)
 	if err != nil {
+		return nil, err
+	}
+
+	waitInput := &alb.DescribeLoadBalancersInput{}
+	waitInput.SetLoadBalancerArns([]*string{
+		createLBOutput.LoadBalancers[0].LoadBalancerArn,
+	})
+
+	if err := l.AWS.ALB.WaitUntilLoadBalancerExists(waitInput); err != nil {
 		return nil, err
 	}
 
