@@ -60,7 +60,7 @@ func TestClassicLoadBalancerDelete(t *testing.T) {
 			EntityID:   "lb_id",
 			EntityType: "load_balancer",
 			Key:        "type",
-			Value:      models.ClassicLoadBalancerType,
+			Value:      string(models.ClassicLoadBalancerType),
 		},
 	}
 
@@ -150,7 +150,7 @@ func TestApplicationLoadBalancerDelete(t *testing.T) {
 			EntityID:   "lb_id",
 			EntityType: "load_balancer",
 			Key:        "type",
-			Value:      models.ApplicationLoadBalancerType,
+			Value:      string(models.ApplicationLoadBalancerType),
 		},
 	}
 

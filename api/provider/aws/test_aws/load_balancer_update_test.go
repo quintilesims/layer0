@@ -43,7 +43,7 @@ func TestClassicLoadBalancerUpdate(t *testing.T) {
 			EntityID:   "lb_name",
 			EntityType: "load_balancer",
 			Key:        "type",
-			Value:      models.ClassicLoadBalancerType,
+			Value:      string(models.ClassicLoadBalancerType),
 		},
 	}
 
@@ -226,7 +226,7 @@ func TestApplicationLoadBalancerUpdate(t *testing.T) {
 			EntityID:   "lb_name",
 			EntityType: "load_balancer",
 			Key:        "type",
-			Value:      models.ApplicationLoadBalancerType,
+			Value:      string(models.ApplicationLoadBalancerType),
 		},
 	}
 

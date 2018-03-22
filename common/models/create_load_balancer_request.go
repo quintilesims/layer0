@@ -2,23 +2,17 @@ package models
 
 import (
 	"fmt"
-	"strings"
 
 	swagger "github.com/zpatrick/go-plugin-swagger"
 )
 
-const (
-	ClassicLoadBalancerType     = "clb"
-	ApplicationLoadBalancerType = "alb"
-)
-
 type CreateLoadBalancerRequest struct {
-	LoadBalancerName string      `json:"load_balancer_name"`
-	LoadBalancerType string      `json:"load_balancertype"`
-	EnvironmentID    string      `json:"environment_id"`
-	IsPublic         bool        `json:"is_public"`
-	Ports            []Port      `json:"ports"`
-	HealthCheck      HealthCheck `json:"health_check"`
+	LoadBalancerName string           `json:"load_balancer_name"`
+	LoadBalancerType LoadBalancerType `json:"load_balancertype"`
+	EnvironmentID    string           `json:"environment_id"`
+	IsPublic         bool             `json:"is_public"`
+	Ports            []Port           `json:"ports"`
+	HealthCheck      HealthCheck      `json:"health_check"`
 }
 
 func (c CreateLoadBalancerRequest) Validate() error {
@@ -30,9 +24,8 @@ func (c CreateLoadBalancerRequest) Validate() error {
 		return fmt.Errorf("Environment ID is required")
 	}
 
-	if !strings.EqualFold(c.LoadBalancerType, ClassicLoadBalancerType) &&
-		!strings.EqualFold(c.LoadBalancerType, ApplicationLoadBalancerType) {
-		return fmt.Errorf("%s is not a support load balancer type", c.LoadBalancerType)
+	if !c.LoadBalancerType.IsValid() {
+		return fmt.Errorf("%s is not a supported load balancer type", c.LoadBalancerType)
 	}
 
 	for _, port := range c.Ports {

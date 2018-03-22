@@ -92,7 +92,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	input := "l0 loadbalancer create "
 	input += "--private "
-	input += "--type " + config.DefaultLoadBalancerType + " "
+	input += "--type " + string(config.DefaultLoadBalancerType) + " "
 	input += "--certificate arn:aws:iam::12345:server-certificate/crt_name "
 	input += "--port 443:80/https "
 	input += "--port 22:22/tcp "

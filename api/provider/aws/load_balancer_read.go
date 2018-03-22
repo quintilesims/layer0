@@ -146,7 +146,7 @@ func (l *LoadBalancerProvider) makeLoadBalancerModel(loadBalancerID string) (*mo
 	}
 
 	if tag, ok := tags.WithKey("type").First(); ok {
-		model.LoadBalancerType = tag.Value
+		model.LoadBalancerType = models.LoadBalancerType(tag.Value)
 	}
 
 	if tag, ok := tags.WithKey("environment_id").First(); ok {

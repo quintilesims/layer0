@@ -87,7 +87,7 @@ func TestResourceLoadBalancerCreateRead(t *testing.T) {
 
 	assert.Equal(t, "lb_id", d.Id())
 	assert.Equal(t, "lb_name", d.Get("name"))
-	assert.Equal(t, models.ApplicationLoadBalancerType, d.Get("load_balancer_type"))
+	assert.Equal(t, models.ApplicationLoadBalancerType, models.LoadBalancerType(d.Get("load_balancer_type").(string)))
 	assert.Equal(t, "env_id", d.Get("environment"))
 	assert.Equal(t, true, d.Get("private"))
 	assert.Equal(t, ports, expandPorts(d.Get("port").(*schema.Set).List()))

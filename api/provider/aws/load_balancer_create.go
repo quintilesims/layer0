@@ -91,7 +91,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		return "", err
 	}
 
-	if strings.EqualFold(req.LoadBalancerType, models.ClassicLoadBalancerType) {
+	if req.LoadBalancerType.Equals(models.ClassicLoadBalancerType) {
 		listeners, err := l.portsToListeners(req.Ports)
 		if err != nil {
 			return "", err
@@ -115,7 +115,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		}
 	}
 
-	if strings.EqualFold(req.LoadBalancerType, models.ApplicationLoadBalancerType) {
+	if req.LoadBalancerType.Equals(models.ApplicationLoadBalancerType) {
 		lb, err := l.createApplicationLoadBalancer(
 			fqLoadBalancerID,
 			scheme,
@@ -141,7 +141,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		}
 	}
 
-	if err := l.createTags(loadBalancerID, req.LoadBalancerName, req.LoadBalancerType, req.EnvironmentID); err != nil {
+	if err := l.createTags(loadBalancerID, req.LoadBalancerName, string(req.LoadBalancerType), req.EnvironmentID); err != nil {
 		return "", err
 	}
 

@@ -76,26 +76,26 @@ func (l *LoadBalancerProvider) makeLoadBalancerSummaryModels(loadBalancerIDs []s
 		return nil, err
 	}
 
-	models := make([]models.LoadBalancerSummary, len(loadBalancerIDs))
+	summaries := make([]models.LoadBalancerSummary, len(loadBalancerIDs))
 	for i, loadBalancerID := range loadBalancerIDs {
-		models[i].LoadBalancerID = loadBalancerID
+		summaries[i].LoadBalancerID = loadBalancerID
 
 		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("name").First(); ok {
-			models[i].LoadBalancerName = tag.Value
+			summaries[i].LoadBalancerName = tag.Value
 		}
 
 		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("type").First(); ok {
-			models[i].LoadBalancerType = tag.Value
+			summaries[i].LoadBalancerType = models.LoadBalancerType(tag.Value)
 		}
 
 		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("environment_id").First(); ok {
-			models[i].EnvironmentID = tag.Value
+			summaries[i].EnvironmentID = tag.Value
 
 			if t, ok := environmentTags.WithID(tag.Value).WithKey("name").First(); ok {
-				models[i].EnvironmentName = t.Value
+				summaries[i].EnvironmentName = t.Value
 			}
 		}
 	}
 
-	return models, nil
+	return summaries, nil
 }

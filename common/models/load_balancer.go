@@ -3,17 +3,17 @@ package models
 import swagger "github.com/zpatrick/go-plugin-swagger"
 
 type LoadBalancer struct {
-	EnvironmentID    string      `json:"environment_id"`
-	EnvironmentName  string      `json:"environment_name"`
-	HealthCheck      HealthCheck `json:"health_check"`
-	IsPublic         bool        `json:"is_public"`
-	LoadBalancerID   string      `json:"load_balancer_id"`
-	LoadBalancerName string      `json:"load_balancer_name"`
-	LoadBalancerType string      `json:"load_balancer_type"`
-	Ports            []Port      `json:"ports"`
-	ServiceID        string      `json:"service_id"`
-	ServiceName      string      `json:"service_name"`
-	URL              string      `json:"url"`
+	EnvironmentID    string           `json:"environment_id"`
+	EnvironmentName  string           `json:"environment_name"`
+	HealthCheck      HealthCheck      `json:"health_check"`
+	IsPublic         bool             `json:"is_public"`
+	LoadBalancerID   string           `json:"load_balancer_id"`
+	LoadBalancerName string           `json:"load_balancer_name"`
+	LoadBalancerType LoadBalancerType `json:"load_balancer_type"`
+	Ports            []Port           `json:"ports"`
+	ServiceID        string           `json:"service_id"`
+	ServiceName      string           `json:"service_name"`
+	URL              string           `json:"url"`
 }
 
 func (l LoadBalancer) Definition() swagger.Definition {

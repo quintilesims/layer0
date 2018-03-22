@@ -1,8 +1,6 @@
 package aws
 
 import (
-	"strings"
-
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
@@ -27,8 +25,8 @@ func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLo
 		return err
 	}
 
-	isClassicELB := strings.EqualFold(model.LoadBalancerType, models.ClassicLoadBalancerType)
-	isAppLB := strings.EqualFold(model.LoadBalancerType, models.ApplicationLoadBalancerType)
+	isClassicELB := model.LoadBalancerType.Equals(models.ClassicLoadBalancerType)
+	isAppLB := model.LoadBalancerType.Equals(models.ApplicationLoadBalancerType)
 
 	if req.HealthCheck != nil {
 		if isClassicELB {
