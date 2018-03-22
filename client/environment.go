@@ -2,8 +2,10 @@ package client
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/zpatrick/rclient"
 )
 
 func (c *APIClient) CreateEnvironment(req models.CreateEnvironmentRequest) (string, error) {
@@ -45,6 +47,16 @@ func (c *APIClient) ReadEnvironment(environmentID string) (*models.Environment, 
 	}
 
 	return environment, nil
+}
+
+func (c *APIClient) ReadEnvironmentLogs(environmentID string, query url.Values) ([]models.LogFile, error) {
+	var logs []models.LogFile
+	path := fmt.Sprintf("/environment/%s/logs", environmentID)
+	if err := c.client.Get(path, &logs, rclient.Query(query)); err != nil {
+		return nil, err
+	}
+
+	return logs, nil
 }
 
 func (c *APIClient) UpdateEnvironment(environmentID string, req models.UpdateEnvironmentRequest) error {

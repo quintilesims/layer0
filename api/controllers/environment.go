@@ -41,6 +41,12 @@ func (e *EnvironmentController) Routes() []*fireball.Route {
 				"PATCH": e.updateEnvironment,
 			},
 		},
+		{
+			Path: "/environment/:id/logs",
+			Handlers: fireball.Handlers{
+				"GET": e.readEnvironmentLogs,
+			},
+		},
 	}
 }
 
@@ -88,6 +94,21 @@ func (e *EnvironmentController) readEnvironment(c *fireball.Context) (fireball.R
 	}
 
 	return fireball.NewJSONResponse(200, environment)
+}
+
+func (e *EnvironmentController) readEnvironmentLogs(c *fireball.Context) (fireball.Response, error) {
+	environmentID := c.PathVariables["id"]
+	tail, start, end, err := parseLoggingQuery(c.Request.URL.Query())
+	if err != nil {
+		return nil, errors.New(errors.InvalidRequest, err)
+	}
+
+	logs, err := e.EnvironmentProvider.Logs(environmentID, tail, start, end)
+	if err != nil {
+		return nil, err
+	}
+
+	return fireball.NewJSONResponse(200, logs)
 }
 
 func (e *EnvironmentController) updateEnvironment(c *fireball.Context) (fireball.Response, error) {

@@ -16,6 +16,7 @@ type Client interface {
 	DeleteEnvironment(environmentID string) error
 	ListEnvironments() ([]models.EnvironmentSummary, error)
 	ReadEnvironment(environmentID string) (*models.Environment, error)
+	ReadEnvironmentLogs(environmentID string, query url.Values) ([]models.LogFile, error)
 	UpdateEnvironment(environmentID string, req models.UpdateEnvironmentRequest) error
 
 	CreateLoadBalancer(req models.CreateLoadBalancerRequest) (string, error)

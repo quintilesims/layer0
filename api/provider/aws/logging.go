@@ -17,10 +17,47 @@ const (
 	MAX_DESCRIBE_STREAMS_COUNT = 1000
 )
 
-func GetLogsFromTaskARNs(
+func GetEnvironmentLogsFromCloudTrail(
 	cloudWatchLogsAPI cloudwatchlogsiface.CloudWatchLogsAPI,
 	logGroupName string,
 	clusterName string,
+	tail int,
+	start,
+	end time.Time,
+) ([]models.LogFile, error) {
+	logStreams, err := describeLogStreams(cloudWatchLogsAPI, logGroupName)
+	if err != nil {
+		return nil, err
+	}
+
+	logFiles := []models.LogFile{}
+	for _, logStream := range logStreams {
+		if strings.Contains(aws.StringValue(logStream.LogStreamName), "_CloudTrail_") {
+			logStreamName := aws.StringValue(logStream.LogStreamName)
+			filteredLogEvents, err := getCloudTrailLogEvents(cloudWatchLogsAPI, logGroupName, logStreamName, clusterName, tail, start, end)
+			if err != nil {
+				return nil, err
+			}
+
+			logFile := models.LogFile{
+				ContainerName: logStreamName,
+				Lines:         make([]string, len(filteredLogEvents)),
+			}
+
+			for i, event := range filteredLogEvents {
+				logFile.Lines[i] = aws.StringValue(event.Message)
+			}
+
+			logFiles = append(logFiles, logFile)
+		}
+	}
+
+	return logFiles, nil
+}
+
+func GetLogsFromTaskARNs(
+	cloudWatchLogsAPI cloudwatchlogsiface.CloudWatchLogsAPI,
+	logGroupName string,
 	taskARNs []string,
 	tail int,
 	start,
@@ -37,26 +74,6 @@ func GetLogsFromTaskARNs(
 		// ecs task log streams have format '<prefix>/<container name>/<task id>'
 		streamNameSplit := strings.Split(aws.StringValue(logStream.LogStreamName), "/")
 		if len(streamNameSplit) != 3 {
-			// check to see if it is a CloudTrail stream
-			if len(streamNameSplit) == 1 && strings.Contains(streamNameSplit[0], "_CloudTrail_") {
-				logStreamName := aws.StringValue(logStream.LogStreamName)
-				filteredLogEvents, err := getCloudTrailLogEvents(cloudWatchLogsAPI, logGroupName, logStreamName, clusterName, tail, start, end)
-				if err != nil {
-					return nil, err
-				}
-
-				logFile := models.LogFile{
-					ContainerName: logStreamName,
-					Lines:         make([]string, len(filteredLogEvents)),
-				}
-
-				for i, event := range filteredLogEvents {
-					logFile.Lines[i] = aws.StringValue(event.Message)
-				}
-
-				logFiles = append(logFiles, logFile)
-			}
-
 			continue
 		}
 

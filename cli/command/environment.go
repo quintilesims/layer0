@@ -73,6 +73,26 @@ func (e *EnvironmentCommand) Command() cli.Command {
 				ArgsUsage: " ",
 			},
 			{
+				Name:      "logs",
+				Usage:     "get the logs for an environment",
+				Action:    e.logs,
+				ArgsUsage: "ENVIRONMENT_NAME",
+				Flags: []cli.Flag{
+					cli.IntFlag{
+						Name:  "tail",
+						Usage: "number of lines from the end to return (default: 0)",
+					},
+					cli.StringFlag{
+						Name:  "start",
+						Usage: "the start of the time range to fetch logs (format: YYYY-MM-DD HH:MM)",
+					},
+					cli.StringFlag{
+						Name:  "end",
+						Usage: "the end of the time range to fetch logs (format: YYYY-MM-DD HH:MM)",
+					},
+				},
+			},
+			{
 				Name:      "get",
 				Usage:     "describe an environment",
 				Action:    e.read,
@@ -221,6 +241,27 @@ func (e *EnvironmentCommand) list(c *cli.Context) error {
 	}
 
 	return e.printer.PrintEnvironmentSummaries(environmentSummaries...)
+}
+
+func (e *EnvironmentCommand) logs(c *cli.Context) error {
+	args, err := extractArgs(c.Args(), "ENVIRONMENT_NAME")
+	if err != nil {
+		return err
+	}
+
+	environmentID, err := e.resolveSingleEntityIDHelper("environment", args["ENVIRONMENT_NAME"])
+	if err != nil {
+		return err
+	}
+
+	query := buildLogQueryHelper(c.String("start"), c.String("end"), c.Int("tail"))
+
+	logs, err := e.client.ReadEnvironmentLogs(environmentID, query)
+	if err != nil {
+		return err
+	}
+
+	return e.printer.PrintLogs(logs...)
 }
 
 func (e *EnvironmentCommand) read(c *cli.Context) error {
