@@ -92,7 +92,7 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 					cli.StringFlag{
 						Name:  "type",
 						Value: config.DefaultLoadBalancerType,
-						Usage: "Type of load balancer, either 'ELB' or 'ALB' for a classic or application, load balancer (default is '" + config.DefaultLoadBalancerType + "')",
+						Usage: "Type of load balancer, either 'CLB' or 'ALB' for a classic or application, load balancer (default is '" + config.DefaultLoadBalancerType + "')",
 					},
 				},
 			},

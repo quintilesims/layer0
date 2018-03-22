@@ -3,6 +3,7 @@ package command
 import (
 	"testing"
 
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/stretchr/testify/assert"
@@ -64,7 +65,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
-		LoadBalancerType: "elb",
+		LoadBalancerType: config.DefaultLoadBalancerType,
 		EnvironmentID:    "env_id",
 		IsPublic:         false,
 		Ports: []models.Port{
@@ -91,7 +92,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	input := "l0 loadbalancer create "
 	input += "--private "
-	input += "--type elb "
+	input += "--type " + config.DefaultLoadBalancerType + " "
 	input += "--certificate arn:aws:iam::12345:server-certificate/crt_name "
 	input += "--port 443:80/https "
 	input += "--port 22:22/tcp "

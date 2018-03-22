@@ -42,7 +42,7 @@ func TestLoadBalancerList(t *testing.T) {
 			EntityID:   "lb_id1",
 			EntityType: "load_balancer",
 			Key:        "type",
-			Value:      "elb",
+			Value:      models.ClassicLoadBalancerType,
 		},
 		{
 			EntityID:   "env_id1",
@@ -66,7 +66,7 @@ func TestLoadBalancerList(t *testing.T) {
 			EntityID:   "lb_id2",
 			EntityType: "load_balancer",
 			Key:        "type",
-			Value:      "elb",
+			Value:      models.ApplicationLoadBalancerType,
 		},
 		{
 			EntityID:   "env_id2",
@@ -124,14 +124,14 @@ func TestLoadBalancerList(t *testing.T) {
 		{
 			LoadBalancerID:   "lb_id1",
 			LoadBalancerName: "lb_name1",
-			LoadBalancerType: "elb",
+			LoadBalancerType: models.ClassicLoadBalancerType,
 			EnvironmentID:    "env_id1",
 			EnvironmentName:  "env_name1",
 		},
 		{
 			LoadBalancerID:   "lb_id2",
 			LoadBalancerName: "lb_name2",
-			LoadBalancerType: "elb",
+			LoadBalancerType: models.ApplicationLoadBalancerType,
 			EnvironmentID:    "env_id2",
 			EnvironmentName:  "env_name2",
 		},

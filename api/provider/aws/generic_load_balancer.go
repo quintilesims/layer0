@@ -6,15 +6,15 @@ import (
 )
 
 type genericLoadBalancer struct {
-	ELB   *elb.LoadBalancerDescription
+	CLB   *elb.LoadBalancerDescription
 	ALB   *alb.LoadBalancer
 	isALB bool
-	isELB bool
+	isCLB bool
 }
 
 func (c genericLoadBalancer) GetScheme() *string {
-	if c.isELB {
-		return c.ELB.Scheme
+	if c.isCLB {
+		return c.CLB.Scheme
 	} else if c.isALB {
 		return c.ALB.Scheme
 	}
@@ -23,8 +23,8 @@ func (c genericLoadBalancer) GetScheme() *string {
 }
 
 func (c genericLoadBalancer) GetDNSName() *string {
-	if c.isELB {
-		return c.ELB.DNSName
+	if c.isCLB {
+		return c.CLB.DNSName
 	} else if c.isALB {
 		return c.ALB.DNSName
 	}

@@ -21,9 +21,9 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		return nil, err
 	}
 
-	if loadBalancer.isELB {
-		model.Ports = make([]models.Port, len(loadBalancer.ELB.ListenerDescriptions))
-		for i, description := range loadBalancer.ELB.ListenerDescriptions {
+	if loadBalancer.isCLB {
+		model.Ports = make([]models.Port, len(loadBalancer.CLB.ListenerDescriptions))
+		for i, description := range loadBalancer.CLB.ListenerDescriptions {
 			port := models.Port{
 				ContainerPort: aws.Int64Value(description.Listener.InstancePort),
 				HostPort:      aws.Int64Value(description.Listener.LoadBalancerPort),
@@ -38,11 +38,11 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		}
 
 		model.HealthCheck = models.HealthCheck{
-			Target:             aws.StringValue(loadBalancer.ELB.HealthCheck.Target),
-			Interval:           int(aws.Int64Value(loadBalancer.ELB.HealthCheck.Interval)),
-			Timeout:            int(aws.Int64Value(loadBalancer.ELB.HealthCheck.Timeout)),
-			HealthyThreshold:   int(aws.Int64Value(loadBalancer.ELB.HealthCheck.HealthyThreshold)),
-			UnhealthyThreshold: int(aws.Int64Value(loadBalancer.ELB.HealthCheck.UnhealthyThreshold)),
+			Target:             aws.StringValue(loadBalancer.CLB.HealthCheck.Target),
+			Interval:           int(aws.Int64Value(loadBalancer.CLB.HealthCheck.Interval)),
+			Timeout:            int(aws.Int64Value(loadBalancer.CLB.HealthCheck.Timeout)),
+			HealthyThreshold:   int(aws.Int64Value(loadBalancer.CLB.HealthCheck.HealthyThreshold)),
+			UnhealthyThreshold: int(aws.Int64Value(loadBalancer.CLB.HealthCheck.UnhealthyThreshold)),
 		}
 	}
 

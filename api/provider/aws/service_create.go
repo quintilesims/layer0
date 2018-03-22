@@ -81,15 +81,8 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 					var loadBalancerName *string
 					var targetGroupArn *string
 
-					// todo: check if this verifying this is actually needed
-					// why do we need to verify at least one container exposes a port that the elb has a listener for?
-					if lb.isELB {
-						loadBalancerName = lb.ELB.LoadBalancerName
-						// for _, listenerDescription := range lb.ELB.ListenerDescriptions {
-						// 	if aws.Int64Value(listenerDescription.Listener.InstancePort) != aws.Int64Value(portMapping.ContainerPort) {
-						// 		continue
-						// 	}
-						// }
+					if lb.isCLB {
+						loadBalancerName = lb.CLB.LoadBalancerName
 					}
 
 					// if load balancer is an application load balancer we need to assign TargetGroupArn

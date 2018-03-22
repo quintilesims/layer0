@@ -37,7 +37,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
-		LoadBalancerType: "elb",
+		LoadBalancerType: models.ClassicLoadBalancerType,
 		EnvironmentID:    "env_id",
 		IsPublic:         true,
 		Ports: []models.Port{
@@ -169,6 +169,12 @@ func TestLoadBalancerCreate(t *testing.T) {
 			Key:        "environment_id",
 			Value:      "env_id",
 		},
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "type",
+			Value:      models.ClassicLoadBalancerType,
+		},
 	}
 
 	for _, tag := range expectedTags {
@@ -194,7 +200,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
-		LoadBalancerType: "alb",
+		LoadBalancerType: models.ApplicationLoadBalancerType,
 		EnvironmentID:    "env_id",
 		Ports:            []models.Port{},
 		HealthCheck:      models.HealthCheck{},
@@ -308,7 +314,7 @@ func TestClassicLoadBalancerCreate(t *testing.T) {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
-		LoadBalancerType: "elb",
+		LoadBalancerType: models.ClassicLoadBalancerType,
 		EnvironmentID:    "env_id",
 		Ports:            []models.Port{},
 		HealthCheck:      models.HealthCheck{},

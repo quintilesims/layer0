@@ -39,8 +39,8 @@ func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, load
 
 	if elbExists {
 		return &genericLoadBalancer{
-			ELB:   elbOutput.LoadBalancerDescriptions[0],
-			isELB: true,
+			CLB:   elbOutput.LoadBalancerDescriptions[0],
+			isCLB: true,
 		}, nil
 	}
 

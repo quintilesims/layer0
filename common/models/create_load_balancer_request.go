@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	ClassicLoadBalancerType     = "elb"
+	ClassicLoadBalancerType     = "clb"
 	ApplicationLoadBalancerType = "alb"
 )
 

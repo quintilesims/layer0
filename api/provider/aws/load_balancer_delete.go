@@ -63,7 +63,7 @@ func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error
 		return err
 	}
 
-	if lb.isELB {
+	if lb.isCLB {
 		input := &elb.DeleteLoadBalancerInput{}
 		input.SetLoadBalancerName(loadBalancerName)
 

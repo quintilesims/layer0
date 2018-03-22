@@ -51,7 +51,7 @@ func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLo
 		}
 
 		if isClassicELB {
-			if err := l.updateELBListeners(*req.Ports, loadBalancer.ELB.ListenerDescriptions, loadBalancerName); err != nil {
+			if err := l.updateELBListeners(*req.Ports, loadBalancer.CLB.ListenerDescriptions, loadBalancerName); err != nil {
 				return err
 			}
 		}

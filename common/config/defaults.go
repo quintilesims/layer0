@@ -14,7 +14,7 @@ const (
 	DefaultEnvironmentInstanceType = "t2.small"
 	DefaultEnvironmentOS           = "linux"
 	DefaultServiceScale            = 1
-	DefaultLoadBalancerType        = "alb"
+	DefaultLoadBalancerType        = models.ApplicationLoadBalancerType
 	DefaultTargetGroupPort         = 80
 	DefaultTargetGroupProtocol     = "HTTP"
 
