@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"math/rand"
 	"testing"
 	"time"
 
@@ -12,26 +11,17 @@ import (
 func TestRetryTimeout(t *testing.T) {
 	start := time.Now()
 	fn := func() (bool, error) {
-		time.Sleep((time.Duration(rand.Intn(2))) * time.Millisecond)
+		time.Sleep(10 * time.Millisecond)
 		return true, nil
 	}
 
-	if err := Retry(time.Millisecond*1, time.Millisecond*1, fn); err != nil {
-		assert.WithinDuration(t, start.Add(time.Millisecond*1), time.Now(), time.Millisecond)
-	}
+	Retry(time.Millisecond, time.Millisecond, fn)
+	assert.WithinDuration(t, start.Add(time.Millisecond), time.Now(), time.Millisecond)
 }
 
 func TestRetryNoTimeout(t *testing.T) {
-	retries := 0
 	fn := func() (bool, error) {
-		retries++
-		time.Sleep(1 * time.Millisecond)
-
-		if retries == 5 {
-			return false, nil
-		}
-
-		return true, nil
+		return false, nil
 	}
 
 	if err := Retry(time.Millisecond*100, time.Millisecond*1, fn); err != nil {
@@ -39,55 +29,35 @@ func TestRetryNoTimeout(t *testing.T) {
 	}
 }
 
-func TestRetryFuncTimeRandom(t *testing.T) {
-	start := time.Now()
-	fn := func() (bool, error) {
-		time.Sleep((time.Duration(rand.Intn(2))) * time.Millisecond)
-		return true, nil
-	}
-
-	if err := Retry(time.Millisecond*5, time.Millisecond*1, fn); err != nil {
-		assert.WithinDuration(t, time.Now(), start.Add(time.Millisecond*5), time.Millisecond)
-	}
-}
-
 func TestRetryWaitTimeLongerThanTimeout(t *testing.T) {
 	start := time.Now()
-	retries := 0
 	fn := func() (bool, error) {
-		retries++
 		time.Sleep(10 * time.Millisecond)
 		return true, nil
 	}
 
-	if err := Retry(time.Millisecond*5, time.Millisecond*1, fn); err != nil {
-		assert.Equal(t, retries, 1)
-		assert.Equal(t, err, errors.New(errors.FailedRequestTimeout, nil))
-		assert.WithinDuration(t, time.Now(), start.Add(time.Millisecond*5), time.Millisecond)
-	}
+	err := Retry(time.Millisecond*5, time.Millisecond*1, fn)
+	assert.Equal(t, err, errors.New(errors.FailedRequestTimeout, nil))
+	assert.WithinDuration(t, time.Now(), start.Add(time.Millisecond*5), time.Millisecond)
 }
 
 func TestRetryCount(t *testing.T) {
 	retries := 0
 	fn := func() (bool, error) {
 		retries++
-		time.Sleep(1 * time.Millisecond)
 		return true, nil
 	}
 
-	if err := Retry(time.Millisecond*5, time.Millisecond*1, fn); err != nil {
-		assert.Equal(t, retries, 5)
-		assert.Equal(t, err, errors.New(errors.FailedRequestTimeout, nil))
-	}
+	Retry(time.Millisecond*5, time.Millisecond, fn)
+	assert.Equal(t, retries, 6)
 }
 
 func TestRetryFNRanBeforeDelay(t *testing.T) {
 	start := time.Now()
 	fn := func() (bool, error) {
-		assert.WithinDuration(t, time.Now(), start, time.Millisecond)
-		time.Sleep(1 * time.Second)
+		assert.WithinDuration(t, time.Now(), start, time.Millisecond*10)
 		return true, nil
 	}
 
-	Retry(time.Millisecond*5, time.Millisecond*1, fn)
+	Retry(time.Millisecond*5, time.Millisecond, fn)
 }
