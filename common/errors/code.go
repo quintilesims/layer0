@@ -16,5 +16,5 @@ const (
 	ServiceDoesNotExist      ErrorCode = "ServiceDoesNotExist"
 	TaskDoesNotExist         ErrorCode = "TaskDoesNotExist"
 	UnexpectedError          ErrorCode = "UnexpectedError"
-	MaximumRetriesReached    ErrorCode = "MaximumRetriesReached"
+	FailedRequestTimeout     ErrorCode = "FailedRequestTimeout"
 )
