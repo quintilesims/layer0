@@ -63,6 +63,7 @@ func (s *ServiceProvider) Read(serviceID string) (*models.Service, error) {
 
 		// application load balancer
 		if loadBalancerID == "" && loadBalancer.TargetGroupArn != nil {
+			readTargetGroup(s.AWS.ALB, nil, loadBalancer.TargetGroupArn)
 			tgInput := &alb.DescribeTargetGroupsInput{}
 			tgInput.SetTargetGroupArns([]*string{
 				loadBalancer.TargetGroupArn,

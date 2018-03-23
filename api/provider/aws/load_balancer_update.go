@@ -12,10 +12,7 @@ import (
 // specified Update Load Balancer Request. The Update Load Balancer Request
 // contains the Load Balancer ID, a list of ports to configure as the listeners,
 // and a Health Check to determine the state of the attached EC2 instances in the
-// case of Classic ELBs or registered Targets in the case of ALBs. If ports are
-// included in the Update Load Balancer Request, all existing listeners and EC2
-// Security Group ingress rules are removed first and then new listeners and
-// Security Group ingress rules are created based on the provided list of ports.
+// case of Classic ELBs or registered Targets in the case of ALBs.
 func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLoadBalancerRequest) error {
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	loadBalancerName := fqLoadBalancerID
@@ -30,7 +27,7 @@ func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLo
 
 	if req.HealthCheck != nil {
 		if isClassicELB {
-			if err := l.updateELBHealthCheck(loadBalancerName, *req.HealthCheck); err != nil {
+			if err := l.updateCLBHealthCheck(loadBalancerName, *req.HealthCheck); err != nil {
 				return err
 			}
 		}
@@ -49,7 +46,7 @@ func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLo
 		}
 
 		if isClassicELB {
-			if err := l.updateELBListeners(*req.Ports, loadBalancer.CLB.ListenerDescriptions, loadBalancerName); err != nil {
+			if err := l.updateCLBListeners(*req.Ports, loadBalancer.CLB.ListenerDescriptions, loadBalancerName); err != nil {
 				return err
 			}
 		}
@@ -68,37 +65,37 @@ func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLo
 			return err
 		}
 
-		containsPort := func(port int64, ports []models.Port) bool {
-			for _, p := range ports {
-				if port == p.HostPort {
-					return true
+		// revoke permissions for ports not in the request
+		for _, permission := range securityGroup.IpPermissions {
+			revokePermission := true
+			for _, port := range *req.Ports {
+				if port.HostPort == aws.Int64Value(permission.FromPort) {
+					revokePermission = false
+					break
 				}
 			}
 
-			return false
-		}
-
-		// remove permissions for ports not in the request
-		for _, p := range securityGroup.IpPermissions {
-			if !containsPort(aws.Int64Value(p.FromPort), *req.Ports) {
-				l.revokeSGIngressFromPort(aws.StringValue(securityGroup.GroupId), aws.Int64Value(p.FromPort))
-			}
-		}
-
-		permissionsContainsPort := func(port int64, permissions []*ec2.IpPermission) bool {
-			for _, p := range permissions {
-				if port == aws.Int64Value(p.FromPort) {
-					return true
+			if revokePermission {
+				if err := l.revokeSGIngressFromPort(aws.StringValue(securityGroup.GroupId), aws.Int64Value(permission.FromPort)); err != nil {
+					return err
 				}
 			}
-
-			return false
 		}
 
 		// add permission for request ports that don't exist in the security group
-		for _, p := range *req.Ports {
-			if !permissionsContainsPort(p.HostPort, securityGroup.IpPermissions) {
-				l.authorizeSGIngressFromPort(aws.StringValue(securityGroup.GroupId), p.HostPort)
+		for _, port := range *req.Ports {
+			addPermission := true
+			for _, permission := range securityGroup.IpPermissions {
+				if port.HostPort == aws.Int64Value(permission.FromPort) {
+					addPermission = false
+					break
+				}
+			}
+
+			if addPermission {
+				if err := l.authorizeSGIngressFromPort(aws.StringValue(securityGroup.GroupId), port.HostPort); err != nil {
+					return err
+				}
 			}
 		}
 	}
@@ -106,7 +103,7 @@ func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLo
 	return nil
 }
 
-func (l *LoadBalancerProvider) updateELBListeners(ports []models.Port, listenerDescriptions []*elb.ListenerDescription, loadBalancerName string) error {
+func (l *LoadBalancerProvider) updateCLBListeners(ports []models.Port, listenerDescriptions []*elb.ListenerDescription, loadBalancerName string) error {
 	// remove listener not in ports
 	var listenersToRemove []*int64
 	for _, ld := range listenerDescriptions {
@@ -178,7 +175,7 @@ func (l *LoadBalancerProvider) updateELBListeners(ports []models.Port, listenerD
 }
 
 func (l *LoadBalancerProvider) updateALBListeners(ports []models.Port, targetGroupName string, loadBalancerArn *string) error {
-	targetGroup, err := readTargetGroup(l.AWS.ALB, targetGroupName)
+	targetGroup, err := readTargetGroup(l.AWS.ALB, aws.String(targetGroupName), nil)
 	if err != nil {
 		return err
 	}
@@ -195,6 +192,10 @@ func (l *LoadBalancerProvider) updateALBListeners(ports []models.Port, targetGro
 		}
 
 		return !lastPage
+	}
+
+	if err := descListenersInput.Validate(); err != nil {
+		return err
 	}
 
 	if err := l.AWS.ALB.DescribeListenersPages(descListenersInput, fnPage); err != nil {
@@ -268,7 +269,7 @@ func (l *LoadBalancerProvider) updateALBListeners(ports []models.Port, targetGro
 	return nil
 }
 
-func (l *LoadBalancerProvider) updateELBHealthCheck(loadBalancerName string, healthCheck models.HealthCheck) error {
+func (l *LoadBalancerProvider) updateCLBHealthCheck(loadBalancerName string, healthCheck models.HealthCheck) error {
 	hc := &elb.HealthCheck{
 		Target:             aws.String(healthCheck.Target),
 		Interval:           aws.Int64(int64(healthCheck.Interval)),
@@ -294,7 +295,7 @@ func (l *LoadBalancerProvider) updateELBHealthCheck(loadBalancerName string, hea
 
 func (l *LoadBalancerProvider) updateALBHealthCheck(loadBalancerName string, healthCheck models.HealthCheck) error {
 	targetGroupName := loadBalancerName
-	targetGroup, err := readTargetGroup(l.AWS.ALB, targetGroupName)
+	targetGroup, err := readTargetGroup(l.AWS.ALB, aws.String(targetGroupName), nil)
 	if err != nil {
 		return err
 	}

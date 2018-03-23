@@ -30,6 +30,10 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	fqEnvironmentID := addLayer0Prefix(l.Config.Instance(), req.EnvironmentID)
 
+	if err := l.createTags(loadBalancerID, req.LoadBalancerName, string(req.LoadBalancerType), req.EnvironmentID); err != nil {
+		return "", err
+	}
+
 	environmentSGName := getEnvironmentSGName(fqEnvironmentID)
 	environmentSG, err := readSG(l.AWS.EC2, environmentSGName)
 	if err != nil {
@@ -110,7 +114,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 			req.HealthCheck = config.DefaultLoadBalancerHealthCheck()
 		}
 
-		if err := l.updateELBHealthCheck(fqLoadBalancerID, req.HealthCheck); err != nil {
+		if err := l.updateCLBHealthCheck(fqLoadBalancerID, req.HealthCheck); err != nil {
 			return "", err
 		}
 	}
@@ -121,7 +125,6 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 			scheme,
 			securityGroupIDs,
 			subnets)
-
 		if err != nil {
 			return "", err
 		}
@@ -139,10 +142,6 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		if err := l.createListener(lb.LoadBalancerArn, tg.TargetGroupArn, req.Ports); err != nil {
 			return "", err
 		}
-	}
-
-	if err := l.createTags(loadBalancerID, req.LoadBalancerName, string(req.LoadBalancerType), req.EnvironmentID); err != nil {
-		return "", err
 	}
 
 	return loadBalancerID, nil
@@ -177,23 +176,23 @@ func (l *LoadBalancerProvider) createTargetGroup(groupName string, healthCheck m
 
 func (l *LoadBalancerProvider) createListener(loadBalancerArn, targetGroupArn *string, ports []models.Port) error {
 	for _, port := range ports {
+		action := &alb.Action{
+			TargetGroupArn: targetGroupArn,
+			Type:           aws.String(alb.ActionTypeEnumForward),
+		}
+
+		certificate := &alb.Certificate{
+			CertificateArn: aws.String(port.CertificateARN),
+		}
+
 		input := &alb.CreateListenerInput{}
 		input.SetPort(port.HostPort)
 		input.SetProtocol(port.Protocol)
-		input.SetDefaultActions([]*alb.Action{
-			{
-				TargetGroupArn: targetGroupArn,
-				Type:           aws.String(alb.ActionTypeEnumForward),
-			},
-		})
+		input.SetDefaultActions([]*alb.Action{action})
 		input.LoadBalancerArn = loadBalancerArn
 
 		if port.CertificateARN != "" {
-			input.SetCertificates([]*alb.Certificate{
-				{
-					CertificateArn: aws.String(port.CertificateARN),
-				},
-			})
+			input.SetCertificates([]*alb.Certificate{certificate})
 		}
 
 		if err := input.Validate(); err != nil {
@@ -325,10 +324,7 @@ func (l *LoadBalancerProvider) createApplicationLoadBalancer(
 	}
 
 	waitInput := &alb.DescribeLoadBalancersInput{}
-	waitInput.SetLoadBalancerArns([]*string{
-		createLBOutput.LoadBalancers[0].LoadBalancerArn,
-	})
-
+	waitInput.SetLoadBalancerArns([]*string{createLBOutput.LoadBalancers[0].LoadBalancerArn})
 	if err := l.AWS.ALB.WaitUntilLoadBalancerExists(waitInput); err != nil {
 		return nil, err
 	}

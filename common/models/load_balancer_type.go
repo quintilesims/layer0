@@ -28,7 +28,7 @@ func (t LoadBalancerType) String() string {
 }
 
 func (t LoadBalancerType) Equals(s LoadBalancerType) bool {
-	return string(t) == strings.ToUpper(string(s))
+	return strings.ToUpper(string(t)) == strings.ToUpper(string(s))
 }
 
 func (t LoadBalancerType) IsValid() bool {

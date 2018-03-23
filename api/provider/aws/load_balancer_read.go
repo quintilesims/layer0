@@ -10,13 +10,12 @@ import (
 // is used when the DescribeLoadBalancers request is made to AWS.
 func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer, error) {
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
-
-	model, err := l.makeLoadBalancerModel(loadBalancerID)
+	loadBalancer, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, fqLoadBalancerID)
 	if err != nil {
 		return nil, err
 	}
 
-	loadBalancer, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, fqLoadBalancerID)
+	model, err := l.makeLoadBalancerModel(loadBalancerID)
 	if err != nil {
 		return nil, err
 	}
@@ -47,27 +46,28 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 	}
 
 	if loadBalancer.isALB {
-		securityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
-		securityGroup, err := readSG(l.AWS.EC2, securityGroupName)
+		listeners, err := l.readListeners(loadBalancer.ALB.LoadBalancerArn)
 		if err != nil {
 			return nil, err
 		}
 
-		model.Ports = make([]models.Port, len(securityGroup.IpPermissions))
-		for i, p := range securityGroup.IpPermissions {
+		model.Ports = make([]models.Port, len(listeners))
+		for i, listener := range listeners {
 			port := models.Port{
-				// container port isn't used for ALBs
-				ContainerPort: aws.Int64Value(p.FromPort),
-				HostPort:      aws.Int64Value(p.FromPort),
-				Protocol:      aws.StringValue(p.IpProtocol),
+				ContainerPort: aws.Int64Value(listener.Port),
+				HostPort:      aws.Int64Value(listener.Port),
+				Protocol:      aws.StringValue(listener.Protocol),
+			}
+
+			if len(listener.Certificates) > 0 {
+				port.CertificateARN = aws.StringValue(listener.Certificates[0].CertificateArn)
 			}
 
 			model.Ports[i] = port
 		}
 
-		targetGroupID := fqLoadBalancerID
-		targetGroup, err := l.readTargetGroup(targetGroupID)
-
+		targetGroupName := fqLoadBalancerID
+		targetGroup, err := readTargetGroup(l.AWS.ALB, aws.String(targetGroupName), nil)
 		if err != nil {
 			return nil, err
 		}
@@ -79,20 +79,6 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 			HealthyThreshold:   int(aws.Int64Value(targetGroup.HealthyThresholdCount)),
 			UnhealthyThreshold: int(aws.Int64Value(targetGroup.UnhealthyThresholdCount)),
 		}
-
-		cert, err := l.readCertificate(loadBalancer.ALB.LoadBalancerArn)
-		if err != nil {
-			return nil, err
-		}
-
-		if cert != nil {
-			for _, p := range model.Ports {
-				if aws.Int64Value(targetGroup.Port) == p.HostPort {
-					p.CertificateARN = aws.StringValue(cert.CertificateArn)
-					break
-				}
-			}
-		}
 	}
 
 	model.IsPublic = aws.StringValue(loadBalancer.GetScheme()) == "internet-facing"
@@ -101,34 +87,20 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 	return model, nil
 }
 
-func (l *LoadBalancerProvider) readTargetGroup(targetGroupID string) (*alb.TargetGroup, error) {
-	input := &alb.DescribeTargetGroupsInput{}
-	input.SetNames([]*string{aws.String(targetGroupID)})
-
-	output, err := l.AWS.ALB.DescribeTargetGroups(input)
-	if err != nil {
-		return nil, err
-	}
-
-	return output.TargetGroups[0], nil
-}
-
-func (l *LoadBalancerProvider) readCertificate(loadBalancerArn *string) (*alb.Certificate, error) {
+func (l *LoadBalancerProvider) readListeners(loadBalancerArn *string) ([]*alb.Listener, error) {
 	input := &alb.DescribeListenersInput{}
 	input.LoadBalancerArn = loadBalancerArn
+
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
 
 	output, err := l.AWS.ALB.DescribeListeners(input)
 	if err != nil {
 		return nil, err
 	}
 
-	for _, l := range output.Listeners {
-		for _, c := range l.Certificates {
-			return c, nil
-		}
-	}
-
-	return nil, nil
+	return output.Listeners, nil
 }
 
 func (l *LoadBalancerProvider) makeLoadBalancerModel(loadBalancerID string) (*models.LoadBalancer, error) {

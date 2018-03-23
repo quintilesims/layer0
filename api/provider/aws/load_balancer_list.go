@@ -28,10 +28,10 @@ func (l *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 func (l *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 	loadBalancerNames := []string{}
 
-	// list classic load balancer
+	// list classic load balancers
 	fnELB := func(output *elb.DescribeLoadBalancersOutput, lastPage bool) bool {
-		for _, description := range output.LoadBalancerDescriptions {
-			loadBalancerName := aws.StringValue(description.LoadBalancerName)
+		for _, lbd := range output.LoadBalancerDescriptions {
+			loadBalancerName := aws.StringValue(lbd.LoadBalancerName)
 
 			if hasLayer0Prefix(l.Config.Instance(), loadBalancerName) {
 				loadBalancerNames = append(loadBalancerNames, loadBalancerName)
@@ -47,8 +47,8 @@ func (l *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 
 	// list application load balancers
 	fnALB := func(output *alb.DescribeLoadBalancersOutput, lastPage bool) bool {
-		for _, description := range output.LoadBalancers {
-			loadBalancerName := aws.StringValue(description.LoadBalancerName)
+		for _, lb := range output.LoadBalancers {
+			loadBalancerName := aws.StringValue(lb.LoadBalancerName)
 
 			if hasLayer0Prefix(l.Config.Instance(), loadBalancerName) {
 				loadBalancerNames = append(loadBalancerNames, loadBalancerName)
