@@ -65,7 +65,13 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 			return "", err
 		}
 
-		if aws.StringValue(lb.GetScheme()) == "internet-facing" {
+		if lb.isALB && req.Stateful {
+			errorMsg := "application load balancer with a stateful service is not currently" +
+				"supported; please use a classic load balancer instead"
+			return "", fmt.Errorf(errorMsg)
+		}
+
+		if aws.StringValue(lb.Scheme()) == "internet-facing" {
 			loadBalancerSecurityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
 			loadBalancerSecurityGroup, err := readSG(s.AWS.EC2, loadBalancerSecurityGroupName)
 			if err != nil {

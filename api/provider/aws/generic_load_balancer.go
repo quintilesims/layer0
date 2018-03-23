@@ -30,7 +30,7 @@ type genericLoadBalancer struct {
 	isCLB bool
 }
 
-func (c genericLoadBalancer) GetScheme() *string {
+func (c genericLoadBalancer) Scheme() *string {
 	if c.isCLB {
 		return c.CLB.Scheme
 	} else if c.isALB {
@@ -40,7 +40,7 @@ func (c genericLoadBalancer) GetScheme() *string {
 	return nil
 }
 
-func (c genericLoadBalancer) GetDNSName() *string {
+func (c genericLoadBalancer) DNSName() *string {
 	if c.isCLB {
 		return c.CLB.DNSName
 	} else if c.isALB {

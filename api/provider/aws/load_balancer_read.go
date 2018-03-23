@@ -81,8 +81,8 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		}
 	}
 
-	model.IsPublic = aws.StringValue(loadBalancer.GetScheme()) == "internet-facing"
-	model.URL = aws.StringValue(loadBalancer.GetDNSName())
+	model.IsPublic = aws.StringValue(loadBalancer.Scheme()) == "internet-facing"
+	model.URL = aws.StringValue(loadBalancer.DNSName())
 
 	return model, nil
 }
