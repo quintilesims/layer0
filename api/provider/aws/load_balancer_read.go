@@ -3,6 +3,7 @@ package aws
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	alb "github.com/aws/aws-sdk-go/service/elbv2"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -38,6 +39,7 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 
 		model.HealthCheck = models.HealthCheck{
 			Target:             aws.StringValue(loadBalancer.CLB.HealthCheck.Target),
+			Path:               config.DefaultLoadBalancerHealthCheck().Path,
 			Interval:           int(aws.Int64Value(loadBalancer.CLB.HealthCheck.Interval)),
 			Timeout:            int(aws.Int64Value(loadBalancer.CLB.HealthCheck.Timeout)),
 			HealthyThreshold:   int(aws.Int64Value(loadBalancer.CLB.HealthCheck.HealthyThreshold)),
@@ -73,6 +75,7 @@ func (l *LoadBalancerProvider) Read(loadBalancerID string) (*models.LoadBalancer
 		}
 
 		model.HealthCheck = models.HealthCheck{
+			Target:             config.DefaultLoadBalancerHealthCheck().Target,
 			Path:               aws.StringValue(targetGroup.HealthCheckPath),
 			Interval:           int(aws.Int64Value(targetGroup.HealthCheckIntervalSeconds)),
 			Timeout:            int(aws.Int64Value(targetGroup.HealthCheckTimeoutSeconds)),
