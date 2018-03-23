@@ -123,6 +123,7 @@ func ExampleTextPrintLoadBalancers() {
 		{
 			LoadBalancerID:   "id1",
 			LoadBalancerName: "lb1",
+			LoadBalancerType: "CLB",
 			EnvironmentID:    "eid1",
 			EnvironmentName:  "ename1",
 			ServiceID:        "sid1",
@@ -140,6 +141,7 @@ func ExampleTextPrintLoadBalancers() {
 		{
 			LoadBalancerID:   "id2",
 			LoadBalancerName: "lb2",
+			LoadBalancerType: "CLB",
 			EnvironmentID:    "eid2",
 			ServiceID:        "sid2",
 			IsPublic:         false,
@@ -161,9 +163,9 @@ func ExampleTextPrintLoadBalancers() {
 
 	printer.PrintLoadBalancers(loadBalancers...)
 	// Output:
-	// LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS         PUBLIC  URL
-	// id1              lb1                ename1       sname1   80:80/HTTP    true    url1
-	// id2              lb2                eid2         sid2     443:80/HTTPS  false   url2
+	// LOADBALANCER ID  LOADBALANCER NAME  TYPE     ENVIRONMENT  SERVICE    PORTS         PUBLIC  URL
+	// id1              lb1                classic  ename1       sname1     80:80/HTTP    true    url1
+	// id2              lb2                classic  eid2         sid2       443:80/HTTPS  false   url2
 	//                                                           22:22/TCP
 
 }
@@ -171,15 +173,15 @@ func ExampleTextPrintLoadBalancers() {
 func ExampleTextPrintLoadBalancerSummaries() {
 	printer := &TextPrinter{}
 	loadBalancers := []models.LoadBalancerSummary{
-		{LoadBalancerID: "id1", LoadBalancerName: "lb1", EnvironmentID: "eid1", EnvironmentName: "ename1"},
-		{LoadBalancerID: "id2", LoadBalancerName: "lb2", EnvironmentID: "eid2"},
+		{LoadBalancerID: "id1", LoadBalancerName: "lb1", LoadBalancerType: "CLB", EnvironmentID: "eid1", EnvironmentName: "ename1"},
+		{LoadBalancerID: "id2", LoadBalancerName: "lb2", LoadBalancerType: "ALB", EnvironmentID: "eid2"},
 	}
 
 	printer.PrintLoadBalancerSummaries(loadBalancers...)
 	// Output:
-	// LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT
-	// id1              lb1                ename1
-	// id2              lb2                eid2
+	// LOADBALANCER ID  LOADBALANCER NAME  TYPE         ENVIRONMENT
+	// id1              lb1                classic      ename1
+	// id2              lb2                application  eid2
 }
 
 func ExampleTextPrintLoadBalancerHealthCheck() {

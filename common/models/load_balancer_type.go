@@ -19,7 +19,8 @@ func validLoadBalancerTypes() map[LoadBalancerType]string {
 }
 
 func (t LoadBalancerType) String() string {
-	if v, ok := validLoadBalancerTypes()[t]; ok {
+	key := strings.ToUpper(string(t))
+	if v, ok := validLoadBalancerTypes()[LoadBalancerType(key)]; ok {
 		return v
 	}
 
