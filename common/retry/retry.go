@@ -1,5 +1,7 @@
 package retry
 
+import "time"
+
 type RetryFunc func() (shouldRetry bool, err error)
 
 func Retry(fn RetryFunc, options ...Option) error {
@@ -21,4 +23,8 @@ func Retry(fn RetryFunc, options ...Option) error {
 	}
 
 	return nil
+}
+
+func SimpleRetry(fn RetryFunc, maxAttempts int, delay time.Duration) error {
+	return Retry(fn, WithMaxAttempts(maxAttempts), WithDelay(delay))
 }
