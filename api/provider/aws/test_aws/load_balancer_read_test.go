@@ -75,6 +75,7 @@ func TestLoadBalancerRead(t *testing.T) {
 	describeLoadBalancersInput.SetPageSize(1)
 
 	healthCheck := models.HealthCheck{
+		Path:               "/",
 		Target:             "HTTPS:443/path/to/site",
 		Interval:           10,
 		Timeout:            6,

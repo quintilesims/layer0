@@ -325,6 +325,11 @@ func (l *LoadBalancerProvider) createApplicationLoadBalancer(
 
 	waitInput := &alb.DescribeLoadBalancersInput{}
 	waitInput.SetLoadBalancerArns([]*string{createLBOutput.LoadBalancers[0].LoadBalancerArn})
+
+	if err := waitInput.Validate(); err != nil {
+		return nil, err
+	}
+
 	if err := l.AWS.ALB.WaitUntilLoadBalancerExists(waitInput); err != nil {
 		return nil, err
 	}

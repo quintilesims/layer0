@@ -27,6 +27,10 @@ func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, load
 	elbInput.SetLoadBalancerNames([]*string{aws.String(loadBalancerName)})
 	elbInput.SetPageSize(1)
 
+	if err := elbInput.Validate(); err != nil {
+		return nil, err
+	}
+
 	elbExists := true
 	elbOutput, err := elbapi.DescribeLoadBalancers(elbInput)
 	if err != nil {
@@ -44,6 +48,10 @@ func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, load
 	// search application load balancers
 	albInput := &alb.DescribeLoadBalancersInput{}
 	albInput.SetNames([]*string{aws.String(loadBalancerName)})
+
+	if err := albInput.Validate(); err != nil {
+		return nil, err
+	}
 
 	albOutput, err := albapi.DescribeLoadBalancers(albInput)
 	if err != nil {

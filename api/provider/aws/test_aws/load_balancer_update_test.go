@@ -283,7 +283,6 @@ func TestApplicationLoadBalancerUpdate(t *testing.T) {
 
 	describeAppLBInput := &alb.DescribeLoadBalancersInput{}
 	describeAppLBInput.SetNames([]*string{aws.String("l0-test-lb_name")})
-	describeAppLBInput.SetPageSize(1)
 	describeAppLBOutput := &alb.DescribeLoadBalancersOutput{
 		LoadBalancers: []*alb.LoadBalancer{
 			{
