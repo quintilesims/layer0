@@ -6,8 +6,8 @@ import (
 	"github.com/quintilesims/layer0/common/errors"
 )
 
-func Retry(timeout, delay time.Duration, fn func() (bool, error)) error {
-	ticker := time.NewTicker(delay)
+func Retry(timeout, interval time.Duration, fn func() (bool, error)) error {
+	ticker := time.NewTicker(interval)
 	errc := make(chan error)
 	defer func() {
 		ticker.Stop()
