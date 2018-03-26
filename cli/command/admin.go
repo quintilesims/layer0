@@ -25,6 +25,26 @@ func (a *AdminCommand) Command() cli.Command {
 				Action:    a.debug,
 				ArgsUsage: " ",
 			},
+			{
+				Name:      "instancelogs",
+				Usage:     "get all CloudTrail logs for a Layer0 instance",
+				Action:    a.instancelogs,
+				ArgsUsage: " ",
+				Flags: []cli.Flag{
+					cli.IntFlag{
+						Name:  "tail",
+						Usage: "number of lines from the end to return (default: 0)",
+					},
+					cli.StringFlag{
+						Name:  "start",
+						Usage: "the start of the time range to fetch logs (format: YYYY-MM-DD HH:MM)",
+					},
+					cli.StringFlag{
+						Name:  "end",
+						Usage: "the end of the time range to fetch logs (format: YYYY-MM-DD HH:MM)",
+					},
+				},
+			},
 		},
 	}
 }
@@ -62,4 +82,15 @@ func (a *AdminCommand) debug(c *cli.Context) error {
 	a.printer.Printf("Private Subnets:  %v\n", debugInfo.PrivateSubnets)
 
 	return nil
+}
+
+func (a *AdminCommand) instancelogs(c *cli.Context) error {
+	query := buildLogQueryHelper(c.String("start"), c.String("end"), c.Int("tail"))
+
+	logs, err := a.client.ReadLayer0InstanceLogs(query)
+	if err != nil {
+		return err
+	}
+
+	return a.printer.PrintLogs(logs...)
 }

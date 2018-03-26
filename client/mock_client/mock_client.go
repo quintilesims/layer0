@@ -276,6 +276,32 @@ func (mr *MockClientMockRecorder) ReadEnvironment(arg0 interface{}) *gomock.Call
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadEnvironment", reflect.TypeOf((*MockClient)(nil).ReadEnvironment), arg0)
 }
 
+// ReadEnvironmentLogs mocks base method
+func (m *MockClient) ReadEnvironmentLogs(arg0 string, arg1 url.Values) ([]models.LogFile, error) {
+	ret := m.ctrl.Call(m, "ReadEnvironmentLogs", arg0, arg1)
+	ret0, _ := ret[0].([]models.LogFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadEnvironmentLogs indicates an expected call of ReadEnvironmentLogs
+func (mr *MockClientMockRecorder) ReadEnvironmentLogs(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadEnvironmentLogs", reflect.TypeOf((*MockClient)(nil).ReadEnvironmentLogs), arg0, arg1)
+}
+
+// ReadLayer0InstanceLogs mocks base method
+func (m *MockClient) ReadLayer0InstanceLogs(arg0 url.Values) ([]models.LogFile, error) {
+	ret := m.ctrl.Call(m, "ReadLayer0InstanceLogs", arg0)
+	ret0, _ := ret[0].([]models.LogFile)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ReadLayer0InstanceLogs indicates an expected call of ReadLayer0InstanceLogs
+func (mr *MockClientMockRecorder) ReadLayer0InstanceLogs(arg0 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ReadLayer0InstanceLogs", reflect.TypeOf((*MockClient)(nil).ReadLayer0InstanceLogs), arg0)
+}
+
 // ReadLoadBalancer mocks base method
 func (m *MockClient) ReadLoadBalancer(arg0 string) (*models.LoadBalancer, error) {
 	ret := m.ctrl.Call(m, "ReadLoadBalancer", arg0)

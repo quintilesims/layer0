@@ -1,7 +1,6 @@
 package aws
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -17,13 +16,13 @@ const (
 	MAX_DESCRIBE_STREAMS_COUNT = 1000
 )
 
-func GetEnvironmentLogsFromCloudTrail(
+func GetLogsFromCloudTrail(
 	cloudWatchLogsAPI cloudwatchlogsiface.CloudWatchLogsAPI,
 	logGroupName string,
-	clusterName string,
 	tail int,
 	start,
 	end time.Time,
+	filterPattern string,
 ) ([]models.LogFile, error) {
 	logStreams, err := describeLogStreams(cloudWatchLogsAPI, logGroupName)
 	if err != nil {
@@ -34,17 +33,46 @@ func GetEnvironmentLogsFromCloudTrail(
 	for _, logStream := range logStreams {
 		if strings.Contains(aws.StringValue(logStream.LogStreamName), "_CloudTrail_") {
 			logStreamName := aws.StringValue(logStream.LogStreamName)
-			filteredLogEvents, err := getCloudTrailLogEvents(cloudWatchLogsAPI, logGroupName, logStreamName, clusterName, tail, start, end)
-			if err != nil {
+			logStreamNames := []string{logStreamName}
+
+			input := &cloudwatchlogs.FilterLogEventsInput{}
+			input.SetLogGroupName(logGroupName)
+			input.SetLogStreamNames(aws.StringSlice(logStreamNames))
+			input.SetFilterPattern(filterPattern)
+
+			if tail != 0 {
+				input.SetLimit(int64(tail))
+			}
+
+			if !start.IsZero() {
+				startMS := timeToMilliseconds(start)
+				input.SetStartTime(startMS)
+			}
+
+			if !end.IsZero() {
+				endMS := timeToMilliseconds(end)
+				input.SetEndTime(endMS)
+			}
+
+			var previousToken string
+			events := []*cloudwatchlogs.FilteredLogEvent{}
+			eventsFN := func(output *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
+				defer func() { previousToken = aws.StringValue(output.NextToken) }()
+				events = append(events, output.Events...)
+
+				return previousToken != aws.StringValue(output.NextToken)
+			}
+
+			if err := cloudWatchLogsAPI.FilterLogEventsPages(input, eventsFN); err != nil {
 				return nil, err
 			}
 
 			logFile := models.LogFile{
 				ContainerName: logStreamName,
-				Lines:         make([]string, len(filteredLogEvents)),
+				Lines:         make([]string, len(events)),
 			}
 
-			for i, event := range filteredLogEvents {
+			for i, event := range events {
 				logFile.Lines[i] = aws.StringValue(event.Message)
 			}
 
@@ -128,53 +156,6 @@ func describeLogStreams(cloudWatchLogsAPI cloudwatchlogsiface.CloudWatchLogsAPI,
 	}
 
 	return logStreams, nil
-}
-
-func getCloudTrailLogEvents(
-	cloudWatchLogsAPI cloudwatchlogsiface.CloudWatchLogsAPI,
-	logGroupName string,
-	logStreamName string,
-	clusterName string,
-	tail int,
-	start time.Time,
-	end time.Time,
-) ([]*cloudwatchlogs.FilteredLogEvent, error) {
-	logStreamNames := []string{logStreamName}
-	filterPattern := fmt.Sprintf("{ $.eventSource = \"ecs.amazonaws.com\" && $.requestParameters.cluster = \"%s\" }", clusterName)
-
-	input := &cloudwatchlogs.FilterLogEventsInput{}
-	input.SetLogGroupName(logGroupName)
-	input.SetLogStreamNames(aws.StringSlice(logStreamNames))
-	input.SetFilterPattern(filterPattern)
-
-	if tail != 0 {
-		input.SetLimit(int64(tail))
-	}
-
-	if !start.IsZero() {
-		startMS := timeToMilliseconds(start)
-		input.SetStartTime(startMS)
-	}
-
-	if !end.IsZero() {
-		endMS := timeToMilliseconds(end)
-		input.SetEndTime(endMS)
-	}
-
-	var previousToken string
-	events := []*cloudwatchlogs.FilteredLogEvent{}
-	eventsFN := func(output *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
-		defer func() { previousToken = aws.StringValue(output.NextToken) }()
-		events = append(events, output.Events...)
-
-		return previousToken != aws.StringValue(output.NextToken)
-	}
-
-	if err := cloudWatchLogsAPI.FilterLogEventsPages(input, eventsFN); err != nil {
-		return nil, err
-	}
-
-	return events, nil
 }
 
 func getLogEvents(

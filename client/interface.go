@@ -41,4 +41,5 @@ type Client interface {
 	ListTags(query url.Values) (models.Tags, error)
 
 	ReadConfig() (*models.APIConfig, error)
+	ReadLayer0InstanceLogs(query url.Values) ([]models.LogFile, error)
 }

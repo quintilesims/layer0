@@ -9,6 +9,7 @@ setup: instance
 common: aws config
 
 provider:
+	mockgen github.com/quintilesims/layer0/api/provider AdminProvider > ../api/provider/mock_provider/mock_admin.go &
 	mockgen github.com/quintilesims/layer0/api/provider EnvironmentProvider > ../api/provider/mock_provider/mock_environment.go &
 	mockgen github.com/quintilesims/layer0/api/provider DeployProvider > ../api/provider/mock_provider/mock_deploy.go &
 	mockgen github.com/quintilesims/layer0/api/provider LoadBalancerProvider > ../api/provider/mock_provider/mock_loadbalancer.go &
