@@ -2,6 +2,7 @@ package command
 
 import (
 	"fmt"
+	"net/url"
 	"testing"
 
 	"github.com/quintilesims/layer0/common/models"
@@ -182,6 +183,42 @@ func TestReadEnvironment(t *testing.T) {
 func TestReadEnvironmentInputErrors(t *testing.T) {
 	testInputErrors(t, NewEnvironmentCommand(nil).Command(), map[string]string{
 		"Missing NAME arg": "l0 environment get",
+	})
+}
+
+func TestReadEnvironmentLogs(t *testing.T) {
+	base, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewEnvironmentCommand(base.CommandBase()).Command()
+
+	base.Resolver.EXPECT().
+		Resolve("environment", "env_name").
+		Return([]string{"env_id"}, nil)
+
+	query := url.Values{
+		"tail":  []string{"100"},
+		"start": []string{"start"},
+		"end":   []string{"end"},
+	}
+
+	base.Client.EXPECT().
+		ReadEnvironmentLogs("env_id", query).
+		Return([]models.LogFile{}, nil)
+
+	input := "l0 environment logs "
+	input += "--tail 100 "
+	input += "--start start "
+	input += "--end end "
+	input += "env_name"
+
+	if err := testutils.RunApp(command, input); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestReadEnvironmentLogsInputErrors(t *testing.T) {
+	testInputErrors(t, NewEnvironmentCommand(nil).Command(), map[string]string{
+		"Missing NAME arg": "l0 environment logs",
 	})
 }
 
