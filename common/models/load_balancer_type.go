@@ -32,7 +32,8 @@ func (t LoadBalancerType) Equals(s LoadBalancerType) bool {
 }
 
 func (t LoadBalancerType) IsValid() bool {
-	if _, ok := validLoadBalancerTypes()[t]; ok {
+	key := strings.ToUpper(string(t))
+	if _, ok := validLoadBalancerTypes()[LoadBalancerType(key)]; ok {
 		return true
 	}
 
