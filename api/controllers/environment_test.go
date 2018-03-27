@@ -148,7 +148,7 @@ func TestReadEnvironmentLogs(t *testing.T) {
 
 	expected := []models.LogFile{
 		{
-			ContainerName: "alping",
+			ContainerName: "alpine",
 			Lines:         []string{"hello", "world"},
 		},
 	}

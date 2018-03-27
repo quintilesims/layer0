@@ -26,14 +26,14 @@ func (a *AdminCommand) Command() cli.Command {
 				ArgsUsage: " ",
 			},
 			{
-				Name:      "instancelogs",
+				Name:      "logs",
 				Usage:     "get all CloudTrail logs for a Layer0 instance",
 				Action:    a.instancelogs,
 				ArgsUsage: " ",
 				Flags: []cli.Flag{
 					cli.IntFlag{
 						Name:  "tail",
-						Usage: "number of lines from the end to return (default: 0)",
+						Usage: "number of lines from the end to return",
 					},
 					cli.StringFlag{
 						Name:  "start",
@@ -87,7 +87,7 @@ func (a *AdminCommand) debug(c *cli.Context) error {
 func (a *AdminCommand) instancelogs(c *cli.Context) error {
 	query := buildLogQueryHelper(c.String("start"), c.String("end"), c.Int("tail"))
 
-	logs, err := a.client.ReadLayer0InstanceLogs(query)
+	logs, err := a.client.ReadAdminLogs(query)
 	if err != nil {
 		return err
 	}

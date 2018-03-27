@@ -16,9 +16,9 @@ func (c *APIClient) ReadConfig() (*models.APIConfig, error) {
 	return config, nil
 }
 
-func (c *APIClient) ReadLayer0InstanceLogs(query url.Values) ([]models.LogFile, error) {
+func (c *APIClient) ReadAdminLogs(query url.Values) ([]models.LogFile, error) {
 	var logs []models.LogFile
-	if err := c.client.Get("/admin/instancelogs", &logs, rclient.Query(query)); err != nil {
+	if err := c.client.Get("/admin/logs", &logs, rclient.Query(query)); err != nil {
 		return nil, err
 	}
 

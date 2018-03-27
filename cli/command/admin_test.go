@@ -23,7 +23,7 @@ func TestDebugAdmin(t *testing.T) {
 	}
 }
 
-func TestReadLayer0InstanceLogs(t *testing.T) {
+func TestAdminLogs(t *testing.T) {
 	base, ctrl := newTestCommand(t)
 	defer ctrl.Finish()
 	command := NewAdminCommand(base.CommandBase()).Command()
@@ -35,10 +35,10 @@ func TestReadLayer0InstanceLogs(t *testing.T) {
 	}
 
 	base.Client.EXPECT().
-		ReadLayer0InstanceLogs(query).
+		ReadAdminLogs(query).
 		Return([]models.LogFile{}, nil)
 
-	input := "l0 admin instancelogs "
+	input := "l0 admin logs "
 	input += "--tail 100 "
 	input += "--start start "
 	input += "--end end"

@@ -20,7 +20,7 @@ func TestReadInstanceLogs(t *testing.T) {
 
 	expected := []models.LogFile{
 		{
-			ContainerName: "alping",
+			ContainerName: "alpine",
 			Lines:         []string{"hello", "world"},
 		},
 	}
@@ -46,7 +46,7 @@ func TestReadInstanceLogs(t *testing.T) {
 		start.Format(TimeLayout),
 		end.Format(TimeLayout))
 
-	resp, err := controller.readInstanceLogs(c)
+	resp, err := controller.readLogs(c)
 	if err != nil {
 		t.Fatal(err)
 	}

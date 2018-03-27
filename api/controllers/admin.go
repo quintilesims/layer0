@@ -31,9 +31,9 @@ func (a *AdminController) Routes() []*fireball.Route {
 			},
 		},
 		{
-			Path: "/admin/instancelogs",
+			Path: "/admin/logs",
 			Handlers: fireball.Handlers{
-				"GET": a.readInstanceLogs,
+				"GET": a.readLogs,
 			},
 		},
 	}
@@ -51,7 +51,7 @@ func (a *AdminController) GetConfig(c *fireball.Context) (fireball.Response, err
 	return fireball.NewJSONResponse(200, model)
 }
 
-func (a *AdminController) readInstanceLogs(c *fireball.Context) (fireball.Response, error) {
+func (a *AdminController) readLogs(c *fireball.Context) (fireball.Response, error) {
 	tail, start, end, err := parseLoggingQuery(c.Request.URL.Query())
 	if err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)

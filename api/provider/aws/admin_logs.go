@@ -11,5 +11,5 @@ func (a *AdminProvider) Logs(tail int, start, end time.Time) ([]models.LogFile, 
 	logGroupName := a.Config.LogGroupName()
 	filterPattern := fmt.Sprintf("{ $.userIdentity.sessionContext.sessionIssuer.userName = \"l0-%s-ecs-role\" }", a.Config.Instance())
 
-	return GetLogsFromCloudTrail(a.AWS.CloudWatchLogs, logGroupName, tail, start, end, filterPattern)
+	return GetLogsFromCloudWatch(a.AWS.CloudWatchLogs, logGroupName, nil, tail, start, end, filterPattern)
 }
