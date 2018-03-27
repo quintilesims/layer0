@@ -15,7 +15,7 @@ import (
 	"github.com/zpatrick/rclient"
 )
 
-const MaxEventualConsistencyRetries = 3
+const MaxRetries = 3
 
 type Config struct {
 	Endpoint  string
@@ -37,8 +37,8 @@ func NewAPIClient(c Config) *APIClient {
 		httpClient = &http.Client{Transport: tr}
 	}
 
-	doer := wrapDebugRequestDoer(httpClient)
-	doer = wrapRetryRequestDoer(doer)
+	debugDoer := wrapDebugRequestDoer(httpClient)
+	doer := wrapRetryRequestDoer(debugDoer)
 	reader := newResponseReader()
 	addAuthHeader := rclient.Header("Authorization", fmt.Sprintf("Basic %s", c.Token))
 
@@ -76,7 +76,7 @@ func wrapRetryRequestDoer(doer rclient.RequestDoer) rclient.RequestDoerFunc {
 			return false, nil
 		}
 
-		if err := retry.Retry(fn, retry.WithMaxAttempts(MaxEventualConsistencyRetries)); err != nil {
+		if err := retry.Retry(fn, retry.WithMaxAttempts(MaxRetries)); err != nil {
 			return nil, err
 		}
 
