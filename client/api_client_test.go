@@ -44,5 +44,5 @@ func TestAPIClientRetryError(t *testing.T) {
 		t.Fatal("Error was nil!")
 	}
 
-	assert.Equal(t, MaxEventualConsistencyRetries, calls)
+	assert.Equal(t, MaxRetries, calls)
 }
