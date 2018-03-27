@@ -7,6 +7,7 @@ import (
 
 	"github.com/golang/mock/gomock"
 	"github.com/quintilesims/layer0/api/provider/mock_provider"
+	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/stretchr/testify/assert"
 )
@@ -26,12 +27,12 @@ func TestReadAdminLogs(t *testing.T) {
 	}
 
 	tail := "100"
-	start, err := time.Parse(TimeLayout, "2001-01-02 10:00")
+	start, err := time.Parse(client.TimeLayout, "2001-01-02 10:00")
 	if err != nil {
 		t.Fatalf("Failed to parse start: %v", err)
 	}
 
-	end, err := time.Parse(TimeLayout, "2001-01-02 12:00")
+	end, err := time.Parse(client.TimeLayout, "2001-01-02 12:00")
 	if err != nil {
 		t.Fatalf("Failed to parse end: %v", err)
 	}
@@ -43,8 +44,8 @@ func TestReadAdminLogs(t *testing.T) {
 	c := newFireballContext(t, nil, nil)
 	c.Request.URL.RawQuery = fmt.Sprintf("tail=%s&start=%s&end=%s",
 		tail,
-		start.Format(TimeLayout),
-		end.Format(TimeLayout))
+		start.Format(client.TimeLayout),
+		end.Format(client.TimeLayout))
 
 	resp, err := controller.readLogs(c)
 	if err != nil {

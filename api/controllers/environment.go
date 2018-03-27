@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/quintilesims/layer0/api/provider"
+	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/fireball"
@@ -98,7 +99,7 @@ func (e *EnvironmentController) readEnvironment(c *fireball.Context) (fireball.R
 
 func (e *EnvironmentController) readEnvironmentLogs(c *fireball.Context) (fireball.Response, error) {
 	environmentID := c.PathVariables["id"]
-	tail, start, end, err := ParseLoggingQuery(c.Request.URL.Query())
+	tail, start, end, err := client.ParseLoggingQuery(c.Request.URL.Query())
 	if err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
 	}

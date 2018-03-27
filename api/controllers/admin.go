@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"github.com/quintilesims/layer0/api/provider"
+	"github.com/quintilesims/layer0/client"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
@@ -52,7 +53,7 @@ func (a *AdminController) GetConfig(c *fireball.Context) (fireball.Response, err
 }
 
 func (a *AdminController) readLogs(c *fireball.Context) (fireball.Response, error) {
-	tail, start, end, err := ParseLoggingQuery(c.Request.URL.Query())
+	tail, start, end, err := client.ParseLoggingQuery(c.Request.URL.Query())
 	if err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
