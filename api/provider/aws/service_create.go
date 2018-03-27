@@ -2,10 +2,15 @@ package aws
 
 import (
 	"fmt"
+	"log"
+	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
+	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/retry"
 )
 
 func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error) {
@@ -58,14 +63,27 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		scale = 1
 	}
 
-	if err := s.createService(
-		cluster,
-		serviceName,
-		taskDefinitionARN,
-		scale,
-		loadBalancerRole,
-		loadBalancer); err != nil {
-		return "", err
+	fn := func() (shouldRetry bool, err error) {
+		if err := s.createService(
+			cluster,
+			serviceName,
+			taskDefinitionARN,
+			scale,
+			loadBalancerRole,
+			loadBalancer); err != nil {
+			if strings.Contains(err.Error(), "Unable to assume role") {
+				log.Printf("[DEBUG] Failed service create, will retry (%v)", err)
+				return true, nil
+			}
+
+			return false, err
+		}
+
+		return false, nil
+	}
+
+	if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+		return "", errors.New(errors.EventualConsistencyError, err)
 	}
 
 	if err := s.createTags(serviceID, req.ServiceName, req.EnvironmentID, req.LoadBalancerID); err != nil {
