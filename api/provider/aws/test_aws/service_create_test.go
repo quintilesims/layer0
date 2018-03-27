@@ -1,6 +1,7 @@
 package test_aws
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -198,6 +199,54 @@ func TestServiceCreate_defaults(t *testing.T) {
 	mockAWS.ECS.EXPECT().
 		CreateService(createServiceInput).
 		Return(&ecs.CreateServiceOutput{}, nil)
+
+	req := models.CreateServiceRequest{
+		DeployID:      "dpl_id",
+		EnvironmentID: "env_id",
+		ServiceName:   "svc_name",
+	}
+
+	target := provider.NewServiceProvider(mockAWS.Client(), tagStore, mockConfig)
+	if _, err := target.Create(req); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestServiceCreateRetry(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAWS := awsc.NewMockClient(ctrl)
+	tagStore := tag.NewMemoryStore()
+	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+
+	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+
+	tags := models.Tags{
+		{
+			EntityID:   "dpl_id",
+			EntityType: "deploy",
+			Key:        "arn",
+			Value:      "dpl_arn",
+		},
+	}
+
+	for _, tag := range tags {
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	defer provider.SetEntityIDGenerator("svc_id")()
+
+	gomock.InOrder(
+		mockAWS.ECS.EXPECT().
+			CreateService(gomock.Any()).
+			Return(nil, fmt.Errorf("Unable to assume role and validate ports")),
+		mockAWS.ECS.EXPECT().
+			CreateService(gomock.Any()).
+			Return(&ecs.CreateServiceOutput{}, nil),
+	)
 
 	req := models.CreateServiceRequest{
 		DeployID:      "dpl_id",
