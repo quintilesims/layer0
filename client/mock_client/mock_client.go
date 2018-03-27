@@ -5,10 +5,11 @@
 package mock_client
 
 import (
-	gomock "github.com/golang/mock/gomock"
-	models "github.com/quintilesims/layer0/common/models"
 	url "net/url"
 	reflect "reflect"
+
+	gomock "github.com/golang/mock/gomock"
+	models "github.com/quintilesims/layer0/common/models"
 )
 
 // MockClient is a mock of Client interface

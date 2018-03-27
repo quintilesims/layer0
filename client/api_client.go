@@ -11,8 +11,11 @@ import (
 
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
+	"github.com/quintilesims/layer0/common/retry"
 	"github.com/zpatrick/rclient"
 )
+
+const MaxEventualConsistencyRetries = 3
 
 type Config struct {
 	Endpoint  string
@@ -34,7 +37,8 @@ func NewAPIClient(c Config) *APIClient {
 		httpClient = &http.Client{Transport: tr}
 	}
 
-	doer := newDebugRequestDoer(httpClient)
+	doer := wrapDebugRequestDoer(httpClient)
+	doer = wrapRetryRequestDoer(doer)
 	reader := newResponseReader()
 	addAuthHeader := rclient.Header("Authorization", fmt.Sprintf("Basic %s", c.Token))
 
@@ -49,7 +53,38 @@ func NewAPIClient(c Config) *APIClient {
 	}
 }
 
-func newDebugRequestDoer(httpClient *http.Client) rclient.RequestDoer {
+func wrapRetryRequestDoer(doer rclient.RequestDoer) rclient.RequestDoerFunc {
+	return func(req *http.Request) (*http.Response, error) {
+		var response *http.Response
+		fn := func() (shouldRetry bool, err error) {
+			resp, err := doer.Do(req)
+			if err != nil {
+				return false, err
+			}
+
+			if resp.StatusCode < 200 || resp.StatusCode > 299 {
+				serverError := readServerError(resp)
+				if serverError.Code == errors.EventualConsistencyError {
+					log.Printf("[DEBUG] Client encountered eventual consistency error, will retry: %v", err)
+					return true, nil
+				}
+
+				return false, serverError
+			}
+
+			response = resp
+			return false, nil
+		}
+
+		if err := retry.Retry(fn, retry.WithMaxAttempts(MaxEventualConsistencyRetries)); err != nil {
+			return nil, err
+		}
+
+		return response, nil
+	}
+}
+
+func wrapDebugRequestDoer(doer rclient.RequestDoer) rclient.RequestDoer {
 	return rclient.RequestDoerFunc(func(req *http.Request) (*http.Response, error) {
 		requestDump, err := httputil.DumpRequest(req, true)
 		if err != nil {
@@ -58,7 +93,7 @@ func newDebugRequestDoer(httpClient *http.Client) rclient.RequestDoer {
 
 		log.Printf("[DEBUG] Request:\n%q", requestDump)
 
-		resp, err := httpClient.Do(req)
+		resp, err := doer.Do(req)
 		if err != nil {
 			return nil, err
 		}
@@ -82,13 +117,7 @@ func newResponseReader() rclient.ResponseReader {
 		case resp.StatusCode == 401:
 			return fmt.Errorf("Invalid Auth Token. Have you tried running `l0-setup endpoint <instance>`?")
 		case resp.StatusCode < 200, resp.StatusCode > 299:
-			var se models.ServerError
-			if err := json.NewDecoder(resp.Body).Decode(&se); err != nil {
-				log.Printf("[DEBUG] Failed to decode server error: %v", err)
-				return fmt.Errorf("Layer0 API returned a non-200 status code: %d", resp.StatusCode)
-			}
-
-			return errors.FromModel(se)
+			return readServerError(resp)
 		case v == nil:
 			return nil
 		default:
@@ -99,4 +128,16 @@ func newResponseReader() rclient.ResponseReader {
 
 		return nil
 	}
+}
+
+func readServerError(resp *http.Response) *errors.ServerError {
+	defer resp.Body.Close()
+
+	var se models.ServerError
+	if err := json.NewDecoder(resp.Body).Decode(&se); err != nil {
+		log.Printf("[DEBUG] Failed to decode server error: %v", err)
+		return errors.Newf(errors.UnexpectedError, "Layer0 API returned a non-200 status code: %d", resp.StatusCode)
+	}
+
+	return errors.FromModel(se)
 }
