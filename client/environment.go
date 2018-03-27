@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/url"
 
+	"github.com/quintilesims/layer0/api/controllers"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/zpatrick/rclient"
 )
@@ -50,6 +51,10 @@ func (c *APIClient) ReadEnvironment(environmentID string) (*models.Environment, 
 }
 
 func (c *APIClient) ReadEnvironmentLogs(environmentID string, query url.Values) ([]models.LogFile, error) {
+	if _, _, _, err := controllers.ParseLoggingQuery(query); err != nil {
+		return nil, err
+	}
+
 	var logs []models.LogFile
 	path := fmt.Sprintf("/environment/%s/logs", environmentID)
 	if err := c.client.Get(path, &logs, rclient.Query(query)); err != nil {

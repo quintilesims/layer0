@@ -93,7 +93,7 @@ func (s *ServiceController) readService(c *fireball.Context) (fireball.Response,
 
 func (s *ServiceController) readServiceLogs(c *fireball.Context) (fireball.Response, error) {
 	serviceID := c.PathVariables["id"]
-	tail, start, end, err := parseLoggingQuery(c.Request.URL.Query())
+	tail, start, end, err := ParseLoggingQuery(c.Request.URL.Query())
 	if err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
 	}

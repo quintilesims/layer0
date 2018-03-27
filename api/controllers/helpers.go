@@ -10,7 +10,7 @@ import (
 // 'YYYY-MM-DD HH:MM' time layout as described by https://golang.org/src/time/format.go
 const TimeLayout = "2006-01-02 15:04"
 
-func parseLoggingQuery(query url.Values) (int, time.Time, time.Time, error) {
+func ParseLoggingQuery(query url.Values) (int, time.Time, time.Time, error) {
 	var tail int
 	if v := query.Get("tail"); v != "" {
 		t, err := strconv.Atoi(v)

@@ -98,7 +98,7 @@ func (e *EnvironmentController) readEnvironment(c *fireball.Context) (fireball.R
 
 func (e *EnvironmentController) readEnvironmentLogs(c *fireball.Context) (fireball.Response, error) {
 	environmentID := c.PathVariables["id"]
-	tail, start, end, err := parseLoggingQuery(c.Request.URL.Query())
+	tail, start, end, err := ParseLoggingQuery(c.Request.URL.Query())
 	if err != nil {
 		return nil, errors.New(errors.InvalidRequest, err)
 	}
