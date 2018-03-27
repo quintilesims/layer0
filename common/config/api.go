@@ -143,6 +143,8 @@ func NewContextAPIConfig(c *cli.Context) *ContextAPIConfig {
 }
 
 func (c *ContextAPIConfig) Validate() error {
+	flags := APIFlags()
+
 	requiredVars := []string{
 		FLAG_INSTANCE,
 		FLAG_TOKEN,
@@ -162,9 +164,29 @@ func (c *ContextAPIConfig) Validate() error {
 		FLAG_AWS_SSH_KEY_PAIR,
 	}
 
+	getFlagEnvVar := func(flag cli.Flag) (string, bool) {
+		if v, ok := flag.(cli.StringFlag); ok && v.EnvVar != "" {
+			return v.EnvVar, true
+		}
+
+		return "", false
+	}
+
 	for _, name := range requiredVars {
+		envVarMsg := ""
+		for _, flag := range flags {
+			if flag.GetName() != name {
+				continue
+			}
+
+			if envVarName, ok := getFlagEnvVar(flag); ok {
+				envVarMsg = fmt.Sprintf("or envirvonment variable '%s'", envVarName)
+				break
+			}
+		}
+
 		if !c.C.IsSet(name) {
-			return fmt.Errorf("Required Variable '%s' is not set!", name)
+			return fmt.Errorf("Required flag '%s' %s is not set!", name, envVarMsg)
 		}
 	}
 
