@@ -199,21 +199,12 @@ func TestEnvironmentDeleteRetry(t *testing.T) {
 		}
 	}
 
-	// an environment's asg name is the same as the fq environment id
-	deleteASGInput := &autoscaling.DeleteAutoScalingGroupInput{}
-	deleteASGInput.SetAutoScalingGroupName("l0-test-env_id")
-	deleteASGInput.SetForceDelete(true)
-
 	mockAWS.AutoScaling.EXPECT().
-		DeleteAutoScalingGroup(deleteASGInput).
+		DeleteAutoScalingGroup(gomock.Any()).
 		Return(&autoscaling.DeleteAutoScalingGroupOutput{}, nil)
 
-	// an environment's lc name is the same as the fq environment id
-	deleteLCInput := &autoscaling.DeleteLaunchConfigurationInput{}
-	deleteLCInput.SetLaunchConfigurationName("l0-test-env_id")
-
 	mockAWS.AutoScaling.EXPECT().
-		DeleteLaunchConfiguration(deleteLCInput).
+		DeleteLaunchConfiguration(gomock.Any()).
 		Return(&autoscaling.DeleteLaunchConfigurationOutput{}, nil)
 
 	// an environment's security group name is <fq environment id>-env
@@ -243,12 +234,8 @@ func TestEnvironmentDeleteRetry(t *testing.T) {
 			Return(&ec2.DescribeSecurityGroupsOutput{}, nil),
 	)
 
-	// an environment's cluster name is the fq environment id
-	deleteClusterInput := &ecs.DeleteClusterInput{}
-	deleteClusterInput.SetCluster("l0-test-env_id")
-
 	mockAWS.ECS.EXPECT().
-		DeleteCluster(deleteClusterInput).
+		DeleteCluster(gomock.Any()).
 		Return(&ecs.DeleteClusterOutput{}, nil)
 
 	target := provider.NewEnvironmentProvider(mockAWS.Client(), tagStore, mockConfig)
