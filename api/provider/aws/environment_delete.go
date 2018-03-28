@@ -2,13 +2,17 @@ package aws
 
 import (
 	"fmt"
+	"log"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
+	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/retry"
 )
 
 // Delete is used to delete an ECS Cluster using the specified environmentID. The environmentID
@@ -44,6 +48,34 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 		groupID := aws.StringValue(securityGroup.GroupId)
 		if err := deleteSG(e.AWS.EC2, groupID); err != nil {
 			return err
+		}
+
+		// Check for eventually consistency
+		fn := func() (shouldRetry bool, err error) {
+			filter := &ec2.Filter{}
+			filter.SetName("group-name")
+			filter.SetValues([]*string{aws.String(securityGroupName)})
+
+			input := &ec2.DescribeSecurityGroupsInput{}
+			input.SetFilters([]*ec2.Filter{filter})
+
+			output, err := e.AWS.EC2.DescribeSecurityGroups(input)
+			if err != nil {
+				return false, err
+			}
+
+			for _, group := range output.SecurityGroups {
+				if aws.StringValue(group.GroupName) == securityGroupName {
+					log.Printf("[DEBUG] Service group not deleted, will retry lookup")
+					return true, nil
+				}
+			}
+
+			return false, nil
+		}
+
+		if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+			return errors.New(errors.EventualConsistencyError, err)
 		}
 	}
 
