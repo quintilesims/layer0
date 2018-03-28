@@ -3,7 +3,6 @@ package test_aws
 import (
 	"testing"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -210,13 +209,6 @@ func TestEnvironmentDeleteRetry(t *testing.T) {
 	// an environment's security group name is <fq environment id>-env
 	readSGHelper(mockAWS, "l0-test-env_id-env", "sg_id")
 	deleteSGHelper(mockAWS, "sg_id")
-
-	filter := &ec2.Filter{}
-	filter.SetName("group-name")
-	filter.SetValues([]*string{aws.String("l0-test-env_id-env")})
-
-	input := &ec2.DescribeSecurityGroupsInput{}
-	input.SetFilters([]*ec2.Filter{filter})
 
 	securityGroup := &ec2.SecurityGroup{}
 	securityGroup.SetGroupId("sg_id")
