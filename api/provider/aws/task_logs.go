@@ -13,5 +13,6 @@ func (t *TaskProvider) Logs(taskID string, tail int, start, end time.Time) ([]mo
 	}
 
 	logGroupName := t.Config.LogGroupName()
-	return GetLogsFromTaskARNs(t.AWS.CloudWatchLogs, logGroupName, []string{taskARN}, tail, start, end)
+
+	return GetLogsFromCloudWatch(t.AWS.CloudWatchLogs, logGroupName, []string{taskARN}, tail, start, end, "")
 }

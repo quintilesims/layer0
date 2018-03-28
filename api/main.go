@@ -82,7 +82,7 @@ func main() {
 		}
 
 		routes := controllers.NewSwaggerController(Version).Routes()
-		routes = append(routes, controllers.NewAdminController(cfg, Version).Routes()...)
+		routes = append(routes, controllers.NewAdminController(adminProvider, cfg, Version).Routes()...)
 		routes = append(routes, controllers.NewDeployController(deployProvider).Routes()...)
 		routes = append(routes, controllers.NewEnvironmentController(environmentProvider).Routes()...)
 		routes = append(routes, controllers.NewLoadBalancerController(loadBalancerProvider).Routes()...)

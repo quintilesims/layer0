@@ -13,16 +13,17 @@ import (
 const (
 	// DescribeLogStreams is throttled after five transactions per second.
 	// With 50 streams/transaction, 1000 gives a reasonable streams:time ratio
-	MAX_DESCRIBE_STREAMS_COUNT = 1000
+	maxDescribeStreamsCount = 1000
 )
 
-func GetLogsFromTaskARNs(
+func GetLogsFromCloudWatch(
 	cloudWatchLogsAPI cloudwatchlogsiface.CloudWatchLogsAPI,
 	logGroupName string,
 	taskARNs []string,
 	tail int,
 	start,
 	end time.Time,
+	filterPattern string,
 ) ([]models.LogFile, error) {
 	taskIDMatch := generateTaskIDMap(taskARNs)
 	logStreams, err := describeLogStreams(cloudWatchLogsAPI, logGroupName)
@@ -35,6 +36,63 @@ func GetLogsFromTaskARNs(
 		// ecs task log streams have format '<prefix>/<container name>/<task id>'
 		streamNameSplit := strings.Split(aws.StringValue(logStream.LogStreamName), "/")
 		if len(streamNameSplit) != 3 {
+			// If not a task log stream, check to see
+			// if it's a CloudTrail log stream
+			if !strings.Contains(aws.StringValue(logStream.LogStreamName), "_CloudTrail_") {
+				continue
+			}
+
+			logStreamName := aws.StringValue(logStream.LogStreamName)
+			logStreamNames := []string{logStreamName}
+
+			input := &cloudwatchlogs.FilterLogEventsInput{}
+			input.SetLogGroupName(logGroupName)
+			input.SetLogStreamNames(aws.StringSlice(logStreamNames))
+			input.SetFilterPattern(filterPattern)
+
+			if tail != 0 {
+				input.SetLimit(int64(tail))
+			}
+
+			if !start.IsZero() {
+				startMS := timeToMilliseconds(start)
+				input.SetStartTime(startMS)
+			}
+
+			if !end.IsZero() {
+				endMS := timeToMilliseconds(end)
+				input.SetEndTime(endMS)
+			}
+
+			events := []*cloudwatchlogs.FilteredLogEvent{}
+			eventsFN := func(output *cloudwatchlogs.FilterLogEventsOutput, lastPage bool) bool {
+				// Don't store more events than the value of tail if provided
+				if tail != 0 && len(events) >= tail {
+					return false
+				}
+
+				events = append(events, output.Events...)
+
+				return !lastPage
+			}
+
+			if err := cloudWatchLogsAPI.FilterLogEventsPages(input, eventsFN); err != nil {
+				return nil, err
+			}
+
+			logFile := models.LogFile{
+				ContainerName: logStreamName,
+				Lines:         make([]string, len(events)),
+			}
+
+			for i, event := range events {
+				logFile.Lines[i] = aws.StringValue(event.Message)
+			}
+
+			logFiles = append(logFiles, logFile)
+
+			// If a CloudTrail log stream was just read
+			// move to the next log stream
 			continue
 		}
 
@@ -77,7 +135,7 @@ func describeLogStreams(cloudWatchLogsAPI cloudwatchlogsiface.CloudWatchLogsAPI,
 	fn := func(output *cloudwatchlogs.DescribeLogStreamsOutput, lastPage bool) bool {
 		logStreams = append(logStreams, output.LogStreams...)
 
-		if len(logStreams) >= MAX_DESCRIBE_STREAMS_COUNT {
+		if len(logStreams) >= maxDescribeStreamsCount {
 			return false
 		}
 
