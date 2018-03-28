@@ -239,10 +239,6 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 		HealthCheck:      healthCheck,
 	}
 
-	if err := req.Validate(); err != nil {
-		return err
-	}
-
 	loadBalancerID, err := l.client.CreateLoadBalancer(req)
 	if err != nil {
 		return err
@@ -375,10 +371,6 @@ func (l *LoadBalancerCommand) healthcheck(c *cli.Context) error {
 
 	req := models.UpdateLoadBalancerRequest{
 		HealthCheck: &healthCheck,
-	}
-
-	if err := req.Validate(); err != nil {
-		return err
 	}
 
 	if err := l.client.UpdateLoadBalancer(loadBalancerID, req); err != nil {

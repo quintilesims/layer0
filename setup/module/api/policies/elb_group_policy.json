@@ -1,43 +1,10 @@
 {
     "Version": "2012-10-17",
     "Statement": [
-	{
-            "Effect": "Allow",
-            "Action": [
-                "elasticloadbalancing:ModifyListener",
-                "elasticloadbalancing:CreateLoadBalancer",
-                "elasticloadbalancing:RegisterTargets",
-                "elasticloadbalancing:CreateTargetGroup",
-                "elasticloadbalancing:DeregisterTargets",
-                "elasticloadbalancing:SetIpAddressType",
-                "elasticloadbalancing:SetSubnets",
-                "elasticloadbalancing:SetRulePriorities",
-                "elasticloadbalancing:DeleteTargetGroup",
-                "elasticloadbalancing:DeleteLoadBalancer",
-                "elasticloadbalancing:DescribeLoadBalancers",
-                "elasticloadbalancing:RemoveTags",
-                "elasticloadbalancing:CreateListener",
-                "elasticloadbalancing:DescribeListeners",
-                "elasticloadbalancing:ModifyRule",
-                "elasticloadbalancing:DescribeTargetHealth",
-                "elasticloadbalancing:CreateRule",
-                "elasticloadbalancing:SetSecurityGroups",
-                "elasticloadbalancing:DescribeTargetGroups",
-                "elasticloadbalancing:DescribeRules",
-                "elasticloadbalancing:DeleteRule",
-                "elasticloadbalancing:ModifyTargetGroup",
-                "elasticloadbalancing:DeleteListener"
-            ],
-            "Resource": "*"
-        },
         {
             "Effect": "Allow",
-            "Action": [
-                "elasticloadbalancing:*"
-            ],
-            "Resource": [
-		"arn:aws:elasticloadbalancing:${region}:${account_id}:loadbalancer/l0-${name}-*"
-	    ]
+            "Action": "elasticloadbalancing:*",
+            "Resource": "*"
         }
     ]
 }

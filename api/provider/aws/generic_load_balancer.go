@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/elb"
 	alb "github.com/aws/aws-sdk-go/service/elbv2"
 )
@@ -30,22 +31,22 @@ type genericLoadBalancer struct {
 	isCLB bool
 }
 
-func (c genericLoadBalancer) Scheme() *string {
+func (c genericLoadBalancer) Scheme() string {
 	if c.isCLB {
-		return c.CLB.Scheme
+		return aws.StringValue(c.CLB.Scheme)
 	} else if c.isALB {
-		return c.ALB.Scheme
+		return aws.StringValue(c.ALB.Scheme)
 	}
 
-	return nil
+	return ""
 }
 
-func (c genericLoadBalancer) DNSName() *string {
+func (c genericLoadBalancer) DNSName() string {
 	if c.isCLB {
-		return c.CLB.DNSName
+		return aws.StringValue(c.CLB.DNSName)
 	} else if c.isALB {
-		return c.ALB.DNSName
+		return aws.StringValue(c.ALB.DNSName)
 	}
 
-	return nil
+	return ""
 }

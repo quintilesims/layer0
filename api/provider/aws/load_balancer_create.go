@@ -174,10 +174,10 @@ func (l *LoadBalancerProvider) createTargetGroup(groupName string, healthCheck m
 	return output.TargetGroups[0], nil
 }
 
-func (l *LoadBalancerProvider) createListener(loadBalancerArn, targetGroupArn *string, ports []models.Port) error {
+func (l *LoadBalancerProvider) createListener(loadBalancerARN, targetGroupARN *string, ports []models.Port) error {
 	for _, port := range ports {
 		action := &alb.Action{
-			TargetGroupArn: targetGroupArn,
+			TargetGroupArn: targetGroupARN,
 			Type:           aws.String(alb.ActionTypeEnumForward),
 		}
 
@@ -189,7 +189,7 @@ func (l *LoadBalancerProvider) createListener(loadBalancerArn, targetGroupArn *s
 		input.SetPort(port.HostPort)
 		input.SetProtocol(port.Protocol)
 		input.SetDefaultActions([]*alb.Action{action})
-		input.LoadBalancerArn = loadBalancerArn
+		input.LoadBalancerArn = loadBalancerARN
 
 		if port.CertificateARN != "" {
 			input.SetCertificates([]*alb.Certificate{certificate})
