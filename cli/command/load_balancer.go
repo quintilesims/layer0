@@ -62,7 +62,7 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 					cli.StringFlag{
 						Name:  "healthcheck-target",
 						Value: dhc.Target,
-						Usage: "Health check target in format 'PROTOCOL:PORT' or 'PROTOCOL:PORT/WITH/PATH', used for load balancer type 'ELB'",
+						Usage: "Health check target in format 'PROTOCOL:PORT' or 'PROTOCOL:PORT/WITH/PATH', used for load balancer type 'CLB'",
 					},
 					cli.StringFlag{
 						Name:  "healthcheck-path",
