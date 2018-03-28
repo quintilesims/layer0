@@ -36,7 +36,7 @@ func TestReadConfig(t *testing.T) {
 	assert.Equal(t, expected, result)
 }
 
-func TestReadLayer0InstanceLogs(t *testing.T) {
+func TestReadAdminLogs(t *testing.T) {
 	expected := []models.LogFile{
 		{
 			ContainerName: "apline",
