@@ -1,6 +1,7 @@
 package aws
 
 import (
+	"log"
 	"strings"
 	"time"
 
@@ -45,6 +46,7 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 			return false, nil
 		}
 
+		log.Printf("[DEBUG] Load Balancer not deleted, will retry lookup")
 		return true, nil
 	}
 

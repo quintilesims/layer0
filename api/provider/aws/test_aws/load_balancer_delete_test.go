@@ -166,23 +166,26 @@ func TestLoadBalancerDeleteRetry(t *testing.T) {
 		DeleteLoadBalancer(deleteLBInput).
 		Return(&elb.DeleteLoadBalancerOutput{}, nil)
 
-	mockAWS.ELB.EXPECT().
-		DescribeLoadBalancers(gomock.Any()).
-		Return(&elb.DescribeLoadBalancersOutput{}, nil)
+	lb := &elb.LoadBalancerDescription{}
+	lb.SetLoadBalancerName("l0-test-lb_id")
 
-	deleteRolePolicyInput := &iam.DeleteRolePolicyInput{}
-	deleteRolePolicyInput.SetRoleName("l0-test-lb_id-lb")
-	deleteRolePolicyInput.SetPolicyName("l0-test-lb_id-lb")
+	describeLoadBalancersOutput := &elb.DescribeLoadBalancersOutput{}
+	describeLoadBalancersOutput.SetLoadBalancerDescriptions([]*elb.LoadBalancerDescription{lb})
+
+	gomock.InOrder(
+		mockAWS.ELB.EXPECT().
+			DescribeLoadBalancers(gomock.Any()).
+			Return(describeLoadBalancersOutput, nil),
+		mockAWS.ELB.EXPECT().
+			DescribeLoadBalancers(gomock.Any()).
+			Return(&elb.DescribeLoadBalancersOutput{}, nil))
 
 	mockAWS.IAM.EXPECT().
-		DeleteRolePolicy(deleteRolePolicyInput).
+		DeleteRolePolicy(gomock.Any()).
 		Return(&iam.DeleteRolePolicyOutput{}, nil)
 
-	deleteRoleInput := &iam.DeleteRoleInput{}
-	deleteRoleInput.SetRoleName("l0-test-lb_id-lb")
-
 	mockAWS.IAM.EXPECT().
-		DeleteRole(deleteRoleInput).
+		DeleteRole(gomock.Any()).
 		Return(&iam.DeleteRoleOutput{}, nil)
 
 	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
@@ -192,13 +195,13 @@ func TestLoadBalancerDeleteRetry(t *testing.T) {
 	securityGroup.SetGroupName("l0-test-lb_id-lb")
 	securityGroup.SetGroupId("lb_sg")
 
-	output := &ec2.DescribeSecurityGroupsOutput{}
-	output.SetSecurityGroups([]*ec2.SecurityGroup{securityGroup})
+	describeSecurityGroupsOutput := &ec2.DescribeSecurityGroupsOutput{}
+	describeSecurityGroupsOutput.SetSecurityGroups([]*ec2.SecurityGroup{securityGroup})
 
 	gomock.InOrder(
 		mockAWS.EC2.EXPECT().
 			DescribeSecurityGroups(gomock.Any()).
-			Return(output, nil),
+			Return(describeSecurityGroupsOutput, nil),
 		mockAWS.EC2.EXPECT().
 			DescribeSecurityGroups(gomock.Any()).
 			Return(&ec2.DescribeSecurityGroupsOutput{}, nil),
@@ -208,6 +211,4 @@ func TestLoadBalancerDeleteRetry(t *testing.T) {
 	if err := target.Delete("lb_id"); err != nil {
 		t.Fatal(err)
 	}
-
-	assert.Len(t, tagStore.Tags(), 0)
 }
