@@ -159,11 +159,8 @@ func TestLoadBalancerDeleteRetry(t *testing.T) {
 		}
 	}
 
-	deleteLBInput := &elb.DeleteLoadBalancerInput{}
-	deleteLBInput.SetLoadBalancerName("l0-test-lb_id")
-
 	mockAWS.ELB.EXPECT().
-		DeleteLoadBalancer(deleteLBInput).
+		DeleteLoadBalancer(gomock.Any()).
 		Return(&elb.DeleteLoadBalancerOutput{}, nil)
 
 	lb := &elb.LoadBalancerDescription{}

@@ -93,6 +93,7 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 
 		for _, group := range output.SecurityGroups {
 			if aws.StringValue(group.GroupName) == securityGroupName {
+				log.Printf("[DEBUG] Security Group not deleted, will retry lookup")
 				return true, nil
 			}
 		}
