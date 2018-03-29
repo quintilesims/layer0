@@ -34,7 +34,7 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
-			"load_balancer_type": {
+			"type": {
 				Type:     schema.TypeString,
 				Optional: true,
 				ForceNew: true,
@@ -129,7 +129,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: d.Get("name").(string),
-		LoadBalancerType: strings.ToLower(d.Get("load_balancer_type").(string)),
+		LoadBalancerType: strings.ToLower(d.Get("type").(string)),
 		EnvironmentID:    d.Get("environment").(string),
 		IsPublic:         !d.Get("private").(bool),
 		Ports:            ports,
@@ -162,7 +162,7 @@ func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) er
 
 	d.Set("name", loadBalancer.LoadBalancerName)
 	d.Set("environment", loadBalancer.EnvironmentID)
-	d.Set("load_balancer_type", loadBalancer.LoadBalancerType)
+	d.Set("type", loadBalancer.LoadBalancerType)
 	d.Set("private", !loadBalancer.IsPublic)
 	d.Set("health_check", flattenHealthCheck(loadBalancer.HealthCheck))
 	d.Set("port", flattenPorts(loadBalancer.Ports))
