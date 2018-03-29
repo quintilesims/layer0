@@ -173,7 +173,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 			EntityID:   "lb_id",
 			EntityType: "load_balancer",
 			Key:        "type",
-			Value:      string(models.ClassicLoadBalancerType),
+			Value:      models.ClassicLoadBalancerType,
 		},
 	}
 

@@ -92,7 +92,7 @@ func (l *LoadBalancerCommand) Command() cli.Command {
 					cli.StringFlag{
 						Name:  "type",
 						Value: string(config.DefaultLoadBalancerType),
-						Usage: "Type of load balancer, either 'CLB' or 'ALB' for a classic or application, load balancer",
+						Usage: "Type of load balancer, either 'classic' or 'application'",
 					},
 				},
 			},
@@ -232,7 +232,7 @@ func (l *LoadBalancerCommand) create(c *cli.Context) error {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: args["LOAD_BALANCER_NAME"],
-		LoadBalancerType: models.LoadBalancerType(c.String("type")),
+		LoadBalancerType: strings.ToLower(c.String("type")),
 		EnvironmentID:    environmentID,
 		IsPublic:         !c.Bool("private"),
 		Ports:            ports,

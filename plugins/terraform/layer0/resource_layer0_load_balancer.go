@@ -129,7 +129,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: d.Get("name").(string),
-		LoadBalancerType: models.LoadBalancerType(d.Get("load_balancer_type").(string)),
+		LoadBalancerType: strings.ToLower(d.Get("load_balancer_type").(string)),
 		EnvironmentID:    d.Get("environment").(string),
 		IsPublic:         !d.Get("private").(bool),
 		Ports:            ports,

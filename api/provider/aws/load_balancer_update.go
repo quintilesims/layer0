@@ -22,8 +22,8 @@ func (l *LoadBalancerProvider) Update(loadBalancerID string, req models.UpdateLo
 		return err
 	}
 
-	isClassicELB := model.LoadBalancerType.Equals(models.ClassicLoadBalancerType)
-	isAppLB := model.LoadBalancerType.Equals(models.ApplicationLoadBalancerType)
+	isClassicELB := model.LoadBalancerType == models.ClassicLoadBalancerType
+	isAppLB := model.LoadBalancerType == models.ApplicationLoadBalancerType
 
 	if req.HealthCheck != nil {
 		if isClassicELB {

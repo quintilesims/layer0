@@ -30,7 +30,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	fqLoadBalancerID := addLayer0Prefix(l.Config.Instance(), loadBalancerID)
 	fqEnvironmentID := addLayer0Prefix(l.Config.Instance(), req.EnvironmentID)
 
-	if err := l.createTags(loadBalancerID, req.LoadBalancerName, string(req.LoadBalancerType), req.EnvironmentID); err != nil {
+	if err := l.createTags(loadBalancerID, req.LoadBalancerName, req.LoadBalancerType, req.EnvironmentID); err != nil {
 		return "", err
 	}
 
@@ -95,7 +95,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		return "", err
 	}
 
-	if req.LoadBalancerType.Equals(models.ClassicLoadBalancerType) {
+	if req.LoadBalancerType == models.ClassicLoadBalancerType {
 		listeners, err := l.portsToListeners(req.Ports)
 		if err != nil {
 			return "", err
@@ -119,7 +119,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		}
 	}
 
-	if req.LoadBalancerType.Equals(models.ApplicationLoadBalancerType) {
+	if req.LoadBalancerType == models.ApplicationLoadBalancerType {
 		lb, err := l.createApplicationLoadBalancer(
 			fqLoadBalancerID,
 			scheme,

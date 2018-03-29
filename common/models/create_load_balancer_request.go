@@ -7,12 +7,12 @@ import (
 )
 
 type CreateLoadBalancerRequest struct {
-	LoadBalancerName string           `json:"load_balancer_name"`
-	LoadBalancerType LoadBalancerType `json:"load_balancertype"`
-	EnvironmentID    string           `json:"environment_id"`
-	IsPublic         bool             `json:"is_public"`
-	Ports            []Port           `json:"ports"`
-	HealthCheck      HealthCheck      `json:"health_check"`
+	LoadBalancerName string      `json:"load_balancer_name"`
+	LoadBalancerType string      `json:"load_balancertype"`
+	EnvironmentID    string      `json:"environment_id"`
+	IsPublic         bool        `json:"is_public"`
+	Ports            []Port      `json:"ports"`
+	HealthCheck      HealthCheck `json:"health_check"`
 }
 
 func (c CreateLoadBalancerRequest) Validate() error {
@@ -24,8 +24,12 @@ func (c CreateLoadBalancerRequest) Validate() error {
 		return fmt.Errorf("Environment ID is required")
 	}
 
-	if !c.LoadBalancerType.IsValid() {
-		return fmt.Errorf("%s is not a supported load balancer type", c.LoadBalancerType)
+	switch c.LoadBalancerType {
+	case ApplicationLoadBalancerType, ClassicLoadBalancerType:
+	case "":
+		return fmt.Errorf("LoadBalancer Type is required")
+	default:
+		return fmt.Errorf("Unrecognized LoadBalancer Type '%s'", c.LoadBalancerType)
 	}
 
 	for _, port := range c.Ports {

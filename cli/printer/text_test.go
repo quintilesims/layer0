@@ -123,7 +123,7 @@ func ExampleTextPrintLoadBalancers() {
 		{
 			LoadBalancerID:   "id1",
 			LoadBalancerName: "lb1",
-			LoadBalancerType: "CLB",
+			LoadBalancerType: "classic",
 			EnvironmentID:    "eid1",
 			EnvironmentName:  "ename1",
 			ServiceID:        "sid1",
@@ -141,7 +141,7 @@ func ExampleTextPrintLoadBalancers() {
 		{
 			LoadBalancerID:   "id2",
 			LoadBalancerName: "lb2",
-			LoadBalancerType: "CLB",
+			LoadBalancerType: "classic",
 			EnvironmentID:    "eid2",
 			ServiceID:        "sid2",
 			IsPublic:         false,
@@ -173,8 +173,8 @@ func ExampleTextPrintLoadBalancers() {
 func ExampleTextPrintLoadBalancerSummaries() {
 	printer := &TextPrinter{}
 	loadBalancers := []models.LoadBalancerSummary{
-		{LoadBalancerID: "id1", LoadBalancerName: "lb1", LoadBalancerType: "CLB", EnvironmentID: "eid1", EnvironmentName: "ename1"},
-		{LoadBalancerID: "id2", LoadBalancerName: "lb2", LoadBalancerType: "ALB", EnvironmentID: "eid2"},
+		{LoadBalancerID: "id1", LoadBalancerName: "lb1", LoadBalancerType: "classic", EnvironmentID: "eid1", EnvironmentName: "ename1"},
+		{LoadBalancerID: "id2", LoadBalancerName: "lb2", LoadBalancerType: "application", EnvironmentID: "eid2"},
 	}
 
 	printer.PrintLoadBalancerSummaries(loadBalancers...)
@@ -189,6 +189,7 @@ func ExampleTextPrintLoadBalancerHealthCheck() {
 	loadBalancer1 := &models.LoadBalancer{
 		LoadBalancerID:   "id1",
 		LoadBalancerName: "lb1",
+		LoadBalancerType: "classic",
 		EnvironmentID:    "eid1",
 		EnvironmentName:  "ename1",
 		HealthCheck: models.HealthCheck{
@@ -203,6 +204,7 @@ func ExampleTextPrintLoadBalancerHealthCheck() {
 	loadBalancer2 := &models.LoadBalancer{
 		LoadBalancerID:   "id2",
 		LoadBalancerName: "lb2",
+		LoadBalancerType: "classic",
 		EnvironmentID:    "eid1",
 		HealthCheck: models.HealthCheck{
 			Target:             "http:80/health",

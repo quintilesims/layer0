@@ -85,7 +85,7 @@ func (l *LoadBalancerProvider) makeLoadBalancerSummaryModels(loadBalancerIDs []s
 		}
 
 		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("type").First(); ok {
-			summaries[i].LoadBalancerType = models.LoadBalancerType(tag.Value)
+			summaries[i].LoadBalancerType = tag.Value
 		}
 
 		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("environment_id").First(); ok {

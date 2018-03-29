@@ -64,7 +64,8 @@ func (f *CommandFactory) Endpoint() cli.Command {
 			for output, envvar := range outputEnvvars {
 				v, err := instance.Output(output)
 				if err != nil {
-					return err
+					fmt.Println(err)
+					continue
 				}
 
 				if err := printOutput(c.String("syntax"), envvar, v); err != nil {
