@@ -1,7 +1,6 @@
 package test_aws
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -157,7 +156,6 @@ func TestServiceCreate_loadBalancer(t *testing.T) {
 	loadBalancers := []*ecs.LoadBalancer{loadBalancer}
 
 	createServiceInput.SetLoadBalancers(loadBalancers)
-	createServiceInput.SetRole("l0-test-lb_id-lb")
 
 	mockAWS.ECS.EXPECT().
 		CreateService(createServiceInput).

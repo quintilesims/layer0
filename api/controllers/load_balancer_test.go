@@ -18,6 +18,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
+		LoadBalancerType: models.ClassicLoadBalancerType,
 		EnvironmentID:    "env_id",
 		IsPublic:         true,
 		Ports: []models.Port{
@@ -26,6 +27,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		},
 		HealthCheck: models.HealthCheck{
 			Target:             "tcp:80",
+			Path:               "/",
 			Interval:           5,
 			Timeout:            6,
 			HealthyThreshold:   7,
@@ -82,12 +84,14 @@ func TestListLoadBalancers(t *testing.T) {
 		{
 			LoadBalancerID:   "lb_id1",
 			LoadBalancerName: "lb_name1",
+			LoadBalancerType: models.ApplicationLoadBalancerType,
 			EnvironmentID:    "env_id1",
 			EnvironmentName:  "env_name1",
 		},
 		{
 			LoadBalancerID:   "lb_id2",
 			LoadBalancerName: "lbd_name2",
+			LoadBalancerType: models.ClassicLoadBalancerType,
 			EnvironmentID:    "env_id2",
 			EnvironmentName:  "env_name2",
 		},
@@ -117,6 +121,7 @@ func TestReadLoadBalancer(t *testing.T) {
 	expected := models.LoadBalancer{
 		LoadBalancerID:   "lb_id",
 		LoadBalancerName: "lb_name",
+		LoadBalancerType: models.ClassicLoadBalancerType,
 		EnvironmentID:    "env_id",
 		EnvironmentName:  "env_name",
 		ServiceID:        "svc_id",
@@ -129,6 +134,7 @@ func TestReadLoadBalancer(t *testing.T) {
 		},
 		HealthCheck: models.HealthCheck{
 			Target:             "tcp:80",
+			Path:               "/",
 			Interval:           1,
 			Timeout:            2,
 			HealthyThreshold:   3,

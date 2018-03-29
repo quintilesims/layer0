@@ -11,10 +11,11 @@ import (
 func TestCreateLoadBalancer(t *testing.T) {
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
+		LoadBalancerType: models.ClassicLoadBalancerType,
 		EnvironmentID:    "env_id",
 		IsPublic:         true,
 		Ports: []models.Port{
-			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn"},
+			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn:cert_name"},
 			{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
 		},
 		HealthCheck: models.HealthCheck{
@@ -109,7 +110,7 @@ func TestReadLoadBalancer(t *testing.T) {
 		IsPublic:         true,
 		URL:              "url",
 		Ports: []models.Port{
-			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn"},
+			{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn:cert_name"},
 			{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
 		},
 		HealthCheck: models.HealthCheck{
@@ -141,7 +142,7 @@ func TestReadLoadBalancer(t *testing.T) {
 
 func TestUpdateLoadBalancer(t *testing.T) {
 	ports := []models.Port{
-		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn"},
+		{HostPort: 443, ContainerPort: 80, Protocol: "https", CertificateARN: "arn:cert_name"},
 		{HostPort: 22, ContainerPort: 22, Protocol: "tcp"},
 	}
 

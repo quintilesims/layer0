@@ -13,32 +13,56 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/elb/elbiface"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
+	albiface "github.com/aws/aws-sdk-go/service/elbv2/elbv2iface"
 	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
 )
 
-func describeLoadBalancer(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerDescription, error) {
-	input := &elb.DescribeLoadBalancersInput{}
-	input.SetLoadBalancerNames([]*string{aws.String(loadBalancerName)})
-	input.SetPageSize(1)
+// searches for the load balancer name as both classic and application load balancers and returns
+// the first found result or an error if the neither classic or application lb could be found for
+// the given lb name
+func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, loadBalancerName string) (*genericLoadBalancer, error) {
+	// search classic load balancers
+	elbInput := &elb.DescribeLoadBalancersInput{}
+	elbInput.SetLoadBalancerNames([]*string{aws.String(loadBalancerName)})
+	elbInput.SetPageSize(1)
 
-	output, err := elbapi.DescribeLoadBalancers(input)
-	if err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
-			return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
-		}
-
+	if err := elbInput.Validate(); err != nil {
 		return nil, err
 	}
 
-	if len(output.LoadBalancerDescriptions) != 1 {
-		return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
+	elbExists := true
+	elbOutput, err := elbapi.DescribeLoadBalancers(elbInput)
+	if err != nil {
+		if err, ok := err.(awserr.Error); !ok || err.Code() != "LoadBalancerNotFound" {
+			return nil, err
+		}
+
+		elbExists = false
 	}
 
-	return output.LoadBalancerDescriptions[0], nil
+	if elbExists {
+		return newGenericLoadBalancer(elbOutput.LoadBalancerDescriptions[0], nil), nil
+	}
+
+	// search application load balancers
+	albInput := &alb.DescribeLoadBalancersInput{}
+	albInput.SetNames([]*string{aws.String(loadBalancerName)})
+
+	if err := albInput.Validate(); err != nil {
+		return nil, err
+	}
+
+	albOutput, err := albapi.DescribeLoadBalancers(albInput)
+	if err != nil {
+		return nil, err
+	}
+
+	return newGenericLoadBalancer(nil, albOutput.LoadBalancers[0]), nil
 }
 
-func describeLoadBalancerAttributes(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerAttributes, error) {
+func describeCLBAttributes(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerAttributes, error) {
 	input := &elb.DescribeLoadBalancerAttributesInput{}
 	input.SetLoadBalancerName(loadBalancerName)
 
@@ -48,6 +72,17 @@ func describeLoadBalancerAttributes(elbapi elbiface.ELBAPI, loadBalancerName str
 	}
 
 	return output.LoadBalancerAttributes, nil
+}
+func describeALBAttributes(albapi albiface.ELBV2API, loadBalancerARN string) ([]*alb.LoadBalancerAttribute, error) {
+	input := &alb.DescribeLoadBalancerAttributesInput{}
+	input.SetLoadBalancerArn(loadBalancerARN)
+
+	output, err := albapi.DescribeLoadBalancerAttributes(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return output.Attributes, nil
 }
 
 func describeTaskDefinition(ecsapi ecsiface.ECSAPI, taskDefinitionARN string) (*ecs.TaskDefinition, error) {
@@ -133,6 +168,24 @@ func lookupDeployNameAndVersion(store tag.Store, deployID string) (string, strin
 	deployVersion := versionTag.Value
 
 	return deployName, deployVersion, nil
+}
+
+func lookupLoadBalancerARNFromID(store tag.Store, loadBalancerID string) (string, error) {
+	tags, err := store.SelectByTypeAndID("load_balancer", loadBalancerID)
+	if err != nil {
+		return "", err
+	}
+
+	if len(tags) == 0 {
+		return "", errors.Newf(errors.LoadBalancerDoesNotExist, "Load Balancer '%s' does not exist", loadBalancerID)
+	}
+
+	tag, ok := tags.WithKey("arn").First()
+	if !ok {
+		return "", fmt.Errorf("Could not resolve arn for load balancer '%s'", loadBalancerID)
+	}
+
+	return tag.Value, nil
 }
 
 func getEnvironmentSGName(environmentID string) string {
@@ -307,4 +360,27 @@ func waitUntilSGDeletedFN(ec2api ec2iface.EC2API, securityGroupName string) func
 
 		return false, nil
 	}
+}
+
+func readTargetGroup(albapi albiface.ELBV2API, targetGroupName, targetGropuArn *string) (*alb.TargetGroup, error) {
+	input := &alb.DescribeTargetGroupsInput{}
+
+	if targetGroupName != nil {
+		input.SetNames([]*string{targetGroupName})
+	}
+
+	if targetGropuArn != nil {
+		input.SetTargetGroupArns([]*string{targetGropuArn})
+	}
+
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
+	output, err := albapi.DescribeTargetGroups(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return output.TargetGroups[0], nil
 }

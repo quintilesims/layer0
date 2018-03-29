@@ -29,6 +29,7 @@ func TestDataSourceLayer0LoadBalancerRead(t *testing.T) {
 	loadBalancer := &models.LoadBalancer{
 		LoadBalancerID:   "lb_id",
 		LoadBalancerName: "lb_name",
+		LoadBalancerType: models.ApplicationLoadBalancerType,
 		EnvironmentID:    "env_id",
 		EnvironmentName:  "env_name",
 		IsPublic:         false,
@@ -51,6 +52,7 @@ func TestDataSourceLayer0LoadBalancerRead(t *testing.T) {
 
 	assert.Equal(t, "lb_id", d.Id())
 	assert.Equal(t, "lb_name", d.Get("name"))
+	assert.Equal(t, models.ApplicationLoadBalancerType, d.Get("type"))
 	assert.Equal(t, "env_id", d.Get("environment_id"))
 	assert.Equal(t, "env_name", d.Get("environment_name"))
 	assert.Equal(t, true, d.Get("private"))

@@ -95,6 +95,7 @@ func TestRequestModelValidation(t *testing.T) {
 	healthCheck := func(fn func(*HealthCheck)) *HealthCheck {
 		h := &HealthCheck{
 			Target:             "tcp:80",
+			Path:               "/",
 			Interval:           5,
 			Timeout:            6,
 			HealthyThreshold:   7,
@@ -181,8 +182,9 @@ func TestRequestModelValidation(t *testing.T) {
 		"CreateTaskRequest: Missing DeployID": createTaskRequest(func(req *CreateTaskRequest) {
 			req.DeployID = ""
 		}),
-		"HealthCheck: Missing Target": healthCheck(func(h *HealthCheck) {
+		"HealthCheck: Missing Path & Target": healthCheck(func(h *HealthCheck) {
 			h.Target = ""
+			h.Path = ""
 		}),
 		"HealthCheck: Missing Interval": healthCheck(func(h *HealthCheck) {
 			h.Interval = 0

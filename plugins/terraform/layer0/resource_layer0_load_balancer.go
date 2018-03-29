@@ -34,6 +34,12 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 				Required: true,
 				ForceNew: true,
 			},
+			"type": {
+				Type:     schema.TypeString,
+				Optional: true,
+				ForceNew: true,
+				Default:  config.DefaultLoadBalancerType,
+			},
 			"private": {
 				Type:     schema.TypeBool,
 				Optional: true,
@@ -81,6 +87,11 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 							Optional: true,
 							Default:  config.DefaultLoadBalancerHealthCheck().Target,
 						},
+						"path": {
+							Type:     schema.TypeString,
+							Optional: true,
+							Default:  config.DefaultLoadBalancerHealthCheck().Path,
+						},
 						"interval": {
 							Type:     schema.TypeInt,
 							Optional: true,
@@ -123,6 +134,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: d.Get("name").(string),
+		LoadBalancerType: strings.ToLower(d.Get("type").(string)),
 		EnvironmentID:    d.Get("environment").(string),
 		IsPublic:         !d.Get("private").(bool),
 		Ports:            ports,
@@ -156,6 +168,7 @@ func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) er
 
 	d.Set("name", loadBalancer.LoadBalancerName)
 	d.Set("environment", loadBalancer.EnvironmentID)
+	d.Set("type", loadBalancer.LoadBalancerType)
 	d.Set("private", !loadBalancer.IsPublic)
 	d.Set("health_check", flattenHealthCheck(loadBalancer.HealthCheck))
 	d.Set("port", flattenPorts(loadBalancer.Ports))
@@ -237,6 +250,7 @@ func expandHealthCheck(flattened interface{}) models.HealthCheck {
 
 		return models.HealthCheck{
 			Target:             check["target"].(string),
+			Path:               check["path"].(string),
 			Interval:           check["interval"].(int),
 			Timeout:            check["timeout"].(int),
 			HealthyThreshold:   check["healthy_threshold"].(int),
@@ -252,6 +266,7 @@ func flattenHealthCheck(healthCheck models.HealthCheck) []map[string]interface{}
 
 	check := make(map[string]interface{})
 	check["target"] = healthCheck.Target
+	check["path"] = healthCheck.Path
 	check["interval"] = healthCheck.Interval
 	check["timeout"] = healthCheck.Timeout
 	check["healthy_threshold"] = healthCheck.HealthyThreshold

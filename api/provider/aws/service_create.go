@@ -65,12 +65,18 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	var loadBalancerRole string
 	if req.LoadBalancerID != "" {
 		fqLoadBalancerID := addLayer0Prefix(s.Config.Instance(), req.LoadBalancerID)
-		loadBalancerDescription, err := describeLoadBalancer(s.AWS.ELB, fqLoadBalancerID)
+		lb, err := describeLoadBalancer(s.AWS.ELB, s.AWS.ALB, fqLoadBalancerID)
 		if err != nil {
 			return "", err
 		}
 
-		if aws.StringValue(loadBalancerDescription.Scheme) == "internet-facing" {
+		if lb.isALB && req.Stateful {
+			errorMsg := "application load balancer with a stateful service is not currently"
+			errorMsg += "supported; please use a classic load balancer instead"
+			return "", fmt.Errorf(errorMsg)
+		}
+
+		if lb.Scheme() == "internet-facing" {
 			loadBalancerSecurityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
 			loadBalancerSecurityGroup, err := readSG(s.AWS.EC2, loadBalancerSecurityGroupName)
 			if err != nil {
@@ -80,21 +86,46 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 			securityGroupIDs = append(securityGroupIDs, loadBalancerSecurityGroup.GroupId)
 		}
 
-		for _, containerDefinition := range taskDefinition.ContainerDefinitions {
-			for _, portMapping := range containerDefinition.PortMappings {
-				for _, listenerDescription := range loadBalancerDescription.ListenerDescriptions {
-					listener := listenerDescription.Listener
-					if aws.Int64Value(listener.InstancePort) == aws.Int64Value(portMapping.ContainerPort) {
-						loadBalancer = &ecs.LoadBalancer{
-							ContainerName:    containerDefinition.Name,
-							ContainerPort:    portMapping.ContainerPort,
-							LoadBalancerName: loadBalancerDescription.LoadBalancerName,
+		var assignLoadBalancer = func() error {
+			for _, containerDefinition := range taskDefinition.ContainerDefinitions {
+				for _, portMapping := range containerDefinition.PortMappings {
+					var loadBalancerName *string
+					var targetGroupArn *string
+
+					if lb.isCLB {
+						loadBalancerName = lb.CLB.LoadBalancerName
+					}
+
+					// if load balancer is an application load balancer we need to assign TargetGroupArn
+					// instead of the LoadBalancerName property of ecs.LoadBalancer
+					if lb.isALB {
+						targetGroupName := fqLoadBalancerID
+						targetGroup, err := readTargetGroup(s.AWS.ALB, aws.String(targetGroupName), nil)
+						if err != nil {
+							return err
 						}
 
-						loadBalancerRole = fmt.Sprintf("%s-lb", fqLoadBalancerID)
+						targetGroupArn = targetGroup.TargetGroupArn
 					}
+
+					loadBalancer = &ecs.LoadBalancer{
+						ContainerName:    containerDefinition.Name,
+						ContainerPort:    portMapping.ContainerPort,
+						LoadBalancerName: loadBalancerName,
+						TargetGroupArn:   targetGroupArn,
+					}
+
+					loadBalancerRole = fmt.Sprintf("%s-lb", fqLoadBalancerID)
+
+					return nil
 				}
 			}
+
+			return nil
+		}
+
+		if err := assignLoadBalancer(); err != nil {
+			return "", err
 		}
 	}
 
@@ -175,10 +206,11 @@ func (s *ServiceProvider) createService(
 
 		input.SetNetworkConfiguration(networkConfig)
 	}
-
 	if loadBalancer != nil {
 		input.SetLoadBalancers([]*ecs.LoadBalancer{loadBalancer})
-		input.SetRole(loadBalancerRole)
+		if networkMode != ecs.NetworkModeAwsvpc {
+			input.SetRole(loadBalancerRole)
+		}
 	}
 
 	if err := input.Validate(); err != nil {
