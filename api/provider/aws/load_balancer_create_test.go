@@ -12,7 +12,7 @@ func TestLoadBalancer_createTags(t *testing.T) {
 	tagStore := tag.NewMemoryStore()
 	loadBalancer := NewLoadBalancerProvider(nil, tagStore, nil)
 
-	if err := loadBalancer.createTags("lb_id", "lb_name", "env_id"); err != nil {
+	if err := loadBalancer.createTags("lb_id", "lb_name", "lb_type", "env_id"); err != nil {
 		t.Fatal(err)
 	}
 
@@ -28,6 +28,12 @@ func TestLoadBalancer_createTags(t *testing.T) {
 			EntityType: "load_balancer",
 			Key:        "environment_id",
 			Value:      "env_id",
+		},
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "type",
+			Value:      "lb_type",
 		},
 	}
 

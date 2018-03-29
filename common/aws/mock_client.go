@@ -13,6 +13,7 @@ type MockClient struct {
 	ELB            *mock_aws.MockELBAPI
 	IAM            *mock_aws.MockIAMAPI
 	S3             *mock_aws.MockS3API
+	ALB            *mock_aws.MockELBV2API
 }
 
 func NewMockClient(ctrl *gomock.Controller) *MockClient {
@@ -24,6 +25,7 @@ func NewMockClient(ctrl *gomock.Controller) *MockClient {
 		ELB:            mock_aws.NewMockELBAPI(ctrl),
 		IAM:            mock_aws.NewMockIAMAPI(ctrl),
 		S3:             mock_aws.NewMockS3API(ctrl),
+		ALB:            mock_aws.NewMockELBV2API(ctrl),
 	}
 }
 
@@ -36,5 +38,6 @@ func (m *MockClient) Client() *Client {
 		ELB:            m.ELB,
 		IAM:            m.IAM,
 		S3:             m.S3,
+		ALB:            m.ALB,
 	}
 }

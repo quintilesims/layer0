@@ -17,6 +17,10 @@ func dataSourcelayer0LoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Required: true,
 			},
+			"type": {
+				Type:     schema.TypeString,
+				Computed: true,
+			},
 			"environment_id": {
 				Type:     schema.TypeString,
 				Required: true,
@@ -66,6 +70,7 @@ func dataSourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) 
 
 	d.SetId(loadBalancer.LoadBalancerID)
 	d.Set("name", loadBalancer.LoadBalancerName)
+	d.Set("type", loadBalancer.LoadBalancerType)
 	d.Set("environment_id", loadBalancer.EnvironmentID)
 	d.Set("environment_name", loadBalancer.EnvironmentName)
 	d.Set("private", !loadBalancer.IsPublic)
