@@ -10,7 +10,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
-	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/iam"
 )
@@ -28,7 +27,7 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	}
 
 	// Check for eventually consistency
-	fnDescribeLB := func() (shouldRetry bool, err error) {
+	fnWaitTillLBDeleted := func() (shouldRetry bool, err error) {
 		input := &elb.DescribeLoadBalancersInput{}
 		input.SetLoadBalancerNames([]*string{aws.String(fqLoadBalancerID)})
 		input.SetPageSize(1)
@@ -50,7 +49,7 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		return true, nil
 	}
 
-	if err := retry.Retry(fnDescribeLB, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+	if err := retry.Retry(fnWaitTillLBDeleted, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
 		return errors.New(errors.EventualConsistencyError, err)
 	}
 
@@ -78,30 +77,11 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	}
 
 	// Check for eventually consistency
-	fnReadSG := func() (shouldRetry bool, err error) {
-		filter := &ec2.Filter{}
-		filter.SetName("group-name")
-		filter.SetValues([]*string{aws.String(securityGroupName)})
-
-		input := &ec2.DescribeSecurityGroupsInput{}
-		input.SetFilters([]*ec2.Filter{filter})
-
-		output, err := l.AWS.EC2.DescribeSecurityGroups(input)
-		if err != nil && !strings.Contains(err.Error(), "does not exist") {
-			return false, err
-		}
-
-		for _, group := range output.SecurityGroups {
-			if aws.StringValue(group.GroupName) == securityGroupName {
-				log.Printf("[DEBUG] Security Group not deleted, will retry lookup")
-				return true, nil
-			}
-		}
-
-		return false, nil
+	fnWaitTillSGDeleted := func() (shouldRetry bool, err error) {
+		return waitTillSGDeleted(l.AWS.EC2, securityGroupName)
 	}
 
-	if err := retry.Retry(fnReadSG, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+	if err := retry.Retry(fnWaitTillSGDeleted, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
 		return errors.New(errors.EventualConsistencyError, err)
 	}
 
