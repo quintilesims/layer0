@@ -56,7 +56,7 @@ func TestLoadBalancerDelete(t *testing.T) {
 
 	mockAWS.ELB.EXPECT().
 		DescribeLoadBalancers(gomock.Any()).
-		Return(&elb.DescribeLoadBalancersOutput{}, nil)
+		Return(&elb.DescribeLoadBalancersOutput{}, awserr.New("LoadBalancerNotFound", "", nil))
 
 	deleteRolePolicyInput := &iam.DeleteRolePolicyInput{}
 	deleteRolePolicyInput.SetRoleName("l0-test-lb_id-lb")
@@ -104,7 +104,7 @@ func TestLoadBalancerDeleteIdempotence(t *testing.T) {
 
 	mockAWS.ELB.EXPECT().
 		DescribeLoadBalancers(gomock.Any()).
-		Return(&elb.DescribeLoadBalancersOutput{}, nil)
+		Return(&elb.DescribeLoadBalancersOutput{}, awserr.New("LoadBalancerNotFound", "", nil))
 
 	mockAWS.IAM.EXPECT().
 		DeleteRolePolicy(gomock.Any()).
@@ -175,7 +175,8 @@ func TestLoadBalancerDeleteRetry(t *testing.T) {
 			Return(describeLoadBalancersOutput, nil),
 		mockAWS.ELB.EXPECT().
 			DescribeLoadBalancers(gomock.Any()).
-			Return(&elb.DescribeLoadBalancersOutput{}, nil))
+			Return(&elb.DescribeLoadBalancersOutput{}, awserr.New("LoadBalancerNotFound", "", nil)),
+	)
 
 	mockAWS.IAM.EXPECT().
 		DeleteRolePolicy(gomock.Any()).

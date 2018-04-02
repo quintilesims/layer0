@@ -27,12 +27,12 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	}
 
 	// Check for eventually consistency
-	fnWaitTillLBDeleted := func() (shouldRetry bool, err error) {
+	waitTillLBDeletedFN := func() (shouldRetry bool, err error) {
 		input := &elb.DescribeLoadBalancersInput{}
 		input.SetLoadBalancerNames([]*string{aws.String(fqLoadBalancerID)})
 		input.SetPageSize(1)
 
-		output, err := l.AWS.ELB.DescribeLoadBalancers(input)
+		_, err = l.AWS.ELB.DescribeLoadBalancers(input)
 		if err != nil {
 			if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
 				return false, nil
@@ -41,15 +41,11 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 			return false, err
 		}
 
-		if len(output.LoadBalancerDescriptions) != 1 {
-			return false, nil
-		}
-
 		log.Printf("[DEBUG] Load Balancer not deleted, will retry lookup")
 		return true, nil
 	}
 
-	if err := retry.Retry(fnWaitTillLBDeleted, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+	if err := retry.Retry(waitTillLBDeletedFN, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
 		return errors.New(errors.EventualConsistencyError, err)
 	}
 
@@ -77,11 +73,8 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	}
 
 	// Check for eventually consistency
-	fnWaitTillSGDeleted := func() (shouldRetry bool, err error) {
-		return waitTillSGDeleted(l.AWS.EC2, securityGroupName)
-	}
-
-	if err := retry.Retry(fnWaitTillSGDeleted, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+	fn := waitTillSGDeletedFN(l.AWS.EC2, securityGroupName)
+	if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
 		return errors.New(errors.EventualConsistencyError, err)
 	}
 

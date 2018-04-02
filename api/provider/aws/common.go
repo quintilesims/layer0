@@ -280,26 +280,31 @@ func readService(ecsapi ecsiface.ECSAPI, clusterName, serviceID string) (*ecs.Se
 	return output.Services[0], nil
 }
 
-// Check for eventually consistency
-func waitTillSGDeleted(ec2api ec2iface.EC2API, securityGroupName string) (shouldRetry bool, err error) {
-	filter := &ec2.Filter{}
-	filter.SetName("group-name")
-	filter.SetValues([]*string{aws.String(securityGroupName)})
+func waitTillSGDeletedFN(ec2api ec2iface.EC2API, securityGroupName string) func() (shouldRetry bool, err error) {
+	return func() (shouldRetry bool, err error) {
+		filter := &ec2.Filter{}
+		filter.SetName("group-name")
+		filter.SetValues([]*string{aws.String(securityGroupName)})
 
-	input := &ec2.DescribeSecurityGroupsInput{}
-	input.SetFilters([]*ec2.Filter{filter})
+		input := &ec2.DescribeSecurityGroupsInput{}
+		input.SetFilters([]*ec2.Filter{filter})
 
-	output, err := ec2api.DescribeSecurityGroups(input)
-	if err != nil && !strings.Contains(err.Error(), "does not exist") {
-		return false, err
-	}
+		output, err := ec2api.DescribeSecurityGroups(input)
+		if err != nil {
+			if strings.Contains(err.Error(), "does not exist") {
+				return false, nil
+			}
 
-	for _, group := range output.SecurityGroups {
-		if aws.StringValue(group.GroupName) == securityGroupName {
-			log.Printf("[DEBUG] Security Group not deleted, will retry lookup")
-			return true, nil
+			return false, err
 		}
-	}
 
-	return false, nil
+		for _, group := range output.SecurityGroups {
+			if aws.StringValue(group.GroupName) == securityGroupName {
+				log.Printf("[DEBUG] Security Group %s not deleted, will retry lookup", securityGroupName)
+				return true, nil
+			}
+		}
+
+		return false, nil
+	}
 }
