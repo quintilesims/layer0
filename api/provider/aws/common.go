@@ -280,7 +280,7 @@ func readService(ecsapi ecsiface.ECSAPI, clusterName, serviceID string) (*ecs.Se
 	return output.Services[0], nil
 }
 
-func waitTillSGDeletedFN(ec2api ec2iface.EC2API, securityGroupName string) func() (shouldRetry bool, err error) {
+func waitUntilSGDeletedFN(ec2api ec2iface.EC2API, securityGroupName string) func() (shouldRetry bool, err error) {
 	return func() (shouldRetry bool, err error) {
 		filter := &ec2.Filter{}
 		filter.SetName("group-name")
