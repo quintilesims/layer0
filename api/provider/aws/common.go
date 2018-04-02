@@ -2,6 +2,7 @@ package aws
 
 import (
 	"fmt"
+	"log"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -277,4 +278,33 @@ func readService(ecsapi ecsiface.ECSAPI, clusterName, serviceID string) (*ecs.Se
 	}
 
 	return output.Services[0], nil
+}
+
+func waitUntilSGDeletedFN(ec2api ec2iface.EC2API, securityGroupName string) func() (shouldRetry bool, err error) {
+	return func() (shouldRetry bool, err error) {
+		filter := &ec2.Filter{}
+		filter.SetName("group-name")
+		filter.SetValues([]*string{aws.String(securityGroupName)})
+
+		input := &ec2.DescribeSecurityGroupsInput{}
+		input.SetFilters([]*ec2.Filter{filter})
+
+		output, err := ec2api.DescribeSecurityGroups(input)
+		if err != nil {
+			if strings.Contains(err.Error(), "does not exist") {
+				return false, nil
+			}
+
+			return false, err
+		}
+
+		for _, group := range output.SecurityGroups {
+			if aws.StringValue(group.GroupName) == securityGroupName {
+				log.Printf("[DEBUG] Security Group %s not deleted, will retry lookup", securityGroupName)
+				return true, nil
+			}
+		}
+
+		return false, nil
+	}
 }

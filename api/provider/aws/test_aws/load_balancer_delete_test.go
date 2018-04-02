@@ -54,6 +54,10 @@ func TestLoadBalancerDelete(t *testing.T) {
 		DeleteLoadBalancer(deleteLBInput).
 		Return(&elb.DeleteLoadBalancerOutput{}, nil)
 
+	mockAWS.ELB.EXPECT().
+		DescribeLoadBalancers(gomock.Any()).
+		Return(&elb.DescribeLoadBalancersOutput{}, awserr.New("LoadBalancerNotFound", "", nil))
+
 	deleteRolePolicyInput := &iam.DeleteRolePolicyInput{}
 	deleteRolePolicyInput.SetRoleName("l0-test-lb_id-lb")
 	deleteRolePolicyInput.SetPolicyName("l0-test-lb_id-lb")
@@ -71,6 +75,10 @@ func TestLoadBalancerDelete(t *testing.T) {
 
 	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
 	deleteSGHelper(mockAWS, "lb_sg")
+
+	mockAWS.EC2.EXPECT().
+		DescribeSecurityGroups(gomock.Any()).
+		Return(&ec2.DescribeSecurityGroupsOutput{}, nil)
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("lb_id"); err != nil {
@@ -94,6 +102,10 @@ func TestLoadBalancerDeleteIdempotence(t *testing.T) {
 		DeleteLoadBalancer(gomock.Any()).
 		Return(nil, awserr.New("NoSuchEntity", "", nil))
 
+	mockAWS.ELB.EXPECT().
+		DescribeLoadBalancers(gomock.Any()).
+		Return(&elb.DescribeLoadBalancersOutput{}, awserr.New("LoadBalancerNotFound", "", nil))
+
 	mockAWS.IAM.EXPECT().
 		DeleteRolePolicy(gomock.Any()).
 		Return(nil, awserr.New("NoSuchEntity", "", nil))
@@ -105,6 +117,93 @@ func TestLoadBalancerDeleteIdempotence(t *testing.T) {
 	mockAWS.EC2.EXPECT().
 		DescribeSecurityGroups(gomock.Any()).
 		Return(&ec2.DescribeSecurityGroupsOutput{}, nil)
+
+	mockAWS.EC2.EXPECT().
+		DescribeSecurityGroups(gomock.Any()).
+		Return(&ec2.DescribeSecurityGroupsOutput{}, nil)
+
+	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
+	if err := target.Delete("lb_id"); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadBalancerDeleteRetry(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAWS := awsc.NewMockClient(ctrl)
+	tagStore := tag.NewMemoryStore()
+	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+
+	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+
+	tags := models.Tags{
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "name",
+			Value:      "lb_name",
+		},
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "environment_id",
+			Value:      "env_id",
+		},
+	}
+
+	for _, tag := range tags {
+		if err := tagStore.Insert(tag); err != nil {
+			t.Fatal(err)
+		}
+	}
+
+	mockAWS.ELB.EXPECT().
+		DeleteLoadBalancer(gomock.Any()).
+		Return(&elb.DeleteLoadBalancerOutput{}, nil)
+
+	lb := &elb.LoadBalancerDescription{}
+	lb.SetLoadBalancerName("l0-test-lb_id")
+
+	describeLoadBalancersOutput := &elb.DescribeLoadBalancersOutput{}
+	describeLoadBalancersOutput.SetLoadBalancerDescriptions([]*elb.LoadBalancerDescription{lb})
+
+	gomock.InOrder(
+		mockAWS.ELB.EXPECT().
+			DescribeLoadBalancers(gomock.Any()).
+			Return(describeLoadBalancersOutput, nil),
+		mockAWS.ELB.EXPECT().
+			DescribeLoadBalancers(gomock.Any()).
+			Return(&elb.DescribeLoadBalancersOutput{}, awserr.New("LoadBalancerNotFound", "", nil)),
+	)
+
+	mockAWS.IAM.EXPECT().
+		DeleteRolePolicy(gomock.Any()).
+		Return(&iam.DeleteRolePolicyOutput{}, nil)
+
+	mockAWS.IAM.EXPECT().
+		DeleteRole(gomock.Any()).
+		Return(&iam.DeleteRoleOutput{}, nil)
+
+	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
+	deleteSGHelper(mockAWS, "lb_sg")
+
+	securityGroup := &ec2.SecurityGroup{}
+	securityGroup.SetGroupName("l0-test-lb_id-lb")
+	securityGroup.SetGroupId("lb_sg")
+
+	describeSecurityGroupsOutput := &ec2.DescribeSecurityGroupsOutput{}
+	describeSecurityGroupsOutput.SetSecurityGroups([]*ec2.SecurityGroup{securityGroup})
+
+	gomock.InOrder(
+		mockAWS.EC2.EXPECT().
+			DescribeSecurityGroups(gomock.Any()).
+			Return(describeSecurityGroupsOutput, nil),
+		mockAWS.EC2.EXPECT().
+			DescribeSecurityGroups(gomock.Any()).
+			Return(&ec2.DescribeSecurityGroupsOutput{}, nil),
+	)
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("lb_id"); err != nil {

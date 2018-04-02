@@ -1,7 +1,12 @@
 package aws
 
 import (
+	"log"
 	"strings"
+	"time"
+
+	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/retry"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -19,6 +24,28 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 
 	if err := l.deleteLoadBalancer(fqLoadBalancerID); err != nil {
 		return err
+	}
+
+	// Check for eventually consistency
+	waitUntilLBDeletedFN := func() (shouldRetry bool, err error) {
+		input := &elb.DescribeLoadBalancersInput{}
+		input.SetLoadBalancerNames([]*string{aws.String(fqLoadBalancerID)})
+		input.SetPageSize(1)
+
+		if _, err = l.AWS.ELB.DescribeLoadBalancers(input); err != nil {
+			if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
+				return false, nil
+			}
+
+			return false, err
+		}
+
+		log.Printf("[DEBUG] Load Balancer not deleted, will retry lookup")
+		return true, nil
+	}
+
+	if err := retry.Retry(waitUntilLBDeletedFN, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+		return errors.New(errors.EventualConsistencyError, err)
 	}
 
 	roleName := getLoadBalancerRoleName(fqLoadBalancerID)
@@ -42,6 +69,12 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		if err := deleteSG(l.AWS.EC2, groupID); err != nil {
 			return err
 		}
+	}
+
+	// Check for eventually consistency
+	fn := waitUntilSGDeletedFN(l.AWS.EC2, securityGroupName)
+	if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+		return errors.New(errors.EventualConsistencyError, err)
 	}
 
 	if err := l.deleteTags(loadBalancerID); err != nil {
