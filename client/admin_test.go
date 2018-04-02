@@ -51,7 +51,7 @@ func TestReadAdminLogs(t *testing.T) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
-		assert.Equal(t, r.URL.Path, "/admin/instancelogs")
+		assert.Equal(t, r.URL.Path, "/admin/logs")
 		assert.Equal(t, query, r.URL.Query())
 
 		MarshalAndWrite(t, w, expected, 200)
@@ -60,7 +60,7 @@ func TestReadAdminLogs(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	result, err := client.ReadLayer0InstanceLogs(query)
+	result, err := client.ReadAdminLogs(query)
 	if err != nil {
 		t.Fatal(err)
 	}

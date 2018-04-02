@@ -135,7 +135,7 @@ func TestReadEnvironmentLogs(t *testing.T) {
 
 	handler := func(w http.ResponseWriter, r *http.Request) {
 		assert.Equal(t, r.Method, "GET")
-		assert.Equal(t, r.URL.Path, "/environment/env_id/instancelogs")
+		assert.Equal(t, r.URL.Path, "/environment/env_id/logs")
 		assert.Equal(t, query, r.URL.Query())
 
 		MarshalAndWrite(t, w, expected, 200)
