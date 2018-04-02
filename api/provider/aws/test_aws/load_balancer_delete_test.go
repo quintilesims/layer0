@@ -169,7 +169,8 @@ func TestApplicationLoadBalancerDelete(t *testing.T) {
 	describeELBInput.SetPageSize(1)
 	mockAWS.ELB.EXPECT().
 		DescribeLoadBalancers(describeELBInput).
-		Return(nil, awserr.New("LoadBalancerNotFound", "", nil))
+		Return(nil, awserr.New("LoadBalancerNotFound", "", nil)).
+		AnyTimes()
 
 	describeALBInput := &alb.DescribeLoadBalancersInput{}
 	describeALBInput.SetNames([]*string{aws.String("l0-test-lb_id")})
@@ -183,7 +184,8 @@ func TestApplicationLoadBalancerDelete(t *testing.T) {
 
 	mockAWS.ALB.EXPECT().
 		DescribeLoadBalancers(describeALBInput).
-		Return(describeALBOutput, nil)
+		Return(describeALBOutput, nil).
+		AnyTimes()
 
 	deleteApplicationLBInput := &alb.DeleteLoadBalancerInput{}
 	deleteApplicationLBInput.SetLoadBalancerArn("arn:l0-test-lb_id")
