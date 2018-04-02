@@ -32,8 +32,7 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		input.SetLoadBalancerNames([]*string{aws.String(fqLoadBalancerID)})
 		input.SetPageSize(1)
 
-		_, err = l.AWS.ELB.DescribeLoadBalancers(input)
-		if err != nil {
+		if _, err = l.AWS.ELB.DescribeLoadBalancers(input); err != nil {
 			if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
 				return false, nil
 			}
