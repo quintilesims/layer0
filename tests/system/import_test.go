@@ -11,7 +11,7 @@ import (
 
 // Test Resources:
 // This test creates an environment named 'import' that has a
-// SystemTestService named 'sts'
+// SystemTestService named 'sts_stateless'
 func TestImport(t *testing.T) {
 	t.Parallel()
 
@@ -36,7 +36,7 @@ func TestImport(t *testing.T) {
 	environmentID := s.Layer0.CreateEnvironment(createEnvironmentReq)
 
 	createLoadBalancerReq := models.CreateLoadBalancerRequest{
-		LoadBalancerName: "sts",
+		LoadBalancerName: "sts_stateless",
 		EnvironmentID:    environmentID,
 		IsPublic:         true,
 		Ports:            []models.Port{config.DefaultLoadBalancerPort()},
@@ -45,13 +45,13 @@ func TestImport(t *testing.T) {
 
 	loadBalancerID := s.Layer0.CreateLoadBalancer(createLoadBalancerReq)
 
-	data, err := ioutil.ReadFile("cases/modules/sts/Dockerrun.aws.json")
+	data, err := ioutil.ReadFile("cases/modules/sts/stateless.dockerrun.aws.json")
 	if err != nil {
 		t.Fatalf("Failed to read dockerrun: %v", err)
 	}
 
 	createDeployReq := models.CreateDeployRequest{
-		DeployName: "sts",
+		DeployName: "sts_stateless",
 		DeployFile: data,
 	}
 
@@ -61,15 +61,15 @@ func TestImport(t *testing.T) {
 		DeployID:       deployID,
 		EnvironmentID:  environmentID,
 		LoadBalancerID: loadBalancerID,
-		ServiceName:    "sts",
+		ServiceName:    "sts_stateless",
 	}
 
 	serviceID := s.Layer0.CreateService(createServiceReq)
 
 	s.Terraform.Import("layer0_environment.import", environmentID)
-	s.Terraform.Import("module.sts.layer0_load_balancer.sts", loadBalancerID)
-	s.Terraform.Import("module.sts.layer0_deploy.sts", deployID)
-	s.Terraform.Import("module.sts.layer0_service.sts", serviceID)
+	s.Terraform.Import("module.sts.layer0_load_balancer.sts_stateless", loadBalancerID)
+	s.Terraform.Import("module.sts.layer0_deploy.sts_stateless", deployID)
+	s.Terraform.Import("module.sts.layer0_service.sts_stateless", serviceID)
 
 	s.Terraform.Apply()
 }

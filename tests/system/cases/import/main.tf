@@ -11,4 +11,5 @@ resource "layer0_environment" "import" {
 module "sts" {
   source         = "../modules/sts"
   environment_id = "${layer0_environment.import.id}"
+  stateless      = true
 }
