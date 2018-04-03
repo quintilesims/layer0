@@ -1,11 +1,14 @@
 {
+    "requiresCompatibilities": [ "FARGATE" ],
+    "networkMode": "awsvpc",
+    "cpu": "265",
+    "memory": "0.5GB",
     "AWSEBDockerrunVersion": 2,
     "containerDefinitions": [
         {
-            "name": "sts",
+            "name": "sts_stateless",
             "image": "quintilesims/sts",
             "essential": true,
-            "memory": 128,
             "portMappings": [
                 {
                     "hostPort": 80,
