@@ -11,4 +11,5 @@ resource "layer0_environment" "ss" {
 module "sts" {
   source         = "../modules/sts"
   environment_id = "${layer0_environment.ss.id}"
+  stateful       = true
 }
