@@ -19,22 +19,41 @@ func TestDeadServiceRecreated(t *testing.T) {
 	s.Terraform.Apply()
 	defer s.Terraform.Destroy()
 
-	serviceID := s.Terraform.Output("service_id")
-	serviceURL := s.Terraform.Output("service_url")
+	statelessServiceID := s.Terraform.Output("stateless_service_id")
+	statelessServiceURL := s.Terraform.Output("stateless_service_url")
 
-	sts := clients.NewSTSTestClient(t, serviceURL)
-	sts.WaitForHealthy(time.Minute * 3)
-	sts.SetHealth("die")
+	statelessClient := clients.NewSTSTestClient(t, statelessServiceURL)
+	statelessClient.WaitForHealthy(time.Minute * 3)
+	statelessClient.SetHealth("die")
 
 	testutils.WaitFor(t, time.Second*10, time.Minute, func() bool {
-		log.Printf("[DEBUG] Waiting for service to die")
-		service := s.Layer0.ReadService(serviceID)
+		log.Printf("[DEBUG] Waiting for stateless service to die")
+		service := s.Layer0.ReadService(statelessServiceID)
 		return service.RunningCount == 0
 	})
 
 	testutils.WaitFor(t, time.Second*10, time.Minute*2, func() bool {
-		log.Printf("[DEBUG] Waiting for service to recreate")
-		service := s.Layer0.ReadService(serviceID)
+		log.Printf("[DEBUG] Waiting for stateless service to recreate")
+		service := s.Layer0.ReadService(statelessServiceID)
+		return service.RunningCount == 1
+	})
+
+	statefulServiceID := s.Terraform.Output("stateful_service_id")
+	statefulServiceURL := s.Terraform.Output("stateful_service_url")
+
+	statefulClient := clients.NewSTSTestClient(t, statefulServiceURL)
+	statefulClient.WaitForHealthy(time.Minute * 3)
+	statefulClient.SetHealth("die")
+
+	testutils.WaitFor(t, time.Second*10, time.Minute, func() bool {
+		log.Printf("[DEBUG] Waiting for stateful service to die")
+		service := s.Layer0.ReadService(statefulServiceID)
+		return service.RunningCount == 0
+	})
+
+	testutils.WaitFor(t, time.Second*10, time.Minute*2, func() bool {
+		log.Printf("[DEBUG] Waiting for stateful service to recreate")
+		service := s.Layer0.ReadService(statefulServiceID)
 		return service.RunningCount == 1
 	})
 }
