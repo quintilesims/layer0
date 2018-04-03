@@ -12,8 +12,8 @@ import (
 
 // Test Resources:
 // This test creates two linked environments named 'el_public' and 'el_private`
-// The 'el_public' environment has a STS service running behind a public load balancer
-// The 'el_private' environment has a STS service running behind a private load balancer
+// The 'el_public' environment has a stateless STS service running behind a public load balancer
+// The 'el_private' environment has a stateful STS service running behind a private load balancer
 func TestEnvironmentLink(t *testing.T) {
 	t.Parallel()
 
