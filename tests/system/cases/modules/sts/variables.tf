@@ -7,3 +7,11 @@ variable "private" {
 variable "scale" {
   default = 1
 }
+
+variable "stateless" {
+  default = false
+}
+
+variable "stateful" {
+  default = false
+}
