@@ -70,13 +70,13 @@ data "layer0_deploy" "datasources_stateless" {
 data "layer0_service" "datasources_stateless" {
   depends_on     = ["layer0_service.datasources_stateless"]
   name           = "${layer0_service.datasources_stateless.name}"
-  environment_id = "${layer0_environment.datasources_stateless.id}"
+  environment_id = "${layer0_environment.datasources.id}"
 }
 
 data "layer0_load_balancer" "datasources_stateless" {
   depends_on     = ["layer0_load_balancer.datasources_stateless", "layer0_service.datasources_stateless"]
   name           = "${layer0_load_balancer.datasources_stateless.name}"
-  environment_id = "${layer0_environment.datasources_stateless.id}"
+  environment_id = "${layer0_environment.datasources.id}"
 }
 
 data "layer0_deploy" "datasources_stateful" {
@@ -88,11 +88,11 @@ data "layer0_deploy" "datasources_stateful" {
 data "layer0_service" "datasources_stateful" {
   depends_on     = ["layer0_service.datasources_stateful"]
   name           = "${layer0_service.datasources_stateful.name}"
-  environment_id = "${layer0_environment.datasources_stateful.id}"
+  environment_id = "${layer0_environment.datasources.id}"
 }
 
 data "layer0_load_balancer" "datasources_stateful" {
   depends_on     = ["layer0_load_balancer.datasources_stateful", "layer0_service.datasources_stateful"]
   name           = "${layer0_load_balancer.datasources_stateful.name}"
-  environment_id = "${layer0_environment.datasources_stateful.id}"
+  environment_id = "${layer0_environment.datasources.id}"
 }

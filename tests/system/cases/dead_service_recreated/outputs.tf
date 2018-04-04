@@ -3,17 +3,17 @@ output "environment_id" {
 }
 
 output "stateless_service_id" {
-  value = "${module.sts_stateless.service_id}"
+  value = "${module.sts.stateless_service_id}"
 }
 
 output "stateless_service_url" {
-  value = "http://${module.sts_stateless.load_balancer_url}"
+  value = "http://${module.sts.stateless_load_balancer_url}"
 }
 
 output "stateful_service_id" {
-  value = "${module.sts_stateful.service_id}"
+  value = "${module.sts.stateful_service_id}"
 }
 
 output "stateful_service_url" {
-  value = "http://${module.sts_stateful.load_balancer_url}"
+  value = "http://${module.sts.stateful_load_balancer_url}"
 }
