@@ -260,13 +260,13 @@ func TestApplicationLoadBalancerUpdate(t *testing.T) {
 			CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
 			ContainerPort:  8080,
 			HostPort:       8088,
-			Protocol:       "http",
+			Protocol:       "HTTP",
 		},
 		models.Port{
 			CertificateARN: "arn:aws:iam::12345:server-certificate/crt_name",
 			ContainerPort:  4444,
 			HostPort:       444,
-			Protocol:       "https",
+			Protocol:       "HTTPS",
 		},
 	}
 
