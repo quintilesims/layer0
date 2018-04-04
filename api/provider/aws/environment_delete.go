@@ -46,7 +46,7 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 
 	if securityGroup != nil {
 		groupID := aws.StringValue(securityGroup.GroupId)
-		if err := deleteSG(e.AWS.EC2, groupID); err != nil {
+		if err := deleteSGWithRetry(e.AWS.EC2, groupID); err != nil {
 			return err
 		}
 
