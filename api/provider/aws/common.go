@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -17,6 +18,7 @@ import (
 	albiface "github.com/aws/aws-sdk-go/service/elbv2/elbv2iface"
 	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/retry"
 )
 
 // searches for the load balancer name as both classic and application load balancers and returns
@@ -244,12 +246,62 @@ func readSG(ec2api ec2iface.EC2API, groupName string) (*ec2.SecurityGroup, error
 	return nil, awserr.New("DoesNotExist", message, nil)
 }
 
+func readNewlyCreatedSG(ec2api ec2iface.EC2API, groupName string) (*ec2.SecurityGroup, error) {
+	var securityGroup *ec2.SecurityGroup
+	waitUntilSGisCreatedFN := func() (shouldRetry bool, err error) {
+		securityGroup, err = readSG(ec2api, groupName)
+		if err != nil {
+			if err, ok := err.(awserr.Error); ok && strings.Contains(err.Error(), "does not exist") {
+				log.Printf("[DEBUG] security group '%s' does not yet exist, will retry.", groupName)
+				return true, nil
+			}
+
+			return false, err
+		}
+
+		return false, nil
+	}
+
+	if err := retry.Retry(waitUntilSGisCreatedFN,
+		retry.WithTimeout(time.Second*30),
+		retry.WithDelay(time.Second),
+	); err != nil {
+		return nil, errors.New(errors.EventualConsistencyError, err)
+	}
+
+	return securityGroup, nil
+}
+
 func deleteSG(ec2api ec2iface.EC2API, securityGroupID string) error {
 	input := &ec2.DeleteSecurityGroupInput{}
 	input.SetGroupId(securityGroupID)
 
 	if _, err := ec2api.DeleteSecurityGroup(input); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func deleteSGWithRetry(ec2api ec2iface.EC2API, securityGroupID string) error {
+	retrySGDeleteFN := func() (shouldRetry bool, err error) {
+		if err := deleteSG(ec2api, securityGroupID); err != nil {
+			if err, ok := err.(awserr.Error); ok && err.Code() == "DependencyViolation" {
+				log.Printf("[DEBUG] security group could not be deleted due to %s, will retry.", err.Error())
+				return true, nil
+			}
+
+			return false, err
+		}
+
+		return false, nil
+	}
+
+	if err := retry.Retry(retrySGDeleteFN,
+		retry.WithTimeout(time.Second*30),
+		retry.WithDelay(time.Second),
+	); err != nil {
+		return errors.New(errors.EventualConsistencyError, err)
 	}
 
 	return nil

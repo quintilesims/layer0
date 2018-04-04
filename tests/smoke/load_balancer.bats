@@ -3,12 +3,12 @@
 @test "create" {
   l0 environment create env_name
   l0 loadbalancer create env_name lb_name1
-  l0 loadbalancer create --port 80:80/http --port 22:22/tcp --private env_name lb_name2
+  l0 loadbalancer create --port 80:80/http --port 81:81/http --private env_name lb_name2
 }
 
 @test "get" {
   l0 loadbalancer get lb_name1
-  l0 loadbalancer get lb_name1
+  l0 loadbalancer get lb_name2
   l0 loadbalancer get lb_name*
 }
 

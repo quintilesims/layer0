@@ -58,7 +58,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 		return "", err
 	}
 
-	loadBalancerSG, err := readSG(l.AWS.EC2, loadBalancerSGName)
+	loadBalancerSG, err := readNewlyCreatedSG(l.AWS.EC2, loadBalancerSGName)
 	if err != nil {
 		return "", err
 	}
@@ -165,7 +165,7 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 			return "", err
 		}
 
-		if err := l.createListener(lb.LoadBalancerArn, tg.TargetGroupArn, req.Ports); err != nil {
+		if err := l.createALBListeners(lb.LoadBalancerArn, tg.TargetGroupArn, req.Ports); err != nil {
 			return "", err
 		}
 	}
@@ -200,7 +200,7 @@ func (l *LoadBalancerProvider) createTargetGroup(groupName string, healthCheck m
 	return output.TargetGroups[0], nil
 }
 
-func (l *LoadBalancerProvider) createListener(loadBalancerARN, targetGroupARN *string, ports []models.Port) error {
+func (l *LoadBalancerProvider) createALBListeners(loadBalancerARN, targetGroupARN *string, ports []models.Port) error {
 	for _, port := range ports {
 		action := &alb.Action{
 			TargetGroupArn: targetGroupARN,
@@ -213,7 +213,7 @@ func (l *LoadBalancerProvider) createListener(loadBalancerARN, targetGroupARN *s
 
 		input := &alb.CreateListenerInput{}
 		input.SetPort(port.HostPort)
-		input.SetProtocol(port.Protocol)
+		input.SetProtocol(strings.ToUpper(port.Protocol))
 		input.SetDefaultActions([]*alb.Action{action})
 		input.LoadBalancerArn = loadBalancerARN
 
@@ -376,7 +376,7 @@ func (l *LoadBalancerProvider) portsToListeners(ports []models.Port) ([]*elb.Lis
 		}
 
 		// terminate ssl/https on load balancer
-		switch strings.ToLower(port.Protocol) {
+		switch strings.ToUpper(port.Protocol) {
 		case "http", "https":
 			listener.SetInstanceProtocol("http")
 		case "tcp", "ssl":

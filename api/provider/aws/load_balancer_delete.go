@@ -159,8 +159,24 @@ func (l *LoadBalancerProvider) deleteTargetGroup(targetGroupName string) error {
 		return err
 	}
 
-	if _, err := l.AWS.ALB.DeleteTargetGroup(input); err != nil {
-		return err
+	retryDeleteFN := func() (shouldRetry bool, err error) {
+		if _, err := l.AWS.ALB.DeleteTargetGroup(input); err != nil {
+			if err, ok := err.(awserr.Error); ok && err.Code() == alb.ErrCodeResourceInUseException {
+				log.Printf("[DEBUG] target group '%s' could not be deleted due to '%s', will retry.", targetGroupName, err.Error())
+				return true, nil
+			}
+
+			return false, err
+		}
+
+		return false, nil
+	}
+
+	if err := retry.Retry(retryDeleteFN,
+		retry.WithTimeout(time.Second*30),
+		retry.WithDelay(time.Second),
+	); err != nil {
+		return errors.New(errors.EventualConsistencyError, err)
 	}
 
 	return nil

@@ -39,7 +39,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		return "", err
 	}
 
-	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
+	securityGroup, err := readNewlyCreatedSG(e.AWS.EC2, securityGroupName)
 	if err != nil {
 		return "", err
 	}
