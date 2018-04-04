@@ -69,12 +69,11 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 
 	if securityGroup != nil {
 		groupID := aws.StringValue(securityGroup.GroupId)
-		if err := deleteSG(l.AWS.EC2, groupID); err != nil {
+		if err := deleteSGWithRetry(l.AWS.EC2, groupID); err != nil {
 			return err
 		}
 	}
 
-	// Check for eventually consistency
 	fn := waitUntilSGDeletedFN(l.AWS.EC2, securityGroupName)
 	if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
 		return errors.New(errors.EventualConsistencyError, err)
@@ -161,8 +160,8 @@ func (l *LoadBalancerProvider) deleteTargetGroup(targetGroupName string) error {
 
 	retryDeleteFN := func() (shouldRetry bool, err error) {
 		if _, err := l.AWS.ALB.DeleteTargetGroup(input); err != nil {
+			log.Printf("[DEBUG] target group '%s' could not be deleted due to '%s', will retry.", targetGroupName, err.Error())
 			if err, ok := err.(awserr.Error); ok && err.Code() == alb.ErrCodeResourceInUseException {
-				log.Printf("[DEBUG] target group '%s' could not be deleted due to '%s', will retry.", targetGroupName, err.Error())
 				return true, nil
 			}
 

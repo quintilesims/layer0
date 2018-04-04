@@ -286,6 +286,10 @@ func deleteSG(ec2api ec2iface.EC2API, securityGroupID string) error {
 func deleteSGWithRetry(ec2api ec2iface.EC2API, securityGroupID string) error {
 	retrySGDeleteFN := func() (shouldRetry bool, err error) {
 		if err := deleteSG(ec2api, securityGroupID); err != nil {
+			if strings.Contains(err.Error(), "does not exist") {
+				return false, nil
+			}
+
 			if err, ok := err.(awserr.Error); ok && err.Code() == "DependencyViolation" {
 				log.Printf("[DEBUG] security group could not be deleted due to %s, will retry.", err.Error())
 				return true, nil
@@ -400,8 +404,9 @@ func waitUntilSGDeletedFN(ec2api ec2iface.EC2API, securityGroupName string) func
 
 		output, err := ec2api.DescribeSecurityGroups(input)
 		if err != nil {
-			if strings.Contains(err.Error(), "does not exist") {
-				return false, nil
+			log.Printf("[DEBUG] could not delete security group due to %s", err.Error())
+			if err, ok := err.(awserr.Error); ok && err.Code() == "DependencyViolation" {
+				return true, nil
 			}
 
 			return false, err

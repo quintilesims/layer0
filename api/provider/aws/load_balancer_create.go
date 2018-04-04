@@ -376,7 +376,7 @@ func (l *LoadBalancerProvider) portsToListeners(ports []models.Port) ([]*elb.Lis
 		}
 
 		// terminate ssl/https on load balancer
-		switch strings.ToUpper(port.Protocol) {
+		switch strings.ToLower(port.Protocol) {
 		case "http", "https":
 			listener.SetInstanceProtocol("http")
 		case "tcp", "ssl":
