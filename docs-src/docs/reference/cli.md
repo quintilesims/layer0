@@ -28,24 +28,19 @@ Use the `debug` subcommand to view the running version of your Layer0 API server
 l0 admin debug
 ```
 
-### admin sql
-Use the `sql` subcommand to initialize the Layer0 API database.
+### admin logs
+Use the `logs` subcommand to retrieve all CloudTrail logs for your Layer0 instance.
 
 #### Usage
 ```
-l0 admin sql
+l0 admin logs [--start "YYYY-MM-DD HH:MM" | --end "YYYY-MM-DD HH:MM" | 
+    --tail n]
 ```
 
-#### Additional information
-The `sql` subcommand is automatically executed during the Layer0 installation process; we recommend that you do not use this subcommand unless specifically directed to do so.
-
-### admin version
-Use the `version` subcommand to display the current version of the Layer0 API.
-
-#### Usage
-```
-l0 admin version 
-```
+#### Optional arguments
+* `--start "YYYY-MM-DD HH:MM"` - The start of the time range to fetch logs.
+* `--end "YYYY-MM-DD HH:MM"` - The end of the time range to fetch logs.
+* `--tail n` - The number of lines from the end to return.
 
 ---
 
@@ -275,6 +270,25 @@ Use the `list` subcommand to display a list of environments in your instance of 
 ```
 l0 environment list
 ```
+
+### environment logs
+Use the `logs` subcommand to retrieve CloudTrail logs for an existing Layer0 environment.
+
+#### Usage
+```
+l0 environment logs [--start "YYYY-MM-DD HH:MM" | --end "YYYY-MM-DD HH:MM" | 
+    --tail n] environmentName
+```
+
+#### Required parameters
+* `environmentName` - The name of the Layer0 environment for which you want to retrieve CloudTrail logs from.
+
+
+#### Optional arguments
+* `--start "YYYY-MM-DD HH:MM"` - The start of the time range to fetch logs.
+* `--end "YYYY-MM-DD HH:MM"` - The end of the time range to fetch logs.
+* `--tail n` - The number of lines from the end to return.
+
 
 ### environment setmincount
 Use the `setmincount` subcommand to set the minimum number of EC2 instances allowed the environment's autoscaling group.
