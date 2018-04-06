@@ -41,6 +41,7 @@ func TestImport(t *testing.T) {
 		IsPublic:         true,
 		Ports:            []models.Port{config.DefaultLoadBalancerPort()},
 		HealthCheck:      config.DefaultLoadBalancerHealthCheck(),
+		LoadBalancerType: models.ApplicationLoadBalancerType,
 	}
 
 	loadBalancerID := s.Layer0.CreateLoadBalancer(createLoadBalancerReq)
@@ -61,7 +62,9 @@ func TestImport(t *testing.T) {
 		DeployID:       deployID,
 		EnvironmentID:  environmentID,
 		LoadBalancerID: loadBalancerID,
+		Scale:          1,
 		ServiceName:    "sts_stateless",
+		Stateful:       false,
 	}
 
 	serviceID := s.Layer0.CreateService(createServiceReq)
