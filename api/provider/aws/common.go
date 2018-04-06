@@ -35,7 +35,7 @@ func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, load
 	elbExists := true
 	elbOutput, err := elbapi.DescribeLoadBalancers(elbInput)
 	if err != nil {
-		if err, ok := err.(awserr.Error); !ok || err.Code() != "LoadBalancerNotFound" {
+		if err, ok := err.(awserr.Error); !ok || err.Code() != alb.ErrCodeLoadBalancerNotFoundException {
 			return nil, err
 		}
 
@@ -56,6 +56,10 @@ func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, load
 
 	albOutput, err := albapi.DescribeLoadBalancers(albInput)
 	if err != nil {
+		if err, ok := err.(awserr.Error); !ok || err.Code() == alb.ErrCodeLoadBalancerNotFoundException {
+			return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
+		}
+
 		return nil, err
 	}
 

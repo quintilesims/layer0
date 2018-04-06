@@ -29,12 +29,9 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 
 	// Check for eventually consistency
 	waitUntilLBDeletedFN := func() (shouldRetry bool, err error) {
-		input := &elb.DescribeLoadBalancersInput{}
-		input.SetLoadBalancerNames([]*string{aws.String(fqLoadBalancerID)})
-		input.SetPageSize(1)
-
-		if _, err = l.AWS.ELB.DescribeLoadBalancers(input); err != nil {
-			if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
+		loadBalancerName := fqLoadBalancerID
+		if _, err = describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName); err != nil {
+			if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
 				return false, nil
 			}
 
@@ -89,7 +86,7 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error {
 	lb, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName)
 	if err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == alb.ErrCodeLoadBalancerNotFoundException {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
 			return nil
 		}
 
@@ -105,7 +102,7 @@ func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error
 		}
 
 		if _, err := l.AWS.ELB.DeleteLoadBalancer(input); err != nil {
-			if err, ok := err.(awserr.Error); ok && err.Code() == alb.ErrCodeLoadBalancerNotFoundException {
+			if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
 				return nil
 			}
 
@@ -122,7 +119,7 @@ func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error
 		}
 
 		if _, err := l.AWS.ALB.DeleteLoadBalancer(input); err != nil {
-			if err, ok := err.(awserr.Error); ok && err.Code() == alb.ErrCodeLoadBalancerNotFoundException {
+			if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
 				return nil
 			}
 

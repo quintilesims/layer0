@@ -28,21 +28,6 @@ func TestClassicLoadBalancerDelete(t *testing.T) {
 
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 
-	describeLBInput := &elb.DescribeLoadBalancersInput{}
-	describeLBInput.LoadBalancerNames = []*string{aws.String("l0-test-lb_id")}
-	describeLBInput.SetPageSize(1)
-
-	describeLBOutput := &elb.DescribeLoadBalancersOutput{}
-	describeLBOutput.LoadBalancerDescriptions = []*elb.LoadBalancerDescription{
-		{
-			LoadBalancerName: aws.String("l0-test-lb_id"),
-		},
-	}
-
-	mockAWS.ELB.EXPECT().
-		DescribeLoadBalancers(describeLBInput).
-		Return(describeLBOutput, nil)
-
 	tags := models.Tags{
 		{
 			EntityID:   "lb_id",
@@ -70,6 +55,21 @@ func TestClassicLoadBalancerDelete(t *testing.T) {
 		}
 	}
 
+	describeLBInput := &elb.DescribeLoadBalancersInput{}
+	describeLBInput.LoadBalancerNames = []*string{aws.String("l0-test-lb_id")}
+	describeLBInput.SetPageSize(1)
+
+	describeLBOutput := &elb.DescribeLoadBalancersOutput{}
+	describeLBOutput.LoadBalancerDescriptions = []*elb.LoadBalancerDescription{
+		{
+			LoadBalancerName: aws.String("l0-test-lb_id"),
+		},
+	}
+
+	mockAWS.ELB.EXPECT().
+		DescribeLoadBalancers(describeLBInput).
+		Return(describeLBOutput, nil)
+
 	deleteLBInput := &elb.DeleteLoadBalancerInput{}
 	deleteLBInput.SetLoadBalancerName("l0-test-lb_id")
 
@@ -79,8 +79,13 @@ func TestClassicLoadBalancerDelete(t *testing.T) {
 
 	mockAWS.ELB.EXPECT().
 		DescribeLoadBalancers(gomock.Any()).
-		Return(&elb.DescribeLoadBalancersOutput{}, awserr.New("LoadBalancerNotFound", "", nil)).
-		AnyTimes()
+		Return(&elb.DescribeLoadBalancersOutput{}, awserr.New(alb.ErrCodeLoadBalancerNotFoundException, "", nil))
+
+	describeALBInput := &alb.DescribeLoadBalancersInput{}
+	describeALBInput.SetNames([]*string{aws.String("l0-test-lb_id")})
+	mockAWS.ALB.EXPECT().
+		DescribeLoadBalancers(describeALBInput).
+		Return(nil, awserr.New(alb.ErrCodeLoadBalancerNotFoundException, "", nil))
 
 	deleteRolePolicyInput := &iam.DeleteRolePolicyInput{}
 	deleteRolePolicyInput.SetRoleName("l0-test-lb_id-lb")
@@ -186,8 +191,8 @@ func TestApplicationLoadBalancerDelete(t *testing.T) {
 	describeELBInput.SetPageSize(1)
 	mockAWS.ELB.EXPECT().
 		DescribeLoadBalancers(describeELBInput).
-		Return(nil, awserr.New("LoadBalancerNotFound", "", nil)).
-		AnyTimes()
+		Return(&elb.DescribeLoadBalancersOutput{}, awserr.New(alb.ErrCodeLoadBalancerNotFoundException, "", nil)).
+		Times(2)
 
 	describeALBInput := &alb.DescribeLoadBalancersInput{}
 	describeALBInput.SetNames([]*string{aws.String("l0-test-lb_id")})
@@ -201,8 +206,7 @@ func TestApplicationLoadBalancerDelete(t *testing.T) {
 
 	mockAWS.ALB.EXPECT().
 		DescribeLoadBalancers(describeALBInput).
-		Return(describeALBOutput, nil).
-		AnyTimes()
+		Return(describeALBOutput, nil)
 
 	deleteApplicationLBInput := &alb.DeleteLoadBalancerInput{}
 	deleteApplicationLBInput.SetLoadBalancerArn("arn:l0-test-lb_id")
@@ -215,6 +219,10 @@ func TestApplicationLoadBalancerDelete(t *testing.T) {
 	mockAWS.ALB.EXPECT().
 		WaitUntilLoadBalancersDeleted(waitInput).
 		Return(nil)
+
+	mockAWS.ALB.EXPECT().
+		DescribeLoadBalancers(describeALBInput).
+		Return(&alb.DescribeLoadBalancersOutput{}, awserr.New(alb.ErrCodeLoadBalancerNotFoundException, "", nil))
 
 	deleteRolePolicyInput := &iam.DeleteRolePolicyInput{}
 	deleteRolePolicyInput.SetRoleName("l0-test-lb_id-lb")
@@ -290,15 +298,13 @@ func TestLoadBalancerDeleteIdempotence(t *testing.T) {
 
 	mockAWS.ELB.EXPECT().
 		DescribeLoadBalancers(gomock.Any()).
-		Return(nil, awserr.New("LoadBalancerNotFound", "", nil))
+		Return(nil, awserr.New(alb.ErrCodeLoadBalancerNotFoundException, "", nil)).
+		Times(2)
 
 	mockAWS.ALB.EXPECT().
 		DescribeLoadBalancers(gomock.Any()).
-		Return(nil, awserr.New("LoadBalancerNotFound", "", nil))
-
-	mockAWS.ELB.EXPECT().
-		DescribeLoadBalancers(gomock.Any()).
-		Return(&elb.DescribeLoadBalancersOutput{}, awserr.New("LoadBalancerNotFound", "", nil))
+		Return(nil, awserr.New(alb.ErrCodeLoadBalancerNotFoundException, "", nil)).
+		Times(2)
 
 	mockAWS.ALB.EXPECT().
 		DescribeTargetGroups(gomock.Any()).
@@ -385,7 +391,10 @@ func TestLoadBalancerDeleteRetry(t *testing.T) {
 			Return(describeLoadBalancersOutput, nil),
 		mockAWS.ELB.EXPECT().
 			DescribeLoadBalancers(gomock.Any()).
-			Return(&elb.DescribeLoadBalancersOutput{}, awserr.New("LoadBalancerNotFound", "", nil)),
+			Return(nil, awserr.New(alb.ErrCodeLoadBalancerNotFoundException, "", nil)),
+		mockAWS.ALB.EXPECT().
+			DescribeLoadBalancers(gomock.Any()).
+			Return(nil, awserr.New(alb.ErrCodeLoadBalancerNotFoundException, "", nil)),
 	)
 
 	mockAWS.IAM.EXPECT().
@@ -417,7 +426,7 @@ func TestLoadBalancerDeleteRetry(t *testing.T) {
 
 	mockAWS.ALB.EXPECT().
 		DescribeTargetGroups(gomock.Any()).
-		Return(nil, awserr.New("TargetGroupNotFound", "", nil))
+		Return(nil, awserr.New(alb.ErrCodeTargetGroupNotFoundException, "", nil))
 
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	if err := target.Delete("lb_id"); err != nil {
