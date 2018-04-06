@@ -2,6 +2,7 @@ package aws
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
@@ -261,7 +262,7 @@ func (l *LoadBalancerProvider) updateALBListeners(ports []models.Port, targetGro
 		if addListener {
 			createListenerInput := &alb.CreateListenerInput{}
 			createListenerInput.SetPort(p.HostPort)
-			createListenerInput.SetProtocol(p.Protocol)
+			createListenerInput.SetProtocol(strings.ToUpper(p.Protocol))
 			createListenerInput.LoadBalancerArn = loadBalancerArn
 			createListenerInput.SetDefaultActions([]*alb.Action{
 				{

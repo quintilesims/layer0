@@ -87,6 +87,11 @@ func TestClassicLoadBalancerDelete(t *testing.T) {
 		DescribeLoadBalancers(describeALBInput).
 		Return(nil, awserr.New(alb.ErrCodeLoadBalancerNotFoundException, "", nil))
 
+	mockAWS.ALB.EXPECT().
+		DescribeLoadBalancers(gomock.Any()).
+		Return(&alb.DescribeLoadBalancersOutput{}, awserr.New("LoadBalancerNotFound", "", nil)).
+		AnyTimes()
+
 	deleteRolePolicyInput := &iam.DeleteRolePolicyInput{}
 	deleteRolePolicyInput.SetRoleName("l0-test-lb_id-lb")
 	deleteRolePolicyInput.SetPolicyName("l0-test-lb_id-lb")
