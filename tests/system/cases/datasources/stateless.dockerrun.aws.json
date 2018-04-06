@@ -9,6 +9,7 @@
             "name": "sts_stateless",
             "image": "quintilesims/sts",
             "essential": true,
+            "memory": 128,
             "portMappings": [
                 {
                     "hostPort": 80,
