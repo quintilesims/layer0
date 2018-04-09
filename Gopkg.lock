@@ -369,7 +369,7 @@
   branch = "master"
   name = "github.com/quintilesims/tftest"
   packages = ["."]
-  revision = "548cc1289647cc0fb8ee87e27d115b31a9ec736d"
+  revision = "70597d446846d3de7adaabbf000469cd172387b4"
 
 [[projects]]
   name = "github.com/ryanuber/columnize"
