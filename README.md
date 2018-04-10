@@ -14,6 +14,6 @@ To get started with Layer0, please see our [Official Documentation](http://layer
 
 
 ## References
-* Visit our release notes [here](https://github.com/quintilesims/layer0/blob/develop/RELEASE_NOTES.md)
+* Visit our release notes [here](https://github.com/quintilesims/layer0/blob/develop/RELEASE.md)
 * Visit our developer documentation [here](https://github.com/quintilesims/layer0/blob/develop/DEVELOP.md)
-* Visit our contribution guidelines [here](https://github.com/quintilesims/layer0/blob/develop/CONTRIBUTOR.md)
+* Visit our contribution guidelines [here](https://github.com/quintilesims/layer0/blob/develop/.github/CONTRIBUTING.md)
