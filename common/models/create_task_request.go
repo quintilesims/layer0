@@ -40,7 +40,6 @@ func (c CreateTaskRequest) Definition() swagger.Definition {
 	return swagger.Definition{
 		Type: "object",
 		Properties: map[string]swagger.Property{
-			// TODO: Change to Map defintion
 			"container_overrides": swagger.NewStringProperty(),
 			"deploy_id":           swagger.NewStringProperty(),
 			"environment_id":      swagger.NewStringProperty(),
