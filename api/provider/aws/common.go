@@ -445,3 +445,13 @@ func readTargetGroup(albapi albiface.ELBV2API, targetGroupName, targetGropuArn *
 
 	return output.TargetGroups[0], nil
 }
+
+func stringInSlice(str string, slc []string) bool {
+	for _, s := range slc {
+		if s == str {
+			return true
+		}
+	}
+
+	return false
+}

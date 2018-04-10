@@ -3,10 +3,12 @@ package aws
 import (
 	"fmt"
 	"log"
+	"reflect"
 	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
@@ -16,17 +18,12 @@ import (
 
 // Create runs an ECS Service using the specified CreateServiceRequest.
 // The CreateServiceRequest contains the DeployID, the EnvironmentID,
-// the LoadBalancerID (optional), the Scale, the ServiceName, and the ServiceType.
+// the LoadBalancerID (optional), the Scale, the ServiceName, and a
+// boolean Stateful value.
 //
-// The DeployID is used to look up the ARN of the ECS TaskDefinition to run. If a
-// LoadbalancerID is supplied, it will be used in conjunction with the TaskDefinition
-// ARN to compare the ports specified in the TaskDefinition with those specified on
-// the LoadBalancer. The ServiceType parameter is one of "stateful" or "stateless"
-// and indicates which ECS LaunchType the user wishes to use ("EC2" or "FARGATE"
-// respectively).
-//
-// Create does not generate any custom errors of its own, but will bubble up errors
-// found in its helper functions as well as errors returned by AWS.
+// The DeployID is used to look up the ARN of the ECS TaskDefinition to run. The
+// Stateful boolean indicates which which ECS LaunchType the user wishes to use
+// ("FARGATE" if false, "EC2" if true).
 func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error) {
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
 	cluster := fqEnvironmentID
@@ -43,6 +40,16 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	taskDefinition, err := describeTaskDefinition(s.AWS.ECS, taskDefinitionARN)
 	if err != nil {
 		return "", err
+	}
+
+	taskDefinitionCompatibilities := make([]string, len(taskDefinition.Compatibilities))
+	for i, _ := range taskDefinition.Compatibilities {
+		taskDefinitionCompatibilities[i] = aws.StringValue(taskDefinition.Compatibilities[i])
+	}
+
+	if !req.Stateful && !stringInSlice(ecs.LaunchTypeFargate, taskDefinitionCompatibilities) {
+		errMsg := "Cannot create stateless service using stateful deploy '%s'."
+		return "", fmt.Errorf(errMsg, req.DeployID)
 	}
 
 	networkMode := aws.StringValue(taskDefinition.NetworkMode)
@@ -70,10 +77,23 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 			return "", err
 		}
 
-		if lb.isALB && req.Stateful {
-			errorMsg := "application load balancer with a stateful service is not currently"
-			errorMsg += "supported; please use a classic load balancer instead"
-			return "", fmt.Errorf(errorMsg)
+		if req.Stateful && lb.isALB {
+			errMsg := "Cannot create stateful service behind application load balancer '%s'. "
+			errMsg += "Use a classic load balancer instead."
+			return "", fmt.Errorf(errMsg, fqLoadBalancerID)
+		}
+
+		if !req.Stateful && lb.isCLB {
+			errMsg := "Cannot create stateless service behind classic load balancer '%s'. "
+			errMsg += "Use an application load balancer instead."
+			return "", fmt.Errorf(errMsg, fqLoadBalancerID)
+		}
+
+		if lb.isCLB && stringInSlice(ecs.LaunchTypeFargate, taskDefinitionCompatibilities) {
+			errMsg := "Cannot deploy stateless deploy '%s' behind classic load balancer '%s'. "
+			errMsg += "Either use a stateful deploy with a classic load balancer, "
+			errMsg += "or a stateless deploy with an application load balancer."
+			return "", fmt.Errorf(errMsg, req.DeployID, fqLoadBalancerID)
 		}
 
 		if lb.Scheme() == "internet-facing" {
@@ -147,6 +167,7 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 				return true, nil
 			}
 
+			log.Printf("[DEBUG] %s", reflect.TypeOf(err))
 			return false, err
 		}
 
@@ -154,6 +175,10 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 	}
 
 	if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == "InvalidParameterException" {
+			return "", err
+		}
+
 		return "", errors.New(errors.EventualConsistencyError, err)
 	}
 
