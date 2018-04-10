@@ -119,6 +119,7 @@ func TestServiceCreate_loadBalancer(t *testing.T) {
 	networkMode := ecs.NetworkModeAwsvpc
 
 	taskDefinition := &ecs.TaskDefinition{
+		Compatibilities:      []*string{aws.String(ecs.LaunchTypeEc2), aws.String(ecs.LaunchTypeFargate)},
 		ContainerDefinitions: containerDefinitions,
 		NetworkMode:          &networkMode,
 	}
@@ -277,6 +278,7 @@ func TestServiceCreate_stateless(t *testing.T) {
 	networkMode := ecs.NetworkModeAwsvpc
 
 	taskDefinition := &ecs.TaskDefinition{
+		Compatibilities:      []*string{aws.String(ecs.LaunchTypeEc2), aws.String(ecs.LaunchTypeFargate)},
 		ContainerDefinitions: containerDefinitions,
 		NetworkMode:          &networkMode,
 	}
@@ -393,6 +395,7 @@ func TestServiceCreate_stateful(t *testing.T) {
 	}
 
 	taskDefinition := &ecs.TaskDefinition{
+		Compatibilities:      []*string{aws.String(ecs.LaunchTypeEc2)},
 		ContainerDefinitions: containerDefinitions,
 	}
 
