@@ -3,7 +3,6 @@ package aws
 import (
 	"fmt"
 	"log"
-	"reflect"
 	"strings"
 	"time"
 
@@ -167,7 +166,6 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 				return true, nil
 			}
 
-			log.Printf("[DEBUG] %s", reflect.TypeOf(err))
 			return false, err
 		}
 
