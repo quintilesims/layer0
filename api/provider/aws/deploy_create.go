@@ -115,9 +115,13 @@ func (d *DeployProvider) renderTaskDefinition(body []byte, familyName string) (*
 		}
 	}
 
-	// If a user does not specify any requiresCompatibilities in the task definition, we default
-	// to setting them both in order to accurately judge the launch type(s) with which the task
-	// definition is compatible.
+	// If a user does not specify any `"requiresCompatibilities"` in the task definition,
+	// we default to setting them both. Because current evidence points to a task
+	// definition's `"Compatibilities"` field as never containing *only* "FARGATE",
+	// this decision effectively means that every task definition is assumed to be
+	// Fargate-intended unless the user submits a `"requiresCompatibility"` array
+	// containing only "EC2", and is in line with our prescription that stateless
+	// deployments are the default.
 	if len(taskDefinition.RequiresCompatibilities) == 0 {
 		taskDefinition.SetRequiresCompatibilities([]*string{
 			aws.String(ecs.LaunchTypeEc2),
