@@ -423,15 +423,15 @@ func waitUntilSGDeletedFN(ec2api ec2iface.EC2API, securityGroupName string) func
 	}
 }
 
-func readTargetGroup(albapi albiface.ELBV2API, targetGroupName, targetGropuArn *string) (*alb.TargetGroup, error) {
+func readTargetGroup(albapi albiface.ELBV2API, targetGroupName, targetGroupArn *string) (*alb.TargetGroup, error) {
 	input := &alb.DescribeTargetGroupsInput{}
 
 	if targetGroupName != nil {
 		input.SetNames([]*string{targetGroupName})
 	}
 
-	if targetGropuArn != nil {
-		input.SetTargetGroupArns([]*string{targetGropuArn})
+	if targetGroupArn != nil {
+		input.SetTargetGroupArns([]*string{targetGroupArn})
 	}
 
 	if err := input.Validate(); err != nil {

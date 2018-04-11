@@ -22,7 +22,7 @@ import (
 // boolean Stateful value.
 //
 // The DeployID is used to look up the ARN of the ECS TaskDefinition to run. The
-// Stateful boolean indicates which which ECS LaunchType the user wishes to use
+// Stateful boolean indicates which ECS LaunchType the user wishes to use
 // ("FARGATE" if false, "EC2" if true).
 func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error) {
 	fqEnvironmentID := addLayer0Prefix(s.Config.Instance(), req.EnvironmentID)
