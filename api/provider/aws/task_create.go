@@ -11,15 +11,11 @@ import (
 
 // Create runs an ECS Task using the specified CreateTaskRequest.
 // The CreateTaskRequest contains the ContainerOverrides, the DeployID, the
-// EnvironmentID, the TaskName, and the TaskType.
+// EnvironmentID, the TaskName, the TaskType, and a boolean Stateful value.
 //
 // The Deploy ID is used to look up the ECS TaskDefinition Family and Version
-// of the Task to run. The TaskType parameter is one of "stateful" or "stateless"
-// and indicates which ECS LaunchType the user wishes to use ("EC2" or "FARGATE"
-// respectively).
-//
-// Create does not generate any custom errors of its own, but will bubble up errors
-// found in its helper functions as well as errors returned by AWS.
+// of the Task to run.The Stateful boolean indicates which ECS LaunchType the
+// user wishes to use ("FARGATE" if false, "EC2" if true).
 func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskID := entityIDGenerator(req.TaskName)
 	fqEnvironmentID := addLayer0Prefix(t.Config.Instance(), req.EnvironmentID)
@@ -35,6 +31,16 @@ func (t *TaskProvider) Create(req models.CreateTaskRequest) (string, error) {
 	taskDefinition, err := describeTaskDefinition(t.AWS.ECS, taskDefinitionARN)
 	if err != nil {
 		return "", err
+	}
+
+	taskDefinitionCompatibilities := make([]string, len(taskDefinition.Compatibilities))
+	for i, _ := range taskDefinition.Compatibilities {
+		taskDefinitionCompatibilities[i] = aws.StringValue(taskDefinition.Compatibilities[i])
+	}
+
+	if !req.Stateful && !stringInSlice(ecs.LaunchTypeFargate, taskDefinitionCompatibilities) {
+		errMsg := "Cannot create stateless task using stateful deploy '%s'."
+		return "", fmt.Errorf(errMsg, req.DeployID)
 	}
 
 	networkMode := aws.StringValue(taskDefinition.NetworkMode)
