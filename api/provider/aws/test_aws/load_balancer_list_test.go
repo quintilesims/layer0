@@ -5,6 +5,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/elb"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
 	"github.com/quintilesims/layer0/api/tag"
@@ -38,6 +39,12 @@ func TestLoadBalancerList(t *testing.T) {
 			Value:      "env_id1",
 		},
 		{
+			EntityID:   "lb_id1",
+			EntityType: "load_balancer",
+			Key:        "type",
+			Value:      models.ClassicLoadBalancerType,
+		},
+		{
 			EntityID:   "env_id1",
 			EntityType: "environment",
 			Key:        "name",
@@ -54,6 +61,12 @@ func TestLoadBalancerList(t *testing.T) {
 			EntityType: "load_balancer",
 			Key:        "environment_id",
 			Value:      "env_id2",
+		},
+		{
+			EntityID:   "lb_id2",
+			EntityType: "load_balancer",
+			Key:        "type",
+			Value:      models.ApplicationLoadBalancerType,
 		},
 		{
 			EntityID:   "env_id2",
@@ -97,6 +110,10 @@ func TestLoadBalancerList(t *testing.T) {
 		Do(describeLoadBalancerPagesFN).
 		Return(nil)
 
+	mockAWS.ALB.EXPECT().
+		DescribeLoadBalancersPages(&alb.DescribeLoadBalancersInput{}, gomock.Any()).
+		Return(nil)
+
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.List()
 	if err != nil {
@@ -107,12 +124,14 @@ func TestLoadBalancerList(t *testing.T) {
 		{
 			LoadBalancerID:   "lb_id1",
 			LoadBalancerName: "lb_name1",
+			LoadBalancerType: models.ClassicLoadBalancerType,
 			EnvironmentID:    "env_id1",
 			EnvironmentName:  "env_name1",
 		},
 		{
 			LoadBalancerID:   "lb_id2",
 			LoadBalancerName: "lb_name2",
+			LoadBalancerType: models.ApplicationLoadBalancerType,
 			EnvironmentID:    "env_id2",
 			EnvironmentName:  "env_name2",
 		},

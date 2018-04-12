@@ -1,0 +1,34 @@
+{
+    "AWSEBDockerrunVersion": 2,
+    "requiresCompatibilities": [ "EC2" ],
+    "containerDefinitions": [
+        {
+            "name": "c1",
+            "image": "alpine",
+            "entrypoint": [ "/bin/sh", "-c" ],
+            "command": ["$COMMAND"],
+            "essential": true,
+            "memory": 100,
+            "environment": [
+                {
+                    "name": "COMMAND",
+                    "value": "sleep 10"
+                }
+            ]
+        },
+        {
+            "name": "c2",
+            "image": "alpine",
+            "entrypoint": [ "/bin/sh", "-c" ],
+            "command": ["$COMMAND"],
+            "essential": true,
+            "memory": 100,
+            "environment": [
+                {
+                    "name": "COMMAND",
+                    "value": "sleep 10"
+                }
+            ]
+        }
+    ]
+}

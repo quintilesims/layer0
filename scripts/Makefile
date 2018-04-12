@@ -47,6 +47,9 @@ aws:
 	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/s3/s3iface S3API > ../common/aws/mock_aws/mock_s3.go && \
 	sed -i '.tmp' s/github.com\\/quintilesims\\/layer0\\/vendor\\/// ../common/aws/mock_aws/mock_s3.go && \
 	rm -f ../common/aws/mock_aws/mock_s3.go.tmp &
+	mockgen -package mock_aws github.com/aws/aws-sdk-go/service/elbv2/elbv2iface ELBV2API > ../common/aws/mock_aws/mock_alb.go && \
+	sed -i '.tmp' s/github.com\\/quintilesims\\/layer0\\/vendor\\/// ../common/aws/mock_aws/mock_alb.go && \
+	rm -f ../common/aws/mock_aws/mock_alb.go.tmp &
 
 config:
 	mockgen github.com/quintilesims/layer0/common/config APIConfig > ../common/config/mock_config/mock_api.go &

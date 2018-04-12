@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -13,32 +14,61 @@ import (
 	"github.com/aws/aws-sdk-go/service/ecs/ecsiface"
 	"github.com/aws/aws-sdk-go/service/elb"
 	"github.com/aws/aws-sdk-go/service/elb/elbiface"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
+	albiface "github.com/aws/aws-sdk-go/service/elbv2/elbv2iface"
 	"github.com/quintilesims/layer0/api/tag"
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/retry"
 )
 
-func describeLoadBalancer(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerDescription, error) {
-	input := &elb.DescribeLoadBalancersInput{}
-	input.SetLoadBalancerNames([]*string{aws.String(loadBalancerName)})
-	input.SetPageSize(1)
+// searches for the load balancer name as both classic and application load balancers and returns
+// the first found result or an error if the neither classic or application lb could be found for
+// the given lb name
+func describeLoadBalancer(elbapi elbiface.ELBAPI, albapi albiface.ELBV2API, loadBalancerName string) (*genericLoadBalancer, error) {
+	// search classic load balancers
+	elbInput := &elb.DescribeLoadBalancersInput{}
+	elbInput.SetLoadBalancerNames([]*string{aws.String(loadBalancerName)})
+	elbInput.SetPageSize(1)
 
-	output, err := elbapi.DescribeLoadBalancers(input)
+	if err := elbInput.Validate(); err != nil {
+		return nil, err
+	}
+
+	elbExists := true
+	elbOutput, err := elbapi.DescribeLoadBalancers(elbInput)
 	if err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
+		if err, ok := err.(awserr.Error); !ok || err.Code() != alb.ErrCodeLoadBalancerNotFoundException {
+			return nil, err
+		}
+
+		elbExists = false
+	}
+
+	if elbExists {
+		return newGenericLoadBalancer(elbOutput.LoadBalancerDescriptions[0], nil), nil
+	}
+
+	// search application load balancers
+	albInput := &alb.DescribeLoadBalancersInput{}
+	albInput.SetNames([]*string{aws.String(loadBalancerName)})
+
+	if err := albInput.Validate(); err != nil {
+		return nil, err
+	}
+
+	albOutput, err := albapi.DescribeLoadBalancers(albInput)
+	if err != nil {
+		if err, ok := err.(awserr.Error); !ok || err.Code() == alb.ErrCodeLoadBalancerNotFoundException {
 			return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
 		}
 
 		return nil, err
 	}
 
-	if len(output.LoadBalancerDescriptions) != 1 {
-		return nil, errors.Newf(errors.LoadBalancerDoesNotExist, "LoadBalancer '%s' does not exist", loadBalancerName)
-	}
-
-	return output.LoadBalancerDescriptions[0], nil
+	return newGenericLoadBalancer(nil, albOutput.LoadBalancers[0]), nil
 }
 
-func describeLoadBalancerAttributes(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerAttributes, error) {
+func describeCLBAttributes(elbapi elbiface.ELBAPI, loadBalancerName string) (*elb.LoadBalancerAttributes, error) {
 	input := &elb.DescribeLoadBalancerAttributesInput{}
 	input.SetLoadBalancerName(loadBalancerName)
 
@@ -48,6 +78,17 @@ func describeLoadBalancerAttributes(elbapi elbiface.ELBAPI, loadBalancerName str
 	}
 
 	return output.LoadBalancerAttributes, nil
+}
+func describeALBAttributes(albapi albiface.ELBV2API, loadBalancerARN string) ([]*alb.LoadBalancerAttribute, error) {
+	input := &alb.DescribeLoadBalancerAttributesInput{}
+	input.SetLoadBalancerArn(loadBalancerARN)
+
+	output, err := albapi.DescribeLoadBalancerAttributes(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return output.Attributes, nil
 }
 
 func describeTaskDefinition(ecsapi ecsiface.ECSAPI, taskDefinitionARN string) (*ecs.TaskDefinition, error) {
@@ -135,6 +176,24 @@ func lookupDeployNameAndVersion(store tag.Store, deployID string) (string, strin
 	return deployName, deployVersion, nil
 }
 
+func lookupLoadBalancerARNFromID(store tag.Store, loadBalancerID string) (string, error) {
+	tags, err := store.SelectByTypeAndID("load_balancer", loadBalancerID)
+	if err != nil {
+		return "", err
+	}
+
+	if len(tags) == 0 {
+		return "", errors.Newf(errors.LoadBalancerDoesNotExist, "Load Balancer '%s' does not exist", loadBalancerID)
+	}
+
+	tag, ok := tags.WithKey("arn").First()
+	if !ok {
+		return "", fmt.Errorf("Could not resolve arn for load balancer '%s'", loadBalancerID)
+	}
+
+	return tag.Value, nil
+}
+
 func getEnvironmentSGName(environmentID string) string {
 	return fmt.Sprintf("%s-env", environmentID)
 }
@@ -187,12 +246,66 @@ func readSG(ec2api ec2iface.EC2API, groupName string) (*ec2.SecurityGroup, error
 	return nil, awserr.New("DoesNotExist", message, nil)
 }
 
+func readNewlyCreatedSG(ec2api ec2iface.EC2API, groupName string) (*ec2.SecurityGroup, error) {
+	var securityGroup *ec2.SecurityGroup
+	waitUntilSGisCreatedFN := func() (shouldRetry bool, err error) {
+		securityGroup, err = readSG(ec2api, groupName)
+		if err != nil {
+			if err, ok := err.(awserr.Error); ok && strings.Contains(err.Error(), "does not exist") {
+				log.Printf("[DEBUG] security group '%s' does not yet exist, will retry.", groupName)
+				return true, nil
+			}
+
+			return false, err
+		}
+
+		return false, nil
+	}
+
+	if err := retry.Retry(waitUntilSGisCreatedFN,
+		retry.WithTimeout(time.Second*30),
+		retry.WithDelay(time.Second),
+	); err != nil {
+		return nil, errors.New(errors.EventualConsistencyError, err)
+	}
+
+	return securityGroup, nil
+}
+
 func deleteSG(ec2api ec2iface.EC2API, securityGroupID string) error {
 	input := &ec2.DeleteSecurityGroupInput{}
 	input.SetGroupId(securityGroupID)
 
 	if _, err := ec2api.DeleteSecurityGroup(input); err != nil {
 		return err
+	}
+
+	return nil
+}
+
+func deleteSGWithRetry(ec2api ec2iface.EC2API, securityGroupID string) error {
+	retrySGDeleteFN := func() (shouldRetry bool, err error) {
+		if err := deleteSG(ec2api, securityGroupID); err != nil {
+			if strings.Contains(err.Error(), "does not exist") {
+				return false, nil
+			}
+
+			if err, ok := err.(awserr.Error); ok && err.Code() == "DependencyViolation" {
+				log.Printf("[DEBUG] security group could not be deleted due to %s, will retry.", err.Error())
+				return true, nil
+			}
+
+			return false, err
+		}
+
+		return false, nil
+	}
+
+	if err := retry.Retry(retrySGDeleteFN,
+		retry.WithTimeout(time.Second*30),
+		retry.WithDelay(time.Second),
+	); err != nil {
+		return errors.New(errors.EventualConsistencyError, err)
 	}
 
 	return nil
@@ -291,8 +404,9 @@ func waitUntilSGDeletedFN(ec2api ec2iface.EC2API, securityGroupName string) func
 
 		output, err := ec2api.DescribeSecurityGroups(input)
 		if err != nil {
-			if strings.Contains(err.Error(), "does not exist") {
-				return false, nil
+			log.Printf("[DEBUG] could not delete security group due to %s", err.Error())
+			if err, ok := err.(awserr.Error); ok && err.Code() == "DependencyViolation" {
+				return true, nil
 			}
 
 			return false, err
@@ -307,4 +421,37 @@ func waitUntilSGDeletedFN(ec2api ec2iface.EC2API, securityGroupName string) func
 
 		return false, nil
 	}
+}
+
+func readTargetGroup(albapi albiface.ELBV2API, targetGroupName, targetGroupArn *string) (*alb.TargetGroup, error) {
+	input := &alb.DescribeTargetGroupsInput{}
+
+	if targetGroupName != nil {
+		input.SetNames([]*string{targetGroupName})
+	}
+
+	if targetGroupArn != nil {
+		input.SetTargetGroupArns([]*string{targetGroupArn})
+	}
+
+	if err := input.Validate(); err != nil {
+		return nil, err
+	}
+
+	output, err := albapi.DescribeTargetGroups(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return output.TargetGroups[0], nil
+}
+
+func stringInSlice(str string, slc []string) bool {
+	for _, s := range slc {
+		if s == str {
+			return true
+		}
+	}
+
+	return false
 }

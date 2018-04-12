@@ -26,10 +26,29 @@ func (t *TextPrinter) Fatalf(code int64, format string, tokens ...interface{}) {
 }
 
 func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
-	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION"}
+	getCompatibilities := func(d *models.Deploy, i int) string {
+		if i > len(d.Compatibilities)-1 {
+			return ""
+		}
+
+		return d.Compatibilities[i]
+	}
+
+	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION | COMPATIBILITIES"}
 	for _, d := range deploys {
-		row := fmt.Sprintf("%s | %s |  %s", d.DeployID, d.DeployName, d.Version)
+		row := fmt.Sprintf("%s | %s | %s | %s",
+			d.DeployID,
+			d.DeployName,
+			d.Version,
+			getCompatibilities(d, 0))
+
 		rows = append(rows, row)
+
+		// add the extra compatibility rows
+		for i := 1; i < len(d.Compatibilities); i++ {
+			row := fmt.Sprintf(" | | | %s", getCompatibilities(d, i))
+			rows = append(rows, row)
+		}
 	}
 
 	t.Println(columnize.SimpleFormat(rows))
@@ -37,10 +56,24 @@ func (t *TextPrinter) PrintDeploys(deploys ...*models.Deploy) error {
 }
 
 func (t *TextPrinter) PrintDeploySummaries(deploys ...models.DeploySummary) error {
-	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION"}
+	getCompatibilities := func(d models.DeploySummary, i int) string {
+		if i > len(d.Compatibilities)-1 {
+			return ""
+		}
+
+		return d.Compatibilities[i]
+	}
+
+	rows := []string{"DEPLOY ID | DEPLOY NAME | VERSION | COMPATIBILITIES"}
 	for _, d := range deploys {
-		row := fmt.Sprintf("%s | %s |  %s", d.DeployID, d.DeployName, d.Version)
+		row := fmt.Sprintf("%s | %s | %s | %s", d.DeployID, d.DeployName, d.Version, getCompatibilities(d, 0))
 		rows = append(rows, row)
+
+		// add the extra compatibility rows
+		for i := 1; i < len(d.Compatibilities); i++ {
+			row := fmt.Sprintf(" | | | %s", getCompatibilities(d, i))
+			rows = append(rows, row)
+		}
 	}
 
 	t.Println(columnize.SimpleFormat(rows))
@@ -56,12 +89,11 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 		return e.Links[i]
 	}
 
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | TYPE | OS | LINKS"}
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS | LINKS"}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s",
+		row := fmt.Sprintf("%s | %s | %s | %s",
 			e.EnvironmentID,
 			e.EnvironmentName,
-			e.EnvironmentType,
 			e.OperatingSystem,
 			getLink(e, 0))
 
@@ -69,7 +101,7 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 
 		// add the extra link rows
 		for i := 1; i < len(e.Links); i++ {
-			row := fmt.Sprintf(" | | | | %s", getLink(e, i))
+			row := fmt.Sprintf(" | | | %s", getLink(e, i))
 			rows = append(rows, row)
 		}
 	}
@@ -79,9 +111,9 @@ func (t *TextPrinter) PrintEnvironments(environments ...*models.Environment) err
 }
 
 func (t *TextPrinter) PrintEnvironmentSummaries(environments ...models.EnvironmentSummary) error {
-	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | TYPE | OS "}
+	rows := []string{"ENVIRONMENT ID | ENVIRONMENT NAME | OS "}
 	for _, e := range environments {
-		row := fmt.Sprintf("%s | %s | %s | %s", e.EnvironmentID, e.EnvironmentName, e.EnvironmentType, e.OperatingSystem)
+		row := fmt.Sprintf("%s | %s | %s", e.EnvironmentID, e.EnvironmentName, e.OperatingSystem)
 		rows = append(rows, row)
 	}
 
@@ -115,11 +147,12 @@ func (t *TextPrinter) PrintLoadBalancers(loadBalancers ...*models.LoadBalancer) 
 		return fmt.Sprintf("%d:%d/%s", p.HostPort, p.ContainerPort, strings.ToUpper(p.Protocol))
 	}
 
-	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT | SERVICE | PORTS | PUBLIC | URL "}
+	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | TYPE | ENVIRONMENT | SERVICE | PORTS | PUBLIC | URL "}
 	for _, l := range loadBalancers {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s | %t | %s",
+		row := fmt.Sprintf("%s | %s | %s | %s | %s | %s | %t | %s",
 			l.LoadBalancerID,
 			l.LoadBalancerName,
+			l.LoadBalancerType,
 			getEnvironment(l),
 			getService(l),
 			getPort(l, 0),
@@ -148,11 +181,12 @@ func (t *TextPrinter) PrintLoadBalancerSummaries(loadBalancers ...models.LoadBal
 		return l.EnvironmentID
 	}
 
-	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT"}
+	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | TYPE | ENVIRONMENT"}
 	for _, l := range loadBalancers {
-		row := fmt.Sprintf("%s | %s | %s ",
+		row := fmt.Sprintf("%s | %s | %s | %s ",
 			l.LoadBalancerID,
 			l.LoadBalancerName,
+			l.LoadBalancerType,
 			getEnvironment(l))
 
 		rows = append(rows, row)
@@ -271,15 +305,16 @@ func (t *TextPrinter) PrintServices(services ...*models.Service) error {
 		return scale
 	}
 
-	rows := []string{"SERVICE ID | SERVICE NAME | ENVIRONMENT | LOADBALANCER | DEPLOYMENTS | SCALE "}
+	rows := []string{"SERVICE ID | SERVICE NAME | ENVIRONMENT | LOADBALANCER | DEPLOYMENTS | SCALE | STATEFUL"}
 	for _, s := range services {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s | %s",
+		row := fmt.Sprintf("%s | %s | %s | %s | %s | %s | %t",
 			s.ServiceID,
 			s.ServiceName,
 			getEnvironment(s),
 			getLoadBalancer(s),
 			getDeployment(s, 0),
-			getScale(s))
+			getScale(s),
+			s.Stateful)
 
 		rows = append(rows, row)
 
@@ -334,14 +369,15 @@ func (t *TextPrinter) PrintTasks(tasks ...*models.Task) error {
 		return strings.Replace(t.DeployID, ".", ":", 1)
 	}
 
-	rows := []string{"TASK ID | TASK NAME | ENVIRONMENT | DEPLOY | STATUS "}
+	rows := []string{"TASK ID | TASK NAME | ENVIRONMENT | DEPLOY | STATUS | STATEFUL "}
 	for _, t := range tasks {
-		row := fmt.Sprintf("%s | %s | %s | %s | %s",
+		row := fmt.Sprintf("%s | %s | %s | %s | %s | %t",
 			t.TaskID,
 			t.TaskName,
 			getEnvironment(t),
 			getDeploy(t),
-			t.Status)
+			t.Status,
+			t.Stateful)
 
 		rows = append(rows, row)
 	}

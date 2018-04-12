@@ -69,6 +69,8 @@
     "service/ecs/ecsiface",
     "service/elb",
     "service/elb/elbiface",
+    "service/elbv2",
+    "service/elbv2/elbv2iface",
     "service/iam",
     "service/iam/iamiface",
     "service/s3",
@@ -390,8 +392,8 @@
 [[projects]]
   name = "github.com/stretchr/testify"
   packages = ["assert"]
-  revision = "69483b4bd14f5845b5a1e55bca19e954e827f1d0"
-  version = "v1.1.4"
+  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
+  version = "v1.2.1"
 
 [[projects]]
   name = "github.com/ulikunitz/xz"
@@ -428,7 +430,13 @@
   branch = "master"
   name = "github.com/zpatrick/fireball"
   packages = ["."]
-  revision = "3e4ffde20763c94ddfc5591126a7e473e8680616"
+  revision = "ddd82175c332aa8280c03d84fb7a87f8983455e6"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/zpatrick/go-cache"
+  packages = ["."]
+  revision = "93cff70c1ab05a31fc0545db618869eb92d21d76"
 
 [[projects]]
   branch = "master"
@@ -536,6 +544,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "a48bd6c7f22e96d389e0c598bb5e57a5805652e8faf2cda55459898d848343d8"
+  inputs-digest = "e6358f3a3cea8c7050fa4c9fd5eeaa06e7214869310c80b84e04c15a358e7bcd"
   solver-name = "gps-cdcl"
   solver-version = 1

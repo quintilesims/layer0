@@ -24,30 +24,28 @@ func (e *EnvironmentProvider) Read(environmentID string) (*models.Environment, e
 		return nil, err
 	}
 
-	if model.EnvironmentType == models.EnvironmentTypeStatic {
-		autoScalingGroupName := fqEnvironmentID
-		autoScalingGroup, err := e.readASG(autoScalingGroupName)
-		if err != nil {
-			return nil, err
-		}
-
-		launchConfigName := aws.StringValue(autoScalingGroup.LaunchConfigurationName)
-		launchConfig, err := e.readLC(launchConfigName)
-		if err != nil {
-			return nil, err
-		}
-
-		clusterName := autoScalingGroupName
-		clusterInstanceCount, err := e.readClusterCount(clusterName)
-		if err != nil {
-			return nil, err
-		}
-
-		model.CurrentScale = clusterInstanceCount
-		model.DesiredScale = int(aws.Int64Value(autoScalingGroup.DesiredCapacity))
-		model.InstanceType = aws.StringValue(launchConfig.InstanceType)
-		model.AMIID = aws.StringValue(launchConfig.ImageId)
+	autoScalingGroupName := fqEnvironmentID
+	autoScalingGroup, err := e.readASG(autoScalingGroupName)
+	if err != nil {
+		return nil, err
 	}
+
+	launchConfigName := aws.StringValue(autoScalingGroup.LaunchConfigurationName)
+	launchConfig, err := e.readLC(launchConfigName)
+	if err != nil {
+		return nil, err
+	}
+
+	clusterName := autoScalingGroupName
+	clusterInstanceCount, err := e.readClusterCount(clusterName)
+	if err != nil {
+		return nil, err
+	}
+
+	model.CurrentScale = clusterInstanceCount
+	model.DesiredScale = int(aws.Int64Value(autoScalingGroup.DesiredCapacity))
+	model.InstanceType = aws.StringValue(launchConfig.InstanceType)
+	model.AMIID = aws.StringValue(launchConfig.ImageId)
 
 	securityGroupName := getEnvironmentSGName(fqEnvironmentID)
 	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
@@ -126,10 +124,6 @@ func (e *EnvironmentProvider) makeEnvironmentModel(environmentID string) (*model
 
 	if tag, ok := tags.WithKey("os").First(); ok {
 		model.OperatingSystem = tag.Value
-	}
-
-	if tag, ok := tags.WithKey("type").First(); ok {
-		model.EnvironmentType = tag.Value
 	}
 
 	model.Links = []string{}

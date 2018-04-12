@@ -7,6 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/golang/mock/gomock"
 	awsc "github.com/quintilesims/layer0/common/aws"
 	"github.com/quintilesims/layer0/common/models"
@@ -65,6 +66,17 @@ func healthCheckHelper(healthCheck *models.HealthCheck) *elb.HealthCheck {
 	elbHealthCheck.SetUnhealthyThreshold(int64(healthCheck.UnhealthyThreshold))
 
 	return elbHealthCheck
+}
+
+func healthCheckTargetGroupHelper(healthCheck *models.HealthCheck) *alb.ModifyTargetGroupInput {
+	albHealthCheck := &alb.ModifyTargetGroupInput{}
+	albHealthCheck.SetHealthCheckIntervalSeconds(int64(healthCheck.Interval))
+	albHealthCheck.SetHealthCheckPath(healthCheck.Path)
+	albHealthCheck.SetHealthCheckTimeoutSeconds(int64(healthCheck.Timeout))
+	albHealthCheck.SetHealthyThresholdCount(int64(healthCheck.HealthyThreshold))
+	albHealthCheck.SetUnhealthyThresholdCount(int64(healthCheck.UnhealthyThreshold))
+
+	return albHealthCheck
 }
 
 func listenerHelper(port models.Port) *elb.Listener {

@@ -28,12 +28,7 @@ func resourceLayer0Environment() *schema.Resource {
 			"instance_type": {
 				Type:     schema.TypeString,
 				Optional: true,
-				ForceNew: true,
-			},
-			"environment_type": {
-				Type:     schema.TypeString,
-				Optional: true,
-				Default:  config.DefaultEnvironmentType,
+				Default:  config.DefaultEnvironmentInstanceType,
 				ForceNew: true,
 			},
 			"scale": {
@@ -76,7 +71,6 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	req := models.CreateEnvironmentRequest{
 		EnvironmentName:  d.Get("name").(string),
 		InstanceType:     d.Get("instance_type").(string),
-		EnvironmentType:  d.Get("environment_type").(string),
 		UserDataTemplate: []byte(d.Get("user_data").(string)),
 		Scale:            d.Get("scale").(int),
 		OperatingSystem:  d.Get("os").(string),
@@ -109,7 +103,6 @@ func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) err
 
 	d.Set("name", environment.EnvironmentName)
 	d.Set("instance_type", environment.InstanceType)
-	d.Set("environment_type", environment.EnvironmentType)
 	d.Set("scale", environment.DesiredScale)
 	d.Set("security_group_id", environment.SecurityGroupID)
 	d.Set("os", environment.OperatingSystem)

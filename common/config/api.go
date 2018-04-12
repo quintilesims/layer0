@@ -9,101 +9,130 @@ import (
 	"github.com/urfave/cli"
 )
 
+func flagsToEnvVar() map[string]string {
+	return map[string]string{
+		FLAG_PORT:                      ENVVAR_PORT,
+		FLAG_TOKEN:                     ENVVAR_TOKEN,
+		FLAG_LOCK_EXPIRY:               ENVVAR_LOCK_EXPIRY,
+		FLAG_DEBUG:                     ENVVAR_DEBUG,
+		FLAG_INSTANCE:                  ENVVAR_INSTANCE,
+		FLAG_AWS_ACCOUNT_ID:            ENVVAR_AWS_ACCOUNT_ID,
+		FLAG_AWS_ACCESS_KEY:            ENVVAR_AWS_ACCESS_KEY,
+		FLAG_AWS_SECRET_KEY:            ENVVAR_AWS_SECRET_KEY,
+		FLAG_AWS_REGION:                ENVVAR_AWS_REGION,
+		FLAG_AWS_VPC:                   ENVVAR_AWS_VPC,
+		FLAG_AWS_LINUX_AMI:             ENVVAR_AWS_LINUX_AMI,
+		FLAG_AWS_WINDOWS_AMI:           ENVVAR_AWS_WINDOWS_AMI,
+		FLAG_AWS_S3_BUCKET:             ENVVAR_AWS_S3_BUCKET,
+		FLAG_AWS_INSTANCE_PROFILE:      ENVVAR_AWS_INSTANCE_PROFILE,
+		FLAG_AWS_DYNAMO_TAG_TABLE:      ENVVAR_AWS_DYNAMO_TAG_TABLE,
+		FLAG_AWS_DYNAMO_LOCK_TABLE:     ENVVAR_AWS_DYNAMO_LOCK_TABLE,
+		FLAG_AWS_PRIVATE_SUBNETS:       ENVVAR_AWS_PRIVATE_SUBNETS,
+		FLAG_AWS_PUBLIC_SUBNETS:        ENVVAR_AWS_PUBLIC_SUBNETS,
+		FLAG_AWS_LOG_GROUP_NAME:        ENVVAR_AWS_LOG_GROUP_NAME,
+		FLAG_AWS_TIME_BETWEEN_REQUESTS: ENVVAR_AWS_TIME_BETWEEN_REQUESTS,
+		FLAG_AWS_SSH_KEY_PAIR:          ENVVAR_AWS_SSH_KEY_PAIR,
+		FLAG_AWS_MAX_RETRIES:           ENVVAR_AWS_MAX_RETRIES,
+	}
+}
+
 func APIFlags() []cli.Flag {
+	flags := flagsToEnvVar()
+
 	return []cli.Flag{
 		cli.IntFlag{
 			Name:   FLAG_PORT,
 			Value:  DefaultPort,
-			EnvVar: ENVVAR_PORT,
+			EnvVar: flags[FLAG_PORT],
 		},
 		cli.StringFlag{
 			Name:   FLAG_TOKEN,
-			EnvVar: ENVVAR_TOKEN,
+			EnvVar: flags[FLAG_TOKEN],
 		},
 		cli.DurationFlag{
 			Name:   FLAG_LOCK_EXPIRY,
 			Value:  DefaultLockExpiry,
-			EnvVar: ENVVAR_LOCK_EXPIRY,
+			EnvVar: flags[FLAG_LOCK_EXPIRY],
 		},
 		cli.BoolFlag{
 			Name:   FLAG_DEBUG,
-			EnvVar: ENVVAR_DEBUG,
+			EnvVar: flags[FLAG_DEBUG],
 		},
 		cli.StringFlag{
 			Name:   FLAG_INSTANCE,
-			EnvVar: ENVVAR_INSTANCE,
+			EnvVar: flags[FLAG_INSTANCE],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_ACCOUNT_ID,
-			EnvVar: ENVVAR_AWS_ACCOUNT_ID,
+			EnvVar: flags[FLAG_AWS_ACCOUNT_ID],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_ACCESS_KEY,
-			EnvVar: ENVVAR_AWS_ACCESS_KEY,
+			EnvVar: flags[FLAG_AWS_ACCESS_KEY],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_SECRET_KEY,
-			EnvVar: ENVVAR_AWS_SECRET_KEY,
+			EnvVar: flags[FLAG_AWS_SECRET_KEY],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_REGION,
 			Value:  DefaultAWSRegion,
-			EnvVar: ENVVAR_AWS_REGION,
+			EnvVar: flags[FLAG_AWS_REGION],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_VPC,
-			EnvVar: ENVVAR_AWS_VPC,
+			EnvVar: flags[FLAG_AWS_VPC],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_LINUX_AMI,
-			EnvVar: ENVVAR_AWS_LINUX_AMI,
+			EnvVar: flags[FLAG_AWS_LINUX_AMI],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_WINDOWS_AMI,
-			EnvVar: ENVVAR_AWS_WINDOWS_AMI,
+			EnvVar: flags[FLAG_AWS_WINDOWS_AMI],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_S3_BUCKET,
-			EnvVar: ENVVAR_AWS_S3_BUCKET,
+			EnvVar: flags[FLAG_AWS_S3_BUCKET],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_INSTANCE_PROFILE,
-			EnvVar: ENVVAR_AWS_INSTANCE_PROFILE,
+			EnvVar: flags[FLAG_AWS_INSTANCE_PROFILE],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_DYNAMO_TAG_TABLE,
-			EnvVar: ENVVAR_AWS_DYNAMO_TAG_TABLE,
+			EnvVar: flags[FLAG_AWS_DYNAMO_TAG_TABLE],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_DYNAMO_LOCK_TABLE,
-			EnvVar: ENVVAR_AWS_DYNAMO_LOCK_TABLE,
+			EnvVar: flags[FLAG_AWS_DYNAMO_LOCK_TABLE],
 		},
 		cli.StringSliceFlag{
 			Name:   FLAG_AWS_PUBLIC_SUBNETS,
-			EnvVar: ENVVAR_AWS_PUBLIC_SUBNETS,
+			EnvVar: flags[FLAG_AWS_PUBLIC_SUBNETS],
 		},
 		cli.StringSliceFlag{
 			Name:   FLAG_AWS_PRIVATE_SUBNETS,
-			EnvVar: ENVVAR_AWS_PRIVATE_SUBNETS,
+			EnvVar: flags[FLAG_AWS_PRIVATE_SUBNETS],
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_LOG_GROUP_NAME,
-			EnvVar: ENVVAR_AWS_LOG_GROUP_NAME,
+			EnvVar: flags[FLAG_AWS_LOG_GROUP_NAME],
 		},
 		cli.DurationFlag{
 			Name:   FLAG_AWS_TIME_BETWEEN_REQUESTS,
 			Value:  DefaultTimeBetweenRequests,
-			EnvVar: ENVVAR_AWS_TIME_BETWEEN_REQUESTS,
+			EnvVar: flags[FLAG_AWS_TIME_BETWEEN_REQUESTS],
 			Usage:  "duration [h,m,s,ms,ns]",
 		},
 		cli.StringFlag{
 			Name:   FLAG_AWS_SSH_KEY_PAIR,
-			EnvVar: ENVVAR_AWS_SSH_KEY_PAIR,
+			EnvVar: flags[FLAG_AWS_SSH_KEY_PAIR],
 		},
 		cli.IntFlag{
 			Name:   FLAG_AWS_MAX_RETRIES,
 			Value:  50,
-			EnvVar: ENVVAR_AWS_MAX_RETRIES,
+			EnvVar: flags[FLAG_AWS_MAX_RETRIES],
 		},
 	}
 }
@@ -143,6 +172,8 @@ func NewContextAPIConfig(c *cli.Context) *ContextAPIConfig {
 }
 
 func (c *ContextAPIConfig) Validate() error {
+	flags := flagsToEnvVar()
+
 	requiredVars := []string{
 		FLAG_INSTANCE,
 		FLAG_TOKEN,
@@ -164,7 +195,7 @@ func (c *ContextAPIConfig) Validate() error {
 
 	for _, name := range requiredVars {
 		if !c.C.IsSet(name) {
-			return fmt.Errorf("Required Variable '%s' is not set!", name)
+			return fmt.Errorf("required flag '%s' or environment variable '%s' is not set", name, flags[name])
 		}
 	}
 

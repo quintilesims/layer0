@@ -3,6 +3,7 @@ package aws
 import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/elb"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -26,9 +27,11 @@ func (l *LoadBalancerProvider) List() ([]models.LoadBalancerSummary, error) {
 
 func (l *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 	loadBalancerNames := []string{}
-	fn := func(output *elb.DescribeLoadBalancersOutput, lastPage bool) bool {
-		for _, description := range output.LoadBalancerDescriptions {
-			loadBalancerName := aws.StringValue(description.LoadBalancerName)
+
+	// list classic load balancers
+	fnELB := func(output *elb.DescribeLoadBalancersOutput, lastPage bool) bool {
+		for _, lbd := range output.LoadBalancerDescriptions {
+			loadBalancerName := aws.StringValue(lbd.LoadBalancerName)
 
 			if hasLayer0Prefix(l.Config.Instance(), loadBalancerName) {
 				loadBalancerNames = append(loadBalancerNames, loadBalancerName)
@@ -38,7 +41,24 @@ func (l *LoadBalancerProvider) listLoadBalancerNames() ([]string, error) {
 		return !lastPage
 	}
 
-	if err := l.AWS.ELB.DescribeLoadBalancersPages(&elb.DescribeLoadBalancersInput{}, fn); err != nil {
+	if err := l.AWS.ELB.DescribeLoadBalancersPages(&elb.DescribeLoadBalancersInput{}, fnELB); err != nil {
+		return nil, err
+	}
+
+	// list application load balancers
+	fnALB := func(output *alb.DescribeLoadBalancersOutput, lastPage bool) bool {
+		for _, lb := range output.LoadBalancers {
+			loadBalancerName := aws.StringValue(lb.LoadBalancerName)
+
+			if hasLayer0Prefix(l.Config.Instance(), loadBalancerName) {
+				loadBalancerNames = append(loadBalancerNames, loadBalancerName)
+			}
+		}
+
+		return !lastPage
+	}
+
+	if err := l.AWS.ALB.DescribeLoadBalancersPages(&alb.DescribeLoadBalancersInput{}, fnALB); err != nil {
 		return nil, err
 	}
 
@@ -56,22 +76,26 @@ func (l *LoadBalancerProvider) makeLoadBalancerSummaryModels(loadBalancerIDs []s
 		return nil, err
 	}
 
-	models := make([]models.LoadBalancerSummary, len(loadBalancerIDs))
+	summaries := make([]models.LoadBalancerSummary, len(loadBalancerIDs))
 	for i, loadBalancerID := range loadBalancerIDs {
-		models[i].LoadBalancerID = loadBalancerID
+		summaries[i].LoadBalancerID = loadBalancerID
 
 		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("name").First(); ok {
-			models[i].LoadBalancerName = tag.Value
+			summaries[i].LoadBalancerName = tag.Value
+		}
+
+		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("type").First(); ok {
+			summaries[i].LoadBalancerType = tag.Value
 		}
 
 		if tag, ok := loadBalancerTags.WithID(loadBalancerID).WithKey("environment_id").First(); ok {
-			models[i].EnvironmentID = tag.Value
+			summaries[i].EnvironmentID = tag.Value
 
 			if t, ok := environmentTags.WithID(tag.Value).WithKey("name").First(); ok {
-				models[i].EnvironmentName = t.Value
+				summaries[i].EnvironmentName = t.Value
 			}
 		}
 	}
 
-	return models, nil
+	return summaries, nil
 }

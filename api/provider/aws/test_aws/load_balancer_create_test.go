@@ -6,6 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ec2"
 	"github.com/aws/aws-sdk-go/service/elb"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/aws/aws-sdk-go/service/iam"
 	"github.com/golang/mock/gomock"
 	provider "github.com/quintilesims/layer0/api/provider/aws"
@@ -36,6 +37,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
+		LoadBalancerType: models.ClassicLoadBalancerType,
 		EnvironmentID:    "env_id",
 		IsPublic:         true,
 		Ports: []models.Port{
@@ -54,6 +56,7 @@ func TestLoadBalancerCreate(t *testing.T) {
 		},
 		HealthCheck: models.HealthCheck{
 			Target:             "HTTPS:443/path/to/site",
+			Path:               "/",
 			Interval:           20,
 			Timeout:            15,
 			HealthyThreshold:   4,
@@ -182,6 +185,12 @@ func TestLoadBalancerCreate(t *testing.T) {
 			Key:        "environment_id",
 			Value:      "env_id",
 		},
+		{
+			EntityID:   "lb_id",
+			EntityType: "load_balancer",
+			Key:        "type",
+			Value:      models.ClassicLoadBalancerType,
+		},
 	}
 
 	for _, tag := range expectedTags {
@@ -207,6 +216,121 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: "lb_name",
+		LoadBalancerType: models.ApplicationLoadBalancerType,
+		EnvironmentID:    "env_id",
+		Ports:            []models.Port{},
+		HealthCheck:      models.HealthCheck{},
+	}
+
+	readSGHelper(mockAWS, "l0-test-env_id-env", "env_sg")
+	createSGHelper(t, mockAWS, "l0-test-lb_id-lb", "vpc_id")
+	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
+
+	mockAWS.EC2.EXPECT().
+		AuthorizeSecurityGroupIngress(gomock.Any()).
+		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
+
+	mockAWS.IAM.EXPECT().
+		CreateRole(gomock.Any()).
+		Return(&iam.CreateRoleOutput{}, nil)
+
+	mockAWS.IAM.EXPECT().
+		PutRolePolicy(gomock.Any()).
+		Return(&iam.PutRolePolicyOutput{}, nil)
+
+	createLoadBalancerInput := &alb.CreateLoadBalancerInput{}
+	createLoadBalancerInput.SetName("l0-test-lb_id")
+	createLoadBalancerInput.SetScheme("internal")
+	createLoadBalancerInput.SetSecurityGroups([]*string{aws.String("env_sg"), aws.String("lb_sg")})
+	createLoadBalancerInput.SetSubnets([]*string{aws.String("priv1"), aws.String("priv2")})
+	createLoadBalancerInput.SetType(alb.LoadBalancerTypeEnumApplication)
+
+	createLoadBalancerOutput := &alb.CreateLoadBalancerOutput{}
+	createLoadBalancerOutput.SetLoadBalancers([]*alb.LoadBalancer{
+		&alb.LoadBalancer{
+			LoadBalancerArn: aws.String("arn:l0-test-lb"),
+		},
+	})
+	mockAWS.ALB.EXPECT().
+		CreateLoadBalancer(createLoadBalancerInput).
+		Return(createLoadBalancerOutput, nil)
+
+	waitInput := &alb.DescribeLoadBalancersInput{}
+	waitInput.SetLoadBalancerArns([]*string{aws.String("arn:l0-test-lb")})
+	mockAWS.ALB.EXPECT().
+		WaitUntilLoadBalancerExists(waitInput).
+		Return(nil)
+
+	createTargetGroupInput := &alb.CreateTargetGroupInput{}
+	createTargetGroupInput.SetName("l0-test-lb_id")
+	createTargetGroupInput.SetPort(config.DefaultTargetGroupPort)
+	createTargetGroupInput.SetProtocol(config.DefaultTargetGroupProtocol)
+	createTargetGroupInput.SetVpcId(mockConfig.VPC())
+	createTargetGroupInput.SetTargetType(alb.TargetTypeEnumIp)
+	// set health check
+	createTargetGroupInput.SetHealthCheckPath(config.DefaultLoadBalancerHealthCheck().Path)
+	createTargetGroupInput.SetHealthCheckIntervalSeconds(int64(config.DefaultLoadBalancerHealthCheck().Interval))
+	createTargetGroupInput.SetHealthCheckTimeoutSeconds(int64(config.DefaultLoadBalancerHealthCheck().Timeout))
+	createTargetGroupInput.SetHealthyThresholdCount(int64(config.DefaultLoadBalancerHealthCheck().HealthyThreshold))
+	createTargetGroupInput.SetUnhealthyThresholdCount(int64(config.DefaultLoadBalancerHealthCheck().UnhealthyThreshold))
+
+	createTargetGroupOutput := &alb.CreateTargetGroupOutput{
+		TargetGroups: []*alb.TargetGroup{
+			&alb.TargetGroup{
+				TargetGroupArn: aws.String("arn:target-group-id"),
+			},
+		},
+	}
+	mockAWS.ALB.EXPECT().
+		CreateTargetGroup(createTargetGroupInput).
+		Return(createTargetGroupOutput, nil)
+
+	createListenerInput := &alb.CreateListenerInput{}
+	createListenerInput.SetLoadBalancerArn("arn:l0-test-lb")
+	createListenerInput.SetPort(config.DefaultTargetGroupPort)
+	createListenerInput.SetProtocol(config.DefaultTargetGroupProtocol)
+	createListenerInput.SetDefaultActions([]*alb.Action{
+		{
+			TargetGroupArn: aws.String("arn:target-group-id"),
+			Type:           aws.String(alb.ActionTypeEnumForward),
+		},
+	})
+	createListenerOutput := &alb.CreateListenerOutput{}
+	createListenerOutput.SetListeners([]*alb.Listener{
+		{},
+	})
+	mockAWS.ALB.EXPECT().
+		CreateListener(createListenerInput).
+		Return(createListenerOutput, nil)
+
+	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
+	result, err := target.Create(req)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	assert.Equal(t, "lb_id", result)
+}
+
+func TestClassicLoadBalancerCreate(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	mockAWS := awsc.NewMockClient(ctrl)
+	tagStore := tag.NewMemoryStore()
+	mockConfig := mock_config.NewMockAPIConfig(ctrl)
+
+	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
+	mockConfig.EXPECT().VPC().Return("vpc_id").AnyTimes()
+	mockConfig.EXPECT().Region().Return("region").AnyTimes()
+	mockConfig.EXPECT().AccountID().Return("123456789012")
+	mockConfig.EXPECT().PrivateSubnets().Return([]string{"priv1", "priv2"}).AnyTimes()
+
+	defer provider.SetEntityIDGenerator("lb_id")()
+
+	req := models.CreateLoadBalancerRequest{
+		LoadBalancerName: "lb_name",
+		LoadBalancerType: models.ClassicLoadBalancerType,
 		EnvironmentID:    "env_id",
 		Ports:            []models.Port{},
 		HealthCheck:      models.HealthCheck{},

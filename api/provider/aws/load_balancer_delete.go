@@ -11,6 +11,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/elb"
+	alb "github.com/aws/aws-sdk-go/service/elbv2"
 	"github.com/aws/aws-sdk-go/service/iam"
 )
 
@@ -28,12 +29,9 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 
 	// Check for eventually consistency
 	waitUntilLBDeletedFN := func() (shouldRetry bool, err error) {
-		input := &elb.DescribeLoadBalancersInput{}
-		input.SetLoadBalancerNames([]*string{aws.String(fqLoadBalancerID)})
-		input.SetPageSize(1)
-
-		if _, err = l.AWS.ELB.DescribeLoadBalancers(input); err != nil {
-			if err, ok := err.(awserr.Error); ok && err.Code() == "LoadBalancerNotFound" {
+		loadBalancerName := fqLoadBalancerID
+		if _, err = describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName); err != nil {
+			if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
 				return false, nil
 			}
 
@@ -46,6 +44,11 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 
 	if err := retry.Retry(waitUntilLBDeletedFN, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
 		return errors.New(errors.EventualConsistencyError, err)
+	}
+
+	targetGroupName := fqLoadBalancerID
+	if err := l.deleteTargetGroup(targetGroupName); err != nil {
+		return err
 	}
 
 	roleName := getLoadBalancerRoleName(fqLoadBalancerID)
@@ -66,34 +69,113 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 
 	if securityGroup != nil {
 		groupID := aws.StringValue(securityGroup.GroupId)
-		if err := deleteSG(l.AWS.EC2, groupID); err != nil {
+		if err := deleteSGWithRetry(l.AWS.EC2, groupID); err != nil {
 			return err
 		}
 	}
 
-	// Check for eventually consistency
 	fn := waitUntilSGDeletedFN(l.AWS.EC2, securityGroupName)
 	if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
 		return errors.New(errors.EventualConsistencyError, err)
 	}
 
-	if err := l.deleteTags(loadBalancerID); err != nil {
+	return l.deleteTags(loadBalancerID)
+}
+
+func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error {
+	lb, err := describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName)
+	if err != nil {
+		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
+			return nil
+		}
+
 		return err
+	}
+
+	if lb.isCLB {
+		input := &elb.DeleteLoadBalancerInput{}
+		input.SetLoadBalancerName(loadBalancerName)
+
+		if err := input.Validate(); err != nil {
+			return err
+		}
+
+		if _, err := l.AWS.ELB.DeleteLoadBalancer(input); err != nil {
+			if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
+				return nil
+			}
+
+			return err
+		}
+	}
+
+	if lb.isALB {
+		input := &alb.DeleteLoadBalancerInput{}
+		input.SetLoadBalancerArn(aws.StringValue(lb.ALB.LoadBalancerArn))
+
+		if err := input.Validate(); err != nil {
+			return err
+		}
+
+		if _, err := l.AWS.ALB.DeleteLoadBalancer(input); err != nil {
+			if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
+				return nil
+			}
+
+			return err
+		}
+
+		waitInput := &alb.DescribeLoadBalancersInput{}
+		waitInput.SetLoadBalancerArns([]*string{lb.ALB.LoadBalancerArn})
+
+		if err := waitInput.Validate(); err != nil {
+			return err
+		}
+
+		if err := l.AWS.ALB.WaitUntilLoadBalancersDeleted(waitInput); err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
-func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error {
-	input := &elb.DeleteLoadBalancerInput{}
-	input.SetLoadBalancerName(loadBalancerName)
-
-	if _, err := l.AWS.ELB.DeleteLoadBalancer(input); err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "NoSuchEntity" {
+func (l *LoadBalancerProvider) deleteTargetGroup(targetGroupName string) error {
+	tg, err := readTargetGroup(l.AWS.ALB, aws.String(targetGroupName), nil)
+	if err != nil {
+		if err, ok := err.(awserr.Error); ok && err.Code() == alb.ErrCodeTargetGroupNotFoundException {
 			return nil
 		}
 
 		return err
+	}
+
+	input := &alb.DeleteTargetGroupInput{
+		TargetGroupArn: tg.TargetGroupArn,
+	}
+
+	if err := input.Validate(); err != nil {
+		return err
+	}
+
+	retryDeleteFN := func() (shouldRetry bool, err error) {
+		if _, err := l.AWS.ALB.DeleteTargetGroup(input); err != nil {
+			log.Printf("[DEBUG] target group '%s' could not be deleted due to '%s', will retry.", targetGroupName, err.Error())
+			if err, ok := err.(awserr.Error); ok && err.Code() == alb.ErrCodeResourceInUseException {
+				return true, nil
+			}
+
+			return false, err
+		}
+
+		return false, nil
+	}
+
+	if err := retry.Retry(retryDeleteFN,
+		retry.WithTimeout(time.Second*30),
+		retry.WithDelay(time.Second),
+	); err != nil {
+		return errors.New(errors.EventualConsistencyError, err)
 	}
 
 	return nil

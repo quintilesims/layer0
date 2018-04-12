@@ -1,6 +1,8 @@
 package aws
 
 import (
+	"strings"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/models"
@@ -86,6 +88,15 @@ func (d *DeployProvider) populateSummariesFromTaskDefinitionARNs(taskDefinitionA
 
 			if tag, ok := deployTags.WithID(deploySummary.DeployID).WithKey("version").First(); ok {
 				deploySummary.Version = tag.Value
+			}
+
+			if tag, ok := deployTags.WithID(deploySummary.DeployID).WithKey("compatibilities").First(); ok {
+				compatibilities := []string{}
+				for _, c := range strings.Split(tag.Value, ",") {
+					compatibilities = append(compatibilities, c)
+				}
+
+				deploySummary.Compatibilities = compatibilities
 			}
 
 			deploySummaries = append(deploySummaries, deploySummary)

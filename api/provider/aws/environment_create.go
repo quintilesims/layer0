@@ -39,7 +39,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		return "", err
 	}
 
-	securityGroup, err := readSG(e.AWS.EC2, securityGroupName)
+	securityGroup, err := readNewlyCreatedSG(e.AWS.EC2, securityGroupName)
 	if err != nil {
 		return "", err
 	}
@@ -49,61 +49,58 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		return "", err
 	}
 
-	// creating asg and lc is only required for static environments
-	if strings.ToLower(req.EnvironmentType) == models.EnvironmentTypeStatic {
-		var userDataTemplate []byte
-		var amiID string
+	var userDataTemplate []byte
+	var amiID string
 
-		switch strings.ToLower(req.OperatingSystem) {
-		case models.LinuxOS:
-			userDataTemplate = []byte(DefaultLinuxUserdataTemplate)
-			amiID = e.Config.LinuxAMI()
-		case models.WindowsOS:
-			userDataTemplate = []byte(DefaultWindowsUserdataTemplate)
-			amiID = e.Config.WindowsAMI()
-		default:
-			return "", fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)
-		}
+	switch strings.ToLower(req.OperatingSystem) {
+	case models.LinuxOS:
+		userDataTemplate = []byte(DefaultLinuxUserdataTemplate)
+		amiID = e.Config.LinuxAMI()
+	case models.WindowsOS:
+		userDataTemplate = []byte(DefaultWindowsUserdataTemplate)
+		amiID = e.Config.WindowsAMI()
+	default:
+		return "", fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)
+	}
 
-		if req.AMIID != "" {
-			amiID = req.AMIID
-		}
+	if req.AMIID != "" {
+		amiID = req.AMIID
+	}
 
-		if len(req.UserDataTemplate) > 0 {
-			userDataTemplate = req.UserDataTemplate
-		}
+	if len(req.UserDataTemplate) > 0 {
+		userDataTemplate = req.UserDataTemplate
+	}
 
-		userData, err := RenderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
-		if err != nil {
-			return "", err
-		}
+	userData, err := RenderUserData(fqEnvironmentID, e.Config.S3Bucket(), userDataTemplate)
+	if err != nil {
+		return "", err
+	}
 
-		instanceType := config.DefaultEnvironmentInstanceType
-		if req.InstanceType != "" {
-			instanceType = req.InstanceType
-		}
+	instanceType := config.DefaultEnvironmentInstanceType
+	if req.InstanceType != "" {
+		instanceType = req.InstanceType
+	}
 
-		launchConfigName := fqEnvironmentID
-		if err := e.createLC(
-			launchConfigName,
-			aws.StringValue(securityGroup.GroupId),
-			instanceType,
-			e.Config.InstanceProfile(),
-			e.Config.SSHKeyPair(),
-			amiID,
-			userData); err != nil {
-			return "", err
-		}
+	launchConfigName := fqEnvironmentID
+	if err := e.createLC(
+		launchConfigName,
+		aws.StringValue(securityGroup.GroupId),
+		instanceType,
+		e.Config.InstanceProfile(),
+		e.Config.SSHKeyPair(),
+		amiID,
+		userData); err != nil {
+		return "", err
+	}
 
-		autoScalingGroupName := fqEnvironmentID
-		if err := e.createASG(
-			autoScalingGroupName,
-			launchConfigName,
-			int64(req.Scale),
-			int64(req.Scale),
-			e.Config.PrivateSubnets()); err != nil {
-			return "", err
-		}
+	autoScalingGroupName := fqEnvironmentID
+	if err := e.createASG(
+		autoScalingGroupName,
+		launchConfigName,
+		int64(req.Scale),
+		int64(req.Scale),
+		e.Config.PrivateSubnets()); err != nil {
+		return "", err
 	}
 
 	clusterName := fqEnvironmentID
@@ -111,7 +108,7 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 		return "", err
 	}
 
-	if err := e.createTags(environmentID, req.EnvironmentName, req.EnvironmentType, req.OperatingSystem); err != nil {
+	if err := e.createTags(environmentID, req.EnvironmentName, req.OperatingSystem); err != nil {
 		return "", err
 	}
 
@@ -211,7 +208,7 @@ func (e *EnvironmentProvider) createCluster(clusterName string) error {
 	return nil
 }
 
-func (e *EnvironmentProvider) createTags(environmentID, environmentName, environmentType, operatingSystem string) error {
+func (e *EnvironmentProvider) createTags(environmentID, environmentName, operatingSystem string) error {
 	tags := []models.Tag{
 		{
 			EntityID:   environmentID,
@@ -224,12 +221,6 @@ func (e *EnvironmentProvider) createTags(environmentID, environmentName, environ
 			EntityType: "environment",
 			Key:        "os",
 			Value:      strings.ToLower(operatingSystem),
-		},
-		{
-			EntityID:   environmentID,
-			EntityType: "environment",
-			Key:        "type",
-			Value:      strings.ToLower(environmentType),
 		},
 	}
 
