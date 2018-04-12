@@ -1,7 +1,7 @@
 {
     "requiresCompatibilities": [ "FARGATE" ],
     "networkMode": "awsvpc",
-    "cpu": "265",
+    "cpu": "256",
     "memory": "0.5GB",
     "AWSEBDockerrunVersion": 2,
     "containerDefinitions": [

@@ -15,8 +15,10 @@ func TestDataSources(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/datasources", nil)
+	log.Printf("Starting apply")
 	s.Terraform.Apply()
-	defer s.Terraform.Destroy()
+	log.Printf("Apply finished")
+	// defer s.Terraform.Destroy()
 
 	// Compare outputs of data and resource values (resource
 	// values have the '_expected' suffix)
@@ -33,42 +35,35 @@ func TestDataSources(t *testing.T) {
 	}
 
 	//check environment outputs
-	checkOutput("environment_id")
 	checkOutput("environment_name")
-	checkOutput("environment_size")
-	checkOutput("environment_min_count")
+	checkOutput("environment_id")
+	checkOutput("environment_instance_type")
+	checkOutput("environment_scale")
 	checkOutput("environment_os")
 	checkOutput("environment_ami")
+	checkOutput("environment_security_group_id")
+
+	s.Terraform.Destroy()
 
 	//check deploy output
-	checkOutput("stateless_deploy_id")
-	checkOutput("stateless_deploy_name")
-	checkOutput("stateless_deploy_version")
-	checkOutput("stateful_deploy_id")
-	checkOutput("stateful_deploy_name")
-	checkOutput("stateful_deploy_version")
+	// checkOutput("deploy_id")
+	// checkOutput("deploy_name")
+	// checkOutput("deploy_version")
 
 	//check load balancer outputs
-	checkOutput("stateless_load_balancer_id")
-	checkOutput("stateless_load_balancer_name")
-	checkOutput("stateless_load_balancer_environment_name")
-	checkOutput("stateless_load_balancer_private")
-	checkOutput("stateless_load_balancer_url")
-	checkOutput("stateful_load_balancer_id")
-	checkOutput("stateful_load_balancer_name")
-	checkOutput("stateful_load_balancer_environment_name")
-	checkOutput("stateful_load_balancer_private")
-	checkOutput("stateful_load_balancer_url")
+	// checkOutput("load_balancer_id")
+	// checkOutput("load_balancer_name")
+	// checkOutput("load_balancer_environment_id")
+	// checkOutput("load_balancer_environment_name")
+	// checkOutput("load_balancer_private")
+	// checkOutput("load_balancer_url")
+	// checkOutput("load_balancer_type")
 
 	//check service outputs
-	checkOutput("stateless_service_id")
-	checkOutput("stateless_service_name")
-	checkOutput("stateless_service_environment_id")
-	checkOutput("stateless_service_environment_name")
-	checkOutput("stateless_service_scale")
-	checkOutput("stateful_service_id")
-	checkOutput("stateful_service_name")
-	checkOutput("stateful_service_environment_id")
-	checkOutput("stateful_service_environment_name")
-	checkOutput("stateful_service_scale")
+	// checkOutput("service_id")
+	// checkOutput("service_name")
+	// checkOutput("service_environment_id")
+	// checkOutput("service_environment_name")
+	// checkOutput("service_scale")
+	// checkOutput("service_stateful")
 }

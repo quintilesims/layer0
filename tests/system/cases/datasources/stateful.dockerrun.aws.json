@@ -1,4 +1,5 @@
 {
+	"requiresCompatibilities": [ "EC2" ],
     "AWSEBDockerrunVersion": 2,
     "containerDefinitions": [
         {
