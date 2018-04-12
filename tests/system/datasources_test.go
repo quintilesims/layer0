@@ -15,10 +15,8 @@ func TestDataSources(t *testing.T) {
 	t.Parallel()
 
 	s := NewSystemTest(t, "cases/datasources", nil)
-	log.Printf("Starting apply")
 	s.Terraform.Apply()
-	log.Printf("Apply finished")
-	// defer s.Terraform.Destroy()
+	defer s.Terraform.Destroy()
 
 	// Compare outputs of data and resource values (resource
 	// values have the '_expected' suffix)
@@ -43,27 +41,25 @@ func TestDataSources(t *testing.T) {
 	checkOutput("environment_ami")
 	checkOutput("environment_security_group_id")
 
-	s.Terraform.Destroy()
-
 	//check deploy output
-	// checkOutput("deploy_id")
-	// checkOutput("deploy_name")
-	// checkOutput("deploy_version")
+	checkOutput("deploy_id")
+	checkOutput("deploy_name")
+	checkOutput("deploy_version")
 
 	//check load balancer outputs
-	// checkOutput("load_balancer_id")
-	// checkOutput("load_balancer_name")
-	// checkOutput("load_balancer_environment_id")
-	// checkOutput("load_balancer_environment_name")
-	// checkOutput("load_balancer_private")
-	// checkOutput("load_balancer_url")
-	// checkOutput("load_balancer_type")
+	checkOutput("load_balancer_id")
+	checkOutput("load_balancer_name")
+	checkOutput("load_balancer_environment_id")
+	checkOutput("load_balancer_environment_name")
+	checkOutput("load_balancer_private")
+	checkOutput("load_balancer_url")
+	checkOutput("load_balancer_type")
 
 	//check service outputs
-	// checkOutput("service_id")
-	// checkOutput("service_name")
-	// checkOutput("service_environment_id")
-	// checkOutput("service_environment_name")
-	// checkOutput("service_scale")
+	checkOutput("service_id")
+	checkOutput("service_name")
+	checkOutput("service_environment_id")
+	checkOutput("service_environment_name")
+	checkOutput("service_scale")
 	// checkOutput("service_stateful")
 }
