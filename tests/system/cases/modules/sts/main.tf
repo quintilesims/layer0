@@ -1,11 +1,8 @@
-# -- stateless deployment --
-resource "layer0_load_balancer" "sts_stateless" {
-  count = "${var.stateless ? 1 : 0}"
-
-  name        = "sts_stateless"
+resource "layer0_load_balancer" "sts" {
+  name        = "sts"
   environment = "${var.environment_id}"
   private     = "${var.private}"
-  type        = "application"
+  type        = "${var.load_balancer_type}"
 
   port {
     host_port      = 80
@@ -14,61 +11,19 @@ resource "layer0_load_balancer" "sts_stateless" {
   }
 }
 
-resource "layer0_service" "sts_stateless" {
-  count = "${var.stateless ? 1 : 0}"
-
-  name          = "sts_stateless"
+resource "layer0_service" "sts" {
+  name          = "sts"
   environment   = "${var.environment_id}"
-  deploy        = "${layer0_deploy.sts_stateless.id}"
-  load_balancer = "${layer0_load_balancer.sts_stateless.id}"
-  stateful      = false
+  deploy        = "${layer0_deploy.sts.id}"
+  load_balancer = "${layer0_load_balancer.sts.id}"
+  stateful      = "${var.stateful}"
 }
 
-resource "layer0_deploy" "sts_stateless" {
-  count = "${var.stateless ? 1 : 0}"
-
-  name    = "sts_stateless"
-  content = "${data.template_file.sts_stateless.rendered}"
+resource "layer0_deploy" "sts" {
+  name    = "sts"
+  content = "${data.template_file.sts.rendered}"
 }
 
-data "template_file" "sts_stateless" {
-  template = "${file("${path.module}/stateless.Dockerrun.aws.json")}"
-}
-
-# -- stateful deployment --
-resource "layer0_load_balancer" "sts_stateful" {
-  count = "${var.stateful ? 1 : 0}"
-
-  name        = "sts_stateful"
-  environment = "${var.environment_id}"
-  private     = "${var.private}"
-  type        = "classic"
-
-  port {
-    host_port      = 80
-    container_port = 80
-    protocol       = "http"
-  }
-}
-
-resource "layer0_service" "sts_stateful" {
-  count = "${var.stateful ? 1 : 0}"
-
-  name          = "sts_stateful"
-  environment   = "${var.environment_id}"
-  deploy        = "${layer0_deploy.sts_stateful.id}"
-  load_balancer = "${layer0_load_balancer.sts_stateful.id}"
-  scale         = "${var.scale}"
-  stateful      = true
-}
-
-resource "layer0_deploy" "sts_stateful" {
-  count = "${var.stateful ? 1 : 0}"
-
-  name    = "sts_stateful"
-  content = "${data.template_file.sts_stateful.rendered}"
-}
-
-data "template_file" "sts_stateful" {
-  template = "${file("${path.module}/stateful.Dockerrun.aws.json")}"
+data "template_file" "sts" {
+    template = "${var.stateful ? file("${path.module}/stateful.Dockerrun.aws.json") : file("${path.module}/stateless.Dockerrun.aws.json")}"
 }
