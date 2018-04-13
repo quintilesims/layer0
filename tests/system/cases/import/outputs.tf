@@ -3,13 +3,13 @@ output "environment_id" {
 }
 
 output "service_id" {
-  value = "${module.sts.stateless_service_id}"
+  value = "${module.sts.service_id}"
 }
 
 output "deploy_name" {
-  value = "${module.sts.stateless_deploy_name}"
+  value = "${module.sts.deploy_name}"
 }
 
 output "load_balancer_id" {
-  value = "${module.sts.stateless_load_balancer_id}"
+  value = "${module.sts.load_balancer_id}"
 }

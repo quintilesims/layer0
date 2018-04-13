@@ -36,7 +36,7 @@ func TestImport(t *testing.T) {
 	environmentID := s.Layer0.CreateEnvironment(createEnvironmentReq)
 
 	createLoadBalancerReq := models.CreateLoadBalancerRequest{
-		LoadBalancerName: "sts_stateless",
+		LoadBalancerName: "sts",
 		EnvironmentID:    environmentID,
 		IsPublic:         true,
 		Ports:            []models.Port{config.DefaultLoadBalancerPort()},
@@ -52,7 +52,7 @@ func TestImport(t *testing.T) {
 	}
 
 	createDeployReq := models.CreateDeployRequest{
-		DeployName: "sts_stateless",
+		DeployName: "sts",
 		DeployFile: data,
 	}
 
@@ -63,16 +63,16 @@ func TestImport(t *testing.T) {
 		EnvironmentID:  environmentID,
 		LoadBalancerID: loadBalancerID,
 		Scale:          1,
-		ServiceName:    "sts_stateless",
+		ServiceName:    "sts",
 		Stateful:       false,
 	}
 
 	serviceID := s.Layer0.CreateService(createServiceReq)
 
 	s.Terraform.Import("layer0_environment.import", environmentID)
-	s.Terraform.Import("module.sts.layer0_load_balancer.sts_stateless", loadBalancerID)
-	s.Terraform.Import("module.sts.layer0_deploy.sts_stateless", deployID)
-	s.Terraform.Import("module.sts.layer0_service.sts_stateless", serviceID)
+	s.Terraform.Import("module.sts.layer0_load_balancer.sts", loadBalancerID)
+	s.Terraform.Import("module.sts.layer0_deploy.sts", deployID)
+	s.Terraform.Import("module.sts.layer0_service.sts", serviceID)
 
 	s.Terraform.Apply()
 }
