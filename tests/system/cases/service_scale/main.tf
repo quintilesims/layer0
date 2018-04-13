@@ -6,6 +6,7 @@ provider "layer0" {
 
 resource "layer0_environment" "ss" {
   name = "ss"
+  scale = 3
 }
 
 module "sts" {

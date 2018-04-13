@@ -3,5 +3,5 @@ output "environment_id" {
 }
 
 output "service_id" {
-  value = "${module.sts.stateful_service_id}"
+  value = "${module.sts.service_id}"
 }
