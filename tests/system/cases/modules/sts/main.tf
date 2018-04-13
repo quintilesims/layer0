@@ -2,7 +2,7 @@ resource "layer0_load_balancer" "sts" {
   name        = "sts"
   environment = "${var.environment_id}"
   private     = "${var.private}"
-  type        = "${var.load_balancer_type}"
+  type        = "${var.stateful ? "classic" : "application"}"
 
   port {
     host_port      = 80

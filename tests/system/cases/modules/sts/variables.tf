@@ -8,10 +8,6 @@ variable "scale" {
   default = 1
 }
 
-variable "load_balancer_type" {
-    default = "application"
-}
-
 variable "stateful" {
   default = false
 }
