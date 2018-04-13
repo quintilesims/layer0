@@ -43,6 +43,7 @@ func TestEnvironmentLink(t *testing.T) {
 			return false
 		}
 
+		log.Printf("[DEBUG] Output was '%s' as expected", output)
 		return true
 	})
 
@@ -53,7 +54,7 @@ func TestEnvironmentLink(t *testing.T) {
 
 	s.Layer0.UpdateEnvironment(publicEnvironmentID, req)
 
-	testutils.WaitFor(t, time.Second*10, time.Minute*2, func() bool {
+	testutils.WaitFor(t, time.Second*10, time.Minute*5, func() bool {
 		log.Printf("[DEBUG] Running curl without link")
 		output, err := publicService.RunCommand("curl", "-m", "10", "-s", privateServiceURL)
 		if err != nil {
@@ -66,6 +67,7 @@ func TestEnvironmentLink(t *testing.T) {
 			return false
 		}
 
+		log.Printf("[DEBUG] Output was '%s' as expected", output)
 		return true
 	})
 }

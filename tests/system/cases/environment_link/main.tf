@@ -20,12 +20,12 @@ resource "layer0_environment_links" "public_private" {
 module "sts_public" {
   source         = "../modules/sts"
   environment_id = "${layer0_environment.el_public.id}"
-  stateless      = true
+  name           = "sts_public"
 }
 
 module "sts_private" {
   source         = "../modules/sts"
   environment_id = "${layer0_environment.el_private.id}"
+  name           = "sts_private"
   private        = true
-  stateful       = true
 }
