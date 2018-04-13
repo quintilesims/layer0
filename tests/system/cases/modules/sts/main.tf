@@ -1,5 +1,5 @@
 resource "layer0_load_balancer" "sts" {
-  name        = "sts"
+  name        = "${var.name}"
   environment = "${var.environment_id}"
   private     = "${var.private}"
   type        = "${var.stateful ? "classic" : "application"}"
@@ -12,7 +12,7 @@ resource "layer0_load_balancer" "sts" {
 }
 
 resource "layer0_service" "sts" {
-  name          = "sts"
+  name          = "${var.name}"
   environment   = "${var.environment_id}"
   deploy        = "${layer0_deploy.sts.id}"
   load_balancer = "${layer0_load_balancer.sts.id}"
@@ -20,10 +20,10 @@ resource "layer0_service" "sts" {
 }
 
 resource "layer0_deploy" "sts" {
-  name    = "sts"
+  name    = "${var.name}"
   content = "${data.template_file.sts.rendered}"
 }
 
 data "template_file" "sts" {
-    template = "${var.stateful ? file("${path.module}/stateful.Dockerrun.aws.json") : file("${path.module}/stateless.Dockerrun.aws.json")}"
+  template = "${var.stateful ? file("${path.module}/stateful.Dockerrun.aws.json") : file("${path.module}/stateless.Dockerrun.aws.json")}"
 }
