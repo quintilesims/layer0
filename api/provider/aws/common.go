@@ -302,8 +302,8 @@ func deleteSGWithRetry(ec2api ec2iface.EC2API, securityGroupID string) error {
 	}
 
 	if err := retry.Retry(retrySGDeleteFN,
-		retry.WithTimeout(time.Second*30),
-		retry.WithDelay(time.Second),
+		retry.WithTimeout(time.Second*60),
+		retry.WithDelay(time.Second*5),
 	); err != nil {
 		return errors.New(errors.EventualConsistencyError, err)
 	}

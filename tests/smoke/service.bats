@@ -27,7 +27,7 @@
 }
 
 @test "update" {
-  l0 service update svc_name_stateful dpl_name_stateful2
+  l0 service update svc_name_stateful dpl_name_stateful2:latest
 }
 
 @test "logs" {
