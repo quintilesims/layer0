@@ -148,8 +148,9 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		}
 	}
 
-	fn := func() (shouldRetry bool, err error) {
-		if err := s.createService(
+	err = nil
+	fn := func() (shouldRetry bool) {
+		if err = s.createService(
 			cluster,
 			serviceName,
 			taskDefinitionARN,
@@ -163,16 +164,20 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		); err != nil {
 			if strings.Contains(err.Error(), "Unable to assume role") {
 				log.Printf("[DEBUG] Failed service create, will retry (%v)", err)
-				return true, nil
+				return true
 			}
 
-			return false, err
+			return false
 		}
 
-		return false, nil
+		return false
 	}
 
 	if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+		return "", err
+	}
+
+	if err != nil {
 		if err, ok := err.(awserr.Error); ok && err.Code() == "InvalidParameterException" {
 			return "", err
 		}

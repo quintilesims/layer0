@@ -9,9 +9,9 @@ import (
 
 func TestRetry(t *testing.T) {
 	var calls int
-	fn := func() (shouldRetry bool, err error) {
+	fn := func() (shouldRetry bool) {
 		calls++
-		return calls < 5, nil
+		return calls < 5
 	}
 
 	if err := Retry(fn); err != nil {
@@ -22,13 +22,20 @@ func TestRetry(t *testing.T) {
 }
 
 func TestRetryError(t *testing.T) {
-	fn := func() (shouldRetry bool, err error) {
-		return false, fmt.Errorf("some error")
+	var err error
+	fn := func() (shouldRetry bool) {
+		err = fmt.Errorf("some error")
+		return false
 	}
 
-	if err := Retry(fn); err == nil {
+	if err := Retry(fn); err != nil {
+		t.Fatal(err)
+	}
+
+	if err == nil {
 		t.Fatal("Error was nil!")
 	}
+
 }
 
 func TestRetryOptions(t *testing.T) {
@@ -43,9 +50,9 @@ func TestRetryOptions(t *testing.T) {
 	}
 
 	var calls int
-	fn := func() (shouldRetry bool, err error) {
+	fn := func() (shouldRetry bool) {
 		calls++
-		return calls < 5, nil
+		return calls < 5
 	}
 
 	optionA, callsA := newOption()
@@ -64,11 +71,11 @@ func TestRetryOptionError(t *testing.T) {
 		return fmt.Errorf("some error")
 	}
 
-	fn := func() (shouldRetry bool, err error) {
-		return false, nil
+	fn := func() (shouldRetry bool) {
+		return false
 	}
 
 	if err := Retry(fn, option); err == nil {
-		t.Fatal("Error was nil!")
+		t.Fatal(err)
 	}
 }

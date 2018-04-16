@@ -51,7 +51,8 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 		}
 
 		// Check for eventually consistency
-		fn := func() (shouldRetry bool, err error) {
+		var err error
+		fn := func() (shouldRetry bool) {
 			filter := &ec2.Filter{}
 			filter.SetName("group-name")
 			filter.SetValues([]*string{aws.String(securityGroupName)})
@@ -59,22 +60,27 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 			input := &ec2.DescribeSecurityGroupsInput{}
 			input.SetFilters([]*ec2.Filter{filter})
 
-			output, err := e.AWS.EC2.DescribeSecurityGroups(input)
+			var output *ec2.DescribeSecurityGroupsOutput
+			output, err = e.AWS.EC2.DescribeSecurityGroups(input)
 			if err != nil {
-				return false, err
+				return false
 			}
 
 			for _, group := range output.SecurityGroups {
 				if aws.StringValue(group.GroupName) == securityGroupName {
 					log.Printf("[DEBUG] Service group not deleted, will retry lookup")
-					return true, nil
+					return true
 				}
 			}
 
-			return false, nil
+			return false
 		}
 
 		if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+			return err
+		}
+
+		if err != nil {
 			return errors.New(errors.EventualConsistencyError, err)
 		}
 	}

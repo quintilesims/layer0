@@ -56,27 +56,33 @@ func NewAPIClient(c Config) *APIClient {
 func wrapRetryRequestDoer(doer rclient.RequestDoer) rclient.RequestDoerFunc {
 	return func(req *http.Request) (*http.Response, error) {
 		var response *http.Response
-		fn := func() (shouldRetry bool, err error) {
-			resp, err := doer.Do(req)
+		var err error
+		fn := func() (shouldRetry bool) {
+			var resp *http.Response
+			resp, err = doer.Do(req)
 			if err != nil {
-				return false, err
+				return false
 			}
 
 			if resp.StatusCode < 200 || resp.StatusCode > 299 {
-				serverError := readServerError(resp)
-				if serverError.Code == errors.EventualConsistencyError {
+				err = readServerError(resp)
+				if err, ok := err.(*errors.ServerError); ok && err.Code == errors.EventualConsistencyError {
 					log.Printf("[DEBUG] Client encountered eventual consistency error, will retry: %v", err)
-					return true, nil
+					return true
 				}
 
-				return false, serverError
+				return false
 			}
 
 			response = resp
-			return false, nil
+			return false
 		}
 
 		if err := retry.Retry(fn, retry.WithMaxAttempts(MaxRetries)); err != nil {
+			return nil, err
+		}
+
+		if err != nil {
 			return nil, err
 		}
 

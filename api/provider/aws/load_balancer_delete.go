@@ -28,21 +28,26 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	}
 
 	// Check for eventually consistency
-	waitUntilLBDeletedFN := func() (shouldRetry bool, err error) {
+	var err error
+	waitUntilLBDeletedFN := func() (shouldRetry bool) {
 		loadBalancerName := fqLoadBalancerID
 		if _, err = describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName); err != nil {
 			if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
-				return false, nil
+				return false
 			}
 
-			return false, err
+			return false
 		}
 
 		log.Printf("[DEBUG] Load Balancer not deleted, will retry lookup")
-		return true, nil
+		return true
 	}
 
 	if err := retry.Retry(waitUntilLBDeletedFN, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+		return err
+	}
+
+	if err != nil {
 		return errors.New(errors.EventualConsistencyError, err)
 	}
 
@@ -74,8 +79,13 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		}
 	}
 
-	fn := waitUntilSGDeletedFN(l.AWS.EC2, securityGroupName)
+	err = nil
+	fn := waitUntilSGDeletedFN(l.AWS.EC2, securityGroupName, &err)
 	if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+		return err
+	}
+
+	if err != nil {
 		return errors.New(errors.EventualConsistencyError, err)
 	}
 
@@ -158,23 +168,28 @@ func (l *LoadBalancerProvider) deleteTargetGroup(targetGroupName string) error {
 		return err
 	}
 
-	retryDeleteFN := func() (shouldRetry bool, err error) {
-		if _, err := l.AWS.ALB.DeleteTargetGroup(input); err != nil {
+	err = nil
+	retryDeleteFN := func() (shouldRetry bool) {
+		if _, err = l.AWS.ALB.DeleteTargetGroup(input); err != nil {
 			log.Printf("[DEBUG] target group '%s' could not be deleted due to '%s', will retry.", targetGroupName, err.Error())
 			if err, ok := err.(awserr.Error); ok && err.Code() == alb.ErrCodeResourceInUseException {
-				return true, nil
+				return true
 			}
 
-			return false, err
+			return false
 		}
 
-		return false, nil
+		return false
 	}
 
 	if err := retry.Retry(retryDeleteFN,
 		retry.WithTimeout(time.Second*30),
 		retry.WithDelay(time.Second),
 	); err != nil {
+		return err
+	}
+
+	if err != nil {
 		return errors.New(errors.EventualConsistencyError, err)
 	}
 
