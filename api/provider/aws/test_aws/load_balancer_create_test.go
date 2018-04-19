@@ -223,12 +223,6 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 	}
 
 	readSGHelper(mockAWS, "l0-test-env_id-env", "env_sg")
-	createSGHelper(t, mockAWS, "l0-test-lb_id-lb", "vpc_id")
-	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
-
-	mockAWS.EC2.EXPECT().
-		AuthorizeSecurityGroupIngress(gomock.Any()).
-		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
 
 	mockAWS.IAM.EXPECT().
 		CreateRole(gomock.Any()).
@@ -241,7 +235,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 	createLoadBalancerInput := &alb.CreateLoadBalancerInput{}
 	createLoadBalancerInput.SetName("l0-test-lb_id")
 	createLoadBalancerInput.SetScheme("internal")
-	createLoadBalancerInput.SetSecurityGroups([]*string{aws.String("env_sg"), aws.String("lb_sg")})
+	createLoadBalancerInput.SetSecurityGroups([]*string{aws.String("env_sg")})
 	createLoadBalancerInput.SetSubnets([]*string{aws.String("priv1"), aws.String("priv2")})
 	createLoadBalancerInput.SetType(alb.LoadBalancerTypeEnumApplication)
 
@@ -285,24 +279,6 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 		CreateTargetGroup(createTargetGroupInput).
 		Return(createTargetGroupOutput, nil)
 
-	createListenerInput := &alb.CreateListenerInput{}
-	createListenerInput.SetLoadBalancerArn("arn:l0-test-lb")
-	createListenerInput.SetPort(config.DefaultTargetGroupPort)
-	createListenerInput.SetProtocol(config.DefaultTargetGroupProtocol)
-	createListenerInput.SetDefaultActions([]*alb.Action{
-		{
-			TargetGroupArn: aws.String("arn:target-group-id"),
-			Type:           aws.String(alb.ActionTypeEnumForward),
-		},
-	})
-	createListenerOutput := &alb.CreateListenerOutput{}
-	createListenerOutput.SetListeners([]*alb.Listener{
-		{},
-	})
-	mockAWS.ALB.EXPECT().
-		CreateListener(createListenerInput).
-		Return(createListenerOutput, nil)
-
 	target := provider.NewLoadBalancerProvider(mockAWS.Client(), tagStore, mockConfig)
 	result, err := target.Create(req)
 	if err != nil {
@@ -312,7 +288,7 @@ func TestLoadBalancerCreateDefaults(t *testing.T) {
 	assert.Equal(t, "lb_id", result)
 }
 
-func TestClassicLoadBalancerCreate(t *testing.T) {
+func TestLoadBalancerCreateClassic(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()
 
@@ -338,12 +314,6 @@ func TestClassicLoadBalancerCreate(t *testing.T) {
 	}
 
 	readSGHelper(mockAWS, "l0-test-env_id-env", "env_sg")
-	createSGHelper(t, mockAWS, "l0-test-lb_id-lb", "vpc_id")
-	readSGHelper(mockAWS, "l0-test-lb_id-lb", "lb_sg")
-
-	mockAWS.EC2.EXPECT().
-		AuthorizeSecurityGroupIngress(gomock.Any()).
-		Return(&ec2.AuthorizeSecurityGroupIngressOutput{}, nil)
 
 	mockAWS.IAM.EXPECT().
 		CreateRole(gomock.Any()).
@@ -353,11 +323,11 @@ func TestClassicLoadBalancerCreate(t *testing.T) {
 		PutRolePolicy(gomock.Any()).
 		Return(&iam.PutRolePolicyOutput{}, nil)
 
-	listeners := []*elb.Listener{listenerHelper(config.DefaultLoadBalancerPort())}
+	listeners := []*elb.Listener{}
 	createLoadBalancerInput := &elb.CreateLoadBalancerInput{}
 	createLoadBalancerInput.SetLoadBalancerName("l0-test-lb_id")
 	createLoadBalancerInput.SetScheme("internal")
-	createLoadBalancerInput.SetSecurityGroups([]*string{aws.String("env_sg"), aws.String("lb_sg")})
+	createLoadBalancerInput.SetSecurityGroups([]*string{aws.String("env_sg")})
 	createLoadBalancerInput.SetSubnets([]*string{aws.String("priv1"), aws.String("priv2")})
 	createLoadBalancerInput.SetListeners(listeners)
 
