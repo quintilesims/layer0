@@ -47,34 +47,35 @@ func (l *LoadBalancerProvider) Create(req models.CreateLoadBalancerRequest) (str
 	if req.IsPublic {
 		scheme = "internet-facing"
 		subnets = l.Config.PublicSubnets()
-	}
 
-	loadBalancerSGName := getLoadBalancerSGName(fqLoadBalancerID)
-	if err := createSG(
-		l.AWS.EC2,
-		loadBalancerSGName,
-		fmt.Sprintf("SG for Layer0 load balancer %s", loadBalancerID),
-		l.Config.VPC()); err != nil {
-		return "", err
-	}
-
-	loadBalancerSG, err := readNewlyCreatedSG(l.AWS.EC2, loadBalancerSGName)
-	if err != nil {
-		return "", err
-	}
-
-	loadBalancerSGID := aws.StringValue(loadBalancerSG.GroupId)
-	if len(req.Ports) == 0 {
-		req.Ports = []models.Port{config.DefaultLoadBalancerPort()}
-	}
-
-	for _, port := range req.Ports {
-		if err := l.authorizeSGIngressFromPort(loadBalancerSGID, int64(port.HostPort)); err != nil {
+		loadBalancerSGName := getLoadBalancerSGName(fqLoadBalancerID)
+		if err := createSG(
+			l.AWS.EC2,
+			loadBalancerSGName,
+			fmt.Sprintf("SG for Layer0 load balancer %s", loadBalancerID),
+			l.Config.VPC()); err != nil {
 			return "", err
 		}
-	}
 
-	securityGroupIDs = append(securityGroupIDs, aws.StringValue(loadBalancerSG.GroupId))
+		loadBalancerSG, err := readNewlyCreatedSG(l.AWS.EC2, loadBalancerSGName)
+		if err != nil {
+			return "", err
+		}
+
+		loadBalancerSGID := aws.StringValue(loadBalancerSG.GroupId)
+
+		if len(req.Ports) == 0 {
+			req.Ports = []models.Port{config.DefaultLoadBalancerPort()}
+		}
+
+		for _, port := range req.Ports {
+			if err := l.authorizeSGIngressFromPort(loadBalancerSGID, int64(port.HostPort)); err != nil {
+				return "", err
+			}
+		}
+
+		securityGroupIDs = append(securityGroupIDs, aws.StringValue(loadBalancerSG.GroupId))
+	}
 
 	roleName := getLoadBalancerRoleName(fqLoadBalancerID)
 	if _, err := l.createRole(roleName, DefaultAssumeRolePolicy); err != nil {
