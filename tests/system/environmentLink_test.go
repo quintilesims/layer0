@@ -22,6 +22,7 @@ func TestEnvironmentLink(t *testing.T) {
 	defer s.Terraform.Destroy()
 
 	publicEnvironmentID := s.Terraform.Output("public_environment_id")
+	privateEnvironmentID := s.Terraform.Output("private_environment_id")
 	publicServiceURL := s.Terraform.Output("public_service_url")
 	privateServiceURL := s.Terraform.Output("private_service_url")
 
@@ -53,6 +54,7 @@ func TestEnvironmentLink(t *testing.T) {
 	}
 
 	s.Layer0.UpdateEnvironment(publicEnvironmentID, req)
+	s.Layer0.UpdateEnvironment(privateEnvironmentID, req)
 
 	testutils.WaitFor(t, time.Second*10, time.Minute*5, func() bool {
 		log.Printf("[DEBUG] Running curl without link")
