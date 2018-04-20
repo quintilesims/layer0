@@ -67,8 +67,6 @@ func TestRetryOptionError(t *testing.T) {
 	fn := func() (shouldRetry bool) {
 		return false
 	}
+
 	Retry(fn, option)
-	// if Retry(fn, option) {
-	// 	t.Fatal("err")
-	// }
 }

@@ -253,8 +253,9 @@ func readNewlyCreatedSG(ec2api ec2iface.EC2API, groupName string) (*ec2.Security
 	waitUntilSGisCreatedFN := func() (shouldRetry bool) {
 		securityGroup, err = readSG(ec2api, groupName)
 		if err != nil {
-			if err, ok := err.(awserr.Error); ok && strings.Contains(err.Error(), "does not exist") {
+			if serverError, ok := err.(awserr.Error); ok && strings.Contains(serverError.Error(), "does not exist") {
 				log.Printf("[DEBUG] security group '%s' does not yet exist, will retry.", groupName)
+				err = errors.New(errors.EventualConsistencyError, serverError)
 				return true
 			}
 
