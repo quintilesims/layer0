@@ -40,16 +40,11 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		}
 
 		log.Printf("[DEBUG] Load Balancer not deleted, will retry lookup")
+		err = errors.New(errors.EventualConsistencyError, err)
 		return true
 	}
 
-	if err := retry.Retry(waitUntilLBDeletedFN, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
-		return err
-	}
-
-	if err != nil {
-		return errors.New(errors.EventualConsistencyError, err)
-	}
+	retry.Retry(waitUntilLBDeletedFN, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
 
 	targetGroupName := fqLoadBalancerID
 	if err := l.deleteTargetGroup(targetGroupName); err != nil {
@@ -81,15 +76,13 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 
 	err = nil
 	fn := waitUntilSGDeletedFN(l.AWS.EC2, securityGroupName, &err)
-	if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
+	retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
+
+	if err := l.deleteTags(loadBalancerID); err != nil {
 		return err
 	}
 
-	if err != nil {
-		return errors.New(errors.EventualConsistencyError, err)
-	}
-
-	return l.deleteTags(loadBalancerID)
+	return err
 }
 
 func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error {
@@ -172,7 +165,8 @@ func (l *LoadBalancerProvider) deleteTargetGroup(targetGroupName string) error {
 	retryDeleteFN := func() (shouldRetry bool) {
 		if _, err = l.AWS.ALB.DeleteTargetGroup(input); err != nil {
 			log.Printf("[DEBUG] target group '%s' could not be deleted due to '%s', will retry.", targetGroupName, err.Error())
-			if err, ok := err.(awserr.Error); ok && err.Code() == alb.ErrCodeResourceInUseException {
+			if aswerr, ok := err.(awserr.Error); ok && aswerr.Code() == alb.ErrCodeResourceInUseException {
+				err = errors.New(errors.EventualConsistencyError, aswerr)
 				return true
 			}
 
@@ -182,18 +176,11 @@ func (l *LoadBalancerProvider) deleteTargetGroup(targetGroupName string) error {
 		return false
 	}
 
-	if err := retry.Retry(retryDeleteFN,
+	retry.Retry(retryDeleteFN,
 		retry.WithTimeout(time.Second*30),
-		retry.WithDelay(time.Second),
-	); err != nil {
-		return err
-	}
+		retry.WithDelay(time.Second))
 
-	if err != nil {
-		return errors.New(errors.EventualConsistencyError, err)
-	}
-
-	return nil
+	return err
 }
 
 func (l *LoadBalancerProvider) deleteRolePolicy(roleName, policyName string) error {

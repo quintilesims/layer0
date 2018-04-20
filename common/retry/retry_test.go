@@ -14,10 +14,7 @@ func TestRetry(t *testing.T) {
 		return calls < 5
 	}
 
-	if err := Retry(fn); err != nil {
-		t.Fatal(err)
-	}
-
+	Retry(fn)
 	assert.Equal(t, 5, calls)
 }
 
@@ -28,9 +25,7 @@ func TestRetryError(t *testing.T) {
 		return false
 	}
 
-	if err := Retry(fn); err != nil {
-		t.Fatal(err)
-	}
+	Retry(fn)
 
 	if err == nil {
 		t.Fatal("Error was nil!")
@@ -41,9 +36,9 @@ func TestRetryError(t *testing.T) {
 func TestRetryOptions(t *testing.T) {
 	newOption := func() (Option, *int) {
 		var calls int
-		option := func() error {
+		option := func() bool {
 			calls++
-			return nil
+			return true
 		}
 
 		return option, &calls
@@ -58,24 +53,22 @@ func TestRetryOptions(t *testing.T) {
 	optionA, callsA := newOption()
 	optionB, callsB := newOption()
 
-	if err := Retry(fn, optionA, optionB); err != nil {
-		t.Fatal(err)
-	}
+	Retry(fn, optionA, optionB)
 
 	assert.Equal(t, 5, *callsA)
 	assert.Equal(t, 5, *callsB)
 }
 
 func TestRetryOptionError(t *testing.T) {
-	option := func() error {
-		return fmt.Errorf("some error")
+	option := func() bool {
+		return false
 	}
 
 	fn := func() (shouldRetry bool) {
 		return false
 	}
-
-	if err := Retry(fn, option); err == nil {
-		t.Fatal(err)
-	}
+	Retry(fn, option)
+	// if Retry(fn, option) {
+	// 	t.Fatal("err")
+	// }
 }

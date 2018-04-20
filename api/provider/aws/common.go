@@ -264,18 +264,11 @@ func readNewlyCreatedSG(ec2api ec2iface.EC2API, groupName string) (*ec2.Security
 		return false
 	}
 
-	if err := retry.Retry(waitUntilSGisCreatedFN,
+	retry.Retry(waitUntilSGisCreatedFN,
 		retry.WithTimeout(time.Second*30),
-		retry.WithDelay(time.Second),
-	); err != nil {
-		return nil, err
-	}
+		retry.WithDelay(time.Second))
 
-	if err != nil {
-		return nil, errors.New(errors.EventualConsistencyError, err)
-	}
-
-	return securityGroup, nil
+	return securityGroup, err
 }
 
 func deleteSG(ec2api ec2iface.EC2API, securityGroupID string) error {
@@ -297,8 +290,9 @@ func deleteSGWithRetry(ec2api ec2iface.EC2API, securityGroupID string) error {
 				return false
 			}
 
-			if err, ok := err.(awserr.Error); ok && err.Code() == "DependencyViolation" {
-				log.Printf("[DEBUG] security group could not be deleted due to %s, will retry.", err.Error())
+			if aswerr, ok := err.(awserr.Error); ok && aswerr.Code() == "DependencyViolation" {
+				log.Printf("[DEBUG] security group could not be deleted due to %s, will retry.", aswerr.Error())
+				err = errors.New(errors.EventualConsistencyError, aswerr)
 				return true
 			}
 
@@ -308,18 +302,11 @@ func deleteSGWithRetry(ec2api ec2iface.EC2API, securityGroupID string) error {
 		return false
 	}
 
-	if err := retry.Retry(retrySGDeleteFN,
+	retry.Retry(retrySGDeleteFN,
 		retry.WithTimeout(time.Second*50), //needs to be less than the default time out of 60s on the API ELB
-		retry.WithDelay(time.Second*5),
-	); err != nil {
-		return err
-	}
+		retry.WithDelay(time.Second*5))
 
-	if err != nil {
-		return errors.New(errors.EventualConsistencyError, err)
-	}
-
-	return nil
+	return err
 }
 
 func deleteEntityTags(tagStore tag.Store, entityType, entityID string) error {

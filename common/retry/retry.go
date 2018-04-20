@@ -2,18 +2,18 @@ package retry
 
 type RetryFunc func() (shouldRetry bool)
 
-func Retry(shouldRetryFN RetryFunc, options ...Option) error {
+func Retry(fn RetryFunc, options ...Option) {
 	for {
 		for _, option := range options {
-			if err := option(); err != nil {
-				return err
+			if !option() {
+				return
 			}
 		}
-
-		if !shouldRetryFN() {
+		shouldRetry := fn()
+		if !shouldRetry {
 			break
 		}
 	}
 
-	return nil
+	return
 }

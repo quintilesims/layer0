@@ -1,38 +1,37 @@
 package retry
 
 import (
-	"fmt"
 	"time"
 )
 
-type Option func() error
+type Option func() bool
 
 func WithDelay(d time.Duration) Option {
-	return func() error {
+	return func() bool {
 		time.Sleep(d)
-		return nil
+		return true
 	}
 }
 
 func WithTimeout(d time.Duration) Option {
 	start := time.Now()
-	return func() error {
+	return func() bool {
 		if time.Since(start) > d {
-			return fmt.Errorf("Timeout after %s", d.String())
+			return false
 		}
 
-		return nil
+		return true
 	}
 }
 
 func WithMaxAttempts(max int) Option {
 	var attempts int
-	return func() error {
+	return func() bool {
 		attempts++
 		if attempts > max {
-			return fmt.Errorf("Maximum retry attempts reached")
+			return false
 		}
 
-		return nil
+		return true
 	}
 }

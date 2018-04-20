@@ -69,6 +69,7 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 			for _, group := range output.SecurityGroups {
 				if aws.StringValue(group.GroupName) == securityGroupName {
 					log.Printf("[DEBUG] Service group not deleted, will retry lookup")
+					err = errors.New(errors.EventualConsistencyError, err)
 					return true
 				}
 			}
@@ -76,13 +77,9 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 			return false
 		}
 
-		if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
-			return err
-		}
+		retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
 
-		if err != nil {
-			return errors.New(errors.EventualConsistencyError, err)
-		}
+		return err
 	}
 
 	clusterName := fqEnvironmentID
