@@ -164,7 +164,7 @@ data "aws_ami" "linux" {
 
   filter {
     name   = "name"
-    values = ["amzn-ami-2017.09.d-amazon-ecs-optimized"]
+    values = ["amzn-ami-2017.09.l-amazon-ecs-optimized"]
   }
 }
 
@@ -178,6 +178,6 @@ data "aws_ami" "windows" {
 
   filter {
     name   = "name"
-    values = ["Windows_Server-2016-English-Full-ECS_Optimized-2017.11.24"]
+    values = ["Windows_Server-2016-English-Full-ECS_Optimized-2018.03.26"]
   }
 }
