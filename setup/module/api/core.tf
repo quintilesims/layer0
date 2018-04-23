@@ -178,6 +178,6 @@ data "aws_ami" "windows" {
 
   filter {
     name   = "name"
-    values = ["Windows_Server-2016-English-Full-ECS_Optimized-2018.03.26"]
+    values = ["Windows_Server-2016-English-Full-ECS_Optimized-2018.04.18"]
   }
 }
