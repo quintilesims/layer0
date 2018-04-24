@@ -32,7 +32,8 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	waitUntilLBDeletedFN := func() (shouldRetry bool) {
 		loadBalancerName := fqLoadBalancerID
 		if _, err = describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName); err != nil {
-			if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
+			if serverError, ok := err.(*errors.ServerError); ok && serverError.Code == errors.LoadBalancerDoesNotExist {
+				err = nil
 				return false
 			}
 
@@ -62,8 +63,8 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	}
 
 	securityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
-	securityGroup, err := readSG(l.AWS.EC2, securityGroupName)
-	if err != nil && !strings.Contains(err.Error(), "does not exist") {
+	securityGroup, readSGErr := readSG(l.AWS.EC2, securityGroupName)
+	if readSGErr != nil && !strings.Contains(readSGErr.Error(), "does not exist") {
 		return err
 	}
 

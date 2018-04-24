@@ -78,8 +78,9 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 		}
 
 		retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
-
-		return err
+		if err != nil {
+			return err
+		}
 	}
 
 	clusterName := fqEnvironmentID
