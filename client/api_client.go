@@ -65,10 +65,10 @@ func wrapRetryRequestDoer(doer rclient.RequestDoer) rclient.RequestDoerFunc {
 			}
 
 			if resp.StatusCode < 200 || resp.StatusCode > 299 {
-				err = readServerError(resp)
-				if serverError, ok := err.(*errors.ServerError); ok && serverError.Code == errors.EventualConsistencyError {
+				err := readServerError(resp)
+				if err.Code == errors.EventualConsistencyError {
 					log.Printf("[DEBUG] Client encountered eventual consistency error, will retry: %v", err)
-					err = errors.New(errors.EventualConsistencyError, serverError)
+					err = errors.New(errors.EventualConsistencyError, err)
 					return true
 				}
 

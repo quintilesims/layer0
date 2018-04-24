@@ -1,7 +1,6 @@
 package retry
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -18,19 +17,16 @@ func TestRetry(t *testing.T) {
 	assert.Equal(t, 5, calls)
 }
 
-func TestRetryError(t *testing.T) {
-	var err error
+func TestRetryCalled(t *testing.T) {
+	var called bool
 	fn := func() (shouldRetry bool) {
-		err = fmt.Errorf("some error")
-		return false
+		called = false
+		return called
 	}
 
 	Retry(fn)
 
-	if err == nil {
-		t.Fatal("Error was nil!")
-	}
-
+	assert.Equal(t, false, called)
 }
 
 func TestRetryOptions(t *testing.T) {
@@ -59,14 +55,22 @@ func TestRetryOptions(t *testing.T) {
 	assert.Equal(t, 5, *callsB)
 }
 
-func TestRetryOptionError(t *testing.T) {
+func TestRetryOptionCalled(t *testing.T) {
+	var called bool
+
 	option := func() bool {
+		called = true
 		return false
 	}
 
+	var calls int
 	fn := func() (shouldRetry bool) {
-		return false
+		calls++
+		return true
 	}
 
 	Retry(fn, option)
+
+	assert.Equal(t, 0, calls)
+	assert.Equal(t, true, called)
 }

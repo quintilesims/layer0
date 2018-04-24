@@ -40,7 +40,7 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		}
 
 		log.Printf("[DEBUG] Load Balancer not deleted, will retry lookup")
-		err = errors.New(errors.EventualConsistencyError, err)
+		err = errors.Newf(errors.EventualConsistencyError, "Load Balancer not deleted")
 		return true
 	}
 
@@ -74,9 +74,9 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		}
 	}
 
-	err = nil
-	fn := waitUntilSGDeletedFN(l.AWS.EC2, securityGroupName, &err)
-	retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
+	if err := waitUntilSGDeleted(l.AWS.EC2, securityGroupName); err != nil {
+		return err
+	}
 
 	if err := l.deleteTags(loadBalancerID); err != nil {
 		return err

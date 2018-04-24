@@ -148,35 +148,17 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		}
 	}
 
-	err = nil
-	fn := func() (shouldRetry bool) {
-		if err = s.createService(
-			cluster,
-			serviceName,
-			taskDefinitionARN,
-			loadBalancerRole,
-			networkMode,
-			req.Stateful,
-			scale,
-			subnets,
-			securityGroupIDs,
-			loadBalancer,
-		); err != nil {
-			if strings.Contains(err.Error(), "Unable to assume role") {
-				log.Printf("[DEBUG] Failed service create, will retry (%v)", err)
-				err = errors.New(errors.EventualConsistencyError, err)
-				return true
-			}
-
-			return false
-		}
-
-		return false
-	}
-
-	retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
-
-	if err != nil {
+	if err := s.waitUntilServiceCreated(
+		cluster,
+		serviceName,
+		taskDefinitionARN,
+		loadBalancerRole,
+		networkMode,
+		req.Stateful,
+		scale,
+		subnets,
+		securityGroupIDs,
+		loadBalancer); err != nil {
 		if err, ok := err.(awserr.Error); ok && err.Code() == "InvalidParameterException" {
 			return "", err
 		}
@@ -285,4 +267,45 @@ func (s *ServiceProvider) createTags(serviceID, serviceName, environmentID, load
 	}
 
 	return nil
+}
+
+func (s *ServiceProvider) waitUntilServiceCreated(
+	cluster,
+	serviceName,
+	taskDefinitionARN,
+	loadBalancerRole,
+	networkMode string,
+	stateful bool,
+	desiredCount int,
+	subnets []string,
+	securityGroupIDs []*string,
+	loadBalancer *ecs.LoadBalancer,
+) error {
+	var err error
+	fn := func() (shouldRetry bool) {
+		if err = s.createService(
+			cluster,
+			serviceName,
+			taskDefinitionARN,
+			loadBalancerRole,
+			networkMode,
+			stateful,
+			desiredCount,
+			subnets,
+			securityGroupIDs,
+			loadBalancer); err != nil {
+			if strings.Contains(err.Error(), "Unable to assume role") {
+				log.Printf("[DEBUG] Failed service create, will retry (%v)", err)
+				err = errors.New(errors.EventualConsistencyError, err)
+				return true
+			}
+
+			return false
+		}
+
+		return false
+	}
+
+	retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
+	return err
 }

@@ -19,15 +19,20 @@ func TestWithDelay(t *testing.T) {
 func TestWithTimeout(t *testing.T) {
 	option := WithTimeout(time.Millisecond)
 
-	time.Sleep(2 * time.Millisecond)
-	if option() {
+	if !option() {
 		t.Fatal("Setup failed")
 	}
+
+	time.Sleep(2 * time.Millisecond)
 }
 
 func TestWithMaxAttempts(t *testing.T) {
 	option := WithMaxAttempts(1)
 	if !option() {
 		t.Fatal("Setup failed")
+	}
+
+	if option() {
+		t.Fatal("Max attempt reached")
 	}
 }

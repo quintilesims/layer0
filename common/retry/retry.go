@@ -9,8 +9,8 @@ func Retry(fn RetryFunc, options ...Option) {
 				return
 			}
 		}
-		shouldRetry := fn()
-		if !shouldRetry {
+
+		if !fn() {
 			break
 		}
 	}
