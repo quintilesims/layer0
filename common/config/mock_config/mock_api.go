@@ -5,10 +5,9 @@
 package mock_config
 
 import (
+	gomock "github.com/golang/mock/gomock"
 	reflect "reflect"
 	time "time"
-
-	gomock "github.com/golang/mock/gomock"
 )
 
 // MockAPIConfig is a mock of APIConfig interface
@@ -58,18 +57,6 @@ func (mr *MockAPIConfigMockRecorder) AccountID() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "AccountID", reflect.TypeOf((*MockAPIConfig)(nil).AccountID))
 }
 
-// DynamoJobTable mocks base method
-func (m *MockAPIConfig) DynamoJobTable() string {
-	ret := m.ctrl.Call(m, "DynamoJobTable")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// DynamoJobTable indicates an expected call of DynamoJobTable
-func (mr *MockAPIConfigMockRecorder) DynamoJobTable() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DynamoJobTable", reflect.TypeOf((*MockAPIConfig)(nil).DynamoJobTable))
-}
-
 // DynamoLockTable mocks base method
 func (m *MockAPIConfig) DynamoLockTable() string {
 	ret := m.ctrl.Call(m, "DynamoLockTable")
@@ -116,18 +103,6 @@ func (m *MockAPIConfig) InstanceProfile() string {
 // InstanceProfile indicates an expected call of InstanceProfile
 func (mr *MockAPIConfigMockRecorder) InstanceProfile() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "InstanceProfile", reflect.TypeOf((*MockAPIConfig)(nil).InstanceProfile))
-}
-
-// JobExpiry mocks base method
-func (m *MockAPIConfig) JobExpiry() time.Duration {
-	ret := m.ctrl.Call(m, "JobExpiry")
-	ret0, _ := ret[0].(time.Duration)
-	return ret0
-}
-
-// JobExpiry indicates an expected call of JobExpiry
-func (mr *MockAPIConfigMockRecorder) JobExpiry() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "JobExpiry", reflect.TypeOf((*MockAPIConfig)(nil).JobExpiry))
 }
 
 // LinuxAMI mocks base method
@@ -298,16 +273,4 @@ func (m *MockAPIConfig) VPC() string {
 // VPC indicates an expected call of VPC
 func (mr *MockAPIConfigMockRecorder) VPC() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "VPC", reflect.TypeOf((*MockAPIConfig)(nil).VPC))
-}
-
-// WindowsAMI mocks base method
-func (m *MockAPIConfig) WindowsAMI() string {
-	ret := m.ctrl.Call(m, "WindowsAMI")
-	ret0, _ := ret[0].(string)
-	return ret0
-}
-
-// WindowsAMI indicates an expected call of WindowsAMI
-func (mr *MockAPIConfigMockRecorder) WindowsAMI() *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "WindowsAMI", reflect.TypeOf((*MockAPIConfig)(nil).WindowsAMI))
 }
