@@ -56,9 +56,6 @@ func (e *EnvironmentProvider) Create(req models.CreateEnvironmentRequest) (strin
 	case models.LinuxOS:
 		userDataTemplate = []byte(DefaultLinuxUserdataTemplate)
 		amiID = e.Config.LinuxAMI()
-	case models.WindowsOS:
-		userDataTemplate = []byte(DefaultWindowsUserdataTemplate)
-		amiID = e.Config.WindowsAMI()
 	default:
 		return "", fmt.Errorf("Operating system '%s' is not recognized", req.OperatingSystem)
 	}

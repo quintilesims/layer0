@@ -18,10 +18,6 @@ output "linux_service_ami" {
   value = "${data.aws_ami.linux.id}"
 }
 
-output "windows_service_ami" {
-  value = "${data.aws_ami.windows.id}"
-}
-
 output "bucket_name" {
   value = "${aws_s3_bucket.mod.id}"
 }

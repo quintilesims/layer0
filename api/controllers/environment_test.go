@@ -81,7 +81,7 @@ func TestListEnvironments(t *testing.T) {
 		{
 			EnvironmentID:   "env_id2",
 			EnvironmentName: "envd_name2",
-			OperatingSystem: "windows",
+			OperatingSystem: "linux",
 		},
 	}
 

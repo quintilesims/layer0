@@ -59,7 +59,6 @@ func TestEndpointDev(t *testing.T) {
 			instance.OUTPUT_S3_BUCKET,
 			instance.OUTPUT_ECS_INSTANCE_PROFILE,
 			instance.OUTPUT_AWS_LINUX_SERVICE_AMI,
-			instance.OUTPUT_WINDOWS_SERVICE_AMI,
 			instance.OUTPUT_AWS_DYNAMO_TAG_TABLE,
 			instance.OUTPUT_AWS_DYNAMO_LOCK_TABLE,
 			instance.OUTPUT_AWS_REGION,

@@ -29,7 +29,6 @@ func TestEnvironmentCreate(t *testing.T) {
 	// todo: setup helper for config
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 	mockConfig.EXPECT().LinuxAMI().Return("lx_ami").AnyTimes()
-	mockConfig.EXPECT().WindowsAMI().Return("win_ami").AnyTimes()
 	mockConfig.EXPECT().S3Bucket().Return("bucket").AnyTimes()
 	mockConfig.EXPECT().VPC().Return("vpc_id").AnyTimes()
 	mockConfig.EXPECT().InstanceProfile().Return("profile").AnyTimes()
@@ -44,7 +43,7 @@ func TestEnvironmentCreate(t *testing.T) {
 		UserDataTemplate: []byte("some user data"),
 		AMIID:            "some ami",
 		Scale:            2,
-		OperatingSystem:  "windows",
+		OperatingSystem:  "linux",
 	}
 
 	// an environment's security group name is <fq environment id>-env
@@ -126,7 +125,7 @@ func TestEnvironmentCreate(t *testing.T) {
 			EntityID:   "env_id",
 			EntityType: "environment",
 			Key:        "os",
-			Value:      "windows",
+			Value:      "linux",
 		},
 	}
 
@@ -146,7 +145,6 @@ func TestEnvironmentCreateDefaults(t *testing.T) {
 	// todo: setup helper for config
 	mockConfig.EXPECT().Instance().Return("test").AnyTimes()
 	mockConfig.EXPECT().LinuxAMI().Return("lx_ami").AnyTimes()
-	mockConfig.EXPECT().WindowsAMI().Return("win_ami").AnyTimes()
 	mockConfig.EXPECT().S3Bucket().Return("bucket").AnyTimes()
 	mockConfig.EXPECT().VPC().Return("vpc_id").AnyTimes()
 	mockConfig.EXPECT().InstanceProfile().Return("profile").AnyTimes()

@@ -55,5 +55,4 @@ Outputs
 - `ssh_key_pair` - Name of the SSH key pair used by the API
 - `ecs_agent_instance_profile` - Name of the IAM instance profile created for the Layer0 instance
 - `linux_service_ami` - The AMI used when creating Linux EC2 instances
-- `windows_service_ami` - The AMI used when creating Windows EC2 instances
 

@@ -46,7 +46,7 @@ func (e *EnvironmentCommand) Command() cli.Command {
 					cli.StringFlag{
 						Name:  "os",
 						Value: config.DefaultEnvironmentOS,
-						Usage: "specifies if the environment will run windows or linux containers",
+						Usage: "specifies the type of operating system to run in a container",
 					},
 					cli.StringFlag{
 						Name:  "ami",
