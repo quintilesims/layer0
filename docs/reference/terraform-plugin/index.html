@@ -1466,7 +1466,6 @@ output &quot;environment_id&quot; {
 <ul>
 <li><code>id</code> - The id of the environment</li>
 <li><code>name</code> - The name of the environment</li>
-<li><code>environment_type</code> - Default: dynamic. Can be either static or dynamic.</li>
 <li><code>instance_type</code> - The ec2 instance size of a static environment</li>
 <li><code>scale</code> - The current number instances in a static type environment</li>
 <li><code>os</code> - The operating system used for the environment</li>
@@ -1587,7 +1586,6 @@ resource &quot;layer0_environment&quot; &quot;demo&quot; {
 <p>The following arguments are supported:</p>
 <ul>
 <li><code>name</code> - (Required) The name of the environment</li>
-<li><code>environment_type</code> - (Optional, Values: "dynamic, static" Default: "dynamic") Use static when you need to customize ec2 instances that the containers run on or for a Windows os environment.</li>
 <li><code>instance_type</code> - (Optional, Default: "m3.medium") The size of the instances in the environment.
 Available instance sizes can be found <a href="https://aws.amazon.com/ec2/instance-types/">here</a></li>
 <li><code>scale</code> - (Optional, Default: 0) The desired number of instances allowed in a static environment.</li>
@@ -1603,7 +1601,6 @@ If not specified, Layer0 will use its default AMI ID for the specified operating
 <ul>
 <li><code>id</code> - The id of the environment</li>
 <li><code>name</code> - The name of the environment</li>
-<li><code>environment_type</code> - The current number instances in a static type environment</li>
 <li><code>instance_type</code> - The ec2 instance size of a static environment</li>
 <li><code>scale</code> - The current number instances in a static type environment</li>
 <li><code>security_group_id</code> - The ID of the environment's security group</li>
@@ -1640,6 +1637,8 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
     healthy_threshold   = 2
     unhealthy_threshold = 2
   }
+
+  idle_timeout = 300
 }
 </pre></div>
 
@@ -1652,6 +1651,7 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <li><code>private</code> - (Optional) If true, the load balancer will not be exposed to the public internet</li>
 <li><code>port</code> - (Optional, Default: 80:80/tcp) A list of port blocks. Ports documented below</li>
 <li><code>health_check</code> - (Optional, Default: <code>{"TCP:80" 30 5 2 2}</code>) A health_check block. Health check documented below</li>
+<li><code>idle_timeout</code> - (Optiona, Default: 60) The idle timeout of the load balancer in seconds</li>
 </ul>
 <p>Ports (<code>port</code>) support the following:</p>
 <ul>
@@ -1672,6 +1672,7 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook&quot; {
 <li><code>healthy_threshold</code> - (Required) The number of checks before the instance is declared healthy.</li>
 <li><code>unhealthy_threshold</code> - (Required) The number of checks before the instance is declared unhealthy.</li>
 </ul>
+<p>The Idle Timeout (<code>idle_timeout</code>) is managed by the load balancer and is triggered when no data is sent over a connection for the specified time period. If no data has been sent or received by the time that the idle timeout period elapses, the load balancer closes the connection. See the following documentation for more information: <a href="https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html#connection-idle-timeout">https://docs.aws.amazon.com/elasticloadbalancing/latest/application/application-load-balancers.html#connection-idle-timeout</a></p>
 <h3 id="attribute-reference_7">Attribute Reference<a class="headerlink" href="#attribute-reference_7" title="Permanent link">#</a></h3>
 <p>The following attributes are exported:</p>
 <ul>

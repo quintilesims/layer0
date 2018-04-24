@@ -138,7 +138,7 @@ l0 environment create [--size size | --min-count mincount |
 * `--size size` - The instance size of the EC2 instances to create in your environment (default: m3.medium).
 * `--min-count mincount` - The minimum number of EC2 instances allowed in the environment's autoscaling group (default: 0).
 * `--user-data path` - The user data template file to use for the environment's autoscaling group.
-* `--os os` - The operating system used in the environment. Options are "linux" or "windows" (default: linux). More information on windows environments is documented below.
+* `--os os` - The operating system used in the environment. Options are currently only "linux" (default: linux). More information on windows environments is documented below.
 * `ami amiID` - A custom EC2 AMI ID to use in the environment. If not specified, Layer0 will use its default AMI ID for the specified operating system.
 
 The user data template can be used to add custom configuration to your Layer0 environment. They are usually scripts that are executed at instance launch time to ensure an EC2 instance is in the correct state after the provisioning process finishes.
