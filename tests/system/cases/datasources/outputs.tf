@@ -181,11 +181,3 @@ output "service_scale" {
 output "service_scale_expected" {
   value = "${layer0_service.datasources.scale}"
 }
-
-# output "service_stateful" {
-#   value = "${data.layer0_service.datasources.stateful}"
-# }
-# 
-# output "service_stateful_expected" {
-#   value = "${layer0_service.datasources.stateful}"
-# }
