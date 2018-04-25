@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
@@ -159,9 +158,6 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		subnets,
 		securityGroupIDs,
 		loadBalancer); err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "InvalidParameterException" {
-			return "", err
-		}
 
 		return "", errors.New(errors.EventualConsistencyError, err)
 	}

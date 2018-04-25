@@ -43,6 +43,7 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 	if err != nil && !strings.Contains(err.Error(), "does not exist") {
 		return err
 	}
+	err = nil
 
 	if securityGroup != nil {
 		groupID := aws.StringValue(securityGroup.GroupId)
@@ -78,9 +79,6 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 		}
 
 		retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
-		if err != nil {
-			return err
-		}
 	}
 
 	clusterName := fqEnvironmentID
@@ -92,7 +90,7 @@ func (e *EnvironmentProvider) Delete(environmentID string) error {
 		return err
 	}
 
-	return nil
+	return err
 }
 
 func (e *EnvironmentProvider) checkEnvironmentDependencies(environmentID string) error {

@@ -63,10 +63,11 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	}
 
 	securityGroupName := getLoadBalancerSGName(fqLoadBalancerID)
-	securityGroup, readSGErr := readSG(l.AWS.EC2, securityGroupName)
-	if readSGErr != nil && !strings.Contains(readSGErr.Error(), "does not exist") {
+	securityGroup, err := readSG(l.AWS.EC2, securityGroupName)
+	if err != nil && !strings.Contains(err.Error(), "does not exist") {
 		return err
 	}
+	err = nil
 
 	if securityGroup != nil {
 		groupID := aws.StringValue(securityGroup.GroupId)

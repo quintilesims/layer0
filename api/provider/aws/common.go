@@ -415,7 +415,7 @@ func waitUntilSGDeleted(ec2api ec2iface.EC2API, securityGroupName string) error 
 		for _, group := range output.SecurityGroups {
 			if aws.StringValue(group.GroupName) == securityGroupName {
 				log.Printf("[DEBUG] Security Group %s not deleted, will retry lookup", securityGroupName)
-
+				err = nil
 				return true
 			}
 		}
