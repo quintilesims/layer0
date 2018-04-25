@@ -39,4 +39,4 @@ smoketest:
 systemtest:
 	 $(MAKE) -C tests/system test
 
-.PHONY: release unittest smoketest install-smoketest apply-smoketest destroy-smoketest systemtest
+.PHONY: build release unittest smoketest install-smoketest apply-smoketest destroy-smoketest systemtest
