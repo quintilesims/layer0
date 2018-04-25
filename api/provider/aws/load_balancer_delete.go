@@ -28,23 +28,24 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	}
 
 	// Check for eventually consistency
-	waitUntilLBDeletedFN := func() (shouldRetry bool, err error) {
+	var err error
+	waitUntilLBDeletedFN := func() (shouldRetry bool) {
 		loadBalancerName := fqLoadBalancerID
 		if _, err = describeLoadBalancer(l.AWS.ELB, l.AWS.ALB, loadBalancerName); err != nil {
-			if err, ok := err.(*errors.ServerError); ok && err.Code == errors.LoadBalancerDoesNotExist {
-				return false, nil
+			if serverError, ok := err.(*errors.ServerError); ok && serverError.Code == errors.LoadBalancerDoesNotExist {
+				err = nil
+				return false
 			}
 
-			return false, err
+			return false
 		}
 
 		log.Printf("[DEBUG] Load Balancer not deleted, will retry lookup")
-		return true, nil
+		err = errors.Newf(errors.EventualConsistencyError, "Load Balancer not deleted")
+		return true
 	}
 
-	if err := retry.Retry(waitUntilLBDeletedFN, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
-		return errors.New(errors.EventualConsistencyError, err)
-	}
+	retry.Retry(waitUntilLBDeletedFN, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
 
 	targetGroupName := fqLoadBalancerID
 	if err := l.deleteTargetGroup(targetGroupName); err != nil {
@@ -66,6 +67,7 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 	if err != nil && !strings.Contains(err.Error(), "does not exist") {
 		return err
 	}
+	err = nil
 
 	if securityGroup != nil {
 		groupID := aws.StringValue(securityGroup.GroupId)
@@ -74,12 +76,15 @@ func (l *LoadBalancerProvider) Delete(loadBalancerID string) error {
 		}
 	}
 
-	fn := waitUntilSGDeletedFN(l.AWS.EC2, securityGroupName)
-	if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
-		return errors.New(errors.EventualConsistencyError, err)
+	if err := waitUntilSGDeleted(l.AWS.EC2, securityGroupName); err != nil {
+		return err
 	}
 
-	return l.deleteTags(loadBalancerID)
+	if err := l.deleteTags(loadBalancerID); err != nil {
+		return err
+	}
+
+	return err
 }
 
 func (l *LoadBalancerProvider) deleteLoadBalancer(loadBalancerName string) error {
@@ -158,27 +163,26 @@ func (l *LoadBalancerProvider) deleteTargetGroup(targetGroupName string) error {
 		return err
 	}
 
-	retryDeleteFN := func() (shouldRetry bool, err error) {
-		if _, err := l.AWS.ALB.DeleteTargetGroup(input); err != nil {
+	err = nil
+	retryDeleteFN := func() (shouldRetry bool) {
+		if _, err = l.AWS.ALB.DeleteTargetGroup(input); err != nil {
 			log.Printf("[DEBUG] target group '%s' could not be deleted due to '%s', will retry.", targetGroupName, err.Error())
-			if err, ok := err.(awserr.Error); ok && err.Code() == alb.ErrCodeResourceInUseException {
-				return true, nil
+			if aswerr, ok := err.(awserr.Error); ok && aswerr.Code() == alb.ErrCodeResourceInUseException {
+				err = errors.New(errors.EventualConsistencyError, aswerr)
+				return true
 			}
 
-			return false, err
+			return false
 		}
 
-		return false, nil
+		return false
 	}
 
-	if err := retry.Retry(retryDeleteFN,
+	retry.Retry(retryDeleteFN,
 		retry.WithTimeout(time.Second*30),
-		retry.WithDelay(time.Second),
-	); err != nil {
-		return errors.New(errors.EventualConsistencyError, err)
-	}
+		retry.WithDelay(time.Second))
 
-	return nil
+	return err
 }
 
 func (l *LoadBalancerProvider) deleteRolePolicy(roleName, policyName string) error {

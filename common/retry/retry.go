@@ -1,30 +1,19 @@
 package retry
 
-import "time"
+type RetryFunc func() (shouldRetry bool)
 
-type RetryFunc func() (shouldRetry bool, err error)
-
-func Retry(fn RetryFunc, options ...Option) error {
+func Retry(fn RetryFunc, options ...Option) {
 	for {
 		for _, option := range options {
-			if err := option(); err != nil {
-				return err
+			if !option() {
+				return
 			}
 		}
 
-		shouldRetry, err := fn()
-		if err != nil {
-			return err
-		}
-
-		if !shouldRetry {
+		if !fn() {
 			break
 		}
 	}
 
-	return nil
-}
-
-func SimpleRetry(fn RetryFunc, maxAttempts int, delay time.Duration) error {
-	return Retry(fn, WithMaxAttempts(maxAttempts), WithDelay(delay))
+	return
 }

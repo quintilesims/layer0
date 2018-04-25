@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/service/ecs"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
@@ -148,34 +147,17 @@ func (s *ServiceProvider) Create(req models.CreateServiceRequest) (string, error
 		}
 	}
 
-	fn := func() (shouldRetry bool, err error) {
-		if err := s.createService(
-			cluster,
-			serviceName,
-			taskDefinitionARN,
-			loadBalancerRole,
-			networkMode,
-			req.Stateful,
-			scale,
-			subnets,
-			securityGroupIDs,
-			loadBalancer,
-		); err != nil {
-			if strings.Contains(err.Error(), "Unable to assume role") {
-				log.Printf("[DEBUG] Failed service create, will retry (%v)", err)
-				return true, nil
-			}
-
-			return false, err
-		}
-
-		return false, nil
-	}
-
-	if err := retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second)); err != nil {
-		if err, ok := err.(awserr.Error); ok && err.Code() == "InvalidParameterException" {
-			return "", err
-		}
+	if err := s.waitUntilServiceCreated(
+		cluster,
+		serviceName,
+		taskDefinitionARN,
+		loadBalancerRole,
+		networkMode,
+		req.Stateful,
+		scale,
+		subnets,
+		securityGroupIDs,
+		loadBalancer); err != nil {
 
 		return "", errors.New(errors.EventualConsistencyError, err)
 	}
@@ -281,4 +263,45 @@ func (s *ServiceProvider) createTags(serviceID, serviceName, environmentID, load
 	}
 
 	return nil
+}
+
+func (s *ServiceProvider) waitUntilServiceCreated(
+	cluster,
+	serviceName,
+	taskDefinitionARN,
+	loadBalancerRole,
+	networkMode string,
+	stateful bool,
+	desiredCount int,
+	subnets []string,
+	securityGroupIDs []*string,
+	loadBalancer *ecs.LoadBalancer,
+) error {
+	var err error
+	fn := func() (shouldRetry bool) {
+		if err = s.createService(
+			cluster,
+			serviceName,
+			taskDefinitionARN,
+			loadBalancerRole,
+			networkMode,
+			stateful,
+			desiredCount,
+			subnets,
+			securityGroupIDs,
+			loadBalancer); err != nil {
+			if strings.Contains(err.Error(), "Unable to assume role") {
+				log.Printf("[DEBUG] Failed service create, will retry (%v)", err)
+				err = errors.New(errors.EventualConsistencyError, err)
+				return true
+			}
+
+			return false
+		}
+
+		return false
+	}
+
+	retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
+	return err
 }

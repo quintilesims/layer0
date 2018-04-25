@@ -247,29 +247,27 @@ func readSG(ec2api ec2iface.EC2API, groupName string) (*ec2.SecurityGroup, error
 }
 
 func readNewlyCreatedSG(ec2api ec2iface.EC2API, groupName string) (*ec2.SecurityGroup, error) {
+	var err error
 	var securityGroup *ec2.SecurityGroup
-	waitUntilSGisCreatedFN := func() (shouldRetry bool, err error) {
+
+	waitUntilSGisCreatedFN := func() (shouldRetry bool) {
 		securityGroup, err = readSG(ec2api, groupName)
 		if err != nil {
-			if err, ok := err.(awserr.Error); ok && strings.Contains(err.Error(), "does not exist") {
+			if awsErr, ok := err.(awserr.Error); ok && strings.Contains(awsErr.Error(), "does not exist") {
 				log.Printf("[DEBUG] security group '%s' does not yet exist, will retry.", groupName)
-				return true, nil
+				err = errors.New(errors.EventualConsistencyError, awsErr)
+				return true
 			}
 
-			return false, err
+			return false
 		}
 
-		return false, nil
+		return false
 	}
 
-	if err := retry.Retry(waitUntilSGisCreatedFN,
-		retry.WithTimeout(time.Second*30),
-		retry.WithDelay(time.Second),
-	); err != nil {
-		return nil, errors.New(errors.EventualConsistencyError, err)
-	}
+	retry.Retry(waitUntilSGisCreatedFN, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
 
-	return securityGroup, nil
+	return securityGroup, err
 }
 
 func deleteSG(ec2api ec2iface.EC2API, securityGroupID string) error {
@@ -284,31 +282,30 @@ func deleteSG(ec2api ec2iface.EC2API, securityGroupID string) error {
 }
 
 func deleteSGWithRetry(ec2api ec2iface.EC2API, securityGroupID string) error {
-	retrySGDeleteFN := func() (shouldRetry bool, err error) {
-		if err := deleteSG(ec2api, securityGroupID); err != nil {
+	var err error
+	retrySGDeleteFN := func() (shouldRetry bool) {
+		if err = deleteSG(ec2api, securityGroupID); err != nil {
 			if strings.Contains(err.Error(), "does not exist") {
-				return false, nil
+				err = nil
+				return false
 			}
 
-			if err, ok := err.(awserr.Error); ok && err.Code() == "DependencyViolation" {
-				log.Printf("[DEBUG] security group could not be deleted due to %s, will retry.", err.Error())
-				return true, nil
+			if aswerr, ok := err.(awserr.Error); ok && aswerr.Code() == "DependencyViolation" {
+				log.Printf("[DEBUG] security group could not be deleted due to %s, will retry.", aswerr.Error())
+				err = errors.New(errors.EventualConsistencyError, aswerr)
+				return true
 			}
 
-			return false, err
+			return false
 		}
 
-		return false, nil
+		return false
 	}
 
-	if err := retry.Retry(retrySGDeleteFN,
-		retry.WithTimeout(time.Second*50), //needs to be less than the default time out of 60s on the API ELB
-		retry.WithDelay(time.Second*5),
-	); err != nil {
-		return errors.New(errors.EventualConsistencyError, err)
-	}
+	//needs to be less than the default time out of 60s on the API ELB
+	retry.Retry(retrySGDeleteFN, retry.WithTimeout(time.Second*50), retry.WithDelay(time.Second*5))
 
-	return nil
+	return err
 }
 
 func deleteEntityTags(tagStore tag.Store, entityType, entityID string) error {
@@ -393,8 +390,9 @@ func readService(ecsapi ecsiface.ECSAPI, clusterName, serviceID string) (*ecs.Se
 	return output.Services[0], nil
 }
 
-func waitUntilSGDeletedFN(ec2api ec2iface.EC2API, securityGroupName string) func() (shouldRetry bool, err error) {
-	return func() (shouldRetry bool, err error) {
+func waitUntilSGDeleted(ec2api ec2iface.EC2API, securityGroupName string) error {
+	var err error
+	fn := func() (shouldRetry bool) {
 		filter := &ec2.Filter{}
 		filter.SetName("group-name")
 		filter.SetValues([]*string{aws.String(securityGroupName)})
@@ -402,25 +400,32 @@ func waitUntilSGDeletedFN(ec2api ec2iface.EC2API, securityGroupName string) func
 		input := &ec2.DescribeSecurityGroupsInput{}
 		input.SetFilters([]*ec2.Filter{filter})
 
-		output, err := ec2api.DescribeSecurityGroups(input)
+		var output *ec2.DescribeSecurityGroupsOutput
+		output, err = ec2api.DescribeSecurityGroups(input)
 		if err != nil {
 			log.Printf("[DEBUG] could not delete security group due to %s", err.Error())
-			if err, ok := err.(awserr.Error); ok && err.Code() == "DependencyViolation" {
-				return true, nil
+			if awsErr, ok := err.(awserr.Error); ok && awsErr.Code() == "DependencyViolation" {
+				err = nil
+				return true
 			}
 
-			return false, err
+			return false
 		}
 
 		for _, group := range output.SecurityGroups {
 			if aws.StringValue(group.GroupName) == securityGroupName {
 				log.Printf("[DEBUG] Security Group %s not deleted, will retry lookup", securityGroupName)
-				return true, nil
+				err = nil
+				return true
 			}
 		}
 
-		return false, nil
+		return false
 	}
+
+	retry.Retry(fn, retry.WithTimeout(time.Second*30), retry.WithDelay(time.Second))
+
+	return err
 }
 
 func readTargetGroup(albapi albiface.ELBV2API, targetGroupName, targetGroupArn *string) (*alb.TargetGroup, error) {

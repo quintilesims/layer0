@@ -1,7 +1,6 @@
 package retry
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -9,66 +8,69 @@ import (
 
 func TestRetry(t *testing.T) {
 	var calls int
-	fn := func() (shouldRetry bool, err error) {
+	fn := func() (shouldRetry bool) {
 		calls++
-		return calls < 5, nil
+		return calls < 5
 	}
 
-	if err := Retry(fn); err != nil {
-		t.Fatal(err)
-	}
-
+	Retry(fn)
 	assert.Equal(t, 5, calls)
 }
 
-func TestRetryError(t *testing.T) {
-	fn := func() (shouldRetry bool, err error) {
-		return false, fmt.Errorf("some error")
+func TestRetryCalled(t *testing.T) {
+	var called bool
+	fn := func() (shouldRetry bool) {
+		called = false
+		return called
 	}
 
-	if err := Retry(fn); err == nil {
-		t.Fatal("Error was nil!")
-	}
+	Retry(fn)
+
+	assert.Equal(t, false, called)
 }
 
 func TestRetryOptions(t *testing.T) {
 	newOption := func() (Option, *int) {
 		var calls int
-		option := func() error {
+		option := func() bool {
 			calls++
-			return nil
+			return true
 		}
 
 		return option, &calls
 	}
 
 	var calls int
-	fn := func() (shouldRetry bool, err error) {
+	fn := func() (shouldRetry bool) {
 		calls++
-		return calls < 5, nil
+		return calls < 5
 	}
 
 	optionA, callsA := newOption()
 	optionB, callsB := newOption()
 
-	if err := Retry(fn, optionA, optionB); err != nil {
-		t.Fatal(err)
-	}
+	Retry(fn, optionA, optionB)
 
 	assert.Equal(t, 5, *callsA)
 	assert.Equal(t, 5, *callsB)
 }
 
-func TestRetryOptionError(t *testing.T) {
-	option := func() error {
-		return fmt.Errorf("some error")
+func TestRetryOptionCalled(t *testing.T) {
+	var called bool
+
+	option := func() bool {
+		called = true
+		return false
 	}
 
-	fn := func() (shouldRetry bool, err error) {
-		return false, nil
+	var calls int
+	fn := func() (shouldRetry bool) {
+		calls++
+		return true
 	}
 
-	if err := Retry(fn, option); err == nil {
-		t.Fatal("Error was nil!")
-	}
+	Retry(fn, option)
+
+	assert.Equal(t, 0, calls)
+	assert.Equal(t, true, called)
 }
