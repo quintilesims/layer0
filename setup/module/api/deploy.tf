@@ -19,7 +19,6 @@ data "template_file" "container_definitions" {
     vpc_id                = "${var.vpc_id}"
     s3_bucket             = "${aws_s3_bucket.mod.id}"
     linux_service_ami     = "${data.aws_ami.linux.id}"
-    windows_service_ami   = "${data.aws_ami.windows.id}"
     l0_prefix             = "${var.name}"
     account_id            = "${data.aws_caller_identity.current.account_id}"
     ssh_key_pair          = "${var.ssh_key_pair}"

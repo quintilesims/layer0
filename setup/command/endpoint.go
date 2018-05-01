@@ -52,7 +52,6 @@ func (f *CommandFactory) Endpoint() cli.Command {
 				outputEnvvars[instance.OUTPUT_AWS_LOG_GROUP_NAME] = config.ENVVAR_AWS_LOG_GROUP_NAME
 				outputEnvvars[instance.OUTPUT_ECS_INSTANCE_PROFILE] = config.ENVVAR_AWS_INSTANCE_PROFILE
 				outputEnvvars[instance.OUTPUT_AWS_LINUX_SERVICE_AMI] = config.ENVVAR_AWS_LINUX_AMI
-				outputEnvvars[instance.OUTPUT_WINDOWS_SERVICE_AMI] = config.ENVVAR_AWS_WINDOWS_AMI
 				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_TAG_TABLE] = config.ENVVAR_AWS_DYNAMO_TAG_TABLE
 				outputEnvvars[instance.OUTPUT_AWS_DYNAMO_LOCK_TABLE] = config.ENVVAR_AWS_DYNAMO_LOCK_TABLE
 				outputEnvvars[instance.OUTPUT_AWS_REGION] = config.ENVVAR_AWS_REGION

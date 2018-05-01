@@ -54,10 +54,6 @@ output "linux_service_ami" {
   value = "${module.api.linux_service_ami}"
 }
 
-output "windows_service_ami" {
-  value = "${module.api.windows_service_ami}"
-}
-
 output "log_group_name" {
   value = "${module.api.log_group_name}"
 }

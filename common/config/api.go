@@ -22,7 +22,6 @@ func flagsToEnvVar() map[string]string {
 		FLAG_AWS_REGION:                ENVVAR_AWS_REGION,
 		FLAG_AWS_VPC:                   ENVVAR_AWS_VPC,
 		FLAG_AWS_LINUX_AMI:             ENVVAR_AWS_LINUX_AMI,
-		FLAG_AWS_WINDOWS_AMI:           ENVVAR_AWS_WINDOWS_AMI,
 		FLAG_AWS_S3_BUCKET:             ENVVAR_AWS_S3_BUCKET,
 		FLAG_AWS_INSTANCE_PROFILE:      ENVVAR_AWS_INSTANCE_PROFILE,
 		FLAG_AWS_DYNAMO_TAG_TABLE:      ENVVAR_AWS_DYNAMO_TAG_TABLE,
@@ -88,10 +87,6 @@ func APIFlags() []cli.Flag {
 			EnvVar: flags[FLAG_AWS_LINUX_AMI],
 		},
 		cli.StringFlag{
-			Name:   FLAG_AWS_WINDOWS_AMI,
-			EnvVar: flags[FLAG_AWS_WINDOWS_AMI],
-		},
-		cli.StringFlag{
 			Name:   FLAG_AWS_S3_BUCKET,
 			EnvVar: flags[FLAG_AWS_S3_BUCKET],
 		},
@@ -147,7 +142,6 @@ type APIConfig interface {
 	Instance() string
 	VPC() string
 	LinuxAMI() string
-	WindowsAMI() string
 	S3Bucket() string
 	InstanceProfile() string
 	PublicSubnets() []string
@@ -182,7 +176,6 @@ func (c *ContextAPIConfig) Validate() error {
 		FLAG_AWS_SECRET_KEY,
 		FLAG_AWS_VPC,
 		FLAG_AWS_LINUX_AMI,
-		FLAG_AWS_WINDOWS_AMI,
 		FLAG_AWS_S3_BUCKET,
 		FLAG_AWS_INSTANCE_PROFILE,
 		FLAG_AWS_DYNAMO_TAG_TABLE,
@@ -254,10 +247,6 @@ func (c *ContextAPIConfig) SSHKeyPair() string {
 
 func (c *ContextAPIConfig) LinuxAMI() string {
 	return c.C.String(FLAG_AWS_LINUX_AMI)
-}
-
-func (c *ContextAPIConfig) WindowsAMI() string {
-	return c.C.String(FLAG_AWS_WINDOWS_AMI)
 }
 
 func (c *ContextAPIConfig) S3Bucket() string {

@@ -21,7 +21,7 @@ func (r CreateEnvironmentRequest) Validate() error {
 	}
 
 	switch r.OperatingSystem {
-	case LinuxOS, WindowsOS:
+	case LinuxOS:
 	case "":
 		return fmt.Errorf("OperatingSystem is required")
 	default:

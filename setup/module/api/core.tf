@@ -167,17 +167,3 @@ data "aws_ami" "linux" {
     values = ["amzn-ami-2017.09.l-amazon-ecs-optimized"]
   }
 }
-
-data "aws_ami" "windows" {
-  most_recent = true
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
-
-  filter {
-    name   = "name"
-    values = ["Windows_Server-2016-English-Full-ECS_Optimized-2018.04.18"]
-  }
-}

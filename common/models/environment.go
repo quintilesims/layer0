@@ -3,8 +3,7 @@ package models
 import swagger "github.com/zpatrick/go-plugin-swagger"
 
 const (
-	WindowsOS = "windows"
-	LinuxOS   = "linux"
+	LinuxOS = "linux"
 )
 
 type Environment struct {

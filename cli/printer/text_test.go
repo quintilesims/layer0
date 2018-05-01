@@ -79,7 +79,7 @@ func ExampleTextPrintEnvironments() {
 		{
 			EnvironmentID:   "id2",
 			EnvironmentName: "name2",
-			OperatingSystem: "windows",
+			OperatingSystem: "linux",
 			CurrentScale:    2,
 			DesiredScale:    5,
 			InstanceType:    "t2.small",
@@ -94,10 +94,10 @@ func ExampleTextPrintEnvironments() {
 
 	printer.PrintEnvironments(environments...)
 	// Output:
-	// ENVIRONMENT ID  ENVIRONMENT NAME  OS       LINKS
-	// id1             name1             linux    id2
-	// id2             name2             windows  id1
-	//                                            api
+	// ENVIRONMENT ID  ENVIRONMENT NAME  OS     LINKS
+	// id1             name1             linux  id2
+	// id2             name2             linux  id1
+	//                                          api
 	// id3             name3             linux
 }
 
@@ -106,7 +106,7 @@ func ExampleTextPrintEnvironmentSummaries() {
 	environments := []models.EnvironmentSummary{
 		{EnvironmentID: "id1", EnvironmentName: "name1", OperatingSystem: "linux"},
 		{EnvironmentID: "id2", EnvironmentName: "name2", OperatingSystem: "linux"},
-		{EnvironmentID: "id3", EnvironmentName: "name3", OperatingSystem: "windows"},
+		{EnvironmentID: "id3", EnvironmentName: "name3", OperatingSystem: "linux"},
 	}
 
 	printer.PrintEnvironmentSummaries(environments...)
@@ -114,7 +114,7 @@ func ExampleTextPrintEnvironmentSummaries() {
 	// ENVIRONMENT ID  ENVIRONMENT NAME  OS
 	// id1             name1             linux
 	// id2             name2             linux
-	// id3             name3             windows
+	// id3             name3             linux
 }
 
 func ExampleTextPrintLoadBalancers() {

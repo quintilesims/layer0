@@ -30,7 +30,6 @@
             { "name": "LAYER0_AWS_S3_BUCKET", "value": "${s3_bucket}" },
             { "name": "LAYER0_PREFIX", "value": "${l0_prefix}" },
             { "name": "LAYER0_AWS_LINUX_SERVICE_AMI", "value": "${linux_service_ami}" },
-            { "name": "LAYER0_AWS_WINDOWS_SERVICE_AMI", "value": "${windows_service_ami}" },
             { "name": "LAYER0_AWS_DYNAMO_TAG_TABLE", "value": "${dynamo_tag_table}" },
             { "name": "LAYER0_AWS_DYNAMO_LOCK_TABLE", "value": "${dynamo_lock_table}" },
             { "name": "LAYER0_AWS_LOG_GROUP_NAME", "value": "${log_group_name}" },
