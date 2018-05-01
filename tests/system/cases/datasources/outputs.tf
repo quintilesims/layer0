@@ -1,13 +1,5 @@
 # -- Environment --
 
-output "environment_id" {
-  value = "${data.layer0_environment.datasources.id}"
-}
-
-output "environment_id_expected" {
-  value = "${layer0_environment.datasources.id}"
-}
-
 output "environment_name" {
   value = "${data.layer0_environment.datasources.name}"
 }
@@ -16,8 +8,28 @@ output "environment_name_expected" {
   value = "${layer0_environment.datasources.name}"
 }
 
+output "environment_id" {
+  value = "${data.layer0_environment.datasources.id}"
+}
+
+output "environment_id_expected" {
+  value = "${layer0_environment.datasources.id}"
+}
+
+output "environment_instance_type" {
+  value = "${data.layer0_environment.datasources.instance_type}"
+}
+
+output "environment_instance_type_expected" {
+  value = "${layer0_environment.datasources.instance_type}"
+}
+
 output "environment_scale" {
   value = "${data.layer0_environment.datasources.scale}"
+}
+
+output "environment_scale_expected" {
+  value = "${layer0_environment.datasources.scale}"
 }
 
 output "environment_os" {
@@ -34,6 +46,14 @@ output "environment_ami" {
 
 output "environment_ami_expected" {
   value = "${layer0_environment.datasources.ami}"
+}
+
+output "environment_security_group_id" {
+  value = "${data.layer0_environment.datasources.security_group_id}"
+}
+
+output "environment_security_group_id_expected" {
+  value = "${layer0_environment.datasources.security_group_id}"
 }
 
 # -- Deploy --
@@ -80,6 +100,14 @@ output "load_balancer_name_expected" {
   value = "${layer0_load_balancer.datasources.name}"
 }
 
+output "load_balancer_environment_id" {
+  value = "${data.layer0_load_balancer.datasources.environment_id}"
+}
+
+output "load_balancer_environment_id_expected" {
+  value = "${layer0_environment.datasources.id}"
+}
+
 output "load_balancer_environment_name" {
   value = "${data.layer0_load_balancer.datasources.environment_name}"
 }
@@ -102,6 +130,14 @@ output "load_balancer_url" {
 
 output "load_balancer_url_expected" {
   value = "${layer0_load_balancer.datasources.url}"
+}
+
+output "load_balancer_type" {
+    value = "${data.layer0_load_balancer.datasources.type}"
+}
+
+output "load_balancer_type_expected" {
+    value = "${layer0_load_balancer.datasources.type}"
 }
 
 # -- Service --

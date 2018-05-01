@@ -1,6 +1,7 @@
 resource "layer0_load_balancer" "windows" {
   name        = "windows"
   environment = "${var.environment_id}"
+  type        = "classic"
 
   port {
     host_port      = 80
@@ -15,6 +16,7 @@ resource "layer0_service" "windows" {
   deploy        = "${layer0_deploy.windows.id}"
   load_balancer = "${layer0_load_balancer.windows.id}"
   scale         = "${var.scale}"
+  stateful      = true
 }
 
 resource "layer0_deploy" "windows" {

@@ -11,7 +11,7 @@ import (
 
 // Test Resources:
 // This test creates an environment named 'import' that has a
-// SystemTestService named 'sts'
+// SystemTestService named 'sts_stateless'
 func TestImport(t *testing.T) {
 	t.Parallel()
 
@@ -41,11 +41,12 @@ func TestImport(t *testing.T) {
 		IsPublic:         true,
 		Ports:            []models.Port{config.DefaultLoadBalancerPort()},
 		HealthCheck:      config.DefaultLoadBalancerHealthCheck(),
+		LoadBalancerType: models.ApplicationLoadBalancerType,
 	}
 
 	loadBalancerID := s.Layer0.CreateLoadBalancer(createLoadBalancerReq)
 
-	data, err := ioutil.ReadFile("cases/modules/sts/Dockerrun.aws.json")
+	data, err := ioutil.ReadFile("cases/modules/sts/stateless.dockerrun.aws.json")
 	if err != nil {
 		t.Fatalf("Failed to read dockerrun: %v", err)
 	}
@@ -61,7 +62,9 @@ func TestImport(t *testing.T) {
 		DeployID:       deployID,
 		EnvironmentID:  environmentID,
 		LoadBalancerID: loadBalancerID,
+		Scale:          1,
 		ServiceName:    "sts",
+		Stateful:       false,
 	}
 
 	serviceID := s.Layer0.CreateService(createServiceReq)

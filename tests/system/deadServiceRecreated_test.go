@@ -22,9 +22,9 @@ func TestDeadServiceRecreated(t *testing.T) {
 	serviceID := s.Terraform.Output("service_id")
 	serviceURL := s.Terraform.Output("service_url")
 
-	sts := clients.NewSTSTestClient(t, serviceURL)
-	sts.WaitForHealthy(time.Minute * 3)
-	sts.SetHealth("die")
+	Client := clients.NewSTSTestClient(t, serviceURL)
+	Client.WaitForHealthy(time.Minute * 3)
+	Client.SetHealth("die")
 
 	testutils.WaitFor(t, time.Second*10, time.Minute, func() bool {
 		log.Printf("[DEBUG] Waiting for service to die")

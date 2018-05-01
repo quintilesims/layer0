@@ -33,12 +33,13 @@ func TestDataSources(t *testing.T) {
 	}
 
 	//check environment outputs
-	checkOutput("environment_id")
 	checkOutput("environment_name")
-	checkOutput("environment_size")
-	checkOutput("environment_min_count")
+	checkOutput("environment_id")
+	checkOutput("environment_instance_type")
+	checkOutput("environment_scale")
 	checkOutput("environment_os")
 	checkOutput("environment_ami")
+	checkOutput("environment_security_group_id")
 
 	//check deploy output
 	checkOutput("deploy_id")
@@ -48,9 +49,11 @@ func TestDataSources(t *testing.T) {
 	//check load balancer outputs
 	checkOutput("load_balancer_id")
 	checkOutput("load_balancer_name")
+	checkOutput("load_balancer_environment_id")
 	checkOutput("load_balancer_environment_name")
 	checkOutput("load_balancer_private")
 	checkOutput("load_balancer_url")
+	checkOutput("load_balancer_type")
 
 	//check service outputs
 	checkOutput("service_id")
@@ -58,4 +61,5 @@ func TestDataSources(t *testing.T) {
 	checkOutput("service_environment_id")
 	checkOutput("service_environment_name")
 	checkOutput("service_scale")
+	// checkOutput("service_stateful")
 }

@@ -12,8 +12,8 @@ import (
 
 // Test Resources:
 // This test creates two linked environments named 'el_public' and 'el_private`
-// The 'el_public' environment has a STS service running behind a public load balancer
-// The 'el_private' environment has a STS service running behind a private load balancer
+// The 'el_public' environment has a stateless STS service running behind a public load balancer
+// The 'el_private' environment has a stateful STS service running behind a private load balancer
 func TestEnvironmentLink(t *testing.T) {
 	t.Parallel()
 
@@ -22,6 +22,7 @@ func TestEnvironmentLink(t *testing.T) {
 	defer s.Terraform.Destroy()
 
 	publicEnvironmentID := s.Terraform.Output("public_environment_id")
+	privateEnvironmentID := s.Terraform.Output("private_environment_id")
 	publicServiceURL := s.Terraform.Output("public_service_url")
 	privateServiceURL := s.Terraform.Output("private_service_url")
 
@@ -43,6 +44,7 @@ func TestEnvironmentLink(t *testing.T) {
 			return false
 		}
 
+		log.Printf("[DEBUG] Output was '%s' as expected", output)
 		return true
 	})
 
@@ -52,8 +54,9 @@ func TestEnvironmentLink(t *testing.T) {
 	}
 
 	s.Layer0.UpdateEnvironment(publicEnvironmentID, req)
+	s.Layer0.UpdateEnvironment(privateEnvironmentID, req)
 
-	testutils.WaitFor(t, time.Second*10, time.Minute*2, func() bool {
+	testutils.WaitFor(t, time.Second*10, time.Minute*5, func() bool {
 		log.Printf("[DEBUG] Running curl without link")
 		output, err := publicService.RunCommand("curl", "-m", "10", "-s", privateServiceURL)
 		if err != nil {
@@ -66,6 +69,7 @@ func TestEnvironmentLink(t *testing.T) {
 			return false
 		}
 
+		log.Printf("[DEBUG] Output was '%s' as expected", output)
 		return true
 	})
 }

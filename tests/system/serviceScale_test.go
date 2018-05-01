@@ -11,7 +11,7 @@ import (
 
 // Test Resources:
 // This test creates an environment named 'ss' that has a
-// SystemTestService named 'sts'
+// SystemTestService named 'sts_stateful'
 func TestServiceScale(t *testing.T) {
 	t.Parallel()
 

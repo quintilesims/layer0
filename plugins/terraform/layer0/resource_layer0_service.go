@@ -48,6 +48,7 @@ func resourceLayer0Service() *schema.Resource {
 				Type:     schema.TypeBool,
 				Optional: true,
 				ForceNew: true,
+				Default:  false,
 			},
 		},
 	}
