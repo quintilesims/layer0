@@ -2,9 +2,11 @@ package main
 
 import (
 	"log"
+	"time"
 
 	"github.com/hashicorp/terraform/helper/schema"
 	"github.com/quintilesims/layer0/common/errors"
+	"github.com/quintilesims/layer0/common/retry"
 )
 
 func resourceLayer0Environment() *schema.Resource {
@@ -81,28 +83,33 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 }
 
 func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) error {
-	client := meta.(*Layer0Client)
-	environmentID := d.Id()
+	retryFN := func() (shouldRetry bool, err error) {
+		//needs to be less than the default time out of 60s on the API ELB
+		client := meta.(*Layer0Client)
+		environmentID := d.Id()
 
-	environment, err := client.API.GetEnvironment(environmentID)
-	if err != nil {
-		if err, ok := err.(*errors.ServerError); ok && err.Code == errors.EnvironmentDoesNotExist {
-			d.SetId("")
-			log.Printf("[WARN] Error Reading Environment (%s), environment does not exist", environmentID)
-			return nil
+		environment, err := client.API.GetEnvironment(environmentID)
+		if err != nil {
+			if err, ok := err.(*errors.ServerError); ok && err.Code == errors.EnvironmentDoesNotExist {
+				d.SetId("")
+				log.Printf("[WARN] Error Reading Environment (%s), environment does not exist", environmentID)
+				return true, nil
+			}
+
+			return false, err
 		}
 
-		return err
+		d.Set("name", environment.EnvironmentName)
+		d.Set("size", environment.InstanceSize)
+		d.Set("cluster_count", environment.ClusterCount)
+		d.Set("security_group_id", environment.SecurityGroupID)
+		d.Set("os", environment.OperatingSystem)
+		d.Set("ami", environment.AMIID)
+
+		return false, nil
 	}
 
-	d.Set("name", environment.EnvironmentName)
-	d.Set("size", environment.InstanceSize)
-	d.Set("cluster_count", environment.ClusterCount)
-	d.Set("security_group_id", environment.SecurityGroupID)
-	d.Set("os", environment.OperatingSystem)
-	d.Set("ami", environment.AMIID)
-
-	return nil
+	return retry.Retry(retryFN, retry.WithTimeout(time.Minute*3), retry.WithDelay(time.Second*5))
 }
 
 func resourceLayer0EnvironmentUpdate(d *schema.ResourceData, meta interface{}) error {
