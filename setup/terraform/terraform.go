@@ -11,7 +11,7 @@ import (
 	"github.com/blang/semver"
 )
 
-const REQUIRED_TERRAFORM_VERSION = "0.9.4"
+const REQUIRED_TERRAFORM_VERSION = "0.11.4"
 
 type Terraform struct{}
 
