@@ -3,6 +3,7 @@ package client
 import (
 	"io"
 	"io/ioutil"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 
@@ -16,6 +17,7 @@ import (
 
 	"github.com/dghubble/sling"
 	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/retry"
 	"github.com/quintilesims/layer0/common/waitutils"
 )
 
@@ -49,6 +51,37 @@ func logSling(httpClient *http.Client) sling.Doer {
 
 			log.Debugf("Received: %s %s \n", resp.Status, responseBody)
 		}
+
+		return resp, err
+	})
+}
+
+func retrySling(httpClient *http.Client) sling.Doer {
+	readBody := func(body io.Reader) (io.ReadCloser, string) {
+		bodyBytes, _ := ioutil.ReadAll(body)
+		original := ioutil.NopCloser(bytes.NewBuffer(bodyBytes))
+		return original, string(bodyBytes)
+	}
+
+	return DoerFunc(func(req *http.Request) (*http.Response, error) {
+		if req.Body != nil {
+			req.Body, _ = readBody(req.Body)
+		}
+
+		var resp *http.Response
+		retryFN := func() (shouldRetry bool, err error) {
+			if resp, err = httpClient.Do(req); err != nil {
+				if strings.Contains(err.Error(), "EOF") {
+					return true, nil
+				}
+
+				return false, err
+			}
+
+			return false, nil
+		}
+
+		err := retry.Retry(retryFN, retry.WithTimeout(time.Minute*3), retry.WithDelay(time.Second*5))
 
 		return resp, err
 	})
@@ -104,7 +137,8 @@ func (c *APIClient) Sling(path string) *sling.Sling {
 		Base(c.Endpoint).
 		Path(path).
 		Set("Authorization", fmt.Sprintf("Basic %s", c.Token)).
-		Doer(logSling(c.httpClient))
+		Doer(logSling(c.httpClient)).
+		Doer(retrySling(c.httpClient))
 }
 
 func (c *APIClient) Execute(sling *sling.Sling, receive interface{}) error {
