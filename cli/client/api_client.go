@@ -70,18 +70,23 @@ func retrySling(httpClient *http.Client) sling.Doer {
 
 		var resp *http.Response
 		retryFN := func() (shouldRetry bool, err error) {
-			if resp, err = httpClient.Do(req); err != nil {
-				if strings.Contains(err.Error(), "EOF") {
-					return true, nil
+			if resp, err = httpClient.Do(req); resp != nil {
+				if resp.Body != nil {
+					_, responseBody := readBody(resp.Body)
+					if strings.Contains(responseBody, "EOF") {
+						return true, nil
+					}
 				}
+			}
 
+			if err != nil {
 				return false, err
 			}
 
 			return false, nil
 		}
 
-		err := retry.Retry(retryFN, retry.WithTimeout(time.Minute*3), retry.WithDelay(time.Second*5))
+		err := retry.Retry(retryFN, retry.WithMaxAttempts(5), retry.WithDelay(time.Second*5))
 
 		return resp, err
 	})
