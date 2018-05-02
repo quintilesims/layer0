@@ -8,7 +8,11 @@ import (
 type Option func() error
 
 func WithDelay(d time.Duration) Option {
+	start := time.Now()
 	return func() error {
+		if time.Since(start) < time.Microsecond {
+			return nil
+		}
 		time.Sleep(d)
 		return nil
 	}

@@ -64,30 +64,26 @@ func retrySling(httpClient *http.Client) sling.Doer {
 	}
 
 	return DoerFunc(func(req *http.Request) (*http.Response, error) {
-		if req.Body != nil {
-			req.Body, _ = readBody(req.Body)
-		}
-
 		var resp *http.Response
 		retryFN := func() (shouldRetry bool, err error) {
 			if resp, err = httpClient.Do(req); resp != nil {
+				var responseBody string
 				if resp.Body != nil {
-					_, responseBody := readBody(resp.Body)
+					resp.Body, responseBody = readBody(resp.Body)
 					if strings.Contains(responseBody, "EOF") {
 						return true, nil
 					}
 				}
-			}
 
-			if err != nil {
-				return false, err
+				if err != nil {
+					return false, err
+				}
 			}
 
 			return false, nil
 		}
 
-		err := retry.Retry(retryFN, retry.WithMaxAttempts(5), retry.WithDelay(time.Second*5))
-
+		err := retry.Retry(retryFN, retry.WithMaxAttempts(5), retry.WithDelay(time.Second*2))
 		return resp, err
 	})
 }
