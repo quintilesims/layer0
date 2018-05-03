@@ -13,7 +13,7 @@ func TestWithDelay(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	assert.True(t, time.Since(start) > time.Millisecond)
+	assert.True(t, time.Since(start) > time.Nanosecond)
 }
 
 func TestWithTimeout(t *testing.T) {
