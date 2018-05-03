@@ -77,3 +77,17 @@ func TestExecuteWithJobErrors(t *testing.T) {
 		}
 	}
 }
+
+func TestExecuteRetryError(t *testing.T) {
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		se := models.ServerError{Message: "EOF", ErrorCode: 1}
+		MarshalAndWrite(t, w, se, 500)
+	}
+
+	client, server := newClientAndServer(handler)
+	defer server.Close()
+
+	if err := client.Execute(client.Sling("").Get(""), nil); err == nil {
+		t.Fatalf("Retry failed")
+	}
+}
