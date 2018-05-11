@@ -349,7 +349,8 @@ func TestCreateDeploy(t *testing.T) {
 				manager := target.(*ECSDeployManager)
 				manager.CreateDeploy("some_name", dockerrun)
 			},
-		}, {
+		},
+		{
 			Name: "Should marshal dockerrun with placement constraints correctly",
 			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
 				mockDeploy := NewMockECSDeployManager(ctrl)
@@ -371,6 +372,7 @@ func TestCreateDeploy(t *testing.T) {
 						reporter.AssertEqual(*containers[0].Name, "test")
 						reporter.AssertEqual(*volumes[0].Name, "test")
 						reporter.AssertEqual(len(placementConstraints), 1)
+						reporter.AssertEqual(*containers[0].Image, "12345.dkr.ecr.us-west-2.amazonaws.com/test")
 					}).
 					Return(task, nil)
 
