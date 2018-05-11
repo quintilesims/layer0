@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 )
@@ -78,6 +80,12 @@ func (this *ECSDeployManager) CreateDeploy(deployName string, body []byte) (*mod
 	dockerrun, err := CreateRenderedDockerrun(body)
 	if err != nil {
 		return nil, err
+	}
+
+	// override container images prefixes if override specified
+	for _, c := range dockerrun.ContainerDefinitions {
+		s := config.DockerRepoOverride(aws.StringValue(c.Image))
+		c.Image = &s
 	}
 
 	// deploys for jobs will have the deploy.Family field, but they will match familyName

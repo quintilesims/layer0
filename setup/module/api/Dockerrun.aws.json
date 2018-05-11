@@ -38,7 +38,8 @@
             { "name": "LAYER0_AWS_SSH_KEY_PAIR", "value": "${ssh_key_pair}" },
             { "name": "LAYER0_AWS_ACCOUNT_ID", "value": "${account_id}" },
             { "name": "LAYER0_API_LOG_LEVEL", "value": "debug" },
-            { "name": "LAYER0_RUNNER_LOG_LEVEL", "value": "debug" }
+            { "name": "LAYER0_RUNNER_LOG_LEVEL", "value": "debug" },
+            { "name": "LAYER0_DOCKER_REPO_OVERRIDE", "value": "${docker_repo_override}" }
         ]
     }
 ]

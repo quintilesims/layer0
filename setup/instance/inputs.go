@@ -10,16 +10,17 @@ import (
 const LAYER0_MODULE_SOURCE = "github.com/quintilesims/layer0//setup/module"
 
 const (
-	INPUT_SOURCE           = "source"
-	INPUT_LAYER0_VERSION   = "layer0_version"
-	INPUT_AWS_ACCESS_KEY   = "access_key"
-	INPUT_AWS_SECRET_KEY   = "secret_key"
-	INPUT_AWS_REGION       = "region"
-	INPUT_AWS_SSH_KEY_PAIR = "ssh_key_pair"
-	INPUT_USERNAME         = "username"
-	INPUT_PASSWORD         = "password"
-	INPUT_DOCKERCFG        = "dockercfg"
-	INPUT_VPC_ID           = "vpc_id"
+	INPUT_SOURCE               = "source"
+	INPUT_LAYER0_VERSION       = "layer0_version"
+	INPUT_AWS_ACCESS_KEY       = "access_key"
+	INPUT_AWS_SECRET_KEY       = "secret_key"
+	INPUT_AWS_REGION           = "region"
+	INPUT_AWS_SSH_KEY_PAIR     = "ssh_key_pair"
+	INPUT_USERNAME             = "username"
+	INPUT_PASSWORD             = "password"
+	INPUT_DOCKERCFG            = "dockercfg"
+	INPUT_VPC_ID               = "vpc_id"
+	INPUT_DOCKER_REPO_OVERRIDE = "docker_repo_override"
 )
 
 const INPUT_SOURCE_DESCRIPTION = `
@@ -99,6 +100,13 @@ created for you. Existing VPCs must satisfy the following constraints:
 Note that changing this value will destroy and recreate any existing resources.
 `
 
+const INPUT_DOCKER_REPO_OVERRIDE_DESCRIPTION = `
+Docker Repository Override (optional): Allows you to map one repository prefix to another when a
+new layer0 deploy is created. For example, specifiying "d.ims.io:aws.ecr.repo" will update
+all image names for new container definitions, within a task definition. An image like "d.ims.io/guestbook"
+will be updated to "aws.ecr.repo/guestbook"
+`
+
 type ModuleInput struct {
 	Name        string
 	Description string
@@ -175,6 +183,11 @@ var Layer0ModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_VPC_ID,
 		Description: INPUT_VPC_ID_DESCRIPTION,
+		prompter:    OptionalStringPrompter,
+	},
+	{
+		Name:        INPUT_DOCKER_REPO_OVERRIDE,
+		Description: INPUT_DOCKER_REPO_OVERRIDE_DESCRIPTION,
 		prompter:    OptionalStringPrompter,
 	},
 }

@@ -39,6 +39,7 @@ const (
 	TEST_AWS_TAG_DYNAMO_TABLE = "LAYER0_TEST_AWS_TAG_DYNAMO_TABLE"
 	TEST_AWS_JOB_DYNAMO_TABLE = "LAYER0_TEST_AWS_JOB_DYNAMO_TABLE"
 	AWS_TIME_BETWEEN_REQUESTS = "LAYER0_AWS_TIME_BETWEEN_REQUESTS"
+	DOCKER_REPO_OVERRIDE      = "LAYER0_DOCKER_REPO_OVERRIDE"
 )
 
 // defaults
@@ -253,4 +254,25 @@ func ShouldVerifyVersion() bool {
 	}
 
 	return true
+}
+
+func DockerRepoOverride(image string) string {
+	v := get(DOCKER_REPO_OVERRIDE)
+	overrideMap := map[string]string{}
+	for _, s := range strings.Split(v, ",") {
+		if mapping := strings.Split(s, ":"); len(mapping) == 2 {
+			overrideMap[mapping[0]] = mapping[1]
+		}
+	}
+
+	imageParts := strings.Split(image, "/")
+	if len(imageParts) < 2 {
+		return image
+	}
+
+	if override, ok := overrideMap[imageParts[0]]; ok {
+		return override + "/" + strings.Join(imageParts[1:], "/")
+	}
+
+	return image
 }

@@ -62,7 +62,7 @@ func (l *Layer0TestClient) CreateLoadBalancer(name, environmentID string) *model
 
 	ports := []models.Port{{HostPort: 80, ContainerPort: 80, Protocol: "http"}}
 
-	loadBalancer, err := l.Client.CreateLoadBalancer(name, environmentID, hc, ports, true)
+	loadBalancer, err := l.Client.CreateLoadBalancer(name, environmentID, hc, ports, true, 60)
 	if err != nil {
 		l.T.Fatal(err)
 	}

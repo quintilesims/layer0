@@ -2,6 +2,7 @@ package ecsbackend
 
 import (
 	"fmt"
+	"os"
 	"testing"
 
 	aws_ecs "github.com/aws/aws-sdk-go/service/ecs"
@@ -9,6 +10,7 @@ import (
 	"github.com/quintilesims/layer0/api/backend/ecs/id"
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 )
@@ -337,6 +339,7 @@ func TestCreateDeploy(t *testing.T) {
 						reporter.AssertEqual(*containers[0].Name, "test")
 						reporter.AssertEqual(*volumes[0].Name, "test")
 						reporter.AssertEqual(len(placementConstraints), 0)
+						reporter.AssertEqual(*containers[0].Image, "12345.dkr.ecr.us-west-2.amazonaws.com/test")
 					}).
 					Return(task, nil)
 
@@ -441,6 +444,34 @@ func TestCreateDeploy(t *testing.T) {
 				if _, err := manager.CreateDeploy("some_name", dockerrun); err == nil {
 					reporter.Errorf("Error was nil!")
 				}
+			},
+		},
+		{
+			Name: "Image prefix should remain same if docker repo override is NOT specified",
+			Setup: func(reporter *testutils.Reporter, ctrl *gomock.Controller) interface{} {
+				os.Unsetenv(config.DOCKER_REPO_OVERRIDE)
+				mockDeploy := NewMockECSDeployManager(ctrl)
+
+				taskDefinition := fmt.Sprintf("%ssome_name:1", id.PREFIX)
+
+				task := &ecs.TaskDefinition{
+					&aws_ecs.TaskDefinition{
+						TaskDefinitionArn: stringp("arn:aws:ecs:us-west-2:12345678:task-definition/" + taskDefinition),
+					},
+				}
+
+				mockDeploy.ECS.EXPECT().
+					RegisterTaskDefinition(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
+					Do(func(family, taskRoleARN, network string, containers []*ecs.ContainerDefinition, volumes []*ecs.Volume, placementConstraints []*ecs.PlacementConstraint) {
+						reporter.AssertEqual(*containers[0].Image, "quintilesims/test")
+					}).
+					Return(task, nil)
+
+				return mockDeploy.Deploy()
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}) {
+				manager := target.(*ECSDeployManager)
+				manager.CreateDeploy("some_name", dockerrun)
 			},
 		},
 	}

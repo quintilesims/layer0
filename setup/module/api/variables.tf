@@ -33,3 +33,5 @@ variable "group_policies" {
     "s3",
   ]
 }
+
+variable "docker_repo_override" {}

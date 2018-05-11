@@ -19,6 +19,10 @@ func (f *CommandFactory) Init() cli.Command {
 				Usage: "path to docker config.json file",
 			},
 			cli.StringFlag{
+				Name:  "docker-repo-override",
+				Usage: "map to an ecr backed docker repository. (e.g. d.ims.io:<account_id>.dkr.ecr.us-west-2.amazonaws.com)",
+			},
+			cli.StringFlag{
 				Name:  "module-source",
 				Usage: instance.INPUT_SOURCE_DESCRIPTION,
 			},
@@ -70,6 +74,10 @@ func (f *CommandFactory) Init() cli.Command {
 
 			if v := c.String("aws-ssh-key-pair"); v != "" {
 				overrides[instance.INPUT_AWS_SSH_KEY_PAIR] = v
+			}
+
+			if v := c.String("docker-repo-override"); v != "" {
+				overrides[instance.INPUT_DOCKER_REPO_OVERRIDE] = v
 			}
 
 			dockerPath := strings.Replace(c.String("docker-path"), "~", homedir.Get(), -1)

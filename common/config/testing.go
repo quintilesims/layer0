@@ -14,6 +14,7 @@ const (
 	TEST_AWS_SERVICE_AMI          = "ami-abc123"
 	TEST_AWS_ECS_ROLE             = "role-abc123"
 	TEST_AWS_KEY_PAIR             = "test-key-pair"
+	TEST_DOCKER_REPO_OVERRIDE     = "quintilesims:12345.dkr.ecr.us-west-2.amazonaws.com"
 )
 
 func SetTestConfig() {
@@ -27,4 +28,5 @@ func SetTestConfig() {
 	os.Setenv(AWS_WINDOWS_SERVICE_AMI, TEST_AWS_SERVICE_AMI)
 	os.Setenv(AWS_ECS_ROLE, TEST_AWS_ECS_ROLE)
 	os.Setenv(AWS_SSH_KEY_PAIR, TEST_AWS_KEY_PAIR)
+	os.Setenv(DOCKER_REPO_OVERRIDE, TEST_DOCKER_REPO_OVERRIDE)
 }
