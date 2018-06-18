@@ -2,10 +2,8 @@ package provider
 
 import (
 	"fmt"
-	"time"
 
 	"github.com/aws/aws-sdk-go/aws/credentials"
-	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/autoscaling"
 	"github.com/aws/aws-sdk-go/service/cloudformation"
@@ -73,15 +71,6 @@ var getConfig = func(credProvider CredProvider, region string) (sess *session.Se
 
 	creds := credentials.NewStaticCredentials(access_key, secret_key, "")
 	sess = session.New(config.GetAWSConfig(creds, config.AWSRegion()))
-	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
-	if err != nil {
-		return
-	}
-
-	ticker := time.Tick(delay)
-	sess.Handlers.Send.PushBack(func(r *request.Request) {
-		<-ticker
-	})
 
 	return
 }
