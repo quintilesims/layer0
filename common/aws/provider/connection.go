@@ -54,6 +54,7 @@ var regionIsValid = func(region string) (isValid bool) {
 }
 
 var getConfig = func(credProvider CredProvider, region string) (sess *session.Session, err error) {
+	fmt.Printf("getConfig called with %v and %v\n", credProvider, region)
 	if !regionIsValid(region) {
 		err = fmt.Errorf("Region '%s' is not a valid region!", region)
 		return
