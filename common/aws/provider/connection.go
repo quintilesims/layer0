@@ -55,7 +55,7 @@ var regionIsValid = func(region string) (isValid bool) {
 	return
 }
 
-var ticker *time.Ticker
+var Ticker *time.Ticker
 
 func init() {
 	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
@@ -63,12 +63,12 @@ func init() {
 		return
 	}
 
-	ticker = time.NewTicker(delay)
+	Ticker = time.NewTicker(delay)
 }
 
 var getConfig = func(credProvider CredProvider, region string) (sess *session.Session, err error) {
 	fmt.Printf("getConfig called with %v and %v\n", credProvider, region)
-	fmt.Printf("ticker: %v\n", ticker)
+	fmt.Printf("ticker: %v\n", Ticker)
 	if !regionIsValid(region) {
 		err = fmt.Errorf("Region '%s' is not a valid region!", region)
 		return
@@ -87,7 +87,7 @@ var getConfig = func(credProvider CredProvider, region string) (sess *session.Se
 	creds := credentials.NewStaticCredentials(access_key, secret_key, "")
 	sess = session.New(config.GetAWSConfig(creds, config.AWSRegion()))
 	sess.Handlers.Send.PushBack(func(r *request.Request) {
-		<-ticker.C
+		<-Ticker.C
 	})
 
 	return

@@ -11,6 +11,7 @@ import (
 	"github.com/emicklei/go-restful/swagger"
 	"github.com/quintilesims/layer0/api/handlers"
 	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/common/aws/provider"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/startup"
@@ -133,6 +134,8 @@ func main() {
 	if err != nil {
 		logrus.Fatal(err)
 	}
+
+	defer provider.Ticker.Stop()
 
 	lgc, err := startup.GetLogic(backend)
 	if err != nil {

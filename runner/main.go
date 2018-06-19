@@ -96,6 +96,8 @@ func Run(c *cli.Context) {
 		log.Fatal(err)
 	}
 
+	defer provider.Ticker.Stop()
+
 	logic, err := startup.GetLogic(backend)
 	if err != nil {
 		log.Fatal(err)
