@@ -17,6 +17,7 @@ The basic branching workflow is:
 
 Before starting the release process, make sure to check the following items:
 
+* Has all the relevant documentation been updated?
 * Have all the necessary [pull requests](https://github.com/quintilesims/layer0/pulls) been merged?
 * Does a [release](https://github.com/quintilesims/layer0/branches) branch already exist? It should have been removed after the last release.
 * Do you have the [layer0](https://github.com/quintilesims/layer0) repository cloned locally?
@@ -37,6 +38,8 @@ git fetch origin
 git checkout remotes/origin/develop
 
 # Create the release branch and merge it with master
+# This will create a merge commit message, which we don't care about.
+# It gets lost in a squash later.
 git checkout -b release
 git merge remotes/origin/master
 
@@ -46,7 +49,7 @@ git push -u origin release
 
 ## Merge Release into Master
 
-With the release notes and documentation updated, [create a pull request](https://github.com/quintilesims/layer0/compare) from the `release` branch targeting the `master` branch (_base: master, compare: release_). 
+[Create a pull request](https://github.com/quintilesims/layer0/compare) from the `release` branch targeting the `master` branch (_base: master, compare: release_). 
 Merge using **squash and merge.**
 Wait for the unit tests and smoketests to pass before merging. 
 Once the pull request has finished, make sure to delete the `release` branch. 
