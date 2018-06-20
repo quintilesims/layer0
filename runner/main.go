@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"strings"
+	"time"
 
 	"github.com/Sirupsen/logrus"
 	"github.com/quintilesims/layer0/common/aws/provider"
@@ -95,6 +96,14 @@ func Run(c *cli.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	rateLimit, err := time.ParseDuration(config.AWSTimeBetweenRequests())
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	provider.ResetRateLimiter(rateLimit)
+	defer provider.StopRateLimiter()
 
 	logic, err := startup.GetLogic(backend)
 	if err != nil {

@@ -11,6 +11,7 @@ import (
 	"github.com/emicklei/go-restful/swagger"
 	"github.com/quintilesims/layer0/api/handlers"
 	"github.com/quintilesims/layer0/api/logic"
+	"github.com/quintilesims/layer0/common/aws/provider"
 	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/startup"
@@ -133,6 +134,14 @@ func main() {
 	if err != nil {
 		logrus.Fatal(err)
 	}
+
+	rateLimit, err := time.ParseDuration(config.AWSTimeBetweenRequests())
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	provider.ResetRateLimiter(rateLimit)
+	defer provider.StopRateLimiter()
 
 	lgc, err := startup.GetLogic(backend)
 	if err != nil {

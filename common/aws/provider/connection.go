@@ -55,6 +55,19 @@ var regionIsValid = func(region string) (isValid bool) {
 	return
 }
 
+const DefaultRateLimit = time.Millisecond * 200
+
+var rateLimiter = time.NewTicker(DefaultRateLimit)
+
+func ResetRateLimiter(rate time.Duration) {
+	rateLimiter.Stop()
+	rateLimiter = time.NewTicker(rate)
+}
+
+func StopRateLimiter() {
+	rateLimiter.Stop()
+}
+
 var getConfig = func(credProvider CredProvider, region string) (sess *session.Session, err error) {
 	if !regionIsValid(region) {
 		err = fmt.Errorf("Region '%s' is not a valid region!", region)
@@ -73,14 +86,8 @@ var getConfig = func(credProvider CredProvider, region string) (sess *session.Se
 
 	creds := credentials.NewStaticCredentials(access_key, secret_key, "")
 	sess = session.New(config.GetAWSConfig(creds, config.AWSRegion()))
-	delay, err := time.ParseDuration(config.AWSTimeBetweenRequests())
-	if err != nil {
-		return
-	}
-
-	ticker := time.Tick(delay)
 	sess.Handlers.Send.PushBack(func(r *request.Request) {
-		<-ticker
+		<-rateLimiter.C
 	})
 
 	return
