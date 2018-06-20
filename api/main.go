@@ -135,7 +135,13 @@ func main() {
 		logrus.Fatal(err)
 	}
 
-	defer provider.Ticker.Stop()
+	rateLimit, err := time.ParseDuration(config.AWSTimeBetweenRequests())
+	if err != nil {
+		logrus.Fatal(err)
+	}
+
+	provider.ResetRateLimiter(rateLimit)
+	defer provider.StopRateLimiter()
 
 	lgc, err := startup.GetLogic(backend)
 	if err != nil {
