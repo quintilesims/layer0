@@ -117,10 +117,20 @@ These files can be downloaded at any time using the `pull` command (`l0-setup pu
 !!! info "Using a Private Docker Registry"
     **The procedures in this section are optional, but are highly recommended for production use.**
 
-If you require authentication to a private Docker registry, you will need a Docker configuration file present on your machine with access to private repositories (typically located at `~/.docker/config.json`). 
+There are two methods of enabling access to a private docker registry: `docker-repo-override` flag or a docker configuration file.
+
+First method: if you require authentication to a private Docker registry, that uses AWS ECR [d.ims.io](https://github.com/quintilesims/d.ims.io), which internally maps image repository URIs, for example from `d.ims.io/sample/guestbook` to `<aws_account_Id>.dkr.ecr.us-west-2.amazonaws.com/sample/guestbook`, you can specify the `docker-repo-override` during `l0-setup init <instance_name>`.
+
+```
+l0-setup init --docker-repo-override d.ims.io:12345.dkr.ecr.us-west-2.amazonaws.com
+```
+
+This will update any images with `d.ims.io` prefix to the mapped prefix of `12345.dkr.ecr.us-west-2.amazonaws.com`; allowing the ecs-agent (reponsible for pulling images on a container instance), to use its internal authentication mechanism to pull an image from ECR, without needing to provide additional private docker registry authentication.
+
+Second method: if you require authentication to a private Docker registry, you can authenticate via a Docker configuration file present on your machine with access to private repositories (typically located at `~/.docker/config.json`). 
 
 If you don't have a config file yet, you can generate one by running `docker login [registry-address]`. 
-A configuration file will be generated at `~/.docker/config.json`.
+A configuration file will be generated at `~/.docker/config.json`. If you are using a credential helper to store docker logins securely, you will need to disable this temporarily so that the `docker login ...` command will save the credentials in plain-text, in the configuration file.
 
 To add this authentication to your Layer0 instance, run:
 ```
