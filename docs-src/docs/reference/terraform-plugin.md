@@ -12,7 +12,7 @@ This provider allows users to create, manage, and update Layer0 entities using T
 ## Install
 Download a Layer0 v0.8.4+ [release](/releases).
 The Terraform plugin binary is located in the release zip file as `terraform-provider-layer0`.
-Copy this `terraform-provider-layer0` binary into the same directory as your Terraform binary - and you're done!
+Copy this `terraform-provider-layer0` binary into `~/.terraform.d/plugins/` - and you're done!
 
 For further information, see Terraform's documentation on installing a Terraform plugin [here](https://www.terraform.io/docs/plugins/basics.html#installing-a-plugin).
 
