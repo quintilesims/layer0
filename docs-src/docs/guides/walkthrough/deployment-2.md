@@ -42,8 +42,8 @@ At the command prompt, execute the following:
 We should see output like the following:
 
 ```
-LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS          PUBLIC  URL
-redislb16ae6     redis-lb           demo-env              6378:6379:TCP  false
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS          PUBLIC  URL  IDLE  TIMEOUT
+redislb16ae6     redis-lb           demo-env              6378:6379:TCP  false        60
 ```
 
 The following is a summary of the arguments passed in the above command:
@@ -166,8 +166,8 @@ Remember, it lives behind a load balancer that we made, so run the following com
 We should see output like the following:
 
 ```
-LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE    PORTS          PUBLIC  URL
-redislb16ae6     redis-lb           demo-env     redis-svc  6379:6379/TCP  false   internal-l0-<yadda-yadda>.elb.amazonaws.com
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE    PORTS          PUBLIC  URL                                          IDLE  TIMEOUT
+redislb16ae6     redis-lb           demo-env     redis-svc  6379:6379/TCP  false   internal-l0-<yadda-yadda>.elb.amazonaws.com  60
 ```
 
 Copy that `URL` value, replace `<redis host and port here>` with the `URL` value in `Guestbook.Dockerrun.aws.json`, append `:6379` to it, and save the file.

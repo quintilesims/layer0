@@ -41,24 +41,24 @@ We can inspect our environments in a couple of different ways:
 - `l0 environment list` will give us a brief summary of all environments:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME
-demo00e6aa9     demo-env
-api             api
+ENVIRONMENT ID  ENVIRONMENT NAME  OS
+demo00e6aa9     demo-env          linux
+api             api               linux
 ```
 
 - `l0 environment get demo-env` will show us more information about the **demo-env** environment we just created:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium
+ENVIRONMENT ID  ENVIRONMENT NAME  OS     CLUSTER COUNT  INSTANCE SIZE  LINKS
+demo00e6aa9     demo-env          linux  0              m3.medium
 ```
 
 - `l0 environment get \*` illustrates wildcard matching (you could also have used `demo*` in the above command), and it will return detailed information for _each_ environment, not just one - it's like a detailed `list`:
 
 ```
-ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium
-api             api               2              m3.medium
+ENVIRONMENT ID  ENVIRONMENT NAME OS     CLUSTER COUNT  INSTANCE SIZE  LINKS
+api             api              linux  2              t2.small
+demo00e6aa9     demo-env         linux  0              m3.medium
 ```
 
 ---
@@ -82,8 +82,8 @@ At the command prompt, execute the following:
 We should see output like the following:
 
 ```
-LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env              80:80/HTTP  true
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL  IDLE  TIMEOUT
+guestbodb65a     guestbook-lb       demo-env              80:80/HTTP  true         60
 ```
 
 The following is a summary of the arguments passed in the above command:
@@ -105,7 +105,7 @@ Try running the following commands to get an idea of the information available t
 	Notice that the load balancer `list` and `get` outputs list an `ENVIRONMENT` field - if you ever have load balancers (or other Layer0 entities) with the same name but in different environments, you can target a specific load balancer by qualifying it with its environment name:
 
 	```
-	`l0 loadbalancer get demo-env:guestbook-lb`
+	l0 loadbalancer get demo-env:guestbook-lb
 	```
 
 ---
@@ -223,8 +223,8 @@ At the command prompt, execute the following:
 We should see output like the following:
 
 ```
-LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    <url>
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL    IDLE  TIMEOUT
+guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    <url>  60
 ```
 
 Copy the value shown in the **URL** column and paste it into a web browser.
