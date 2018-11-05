@@ -41,7 +41,7 @@ The `SCALE` column shows the running, desired and pending counts. A value of `0/
 
 To view the logs for this task, and evaluate its progress, you can use the **task logs** command:
 
-`l0 task logs one-off-task-tsk`  
+`l0 task logs echo-tsk`
 
 You will see the following output:
 ```
