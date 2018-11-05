@@ -4,7 +4,6 @@ In this section you'll learn how different Layer0 commands work together to depl
 The example application in this section is a guestbook -- a web application that acts as a simple message board.
 You can choose to complete this section using either [the Layer0 CLI](#deploy-with-layer0-cli) or [Terraform](#deploy-with-terraform).
 
-
 ---
 
 ## Deploy with Layer0 CLI
@@ -16,7 +15,6 @@ Files used in this deployment:
 | Filename | Purpose |
 |----------|---------|
 | `Guestbook.Dockerrun.aws.json` | Template for running the Guestbook application |
-
 
 ---
 
@@ -31,34 +29,34 @@ At the command prompt, execute the following:
 
 We should see output like the following:
 
-```
-ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium
+```output
+ENVIRONMENT ID  ENVIRONMENT NAME  OS     CLUSTER COUNT  INSTANCE SIZE  LINKS
+demoenvd4e17    demo-env          linux  0              m3.medium
 ```
 
 We can inspect our environments in a couple of different ways:
 
 - `l0 environment list` will give us a brief summary of all environments:
 
-```
-ENVIRONMENT ID  ENVIRONMENT NAME
-demo00e6aa9     demo-env
-api             api
+```output
+ENVIRONMENT ID  ENVIRONMENT NAME  OS
+api             api               linux
+demoenvd4e17    demo-env          linux
 ```
 
 - `l0 environment get demo-env` will show us more information about the **demo-env** environment we just created:
 
-```
-ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium
+```output
+ENVIRONMENT ID  ENVIRONMENT NAME  OS     CLUSTER COUNT  INSTANCE SIZE  LINKS
+demoenvd4e17    demo-env          linux  0              m3.medium
 ```
 
 - `l0 environment get \*` illustrates wildcard matching (you could also have used `demo*` in the above command), and it will return detailed information for _each_ environment, not just one - it's like a detailed `list`:
 
-```
-ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium
-api             api               2              m3.medium
+```output
+ENVIRONMENT ID  ENVIRONMENT NAME  OS     CLUSTER COUNT  INSTANCE SIZE  LINKS
+api             api               linux  2              t2.small
+demoenvd4e17    demo-env          linux  0              m3.medium
 ```
 
 ---
@@ -81,17 +79,17 @@ At the command prompt, execute the following:
 
 We should see output like the following:
 
-```
-LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env              80:80/HTTP  true
+```output
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL  IDLE TIMEOUT
+guestboc8d07     guestbook-lb       demo-env              80:80/HTTP  true         60
 ```
 
 The following is a summary of the arguments passed in the above command:
 
-* `loadbalancer create`: creates a new load balancer
-* `--port 80:80/HTTP`: instructs the load balancer to forward requests from port 80 on the load balancer to port 80 in the EC2 instance using the HTTP protocol
-* `demo-env`: the name of the environment in which you are creating the load balancer
-* `guestbook-lb`: a name for the load balancer itself
+- `loadbalancer create`: creates a new load balancer
+- `--port 80:80/HTTP`: instructs the load balancer to forward requests from port 80 on the load balancer to port 80 in the EC2 instance using the HTTP protocol
+- `demo-env`: the name of the environment in which you are creating the load balancer
+- `guestbook-lb`: a name for the load balancer itself
 
 You can inspect load balancers in the same way that you inspected environments in Part 1.
 Try running the following commands to get an idea of the information available to you:
@@ -122,16 +120,16 @@ At the command prompt, execute the following:
 
 We should see output like the following:
 
-```
+```output
 DEPLOY ID        DEPLOY NAME    VERSION
 guestbook-dpl.1  guestbook-dpl  1
 ```
 
 The following is a summary of the arguments passed in the above command:
 
-* `deploy create`: creates a new deployment and allows you to specify an ECS task definition
-* `Guestbook.Dockerrun.aws.json`: the file name of the ECS task definition (use the full path of the file if it is not in your current working directory)
-* `guestbook-dpl`: a name for the deploy, which you will use later when you create the service
+- `deploy create`: creates a new deployment and allows you to specify an ECS task definition
+- `Guestbook.Dockerrun.aws.json`: the file name of the ECS task definition (use the full path of the file if it is not in your current working directory)
+- `guestbook-dpl`: a name for the deploy, which you will use later when you create the service
 
 !!! Note "Deploy Versioning"
 	The `DEPLOY NAME` and `VERSION` are combined to create a unique identifier for a deploy.
@@ -147,7 +145,6 @@ Deploys support the same methods of inspection as environments and load balancer
 - `l0 deploy get guestbook:latest`
 - `l0 deploy get \*`
 
-
 ---
 
 ### Part 4: Create the Service
@@ -161,22 +158,21 @@ Here, we'll create a new service called **guestbook-svc**. At the command prompt
 
 We should see output like the following:
 
-```
+```output
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1
 ```
 
 The following is a summary of the arguments passed in the above command:
 
-* `service create`: creates a new service
-* `--loadbalancer demo-env:guestbook-lb`: the fully-qualified name of the load balancer; in this case, the load balancer named **guestbook-lb** in the environment named **demo-env**. 
-	- _(It is not strictly necessary to use the fully qualified name of the load balancer, unless another load balancer with exactly the same name exists in a different environment.)_
-* `demo-env`: the name of the environment you created in Part 1
-* `guestbook-svc`: a name for the service you are creating
-* `guestbook-dpl`: the name of the deploy that you created in Part 3
+- `service create`: creates a new service
+- `--loadbalancer demo-env:guestbook-lb`: the fully-qualified name of the load balancer; in this case, the load balancer named **guestbook-lb** in the environment named **demo-env**.
+        - _(It is not strictly necessary to use the fully qualified name of the load balancer, unless another load balancer with exactly the same name exists in a different environment.)_
+- `demo-env`: the name of the environment you created in Part 1
+- `guestbook-svc`: a name for the service you are creating
+- `guestbook-dpl`: the name of the deploy that you created in Part 3
 
 Layer0 services can be queried using the same `get` and `list` commands that we've come to expect by now.
-
 
 ---
 
@@ -192,20 +188,22 @@ At the command prompt, execute the following:
 
 If we're quick enough, we'll be able to see the first stage of the process (this is what was output after running the `service create` command up in Part 4).
 We should see an asterisk (\*) next to the name of the **guestbook-dpl:1** deploy, which indicates that the service is in a transitional state:
-```
+
+```output
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1
 ```
 
 In the next phase of deployment, if we execute the `service get` command again, we will see **(1)** in the **Scale** column; this indicates that 1 copy of the service is transitioning to an active state:
-```
+
+```output
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1 (1)
 ```
 
 In the final phase of deployment, we will see **1/1** in the **Scale** column; this indicates that the service is running 1 copy:
 
-```
+```output
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1   1/1
 ```
@@ -222,33 +220,38 @@ At the command prompt, execute the following:
 
 We should see output like the following:
 
-```
-LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    <url>
+```output
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL    IDLE  TIMEOUT
+guestboc8d07     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    <url>  60
 ```
 
 Copy the value shown in the **URL** column and paste it into a web browser.
 The guestbook application will appear (once the service has completely finished deploying).
 
-
 ---
+
 ### Logs
 
 Output from a Service's docker containers may be acquired by running the following command:
-```
-l0 service logs <SERVICE>
+
+`l0 service logs <SERVICE>`
+
+```output
+guestbook
+---------
+2018/11/05 19:11:46 Using memory backend
+2018/11/05 19:11:46 Listening on :80
 ```
 
 ---
 
-### Cleanup
+### Cleanup CLI
 
 If you're finished with the example and don't want to continue with this walkthrough, you can instruct Layer0 to delete the environment and terminate the application.
 
 `l0 environment delete demo-env`
 
 However, if you intend to continue through [Deployment 2](deployment-2), you will want to keep the resources you made in this section.
-
 
 ---
 
@@ -347,28 +350,9 @@ You can follow [this link](/reference/terraform-plugin/) to learn more about Lay
 
 ---
 
-### Part 1: Terraform Get
+### Part 1: Terraform Init
 
-This deployment uses modules, so we'll need to fetch those source materials.
-At the command prompt, execute the following command:
-
-`terraform get`
-
-We should see output like the following:
-
-```
-Get: git::https://github.com/quintilesims/guides.git
-```
-
-We should now have a new local directory called `.terraform/`.
-We don't need to do anything with it; we just want to make sure it's there.
-
-
----
-
-### Part 2: Terraform Init
-
-This deployment has provider dependencies so an init call must be made. 
+This deployment has provider dependencies so an init call must be made.
 (Terraform v0.11~ requries init)
 At the command prompt, execute the following command:
 
@@ -376,9 +360,10 @@ At the command prompt, execute the following command:
 
 We should see output like the following:
 
-```
+```output
 Initializing modules...
 - module.guestbook
+  Getting source "github.com/quintilesims/guides//guestbook/module"
 
 Initializing provider plugins...
 - Checking for available provider plugins on https://releases.hashicorp.com...
@@ -404,74 +389,84 @@ If you ever set or change modules or backend configuration for Terraform,
 rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
 ```
+
 ---
 
-### Part 3: Terraform Plan
+### Part 2: Terraform Plan
 
 Before we actually create/update/delete any resources, it's a good idea to find out what Terraform intends to do.
 
 Run `terraform plan`. Terraform will prompt you for configuration values that it does not have:
 
-```
+```output
 var.endpoint
 	Enter a value:
 
 var.token
 	Enter a value:
 ```
+
 You can find these values by running `l0-setup endpoint <your layer0 prefix>`.
 
 !!! Note
-	There are a few ways to configure Terraform so that you don't have to keep entering these values every time you run a Terraform command (editing the `terraform.tfvars` file, or exporting evironment variables like `TF_VAR_endpoint` and `TF_VAR_token`, for example). See the [Terraform Docs](https://www.terraform.io/docs/configuration/variables.html) for more.
+	There are a few ways to configure Terraform so that you don't have to keep entering these values every time you run a Terraform command (editing the `terraform.tfvars` file, or exporting environment variables like `TF_VAR_endpoint` and `TF_VAR_token`, for example). See the [Terraform Docs](https://www.terraform.io/docs/configuration/variables.html) for more.
 
 The `plan` command should give us output like the following:
 
-```
+```output
 Refreshing Terraform state in-memory prior to plan...
 The refreshed state will be used to calculate this plan, but will not be
 persisted to local or remote state storage.
 
 data.template_file.guestbook: Refreshing state...
-The Terraform execution plan has been generated and is shown below.
-Resources are shown in alphabetical order for quick scanning. Green resources
-will be created (or destroyed and then created if an existing resource
-exists), yellow resources are being changed in-place, and red resources
-will be destroyed. Cyan entries are data sources to be read.
 
-Note: You didn't specify an "-out" parameter to save this plan, so when
-"apply" is called, Terraform can't guarantee this is what will execute.
+------------------------------------------------------------------------
 
-+ layer0_environment.demo
-    ami:               "<computed>"
-    cluster_count:     "<computed>"
-    links:             "<computed>"
-    name:              "demo"
-    os:                "linux"
-    security_group_id: "<computed>"
-    size:              "m3.medium"
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
 
-+ module.guestbook.layer0_deploy.guestbook
-    content: "{\n    \"AWSEBDockerrunVersion\": 2,\n    \"containerDefinitions\": [\n        {\n            \"name\": \"guestbook\",\n            \"image\": \"quintilesims/guestbook\",\n            \"essential\": true,\n      \"memory\": 128,\n            \"environment\": [\n                {\n                    \"name\": \"GUESTBOOK_BACKEND_TYPE\",\n                    \"value\": \"memory\"\n                },\n                {\n          \"name\": \"GUESTBOOK_BACKEND_CONFIG\",\n                    \"value\": \"\"\n                },\n           {\n                    \"name\": \"AWS_ACCESS_KEY_ID\",\n                    \"value\": \"\"\n        },\n                {\n                    \"name\": \"AWS_SECRET_ACCESS_KEY\",\n                    \"value\": \"\"\n                },\n                {\n                    \"name\": \"AWS_REGION\",\n      \"value\": \"us-west-2\"\n                }\n            ],\n            \"portMappings\": [\n   {\n                    \"hostPort\": 80,\n                    \"containerPort\": 80\n                }\n      ]\n        }\n    ]\n}\n"
-    name:    "guestbook"
+Terraform will perform the following actions:
 
-+ module.guestbook.layer0_load_balancer.guestbook
-    environment:                    "${var.environment_id}"
-    health_check.#:                 "<computed>"
-    name:                           "guestbook"
-    port.#:                         "1"
-    port.2027667003.certificate:    ""
-    port.2027667003.container_port: "80"
-    port.2027667003.host_port:      "80"
-    port.2027667003.protocol:       "http"
-    url:                            "<computed>"
+  + layer0_environment.demo
+      id:                              <computed>
+      ami:                             <computed>
+      current_scale:                   <computed>
+      instance_type:                   "t2.small"
+      name:                            "demo"
+      os:                              "linux"
+      scale:                           "0"
+      security_group_id:               <computed>
 
-+ module.guestbook.layer0_service.guestbook
-    deploy:        "${ var.deploy_id == \"\" ? layer0_deploy.guestbook.id : var.deploy_id }"
-    environment:   "${var.environment_id}"
-    load_balancer: "${layer0_load_balancer.guestbook.id}"
-    name:          "guestbook"
-    scale:         "1"
-    wait:          "true"
+  + module.guestbook.layer0_deploy.guestbook
+      id:                              <computed>
+      content:                         "{\n    \"AWSEBDockerrunVersion\": 2,\n    \"containerDefinitions\": [\n        {\n            \"name\": \"guestbook\",\n            \"image\": \"quintilesims/guestbook\",\n            \"essential\": true,\n            \"memory\": 128,\n            \"environment\": [\n                {\n                    \"name\": \"GUESTBOOK_BACKEND_TYPE\",\n                    \"value\": \"memory\"\n                },\n                {\n                    \"name\": \"GUESTBOOK_BACKEND_CONFIG\",\n                    \"value\": \"\"\n                },\n                {\n                    \"name\": \"AWS_ACCESS_KEY_ID\",\n                    \"value\": \"\"\n                },\n                {\n                    \"name\": \"AWS_SECRET_ACCESS_KEY\",\n                    \"value\": \"\"\n                },\n                {\n                    \"name\": \"AWS_REGION\",\n                    \"value\": \"us-west-2\"\n                }\n            ],\n            \"portMappings\": [\n                {\n                    \"hostPort\": 80,\n                    \"containerPort\": 80\n                }\n            ]\n        }\n    ]\n}\n"
+      name:                            "guestbook"
+      version:                         <computed>
+
+  + module.guestbook.layer0_load_balancer.guestbook
+      id:                              <computed>
+      environment:                     "${var.environment_id}"
+      health_check.#:                  <computed>
+      idle_timeout:                    "60"
+      name:                            "guestbook"
+      port.#:                          "1"
+      port.2027667003.certificate_arn: ""
+      port.2027667003.container_port:  "80"
+      port.2027667003.host_port:       "80"
+      port.2027667003.protocol:        "http"
+      private:                         <computed>
+      type:                            "application"
+      url:                             <computed>
+
+  + module.guestbook.layer0_service.guestbook
+      id:                              <computed>
+      deploy:                          "${ var.deploy_id == \"\" ? layer0_deploy.guestbook.id : var.deploy_id }"
+      environment:                     "${var.environment_id}"
+      load_balancer:                   "${layer0_load_balancer.guestbook.id}"
+      name:                            "guestbook"
+      scale:                           "1"
+      stateful:                        "false"
 
 
 Plan: 4 to add, 0 to change, 0 to destroy.
@@ -483,16 +478,15 @@ If you've gone through this deployment using the [Layer0 CLI](#deploy-with-layer
 
 Once we're satisfied that Terraform will do what we want it to do, we can move on to actually making these things exist!
 
-
 ---
 
-### Part 4: Terraform Apply
+### Part 3: Terraform Apply
 
 Run `terraform apply` to begin the process.
 
 We should see output like the following:
 
-```
+```output
 layer0_environment.demo: Refreshing state...
 ...
 ...
@@ -516,13 +510,11 @@ guestbook_url = <http endpoint for the sample application>
 !!! Note
 	It may take a few minutes for the guestbook service to launch and the load balancer to become available. During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.
 
-
 ### What's Happening
 
 Terraform provisions the AWS resources through Layer0, configures environment variables for the application, and deploys the application into a Layer0 environment. Terraform also writes the state of your deployment to the `terraform.tfstate` file (creating a new one if it's not already there).
 
-
-### Cleanup
+### Cleanup Terraform
 
 When you're finished with the example, you can instruct Terraform to destroy the Layer0 environment, and terminate the application. Execute the following command (in the same directory):
 
@@ -530,6 +522,4 @@ When you're finished with the example, you can instruct Terraform to destroy the
 
 It's also now safe to remove the `.terraform/` directory and the `*.tfstate*` files.
 
-
 ---
-
