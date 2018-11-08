@@ -32,7 +32,7 @@ We'll start by making a load balancer behind which the Redis service will be dep
 The `Redis.Dockerrun.aws.json` task definition file we'll use is very simple - it just spins up a Redis server with the default configuration, which means that it will be serving on port 6379.
 Our load balancer needs to be able to forward TCP traffic to and from this port.
 And since we don't want the Redis server to be exposed to the public internet, we'll put it behind a private load balancer; private load balancers only accept traffic that originates from within their own environment.
-We'll also need to specify a non-default health-check target, since the load balancer won't expose port 80.
+We'll also need to specify a non-default health check target, since the load balancer won't expose port 80.
 At the command prompt, execute the following:
 
 `l0 loadbalancer create --port 6379:6379/tcp --private --healthcheck-target tcp:6379 demo-env redis-lb`
