@@ -25,6 +25,10 @@
       
         <meta name="lang:search.language" content="en">
       
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
         <meta name="lang:search.result.none" content="No matching documents">
       
         <meta name="lang:search.result.one" content="1 matching document">
@@ -34,7 +38,7 @@
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
       <link rel="shortcut icon" href="../../../assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-0.17.2, mkdocs-material-2.3.0">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.0.6">
     
     
       
@@ -42,9 +46,14 @@
       
     
     
-      <link rel="stylesheet" href="../../../assets/stylesheets/application.0e9c8aca.css">
+      <link rel="stylesheet" href="../../../assets/stylesheets/application.451f80e5.css">
       
-        <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.792431c1.css">
+        <link rel="stylesheet" href="../../../assets/stylesheets/application-palette.22915126.css">
+      
+      
+        
+        
+        <meta name="theme-color" content="#ef5350">
       
     
     
@@ -52,11 +61,12 @@
     
     
       
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
-      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
+    <link rel="stylesheet" href="../../../assets/fonts/material-icons.css">
     
       <link rel="stylesheet" href="../../../stylesheets/extra.css">
     
@@ -65,21 +75,41 @@
   
     
     
-    
-      <body data-md-color-primary="red" data-md-color-accent="grey">
-    
+    <body dir="ltr" data-md-color-primary="red" data-md-color-accent="grey">
   
     <svg class="md-svg">
       <defs>
         
         
-          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
+    viewBox="0 0 416 448" id="__github">
+  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
+        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
+        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
+        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
+        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
+        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
+        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
+        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
+        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
+        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
+        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
+        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
+        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
+        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
+        99.5z" />
+</svg>
         
       </defs>
     </svg>
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
-    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
+      <a href="#deployment-1-a-simple-guestbook-app" tabindex="1" class="md-skip">
+        Skip to content
+      </a>
+    
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid">
@@ -92,7 +122,7 @@
         </a>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
-        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
       </div>
       <div class="md-flex__cell md-flex__cell--stretch">
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
@@ -111,15 +141,17 @@
       <div class="md-flex__cell md-flex__cell--shrink">
         
           
-            <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+            <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
             
 <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="search"></label>
-  <div class="md-search__inner">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
-      <label class="md-icon md-search__icon" for="search"></label>
-      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">&#xE5CD;</button>
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
@@ -149,7 +181,7 @@
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
-          <use xlink:href="#github" width="24" height="24"></use>
+          <use xlink:href="#__github" width="24" height="24"></use>
         </svg>
       </div>
     
@@ -178,12 +210,12 @@
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
-  <label class="md-nav__title md-nav__title--site" for="drawer">
-    <span class="md-nav__button md-logo">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="https://github.com/quintilesims/layer0/" title="Layer0" class="md-nav__button md-logo">
       
-        <img src="../../../static/logo_icon.png" width="24" height="24">
+        <img src="../../../static/logo_icon.png" width="48" height="48">
       
-    </span>
+    </a>
     Layer0
   </label>
   
@@ -198,7 +230,7 @@
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
-          <use xlink:href="#github" width="24" height="24"></use>
+          <use xlink:href="#__github" width="24" height="24"></use>
         </svg>
       </div>
     
@@ -349,12 +381,12 @@
 
   <li class="md-nav__item md-nav__item--active">
     
-    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="toc">
+    <input class="md-toggle md-nav__toggle" data-md-toggle="toc" type="checkbox" id="__toc">
     
       
     
     
-      <label class="md-nav__link md-nav__link--active" for="toc">
+      <label class="md-nav__link md-nav__link--active" for="__toc">
         Walkthrough: Deployment 1
       </label>
     
@@ -369,7 +401,7 @@
     
   
   
-    <label class="md-nav__title" for="toc">Table of contents</label>
+    <label class="md-nav__title" for="__toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
@@ -430,8 +462,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#cleanup" title="Cleanup" class="md-nav__link">
-    Cleanup
+  <a href="#cleanup-cli" title="Cleanup CLI" class="md-nav__link">
+    Cleanup CLI
   </a>
   
 </li>
@@ -457,29 +489,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#part-1-terraform-get" title="Part 1: Terraform Get" class="md-nav__link">
-    Part 1: Terraform Get
+  <a href="#part-1-terraform-init" title="Part 1: Terraform Init" class="md-nav__link">
+    Part 1: Terraform Init
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#part-2-terraform-init" title="Part 2: Terraform Init" class="md-nav__link">
-    Part 2: Terraform Init
+  <a href="#part-2-terraform-plan" title="Part 2: Terraform Plan" class="md-nav__link">
+    Part 2: Terraform Plan
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#part-3-terraform-plan" title="Part 3: Terraform Plan" class="md-nav__link">
-    Part 3: Terraform Plan
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#part-4-terraform-apply" title="Part 4: Terraform Apply" class="md-nav__link">
-    Part 4: Terraform Apply
+  <a href="#part-3-terraform-apply" title="Part 3: Terraform Apply" class="md-nav__link">
+    Part 3: Terraform Apply
   </a>
   
 </li>
@@ -492,8 +517,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#cleanup_1" title="Cleanup" class="md-nav__link">
-    Cleanup
+  <a href="#cleanup-terraform" title="Cleanup Terraform" class="md-nav__link">
+    Cleanup Terraform
   </a>
   
 </li>
@@ -502,6 +527,8 @@
     </nav>
   
 </li>
+      
+      
       
       
       
@@ -738,7 +765,7 @@
     
   
   
-    <label class="md-nav__title" for="toc">Table of contents</label>
+    <label class="md-nav__title" for="__toc">Table of contents</label>
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
@@ -799,8 +826,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#cleanup" title="Cleanup" class="md-nav__link">
-    Cleanup
+  <a href="#cleanup-cli" title="Cleanup CLI" class="md-nav__link">
+    Cleanup CLI
   </a>
   
 </li>
@@ -826,29 +853,22 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#part-1-terraform-get" title="Part 1: Terraform Get" class="md-nav__link">
-    Part 1: Terraform Get
+  <a href="#part-1-terraform-init" title="Part 1: Terraform Init" class="md-nav__link">
+    Part 1: Terraform Init
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#part-2-terraform-init" title="Part 2: Terraform Init" class="md-nav__link">
-    Part 2: Terraform Init
+  <a href="#part-2-terraform-plan" title="Part 2: Terraform Plan" class="md-nav__link">
+    Part 2: Terraform Plan
   </a>
   
 </li>
         
           <li class="md-nav__item">
-  <a href="#part-3-terraform-plan" title="Part 3: Terraform Plan" class="md-nav__link">
-    Part 3: Terraform Plan
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#part-4-terraform-apply" title="Part 4: Terraform Apply" class="md-nav__link">
-    Part 4: Terraform Apply
+  <a href="#part-3-terraform-apply" title="Part 3: Terraform Apply" class="md-nav__link">
+    Part 3: Terraform Apply
   </a>
   
 </li>
@@ -861,8 +881,8 @@
 </li>
         
           <li class="md-nav__item">
-  <a href="#cleanup_1" title="Cleanup" class="md-nav__link">
-    Cleanup
+  <a href="#cleanup-terraform" title="Cleanup Terraform" class="md-nav__link">
+    Cleanup Terraform
   </a>
   
 </li>
@@ -871,6 +891,8 @@
     </nav>
   
 </li>
+      
+      
       
       
       
@@ -919,8 +941,8 @@ Here, we'll create a new environment named <strong>demo-env</strong>.
 At the command prompt, execute the following:</p>
 <p><code>l0 environment create demo-env</code></p>
 <p>We should see output like the following:</p>
-<div class="codehilite"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium
+<div class="codehilite"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME  OS     CLUSTER COUNT  INSTANCE SIZE  LINKS
+demoenvd4e17    demo-env          linux  0              m3.medium
 </pre></div>
 
 
@@ -928,26 +950,26 @@ demo00e6aa9     demo-env          0              m3.medium
 <ul>
 <li><code>l0 environment list</code> will give us a brief summary of all environments:</li>
 </ul>
-<div class="codehilite"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME
-demo00e6aa9     demo-env
-api             api
+<div class="codehilite"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME  OS
+api             api               linux
+demoenvd4e17    demo-env          linux
 </pre></div>
 
 
 <ul>
 <li><code>l0 environment get demo-env</code> will show us more information about the <strong>demo-env</strong> environment we just created:</li>
 </ul>
-<div class="codehilite"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium
+<div class="codehilite"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME  OS     CLUSTER COUNT  INSTANCE SIZE  LINKS
+demoenvd4e17    demo-env          linux  0              m3.medium
 </pre></div>
 
 
 <ul>
 <li><code>l0 environment get \*</code> illustrates wildcard matching (you could also have used <code>demo*</code> in the above command), and it will return detailed information for <em>each</em> environment, not just one - it's like a detailed <code>list</code>:</li>
 </ul>
-<div class="codehilite"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME  CLUSTER COUNT  INSTANCE SIZE  LINKS
-demo00e6aa9     demo-env          0              m3.medium
-api             api               2              m3.medium
+<div class="codehilite"><pre><span></span>ENVIRONMENT ID  ENVIRONMENT NAME  OS     CLUSTER COUNT  INSTANCE SIZE  LINKS
+api             api               linux  2              t2.small
+demoenvd4e17    demo-env          linux  0              m3.medium
 </pre></div>
 
 
@@ -964,8 +986,8 @@ Since the port configuration is already aligned with the default health check, w
 At the command prompt, execute the following:</p>
 <p><code>l0 loadbalancer create --port 80:80/http demo-env guestbook-lb</code></p>
 <p>We should see output like the following:</p>
-<div class="codehilite"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env              80:80/HTTP  true
+<div class="codehilite"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS       PUBLIC  URL  IDLE TIMEOUT
+guestboc8d07     guestbook-lb       demo-env              80:80/HTTP  true         60
 </pre></div>
 
 
@@ -1037,10 +1059,8 @@ guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1*  0/1
 <p>The following is a summary of the arguments passed in the above command:</p>
 <ul>
 <li><code>service create</code>: creates a new service</li>
-<li><code>--loadbalancer demo-env:guestbook-lb</code>: the fully-qualified name of the load balancer; in this case, the load balancer named <strong>guestbook-lb</strong> in the environment named <strong>demo-env</strong>. <ul>
-<li><em>(It is not strictly necessary to use the fully qualified name of the load balancer, unless another load balancer with exactly the same name exists in a different environment.)</em></li>
-</ul>
-</li>
+<li><code>--loadbalancer demo-env:guestbook-lb</code>: the fully-qualified name of the load balancer; in this case, the load balancer named <strong>guestbook-lb</strong> in the environment named <strong>demo-env</strong>.
+        - <em>(It is not strictly necessary to use the fully qualified name of the load balancer, unless another load balancer with exactly the same name exists in a different environment.)</em></li>
 <li><code>demo-env</code>: the name of the environment you created in Part 1</li>
 <li><code>guestbook-svc</code>: a name for the service you are creating</li>
 <li><code>guestbook-dpl</code>: the name of the deploy that you created in Part 3</li>
@@ -1078,8 +1098,8 @@ guestbo9364b  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:1   1/1
 <p>At the command prompt, execute the following:</p>
 <p><code>l0 loadbalancer get demo-env:guestbook-lb</code></p>
 <p>We should see output like the following:</p>
-<div class="codehilite"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL
-guestbodb65a     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    &lt;url&gt;
+<div class="codehilite"><pre><span></span>LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE        PORTS       PUBLIC  URL    IDLE  TIMEOUT
+guestboc8d07     guestbook-lb       demo-env     guestbook-svc  80:80/HTTP  true    &lt;url&gt;  60
 </pre></div>
 
 
@@ -1088,18 +1108,22 @@ The guestbook application will appear (once the service has completely finished 
 <hr />
 <h3 id="logs">Logs<a class="headerlink" href="#logs" title="Permanent link">#</a></h3>
 <p>Output from a Service's docker containers may be acquired by running the following command:</p>
-<div class="codehilite"><pre><span></span>l0 service logs &lt;SERVICE&gt;
+<p><code>l0 service logs &lt;SERVICE&gt;</code></p>
+<div class="codehilite"><pre><span></span><span class="gh">guestbook</span>
+<span class="gh">---------</span>
+2018/11/05 19:11:46 Using memory backend
+2018/11/05 19:11:46 Listening on :80
 </pre></div>
 
 
 <hr />
-<h3 id="cleanup">Cleanup<a class="headerlink" href="#cleanup" title="Permanent link">#</a></h3>
+<h3 id="cleanup-cli">Cleanup CLI<a class="headerlink" href="#cleanup-cli" title="Permanent link">#</a></h3>
 <p>If you're finished with the example and don't want to continue with this walkthrough, you can instruct Layer0 to delete the environment and terminate the application.</p>
 <p><code>l0 environment delete demo-env</code></p>
-<p>However, if you intend to continue through <a href="../deployment-2">Deployment 2</a>, you will want to keep the resources you made in this section.</p>
+<p>However, if you intend to continue through <a href="deployment-2">Deployment 2</a>, you will want to keep the resources you made in this section.</p>
 <hr />
 <h2 id="deploy-with-terraform">Deploy with Terraform<a class="headerlink" href="#deploy-with-terraform" title="Permanent link">#</a></h2>
-<p>Instead of using the Layer0 CLI directly, you can instead use our Terraform provider, and deploy using Terraform <em>(<a href="../../../reference/terraform-plugin">learn more</a>)</em>.
+<p>Instead of using the Layer0 CLI directly, you can instead use our Terraform provider, and deploy using Terraform <em>(<a href="/reference/terraform-plugin">learn more</a>)</em>.
 You can use Terraform with Layer0 and AWS to create "fire-and-forget" deployments for your applications.</p>
 <p>If you're following along, you'll want to be working in the <code>walkthrough/deployment-1/</code> directory of your clone of the <a href="https://github.com/quintilesims/guides">guides</a> repo.</p>
 <p>We use these files to set up a Layer0 environment with Terraform:</p>
@@ -1194,28 +1218,17 @@ resource &quot;layer0_load_balancer&quot; &quot;guestbook-lb&quot; {
 </pre></div>
 
 
-<p>You can follow <a href="../../../reference/terraform-plugin/">this link</a> to learn more about Layer0 resources in Terraform.</p>
+<p>You can follow <a href="/reference/terraform-plugin/">this link</a> to learn more about Layer0 resources in Terraform.</p>
 <hr />
-<h3 id="part-1-terraform-get">Part 1: Terraform Get<a class="headerlink" href="#part-1-terraform-get" title="Permanent link">#</a></h3>
-<p>This deployment uses modules, so we'll need to fetch those source materials.
-At the command prompt, execute the following command:</p>
-<p><code>terraform get</code></p>
-<p>We should see output like the following:</p>
-<div class="codehilite"><pre><span></span><span class="n">Get</span><span class="o">:</span> <span class="n">git</span><span class="o">::</span><span class="n">https</span><span class="o">://</span><span class="n">github</span><span class="o">.</span><span class="na">com</span><span class="sr">/quintilesims/g</span><span class="n">uides</span><span class="o">.</span><span class="na">git</span>
-</pre></div>
-
-
-<p>We should now have a new local directory called <code>.terraform/</code>.
-We don't need to do anything with it; we just want to make sure it's there.</p>
-<hr />
-<h3 id="part-2-terraform-init">Part 2: Terraform Init<a class="headerlink" href="#part-2-terraform-init" title="Permanent link">#</a></h3>
-<p>This deployment has provider dependencies so an init call must be made. 
+<h3 id="part-1-terraform-init">Part 1: Terraform Init<a class="headerlink" href="#part-1-terraform-init" title="Permanent link">#</a></h3>
+<p>This deployment has provider dependencies so an init call must be made.
 (Terraform v0.11~ requries init)
 At the command prompt, execute the following command:</p>
 <p><code>terraform init</code></p>
 <p>We should see output like the following:</p>
 <div class="codehilite"><pre><span></span>Initializing modules...
 - module.guestbook
+  Getting source &quot;github.com/quintilesims/guides//guestbook/module&quot;
 
 Initializing provider plugins...
 - Checking for available provider plugins on https://releases.hashicorp.com...
@@ -1244,7 +1257,7 @@ commands will detect it and remind you to do so if necessary.
 
 
 <hr />
-<h3 id="part-3-terraform-plan">Part 3: Terraform Plan<a class="headerlink" href="#part-3-terraform-plan" title="Permanent link">#</a></h3>
+<h3 id="part-2-terraform-plan">Part 2: Terraform Plan<a class="headerlink" href="#part-2-terraform-plan" title="Permanent link">#</a></h3>
 <p>Before we actually create/update/delete any resources, it's a good idea to find out what Terraform intends to do.</p>
 <p>Run <code>terraform plan</code>. Terraform will prompt you for configuration values that it does not have:</p>
 <div class="codehilite"><pre><span></span>var.endpoint
@@ -1258,7 +1271,7 @@ var.token
 <p>You can find these values by running <code>l0-setup endpoint &lt;your layer0 prefix&gt;</code>.</p>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>There are a few ways to configure Terraform so that you don't have to keep entering these values every time you run a Terraform command (editing the <code>terraform.tfvars</code> file, or exporting evironment variables like <code>TF_VAR_endpoint</code> and <code>TF_VAR_token</code>, for example). See the <a href="https://www.terraform.io/docs/configuration/variables.html">Terraform Docs</a> for more.</p>
+<p>There are a few ways to configure Terraform so that you don't have to keep entering these values every time you run a Terraform command (editing the <code>terraform.tfvars</code> file, or exporting environment variables like <code>TF_VAR_endpoint</code> and <code>TF_VAR_token</code>, for example). See the <a href="https://www.terraform.io/docs/configuration/variables.html">Terraform Docs</a> for more.</p>
 </div>
 <p>The <code>plan</code> command should give us output like the following:</p>
 <div class="codehilite"><pre><span></span>Refreshing Terraform state in-memory prior to plan...
@@ -1266,46 +1279,54 @@ The refreshed state will be used to calculate this plan, but will not be
 persisted to local or remote state storage.
 
 data.template_file.guestbook: Refreshing state...
-The Terraform execution plan has been generated and is shown below.
-Resources are shown in alphabetical order for quick scanning. Green resources
-will be created (or destroyed and then created if an existing resource
-exists), yellow resources are being changed in-place, and red resources
-will be destroyed. Cyan entries are data sources to be read.
 
-Note: You didn&#39;t specify an &quot;-out&quot; parameter to save this plan, so when
-&quot;apply&quot; is called, Terraform can&#39;t guarantee this is what will execute.
+------------------------------------------------------------------------
 
-+ layer0_environment.demo
-    ami:               &quot;<span class="nt">&lt;computed&gt;</span>&quot;
-    cluster_count:     &quot;<span class="nt">&lt;computed&gt;</span>&quot;
-    links:             &quot;<span class="nt">&lt;computed&gt;</span>&quot;
-    name:              &quot;demo&quot;
-    os:                &quot;linux&quot;
-    security_group_id: &quot;<span class="nt">&lt;computed&gt;</span>&quot;
-    size:              &quot;m3.medium&quot;
+An execution plan has been generated and is shown below.
+Resource actions are indicated with the following symbols:
+  + create
 
-+ module.guestbook.layer0_deploy.guestbook
-    content: &quot;{\n    \&quot;AWSEBDockerrunVersion\&quot;: 2,\n    \&quot;containerDefinitions\&quot;: [\n        {\n            \&quot;name\&quot;: \&quot;guestbook\&quot;,\n            \&quot;image\&quot;: \&quot;quintilesims/guestbook\&quot;,\n            \&quot;essential\&quot;: true,\n      \&quot;memory\&quot;: 128,\n            \&quot;environment\&quot;: [\n                {\n                    \&quot;name\&quot;: \&quot;GUESTBOOK_BACKEND_TYPE\&quot;,\n                    \&quot;value\&quot;: \&quot;memory\&quot;\n                },\n                {\n          \&quot;name\&quot;: \&quot;GUESTBOOK_BACKEND_CONFIG\&quot;,\n                    \&quot;value\&quot;: \&quot;\&quot;\n                },\n           {\n                    \&quot;name\&quot;: \&quot;AWS_ACCESS_KEY_ID\&quot;,\n                    \&quot;value\&quot;: \&quot;\&quot;\n        },\n                {\n                    \&quot;name\&quot;: \&quot;AWS_SECRET_ACCESS_KEY\&quot;,\n                    \&quot;value\&quot;: \&quot;\&quot;\n                },\n                {\n                    \&quot;name\&quot;: \&quot;AWS_REGION\&quot;,\n      \&quot;value\&quot;: \&quot;us-west-2\&quot;\n                }\n            ],\n            \&quot;portMappings\&quot;: [\n   {\n                    \&quot;hostPort\&quot;: 80,\n                    \&quot;containerPort\&quot;: 80\n                }\n      ]\n        }\n    ]\n}\n&quot;
-    name:    &quot;guestbook&quot;
+Terraform will perform the following actions:
 
-+ module.guestbook.layer0_load_balancer.guestbook
-    environment:                    &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">environment_id</span><span class="cp">}</span>&quot;
-    health_check.#:                 &quot;<span class="nt">&lt;computed&gt;</span>&quot;
-    name:                           &quot;guestbook&quot;
-    port.#:                         &quot;1&quot;
-    port.2027667003.certificate:    &quot;&quot;
-    port.2027667003.container_port: &quot;80&quot;
-    port.2027667003.host_port:      &quot;80&quot;
-    port.2027667003.protocol:       &quot;http&quot;
-    url:                            &quot;<span class="nt">&lt;computed&gt;</span>&quot;
+  + layer0_environment.demo
+      id:                              <span class="nt">&lt;computed&gt;</span>
+      ami:                             <span class="nt">&lt;computed&gt;</span>
+      current_scale:                   <span class="nt">&lt;computed&gt;</span>
+      instance_type:                   &quot;t2.small&quot;
+      name:                            &quot;demo&quot;
+      os:                              &quot;linux&quot;
+      scale:                           &quot;0&quot;
+      security_group_id:               <span class="nt">&lt;computed&gt;</span>
 
-+ module.guestbook.layer0_service.guestbook
-    deploy:        &quot;<span class="cp">${</span> <span class="n">var</span><span class="o">.</span><span class="n">deploy_id</span> <span class="o">==</span> \<span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2"> ? layer0_deploy.guestbook.id : var.deploy_id </span><span class="cp">}</span>&quot;
-    environment:   &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">environment_id</span><span class="cp">}</span>&quot;
-    load_balancer: &quot;<span class="cp">${</span><span class="n">layer0_load_balancer</span><span class="o">.</span><span class="n">guestbook</span><span class="o">.</span><span class="n">id</span><span class="cp">}</span>&quot;
-    name:          &quot;guestbook&quot;
-    scale:         &quot;1&quot;
-    wait:          &quot;true&quot;
+  + module.guestbook.layer0_deploy.guestbook
+      id:                              <span class="nt">&lt;computed&gt;</span>
+      content:                         &quot;{\n    \&quot;AWSEBDockerrunVersion\&quot;: 2,\n    \&quot;containerDefinitions\&quot;: [\n        {\n            \&quot;name\&quot;: \&quot;guestbook\&quot;,\n            \&quot;image\&quot;: \&quot;quintilesims/guestbook\&quot;,\n            \&quot;essential\&quot;: true,\n            \&quot;memory\&quot;: 128,\n            \&quot;environment\&quot;: [\n                {\n                    \&quot;name\&quot;: \&quot;GUESTBOOK_BACKEND_TYPE\&quot;,\n                    \&quot;value\&quot;: \&quot;memory\&quot;\n                },\n                {\n                    \&quot;name\&quot;: \&quot;GUESTBOOK_BACKEND_CONFIG\&quot;,\n                    \&quot;value\&quot;: \&quot;\&quot;\n                },\n                {\n                    \&quot;name\&quot;: \&quot;AWS_ACCESS_KEY_ID\&quot;,\n                    \&quot;value\&quot;: \&quot;\&quot;\n                },\n                {\n                    \&quot;name\&quot;: \&quot;AWS_SECRET_ACCESS_KEY\&quot;,\n                    \&quot;value\&quot;: \&quot;\&quot;\n                },\n                {\n                    \&quot;name\&quot;: \&quot;AWS_REGION\&quot;,\n                    \&quot;value\&quot;: \&quot;us-west-2\&quot;\n                }\n            ],\n            \&quot;portMappings\&quot;: [\n                {\n                    \&quot;hostPort\&quot;: 80,\n                    \&quot;containerPort\&quot;: 80\n                }\n            ]\n        }\n    ]\n}\n&quot;
+      name:                            &quot;guestbook&quot;
+      version:                         <span class="nt">&lt;computed&gt;</span>
+
+  + module.guestbook.layer0_load_balancer.guestbook
+      id:                              <span class="nt">&lt;computed&gt;</span>
+      environment:                     &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">environment_id</span><span class="cp">}</span>&quot;
+      health_check.#:                  <span class="nt">&lt;computed&gt;</span>
+      idle_timeout:                    &quot;60&quot;
+      name:                            &quot;guestbook&quot;
+      port.#:                          &quot;1&quot;
+      port.2027667003.certificate_arn: &quot;&quot;
+      port.2027667003.container_port:  &quot;80&quot;
+      port.2027667003.host_port:       &quot;80&quot;
+      port.2027667003.protocol:        &quot;http&quot;
+      private:                         <span class="nt">&lt;computed&gt;</span>
+      type:                            &quot;application&quot;
+      url:                             <span class="nt">&lt;computed&gt;</span>
+
+  + module.guestbook.layer0_service.guestbook
+      id:                              <span class="nt">&lt;computed&gt;</span>
+      deploy:                          &quot;<span class="cp">${</span> <span class="n">var</span><span class="o">.</span><span class="n">deploy_id</span> <span class="o">==</span> \<span class="s2">&quot;</span><span class="se">\&quot;</span><span class="s2"> ? layer0_deploy.guestbook.id : var.deploy_id </span><span class="cp">}</span>&quot;
+      environment:                     &quot;<span class="cp">${</span><span class="n">var</span><span class="o">.</span><span class="n">environment_id</span><span class="cp">}</span>&quot;
+      load_balancer:                   &quot;<span class="cp">${</span><span class="n">layer0_load_balancer</span><span class="o">.</span><span class="n">guestbook</span><span class="o">.</span><span class="n">id</span><span class="cp">}</span>&quot;
+      name:                            &quot;guestbook&quot;
+      scale:                           &quot;1&quot;
+      stateful:                        &quot;false&quot;
 
 
 Plan: 4 to add, 0 to change, 0 to destroy.
@@ -1316,7 +1337,7 @@ Plan: 4 to add, 0 to change, 0 to destroy.
 <p>If you've gone through this deployment using the <a href="#deploy-with-layer0-cli">Layer0 CLI</a>, you may notice that these resources appear out of order - that's fine. Terraform presents these resources in alphabetical order, but underneath, it knows the correct order in which to create them.</p>
 <p>Once we're satisfied that Terraform will do what we want it to do, we can move on to actually making these things exist!</p>
 <hr />
-<h3 id="part-4-terraform-apply">Part 4: Terraform Apply<a class="headerlink" href="#part-4-terraform-apply" title="Permanent link">#</a></h3>
+<h3 id="part-3-terraform-apply">Part 3: Terraform Apply<a class="headerlink" href="#part-3-terraform-apply" title="Permanent link">#</a></h3>
 <p>Run <code>terraform apply</code> to begin the process.</p>
 <p>We should see output like the following:</p>
 <div class="codehilite"><pre><span></span>layer0_environment.demo: Refreshing state...
@@ -1346,7 +1367,7 @@ guestbook_url = &lt;http endpoint for the sample application&gt;
 </div>
 <h3 id="whats-happening">What's Happening<a class="headerlink" href="#whats-happening" title="Permanent link">#</a></h3>
 <p>Terraform provisions the AWS resources through Layer0, configures environment variables for the application, and deploys the application into a Layer0 environment. Terraform also writes the state of your deployment to the <code>terraform.tfstate</code> file (creating a new one if it's not already there).</p>
-<h3 id="cleanup_1">Cleanup<a class="headerlink" href="#cleanup_1" title="Permanent link">#</a></h3>
+<h3 id="cleanup-terraform">Cleanup Terraform<a class="headerlink" href="#cleanup-terraform" title="Permanent link">#</a></h3>
 <p>When you're finished with the example, you can instruct Terraform to destroy the Layer0 environment, and terminate the application. Execute the following command (in the same directory):</p>
 <p><code>terraform destroy</code></p>
 <p>It's also now safe to remove the <code>.terraform/</code> directory and the <code>*.tfstate*</code> files.</p>
@@ -1357,6 +1378,8 @@ guestbook_url = &lt;http endpoint for the sample application&gt;
               
               
                 
+
+
               
             </article>
           </div>
@@ -1406,7 +1429,7 @@ guestbook_url = &lt;http endpoint for the sample application&gt;
       <div class="md-footer-copyright">
         
         powered by
-        <a href="http://www.mkdocs.org">MkDocs</a>
+        <a href="https://www.mkdocs.org">MkDocs</a>
         and
         <a href="https://squidfunk.github.io/mkdocs-material/">
           Material for MkDocs</a>
@@ -1420,9 +1443,9 @@ guestbook_url = &lt;http endpoint for the sample application&gt;
       
     </div>
     
-      <script src="../../../assets/javascripts/application.cae2244d.js"></script>
+      <script src="../../../assets/javascripts/application.5e60981f.js"></script>
       
-      <script>app.initialize({version:"0.17.2",url:{base:"../../.."}})</script>
+      <script>app.initialize({version:"1.0.4",url:{base:"../../.."}})</script>
       
     
     

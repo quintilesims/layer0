@@ -8,7 +8,6 @@ What if we wanted to scale the application to run more than one copy?
 For this deployment, we're going to separate the data store from the guestbook application by creating a second Layer0 service which will house a Redis database server and linking it to the first.
 You can choose to complete this section using either [the Layer0 CLI](#deploy-with-layer0-cli) or [Terraform](#deploy-with-terraform).
 
-
 ---
 
 ## Deploy with Layer0 CLI
@@ -23,7 +22,6 @@ Files used in this deployment:
 | `Guestbook.Dockerrun.aws.json` | Template for running the Guestbook application |
 | `Redis.Dockerrun.aws.json` | Template for running a Redis server |
 
-
 ---
 
 ### Part 1: Create the Redis Load Balancer
@@ -34,16 +32,16 @@ We'll start by making a load balancer behind which the Redis service will be dep
 The `Redis.Dockerrun.aws.json` task definition file we'll use is very simple - it just spins up a Redis server with the default configuration, which means that it will be serving on port 6379.
 Our load balancer needs to be able to forward TCP traffic to and from this port.
 And since we don't want the Redis server to be exposed to the public internet, we'll put it behind a private load balancer; private load balancers only accept traffic that originates from within their own environment.
-We'll also need to specify a non-default healthcheck target, since the load balancer won't expose port 80.
+We'll also need to specify a non-default health check target, since the load balancer won't expose port 80.
 At the command prompt, execute the following:
 
 `l0 loadbalancer create --port 6379:6379/tcp --private --healthcheck-target tcp:6379 demo-env redis-lb`
 
 We should see output like the following:
 
-```
-LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS          PUBLIC  URL
-redislb16ae6     redis-lb           demo-env              6378:6379:TCP  false
+```output
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE  PORTS          PUBLIC  URL  IDLE  TIMEOUT
+redislb16ae6     redis-lb           demo-env              6378:6379:TCP  false        60
 ```
 
 The following is a summary of the arguments passed in the above command:
@@ -54,7 +52,6 @@ The following is a summary of the arguments passed in the above command:
 - `--healthcheck-target tcp:6379`: instructs the load balancer to check the health of the service via TCP pings to port 6379
 - `demo-env`: the name of the environment in which the load balancer is being created
 - `redis-lb`: a name for the load balancer itself
-
 
 ---
 
@@ -67,7 +64,7 @@ At the command prompt, execute the following:
 
 We should see output like the following:
 
-```
+```output
 DEPLOY ID    DEPLOY NAME  VERSION
 redis-dpl.1  redis-dpl    1
 ```
@@ -77,7 +74,6 @@ The following is a summary of the arguments passed in the above command:
 - `deploy create`: creates a new Layer0 Deploy and allows you to specify an ECS task definition
 - `Redis.Dockerrun.aws.json`: the file name of the ECS task definition (use the full path of the file if it is not in your current working directory)
 - `redis-dpl`: a name for the deploy, which we will use later when we create the service
-
 
 ---
 
@@ -90,7 +86,7 @@ At the command prompt, execute the following:
 
 We should see output like the following:
 
-```
+```output
 SERVICE ID    SERVICE NAME  ENVIRONMENT  LOADBALANCER  DEPLOYMENTS  SCALE
 redislb16ae6  redis-svc     demo-env     redis-lb      redis-dpl:1  0/1
 ```
@@ -100,12 +96,11 @@ The following is a summary of the arguments passed in the above commands:
 - `service create`: creates a new Layer0 Service
 - `--wait`:  instructs the CLI to keep hold of the shell until the service has been successfully deployed
 - `--loadbalancer demo-env:redis-lb`: the fully-qualified name of the load balancer; in this case, the load balancer named **redis-lb** in the environment named **demo-env**
-    - _(Again, it's not strictly necessary to use the fully-qualified name of the load balancer as long as there isn't another load balancer with the same name in a different environment)_
+  - _(Again, it's not strictly necessary to use the fully-qualified name of the load balancer as long as there isn't another load balancer with the same name in a different environment)_
 - `demo-env`: the name of the environment in which the service is to reside
 - `redis-svc`: a name for the service we're creating
 - `redis-dpl:latest`: the name of the deploy the service will put into action
-    - _(We use `:` to specify which deploy we want - `:latest` will always give us the most recently-created one.)_
-
+  - _(We use `:` to specify which deploy we want - `:latest` will always give us the most recently-created one.)_
 
 ---
 
@@ -121,13 +116,12 @@ Once the service has finished scaling, try looking at the service's logs to see 
 
 Among some warnings and information not important to this exercise and a fun bit of ASCII art, you should see something like the following:
 
-```
+```output
 ... # words and ASCII art
 1:M 05 Apr 23:29:47.333 * The server is now ready to accept connections on port 6379
 ```
 
 Now we just need to teach the Guestbook application how to talk with our Redis service.
-
 
 ---
 
@@ -136,7 +130,7 @@ Now we just need to teach the Guestbook application how to talk with our Redis s
 You should see in `walkthrough/deployment-2/` another `Guestbook.Dockerrun.aws.json` file.
 This file is very similar to but not the same as the one in `deployment-1/` - if you open it up, you can see the following additions:
 
-```
+```json
     ...
     "environment": [
         {
@@ -154,7 +148,7 @@ This file is very similar to but not the same as the one in `deployment-1/` - if
 The `"GUESTBOOK_BACKEND_CONFIG"` variable is what will point the Guestbook application towards the Redis server.
 The `<redis host and port here>` section needs to be replaced and populated in the following format:
 
-```
+```json
 "value": "ADDRESS_OF_REDIS_SERVER:PORT_THE_SERVER_IS_SERVING_ON"
 ```
 
@@ -165,15 +159,15 @@ Remember, it lives behind a load balancer that we made, so run the following com
 
 We should see output like the following:
 
-```
-LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE    PORTS          PUBLIC  URL
-redislb16ae6     redis-lb           demo-env     redis-svc  6379:6379/TCP  false   internal-l0-<yadda-yadda>.elb.amazonaws.com
+```output
+LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  SERVICE    PORTS          PUBLIC  URL                                          IDLE  TIMEOUT
+redislb16ae6     redis-lb           demo-env     redis-svc  6379:6379/TCP  false   internal-l0-<yadda-yadda>.elb.amazonaws.com  60
 ```
 
 Copy that `URL` value, replace `<redis host and port here>` with the `URL` value in `Guestbook.Dockerrun.aws.json`, append `:6379` to it, and save the file.
 It should look something like the following:
 
-```
+```json
     ...
     "environment": [
         {
@@ -190,11 +184,10 @@ Now, we can create an updated deploy:
 
 We should see output like the following:
 
-```
+```output
 DEPLOY ID        DEPLOY NAME    VERSION
 guestbook-dpl.2  guestbook-dpl  2
 ```
-
 
 ---
 
@@ -207,7 +200,7 @@ Now we just need to apply the new Guestbook deploy to the running Guestbook serv
 
 As the Guestbook service moves through the phases of its update process, we should see outputs like the following (if we keep an eye on the service with `l0 service get guestbook-svc`, that is):
 
-```
+```output
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2*  1/1
                                                         guestbook-dpl:1
@@ -215,7 +208,7 @@ guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2*  1/1
 
 _above: `guestbook-dpl:2` is in a transitional state_
 
-```
+```output
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS      SCALE
 guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2  2/1
                                                         guestbook-dpl:1
@@ -223,18 +216,20 @@ guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2  2/1
 
 _above: both versions of the deployment are running at scale_
 
-```
+```output
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS       SCALE
 guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2   1/1
                                                         guestbook-dpl:1*
 ```
+
 _above: `guestbook-dpl:1` is in a transitional state_
-```
+
+```output
 SERVICE ID    SERVICE NAME   ENVIRONMENT  LOADBALANCER  DEPLOYMENTS      SCALE
 guestbo5fadd  guestbook-svc  demo-env     guestbook-lb  guestbook-dpl:2  1/1
 ```
-_above: `guestbook-dpl:1` has been removed, and only `guestbook-dpl:2` remains_
 
+_above: `guestbook-dpl:1` has been removed, and only `guestbook-dpl:2` remains_
 
 ---
 
@@ -260,15 +255,13 @@ Create another service, using the **guestbook-dpl** deploy we kept around:
 Wait for everything to spin up, and hit that new load balancer's url (`l0 loadbalancer get guestbook-lb`) with your browser.
 Your data should still be there!
 
-
 ---
 
-### Cleanup
+### Cleanup CLI
 
 When you're finished with the example, you can instruct Layer0 to delete the environment and terminate the application.
 
 `l0 environment delete demo-env`
-
 
 ---
 
@@ -286,7 +279,6 @@ We'll use these files to manage our deployment with Terraform:
 | `terraform.tfvars` | Variables specific to the environment and application(s) |
 | `variables.tf` | Values that Terraform will use during deployment |
 
-
 ---
 
 ### `*.tf`: A Brief Aside: Revisited
@@ -297,7 +289,6 @@ We maintain this module as well; you can inspect [the repo](https://github.com/q
 
 In `main.tf` where we pull in the Guestbook module, you'll see that we're supplying more values than we did last time, because we need some additional configuration to let the Guestbook application use a Redis backend instead of its default in-memory storage.
 
-
 ---
 
 ### Part 1: Terraform Get
@@ -305,21 +296,19 @@ In `main.tf` where we pull in the Guestbook module, you'll see that we're supply
 Run `terraform get` to pull down the source materials Terraform will use for deployment.
 This will create a local `.terraform/` directory.
 
-
 ---
-
 
 ### Part 2: Terraform Init
 
-This deployment has provider dependencies so an init call must be made. 
-(Terraform v0.11~ requries init)
+This deployment has provider dependencies so an init call must be made.
+(Terraform v0.11~ requires init)
 At the command prompt, execute the following command:
 
 `terraform init`
 
 We should see output like the following:
 
-```
+```output
 Initializing modules...
 - module.redis
   Getting source "github.com/quintilesims/redis//terraform"
@@ -350,6 +339,7 @@ If you ever set or change modules or backend configuration for Terraform,
 rerun this command to reinitialize your working directory. If you forget, other
 commands will detect it and remind you to do so if necessary.
 ```
+
 ---
 
 ### Part 3: Terraform Plan
@@ -361,7 +351,7 @@ It's always a good idea to find out what Terraform intends to do, so let's do th
 As before, we'll be prompted for any variables Terraform needs and doesn't have (see the note in [Deployment 1](deployment-1#deploy-with-terraform) for configuring Terraform variables).
 We'll see output similar to the following:
 
-```
+```output
 Refreshing Terraform state in-memory prior to plan...
 The refreshed state will be used to calculate this plan, but will not be
 persisted to local or remote state storage.
@@ -443,14 +433,13 @@ Plan: 7 to add, 0 to change, 0 to destroy.
 
 We should see that Terraform intends to add 7 new resources, some of which are for the Guestbook deployment and some of which are for the Redis deployment.
 
-
 ---
 
 ### Part 4: Terraform Apply
 
 Run `terraform apply`, and we should see output similar to the following:
 
-```
+```output
 data.template_file.redis: Refreshing state...
 layer0_deploy.redis-dpl: Creating...
 
@@ -479,14 +468,12 @@ guestbook_url = <http endpoint for the sample application>
     It may take a few minutes for the guestbook service to launch and the load balancer to become available.
     During that time you may get HTTP 503 errors when making HTTP requests against the load balancer URL.
 
-
 ### What's Happening
 
 Terraform provisions the AWS resources through Layer0, configures environment variables for the application, and deploys the application into a Layer0 environment.
 Terraform also writes the state of your deployment to the `terraform.tfstate` file (creating a new one if it's not already there).
 
-
-### Cleanup
+### Cleanup Terraform
 
 When you're finished with the example, you can instruct Terraform to destroy the Layer0 environment, and terminate the application.
 Execute the following command (in the same directory):
@@ -495,6 +482,4 @@ Execute the following command (in the same directory):
 
 It's also now safe to remove the `.terraform/` directory and the `*.tfstate*` files.
 
-
 ---
-
