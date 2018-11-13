@@ -23,6 +23,10 @@
       
         <meta name="lang:search.language" content="en">
       
+        <meta name="lang:search.pipeline.stopwords" content="True">
+      
+        <meta name="lang:search.pipeline.trimmer" content="True">
+      
         <meta name="lang:search.result.none" content="No matching documents">
       
         <meta name="lang:search.result.one" content="1 matching document">
@@ -31,8 +35,8 @@
       
         <meta name="lang:search.tokenizer" content="[\s\-]+">
       
-      <link rel="shortcut icon" href="/quintilesims/layer0//assets/images/favicon.png">
-      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-2.3.0">
+      <link rel="shortcut icon" href="/quintilesims/layer0/assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.0.4, mkdocs-material-3.0.6">
     
     
       
@@ -40,21 +44,27 @@
       
     
     
-      <link rel="stylesheet" href="/quintilesims/layer0//assets/stylesheets/application.0e9c8aca.css">
+      <link rel="stylesheet" href="/quintilesims/layer0/assets/stylesheets/application.451f80e5.css">
       
-        <link rel="stylesheet" href="/quintilesims/layer0//assets/stylesheets/application-palette.792431c1.css">
+        <link rel="stylesheet" href="/quintilesims/layer0/assets/stylesheets/application-palette.22915126.css">
+      
+      
+        
+        
+        <meta name="theme-color" content="#ef5350">
       
     
     
-      <script src="/quintilesims/layer0//assets/javascripts/modernizr.1aa3b519.js"></script>
+      <script src="/quintilesims/layer0/assets/javascripts/modernizr.1aa3b519.js"></script>
     
     
       
+        <link href="https://fonts.gstatic.com" rel="preconnect" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700|Roboto+Mono">
         <style>body,input{font-family:"Roboto","Helvetica Neue",Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono","Courier New",Courier,monospace}</style>
       
-      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
     
+    <link rel="stylesheet" href="/quintilesims/layer0/assets/fonts/material-icons.css">
     
       <link rel="stylesheet" href="/quintilesims/layer0/stylesheets/extra.css">
     
@@ -63,21 +73,37 @@
   
     
     
-    
-      <body data-md-color-primary="red" data-md-color-accent="grey">
-    
+    <body dir="ltr" data-md-color-primary="red" data-md-color-accent="grey">
   
     <svg class="md-svg">
       <defs>
         
         
-          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448" viewBox="0 0 416 448" id="github"><path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19T128 352t-18.125-8.5-10.75-19T96 304t3.125-20.5 10.75-19T128 256t18.125 8.5 10.75 19T160 304zm160 0q0 10-3.125 20.5t-10.75 19T288 352t-18.125-8.5-10.75-19T256 304t3.125-20.5 10.75-19T288 256t18.125 8.5 10.75 19T320 304zm40 0q0-30-17.25-51T296 232q-10.25 0-48.75 5.25Q229.5 240 208 240t-39.25-2.75Q130.75 232 120 232q-29.5 0-46.75 21T56 304q0 22 8 38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0 37.25-1.75t35-7.375 30.5-15 20.25-25.75T360 304zm56-44q0 51.75-15.25 82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5T212 416q-19.5 0-35.5-.75t-36.875-3.125-38.125-7.5-34.25-12.875T37 371.5t-21.5-28.75Q0 312 0 260q0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25 30.875Q171.5 96 212 96q37 0 70 8 26.25-20.5 46.75-30.25T376 64q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34 99.5z"/></svg>
+          <svg xmlns="http://www.w3.org/2000/svg" width="416" height="448"
+    viewBox="0 0 416 448" id="__github">
+  <path fill="currentColor" d="M160 304q0 10-3.125 20.5t-10.75 19-18.125
+        8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19 18.125-8.5
+        18.125 8.5 10.75 19 3.125 20.5zM320 304q0 10-3.125 20.5t-10.75
+        19-18.125 8.5-18.125-8.5-10.75-19-3.125-20.5 3.125-20.5 10.75-19
+        18.125-8.5 18.125 8.5 10.75 19 3.125 20.5zM360
+        304q0-30-17.25-51t-46.75-21q-10.25 0-48.75 5.25-17.75 2.75-39.25
+        2.75t-39.25-2.75q-38-5.25-48.75-5.25-29.5 0-46.75 21t-17.25 51q0 22 8
+        38.375t20.25 25.75 30.5 15 35 7.375 37.25 1.75h42q20.5 0
+        37.25-1.75t35-7.375 30.5-15 20.25-25.75 8-38.375zM416 260q0 51.75-15.25
+        82.75-9.5 19.25-26.375 33.25t-35.25 21.5-42.5 11.875-42.875 5.5-41.75
+        1.125q-19.5 0-35.5-0.75t-36.875-3.125-38.125-7.5-34.25-12.875-30.25-20.25-21.5-28.75q-15.5-30.75-15.5-82.75
+        0-59.25 34-99-6.75-20.5-6.75-42.5 0-29 12.75-54.5 27 0 47.5 9.875t47.25
+        30.875q36.75-8.75 77.25-8.75 37 0 70 8 26.25-20.5
+        46.75-30.25t47.25-9.75q12.75 25.5 12.75 54.5 0 21.75-6.75 42 34 40 34
+        99.5z" />
+</svg>
         
       </defs>
     </svg>
-    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="drawer">
-    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="search">
-    <label class="md-overlay" data-md-component="overlay" for="drawer"></label>
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" data-md-component="overlay" for="__drawer"></label>
+    
     
       <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid">
@@ -85,12 +111,12 @@
       <div class="md-flex__cell md-flex__cell--shrink">
         <a href="https://github.com/quintilesims/layer0/" title="Layer0" class="md-header-nav__button md-logo">
           
-            <img src="/quintilesims/layer0//static/logo_icon.png" width="24" height="24">
+            <img src="/quintilesims/layer0/static/logo_icon.png" width="24" height="24">
           
         </a>
       </div>
       <div class="md-flex__cell md-flex__cell--shrink">
-        <label class="md-icon md-icon--menu md-header-nav__button" for="drawer"></label>
+        <label class="md-icon md-icon--menu md-header-nav__button" for="__drawer"></label>
       </div>
       <div class="md-flex__cell md-flex__cell--stretch">
         <div class="md-flex__ellipsis md-header-nav__title" data-md-component="title">
@@ -109,15 +135,17 @@
       <div class="md-flex__cell md-flex__cell--shrink">
         
           
-            <label class="md-icon md-icon--search md-header-nav__button" for="search"></label>
+            <label class="md-icon md-icon--search md-header-nav__button" for="__search"></label>
             
 <div class="md-search" data-md-component="search" role="dialog">
-  <label class="md-search__overlay" for="search"></label>
-  <div class="md-search__inner">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" required placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query">
-      <label class="md-icon md-search__icon" for="search"></label>
-      <button type="reset" class="md-icon md-search__icon" data-md-component="reset">&#xE5CD;</button>
+      <input type="text" class="md-search__input" name="query" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="query" data-md-state="active">
+      <label class="md-icon md-search__icon" for="__search"></label>
+      <button type="reset" class="md-icon md-search__icon" data-md-component="reset" tabindex="-1">
+        &#xE5CD;
+      </button>
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
@@ -147,7 +175,7 @@
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
-          <use xlink:href="#github" width="24" height="24"></use>
+          <use xlink:href="#__github" width="24" height="24"></use>
         </svg>
       </div>
     
@@ -176,12 +204,12 @@
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     <nav class="md-nav md-nav--primary" data-md-level="0">
-  <label class="md-nav__title md-nav__title--site" for="drawer">
-    <span class="md-nav__button md-logo">
+  <label class="md-nav__title md-nav__title--site" for="__drawer">
+    <a href="https://github.com/quintilesims/layer0/" title="Layer0" class="md-nav__button md-logo">
       
-        <img src="/quintilesims/layer0//static/logo_icon.png" width="24" height="24">
+        <img src="/quintilesims/layer0/static/logo_icon.png" width="48" height="48">
       
-    </span>
+    </a>
     Layer0
   </label>
   
@@ -196,7 +224,7 @@
     
       <div class="md-source__icon">
         <svg viewBox="0 0 24 24" width="24" height="24">
-          <use xlink:href="#github" width="24" height="24"></use>
+          <use xlink:href="#__github" width="24" height="24"></use>
         </svg>
       </div>
     
@@ -215,7 +243,7 @@
 
 
   <li class="md-nav__item">
-    <a href="" title="Home" class="md-nav__link">
+    <a href="/quintilesims/layer0/." title="Home" class="md-nav__link">
       Home
     </a>
   </li>
@@ -227,7 +255,7 @@
 
 
   <li class="md-nav__item">
-    <a href="releases/" title="Releases" class="md-nav__link">
+    <a href="/quintilesims/layer0/releases/" title="Releases" class="md-nav__link">
       Releases
     </a>
   </li>
@@ -239,7 +267,7 @@
 
 
   <li class="md-nav__item">
-    <a href="intro/" title="Introduction" class="md-nav__link">
+    <a href="/quintilesims/layer0/intro/" title="Introduction" class="md-nav__link">
       Introduction
     </a>
   </li>
@@ -270,7 +298,7 @@
 
 
   <li class="md-nav__item">
-    <a href="setup/install/" title="Install" class="md-nav__link">
+    <a href="/quintilesims/layer0/setup/install/" title="Install" class="md-nav__link">
       Install
     </a>
   </li>
@@ -282,7 +310,7 @@
 
 
   <li class="md-nav__item">
-    <a href="setup/upgrade/" title="Upgrade" class="md-nav__link">
+    <a href="/quintilesims/layer0/setup/upgrade/" title="Upgrade" class="md-nav__link">
       Upgrade
     </a>
   </li>
@@ -294,7 +322,7 @@
 
 
   <li class="md-nav__item">
-    <a href="setup/destroy/" title="Destroy" class="md-nav__link">
+    <a href="/quintilesims/layer0/setup/destroy/" title="Destroy" class="md-nav__link">
       Destroy
     </a>
   </li>
@@ -330,7 +358,7 @@
 
 
   <li class="md-nav__item">
-    <a href="guides/walkthrough/intro/" title="Walkthrough: Introduction" class="md-nav__link">
+    <a href="/quintilesims/layer0/guides/walkthrough/intro/" title="Walkthrough: Introduction" class="md-nav__link">
       Walkthrough: Introduction
     </a>
   </li>
@@ -342,7 +370,7 @@
 
 
   <li class="md-nav__item">
-    <a href="guides/walkthrough/deployment-1/" title="Walkthrough: Deployment 1" class="md-nav__link">
+    <a href="/quintilesims/layer0/guides/walkthrough/deployment-1/" title="Walkthrough: Deployment 1" class="md-nav__link">
       Walkthrough: Deployment 1
     </a>
   </li>
@@ -354,7 +382,7 @@
 
 
   <li class="md-nav__item">
-    <a href="guides/walkthrough/deployment-2/" title="Walkthrough: Deployment 2" class="md-nav__link">
+    <a href="/quintilesims/layer0/guides/walkthrough/deployment-2/" title="Walkthrough: Deployment 2" class="md-nav__link">
       Walkthrough: Deployment 2
     </a>
   </li>
@@ -366,7 +394,7 @@
 
 
   <li class="md-nav__item">
-    <a href="guides/one_off_task/" title="One-off Task" class="md-nav__link">
+    <a href="/quintilesims/layer0/guides/one_off_task/" title="One-off Task" class="md-nav__link">
       One-off Task
     </a>
   </li>
@@ -402,7 +430,7 @@
 
 
   <li class="md-nav__item">
-    <a href="reference/cli/" title="Layer0 CLI" class="md-nav__link">
+    <a href="/quintilesims/layer0/reference/cli/" title="Layer0 CLI" class="md-nav__link">
       Layer0 CLI
     </a>
   </li>
@@ -414,7 +442,7 @@
 
 
   <li class="md-nav__item">
-    <a href="reference/setup-cli/" title="Layer0 Setup CLI" class="md-nav__link">
+    <a href="/quintilesims/layer0/reference/setup-cli/" title="Layer0 Setup CLI" class="md-nav__link">
       Layer0 Setup CLI
     </a>
   </li>
@@ -426,7 +454,7 @@
 
 
   <li class="md-nav__item">
-    <a href="reference/terraform_introduction/" title="Terraform" class="md-nav__link">
+    <a href="/quintilesims/layer0/reference/terraform_introduction/" title="Terraform" class="md-nav__link">
       Terraform
     </a>
   </li>
@@ -438,7 +466,7 @@
 
 
   <li class="md-nav__item">
-    <a href="reference/terraform-plugin/" title="Layer0 Terraform Plugin" class="md-nav__link">
+    <a href="/quintilesims/layer0/reference/terraform-plugin/" title="Layer0 Terraform Plugin" class="md-nav__link">
       Layer0 Terraform Plugin
     </a>
   </li>
@@ -450,7 +478,7 @@
 
 
   <li class="md-nav__item">
-    <a href="reference/updateservice/" title="Updating a Service" class="md-nav__link">
+    <a href="/quintilesims/layer0/reference/updateservice/" title="Updating a Service" class="md-nav__link">
       Updating a Service
     </a>
   </li>
@@ -462,7 +490,7 @@
 
 
   <li class="md-nav__item">
-    <a href="reference/consul/" title="Consul" class="md-nav__link">
+    <a href="/quintilesims/layer0/reference/consul/" title="Consul" class="md-nav__link">
       Consul
     </a>
   </li>
@@ -474,7 +502,7 @@
 
 
   <li class="md-nav__item">
-    <a href="reference/task_definition/" title="Task Definitions" class="md-nav__link">
+    <a href="/quintilesims/layer0/reference/task_definition/" title="Task Definitions" class="md-nav__link">
       Task Definitions
     </a>
   </li>
@@ -486,7 +514,7 @@
 
 
   <li class="md-nav__item">
-    <a href="reference/architecture/" title="Architecture" class="md-nav__link">
+    <a href="/quintilesims/layer0/reference/architecture/" title="Architecture" class="md-nav__link">
       Architecture
     </a>
   </li>
@@ -498,7 +526,7 @@
 
 
   <li class="md-nav__item">
-    <a href="reference/ecr/" title="ECR" class="md-nav__link">
+    <a href="/quintilesims/layer0/reference/ecr/" title="ECR" class="md-nav__link">
       ECR
     </a>
   </li>
@@ -534,7 +562,7 @@
 
 
   <li class="md-nav__item">
-    <a href="troubleshooting/commonissues/" title="Common Issues" class="md-nav__link">
+    <a href="/quintilesims/layer0/troubleshooting/commonissues/" title="Common Issues" class="md-nav__link">
       Common Issues
     </a>
   </li>
@@ -546,7 +574,7 @@
 
 
   <li class="md-nav__item">
-    <a href="troubleshooting/ssh/" title="Secure Shell (SSH)" class="md-nav__link">
+    <a href="/quintilesims/layer0/troubleshooting/ssh/" title="Secure Shell (SSH)" class="md-nav__link">
       Secure Shell (SSH)
     </a>
   </li>
@@ -572,6 +600,8 @@
 
               
                 
+
+
               
             </article>
           </div>
@@ -586,7 +616,7 @@
       <div class="md-footer-copyright">
         
         powered by
-        <a href="http://www.mkdocs.org">MkDocs</a>
+        <a href="https://www.mkdocs.org">MkDocs</a>
         and
         <a href="https://squidfunk.github.io/mkdocs-material/">
           Material for MkDocs</a>
@@ -600,7 +630,7 @@
       
     </div>
     
-      <script src="/quintilesims/layer0//assets/javascripts/application.cae2244d.js"></script>
+      <script src="/quintilesims/layer0/assets/javascripts/application.5e60981f.js"></script>
       
       <script>app.initialize({version:"1.0.4",url:{base:"/quintilesims/layer0/"}})</script>
       

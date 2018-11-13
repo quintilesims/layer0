@@ -10,7 +10,7 @@ repo_name: GitHub
 repo_url: https://github.com/quintilesims/layer0/
 edit_uri: blob/master/docs-src/docs/
 
-pages:
+nav:
   - Home: index.md
   - Releases: releases.md
   - Introduction: intro.md
@@ -41,7 +41,6 @@ site_dir: ../docs
 
 theme:
     name: 'material'
-    custom_dir: 'material'
     palette:
         primary: 'red'
         accent:  'grey'
