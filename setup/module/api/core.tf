@@ -106,12 +106,8 @@ resource "aws_iam_group_policy" "mod" {
 }
 
 data "aws_ami" "linux" {
+  owners = ["amazon"]
   most_recent = true
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
 
   filter {
     name   = "name"
@@ -120,12 +116,8 @@ data "aws_ami" "linux" {
 }
 
 data "aws_ami" "windows" {
+  owners = ["amazon"]
   most_recent = true
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
 
   filter {
     name   = "name"
