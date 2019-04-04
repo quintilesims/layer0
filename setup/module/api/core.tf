@@ -20,6 +20,7 @@ resource "aws_s3_bucket" "mod" {
   bucket        = "layer0-${var.name}-${data.aws_caller_identity.current.account_id}"
   region        = "${var.region}"
   force_destroy = true
+  request_payer = "BucketOwner"
 }
 
 resource "aws_s3_bucket_object" "dockercfg" {
