@@ -30,7 +30,7 @@ resource "aws_dynamodb_table" "jobs" {
 }
 
 resource "aws_appautoscaling_target" "tags_table_read_target" {
-  max_capacity       = 100
+  max_capacity       = 250
   min_capacity       = 5
   resource_id        = "table/${aws_dynamodb_table.tags.name}"
   scalable_dimension = "dynamodb:table:ReadCapacityUnits"
@@ -54,7 +54,7 @@ resource "aws_appautoscaling_policy" "tags_table_read_policy" {
 }
 
 resource "aws_appautoscaling_target" "jobs_table_read_target" {
-  max_capacity       = 100
+  max_capacity       = 250
   min_capacity       = 5
   resource_id        = "table/${aws_dynamodb_table.jobs.name}"
   scalable_dimension = "dynamodb:table:ReadCapacityUnits"
