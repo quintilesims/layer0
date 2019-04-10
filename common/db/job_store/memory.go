@@ -48,7 +48,7 @@ func (m *MemoryJobStore) SelectByID(jobID string) (*models.Job, error) {
 		}
 	}
 
-	return nil, fmt.Errorf("Job with id '%d' does not exist", jobID)
+	return nil, fmt.Errorf("Job with id '%s' does not exist", jobID)
 }
 
 func (m *MemoryJobStore) UpdateJobStatus(jobID string, status types.JobStatus) error {
