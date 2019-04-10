@@ -5,6 +5,7 @@
 
 | Version | macOS | Linux | Windows |
 | - | - | - | - |
+| v0.10.10 | [macOS](https://github.com/quintilesims/layer0/releases/download/v0.10.10/macOS.zip) | [Linux](https://github.com/quintilesims/layer0/releases/download/v0.10.10/Linux.zip) | [Windows](https://github.com/quintilesims/layer0/releases/download/v0.10.10/Windows.zip)
 | v0.10.9 | [macOS](https://github.com/quintilesims/layer0/releases/download/v0.10.9/macOS.zip) | [Linux](https://github.com/quintilesims/layer0/releases/download/v0.10.9/Linux.zip) | [Windows](https://github.com/quintilesims/layer0/releases/download/v0.10.9/Windows.zip)
 | v0.10.8 | [macOS](https://github.com/quintilesims/layer0/releases/download/v0.10.8/macOS.zip) | [Linux](https://github.com/quintilesims/layer0/releases/download/v0.10.8/Linux.zip) | [Windows](https://github.com/quintilesims/layer0/releases/download/v0.10.8/Windows.zip)
 | v0.10.7 | [macOS](https://github.com/quintilesims/layer0/releases/download/v0.10.7/macOS.zip) | [Linux](https://github.com/quintilesims/layer0/releases/download/v0.10.7/Linux.zip) | [Windows](https://github.com/quintilesims/layer0/releases/download/v0.10.7/Windows.zip)
