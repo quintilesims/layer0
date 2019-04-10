@@ -20,6 +20,7 @@ resource "aws_s3_bucket" "mod" {
   bucket        = "layer0-${var.name}-${data.aws_caller_identity.current.account_id}"
   region        = "${var.region}"
   force_destroy = true
+  request_payer = "BucketOwner"
 }
 
 resource "aws_s3_bucket_object" "dockercfg" {
@@ -106,12 +107,8 @@ resource "aws_iam_group_policy" "mod" {
 }
 
 data "aws_ami" "linux" {
+  owners = ["amazon"]
   most_recent = true
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
 
   filter {
     name   = "name"
@@ -120,12 +117,8 @@ data "aws_ami" "linux" {
 }
 
 data "aws_ami" "windows" {
+  owners = ["amazon"]
   most_recent = true
-
-  filter {
-    name   = "owner-alias"
-    values = ["amazon"]
-  }
 
   filter {
     name   = "name"
