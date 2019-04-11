@@ -1,5 +1,6 @@
-L0_VERSION:=$(shell git describe --tags)
-export L0_VERSION
+EXPORT_ALL_VARIABLES:
+
+L0_VERSION=$(shell git describe --tags)
 
 deps:
 	pip install mkdocs
@@ -10,7 +11,7 @@ deps:
 release: template build
 
 template:
-	$(shell sed -E -i "" "s/(v[0-9]+.[0-9]+.[0-9]+)/$${L0_VERSION}/g" ../README.md)
+	$(shell sed -E -i "s/(v[0-9]+.[0-9]+.[0-9]+)/$${L0_VERSION}/g" ../README.md)
 	expenv -f templates/index.md.template > docs/index.md
 	cat templates/release-table-header.template > docs/releases.md
 	expenv -f templates/release-table-insertion.template > templates/tmp

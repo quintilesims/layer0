@@ -1,36 +1,36 @@
 sudo: required
 
 language: go
+
 go:
-- 1.12
+  - 1.12
 
 services:
-- docker
+  - docker
 
 before_install:
-- sudo apt-get install jq
+  - sudo apt-get install jq
 
-  #script:
-  #- make unittest
+script:
+  - make unittest
 
-# Build binaries to upload
 before_deploy:
- - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD";
- - go get github.com/blang/expenv
- - go install github.com/blang/expenv
- - pip3 install mkdocs
- - pip3 install -Iv mkdocs-material==3.0.6
- - make release
+  - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
+  - go get github.com/blang/expenv
+  - go install github.com/blang/expenv
+  - python3 -m pip || wget -qO- https://bootstrap.pypa.io/get-pip.py | sudo python3
+  - sudo python3 -m pip install mkdocs
+  - sudo python3 -m  pip install -Iv mkdocs-material==3.0.6
+  - make release
 
-# Deploy to Github
 deploy:
-- provider: releases
-  api_key: $DEPLOY_KEY
-  file: 
-   - build/macOS.zip
-   - build/Linux.zip
-   - build/Windows.zip
-  skip_cleanup: true
-  on:
-    tags: true
-
+  - provider: releases
+    api_key:
+      secure: 5iy5dYqL4PFI3DfyNaZ5aEMiG3lSFKjHSNy403cZoptmylID4EWq7ciM5vJVM913fhvnq9uqOpjGsBiIjiG1VU3IGIB/0yNNNO4VI5WO3JKTlz6QcAyhYH7sucLjPV+3ztPsbbnRMTbbLJzzm6NiiiLenzL4uI0sUHqLx0jgsJSShZtyyogVmKTQfyCodBjmykuYzExldIRkvJ/MwybR5uL+PXXIC1qyJx6N6iWIlo9JAcjCdGXAEOB6UDPPlgKmEm4pBhuGqiefWTmlBaYHFE6OEpcy9vuurhIkZr6SqFukLvqdTPLO/hWDYUoEooCmK4rcgsHidlWW4S8lxlYF5KMl7FsJJnG62nS2UDfKcFmsTsSKJCL4qbZDgyTkVV/zO414P2sDols33RmGuYBGjdjWyAhJD2KzjLvpt2X7QcwxI61WYyoF+hFykAl+IXEl23W9To5ORylm+S/vHuLeL0JBELQFHJGM16m0fhAiDdGnOcrDI+KOXdWNqa9c0T1PAn2ivhto9mgXjdf2HaahYK4XTyNjyJkQnpy0Oju5vbq2b6SPcjOwXNqvgl4P2pcEAWcnO538lNajy+P9n2EOeHfC8QIkPNFECOHrkeR9yXa247hRsjYPRATNzs77lj3I4pY2hHIcn+s+P40s5hUQowy2lUJJJs+5aRRvv7dH6lU=
+      file:
+        - build/macOS.zip
+        - build/Linux.zip
+        - build/Windows.zip
+      skip_cleanup: true
+      on:
+        tags: true
