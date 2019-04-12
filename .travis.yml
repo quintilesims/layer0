@@ -24,10 +24,10 @@ deploy:
   - provider: releases
     api_key:
       secure: 5iy5dYqL4PFI3DfyNaZ5aEMiG3lSFKjHSNy403cZoptmylID4EWq7ciM5vJVM913fhvnq9uqOpjGsBiIjiG1VU3IGIB/0yNNNO4VI5WO3JKTlz6QcAyhYH7sucLjPV+3ztPsbbnRMTbbLJzzm6NiiiLenzL4uI0sUHqLx0jgsJSShZtyyogVmKTQfyCodBjmykuYzExldIRkvJ/MwybR5uL+PXXIC1qyJx6N6iWIlo9JAcjCdGXAEOB6UDPPlgKmEm4pBhuGqiefWTmlBaYHFE6OEpcy9vuurhIkZr6SqFukLvqdTPLO/hWDYUoEooCmK4rcgsHidlWW4S8lxlYF5KMl7FsJJnG62nS2UDfKcFmsTsSKJCL4qbZDgyTkVV/zO414P2sDols33RmGuYBGjdjWyAhJD2KzjLvpt2X7QcwxI61WYyoF+hFykAl+IXEl23W9To5ORylm+S/vHuLeL0JBELQFHJGM16m0fhAiDdGnOcrDI+KOXdWNqa9c0T1PAn2ivhto9mgXjdf2HaahYK4XTyNjyJkQnpy0Oju5vbq2b6SPcjOwXNqvgl4P2pcEAWcnO538lNajy+P9n2EOeHfC8QIkPNFECOHrkeR9yXa247hRsjYPRATNzs77lj3I4pY2hHIcn+s+P40s5hUQowy2lUJJJs+5aRRvv7dH6lU=
-      file:
-        - build/macOS.zip
-        - build/Linux.zip
-        - build/Windows.zip
-      skip_cleanup: true
-      on:
-        tags: true
+    file:
+      - build/macOS.zip
+      - build/Linux.zip
+      - build/Windows.zip
+    skip_cleanup: true
+    on:
+      tags: true
