@@ -1,7 +1,0 @@
-!!! warn "v0.10.x Breaking Change"
-    The v0.10.x family contains a breaking change for the task workflow.
-    For best results, please consider versions 0.10.4 and newer to be incompatible with versions 0.10.3 and older.
-    See [this issue](https://github.com/quintilesims/layer0/issues/572) for more.
-
-| Version | macOS | Linux | Windows |
-| - | - | - | - |
