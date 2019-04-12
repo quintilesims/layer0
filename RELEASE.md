@@ -47,6 +47,7 @@ git merge remotes/origin/master
 git push -u origin release
 ```
 
+
 ## Merge Release into Master
 
 [Create a pull request](https://github.com/quintilesims/layer0/compare) from the `release` branch targeting the `master` branch (_base: master, compare: release_). 
@@ -69,6 +70,9 @@ git tag -a vX.X.X -m "<some message about the version>"
 git push origin --tag
 ```
 
+Pushing a tag triggers a branch of automation in travis-ci which will build the binaries and attach them to the release.
+
+
 ## Add Release Notes
 
 Add release notes to the release with this format.
@@ -81,6 +85,13 @@ Add release notes to the release with this format.
 ```
 This can be done through the [Github UI](https://github.com/quintilesims/layer0/releases) by clicking the edit button on the latest release.
 Please follow the existing formatting when adding release notes.
+
+
+## Update the documentation for the new tag
+
+This should have been done all through development, but in particular here, we must create the links for the newly-tagged release.
+Documentation lives in the [layer0-docs](https://github.com/quintilesims/layer0-docs) repository.
+Follow the instructions in that repo's README for updating for a new Layer0 release.
 
 
 # Announce the release
