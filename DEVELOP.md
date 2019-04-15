@@ -86,22 +86,7 @@ make release
 ```
 
 ## Docs
-The documentation for Layer0 exists in `layer0/docs-src`.
-We use [mkdocs](http://www.mkdocs.org/) (version >= v0.16.0) to compile our markdown docs into html and css.
-
-#### Common Functions
-*The following commands should be run from the `layer0/docs-src` directory*
-
-```
-# install dependencies
-make deps
-
-# compile docs
-make build
-
-# serve docs locally
-mkdocs serve
-```
+The documentation for Layer0 exists in the [layer0-docs](http://github.com/quintilesims/layer0-docs) repository.
 
 ## Testing
 Any package or subpackage in Layer0 can be tested using the standard `go test` tool.

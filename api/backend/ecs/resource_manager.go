@@ -57,7 +57,7 @@ func (r *ECSResourceManager) GetProviders(environmentID string) ([]*resource.Res
 func (r *ECSResourceManager) getResourceProvider(ecsEnvironmentID id.ECSEnvironmentID, instance *ecs.ContainerInstance) (*resource.ResourceProvider, bool) {
 	instanceID := pstring(instance.Ec2InstanceId)
 	if pstring(instance.Status) != "ACTIVE" {
-		r.logger.Warnf("Instance %d is not in the 'ACTIVE' state", instanceID)
+		r.logger.Warnf("Instance %s is not in the 'ACTIVE' state", instanceID)
 		return nil, false
 	}
 

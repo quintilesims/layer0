@@ -3,7 +3,6 @@ SHELL:=/bin/bash
 release:
 	$(MAKE) -C api release
 	$(MAKE) -C cli release
-	$(MAKE) -C docs-src release
 	$(MAKE) -C runner release
 	$(MAKE) -C setup release
 	$(MAKE) -C plugins/terraform release
