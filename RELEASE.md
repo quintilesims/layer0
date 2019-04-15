@@ -71,6 +71,7 @@ git push origin --tag
 ```
 
 Pushing a tag triggers a branch of automation in travis-ci which will build the binaries and attach them to the release.
+The secure API token used in `.travis.yml` for automating releases is a travis-encoded personal access token for the `carbon-bot-user` GitHub user.
 
 
 ## Add Release Notes
