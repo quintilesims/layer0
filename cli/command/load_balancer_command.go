@@ -82,6 +82,26 @@ func (l *LoadBalancerCommand) GetCommand() cli.Command {
 						Value: 60,
 						Usage: "idle timeout of the load balancer in seconds",
 					},
+					cli.BoolFlag{
+						Name:  "cross-zone",
+						Usage: "if specified, enables cross-zone load balancing (default is disabled)",
+					},
+				},
+			},
+			{
+				Name:      "cross-zone",
+				Usage:     "view or update the cross-zone load balancing for a load balancer",
+				Action:    wrapAction(l.Command, l.CrossZone),
+				ArgsUsage: "NAME",
+				Flags: []cli.Flag{
+					cli.BoolFlag{
+						Name:  "enable",
+						Usage: "enable cross-zone load balancing",
+					},
+					cli.BoolFlag{
+						Name:  "disable",
+						Usage: "disable cross-zone load balancing",
+					},
 				},
 			},
 			{
@@ -222,12 +242,52 @@ func (l *LoadBalancerCommand) Create(c *cli.Context) error {
 	}
 
 	idleTimeout := c.Int("idle-timeout")
-	loadBalancer, err := l.Client.CreateLoadBalancer(args["NAME"], environmentID, healthCheck, ports, !c.Bool("private"), idleTimeout)
+	loadBalancer, err := l.Client.CreateLoadBalancer(args["NAME"], environmentID, healthCheck, ports, !c.Bool("private"), idleTimeout, c.Bool("cross-zone"))
 	if err != nil {
 		return err
 	}
 
 	return l.Printer.PrintLoadBalancers(loadBalancer)
+}
+
+func (l *LoadBalancerCommand) CrossZone(c *cli.Context) error {
+	enableCrossZone := c.Bool("enable")
+	disableCrossZone := c.Bool("disable")
+
+	if enableCrossZone && disableCrossZone {
+		return NewUsageError("Must not specify both 'enable' and 'disable' flags")
+	}
+
+	args, err := extractArgs(c.Args(), "NAME")
+	if err != nil {
+		return err
+	}
+
+	id, err := l.resolveSingleID("load_balancer", args["NAME"])
+	if err != nil {
+		return err
+	}
+
+	loadBalancer, err := l.Client.GetLoadBalancer(id)
+	if err != nil {
+		return err
+	}
+
+	if enableCrossZone {
+		loadBalancer, err = l.Client.UpdateLoadBalancerCrossZone(id, true)
+		if err != nil {
+			return err
+		}
+	}
+
+	if disableCrossZone {
+		loadBalancer, err = l.Client.UpdateLoadBalancerCrossZone(id, false)
+		if err != nil {
+			return err
+		}
+	}
+
+	return l.Printer.PrintLoadBalancerCrossZone(loadBalancer)
 }
 
 func (l *LoadBalancerCommand) Delete(c *cli.Context) error {

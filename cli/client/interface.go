@@ -25,13 +25,14 @@ type Client interface {
 	ListJobs() ([]*models.Job, error)
 	WaitForJob(jobID string, timeout time.Duration) error
 
-	CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool, idleTimeout int) (*models.LoadBalancer, error)
+	CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool, idleTimeout int, crossZone bool) (*models.LoadBalancer, error)
 	DeleteLoadBalancer(id string) (string, error)
 	GetLoadBalancer(id string) (*models.LoadBalancer, error)
 	ListLoadBalancers() ([]*models.LoadBalancerSummary, error)
 	UpdateLoadBalancerHealthCheck(id string, healthCheck models.HealthCheck) (*models.LoadBalancer, error)
 	UpdateLoadBalancerPorts(id string, ports []models.Port) (*models.LoadBalancer, error)
 	UpdateLoadBalancerIdleTimeout(id string, idleTimeout int) (*models.LoadBalancer, error)
+	UpdateLoadBalancerCrossZone(id string, crossZone bool) (*models.LoadBalancer, error)
 
 	CreateService(name, environmentID, deployID, loadBalancerID string) (*models.Service, error)
 	DeleteService(id string) (string, error)

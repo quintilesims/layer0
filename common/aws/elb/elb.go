@@ -21,6 +21,7 @@ type Provider interface {
 	CreateLoadBalancerListeners(loadBalancerName string, listeners []*Listener) error
 	DeleteLoadBalancerListeners(loadBalancerName string, listeners []*Listener) error
 	SetIdleTimeout(loadBalancerName string, idleTimeout int) error
+	SetCrossZone(loadBalancerName string, crossZone bool) error
 }
 
 type Listener struct {
@@ -412,6 +413,26 @@ func (this *ELB) SetIdleTimeout(loadBalancerName string, idleTimeout int) error 
 
 	loadBalancerAttributes := &elb.LoadBalancerAttributes{}
 	loadBalancerAttributes.SetConnectionSettings(connectionSettings)
+
+	input := &elb.ModifyLoadBalancerAttributesInput{}
+	input.SetLoadBalancerName(loadBalancerName)
+	input.SetLoadBalancerAttributes(loadBalancerAttributes)
+
+	connection, err := this.Connect()
+	if err != nil {
+		return err
+	}
+
+	_, err = connection.ModifyLoadBalancerAttributes(input)
+	return err
+}
+
+func (this *ELB) SetCrossZone(loadBalancerName string, crossZone bool) error {
+	crossZoneLoadBalancing := &elb.CrossZoneLoadBalancing{}
+	crossZoneLoadBalancing.SetEnabled(crossZone)
+
+	loadBalancerAttributes := &elb.LoadBalancerAttributes{}
+	loadBalancerAttributes.SetCrossZoneLoadBalancing(crossZoneLoadBalancing)
 
 	input := &elb.ModifyLoadBalancerAttributesInput{}
 	input.SetLoadBalancerName(loadBalancerName)
