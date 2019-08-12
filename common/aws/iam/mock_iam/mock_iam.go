@@ -5,10 +5,9 @@
 package mock_iam
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	iam "github.com/quintilesims/layer0/common/aws/iam"
+	reflect "reflect"
 )
 
 // MockProvider is a mock of Provider interface
