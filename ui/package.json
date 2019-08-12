@@ -10,7 +10,7 @@
   "author": "xfra<xfra@us.imshealth.com>",
   "license": "ISC",
   "dependencies": {
-    "axios": "^0.14.0",
+    "axios": ">=0.18.1",
     "react": "^15.3.2",
     "react-addons-css-transition-group": "^15.3.2",
     "react-bootstrap": "^0.30.5",
