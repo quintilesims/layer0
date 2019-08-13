@@ -109,7 +109,7 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 			"cross_zone": {
 				Type:     schema.TypeBool,
 				Optional: true,
-				Default:  false,
+				Default:  true,
 			},
 		},
 	}

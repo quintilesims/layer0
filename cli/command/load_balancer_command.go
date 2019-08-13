@@ -83,8 +83,8 @@ func (l *LoadBalancerCommand) GetCommand() cli.Command {
 						Usage: "idle timeout of the load balancer in seconds",
 					},
 					cli.BoolFlag{
-						Name:  "cross-zone",
-						Usage: "if specified, enables cross-zone load balancing (default is disabled)",
+						Name:  "disable-cross-zone",
+						Usage: "if specified, disables cross-zone load balancing (default is enabled)",
 					},
 				},
 			},
@@ -242,7 +242,8 @@ func (l *LoadBalancerCommand) Create(c *cli.Context) error {
 	}
 
 	idleTimeout := c.Int("idle-timeout")
-	loadBalancer, err := l.Client.CreateLoadBalancer(args["NAME"], environmentID, healthCheck, ports, !c.Bool("private"), idleTimeout, c.Bool("cross-zone"))
+	crossZone := !c.Bool("disable-cross-zone")
+	loadBalancer, err := l.Client.CreateLoadBalancer(args["NAME"], environmentID, healthCheck, ports, !c.Bool("private"), idleTimeout, crossZone)
 	if err != nil {
 		return err
 	}
