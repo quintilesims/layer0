@@ -106,6 +106,9 @@ func NewLoadBalancerAttributes() *LoadBalancerAttributes {
 			ConnectionSettings: &elb.ConnectionSettings{
 				IdleTimeout: aws.Int64(60),
 			},
+			CrossZoneLoadBalancing: &elb.CrossZoneLoadBalancing{
+				Enabled: aws.Bool(true),
+			},
 		},
 	}
 }
