@@ -5,9 +5,10 @@
 package mock_instance
 
 import (
-	gomock "github.com/golang/mock/gomock"
-	s3iface "github.com/quintilesims/layer0/vendor/github.com/aws/aws-sdk-go/service/s3/s3iface"
 	reflect "reflect"
+
+	s3iface "github.com/aws/aws-sdk-go/service/s3/s3iface"
+	gomock "github.com/golang/mock/gomock"
 )
 
 // MockInstance is a mock of Instance interface
