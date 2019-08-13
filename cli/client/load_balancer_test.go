@@ -52,7 +52,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	loadBalancer, err := client.CreateLoadBalancer("name", "environmentID", healthCheck, ports, true, 60)
+	loadBalancer, err := client.CreateLoadBalancer("name", "environmentID", healthCheck, ports, true, 60, true)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -219,6 +219,32 @@ func TestUpdateLoadBalancerIdleTimeout(t *testing.T) {
 	defer server.Close()
 
 	loadBalancer, err := client.UpdateLoadBalancerIdleTimeout("id", idleTimeout)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutils.AssertEqual(t, loadBalancer.LoadBalancerID, "id")
+}
+
+func TestUpdateLoadBalancerCrossZone(t *testing.T) {
+	crossZone := true
+
+	handler := func(w http.ResponseWriter, r *http.Request) {
+		testutils.AssertEqual(t, r.Method, "PUT")
+		testutils.AssertEqual(t, r.URL.Path, "/loadbalancer/id/crosszone")
+
+		var req models.UpdateLoadBalancerCrossZoneRequest
+		Unmarshal(t, r, &req)
+
+		testutils.AssertEqual(t, req.CrossZone, crossZone)
+
+		MarshalAndWrite(t, w, models.LoadBalancer{LoadBalancerID: "id"}, 200)
+	}
+
+	client, server := newClientAndServer(handler)
+	defer server.Close()
+
+	loadBalancer, err := client.UpdateLoadBalancerCrossZone("id", crossZone)
 	if err != nil {
 		t.Fatal(err)
 	}
