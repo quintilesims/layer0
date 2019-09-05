@@ -90,6 +90,22 @@ certificate_name="l0-$LAYER0_PREFIX-api"
     l0 deploy delete guestbook:latest
 }
 
+@test "loadbalancer create --disable-cross-zone test loadbalancer5" {
+    l0 loadbalancer create --disable-cross-zone test loadbalancer5
+}
+
+@test "loadbalancer cross-zone loadbalancer5" {
+    l0 loadbalancer cross-zone loadbalancer5
+}
+
+@test "loadbalancer cross-zone loadbalancer5 --disable" {
+    l0 loadbalancer cross-zone loadbalancer5 --disable
+}
+
+@test "loadbalancer cross-zone loadbalancer5 --enable" {
+    l0 loadbalancer cross-zone loadbalancer5 --enable
+}
+
 # this deletes the remaining service(s) and loadbalancer(s)
 @test "environment delete --wait test" {
     l0 environment delete --wait test

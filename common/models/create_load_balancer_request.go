@@ -7,4 +7,5 @@ type CreateLoadBalancerRequest struct {
 	Ports            []Port      `json:"ports"`
 	HealthCheck      HealthCheck `json:"health_check"`
 	IdleTimeout      int         `json:"idle_timeout"`
+	CrossZone        bool        `json:"cross_zone"`
 }

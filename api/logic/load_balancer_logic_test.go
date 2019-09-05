@@ -131,7 +131,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	}
 
 	testLogic.Backend.EXPECT().
-		CreateLoadBalancer("name", "e1", true, []models.Port{}, healthCheck, 60).
+		CreateLoadBalancer("name", "e1", true, []models.Port{}, healthCheck, 60, false).
 		Return(retLoadBalancer, nil)
 
 	request := models.CreateLoadBalancerRequest{
@@ -141,6 +141,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		Ports:            []models.Port{},
 		HealthCheck:      healthCheck,
 		IdleTimeout:      60,
+		CrossZone:        false,
 	}
 
 	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
@@ -284,4 +285,23 @@ func TestUpdateLoadBalancerIdleTimeout(t *testing.T) {
 	}
 
 	testutils.AssertEqual(t, received.IdleTimeout, idleTimeout)
+}
+
+func TestUpdateLoadBalancerCrossZone(t *testing.T) {
+	testLogic, ctrl := NewTestLogic(t)
+	defer ctrl.Finish()
+
+	crossZone := true
+
+	testLogic.Backend.EXPECT().
+		UpdateLoadBalancerCrossZone("lb_id", crossZone).
+		Return(&models.LoadBalancer{CrossZone: crossZone}, nil)
+
+	loadBalancerLogic := NewL0LoadBalancerLogic(testLogic.Logic())
+	received, err := loadBalancerLogic.UpdateLoadBalancerCrossZone("lb_id", crossZone)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	testutils.AssertEqual(t, received.CrossZone, crossZone)
 }

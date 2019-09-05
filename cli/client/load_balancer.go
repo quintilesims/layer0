@@ -4,7 +4,7 @@ import (
 	"github.com/quintilesims/layer0/common/models"
 )
 
-func (c *APIClient) CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool, idleTimeout int) (*models.LoadBalancer, error) {
+func (c *APIClient) CreateLoadBalancer(name, environmentID string, healthCheck models.HealthCheck, ports []models.Port, isPublic bool, idleTimeout int, crossZone bool) (*models.LoadBalancer, error) {
 	req := models.CreateLoadBalancerRequest{
 		LoadBalancerName: name,
 		EnvironmentID:    environmentID,
@@ -12,6 +12,7 @@ func (c *APIClient) CreateLoadBalancer(name, environmentID string, healthCheck m
 		Ports:            ports,
 		IsPublic:         isPublic,
 		IdleTimeout:      idleTimeout,
+		CrossZone:        crossZone,
 	}
 
 	var loadBalancer *models.LoadBalancer
@@ -82,6 +83,19 @@ func (c *APIClient) UpdateLoadBalancerIdleTimeout(id string, idleTimeout int) (*
 
 	var loadBalancer *models.LoadBalancer
 	if err := c.Execute(c.Sling("loadbalancer/").Put(id+"/idletimeout").BodyJSON(req), &loadBalancer); err != nil {
+		return nil, err
+	}
+
+	return loadBalancer, nil
+}
+
+func (c *APIClient) UpdateLoadBalancerCrossZone(id string, crossZone bool) (*models.LoadBalancer, error) {
+	req := models.UpdateLoadBalancerCrossZoneRequest{
+		CrossZone: crossZone,
+	}
+
+	var loadBalancer *models.LoadBalancer
+	if err := c.Execute(c.Sling("loadbalancer/").Put(id+"/crosszone").BodyJSON(req), &loadBalancer); err != nil {
 		return nil, err
 	}
 

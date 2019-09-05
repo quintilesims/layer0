@@ -260,6 +260,28 @@ func (t *TextPrinter) PrintLoadBalancerIdleTimeout(loadBalancer *models.LoadBala
 	return nil
 }
 
+func (t *TextPrinter) PrintLoadBalancerCrossZone(loadBalancer *models.LoadBalancer) error {
+	getEnvironment := func(l *models.LoadBalancer) string {
+		if l.EnvironmentName != "" {
+			return l.EnvironmentName
+		}
+
+		return l.EnvironmentID
+	}
+
+	rows := []string{"LOADBALANCER ID | LOADBALANCER NAME | ENVIRONMENT | CROSS-ZONE "}
+	row := fmt.Sprintf("%s | %s | %s | %t",
+		loadBalancer.LoadBalancerID,
+		loadBalancer.LoadBalancerName,
+		getEnvironment(loadBalancer),
+		loadBalancer.CrossZone)
+
+	rows = append(rows, row)
+
+	fmt.Println(columnize.SimpleFormat(rows))
+	return nil
+}
+
 func (t *TextPrinter) PrintLogs(logs ...*models.LogFile) error {
 	for _, l := range logs {
 		fmt.Println(l.Name)

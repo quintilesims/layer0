@@ -5,10 +5,9 @@
 package mock_autoscaling
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	autoscaling "github.com/quintilesims/layer0/common/aws/autoscaling"
+	reflect "reflect"
 )
 
 // MockProvider is a mock of Provider interface

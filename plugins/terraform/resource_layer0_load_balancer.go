@@ -106,6 +106,11 @@ func resourceLayer0LoadBalancer() *schema.Resource {
 				Optional: true,
 				Default:  60,
 			},
+			"cross_zone": {
+				Type:     schema.TypeBool,
+				Optional: true,
+				Default:  true,
+			},
 		},
 	}
 }
@@ -119,6 +124,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 	ports := expandPorts(d.Get("port").(*schema.Set).List())
 	healthCheck := expandHealthCheck(d.Get("health_check"))
 	idleTimeout := d.Get("idle_timeout").(int)
+	crossZone := d.Get("cross_zone").(bool)
 
 	if healthCheck == nil {
 		healthCheck = &models.HealthCheck{
@@ -130,7 +136,7 @@ func resourceLayer0LoadBalancerCreate(d *schema.ResourceData, meta interface{}) 
 		}
 	}
 
-	loadBalancer, err := client.API.CreateLoadBalancer(name, environmentID, *healthCheck, ports, !private, idleTimeout)
+	loadBalancer, err := client.API.CreateLoadBalancer(name, environmentID, *healthCheck, ports, !private, idleTimeout, crossZone)
 	if err != nil {
 		return err
 	}
@@ -161,6 +167,7 @@ func resourceLayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) er
 	d.Set("port", flattenPorts(loadBalancer.Ports))
 	d.Set("url", loadBalancer.URL)
 	d.Set("idle_timeout", loadBalancer.IdleTimeout)
+	d.Set("cross_zone", loadBalancer.CrossZone)
 
 	return nil
 }
@@ -189,6 +196,14 @@ func resourceLayer0LoadBalancerUpdate(d *schema.ResourceData, meta interface{}) 
 		idleTimeout := d.Get("idle_timeout").(int)
 
 		if _, err := client.API.UpdateLoadBalancerIdleTimeout(loadBalancerID, idleTimeout); err != nil {
+			return err
+		}
+	}
+
+	if d.HasChange("cross_zone") {
+		crossZone := d.Get("cross_zone").(bool)
+
+		if _, err := client.API.UpdateLoadBalancerCrossZone(loadBalancerID, crossZone); err != nil {
 			return err
 		}
 	}

@@ -84,6 +84,14 @@ func (l *LoadBalancerHandler) Routes() *restful.WebService {
 		Doc("Update load balancer idle timeout").
 		Writes(models.LoadBalancer{}))
 
+	service.Route(service.PUT("{id}/crosszone").
+		Filter(basicAuthenticate).
+		To(l.UpdateLoadBalancerCrossZone).
+		Reads(models.UpdateLoadBalancerCrossZoneRequest{}).
+		Param(id).
+		Doc("Update load balancer cross-zone load balancing").
+		Writes(models.LoadBalancer{}))
+
 	return service
 }
 
@@ -208,6 +216,29 @@ func (l *LoadBalancerHandler) UpdateLoadBalancerIdleTimeout(request *restful.Req
 	}
 
 	loadBalancer, err := l.LoadBalancerLogic.UpdateLoadBalancerIdleTimeout(id, req.IdleTimeout)
+	if err != nil {
+		ReturnError(response, err)
+		return
+	}
+
+	response.WriteAsJson(loadBalancer)
+}
+
+func (l *LoadBalancerHandler) UpdateLoadBalancerCrossZone(request *restful.Request, response *restful.Response) {
+	id := request.PathParameter("id")
+	if id == "" {
+		err := fmt.Errorf("Parameter 'id' is required")
+		BadRequest(response, errors.MissingParameter, err)
+		return
+	}
+
+	var req models.UpdateLoadBalancerCrossZoneRequest
+	if err := request.ReadEntity(&req); err != nil {
+		BadRequest(response, errors.InvalidJSON, err)
+		return
+	}
+
+	loadBalancer, err := l.LoadBalancerLogic.UpdateLoadBalancerCrossZone(id, req.CrossZone)
 	if err != nil {
 		ReturnError(response, err)
 		return

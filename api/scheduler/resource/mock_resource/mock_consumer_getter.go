@@ -5,10 +5,9 @@
 package mock_resource
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	resource "github.com/quintilesims/layer0/api/scheduler/resource"
+	reflect "reflect"
 )
 
 // MockConsumerGetter is a mock of ConsumerGetter interface
