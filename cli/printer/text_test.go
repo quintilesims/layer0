@@ -268,6 +268,48 @@ func ExampleTextPrintLoadBalancerIdleTimeout() {
 	// id2              lb2                eid1         85
 }
 
+func ExampleTextPrintLoadBalancerCrossZone() {
+	printer := &TextPrinter{}
+	loadBalancer1 := &models.LoadBalancer{
+		LoadBalancerID:   "id1",
+		LoadBalancerName: "lb1",
+		EnvironmentID:    "eid1",
+		EnvironmentName:  "ename1",
+		HealthCheck: models.HealthCheck{
+			Target:             "tcp:22",
+			Interval:           5,
+			Timeout:            30,
+			HealthyThreshold:   10,
+			UnhealthyThreshold: 2,
+		},
+		IdleTimeout: 75,
+		CrossZone:   true,
+	}
+
+	loadBalancer2 := &models.LoadBalancer{
+		LoadBalancerID:   "id2",
+		LoadBalancerName: "lb2",
+		EnvironmentID:    "eid1",
+		HealthCheck: models.HealthCheck{
+			Target:             "http:80/health",
+			Interval:           6,
+			Timeout:            10,
+			HealthyThreshold:   3,
+			UnhealthyThreshold: 5,
+		},
+		IdleTimeout: 85,
+		CrossZone:   false,
+	}
+
+	printer.PrintLoadBalancerCrossZone(loadBalancer1)
+	printer.PrintLoadBalancerCrossZone(loadBalancer2)
+	// Output:
+	// LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  CROSS-ZONE
+	// id1              lb1                ename1       true
+	// LOADBALANCER ID  LOADBALANCER NAME  ENVIRONMENT  CROSS-ZONE
+	// id2              lb2                eid1         false
+}
+
 func ExampleTextPrintLogs() {
 	printer := &TextPrinter{}
 	logs := []*models.LogFile{

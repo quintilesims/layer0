@@ -33,6 +33,10 @@ func dataSourcelayer0LoadBalancer() *schema.Resource {
 				Type:     schema.TypeString,
 				Computed: true,
 			},
+			"cross_zone": {
+				Type:     schema.TypeBool,
+				Computed: true,
+			},
 		},
 	}
 }
@@ -63,5 +67,6 @@ func dataSourcelayer0LoadBalancerRead(d *schema.ResourceData, meta interface{}) 
 		"url":              loadbalancer.URL,
 		"environment_id":   loadbalancer.EnvironmentID,
 		"environment_name": loadbalancer.EnvironmentName,
+		"cross_zone":       loadbalancer.CrossZone,
 	})
 }

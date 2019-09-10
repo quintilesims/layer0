@@ -1,6 +1,7 @@
 package models
 
 type LoadBalancer struct {
+	CrossZone        bool        `json:"cross_zone"`
 	EnvironmentID    string      `json:"environment_id"`
 	EnvironmentName  string      `json:"environment_name"`
 	HealthCheck      HealthCheck `json:"health_check"`

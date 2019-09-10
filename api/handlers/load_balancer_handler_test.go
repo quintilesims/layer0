@@ -385,3 +385,32 @@ func TestUpdateLoadBalancerIdleTimeout(t *testing.T) {
 
 	RunHandlerTestCases(t, testCases)
 }
+
+func TestUpdateLoadBalancerCrossZone(t *testing.T) {
+	request := models.UpdateLoadBalancerCrossZoneRequest{CrossZone: true}
+
+	testCases := []HandlerTestCase{
+		{
+			Name: "Should call UpdateLoadBalancerCrossZone with correct params",
+			Request: &TestRequest{
+				Parameters: map[string]string{"id": "some_id"},
+				Body:       request,
+			},
+			Setup: func(ctrl *gomock.Controller) interface{} {
+				mockLogic := mock_logic.NewMockLoadBalancerLogic(ctrl)
+				mockJob := mock_logic.NewMockJobLogic(ctrl)
+
+				mockLogic.EXPECT().
+					UpdateLoadBalancerCrossZone("some_id", request.CrossZone)
+
+				return NewLoadBalancerHandler(mockLogic, mockJob)
+			},
+			Run: func(reporter *testutils.Reporter, target interface{}, req *restful.Request, resp *restful.Response, read Readf) {
+				handler := target.(*LoadBalancerHandler)
+				handler.UpdateLoadBalancerCrossZone(req, resp)
+			},
+		},
+	}
+
+	RunHandlerTestCases(t, testCases)
+}

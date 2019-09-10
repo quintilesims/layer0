@@ -73,16 +73,16 @@ func (mr *MockClientMockRecorder) CreateLink(arg0, arg1 interface{}) *gomock.Cal
 }
 
 // CreateLoadBalancer mocks base method
-func (m *MockClient) CreateLoadBalancer(arg0, arg1 string, arg2 models.HealthCheck, arg3 []models.Port, arg4 bool, arg5 int) (*models.LoadBalancer, error) {
-	ret := m.ctrl.Call(m, "CreateLoadBalancer", arg0, arg1, arg2, arg3, arg4, arg5)
+func (m *MockClient) CreateLoadBalancer(arg0, arg1 string, arg2 models.HealthCheck, arg3 []models.Port, arg4 bool, arg5 int, arg6 bool) (*models.LoadBalancer, error) {
+	ret := m.ctrl.Call(m, "CreateLoadBalancer", arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 	ret0, _ := ret[0].(*models.LoadBalancer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateLoadBalancer indicates an expected call of CreateLoadBalancer
-func (mr *MockClientMockRecorder) CreateLoadBalancer(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLoadBalancer", reflect.TypeOf((*MockClient)(nil).CreateLoadBalancer), arg0, arg1, arg2, arg3, arg4, arg5)
+func (mr *MockClientMockRecorder) CreateLoadBalancer(arg0, arg1, arg2, arg3, arg4, arg5, arg6 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateLoadBalancer", reflect.TypeOf((*MockClient)(nil).CreateLoadBalancer), arg0, arg1, arg2, arg3, arg4, arg5, arg6)
 }
 
 // CreateService mocks base method
@@ -456,6 +456,19 @@ func (m *MockClient) UpdateEnvironment(arg0 string, arg1 int) (*models.Environme
 // UpdateEnvironment indicates an expected call of UpdateEnvironment
 func (mr *MockClientMockRecorder) UpdateEnvironment(arg0, arg1 interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateEnvironment", reflect.TypeOf((*MockClient)(nil).UpdateEnvironment), arg0, arg1)
+}
+
+// UpdateLoadBalancerCrossZone mocks base method
+func (m *MockClient) UpdateLoadBalancerCrossZone(arg0 string, arg1 bool) (*models.LoadBalancer, error) {
+	ret := m.ctrl.Call(m, "UpdateLoadBalancerCrossZone", arg0, arg1)
+	ret0, _ := ret[0].(*models.LoadBalancer)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// UpdateLoadBalancerCrossZone indicates an expected call of UpdateLoadBalancerCrossZone
+func (mr *MockClientMockRecorder) UpdateLoadBalancerCrossZone(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateLoadBalancerCrossZone", reflect.TypeOf((*MockClient)(nil).UpdateLoadBalancerCrossZone), arg0, arg1)
 }
 
 // UpdateLoadBalancerHealthCheck mocks base method

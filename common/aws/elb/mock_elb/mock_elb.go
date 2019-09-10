@@ -170,6 +170,18 @@ func (mr *MockProviderMockRecorder) RegisterInstancesWithLoadBalancer(arg0, arg1
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterInstancesWithLoadBalancer", reflect.TypeOf((*MockProvider)(nil).RegisterInstancesWithLoadBalancer), arg0, arg1)
 }
 
+// SetCrossZone mocks base method
+func (m *MockProvider) SetCrossZone(arg0 string, arg1 bool) error {
+	ret := m.ctrl.Call(m, "SetCrossZone", arg0, arg1)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// SetCrossZone indicates an expected call of SetCrossZone
+func (mr *MockProviderMockRecorder) SetCrossZone(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetCrossZone", reflect.TypeOf((*MockProvider)(nil).SetCrossZone), arg0, arg1)
+}
+
 // SetIdleTimeout mocks base method
 func (m *MockProvider) SetIdleTimeout(arg0 string, arg1 int) error {
 	ret := m.ctrl.Call(m, "SetIdleTimeout", arg0, arg1)

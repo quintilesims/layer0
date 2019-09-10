@@ -167,7 +167,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 	}
 
 	tc.Client.EXPECT().
-		CreateLoadBalancer("name", "environmentID", healthCheck, ports, false, 60).
+		CreateLoadBalancer("name", "environmentID", healthCheck, ports, false, 60, true).
 		Return(&models.LoadBalancer{}, nil)
 
 	flags := map[string]interface{}{
@@ -180,6 +180,7 @@ func TestCreateLoadBalancer(t *testing.T) {
 		"healthcheck-healthy-threshold":   10,
 		"healthcheck-unhealthy-threshold": 2,
 		"idle-timeout":                    60,
+		"disable-cross-zone":              false,
 	}
 
 	c := testutils.GetCLIContext(t, []string{"environment", "name"}, flags)
@@ -431,6 +432,88 @@ func TestLoadBalancerIdleTimeout_userInputErrors(t *testing.T) {
 
 	for name, c := range contexts {
 		if err := command.IdleTimeout(c); err == nil {
+			t.Fatalf("%s: error was nil!", name)
+		}
+	}
+}
+
+func TestLoadBalancerCrossZone_noUpdateRequired(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(tc.Command())
+
+	tc.Resolver.EXPECT().
+		Resolve("load_balancer", "env").
+		Return([]string{"id"}, nil)
+
+	tc.Client.EXPECT().
+		GetLoadBalancer("id").
+		Return(&models.LoadBalancer{}, nil)
+
+	c := testutils.GetCLIContext(t, []string{"env", "name"}, nil)
+	if err := command.CrossZone(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadBalancerCrossZone_enableCrossZone(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(tc.Command())
+
+	tc.Resolver.EXPECT().
+		Resolve("load_balancer", "env").
+		Return([]string{"id"}, nil)
+
+	tc.Client.EXPECT().
+		GetLoadBalancer("id").
+		Return(&models.LoadBalancer{}, nil)
+
+	tc.Client.EXPECT().
+		UpdateLoadBalancerCrossZone("id", true).
+		Return(&models.LoadBalancer{}, nil)
+
+	c := testutils.GetCLIContext(t, []string{"env", "name"}, map[string]interface{}{"enable": true})
+	if err := command.CrossZone(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadBalancerCrossZone_disableCrossZone(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(tc.Command())
+
+	tc.Resolver.EXPECT().
+		Resolve("load_balancer", "env").
+		Return([]string{"id"}, nil)
+
+	tc.Client.EXPECT().
+		GetLoadBalancer("id").
+		Return(&models.LoadBalancer{}, nil)
+
+	tc.Client.EXPECT().
+		UpdateLoadBalancerCrossZone("id", false).
+		Return(&models.LoadBalancer{}, nil)
+
+	c := testutils.GetCLIContext(t, []string{"env", "name"}, map[string]interface{}{"disable": true})
+	if err := command.CrossZone(c); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadBalancerCrossZone_userInputErrors(t *testing.T) {
+	tc, ctrl := newTestCommand(t)
+	defer ctrl.Finish()
+	command := NewLoadBalancerCommand(tc.Command())
+
+	contexts := map[string]*cli.Context{
+		"Missing NAME arg": testutils.GetCLIContext(t, nil, nil),
+		"Both '--enable' and '--disable' flags passed": testutils.GetCLIContext(t, []string{"name"}, map[string]interface{}{"enable": true, "disable": true}),
+	}
+
+	for name, c := range contexts {
+		if err := command.CrossZone(c); err == nil {
 			t.Fatalf("%s: error was nil!", name)
 		}
 	}

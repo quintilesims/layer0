@@ -5,10 +5,9 @@
 package mock_cloudwatchlogs
 
 import (
-	reflect "reflect"
-
 	gomock "github.com/golang/mock/gomock"
 	cloudwatchlogs "github.com/quintilesims/layer0/common/aws/cloudwatchlogs"
+	reflect "reflect"
 )
 
 // MockProvider is a mock of Provider interface

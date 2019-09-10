@@ -22,7 +22,7 @@ func TestLoadBalancerCreate_defaults(t *testing.T) {
 	}
 
 	mockClient.EXPECT().
-		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, ports, true, 60).
+		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, ports, true, 60, true).
 		Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil)
 
 	mockClient.EXPECT().
@@ -67,7 +67,7 @@ func TestLoadBalancerCreate_specifyPorts(t *testing.T) {
 	}
 
 	mockClient.EXPECT().
-		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, ports, false, 60).
+		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, ports, false, 60, true).
 		Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil)
 
 	mockClient.EXPECT().
@@ -93,7 +93,7 @@ func TestLoadBalancerCreate_specifyHealthCheck(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient.EXPECT().
-		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"HTTP:80/admin/healthcheck", 25, 10, 4, 3}, []models.Port{}, true, 60).
+		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"HTTP:80/admin/healthcheck", 25, 10, 4, 3}, []models.Port{}, true, 60, true).
 		Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil)
 
 	mockClient.EXPECT().
@@ -111,6 +111,31 @@ func TestLoadBalancerCreate_specifyHealthCheck(t *testing.T) {
 			HealthyThreshold:   4,
 			UnhealthyThreshold: 3,
 		}),
+	})
+
+	client := &Layer0Client{API: mockClient}
+	if err := loadBalancerResource.Create(d, client); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadBalancerCreate_specifyCrossZone(t *testing.T) {
+	ctrl, mockClient, provider := setupUnitTest(t)
+	defer ctrl.Finish()
+
+	mockClient.EXPECT().
+		CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true, 60, false).
+		Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil)
+
+	mockClient.EXPECT().
+		GetLoadBalancer("lbid").
+		Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil)
+
+	loadBalancerResource := provider.ResourcesMap["layer0_load_balancer"]
+	d := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{
+		"name":        "test-lb",
+		"environment": "test-env",
+		"cross_zone":  false,
 	})
 
 	client := &Layer0Client{API: mockClient}
@@ -143,7 +168,7 @@ func TestLoadBalancerUpdate_ports(t *testing.T) {
 
 	gomock.InOrder(
 		mockClient.EXPECT().
-			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true, 60).
+			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true, 60, true).
 			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
 
 		mockClient.EXPECT().
@@ -157,6 +182,10 @@ func TestLoadBalancerUpdate_ports(t *testing.T) {
 		// The Idle Timeout is set when the load balancer is first created
 		mockClient.EXPECT().
 			UpdateLoadBalancerIdleTimeout("lbid", 60),
+
+		// Cross-Zone Load Balancing is set when the load balancer is first created.
+		mockClient.EXPECT().
+			UpdateLoadBalancerCrossZone("lbid", true),
 
 		mockClient.EXPECT().
 			GetLoadBalancer("lbid").
@@ -199,7 +228,7 @@ func TestLoadBalancerUpdate_healthCheck(t *testing.T) {
 
 	gomock.InOrder(
 		mockClient.EXPECT().
-			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true, 60).
+			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true, 60, true).
 			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
 
 		mockClient.EXPECT().
@@ -213,6 +242,10 @@ func TestLoadBalancerUpdate_healthCheck(t *testing.T) {
 		// The Idle Timeout is set when the load balancer is first created
 		mockClient.EXPECT().
 			UpdateLoadBalancerIdleTimeout("lbid", 60),
+
+		// Cross-Zone Load Balancing is set when the load balancer is first created.
+		mockClient.EXPECT().
+			UpdateLoadBalancerCrossZone("lbid", true),
 
 		mockClient.EXPECT().
 			GetLoadBalancer("lbid").
@@ -255,8 +288,9 @@ func TestLoadBalancerUpdate_idleTimeout(t *testing.T) {
 
 	gomock.InOrder(
 		mockClient.EXPECT().
-			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true, 95).
-			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
+			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true, 95, true).
+			Return(&models.LoadBalancer{
+				LoadBalancerID: "lbid"}, nil),
 
 		mockClient.EXPECT().
 			GetLoadBalancer("lbid").
@@ -265,6 +299,9 @@ func TestLoadBalancerUpdate_idleTimeout(t *testing.T) {
 		mockClient.EXPECT().
 			UpdateLoadBalancerIdleTimeout("lbid", 120).
 			Return(&models.LoadBalancer{LoadBalancerID: "lbid", IdleTimeout: 120}, nil),
+
+		mockClient.EXPECT().
+			UpdateLoadBalancerCrossZone("lbid", true),
 
 		mockClient.EXPECT().
 			GetLoadBalancer("lbid").
@@ -282,6 +319,52 @@ func TestLoadBalancerUpdate_idleTimeout(t *testing.T) {
 		"name":         "test-lb",
 		"environment":  "test-env",
 		"idle_timeout": 120,
+	})
+
+	d2.SetId("lbid")
+
+	client := &Layer0Client{API: mockClient}
+	if err := loadBalancerResource.Create(d1, client); err != nil {
+		t.Fatal(err)
+	}
+
+	if err := loadBalancerResource.Update(d2, client); err != nil {
+		t.Fatal(err)
+	}
+}
+
+func TestLoadBalancerUpdate_crossZone(t *testing.T) {
+	ctrl, mockClient, provider := setupUnitTest(t)
+	defer ctrl.Finish()
+
+	gomock.InOrder(
+		mockClient.EXPECT().
+			CreateLoadBalancer("test-lb", "test-env", models.HealthCheck{"TCP:80", 30, 5, 2, 2}, []models.Port{}, true, 60, true).
+			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
+
+		mockClient.EXPECT().
+			GetLoadBalancer("lbid").
+			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
+
+		mockClient.EXPECT().
+			UpdateLoadBalancerIdleTimeout("lbid", 60),
+
+		mockClient.EXPECT().
+			GetLoadBalancer("lbid").
+			Return(&models.LoadBalancer{LoadBalancerID: "lbid"}, nil),
+	)
+
+	loadBalancerResource := provider.ResourcesMap["layer0_load_balancer"]
+	d1 := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{
+		"name":        "test-lb",
+		"environment": "test-env",
+		"cross_zone":  true,
+	})
+
+	d2 := schema.TestResourceDataRaw(t, loadBalancerResource.Schema, map[string]interface{}{
+		"name":        "test-lb",
+		"environment": "test-env",
+		"cross_zone":  false,
 	})
 
 	d2.SetId("lbid")

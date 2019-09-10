@@ -124,7 +124,7 @@ func (e *ECSLoadBalancerManager) DeleteLoadBalancer(loadBalancerID string) error
 		return err
 	}
 
-	// wait a couple minutes for the elb and it's network interfaces to delete
+	// wait a couple minutes for the elb and its network interfaces to delete
 	// todo: using waiters seems pretty verbose - should find a way to clean this up
 	if securityGroup != nil {
 		check := func() (bool, error) {
@@ -216,6 +216,7 @@ func (e *ECSLoadBalancerManager) populateModel(description *elb.LoadBalancerDesc
 		URL:            stringOrEmpty(description.DNSName),
 		HealthCheck:    healthCheck,
 		IdleTimeout:    int(aws.Int64Value(lbAttributes.ConnectionSettings.IdleTimeout)),
+		CrossZone:      bool(aws.BoolValue(lbAttributes.CrossZoneLoadBalancing.Enabled)),
 	}
 
 	return model
@@ -257,6 +258,7 @@ func (e *ECSLoadBalancerManager) CreateLoadBalancer(
 	ports []models.Port,
 	healthCheck models.HealthCheck,
 	idleTimeout int,
+	crossZone bool,
 ) (*models.LoadBalancer, error) {
 	// we generate a hashed id for load balancers since aws does not enforce unique load balancer names
 	loadBalancerID := id.GenerateHashedEntityID(loadBalancerName)
@@ -277,6 +279,11 @@ func (e *ECSLoadBalancerManager) CreateLoadBalancer(
 		return nil, err
 	}
 
+	// Then set the load balancer's cross-zone load balancing
+	if err := e.setCrossZone(ecsLoadBalancerID, crossZone); err != nil {
+		return nil, err
+	}
+
 	model := &models.LoadBalancer{
 		LoadBalancerID:   ecsLoadBalancerID.L0LoadBalancerID(),
 		LoadBalancerName: loadBalancerName,
@@ -285,6 +292,7 @@ func (e *ECSLoadBalancerManager) CreateLoadBalancer(
 		Ports:            ports,
 		HealthCheck:      healthCheck,
 		IdleTimeout:      idleTimeout,
+		CrossZone:        crossZone,
 	}
 
 	return model, nil
@@ -375,6 +383,15 @@ func (e *ECSLoadBalancerManager) UpdateLoadBalancerIdleTimeout(loadBalancerID st
 	return e.GetLoadBalancer(loadBalancerID)
 }
 
+func (e *ECSLoadBalancerManager) UpdateLoadBalancerCrossZone(loadBalancerID string, crossZone bool) (*models.LoadBalancer, error) {
+	ecsLoadBalancerID := id.L0LoadBalancerID(loadBalancerID).ECSLoadBalancerID()
+	if err := e.setCrossZone(ecsLoadBalancerID, crossZone); err != nil {
+		return nil, err
+	}
+
+	return e.GetLoadBalancer(loadBalancerID)
+}
+
 func (e *ECSLoadBalancerManager) updateHealthCheck(ecsLoadBalancerID id.ECSLoadBalancerID, healthCheck models.HealthCheck) error {
 	elbHealthCheck := elb.NewHealthCheck(
 		healthCheck.Target,
@@ -389,6 +406,10 @@ func (e *ECSLoadBalancerManager) updateHealthCheck(ecsLoadBalancerID id.ECSLoadB
 
 func (e *ECSLoadBalancerManager) setIdleTimeout(ecsLoadBalancerID id.ECSLoadBalancerID, idleTimeout int) error {
 	return e.ELB.SetIdleTimeout(ecsLoadBalancerID.String(), idleTimeout)
+}
+
+func (e *ECSLoadBalancerManager) setCrossZone(ecsLoadBalancerID id.ECSLoadBalancerID, crossZone bool) error {
+	return e.ELB.SetCrossZone(ecsLoadBalancerID.String(), crossZone)
 }
 
 func (e *ECSLoadBalancerManager) UpdateLoadBalancerPorts(loadBalancerID string, ports []models.Port) (*models.LoadBalancer, error) {

@@ -5,11 +5,10 @@
 package mock_scheduler
 
 import (
-	reflect "reflect"
-	time "time"
-
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
+	reflect "reflect"
+	time "time"
 )
 
 // MockEnvironmentScaler is a mock of EnvironmentScaler interface
