@@ -57,7 +57,7 @@ func terraformStr(t *Terraform) string {
 		result += fmt.Sprintf("backend (%s)\n", b.Type)
 
 		keys := make([]string, 0, len(b.RawConfig.Raw))
-		for k := range b.RawConfig.Raw {
+		for k, _ := range b.RawConfig.Raw {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
@@ -90,7 +90,7 @@ func modulesStr(ms []*Module) string {
 		result += fmt.Sprintf("%s\n", m.Id())
 
 		ks := make([]string, 0, len(m.RawConfig.Raw))
-		for k := range m.RawConfig.Raw {
+		for k, _ := range m.RawConfig.Raw {
 			ks = append(ks, k)
 		}
 		sort.Strings(ks)
@@ -143,6 +143,46 @@ func outputsStr(os []*Output) string {
 				result += fmt.Sprintf("    %s: %s\n", kind, str)
 			}
 		}
+
+		if o.Description != "" {
+			result += fmt.Sprintf("  description\n    %s\n", o.Description)
+		}
+	}
+
+	return strings.TrimSpace(result)
+}
+
+func localsStr(ls []*Local) string {
+	ns := make([]string, 0, len(ls))
+	m := make(map[string]*Local)
+	for _, l := range ls {
+		ns = append(ns, l.Name)
+		m[l.Name] = l
+	}
+	sort.Strings(ns)
+
+	result := ""
+	for _, n := range ns {
+		l := m[n]
+
+		result += fmt.Sprintf("%s\n", n)
+
+		if len(l.RawConfig.Variables) > 0 {
+			result += fmt.Sprintf("  vars\n")
+			for _, rawV := range l.RawConfig.Variables {
+				kind := "unknown"
+				str := rawV.FullKey()
+
+				switch rawV.(type) {
+				case *ResourceVariable:
+					kind = "resource"
+				case *UserVariable:
+					kind = "user"
+				}
+
+				result += fmt.Sprintf("    %s: %s\n", kind, str)
+			}
+		}
 	}
 
 	return strings.TrimSpace(result)
@@ -167,7 +207,7 @@ func providerConfigsStr(pcs []*ProviderConfig) string {
 		result += fmt.Sprintf("%s\n", n)
 
 		keys := make([]string, 0, len(pc.RawConfig.Raw))
-		for k := range pc.RawConfig.Raw {
+		for k, _ := range pc.RawConfig.Raw {
 			keys = append(keys, k)
 		}
 		sort.Strings(keys)
@@ -222,7 +262,7 @@ func resourcesStr(rs []*Resource) string {
 			r.RawCount.Value())
 
 		ks := make([]string, 0, len(r.RawConfig.Raw))
-		for k := range r.RawConfig.Raw {
+		for k, _ := range r.RawConfig.Raw {
 			ks = append(ks, k)
 		}
 		sort.Strings(ks)
@@ -246,7 +286,7 @@ func resourcesStr(rs []*Resource) string {
 				}
 
 				ks := make([]string, 0, len(p.RawConfig.Raw))
-				for k := range p.RawConfig.Raw {
+				for k, _ := range p.RawConfig.Raw {
 					ks = append(ks, k)
 				}
 				sort.Strings(ks)
@@ -268,7 +308,7 @@ func resourcesStr(rs []*Resource) string {
 			result += fmt.Sprintf("  vars\n")
 
 			ks := make([]string, 0, len(r.RawConfig.Variables))
-			for k := range r.RawConfig.Variables {
+			for k, _ := range r.RawConfig.Variables {
 				ks = append(ks, k)
 			}
 			sort.Strings(ks)
