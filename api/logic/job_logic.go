@@ -99,7 +99,21 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 	if err != nil {
 		return nil, err
 	}
-
+	var jobTTLHours int
+	switch jobType {
+	case types.CreateTaskJob:
+		jobTTLHours = config.CREATE_TASK_JOB_TTL
+	case types.DeleteEnvironmentJob:
+		jobTTLHours = config.DELETE_ENVIRONMENT_JOB_TTL
+	case types.DeleteLoadBalancerJob:
+		jobTTLHours = config.DELETE_LOAD_BALANCER_JOB_TTL
+	case types.DeleteServiceJob:
+		jobTTLHours = config.DELETE_SERVICE_JOB_TTL
+	case types.DeleteTaskJob:
+		jobTTLHours = config.DELETE_TASK_JOB_TTL
+	default:
+		jobTTLHours = 24
+	}
 	job := &models.Job{
 		JobID:       jobID,
 		TaskID:      taskID,
@@ -107,6 +121,7 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 		JobType:     int64(jobType),
 		Request:     reqStr,
 		TimeCreated: time.Now(),
+		TimeToExist: time.Now().Add(time.Hour * time.Duration(jobTTLHours)),
 	}
 
 	if err := this.JobStore.Insert(job); err != nil {

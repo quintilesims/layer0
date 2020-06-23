@@ -2,17 +2,20 @@ package tag_store
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
 type DynamoTagSchema struct {
-	EntityType string
-	EntityID   string
-	Tags       map[string]string
+	EntityType  string
+	EntityID    string
+	Tags        map[string]string
+	TimeToExist time.Time
 }
 
 func (s DynamoTagSchema) ToTags() models.Tags {
@@ -96,10 +99,14 @@ func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
 }
 
 func (d *DynamoTagStore) Insert(tag models.Tag) error {
+
 	schema := DynamoTagSchema{
 		EntityType: tag.EntityType,
 		EntityID:   tag.EntityID,
 		Tags:       map[string]string{tag.Key: tag.Value},
+	}
+	if schema.EntityType == "task" {
+		schema.TimeToExist = time.Now().Add(time.Hour * time.Duration(config.TASK_TAG_TTL))
 	}
 
 	if err := d.table.Put(schema).If("attribute_not_exists(EntityType)").Run(); err != nil {
