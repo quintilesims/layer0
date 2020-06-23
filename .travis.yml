@@ -18,6 +18,7 @@ before_deploy:
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
   - go get github.com/blang/expenv
   - go install github.com/blang/expenv
+  - go mod vendor
   - make release
 
 deploy:
