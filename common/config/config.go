@@ -72,7 +72,8 @@ const (
 
 // tag ttl expire time in hours
 const (
-	TASK_TAG_TTL = 24
+	TASK_TAG_TTL       = 24
+	DEPLOY_JOB_TAG_TTL = 72
 )
 
 var RequiredAPIVariables = []string{

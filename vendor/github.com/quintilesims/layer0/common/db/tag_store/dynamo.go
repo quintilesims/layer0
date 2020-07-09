@@ -2,6 +2,7 @@ package tag_store
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -12,10 +13,9 @@ import (
 )
 
 type DynamoTagSchema struct {
-	EntityType  string
-	EntityID    string
-	Tags        map[string]string
-	TimeToExist int64
+	EntityType string
+	EntityID   string
+	Tags       map[string]string
 }
 
 func (s DynamoTagSchema) ToTags() models.Tags {
@@ -105,20 +105,30 @@ func (d *DynamoTagStore) Insert(tag models.Tag) error {
 		EntityID:   tag.EntityID,
 		Tags:       map[string]string{tag.Key: tag.Value},
 	}
-	if schema.EntityType == "task" {
-		schema.TimeToExist = time.Now().Add(time.Hour * time.Duration(config.TASK_TAG_TTL)).Unix()
-	} else {
-		schema.TimeToExist = 1<<63 - 1 //largest int64
-	}
 
 	if err := d.table.Put(schema).If("attribute_not_exists(EntityType)").Run(); err != nil {
 		if err, ok := err.(awserr.Error); ok && err.Code() == "ConditionalCheckFailedException" {
 			return d.insertKey(tag)
 		}
-
 		return err
 	}
 
+	//Add TTL value
+	if tag.EntityType == "task" {
+		d.addTTLValue(tag, config.TASK_TAG_TTL)
+	} else if tag.EntityType == "deploy" && strings.HasPrefix(tag.EntityID, "job.") {
+		d.addTTLValue(tag, config.DEPLOY_JOB_TAG_TTL)
+	}
+	return nil
+}
+
+func (d *DynamoTagStore) addTTLValue(tag models.Tag, ttlHours int) error {
+	if addError := d.table.Update("EntityType", tag.EntityType).
+		Range("EntityID", tag.EntityID).
+		Add("TimeToExist", time.Now().Add(time.Hour*time.Duration(ttlHours)).Unix()).
+		Run(); addError != nil {
+		return addError
+	}
 	return nil
 }
 
