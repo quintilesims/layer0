@@ -1,6 +1,7 @@
 package dynamo
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
@@ -15,6 +16,7 @@ type Put struct {
 	condition string
 
 	err error
+	cc  *ConsumedCapacity
 }
 
 // Put creates a new request to create or replace an item.
@@ -31,25 +33,51 @@ func (table Table) Put(item interface{}) *Put {
 // Use single quotes to specificy reserved names inline (like 'Count').
 // Use the placeholder ? within the expression to substitute values, and use $ for names.
 // You need to use quoted or placeholder names when the name is a reserved word in DynamoDB.
+// Multiple calls to If will be combined with AND.
 func (p *Put) If(expr string, args ...interface{}) *Put {
+	expr = wrapExpr(expr)
 	expr, err := p.subExpr(expr, args...)
 	p.setError(err)
-	p.condition = expr
+	if p.condition != "" {
+		p.condition += " AND "
+	}
+	p.condition += expr
+	return p
+}
+
+// ConsumedCapacity will measure the throughput capacity consumed by this operation and add it to cc.
+func (p *Put) ConsumedCapacity(cc *ConsumedCapacity) *Put {
+	p.cc = cc
 	return p
 }
 
 // Run executes this put.
 func (p *Put) Run() error {
+	ctx, cancel := defaultContext()
+	defer cancel()
+	return p.RunWithContext(ctx)
+}
+
+// Run executes this put.
+func (p *Put) RunWithContext(ctx aws.Context) error {
 	p.returnType = "NONE"
-	_, err := p.run()
+	_, err := p.run(ctx)
 	return err
 }
 
 // OldValue executes this put, unmarshaling the previous value into out.
 // Returns ErrNotFound is there was no previous value.
 func (p *Put) OldValue(out interface{}) error {
+	ctx, cancel := defaultContext()
+	defer cancel()
+	return p.OldValueWithContext(ctx, out)
+}
+
+// OldValueWithContext executes this put, unmarshaling the previous value into out.
+// Returns ErrNotFound is there was no previous value.
+func (p *Put) OldValueWithContext(ctx aws.Context, out interface{}) error {
 	p.returnType = "ALL_OLD"
-	output, err := p.run()
+	output, err := p.run(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -59,16 +87,19 @@ func (p *Put) OldValue(out interface{}) error {
 	return unmarshalItem(output.Attributes, out)
 }
 
-func (p *Put) run() (output *dynamodb.PutItemOutput, err error) {
+func (p *Put) run(ctx aws.Context) (output *dynamodb.PutItemOutput, err error) {
 	if p.err != nil {
 		return nil, p.err
 	}
 
 	req := p.input()
-	retry(func() error {
-		output, err = p.table.db.client.PutItem(req)
+	retry(ctx, func() error {
+		output, err = p.table.db.client.PutItemWithContext(ctx, req)
 		return err
 	})
+	if p.cc != nil {
+		addConsumedCapacity(p.cc, output.ConsumedCapacity)
+	}
 	return
 }
 
@@ -83,11 +114,33 @@ func (p *Put) input() *dynamodb.PutItemInput {
 	if p.condition != "" {
 		input.ConditionExpression = &p.condition
 	}
+	if p.cc != nil {
+		input.ReturnConsumedCapacity = aws.String(dynamodb.ReturnConsumedCapacityIndexes)
+	}
 	return input
 }
 
-func (p *Put) setError(err error) {
+func (p *Put) writeTxItem() (*dynamodb.TransactWriteItem, error) {
 	if p.err != nil {
+		return nil, p.err
+	}
+	input := p.input()
+	item := &dynamodb.TransactWriteItem{
+		Put: &dynamodb.Put{
+			TableName:                 input.TableName,
+			Item:                      input.Item,
+			ExpressionAttributeNames:  input.ExpressionAttributeNames,
+			ExpressionAttributeValues: input.ExpressionAttributeValues,
+			ConditionExpression:       input.ConditionExpression,
+			// TODO: add support when aws-sdk-go updates
+			// ReturnValuesOnConditionCheckFailure: aws.String(dynamodb.ReturnValuesOnConditionCheckFailureAllOld),
+		},
+	}
+	return item, nil
+}
+
+func (p *Put) setError(err error) {
+	if p.err == nil {
 		p.err = err
 	}
 }
