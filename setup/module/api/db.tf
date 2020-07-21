@@ -15,6 +15,11 @@ resource "aws_dynamodb_table" "tags" {
     name = "EntityID"
     type = "S"
   }
+  
+  ttl {
+    attribute_name = "TimeToExist"
+    enabled        = true
+  }
 }
 
 resource "aws_dynamodb_table" "jobs" {
@@ -26,6 +31,10 @@ resource "aws_dynamodb_table" "jobs" {
   attribute {
     name = "JobID"
     type = "S"
+  }
+  ttl {
+    attribute_name = "TimeToExist"
+    enabled        = true
   }
 }
 

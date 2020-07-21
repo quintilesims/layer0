@@ -61,6 +61,21 @@ const (
 	API_SERVICE_NAME       = "api"
 )
 
+// job ttl expire time in hours
+const (
+	CREATE_TASK_JOB_TTL          = 24
+	DELETE_TASK_JOB_TTL          = 24
+	DELETE_LOAD_BALANCER_JOB_TTL = 24
+	DELETE_SERVICE_JOB_TTL       = 24
+	DELETE_ENVIRONMENT_JOB_TTL   = 24
+)
+
+// tag ttl expire time in hours
+const (
+	TASK_TAG_TTL       = 24
+	DEPLOY_JOB_TAG_TTL = 72
+)
+
 var RequiredAPIVariables = []string{
 	AWS_ACCOUNT_ID,
 	AWS_ACCESS_KEY_ID,
