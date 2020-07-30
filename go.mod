@@ -18,12 +18,16 @@ require (
 	github.com/guregu/dynamo v1.6.1
 	github.com/hashicorp/terraform v0.11.14
 	github.com/json-iterator/go v1.1.10 // indirect
+	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
 	github.com/quintilesims/sts v0.0.0-20170809211516-82d6e9731e72
 	github.com/quintilesims/tftest v0.0.0-20180108221958-70597d446846
 	github.com/ryanuber/columnize v2.1.0+incompatible
+	github.com/sirupsen/logrus v1.6.0 // indirect
 	github.com/stretchr/testify v1.6.1
 	github.com/urfave/cli v1.22.4
 	github.com/zpatrick/go-bytesize v0.0.0-20170214182126-40b68ac70b6a
 	github.com/zpatrick/rclient v0.0.0-20191128000351-00dfceed505a // indirect
+	gopkg.in/airbrake/gobrake.v2 v2.0.9 // indirect
+	gopkg.in/gemnasium/logrus-airbrake-hook.v2 v2.1.2 // indirect
 )
