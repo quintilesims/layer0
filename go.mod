@@ -1,10 +1,8 @@
-module gitlab.ims.io/PG/layer0
+module github.com/quintilesims/layer0
 
 go 1.14
 
 replace github.com/Sirupsen/logrus v1.5.0 => github.com/sirupsen/logrus v1.0.6
-
-replace github.com/quintilesims/layer0 v0.11.1 => ./
 
 require (
 	github.com/Sirupsen/logrus v1.5.0
@@ -21,7 +19,6 @@ require (
 	github.com/hashicorp/terraform v0.11.14
 	github.com/json-iterator/go v1.1.10 // indirect
 	github.com/opencontainers/runc v0.1.1 // indirect
-	github.com/quintilesims/layer0 v0.11.1
 	github.com/quintilesims/sts v0.0.0-20170809211516-82d6e9731e72
 	github.com/quintilesims/tftest v0.0.0-20180108221958-70597d446846
 	github.com/ryanuber/columnize v2.1.0+incompatible
