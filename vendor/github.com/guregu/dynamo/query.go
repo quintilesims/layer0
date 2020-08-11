@@ -6,7 +6,6 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	// "github.com/davecgh/go-spew/spew"
 )
 
 // Query is a request to get one or more items in a table.
@@ -30,52 +29,43 @@ type Query struct {
 	consistent  bool
 	limit       int64
 	searchLimit int64
-	order       Order
+	order       *Order
 
 	subber
 
 	err error
+	cc  *ConsumedCapacity
 }
 
 var (
-	// ErrNotFound is returned when no items could be found in Get or OldValue a and similar operations.
+	// ErrNotFound is returned when no items could be found in Get or OldValue and similar operations.
 	ErrNotFound = errors.New("dynamo: no item found")
 	// ErrTooMany is returned when one item was requested, but the query returned multiple items.
 	ErrTooMany = errors.New("dynamo: too many items")
 )
 
 // Operator is an operation to apply in key comparisons.
-type Operator *string
+type Operator string
 
-// Operators used for comparing against the range key.
-var (
-	Equal          = Operator(aws.String("EQ"))
-	NotEqual       = Operator(aws.String("NE"))
-	Less           = Operator(aws.String("LT"))
-	LessOrEqual    = Operator(aws.String("LE"))
-	Greater        = Operator(aws.String("GT"))
-	GreaterOrEqual = Operator(aws.String("GE"))
-	BeginsWith     = Operator(aws.String("BEGINS_WITH"))
-	Between        = Operator(aws.String("BETWEEN"))
+// Operators used for comparing against the range key in queries.
+const (
+	Equal          Operator = "EQ"
+	NotEqual       Operator = "NE"
+	Less           Operator = "LT"
+	LessOrEqual    Operator = "LE"
+	Greater        Operator = "GT"
+	GreaterOrEqual Operator = "GE"
+	BeginsWith     Operator = "BEGINS_WITH"
+	Between        Operator = "BETWEEN"
 )
 
-// These can't be used in key comparions, so disable them for now.
-// We will probably never need these.
-// var (
-// 	IsNull      Operator = Operator(aws.String("NULL"))
-// 	NotNull              = Operator(aws.String("NOT_NULL"))
-// 	Contains             = Operator(aws.String("CONTAINS"))
-// 	NotContains          = Operator(aws.String("NOT_CONTAINS"))
-// 	In                   = Operator(aws.String("IN"))
-// )
-
 // Order is used for specifying the order of results.
-type Order *bool
+type Order bool
 
 // Orders for sorting results.
-var (
-	Ascending  = Order(aws.Bool(true))  // ScanIndexForward = true
-	Descending = Order(aws.Bool(false)) // ScanIndexForward = false
+const (
+	Ascending  Order = true  // ScanIndexForward = true
+	Descending       = false // ScanIndexForward = false
 )
 
 var (
@@ -109,6 +99,13 @@ func (q *Query) Range(name string, op Operator, values ...interface{}) *Query {
 	return q
 }
 
+// StartFrom makes this query continue from a previous one.
+// Use Query.Iter's LastEvaluatedKey.
+func (q *Query) StartFrom(key PagingKey) *Query {
+	q.startKey = key
+	return q
+}
+
 // Index specifies the name of the index that this query will operate on.
 func (q *Query) Index(name string) *Query {
 	q.index = name
@@ -117,7 +114,25 @@ func (q *Query) Index(name string) *Query {
 
 // Project limits the result attributes to the given paths.
 func (q *Query) Project(paths ...string) *Query {
-	expr, err := q.subExpr(strings.Join(paths, ", "), nil)
+	var expr string
+	for i, p := range paths {
+		if i != 0 {
+			expr += ", "
+		}
+		name, err := q.escape(p)
+		q.setError(err)
+		expr += name
+	}
+	q.projection = expr
+	return q
+}
+
+// ProjectExpr limits the result attributes to the given expression.
+// Use single quotes to specificy reserved names inline (like 'Count').
+// Use the placeholder ? within the expression to substitute values, and use $ for names.
+// You need to use quoted or placeholder names when the name is a reserved word in DynamoDB.
+func (q *Query) ProjectExpr(expr string, args ...interface{}) *Query {
+	expr, err := q.subExpr(expr, args...)
 	q.setError(err)
 	q.projection = expr
 	return q
@@ -129,6 +144,7 @@ func (q *Query) Project(paths ...string) *Query {
 // You need to use quoted or placeholder names when the name is a reserved word in DynamoDB.
 // Multiple calls to Filter will be combined with AND.
 func (q *Query) Filter(expr string, args ...interface{}) *Query {
+	expr = wrapExpr(expr)
 	expr, err := q.subExpr(expr, args...)
 	q.setError(err)
 	q.filters = append(q.filters, expr)
@@ -160,13 +176,25 @@ func (q *Query) SearchLimit(limit int64) *Query {
 // Order specifies the desired result order.
 // Requires a range key (a.k.a. partition key) to be specified.
 func (q *Query) Order(order Order) *Query {
-	q.order = order
+	q.order = &order
+	return q
+}
+
+// ConsumedCapacity will measure the throughput capacity consumed by this operation and add it to cc.
+func (q *Query) ConsumedCapacity(cc *ConsumedCapacity) *Query {
+	q.cc = cc
 	return q
 }
 
 // One executes this query and retrieves a single result,
 // unmarshaling the result to out.
 func (q *Query) One(out interface{}) error {
+	ctx, cancel := defaultContext()
+	defer cancel()
+	return q.OneWithContext(ctx, out)
+}
+
+func (q *Query) OneWithContext(ctx aws.Context, out interface{}) error {
 	if q.err != nil {
 		return q.err
 	}
@@ -176,9 +204,9 @@ func (q *Query) One(out interface{}) error {
 		req := q.getItemInput()
 
 		var res *dynamodb.GetItemOutput
-		err := retry(func() error {
+		err := retry(ctx, func() error {
 			var err error
-			res, err = q.table.db.client.GetItem(req)
+			res, err = q.table.db.client.GetItemWithContext(ctx, req)
 			if err != nil {
 				return err
 			}
@@ -190,6 +218,9 @@ func (q *Query) One(out interface{}) error {
 		if err != nil {
 			return err
 		}
+		if q.cc != nil {
+			addConsumedCapacity(q.cc, res.ConsumedCapacity)
+		}
 
 		return unmarshalItem(res.Item, out)
 	}
@@ -198,9 +229,9 @@ func (q *Query) One(out interface{}) error {
 	req := q.queryInput()
 
 	var res *dynamodb.QueryOutput
-	err := retry(func() error {
+	err := retry(ctx, func() error {
 		var err error
-		res, err = q.table.db.client.Query(req)
+		res, err = q.table.db.client.QueryWithContext(ctx, req)
 		if err != nil {
 			return err
 		}
@@ -219,12 +250,21 @@ func (q *Query) One(out interface{}) error {
 	if err != nil {
 		return err
 	}
+	if q.cc != nil {
+		addConsumedCapacity(q.cc, res.ConsumedCapacity)
+	}
 
 	return unmarshalItem(res.Items[0], out)
 }
 
 // Count executes this request, returning the number of results.
 func (q *Query) Count() (int64, error) {
+	ctx, cancel := defaultContext()
+	defer cancel()
+	return q.CountWithContext(ctx)
+}
+
+func (q *Query) CountWithContext(ctx aws.Context) (int64, error) {
 	if q.err != nil {
 		return 0, q.err
 	}
@@ -235,9 +275,9 @@ func (q *Query) Count() (int64, error) {
 		req := q.queryInput()
 		req.Select = selectCount
 
-		err := retry(func() error {
+		err := retry(ctx, func() error {
 			var err error
-			res, err = q.table.db.client.Query(req)
+			res, err = q.table.db.client.QueryWithContext(ctx, req)
 			if err != nil {
 				return err
 			}
@@ -249,6 +289,9 @@ func (q *Query) Count() (int64, error) {
 		})
 		if err != nil {
 			return 0, err
+		}
+		if q.cc != nil {
+			addConsumedCapacity(q.cc, res.ConsumedCapacity)
 		}
 
 		q.startKey = res.LastEvaluatedKey
@@ -275,6 +318,12 @@ type queryIter struct {
 // Next tries to unmarshal the next result into out.
 // Returns false when it is complete or if it runs into an error.
 func (itr *queryIter) Next(out interface{}) bool {
+	ctx, cancel := defaultContext()
+	defer cancel()
+	return itr.NextWithContext(ctx, out)
+}
+
+func (itr *queryIter) NextWithContext(ctx aws.Context, out interface{}) bool {
 	// stop if we have an error
 	if itr.err != nil {
 		return false
@@ -300,7 +349,7 @@ func (itr *queryIter) Next(out interface{}) bool {
 	}
 	if itr.output != nil && itr.idx >= len(itr.output.Items) {
 		// have we exhausted all results?
-		if itr.output.LastEvaluatedKey == nil {
+		if itr.output.LastEvaluatedKey == nil || itr.query.searchLimit > 0 {
 			return false
 		}
 
@@ -309,13 +358,24 @@ func (itr *queryIter) Next(out interface{}) bool {
 		itr.idx = 0
 	}
 
-	itr.err = retry(func() error {
+	itr.err = retry(ctx, func() error {
 		var err error
-		itr.output, err = itr.query.table.db.client.Query(itr.input)
+		itr.output, err = itr.query.table.db.client.QueryWithContext(ctx, itr.input)
 		return err
 	})
 
-	if itr.err != nil || len(itr.output.Items) == 0 {
+	if itr.err != nil {
+		return false
+	}
+	if itr.query.cc != nil {
+		addConsumedCapacity(itr.query.cc, itr.output.ConsumedCapacity)
+	}
+	if len(itr.output.Items) == 0 {
+		if itr.output.LastEvaluatedKey != nil {
+			// we need to retry until we get some data
+			return itr.NextWithContext(ctx, out)
+		}
+		// we're done
 		return false
 	}
 
@@ -331,20 +391,46 @@ func (itr *queryIter) Err() error {
 	return itr.err
 }
 
+func (itr *queryIter) LastEvaluatedKey() PagingKey {
+	if itr.output != nil {
+		return itr.output.LastEvaluatedKey
+	}
+	return nil
+}
+
 // All executes this request and unmarshals all results to out, which must be a pointer to a slice.
 func (q *Query) All(out interface{}) error {
+	ctx, cancel := defaultContext()
+	defer cancel()
+	return q.AllWithContext(ctx, out)
+}
+
+func (q *Query) AllWithContext(ctx aws.Context, out interface{}) error {
+	_, err := q.AllWithLastEvaluatedKeyContext(ctx, out)
+	return err
+}
+
+// AllWithLastEvaluatedKey executes this request and unmarshals all results to out, which must be a pointer to a slice.
+// This returns a PagingKey you can use with StartFrom to split up results.
+func (q *Query) AllWithLastEvaluatedKey(out interface{}) (PagingKey, error) {
+	ctx, cancel := defaultContext()
+	defer cancel()
+	return q.AllWithLastEvaluatedKeyContext(ctx, out)
+}
+
+func (q *Query) AllWithLastEvaluatedKeyContext(ctx aws.Context, out interface{}) (PagingKey, error) {
 	iter := &queryIter{
 		query:     q,
 		unmarshal: unmarshalAppend,
 		err:       q.err,
 	}
-	for iter.Next(out) {
+	for iter.NextWithContext(ctx, out) {
 	}
-	return iter.Err()
+	return iter.LastEvaluatedKey(), iter.Err()
 }
 
 // Iter returns a results iterator for this request.
-func (q *Query) Iter() Iter {
+func (q *Query) Iter() PagingIter {
 	iter := &queryIter{
 		query:     q,
 		unmarshal: unmarshalItem,
@@ -357,7 +443,7 @@ func (q *Query) Iter() Iter {
 // can we use the get item API?
 func (q *Query) canGetItem() bool {
 	switch {
-	case q.rangeOp != nil && q.rangeOp != Equal:
+	case q.rangeOp != "" && q.rangeOp != Equal:
 		return false
 	case q.index != "":
 		return false
@@ -397,22 +483,25 @@ func (q *Query) queryInput() *dynamodb.QueryInput {
 		req.IndexName = &q.index
 	}
 	if q.order != nil {
-		req.ScanIndexForward = q.order
+		req.ScanIndexForward = (*bool)(q.order)
+	}
+	if q.cc != nil {
+		req.ReturnConsumedCapacity = aws.String(dynamodb.ReturnConsumedCapacityIndexes)
 	}
 	return req
 }
 
 func (q *Query) keyConditions() map[string]*dynamodb.Condition {
 	conds := map[string]*dynamodb.Condition{
-		q.hashKey: {
+		q.hashKey: &dynamodb.Condition{
 			AttributeValueList: []*dynamodb.AttributeValue{q.hashValue},
-			ComparisonOperator: Equal,
+			ComparisonOperator: aws.String(string(Equal)),
 		},
 	}
-	if q.rangeKey != "" && q.rangeOp != nil {
+	if q.rangeKey != "" && q.rangeOp != "" {
 		conds[q.rangeKey] = &dynamodb.Condition{
 			AttributeValueList: q.rangeValues,
-			ComparisonOperator: q.rangeOp,
+			ComparisonOperator: aws.String(string(q.rangeOp)),
 		}
 	}
 	return conds
@@ -420,8 +509,8 @@ func (q *Query) keyConditions() map[string]*dynamodb.Condition {
 
 func (q *Query) getItemInput() *dynamodb.GetItemInput {
 	req := &dynamodb.GetItemInput{
-		TableName: &q.table.name,
-		Key:       q.keys(),
+		TableName:                &q.table.name,
+		Key:                      q.keys(),
 		ExpressionAttributeNames: q.nameExpr,
 	}
 	if q.consistent {
@@ -430,7 +519,25 @@ func (q *Query) getItemInput() *dynamodb.GetItemInput {
 	if q.projection != "" {
 		req.ProjectionExpression = &q.projection
 	}
+	if q.cc != nil {
+		req.ReturnConsumedCapacity = aws.String(dynamodb.ReturnConsumedCapacityIndexes)
+	}
 	return req
+}
+
+func (q *Query) getTxItem() (*dynamodb.TransactGetItem, error) {
+	if !q.canGetItem() {
+		return nil, errors.New("dynamo: transaction Query is too complex; no indexes or filters are allowed")
+	}
+	input := q.getItemInput()
+	return &dynamodb.TransactGetItem{
+		Get: &dynamodb.Get{
+			TableName:                input.TableName,
+			Key:                      input.Key,
+			ExpressionAttributeNames: input.ExpressionAttributeNames,
+			ProjectionExpression:     input.ProjectionExpression,
+		},
+	}, nil
 }
 
 func (q *Query) keys() map[string]*dynamodb.AttributeValue {
@@ -445,7 +552,7 @@ func (q *Query) keys() map[string]*dynamodb.AttributeValue {
 
 func (q *Query) keysAndAttribs() *dynamodb.KeysAndAttributes {
 	kas := &dynamodb.KeysAndAttributes{
-		Keys: []map[string]*dynamodb.AttributeValue{q.keys()},
+		Keys:                     []map[string]*dynamodb.AttributeValue{q.keys()},
 		ExpressionAttributeNames: q.nameExpr,
 		ConsistentRead:           &q.consistent,
 	}
@@ -456,7 +563,7 @@ func (q *Query) keysAndAttribs() *dynamodb.KeysAndAttributes {
 }
 
 func (q *Query) setError(err error) {
-	if err != nil {
+	if q.err == nil {
 		q.err = err
 	}
 }

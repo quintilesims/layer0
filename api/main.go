@@ -8,7 +8,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/emicklei/go-restful"
-	"github.com/emicklei/go-restful/swagger"
+	"github.com/emicklei/go-restful-swagger12"
 	"github.com/quintilesims/layer0/api/handlers"
 	"github.com/quintilesims/layer0/api/logic"
 	"github.com/quintilesims/layer0/common/aws/provider"

@@ -1,6 +1,7 @@
 package dynamo
 
 import (
+	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
@@ -20,6 +21,7 @@ type Delete struct {
 	condition string
 
 	err error
+	cc  *ConsumedCapacity
 }
 
 // Delete creates a new request to delete an item.
@@ -49,25 +51,48 @@ func (d *Delete) Range(name string, value interface{}) *Delete {
 // Use single quotes to specificy reserved names inline (like 'Count').
 // Use the placeholder ? within the expression to substitute values, and use $ for names.
 // You need to use quoted or placeholder names when the name is a reserved word in DynamoDB.
+// Multiple calls to If will be combined with AND.
 func (d *Delete) If(expr string, args ...interface{}) *Delete {
+	expr = wrapExpr(expr)
 	expr, err := d.subExpr(expr, args...)
 	d.setError(err)
-	d.condition = expr
+	if d.condition != "" {
+		d.condition += " AND "
+	}
+	d.condition += expr
+	return d
+}
+
+// ConsumedCapacity will measure the throughput capacity consumed by this operation and add it to cc.
+func (d *Delete) ConsumedCapacity(cc *ConsumedCapacity) *Delete {
+	d.cc = cc
 	return d
 }
 
 // Run executes this delete request.
 func (d *Delete) Run() error {
+	ctx, cancel := defaultContext()
+	defer cancel()
+	return d.RunWithContext(ctx)
+}
+
+func (d *Delete) RunWithContext(ctx aws.Context) error {
 	d.returnType = "NONE"
-	_, err := d.run()
+	_, err := d.run(ctx)
 	return err
 }
 
 // OldValue executes this delete request, unmarshaling the previous value to out.
 // Returns ErrNotFound is there was no previous value.
 func (d *Delete) OldValue(out interface{}) error {
+	ctx, cancel := defaultContext()
+	defer cancel()
+	return d.OldValueWithContext(ctx, out)
+}
+
+func (d *Delete) OldValueWithContext(ctx aws.Context, out interface{}) error {
 	d.returnType = "ALL_OLD"
-	output, err := d.run()
+	output, err := d.run(ctx)
 	switch {
 	case err != nil:
 		return err
@@ -77,18 +102,21 @@ func (d *Delete) OldValue(out interface{}) error {
 	return unmarshalItem(output.Attributes, out)
 }
 
-func (d *Delete) run() (*dynamodb.DeleteItemOutput, error) {
+func (d *Delete) run(ctx aws.Context) (*dynamodb.DeleteItemOutput, error) {
 	if d.err != nil {
 		return nil, d.err
 	}
 
 	input := d.deleteInput()
 	var output *dynamodb.DeleteItemOutput
-	err := retry(func() error {
+	err := retry(ctx, func() error {
 		var err error
-		output, err = d.table.db.client.DeleteItem(input)
+		output, err = d.table.db.client.DeleteItemWithContext(ctx, input)
 		return err
 	})
+	if d.cc != nil {
+		addConsumedCapacity(d.cc, output.ConsumedCapacity)
+	}
 	return output, err
 }
 
@@ -103,7 +131,27 @@ func (d *Delete) deleteInput() *dynamodb.DeleteItemInput {
 	if d.condition != "" {
 		input.ConditionExpression = &d.condition
 	}
+	if d.cc != nil {
+		input.ReturnConsumedCapacity = aws.String(dynamodb.ReturnConsumedCapacityIndexes)
+	}
 	return input
+}
+
+func (d *Delete) writeTxItem() (*dynamodb.TransactWriteItem, error) {
+	if d.err != nil {
+		return nil, d.err
+	}
+	input := d.deleteInput()
+	item := &dynamodb.TransactWriteItem{
+		Delete: &dynamodb.Delete{
+			TableName:                 input.TableName,
+			Key:                       input.Key,
+			ExpressionAttributeNames:  input.ExpressionAttributeNames,
+			ExpressionAttributeValues: input.ExpressionAttributeValues,
+			ConditionExpression:       input.ConditionExpression,
+		},
+	}
+	return item, nil
 }
 
 func (d *Delete) key() map[string]*dynamodb.AttributeValue {
@@ -117,7 +165,7 @@ func (d *Delete) key() map[string]*dynamodb.AttributeValue {
 }
 
 func (d *Delete) setError(err error) {
-	if err != nil {
+	if d.err == nil {
 		d.err = err
 	}
 }

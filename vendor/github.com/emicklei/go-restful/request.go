@@ -5,23 +5,15 @@ package restful
 // that can be found in the LICENSE file.
 
 import (
-	"bytes"
-	"encoding/json"
-	"encoding/xml"
-	"io"
-	"io/ioutil"
+	"compress/zlib"
 	"net/http"
-	"strings"
 )
 
 var defaultRequestContentType string
 
-var doCacheReadEntityBytes = true
-
 // Request is a wrapper for a http Request that provides convenience methods
 type Request struct {
 	Request           *http.Request
-	bodyContent       *[]byte // to cache the request body for multiple reads of ReadEntity
 	pathParameters    map[string]string
 	attributes        map[string]interface{} // for storing request-scoped values
 	selectedRoutePath string                 // root path + route path that matched the request, e.g. /meetings/{id}/attendees
@@ -44,12 +36,6 @@ func DefaultRequestContentType(mime string) {
 	defaultRequestContentType = mime
 }
 
-// SetCacheReadEntity controls whether the response data ([]byte) is cached such that ReadEntity is repeatable.
-// Default is true (due to backwardcompatibility). For better performance, you should set it to false if you don't need it.
-func SetCacheReadEntity(doCache bool) {
-	doCacheReadEntityBytes = doCache
-}
-
 // PathParameter accesses the Path parameter value by its name
 func (r *Request) PathParameter(name string) string {
 	return r.pathParameters[name]
@@ -63,6 +49,11 @@ func (r *Request) PathParameters() map[string]string {
 // QueryParameter returns the (first) Query parameter value by its name
 func (r *Request) QueryParameter(name string) string {
 	return r.Request.FormValue(name)
+}
+
+// QueryParameters returns the all the query parameters values by name
+func (r *Request) QueryParameters(name string) []string {
+	return r.Request.URL.Query()[name]
 }
 
 // BodyParameter parses the body of the request (once for typically a POST or a PUT) and returns the value of the given name or an error.
@@ -79,44 +70,36 @@ func (r *Request) HeaderParameter(name string) string {
 	return r.Request.Header.Get(name)
 }
 
-// ReadEntity checks the Accept header and reads the content into the entityPointer
-// May be called multiple times in the request-response flow
+// ReadEntity checks the Accept header and reads the content into the entityPointer.
 func (r *Request) ReadEntity(entityPointer interface{}) (err error) {
 	contentType := r.Request.Header.Get(HEADER_ContentType)
-	if doCacheReadEntityBytes {
-		return r.cachingReadEntity(contentType, entityPointer)
-	}
-	// unmarshall directly from request Body
-	return r.decodeEntity(r.Request.Body, contentType, entityPointer)
-}
+	contentEncoding := r.Request.Header.Get(HEADER_ContentEncoding)
 
-func (r *Request) cachingReadEntity(contentType string, entityPointer interface{}) (err error) {
-	var buffer []byte
-	if r.bodyContent != nil {
-		buffer = *r.bodyContent
-	} else {
-		buffer, err = ioutil.ReadAll(r.Request.Body)
+	// check if the request body needs decompression
+	if ENCODING_GZIP == contentEncoding {
+		gzipReader := currentCompressorProvider.AcquireGzipReader()
+		defer currentCompressorProvider.ReleaseGzipReader(gzipReader)
+		gzipReader.Reset(r.Request.Body)
+		r.Request.Body = gzipReader
+	} else if ENCODING_DEFLATE == contentEncoding {
+		zlibReader, err := zlib.NewReader(r.Request.Body)
 		if err != nil {
 			return err
 		}
-		r.bodyContent = &buffer
+		r.Request.Body = zlibReader
 	}
-	return r.decodeEntity(bytes.NewReader(buffer), contentType, entityPointer)
-}
 
-func (r *Request) decodeEntity(reader io.Reader, contentType string, entityPointer interface{}) (err error) {
-	if strings.Contains(contentType, MIME_XML) {
-		return xml.NewDecoder(reader).Decode(entityPointer)
+	// lookup the EntityReader, use defaultRequestContentType if needed and provided
+	entityReader, ok := entityAccessRegistry.accessorAt(contentType)
+	if !ok {
+		if len(defaultRequestContentType) != 0 {
+			entityReader, ok = entityAccessRegistry.accessorAt(defaultRequestContentType)
+		}
+		if !ok {
+			return NewError(http.StatusBadRequest, "Unable to unmarshal content of type:"+contentType)
+		}
 	}
-	if strings.Contains(contentType, MIME_JSON) || MIME_JSON == defaultRequestContentType {
-		decoder := json.NewDecoder(reader)
-		decoder.UseNumber()
-		return decoder.Decode(entityPointer)
-	}
-	if MIME_XML == defaultRequestContentType {
-		return xml.NewDecoder(reader).Decode(entityPointer)
-	}
-	return NewError(400, "Unable to unmarshal content of type:"+contentType)
+	return entityReader.Read(r, entityPointer)
 }
 
 // SetAttribute adds or replaces the attribute with the given value.
