@@ -63,17 +63,17 @@ const (
 
 // job ttl expire time in hours
 const (
-	CREATE_TASK_JOB_TTL          = 24
-	DELETE_TASK_JOB_TTL          = 24
-	DELETE_LOAD_BALANCER_JOB_TTL = 24
-	DELETE_SERVICE_JOB_TTL       = 24
-	DELETE_ENVIRONMENT_JOB_TTL   = 24
+	CREATE_TASK_JOB_TTL          = 6
+	DELETE_TASK_JOB_TTL          = 6
+	DELETE_LOAD_BALANCER_JOB_TTL = 6
+	DELETE_SERVICE_JOB_TTL       = 6
+	DELETE_ENVIRONMENT_JOB_TTL   = 6
 )
 
 // tag ttl expire time in hours
 const (
-	TASK_TAG_TTL       = 24
-	DEPLOY_JOB_TAG_TTL = 72
+	TASK_TAG_TTL       = 6
+	DEPLOY_JOB_TAG_TTL = 6
 )
 
 var RequiredAPIVariables = []string{
