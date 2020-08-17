@@ -3,7 +3,7 @@ sudo: required
 language: go
 
 go:
-  - 1.12
+  - 1.14
 
 services:
   - docker
@@ -16,8 +16,6 @@ script:
 
 before_deploy:
   - docker login -u "$DOCKER_USERNAME" -p "$DOCKER_PASSWORD"
-  - go get github.com/blang/expenv
-  - go install github.com/blang/expenv
   - make release
 
 deploy:
