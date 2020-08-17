@@ -116,6 +116,8 @@ func (d *DynamoTagStore) Insert(tag models.Tag) error {
 	//Add TTL value
 	if tag.EntityType == "task" {
 		d.addTTLValue(tag, config.TASK_TAG_TTL)
+	} else if tag.EntityType == "job" {
+		d.addTTLValue(tag, config.JOB_TAG_TTL)
 	} else if tag.EntityType == "deploy" && strings.HasPrefix(tag.EntityID, "job.") {
 		d.addTTLValue(tag, config.DEPLOY_JOB_TAG_TTL)
 	}

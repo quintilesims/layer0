@@ -74,6 +74,7 @@ const (
 const (
 	TASK_TAG_TTL       = 6
 	DEPLOY_JOB_TAG_TTL = 6
+	JOB_TAG_TTL        = 6
 )
 
 var RequiredAPIVariables = []string{
