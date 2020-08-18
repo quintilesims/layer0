@@ -64,7 +64,7 @@ func (n *Index) typeMap(variable Variable, variableName string) (Type, error) {
 func reportTypes(typesFound map[Type]struct{}) string {
 	stringTypes := make([]string, len(typesFound))
 	i := 0
-	for k := range typesFound {
+	for k, _ := range typesFound {
 		stringTypes[0] = k.String()
 		i++
 	}

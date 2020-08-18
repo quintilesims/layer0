@@ -8,7 +8,7 @@ import (
 
 	"github.com/Sirupsen/logrus"
 	"github.com/emicklei/go-restful"
-	"github.com/emicklei/go-restful/swagger"
+	swagger "github.com/emicklei/go-restful-swagger12"
 	"github.com/quintilesims/layer0/api/handlers"
 	"github.com/quintilesims/layer0/api/logic"
 	"github.com/quintilesims/layer0/common/aws/provider"
@@ -150,9 +150,6 @@ func main() {
 
 	setupRestful(*lgc)
 
-	taskLogic := logic.NewL0TaskLogic(*lgc)
-	deployLogic := logic.NewL0DeployLogic(*lgc)
-	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
 	environmentLogic := logic.NewL0EnvironmentLogic(*lgc)
 	adminLogic := logic.NewL0AdminLogic(*lgc)
 
@@ -160,15 +157,7 @@ func main() {
 		logrus.Errorf("Failed to update sql: %v", err)
 	}
 
-	jobJanitor := logic.NewJobJanitor(jobLogic)
-	tagJanitor := logic.NewTagJanitor(taskLogic, lgc.TagStore)
 	go runEnvironmentScaler(environmentLogic)
-
-	logrus.Infof("Starting Job Janitor")
-	jobJanitor.Run()
-
-	logrus.Infof("Starting Tag Janitor")
-	tagJanitor.Run()
 
 	logrus.Print("Service on localhost" + port)
 	logrus.Fatal(http.ListenAndServe(port, nil))

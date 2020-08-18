@@ -4,14 +4,6 @@
 [![Go Report Card](https://goreportcard.com/badge/github.com/zpatrick/rclient)](https://goreportcard.com/report/github.com/zpatrick/rclient)
 [![Go Doc](https://godoc.org/github.com/zpatrick/rclient?status.svg)](https://godoc.org/github.com/zpatrick/rclient)
 
-## Overview
-RClient is a Go package for interacting with REST APIs.
-While it is often recommended to just use the standard Go library when interacting with an API, 
-this all-to-often leads to duplicate code across different projects. 
-While there are already great Go rest clients out there ([sling](https://github.com/dghubble/sling), [resty](https://github.com/go-resty/resty), etc.), I find their design to be either too verbose or inflexible.
-RClient is my attempt to make a Go rest client that is simple, flexible, and small. 
-
-
 ## Getting Started
 Checkout the [Examples](https://github.com/zpatrick/rclient/tree/master/examples) folder for some working examples.
 The following snippet shows RClient interacting with Github's API:
@@ -28,10 +20,7 @@ type Repository struct {
 }
 
 func main() {
-        client, err := rclient.NewRestClient("https://api.github.com")
-        if err != nil {
-                log.Fatal(err)
-        }
+        client := rclient.NewRestClient("https://api.github.com")
 
         var repos []Repository
         if err := client.Get("/users/zpatrick/repos", &repos); err != nil {

@@ -2,10 +2,13 @@ package tag_store
 
 import (
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 )
 
@@ -96,6 +99,7 @@ func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
 }
 
 func (d *DynamoTagStore) Insert(tag models.Tag) error {
+
 	schema := DynamoTagSchema{
 		EntityType: tag.EntityType,
 		EntityID:   tag.EntityID,
@@ -106,10 +110,27 @@ func (d *DynamoTagStore) Insert(tag models.Tag) error {
 		if err, ok := err.(awserr.Error); ok && err.Code() == "ConditionalCheckFailedException" {
 			return d.insertKey(tag)
 		}
-
 		return err
 	}
 
+	//Add TTL value
+	if tag.EntityType == "task" {
+		d.addTTLValue(tag, config.TASK_TAG_TTL)
+	} else if tag.EntityType == "job" {
+		d.addTTLValue(tag, config.JOB_TAG_TTL)
+	} else if tag.EntityType == "deploy" && strings.HasPrefix(tag.EntityID, "job.") {
+		d.addTTLValue(tag, config.DEPLOY_JOB_TAG_TTL)
+	}
+	return nil
+}
+
+func (d *DynamoTagStore) addTTLValue(tag models.Tag, ttlHours int) error {
+	if addError := d.table.Update("EntityType", tag.EntityType).
+		Range("EntityID", tag.EntityID).
+		Add("TimeToExist", time.Now().Add(time.Hour*time.Duration(ttlHours)).Unix()).
+		Run(); addError != nil {
+		return addError
+	}
 	return nil
 }
 
