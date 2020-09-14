@@ -6,7 +6,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/request"
 	"github.com/aws/aws-sdk-go/aws/session"
-	"github.com/quintilesims/layer0/api/backend/ecs"
+	ecsbackend "github.com/quintilesims/layer0/api/backend/ecs"
 	"github.com/quintilesims/layer0/api/logic"
 	"github.com/quintilesims/layer0/api/scheduler"
 	"github.com/quintilesims/layer0/common/aws/autoscaling"

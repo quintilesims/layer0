@@ -2,7 +2,6 @@ package tag_store
 
 import (
 	"fmt"
-	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -99,7 +98,6 @@ func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
 }
 
 func (d *DynamoTagStore) Insert(tag models.Tag) error {
-
 	schema := DynamoTagSchema{
 		EntityType: tag.EntityType,
 		EntityID:   tag.EntityID,
@@ -112,24 +110,53 @@ func (d *DynamoTagStore) Insert(tag models.Tag) error {
 		}
 		return err
 	}
-
-	//Add TTL value
-	if tag.EntityType == "task" {
-		d.addTTLValue(tag, config.TASK_TAG_TTL)
-	} else if tag.EntityType == "job" {
-		d.addTTLValue(tag, config.JOB_TAG_TTL)
-	} else if tag.EntityType == "deploy" && strings.HasPrefix(tag.EntityID, "job.") {
-		d.addTTLValue(tag, config.DEPLOY_JOB_TAG_TTL)
-	}
+	/*
+		//Add TTL value
+		if tag.EntityType == "task" {
+			d.addTTLValue(tag, config.TASK_TAG_TTL)
+		} else if tag.EntityType == "job" {
+			d.addTTLValue(tag, config.JOB_TAG_TTL)
+		} else if tag.EntityType == "deploy" && strings.HasPrefix(tag.EntityID, "job.") {
+			d.addTTLValue(tag, config.DEPLOY_JOB_TAG_TTL)
+		}
+	*/
 	return nil
 }
 
+/*
 func (d *DynamoTagStore) addTTLValue(tag models.Tag, ttlHours int) error {
 	if addError := d.table.Update("EntityType", tag.EntityType).
 		Range("EntityID", tag.EntityID).
 		Add("TimeToExist", time.Now().Add(time.Hour*time.Duration(ttlHours)).Unix()).
 		Run(); addError != nil {
 		return addError
+	}
+	return nil
+}
+*/
+
+func (d *DynamoTagStore) AddTTLValue(enityType string, entityId string, ttlHours int) error {
+	if addError := d.table.Update("EntityType", enityType).
+		Range("EntityID", entityId).
+		Add("TimeToExist", time.Now().Add(time.Hour*time.Duration(ttlHours)).Unix()).
+		Run(); addError != nil {
+		return addError
+	}
+	return nil
+}
+
+func (d *DynamoTagStore) AddTTLValueToDeployJobs(entityType, entityID string) error {
+	tags, err := d.SelectByTypeAndID(entityType, entityID)
+	if err != nil {
+		return err
+	}
+
+	for _, tag := range tags {
+		if tag.Key == "deploy_id" {
+			if err := d.AddTTLValue("deploy", tag.Value, config.DEPLOY_JOB_TAG_TTL); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }

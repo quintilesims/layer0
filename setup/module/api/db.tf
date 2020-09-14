@@ -1,7 +1,6 @@
 resource "aws_dynamodb_table" "tags" {
   name           = "l0-${var.name}-tags"
-  read_capacity  = 5
-  write_capacity = 5
+  billing_mode   = "PAY_PER_REQUEST"
   hash_key       = "EntityType"
   range_key      = "EntityID"
   tags           = "${var.tags}"
@@ -24,8 +23,7 @@ resource "aws_dynamodb_table" "tags" {
 
 resource "aws_dynamodb_table" "jobs" {
   name           = "l0-${var.name}-jobs"
-  read_capacity  = 5
-  write_capacity = 10
+  billing_mode   = "PAY_PER_REQUEST"
   hash_key       = "JobID"
 
   attribute {

@@ -1,8 +1,13 @@
 package job_store
 
 import (
+	"time"
+
+	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/guregu/dynamo"
+	"github.com/quintilesims/layer0/common/config"
+	"github.com/quintilesims/layer0/common/db/tag_store"
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/types"
@@ -48,10 +53,30 @@ func (d *DynamoJobStore) Delete(jobID string) error {
 }
 
 func (d *DynamoJobStore) UpdateJobStatus(jobID string, status types.JobStatus) error {
+
 	if err := d.table.Update("JobID", jobID).Set("JobStatus", int64(status)).Run(); err != nil {
 		return err
 	}
-
+	if status == types.Completed {
+		//Add TTL for job entry
+		if err := d.table.Update("JobID", jobID).Set("TimeToExist", time.Now().Add(time.Hour*time.Duration(config.DELETE_COMPLETED_JOB_TTL)).Unix()).Run(); err != nil {
+			return err
+		}
+		job, err := d.SelectByID(jobID)
+		if err != nil {
+			return err
+		}
+		taskID := job.TaskID
+		creds := credentials.NewStaticCredentials(config.AWSAccessKey(), config.AWSSecretKey(), "")
+		session := session.New(config.GetAWSConfig(creds, config.AWSRegion()))
+		tagStore := tag_store.NewDynamoTagStore(session, config.DynamoTagTableName())
+		//Set TTL for task
+		tagStore.AddTTLValue("task", taskID, config.TASK_TAG_TTL)
+		//Set TTL for deploy starting with "job."
+		tagStore.AddTTLValueToDeployJobs("task", taskID)
+		//Set TTL for job
+		tagStore.AddTTLValue("job", jobID, config.JOB_TAG_TTL)
+	}
 	return nil
 }
 
