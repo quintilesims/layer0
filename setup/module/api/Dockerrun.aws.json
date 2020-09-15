@@ -3,7 +3,7 @@
         "name": "api",
         "image": "quintilesims/l0-api:${layer0_version}",
         "essential": true,
-        "memory": 16180,
+        "memory": 6180,
         "portMappings": [
             {
                 "hostPort": 80,
