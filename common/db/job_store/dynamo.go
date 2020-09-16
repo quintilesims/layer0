@@ -59,7 +59,7 @@ func (d *DynamoJobStore) UpdateJobStatus(jobID string, status types.JobStatus) e
 	}
 	if status == types.Completed {
 		//Add TTL for job entry
-		if err := d.table.Update("JobID", jobID).Set("TimeToExist", time.Now().Add(time.Hour*time.Duration(config.DELETE_COMPLETED_JOB_TTL)).Unix()).Run(); err != nil {
+		if err := d.table.Update("JobID", jobID).Add("TimeToExist", time.Now().Add(time.Hour*time.Duration(config.DELETE_COMPLETED_JOB_TTL)).Unix()).Run(); err != nil {
 			return err
 		}
 		job, err := d.SelectByID(jobID)
@@ -91,7 +91,7 @@ func (d *DynamoJobStore) SetJobMeta(jobID string, meta map[string]string) error 
 func (d *DynamoJobStore) SelectAll() ([]*models.Job, error) {
 	jobs := []*models.Job{}
 	if err := d.table.Scan().
-		Consistent(false).
+		Consistent(true).
 		All(&jobs); err != nil {
 		return nil, err
 	}

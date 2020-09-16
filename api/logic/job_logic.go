@@ -123,7 +123,6 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 		JobType:     int64(jobType),
 		Request:     reqStr,
 		TimeCreated: time.Now(),
-		//TimeToExist: time.Now().Add(time.Hour * time.Duration(jobTTLHours)).Unix(),
 	}
 
 	if err := this.JobStore.Insert(job); err != nil {
