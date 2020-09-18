@@ -119,7 +119,7 @@ func (this *Janitor) pulse() error {
 	for _, job := range jobs {
 		timeSinceCreated := this.Clock.Since(job.TimeCreated)
 		if job.JobStatus != int64(types.InProgress) {
-			if timeSinceCreated > JOB_LIFETIME || job.JobStatus == int64(types.Completed) {
+			if timeSinceCreated > JOB_LIFETIME && job.JobStatus == int64(types.Completed) {
 				jobLogger.Infof("Deleting job '%s'", job.JobID)
 				if err := this.JobLogic.Delete(job.JobID); err != nil {
 					jobLogger.Errorf("Failed to delete job '%s': %v", job.JobID, err)
