@@ -42,7 +42,7 @@ func (this *JobJanitor) pulse() error {
 	errs := []error{}
 	for _, job := range jobs {
 		timeSinceCreated := this.Clock.Since(job.TimeCreated)
-		if job.JobStatus != int64(types.InProgress) || job.JobStatus != int64(types.Error) {
+		if job.JobStatus != int64(types.InProgress) {
 			if timeSinceCreated > JOB_LIFETIME || job.JobStatus == int64(types.Completed) {
 				jobLogger.Infof("Deleting job '%s'", job.JobID)
 
