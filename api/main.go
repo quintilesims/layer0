@@ -160,15 +160,11 @@ func main() {
 		logrus.Errorf("Failed to update sql: %v", err)
 	}
 
-	jobJanitor := logic.NewJobJanitor(jobLogic)
-	tagJanitor := logic.NewTagJanitor(taskLogic, lgc.TagStore)
+	Janitor := logic.NewJanitor(jobLogic, taskLogic, lgc.JobStore, lgc.TagStore)
 	go runEnvironmentScaler(environmentLogic)
 
-	logrus.Infof("Starting Job Janitor")
-	jobJanitor.Run()
-
-	logrus.Infof("Starting Tag Janitor")
-	tagJanitor.Run()
+	logrus.Infof("Starting  Janitor")
+	Janitor.Run()
 
 	logrus.Print("Service on localhost" + port)
 	logrus.Fatal(http.ListenAndServe(port, nil))

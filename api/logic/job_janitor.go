@@ -1,17 +1,10 @@
 package logic
 
 import (
-	"time"
-
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/logutils"
 	"github.com/quintilesims/layer0/common/types"
 	"github.com/quintilesims/layer0/common/waitutils"
-)
-
-const (
-	JOB_LIFETIME           = time.Hour * 1
-	JANITOR_SLEEP_DURATION = time.Minute * 10
 )
 
 var jobLogger = logutils.NewStackTraceLogger("Job Janitor")
