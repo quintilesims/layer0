@@ -71,9 +71,6 @@ func (b *PlanGraphBuilder) Steps() []GraphTransformer {
 			Module:   b.Module,
 		},
 
-		// Add the local values
-		&LocalTransformer{Module: b.Module},
-
 		// Add the outputs
 		&OutputTransformer{Module: b.Module},
 
@@ -82,12 +79,6 @@ func (b *PlanGraphBuilder) Steps() []GraphTransformer {
 			Concrete: b.ConcreteResourceOrphan,
 			State:    b.State,
 			Module:   b.Module,
-		},
-
-		// Create orphan output nodes
-		&OrphanOutputTransformer{
-			Module: b.Module,
-			State:  b.State,
 		},
 
 		// Attach the configuration to any resources
@@ -99,7 +90,12 @@ func (b *PlanGraphBuilder) Steps() []GraphTransformer {
 		// Add root variables
 		&RootVariableTransformer{Module: b.Module},
 
-		TransformProviders(b.Providers, b.ConcreteProvider, b.Module),
+		// Create all the providers
+		&MissingProviderTransformer{Providers: b.Providers, Concrete: b.ConcreteProvider},
+		&ProviderTransformer{},
+		&DisableProviderTransformer{},
+		&ParentProviderTransformer{},
+		&AttachProviderConfigTransformer{Module: b.Module},
 
 		// Provisioner-related transformations. Only add these if requested.
 		GraphTransformIf(
@@ -111,34 +107,14 @@ func (b *PlanGraphBuilder) Steps() []GraphTransformer {
 		),
 
 		// Add module variables
-		&ModuleVariableTransformer{
-			Module: b.Module,
-		},
-
-		// Remove modules no longer present in the config
-		&RemovedModuleTransformer{Module: b.Module, State: b.State},
+		&ModuleVariableTransformer{Module: b.Module},
 
 		// Connect so that the references are ready for targeting. We'll
 		// have to connect again later for providers and so on.
 		&ReferenceTransformer{},
 
-		// Add the node to fix the state count boundaries
-		&CountBoundaryTransformer{},
-
 		// Target
-		&TargetsTransformer{
-			Targets: b.Targets,
-
-			// Resource nodes from config have not yet been expanded for
-			// "count", so we must apply targeting without indices. Exact
-			// targeting will be dealt with later when these resources
-			// DynamicExpand.
-			IgnoreIndices: true,
-		},
-
-		// Close opened plugin connections
-		&CloseProviderTransformer{},
-		&CloseProvisionerTransformer{},
+		&TargetsTransformer{Targets: b.Targets},
 
 		// Single root
 		&RootTransformer{},

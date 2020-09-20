@@ -39,7 +39,6 @@ func (n *NodeValidatableResource) DynamicExpand(ctx EvalContext) (*Graph, error)
 	concreteResource := func(a *NodeAbstractResource) dag.Vertex {
 		// Add the config and state since we don't do that via transforms
 		a.Config = n.Config
-		a.ResolvedProvider = n.ResolvedProvider
 
 		return &NodeValidatableResourceInstance{
 			NodeAbstractResource: a,
@@ -109,7 +108,7 @@ func (n *NodeValidatableResourceInstance) EvalTree() EvalNode {
 				Config: &n.Config.RawConfig,
 			},
 			&EvalGetProvider{
-				Name:   n.ResolvedProvider,
+				Name:   n.ProvidedBy()[0],
 				Output: &provider,
 			},
 			&EvalInterpolate{
@@ -130,29 +129,17 @@ func (n *NodeValidatableResourceInstance) EvalTree() EvalNode {
 	// Validate all the provisioners
 	for _, p := range n.Config.Provisioners {
 		var provisioner ResourceProvisioner
-		var connConfig *ResourceConfig
-		seq.Nodes = append(
-			seq.Nodes,
-			&EvalGetProvisioner{
-				Name:   p.Type,
-				Output: &provisioner,
-			},
-			&EvalInterpolate{
-				Config:   p.RawConfig.Copy(),
-				Resource: resource,
-				Output:   &config,
-			},
-			&EvalInterpolate{
-				Config:   p.ConnInfo.Copy(),
-				Resource: resource,
-				Output:   &connConfig,
-			},
-			&EvalValidateProvisioner{
-				Provisioner: &provisioner,
-				Config:      &config,
-				ConnConfig:  &connConfig,
-			},
-		)
+		seq.Nodes = append(seq.Nodes, &EvalGetProvisioner{
+			Name:   p.Type,
+			Output: &provisioner,
+		}, &EvalInterpolate{
+			Config:   p.RawConfig.Copy(),
+			Resource: resource,
+			Output:   &config,
+		}, &EvalValidateProvisioner{
+			Provisioner: &provisioner,
+			Config:      &config,
+		})
 	}
 
 	return seq

@@ -28,8 +28,8 @@ type Backend struct {
 	config *ResourceData
 }
 
-var (
-	backendConfigKey = contextKey("backend config")
+const (
+	backendConfigKey = iota
 )
 
 // FromContextBackendConfig extracts a ResourceData with the configuration
@@ -65,7 +65,7 @@ func (b *Backend) Configure(c *terraform.ResourceConfig) error {
 
 	// Get a ResourceData for this configuration. To do this, we actually
 	// generate an intermediary "diff" although that is never exposed.
-	diff, err := sm.Diff(nil, c, nil, nil)
+	diff, err := sm.Diff(nil, c)
 	if err != nil {
 		return err
 	}

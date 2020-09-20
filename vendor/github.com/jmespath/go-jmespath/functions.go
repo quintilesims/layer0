@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"math"
-	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -358,7 +357,7 @@ func (a *argSpec) typeCheck(arg interface{}) error {
 				return nil
 			}
 		case jpArray:
-			if isSliceType(arg) {
+			if _, ok := arg.([]interface{}); ok {
 				return nil
 			}
 		case jpObject:
@@ -410,9 +409,8 @@ func jpfLength(arguments []interface{}) (interface{}, error) {
 	arg := arguments[0]
 	if c, ok := arg.(string); ok {
 		return float64(utf8.RuneCountInString(c)), nil
-	} else if isSliceType(arg) {
-		v := reflect.ValueOf(arg)
-		return float64(v.Len()), nil
+	} else if c, ok := arg.([]interface{}); ok {
+		return float64(len(c)), nil
 	} else if c, ok := arg.(map[string]interface{}); ok {
 		return float64(len(c)), nil
 	}

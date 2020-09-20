@@ -7,25 +7,12 @@ import (
 	"sync"
 )
 
-// NewMockUi returns a fully initialized MockUi instance
-// which is safe for concurrent use.
-func NewMockUi() *MockUi {
-	m := new(MockUi)
-	m.once.Do(m.init)
-	return m
-}
-
-// MockUi is a mock UI that is used for tests and is exported publicly
-// for use in external tests if needed as well. Do not instantite this
-// directly since the buffers will be initialized on the first write. If
-// there is no write then you will get a nil panic. Please use the
-// NewMockUi() constructor function instead. You can fix your code with
-//
-//  sed -i -e 's/new(cli.MockUi)/cli.NewMockUi()/g' *_test.go
+// MockUi is a mock UI that is used for tests and is exported publicly for
+// use in external tests if needed as well.
 type MockUi struct {
 	InputReader  io.Reader
-	ErrorWriter  *syncBuffer
-	OutputWriter *syncBuffer
+	ErrorWriter  *bytes.Buffer
+	OutputWriter *bytes.Buffer
 
 	once sync.Once
 }
@@ -72,40 +59,6 @@ func (u *MockUi) Warn(message string) {
 }
 
 func (u *MockUi) init() {
-	u.ErrorWriter = new(syncBuffer)
-	u.OutputWriter = new(syncBuffer)
-}
-
-type syncBuffer struct {
-	sync.RWMutex
-	b bytes.Buffer
-}
-
-func (b *syncBuffer) Write(data []byte) (int, error) {
-	b.Lock()
-	defer b.Unlock()
-	return b.b.Write(data)
-}
-
-func (b *syncBuffer) Read(data []byte) (int, error) {
-	b.RLock()
-	defer b.RUnlock()
-	return b.b.Read(data)
-}
-
-func (b *syncBuffer) Reset() {
-	b.Lock()
-	b.b.Reset()
-	b.Unlock()
-}
-
-func (b *syncBuffer) String() string {
-	return string(b.Bytes())
-}
-
-func (b *syncBuffer) Bytes() []byte {
-	b.RLock()
-	data := b.b.Bytes()
-	b.RUnlock()
-	return data
+	u.ErrorWriter = new(bytes.Buffer)
+	u.OutputWriter = new(bytes.Buffer)
 }

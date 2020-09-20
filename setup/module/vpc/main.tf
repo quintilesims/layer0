@@ -1,12 +1,4 @@
-data "aws_availability_zones" "available" {
-  state = "available"
-  blacklisted_names = [
-    "us-east-1e",
-    "us-east-1f",
-    "us-east-1g",
-    "us-east-1h"
-  ]
-}
+data "aws_availability_zones" "available" {}
 
 resource "aws_vpc" "mod" {
   count = "${var.count_hack}"

@@ -106,7 +106,7 @@ func (g *AcyclicGraph) TransitiveReduction() {
 		uTargets := g.DownEdges(u)
 		vs := AsVertexList(g.DownEdges(u))
 
-		g.depthFirstWalk(vs, false, func(v Vertex, d int) error {
+		g.DepthFirstWalk(vs, func(v Vertex, d int) error {
 			shared := uTargets.Intersection(g.DownEdges(v))
 			for _, vPrime := range AsVertexList(shared) {
 				g.RemoveEdge(BasicEdge(u, vPrime))
@@ -187,18 +187,9 @@ type vertexAtDepth struct {
 }
 
 // depthFirstWalk does a depth-first walk of the graph starting from
-// the vertices in start.
+// the vertices in start. This is not exported now but it would make sense
+// to export this publicly at some point.
 func (g *AcyclicGraph) DepthFirstWalk(start []Vertex, f DepthWalkFunc) error {
-	return g.depthFirstWalk(start, true, f)
-}
-
-// This internal method provides the option of not sorting the vertices during
-// the walk, which we use for the Transitive reduction.
-// Some configurations can lead to fully-connected subgraphs, which makes our
-// transitive reduction algorithm O(n^3). This is still passable for the size
-// of our graphs, but the additional n^2 sort operations would make this
-// uncomputable in a reasonable amount of time.
-func (g *AcyclicGraph) depthFirstWalk(start []Vertex, sorted bool, f DepthWalkFunc) error {
 	defer g.debug.BeginOperation(typeDepthFirstWalk, "").End("")
 
 	seen := make(map[Vertex]struct{})
@@ -228,11 +219,7 @@ func (g *AcyclicGraph) depthFirstWalk(start []Vertex, sorted bool, f DepthWalkFu
 
 		// Visit targets of this in a consistent order.
 		targets := AsVertexList(g.DownEdges(current.Vertex))
-
-		if sorted {
-			sort.Sort(byVertexName(targets))
-		}
-
+		sort.Sort(byVertexName(targets))
 		for _, t := range targets {
 			frontier = append(frontier, &vertexAtDepth{
 				Vertex: t,

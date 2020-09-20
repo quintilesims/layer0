@@ -273,9 +273,6 @@ func (e *encoder) Encode(i interface{}) {
 }
 
 func (e *encoder) Add(v Vertex) {
-	if e == nil {
-		return
-	}
 	e.Encode(marshalTransform{
 		Type:      typeTransform,
 		AddVertex: newMarshalVertex(v),
@@ -284,9 +281,6 @@ func (e *encoder) Add(v Vertex) {
 
 // Remove records the removal of Vertex v.
 func (e *encoder) Remove(v Vertex) {
-	if e == nil {
-		return
-	}
 	e.Encode(marshalTransform{
 		Type:         typeTransform,
 		RemoveVertex: newMarshalVertex(v),
@@ -294,9 +288,6 @@ func (e *encoder) Remove(v Vertex) {
 }
 
 func (e *encoder) Connect(edge Edge) {
-	if e == nil {
-		return
-	}
 	e.Encode(marshalTransform{
 		Type:    typeTransform,
 		AddEdge: newMarshalEdge(edge),
@@ -304,9 +295,6 @@ func (e *encoder) Connect(edge Edge) {
 }
 
 func (e *encoder) RemoveEdge(edge Edge) {
-	if e == nil {
-		return
-	}
 	e.Encode(marshalTransform{
 		Type:       typeTransform,
 		RemoveEdge: newMarshalEdge(edge),

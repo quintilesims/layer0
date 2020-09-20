@@ -126,8 +126,6 @@ func addrToSchema(addr []string, schemaMap map[string]*Schema) []*Schema {
 				switch v := current.Elem.(type) {
 				case ValueType:
 					current = &Schema{Type: v}
-				case *Schema:
-					current, _ = current.Elem.(*Schema)
 				default:
 					// maps default to string values. This is all we can have
 					// if this is nested in another list or map.
@@ -197,7 +195,7 @@ func readListField(
 
 	// Go through each count, and get the item value out of it
 	result := make([]interface{}, countResult.Value.(int))
-	for i, _ := range result {
+	for i := range result {
 		is := strconv.FormatInt(int64(i), 10)
 		addrPadded[len(addrPadded)-1] = is
 		rawResult, err := r.ReadField(addrPadded)
@@ -251,10 +249,11 @@ func readObjectField(
 }
 
 // convert map values to the proper primitive type based on schema.Elem
-func mapValuesToPrimitive(k string, m map[string]interface{}, schema *Schema) error {
-	elemType, err := getValueType(k, schema)
-	if err != nil {
-		return err
+func mapValuesToPrimitive(m map[string]interface{}, schema *Schema) error {
+
+	elemType := TypeString
+	if et, ok := schema.Elem.(ValueType); ok {
+		elemType = et
 	}
 
 	switch elemType {

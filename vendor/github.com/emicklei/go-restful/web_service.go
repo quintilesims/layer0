@@ -1,10 +1,7 @@
 package restful
 
 import (
-	"errors"
 	"os"
-	"reflect"
-	"sync"
 
 	"github.com/emicklei/go-restful/log"
 )
@@ -24,43 +21,16 @@ type WebService struct {
 	filters        []FilterFunction
 	documentation  string
 	apiVersion     string
-
-	typeNameHandleFunc TypeNameHandleFunction
-
-	dynamicRoutes bool
-
-	// protects 'routes' if dynamic routes are enabled
-	routesLock sync.RWMutex
-}
-
-func (w *WebService) SetDynamicRoutes(enable bool) {
-	w.dynamicRoutes = enable
-}
-
-// TypeNameHandleFunction declares functions that can handle translating the name of a sample object
-// into the restful documentation for the service.
-type TypeNameHandleFunction func(sample interface{}) string
-
-// TypeNameHandler sets the function that will convert types to strings in the parameter
-// and model definitions. If not set, the web service will invoke
-// reflect.TypeOf(object).String().
-func (w *WebService) TypeNameHandler(handler TypeNameHandleFunction) *WebService {
-	w.typeNameHandleFunc = handler
-	return w
-}
-
-// reflectTypeName is the default TypeNameHandleFunction and for a given object
-// returns the name that Go identifies it with (e.g. "string" or "v1.Object") via
-// the reflection API.
-func reflectTypeName(sample interface{}) string {
-	return reflect.TypeOf(sample).String()
 }
 
 // compilePathExpression ensures that the path is compiled into a RegEx for those routers that need it.
 func (w *WebService) compilePathExpression() {
+	if len(w.rootPath) == 0 {
+		w.Path("/") // lazy initialize path
+	}
 	compiled, err := newPathExpression(w.rootPath)
 	if err != nil {
-		log.Printf("invalid path:%s because:%v", w.rootPath, err)
+		log.Printf("[restful] invalid path:%s because:%v", w.rootPath, err)
 		os.Exit(1)
 	}
 	w.pathExpr = compiled
@@ -73,15 +43,12 @@ func (w *WebService) ApiVersion(apiVersion string) *WebService {
 }
 
 // Version returns the API version for documentation purposes.
-func (w *WebService) Version() string { return w.apiVersion }
+func (w WebService) Version() string { return w.apiVersion }
 
 // Path specifies the root URL template path of the WebService.
 // All Routes will be relative to this path.
 func (w *WebService) Path(root string) *WebService {
 	w.rootPath = root
-	if len(w.rootPath) == 0 {
-		w.rootPath = "/"
-	}
 	w.compilePathExpression()
 	return w
 }
@@ -118,7 +85,7 @@ func (w *WebService) QueryParameter(name, description string) *Parameter {
 // QueryParameter creates a new Parameter of kind Query for documentation purposes.
 // It is initialized as not required with string as its DataType.
 func QueryParameter(name, description string) *Parameter {
-	p := &Parameter{&ParameterData{Name: name, Description: description, Required: false, DataType: "string", CollectionFormat: CollectionFormatCSV.String()}}
+	p := &Parameter{&ParameterData{Name: name, Description: description, Required: false, DataType: "string"}}
 	p.beQuery()
 	return p
 }
@@ -167,36 +134,14 @@ func FormParameter(name, description string) *Parameter {
 
 // Route creates a new Route using the RouteBuilder and add to the ordered list of Routes.
 func (w *WebService) Route(builder *RouteBuilder) *WebService {
-	w.routesLock.Lock()
-	defer w.routesLock.Unlock()
 	builder.copyDefaults(w.produces, w.consumes)
 	w.routes = append(w.routes, builder.Build())
 	return w
 }
 
-// RemoveRoute removes the specified route, looks for something that matches 'path' and 'method'
-func (w *WebService) RemoveRoute(path, method string) error {
-	if !w.dynamicRoutes {
-		return errors.New("dynamic routes are not enabled.")
-	}
-	w.routesLock.Lock()
-	defer w.routesLock.Unlock()
-	newRoutes := make([]Route, (len(w.routes) - 1))
-	current := 0
-	for ix := range w.routes {
-		if w.routes[ix].Method == method && w.routes[ix].Path == path {
-			continue
-		}
-		newRoutes[current] = w.routes[ix]
-		current++
-	}
-	w.routes = newRoutes
-	return nil
-}
-
 // Method creates a new RouteBuilder and initialize its http method
 func (w *WebService) Method(httpMethod string) *RouteBuilder {
-	return new(RouteBuilder).typeNameHandler(w.typeNameHandleFunc).servicePath(w.rootPath).Method(httpMethod)
+	return new(RouteBuilder).servicePath(w.rootPath).Method(httpMethod)
 }
 
 // Produces specifies that this WebService can produce one or more MIME types.
@@ -214,27 +159,17 @@ func (w *WebService) Consumes(accepts ...string) *WebService {
 }
 
 // Routes returns the Routes associated with this WebService
-func (w *WebService) Routes() []Route {
-	if !w.dynamicRoutes {
-		return w.routes
-	}
-	// Make a copy of the array to prevent concurrency problems
-	w.routesLock.RLock()
-	defer w.routesLock.RUnlock()
-	result := make([]Route, len(w.routes))
-	for ix := range w.routes {
-		result[ix] = w.routes[ix]
-	}
-	return result
+func (w WebService) Routes() []Route {
+	return w.routes
 }
 
 // RootPath returns the RootPath associated with this WebService. Default "/"
-func (w *WebService) RootPath() string {
+func (w WebService) RootPath() string {
 	return w.rootPath
 }
 
-// PathParameters return the path parameter names for (shared among its Routes)
-func (w *WebService) PathParameters() []*Parameter {
+// PathParameters return the path parameter names for (shared amoung its Routes)
+func (w WebService) PathParameters() []*Parameter {
 	return w.pathParameters
 }
 
@@ -251,7 +186,7 @@ func (w *WebService) Doc(plainText string) *WebService {
 }
 
 // Documentation returns it.
-func (w *WebService) Documentation() string {
+func (w WebService) Documentation() string {
 	return w.documentation
 }
 
@@ -261,30 +196,30 @@ func (w *WebService) Documentation() string {
 
 // HEAD is a shortcut for .Method("HEAD").Path(subPath)
 func (w *WebService) HEAD(subPath string) *RouteBuilder {
-	return new(RouteBuilder).typeNameHandler(w.typeNameHandleFunc).servicePath(w.rootPath).Method("HEAD").Path(subPath)
+	return new(RouteBuilder).servicePath(w.rootPath).Method("HEAD").Path(subPath)
 }
 
 // GET is a shortcut for .Method("GET").Path(subPath)
 func (w *WebService) GET(subPath string) *RouteBuilder {
-	return new(RouteBuilder).typeNameHandler(w.typeNameHandleFunc).servicePath(w.rootPath).Method("GET").Path(subPath)
+	return new(RouteBuilder).servicePath(w.rootPath).Method("GET").Path(subPath)
 }
 
 // POST is a shortcut for .Method("POST").Path(subPath)
 func (w *WebService) POST(subPath string) *RouteBuilder {
-	return new(RouteBuilder).typeNameHandler(w.typeNameHandleFunc).servicePath(w.rootPath).Method("POST").Path(subPath)
+	return new(RouteBuilder).servicePath(w.rootPath).Method("POST").Path(subPath)
 }
 
 // PUT is a shortcut for .Method("PUT").Path(subPath)
 func (w *WebService) PUT(subPath string) *RouteBuilder {
-	return new(RouteBuilder).typeNameHandler(w.typeNameHandleFunc).servicePath(w.rootPath).Method("PUT").Path(subPath)
+	return new(RouteBuilder).servicePath(w.rootPath).Method("PUT").Path(subPath)
 }
 
 // PATCH is a shortcut for .Method("PATCH").Path(subPath)
 func (w *WebService) PATCH(subPath string) *RouteBuilder {
-	return new(RouteBuilder).typeNameHandler(w.typeNameHandleFunc).servicePath(w.rootPath).Method("PATCH").Path(subPath)
+	return new(RouteBuilder).servicePath(w.rootPath).Method("PATCH").Path(subPath)
 }
 
 // DELETE is a shortcut for .Method("DELETE").Path(subPath)
 func (w *WebService) DELETE(subPath string) *RouteBuilder {
-	return new(RouteBuilder).typeNameHandler(w.typeNameHandleFunc).servicePath(w.rootPath).Method("DELETE").Path(subPath)
+	return new(RouteBuilder).servicePath(w.rootPath).Method("DELETE").Path(subPath)
 }

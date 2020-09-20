@@ -6,6 +6,17 @@ import (
 	"github.com/hashicorp/terraform/config"
 )
 
+// EvalSetProviderConfig sets the parent configuration for a provider
+// without configuring that provider, validating it, etc.
+type EvalSetProviderConfig struct {
+	Provider string
+	Config   **ResourceConfig
+}
+
+func (n *EvalSetProviderConfig) Eval(ctx EvalContext) (interface{}, error) {
+	return nil, ctx.SetProviderConfig(n.Provider, *n.Config)
+}
+
 // EvalBuildProviderConfig outputs a *ResourceConfig that is properly
 // merged with parents and inputs on top of what is configured in the file.
 type EvalBuildProviderConfig struct {
@@ -17,19 +28,20 @@ type EvalBuildProviderConfig struct {
 func (n *EvalBuildProviderConfig) Eval(ctx EvalContext) (interface{}, error) {
 	cfg := *n.Config
 
-	// If we have an Input configuration set, then merge that in
+	// If we have a configuration set, then merge that in
 	if input := ctx.ProviderInput(n.Provider); input != nil {
-		// "input" is a map of the subset of config values that were known
-		// during the input walk, set by EvalInputProvider. Note that
-		// in particular it does *not* include attributes that had
-		// computed values at input time; those appear *only* in
-		// "cfg" here.
 		rc, err := config.NewRawConfig(input)
 		if err != nil {
 			return nil, err
 		}
 
-		merged := rc.Merge(cfg.raw)
+		merged := cfg.raw.Merge(rc)
+		cfg = NewResourceConfig(merged)
+	}
+
+	// Get the parent configuration if there is one
+	if parent := ctx.ParentProviderConfig(n.Provider); parent != nil {
+		merged := cfg.raw.Merge(parent.raw)
 		cfg = NewResourceConfig(merged)
 	}
 
@@ -52,12 +64,11 @@ func (n *EvalConfigProvider) Eval(ctx EvalContext) (interface{}, error) {
 // and returns nothing. The provider can be retrieved again with the
 // EvalGetProvider node.
 type EvalInitProvider struct {
-	TypeName string
-	Name     string
+	Name string
 }
 
 func (n *EvalInitProvider) Eval(ctx EvalContext) (interface{}, error) {
-	return ctx.InitProvider(n.TypeName, n.Name)
+	return ctx.InitProvider(n.Name)
 }
 
 // EvalCloseProvider is an EvalNode implementation that closes provider
@@ -100,8 +111,12 @@ type EvalInputProvider struct {
 }
 
 func (n *EvalInputProvider) Eval(ctx EvalContext) (interface{}, error) {
+	// If we already configured this provider, then don't do this again
+	if v := ctx.ProviderInput(n.Name); v != nil {
+		return nil, nil
+	}
+
 	rc := *n.Config
-	orig := rc.DeepCopy()
 
 	// Wrap the input into a namespace
 	input := &PrefixUIInput{
@@ -118,20 +133,13 @@ func (n *EvalInputProvider) Eval(ctx EvalContext) (interface{}, error) {
 			"Error configuring %s: %s", n.Name, err)
 	}
 
-	// We only store values that have changed through Input.
-	// The goal is to cache cache input responses, not to provide a complete
-	// config for other providers.
-	confMap := make(map[string]interface{})
+	// Set the input that we received so that child modules don't attempt
+	// to ask for input again.
 	if config != nil && len(config.Config) > 0 {
-		// any values that weren't in the original ResourcConfig will be cached
-		for k, v := range config.Config {
-			if _, ok := orig.Config[k]; !ok {
-				confMap[k] = v
-			}
-		}
+		ctx.SetProviderInput(n.Name, config.Config)
+	} else {
+		ctx.SetProviderInput(n.Name, map[string]interface{}{})
 	}
-
-	ctx.SetProviderInput(n.Name, confMap)
 
 	return nil, nil
 }

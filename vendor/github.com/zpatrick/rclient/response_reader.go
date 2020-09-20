@@ -2,7 +2,10 @@ package rclient
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
+
+	"github.com/zpatrick/go-series"
 )
 
 // A ResponseReader attempts to read a *http.Response into v.
@@ -16,15 +19,11 @@ func ReadJSONResponse(resp *http.Response, v interface{}) error {
 	defer resp.Body.Close()
 
 	switch {
-	case resp.StatusCode < 200, resp.StatusCode > 299:
-		return NewResponseErrorf(resp, "Invalid status code: %d", resp.StatusCode)
+	case !series.Ints(200, 299).Contains(resp.StatusCode):
+		return fmt.Errorf("Invalid status code: %d", resp.StatusCode)
 	case v == nil:
 		return nil
 	default:
-		if err := json.NewDecoder(resp.Body).Decode(v); err != nil {
-			return NewResponseError(resp, err.Error())
-		}
+		return json.NewDecoder(resp.Body).Decode(v)
 	}
-
-	return nil
 }

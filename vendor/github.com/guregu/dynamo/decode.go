@@ -2,13 +2,12 @@ package dynamo
 
 import (
 	"encoding"
+	"errors"
 	"fmt"
 	"reflect"
 	"strconv"
-	"time"
 
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
 // Unmarshaler is the interface implemented by objects that can unmarshal
@@ -31,9 +30,6 @@ func Unmarshal(av *dynamodb.AttributeValue, out interface{}) error {
 // used in iterators for unmarshaling one item
 type unmarshalFunc func(map[string]*dynamodb.AttributeValue, interface{}) error
 
-var nilTum encoding.TextUnmarshaler
-var tumType = reflect.TypeOf(&nilTum).Elem()
-
 // unmarshals one value
 func unmarshalReflect(av *dynamodb.AttributeValue, rv reflect.Value) error {
 	// first try interface unmarshal stuff
@@ -45,36 +41,14 @@ func unmarshalReflect(av *dynamodb.AttributeValue, rv reflect.Value) error {
 			iface = rv.Interface()
 		}
 
-		if x, ok := iface.(*time.Time); ok && av.N != nil {
-			// implicit unixtime
-			// TODO(guregu): have unixtime unmarshal explicitly check struct tags
-			ts, err := strconv.ParseInt(*av.N, 10, 64)
-			if err != nil {
-				return err
-			}
-
-			*x = time.Unix(ts, 0).UTC()
-			return nil
+		if u, ok := iface.(Unmarshaler); ok {
+			return u.UnmarshalDynamo(av)
 		}
-
-		switch x := iface.(type) {
-		case *dynamodb.AttributeValue:
-			*x = *av
-			return nil
-		case Unmarshaler:
-			return x.UnmarshalDynamo(av)
-		case dynamodbattribute.Unmarshaler:
-			return x.UnmarshalDynamoDBAttributeValue(av)
-		case encoding.TextUnmarshaler:
+		if u, ok := iface.(encoding.TextUnmarshaler); ok {
 			if av.S != nil {
-				return x.UnmarshalText([]byte(*av.S))
+				return u.UnmarshalText([]byte(*av.S))
 			}
 		}
-	}
-
-	if av.NULL != nil {
-		rv.Set(reflect.Zero(rv.Type()))
-		return nil
 	}
 
 	switch rv.Kind() {
@@ -87,13 +61,13 @@ func unmarshalReflect(av *dynamodb.AttributeValue, rv reflect.Value) error {
 		return nil
 	case reflect.Bool:
 		if av.BOOL == nil {
-			return fmt.Errorf("dynamo: cannot unmarshal %s data into bool", avTypeName(av))
+			return errors.New("dynamo: unmarshal bool: expected BOOL to be non-nil")
 		}
 		rv.SetBool(*av.BOOL)
 		return nil
 	case reflect.Int, reflect.Int64, reflect.Int32, reflect.Int16, reflect.Int8:
 		if av.N == nil {
-			return fmt.Errorf("dynamo: cannot unmarshal %s data into int", avTypeName(av))
+			return errors.New("dynamo: unmarshal int: expected N to be non-nil")
 		}
 		n, err := strconv.ParseInt(*av.N, 10, 64)
 		if err != nil {
@@ -103,7 +77,7 @@ func unmarshalReflect(av *dynamodb.AttributeValue, rv reflect.Value) error {
 		return nil
 	case reflect.Uint, reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8:
 		if av.N == nil {
-			return fmt.Errorf("dynamo: cannot unmarshal %s data into uint", avTypeName(av))
+			return errors.New("dynamo: unmarshal uint: expected N to be non-nil")
 		}
 		n, err := strconv.ParseUint(*av.N, 10, 64)
 		if err != nil {
@@ -113,7 +87,7 @@ func unmarshalReflect(av *dynamodb.AttributeValue, rv reflect.Value) error {
 		return nil
 	case reflect.Float64, reflect.Float32:
 		if av.N == nil {
-			return fmt.Errorf("dynamo: cannot unmarshal %s data into float", avTypeName(av))
+			return errors.New("dynamo: unmarshal int: expected N to be non-nil")
 		}
 		n, err := strconv.ParseFloat(*av.N, 64)
 		if err != nil {
@@ -123,116 +97,40 @@ func unmarshalReflect(av *dynamodb.AttributeValue, rv reflect.Value) error {
 		return nil
 	case reflect.String:
 		if av.S == nil {
-			return fmt.Errorf("dynamo: cannot unmarshal %s data into string", avTypeName(av))
+			return errors.New("dynamo: unmarshal string: expected S to be non-nil")
 		}
 		rv.SetString(*av.S)
 		return nil
 	case reflect.Struct:
 		if av.M == nil {
-			return fmt.Errorf("dynamo: cannot unmarshal %s data into struct", avTypeName(av))
+			return errors.New("dynamo: unmarshal struct: expected M to be non-nil")
 		}
 		if err := unmarshalItem(av.M, rv.Addr().Interface()); err != nil {
 			return err
 		}
 		return nil
 	case reflect.Map:
+		if av.M == nil {
+			return errors.New("dynamo: unmarshal map: expected M to be non-nil")
+		}
+
 		if rv.IsNil() {
 			// TODO: maybe always remake this?
 			// I think the JSON library doesn't...
 			rv.Set(reflect.MakeMap(rv.Type()))
 		}
 
-		var truthy reflect.Value
-		switch {
-		case rv.Type().Elem().Kind() == reflect.Bool:
-			truthy = reflect.ValueOf(true)
-		case rv.Type().Elem() == emptyStructType:
-			truthy = reflect.ValueOf(struct{}{})
-		default:
-			if av.M == nil {
-				return fmt.Errorf("dynamo: unmarshal map set: value type must be struct{} or bool, got %v", rv.Type())
+		// TODO: this is probably slow
+		for k, v := range av.M {
+			innerRV := reflect.New(rv.Type().Elem())
+			if err := unmarshalReflect(v, innerRV.Elem()); err != nil {
+				return err
 			}
+			rv.SetMapIndex(reflect.ValueOf(k), innerRV.Elem())
 		}
-
-		switch {
-		case av.M != nil:
-			// TODO: this is probably slow
-			kp := reflect.New(rv.Type().Key())
-			kv := kp.Elem()
-			for k, v := range av.M {
-				innerRV := reflect.New(rv.Type().Elem())
-				if err := unmarshalReflect(v, innerRV.Elem()); err != nil {
-					return err
-				}
-				if kp.Type().Implements(tumType) {
-					tm := kp.Interface().(encoding.TextUnmarshaler)
-					if err := tm.UnmarshalText([]byte(k)); err != nil {
-						return fmt.Errorf("dynamo: unmarshal map: key error: %v", err)
-					}
-				} else {
-					kv.SetString(k)
-				}
-				rv.SetMapIndex(kv, innerRV.Elem())
-			}
-			return nil
-		case av.SS != nil:
-			kp := reflect.New(rv.Type().Key())
-			kv := kp.Elem()
-			for _, s := range av.SS {
-				if kp.Type().Implements(tumType) {
-					tm := kp.Interface().(encoding.TextUnmarshaler)
-					if err := tm.UnmarshalText([]byte(*s)); err != nil {
-						return fmt.Errorf("dynamo: unmarshal map (SS): key error: %v", err)
-					}
-				} else {
-					kv.SetString(*s)
-				}
-				rv.SetMapIndex(kv, truthy)
-			}
-			return nil
-		case av.NS != nil:
-			kv := reflect.New(rv.Type().Key()).Elem()
-			for _, n := range av.NS {
-				if err := unmarshalReflect(&dynamodb.AttributeValue{N: n}, kv); err != nil {
-					return nil
-				}
-				rv.SetMapIndex(kv, truthy)
-			}
-			return nil
-		case av.BS != nil:
-			for _, bb := range av.BS {
-				kv := reflect.New(rv.Type().Key()).Elem()
-				for i, b := range bb {
-					kv.Index(i).Set(reflect.ValueOf(b))
-				}
-				rv.SetMapIndex(kv, truthy)
-			}
-			return nil
-		}
-		return fmt.Errorf("dynamo: cannot unmarshal %s data into map", avTypeName(av))
+		return nil
 	case reflect.Slice:
 		return unmarshalSlice(av, rv)
-	case reflect.Array:
-		arr := reflect.New(rv.Type()).Elem()
-		elemtype := arr.Type().Elem()
-		switch {
-		case av.B != nil:
-			for i, b := range av.B {
-				arr.Index(i).Set(reflect.ValueOf(b))
-			}
-			rv.Set(arr)
-			return nil
-		case av.L != nil:
-			for i, innerAV := range av.L {
-				innerRV := reflect.New(elemtype).Elem()
-				if err := unmarshalReflect(innerAV, innerRV); err != nil {
-					return err
-				}
-				arr.Index(i).Set(innerRV)
-			}
-			rv.Set(arr)
-			return nil
-		}
 	case reflect.Interface:
 		// interface{}
 		if rv.NumMethod() == 0 {
@@ -240,17 +138,13 @@ func unmarshalReflect(av *dynamodb.AttributeValue, rv reflect.Value) error {
 			if err != nil {
 				return err
 			}
-			if iface == nil {
-				rv.Set(reflect.Zero(rv.Type()))
-			} else {
-				rv.Set(reflect.ValueOf(iface))
-			}
+			rv.Set(reflect.ValueOf(iface))
 			return nil
 		}
 	}
 
 	iface := rv.Interface()
-	return fmt.Errorf("dynamo: cannot unmarshal to type: %T (%+v)", iface, iface)
+	return fmt.Errorf("dynamo: can't unmarshal to type: %T (%+v)", iface, iface)
 }
 
 // unmarshal for when rv's Kind is Slice
@@ -307,7 +201,7 @@ func unmarshalSlice(av *dynamodb.AttributeValue, rv reflect.Value) error {
 		rv.Set(slicev)
 		return nil
 	}
-	return fmt.Errorf("dynamo: cannot unmarshal %s data into slice", avTypeName(av))
+	return errors.New("dynamo: unmarshal slice: B, L, BS, SS, NS are nil")
 }
 
 func fieldsInStruct(rv reflect.Value) map[string]reflect.Value {
@@ -330,10 +224,6 @@ func fieldsInStruct(rv reflect.Value) map[string]reflect.Value {
 		if fv.Type().Kind() == reflect.Struct && field.Anonymous {
 			innerFields := fieldsInStruct(fv)
 			for k, v := range innerFields {
-				// don't clobber top-level fields
-				if _, exists := fields[k]; exists {
-					continue
-				}
 				fields[k] = v
 			}
 			continue
@@ -346,11 +236,6 @@ func fieldsInStruct(rv reflect.Value) map[string]reflect.Value {
 
 // unmarshals a struct
 func unmarshalItem(item map[string]*dynamodb.AttributeValue, out interface{}) error {
-	if out, ok := out.(*map[string]*dynamodb.AttributeValue); ok {
-		*out = item
-		return nil
-	}
-
 	rv := reflect.ValueOf(out)
 	if rv.Kind() != reflect.Ptr {
 		return fmt.Errorf("dynamo: unmarshal: not a pointer: %T", out)
@@ -362,7 +247,6 @@ func unmarshalItem(item map[string]*dynamodb.AttributeValue, out interface{}) er
 		return unmarshalItem(item, rv.Elem().Interface())
 	case reflect.Struct:
 		var err error
-		rv.Elem().Set(reflect.Zero(rv.Type().Elem()))
 		fields := fieldsInStruct(rv.Elem())
 		for name, fv := range fields {
 			if av, ok := item[name]; ok {
@@ -463,33 +347,4 @@ func av2iface(av *dynamodb.AttributeValue) (interface{}, error) {
 		return nil, nil
 	}
 	return nil, fmt.Errorf("dynamo: unsupported AV: %#v", *av)
-}
-
-func avTypeName(av *dynamodb.AttributeValue) string {
-	if av == nil {
-		return "<nil>"
-	}
-	switch {
-	case av.B != nil:
-		return "binary"
-	case av.BS != nil:
-		return "binary set"
-	case av.BOOL != nil:
-		return "boolean"
-	case av.N != nil:
-		return "number"
-	case av.S != nil:
-		return "string"
-	case av.L != nil:
-		return "list"
-	case av.NS != nil:
-		return "number set"
-	case av.SS != nil:
-		return "string set"
-	case av.M != nil:
-		return "map"
-	case av.NULL != nil:
-		return "null"
-	}
-	return "<empty>"
 }

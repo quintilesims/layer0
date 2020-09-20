@@ -2,16 +2,14 @@ package dynamo
 
 import (
 	"bytes"
-	"encoding"
 	"encoding/base32"
 	"fmt"
-	"strconv"
 	"strings"
 
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 
-	"github.com/guregu/dynamo/internal/exprs"
+	"github.com/guregu/dynamo/exprs"
 )
 
 // subber is a "mixin" for operators for keep track of subtituted keys and values
@@ -64,24 +62,8 @@ func (s *subber) subExpr(expr string, args ...interface{}) (string, error) {
 			sub := s.subName(item.Val[1 : len(item.Val)-1]) // trim ""
 			_, err = buf.WriteString(sub)
 		case exprs.ItemNamePlaceholder:
-			switch x := args[idx].(type) {
-			case encoding.TextMarshaler:
-				var txt []byte
-				txt, err = x.MarshalText()
-				if err == nil {
-					sub := s.subName(string(txt))
-					_, err = buf.WriteString(sub)
-				}
-			case string:
-				sub := s.subName(x)
-				_, err = buf.WriteString(sub)
-			case int:
-				_, err = buf.WriteString(strconv.Itoa(x))
-			case int64:
-				_, err = buf.WriteString(strconv.FormatInt(x, 10))
-			default:
-				err = fmt.Errorf("dynamo: type of argument for $ must be string, int, or int64 (got %T)", x)
-			}
+			sub := s.subName(args[idx].(string))
+			_, err = buf.WriteString(sub)
 			idx++
 		case exprs.ItemValuePlaceholder:
 			var sub string
@@ -120,15 +102,4 @@ func (s *subber) escape(name string) (string, error) {
 	}
 	// boring
 	return name, nil
-}
-
-// wrapExpr wraps expr in parens if needed
-func wrapExpr(expr string) string {
-	if len(expr) == 0 {
-		return expr
-	}
-	if trim := strings.TrimSpace(expr); trim[0] == '(' && trim[len(trim)-1] == ')' {
-		return expr
-	}
-	return "(" + expr + ")"
 }

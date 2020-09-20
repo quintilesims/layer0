@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 )
 
@@ -31,7 +30,6 @@ type Update struct {
 	subber
 
 	err error
-	cc  *ConsumedCapacity
 }
 
 // Update creates a new request to modify an existing item.
@@ -59,37 +57,12 @@ func (u *Update) Range(name string, value interface{}) *Update {
 }
 
 // Set changes path to the given value.
-// If value is an empty string or nil, path will be removed instead.
 // Paths that are reserved words are automatically escaped.
 // Use single quotes to escape complex values like 'User'.'Count'.
 func (u *Update) Set(path string, value interface{}) *Update {
-	if isNil(value) {
-		return u.Remove(path)
-	}
 	path, err := u.escape(path)
 	u.setError(err)
 	expr, err := u.subExpr("🝕 = ?", path, value)
-	u.setError(err)
-	u.set = append(u.set, expr)
-	return u
-}
-
-// SetSet changes a set at the given path to the given value.
-// SetSet marshals value to a string set, number set, or binary set.
-// If value is of zero length or nil, path will be removed instead.
-// Paths that are reserved words are automatically escaped.
-// Use single quotes to escape complex values like 'User'.'Count'.
-func (u *Update) SetSet(path string, value interface{}) *Update {
-	v, err := marshal(value, "set")
-	if v == nil && err == nil {
-		// empty set
-		return u.Remove(path)
-	}
-	u.setError(err)
-
-	path, err = u.escape(path)
-	u.setError(err)
-	expr, err := u.subExpr("🝕 = ?", path, v)
 	u.setError(err)
 	u.set = append(u.set, expr)
 	return u
@@ -100,17 +73,6 @@ func (u *Update) SetIfNotExists(path string, value interface{}) *Update {
 	path, err := u.escape(path)
 	u.setError(err)
 	expr, err := u.subExpr("🝕 = if_not_exists(🝕, ?)", path, path, value)
-	u.setError(err)
-	u.set = append(u.set, expr)
-	return u
-}
-
-// SetExpr performs a custom set expression, substituting the args into expr as in filter expressions.
-// See: http://docs.aws.amazon.com/amazondynamodb/latest/APIReference/API_UpdateItem.html#DDB-UpdateItem-request-UpdateExpression
-//	SetExpr("MyMap.$.$ = ?", key1, key2, val)
-//	SetExpr("'Counter' = 'Counter' + ?", 1)
-func (u *Update) SetExpr(expr string, args ...interface{}) *Update {
-	expr, err := u.subExpr(expr, args...)
 	u.setError(err)
 	u.set = append(u.set, expr)
 	return u
@@ -138,8 +100,7 @@ func (u *Update) Prepend(path string, value interface{}) *Update {
 
 // Add adds value to path.
 // Path can be a number or a set.
-// If path represents a number, value is atomically added to the number.
-// If path represents a set, value must be a slice, a map[*]struct{}, or map[*]bool.
+// If path represents a set, value must be []int or []string.
 // Path must be a top-level attribute.
 func (u *Update) Add(path string, value interface{}) *Update {
 	path, err := u.escape(path)
@@ -199,60 +160,28 @@ func (u *Update) Remove(paths ...string) *Update {
 	return u
 }
 
-// RemoveExpr performs a custom remove expression, substituting the args into expr as in filter expressions.
-// 	RemoveExpr("MyList[$]", 5)
-func (u *Update) RemoveExpr(expr string, args ...interface{}) *Update {
-	expr, err := u.subExpr(expr, args...)
-	u.setError(err)
-	u.remove[expr] = struct{}{}
-	return u
-}
-
 // If specifies a conditional expression for this update to succeed.
 // Use single quotes to specificy reserved names inline (like 'Count').
 // Use the placeholder ? within the expression to substitute values, and use $ for names.
 // You need to use quoted or placeholder names when the name is a reserved word in DynamoDB.
-// Multiple calls to Update will be combined with AND.
 func (u *Update) If(expr string, args ...interface{}) *Update {
-	expr = wrapExpr(expr)
 	cond, err := u.subExpr(expr, args...)
 	u.setError(err)
-	if u.condition != "" {
-		u.condition += " AND "
-	}
-	u.condition += cond
-	return u
-}
-
-// ConsumedCapacity will measure the throughput capacity consumed by this operation and add it to cc.
-func (u *Update) ConsumedCapacity(cc *ConsumedCapacity) *Update {
-	u.cc = cc
+	u.condition = cond
 	return u
 }
 
 // Run executes this update.
 func (u *Update) Run() error {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return u.RunWithContext(ctx)
-}
-
-func (u *Update) RunWithContext(ctx aws.Context) error {
 	u.returnType = "NONE"
-	_, err := u.run(ctx)
+	_, err := u.run()
 	return err
 }
 
 // Value executes this update, encoding out with the new value.
 func (u *Update) Value(out interface{}) error {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return u.ValueWithContext(ctx, out)
-}
-
-func (u *Update) ValueWithContext(ctx aws.Context, out interface{}) error {
 	u.returnType = "ALL_NEW"
-	output, err := u.run(ctx)
+	output, err := u.run()
 	if err != nil {
 		return err
 	}
@@ -261,34 +190,26 @@ func (u *Update) ValueWithContext(ctx aws.Context, out interface{}) error {
 
 // OldValue executes this update, encoding out with the previous value.
 func (u *Update) OldValue(out interface{}) error {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return u.OldValueWithContext(ctx, out)
-}
-func (u *Update) OldValueWithContext(ctx aws.Context, out interface{}) error {
 	u.returnType = "ALL_OLD"
-	output, err := u.run(ctx)
+	output, err := u.run()
 	if err != nil {
 		return err
 	}
 	return unmarshalItem(output.Attributes, out)
 }
 
-func (u *Update) run(ctx aws.Context) (*dynamodb.UpdateItemOutput, error) {
+func (u *Update) run() (*dynamodb.UpdateItemOutput, error) {
 	if u.err != nil {
 		return nil, u.err
 	}
 
 	input := u.updateInput()
 	var output *dynamodb.UpdateItemOutput
-	err := retry(ctx, func() error {
+	err := retry(func() error {
 		var err error
-		output, err = u.table.db.client.UpdateItemWithContext(ctx, input)
+		output, err = u.table.db.client.UpdateItem(input)
 		return err
 	})
-	if u.cc != nil {
-		addConsumedCapacity(u.cc, output.ConsumedCapacity)
-	}
 	return output, err
 }
 
@@ -304,29 +225,7 @@ func (u *Update) updateInput() *dynamodb.UpdateItemInput {
 	if u.condition != "" {
 		input.ConditionExpression = &u.condition
 	}
-	if u.cc != nil {
-		input.ReturnConsumedCapacity = aws.String(dynamodb.ReturnConsumedCapacityIndexes)
-	}
 	return input
-}
-
-func (u *Update) writeTxItem() (*dynamodb.TransactWriteItem, error) {
-	if u.err != nil {
-		return nil, u.err
-	}
-	input := u.updateInput()
-	item := &dynamodb.TransactWriteItem{
-		Update: &dynamodb.Update{
-			TableName:                 input.TableName,
-			Key:                       input.Key,
-			UpdateExpression:          input.UpdateExpression,
-			ExpressionAttributeNames:  input.ExpressionAttributeNames,
-			ExpressionAttributeValues: input.ExpressionAttributeValues,
-			ConditionExpression:       input.ConditionExpression,
-			// TODO: return values
-		},
-	}
-	return item, nil
 }
 
 func (u *Update) key() map[string]*dynamodb.AttributeValue {
@@ -375,7 +274,7 @@ func (u *Update) updateExpr() *string {
 }
 
 func (u *Update) setError(err error) {
-	if u.err == nil {
+	if err != nil {
 		u.err = err
 	}
 }

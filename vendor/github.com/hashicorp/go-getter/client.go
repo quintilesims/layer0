@@ -17,7 +17,6 @@ import (
 	"strings"
 
 	urlhelper "github.com/hashicorp/go-getter/helper/url"
-	"github.com/hashicorp/go-safetemp"
 )
 
 // Client is a client for downloading things.
@@ -101,14 +100,17 @@ func (c *Client) Get() error {
 	dst := c.Dst
 	src, subDir := SourceDirSubdir(src)
 	if subDir != "" {
-		td, tdcloser, err := safetemp.Dir("", "getter")
+		tmpDir, err := ioutil.TempDir("", "tf")
 		if err != nil {
 			return err
 		}
-		defer tdcloser.Close()
+		if err := os.RemoveAll(tmpDir); err != nil {
+			return err
+		}
+		defer os.RemoveAll(tmpDir)
 
 		realDst = dst
-		dst = td
+		dst = tmpDir
 	}
 
 	u, err := urlhelper.Parse(src)
@@ -150,8 +152,8 @@ func (c *Client) Get() error {
 	if archiveV == "" {
 		// We don't appear to... but is it part of the filename?
 		matchingLen := 0
-		for k, _ := range decompressors {
-			if strings.HasSuffix(u.Path, "."+k) && len(k) > matchingLen {
+		for k := range decompressors {
+			if strings.HasSuffix(u.Path, k) && len(k) > matchingLen {
 				archiveV = k
 				matchingLen = len(k)
 			}
@@ -220,29 +222,13 @@ func (c *Client) Get() error {
 		checksumValue = b
 	}
 
+	// For now, any means file. In the future, we'll ask the getter
+	// what it thinks it is.
 	if mode == ClientModeAny {
-		// Ask the getter which client mode to use
-		mode, err = g.ClientMode(u)
-		if err != nil {
-			return err
-		}
+		mode = ClientModeFile
 
-		// Destination is the base name of the URL path in "any" mode when
-		// a file source is detected.
-		if mode == ClientModeFile {
-			filename := filepath.Base(u.Path)
-
-			// Determine if we have a custom file name
-			if v := q.Get("filename"); v != "" {
-				// Delete the query parameter if we have it.
-				q.Del("filename")
-				u.RawQuery = q.Encode()
-
-				filename = v
-			}
-
-			dst = filepath.Join(dst, filename)
-		}
+		// Destination is the base name of the URL path
+		dst = filepath.Join(dst, filepath.Base(u.Path))
 	}
 
 	// If we're not downloading a directory, then just download the file
@@ -314,13 +300,7 @@ func (c *Client) Get() error {
 			return err
 		}
 
-		// Process any globs
-		subDir, err := SubdirGlob(dst, subDir)
-		if err != nil {
-			return err
-		}
-
-		return copyDir(realDst, subDir, false)
+		return copyDir(realDst, filepath.Join(dst, subDir), false)
 	}
 
 	return nil

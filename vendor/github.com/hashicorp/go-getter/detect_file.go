@@ -32,7 +32,7 @@ func (d *FileDetector) Detect(src, pwd string) (string, bool, error) {
 				return "", true, err
 			}
 			if fi.Mode()&os.ModeSymlink != 0 {
-				pwd, err = filepath.EvalSymlinks(pwd)
+				pwd, err = os.Readlink(pwd)
 				if err != nil {
 					return "", true, err
 				}

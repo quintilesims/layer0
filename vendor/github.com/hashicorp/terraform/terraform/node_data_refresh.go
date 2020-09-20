@@ -27,20 +27,8 @@ func (n *NodeRefreshableDataResource) DynamicExpand(ctx EvalContext) (*Graph, er
 	concreteResource := func(a *NodeAbstractResource) dag.Vertex {
 		// Add the config and state since we don't do that via transforms
 		a.Config = n.Config
-		a.ResolvedProvider = n.ResolvedProvider
 
 		return &NodeRefreshableDataResourceInstance{
-			NodeAbstractResource: a,
-		}
-	}
-
-	// We also need a destroyable resource for orphans that are a result of a
-	// scaled-in count.
-	concreteResourceDestroyable := func(a *NodeAbstractResource) dag.Vertex {
-		// Add the config since we don't do that via transforms
-		a.Config = n.Config
-
-		return &NodeDestroyableDataResource{
 			NodeAbstractResource: a,
 		}
 	}
@@ -52,15 +40,6 @@ func (n *NodeRefreshableDataResource) DynamicExpand(ctx EvalContext) (*Graph, er
 			Concrete: concreteResource,
 			Count:    count,
 			Addr:     n.ResourceAddr(),
-		},
-
-		// Add the count orphans. As these are orphaned refresh nodes, we add them
-		// directly as NodeDestroyableDataResource.
-		&OrphanResourceCountTransformer{
-			Concrete: concreteResourceDestroyable,
-			Count:    count,
-			Addr:     n.ResourceAddr(),
-			State:    state,
 		},
 
 		// Attach the state
@@ -108,9 +87,7 @@ func (n *NodeRefreshableDataResourceInstance) EvalTree() EvalNode {
 	// Get the state if we have it, if not we build it
 	rs := n.ResourceState
 	if rs == nil {
-		rs = &ResourceState{
-			Provider: n.ResolvedProvider,
-		}
+		rs = &ResourceState{}
 	}
 
 	// If the config isn't empty we update the state
@@ -148,7 +125,7 @@ func (n *NodeRefreshableDataResourceInstance) EvalTree() EvalNode {
 			&EvalWriteState{
 				Name:         stateId,
 				ResourceType: rs.Type,
-				Provider:     n.ResolvedProvider,
+				Provider:     rs.Provider,
 				Dependencies: rs.Dependencies,
 				State:        &state, // state is nil here
 			},
@@ -188,7 +165,7 @@ func (n *NodeRefreshableDataResourceInstance) EvalTree() EvalNode {
 			// provider configurations that need this data during
 			// refresh/plan.
 			&EvalGetProvider{
-				Name:   n.ResolvedProvider,
+				Name:   n.ProvidedBy()[0],
 				Output: &provider,
 			},
 
@@ -210,7 +187,7 @@ func (n *NodeRefreshableDataResourceInstance) EvalTree() EvalNode {
 			&EvalWriteState{
 				Name:         stateId,
 				ResourceType: rs.Type,
-				Provider:     n.ResolvedProvider,
+				Provider:     rs.Provider,
 				Dependencies: rs.Dependencies,
 				State:        &state,
 			},

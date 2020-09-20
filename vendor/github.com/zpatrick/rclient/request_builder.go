@@ -19,10 +19,8 @@ type RequestBuilder func(method, url string, body interface{}, options ...Reques
 // BuildJSONRequest creates a new *http.Request with the specified method, url and body in JSON format.
 func BuildJSONRequest(method, url string, body interface{}, options ...RequestOption) (*http.Request, error) {
 	b := new(bytes.Buffer)
-	if body != nil {
-		if err := json.NewEncoder(b).Encode(body); err != nil {
-			return nil, err
-		}
+	if err := json.NewEncoder(b).Encode(body); err != nil {
+		return nil, err
 	}
 
 	req, err := http.NewRequest(method, url, b)
@@ -30,9 +28,7 @@ func BuildJSONRequest(method, url string, body interface{}, options ...RequestOp
 		return nil, err
 	}
 
-	if b.Len() > 0 {
-		req.Header.Add("content-type", "application/json")
-	}
+	req.Header.Add("content-type", "application/json")
 
 	for _, option := range options {
 		if err := option(req); err != nil {

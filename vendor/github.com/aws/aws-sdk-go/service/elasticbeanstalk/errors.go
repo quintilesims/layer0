@@ -77,10 +77,10 @@ const (
 	ErrCodeS3SubscriptionRequiredException = "S3SubscriptionRequiredException"
 
 	// ErrCodeServiceException for service response error code
-	// "ElasticBeanstalkServiceException".
+	// "ServiceException".
 	//
 	// A generic service exception has occurred.
-	ErrCodeServiceException = "ElasticBeanstalkServiceException"
+	ErrCodeServiceException = "ServiceException"
 
 	// ErrCodeSourceBundleDeletionException for service response error code
 	// "SourceBundleDeletionFailure".

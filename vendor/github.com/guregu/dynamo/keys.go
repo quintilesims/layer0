@@ -1,16 +1,5 @@
 package dynamo
 
-// KeyType is used to specify the type of hash and range keys for tables and indexes.
-type KeyType string
-
-// Key types for table and index hash/range keys.
-const (
-	BinaryType KeyType = "B"
-	StringType KeyType = "S"
-	NumberType KeyType = "N"
-	NoneType   KeyType = ""
-)
-
 // Keyed provides hash key and range key values.
 type Keyed interface {
 	HashKey() interface{}

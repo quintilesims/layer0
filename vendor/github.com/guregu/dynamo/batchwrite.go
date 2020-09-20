@@ -2,8 +2,8 @@ package dynamo
 
 import (
 	"math"
+	"time"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
 	"github.com/cenkalti/backoff"
 )
@@ -16,7 +16,6 @@ type BatchWrite struct {
 	batch Batch
 	ops   []*dynamodb.WriteRequest
 	err   error
-	cc    *ConsumedCapacity
 }
 
 // Write creates a new batch write request, to which
@@ -55,23 +54,11 @@ func (bw *BatchWrite) Delete(keys ...Keyed) *BatchWrite {
 	return bw
 }
 
-// ConsumedCapacity will measure the throughput capacity consumed by this operation and add it to cc.
-func (bw *BatchWrite) ConsumedCapacity(cc *ConsumedCapacity) *BatchWrite {
-	bw.cc = cc
-	return bw
-}
-
 // Run executes this batch.
 // For batches with more than 25 operations, an error could indicate that
 // some records have been written and some have not. Consult the wrote
 // return amount to figure out which operations have succeeded.
 func (bw *BatchWrite) Run() (wrote int, err error) {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return bw.RunWithContext(ctx)
-}
-
-func (bw *BatchWrite) RunWithContext(ctx aws.Context) (wrote int, err error) {
 	if bw.err != nil {
 		return 0, bw.err
 	}
@@ -79,7 +66,8 @@ func (bw *BatchWrite) RunWithContext(ctx aws.Context) (wrote int, err error) {
 	// TODO: this could be made to be more efficient,
 	// by combining unprocessed items with the next request.
 
-	boff := backoff.WithContext(backoff.NewExponentialBackOff(), ctx)
+	boff := backoff.NewExponentialBackOff()
+	boff.MaxElapsedTime = 0
 	batches := int(math.Ceil(float64(len(bw.ops)) / maxWriteOps))
 	for i := 0; i < batches; i++ {
 		start, end := i*maxWriteOps, (i+1)*maxWriteOps
@@ -90,18 +78,13 @@ func (bw *BatchWrite) RunWithContext(ctx aws.Context) (wrote int, err error) {
 		for {
 			var res *dynamodb.BatchWriteItemOutput
 			req := bw.input(ops)
-			err := retry(ctx, func() error {
+			err := retry(func() error {
 				var err error
-				res, err = bw.batch.table.db.client.BatchWriteItemWithContext(ctx, req)
+				res, err = bw.batch.table.db.client.BatchWriteItem(req)
 				return err
 			})
 			if err != nil {
 				return wrote, err
-			}
-			if bw.cc != nil {
-				for _, cc := range res.ConsumedCapacity {
-					addConsumedCapacity(bw.cc, cc)
-				}
 			}
 
 			unprocessed := res.UnprocessedItems[bw.batch.table.Name()]
@@ -110,12 +93,8 @@ func (bw *BatchWrite) RunWithContext(ctx aws.Context) (wrote int, err error) {
 				break
 			}
 			ops = unprocessed
-
 			// need to sleep when re-requesting, per spec
-			if err := aws.SleepWithContext(ctx, boff.NextBackOff()); err != nil {
-				// timed out
-				return wrote, err
-			}
+			time.Sleep(boff.NextBackOff())
 		}
 	}
 
@@ -123,15 +102,11 @@ func (bw *BatchWrite) RunWithContext(ctx aws.Context) (wrote int, err error) {
 }
 
 func (bw *BatchWrite) input(ops []*dynamodb.WriteRequest) *dynamodb.BatchWriteItemInput {
-	input := &dynamodb.BatchWriteItemInput{
+	return &dynamodb.BatchWriteItemInput{
 		RequestItems: map[string][]*dynamodb.WriteRequest{
 			bw.batch.table.Name(): ops,
 		},
 	}
-	if bw.cc != nil {
-		input.ReturnConsumedCapacity = aws.String(dynamodb.ReturnConsumedCapacityIndexes)
-	}
-	return input
 }
 
 func (bw *BatchWrite) setError(err error) {

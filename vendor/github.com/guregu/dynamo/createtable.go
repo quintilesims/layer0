@@ -4,12 +4,9 @@ import (
 	"encoding"
 	"fmt"
 	"reflect"
-	"strconv"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/service/dynamodb"
-	"github.com/aws/aws-sdk-go/service/dynamodb/dynamodbattribute"
 )
 
 // StreamView determines what information is written to a table's stream.
@@ -50,8 +47,6 @@ type CreateTable struct {
 	readUnits     int64
 	writeUnits    int64
 	streamView    StreamView
-	ondemand      bool
-	tags          []*dynamodb.Tag
 	err           error
 }
 
@@ -78,22 +73,14 @@ func (db *DB) CreateTable(name string, from interface{}) *CreateTable {
 		localIndices:  make(map[string]dynamodb.LocalSecondaryIndex),
 		readUnits:     1,
 		writeUnits:    1,
-		tags:          []*dynamodb.Tag{},
 	}
 	rv := reflect.ValueOf(from)
 	ct.setError(ct.from(rv))
 	return ct
 }
 
-// OnDemand specifies to create the table with on-demand (pay per request) billing mode,
-// if enabled. On-demand mode is disabled by default.
-func (ct *CreateTable) OnDemand(enabled bool) *CreateTable {
-	ct.ondemand = enabled
-	return ct
-}
-
 // Provision specifies the provisioned read and write capacity for this table.
-// If Provision isn't called and on-demand mode is disabled, the table will be created with 1 unit each.
+// If Provision isn't called, the table will be created with 1 unit each.
 func (ct *CreateTable) Provision(readUnits, writeUnits int64) *CreateTable {
 	ct.readUnits, ct.writeUnits = readUnits, writeUnits
 	return ct
@@ -126,13 +113,7 @@ func (ct *CreateTable) Project(index string, projection IndexProjection, include
 		ProjectionType: &projectionStr,
 	}
 	if projection == IncludeProjection {
-	attribs:
 		for _, attr := range includeAttribs {
-			for _, a := range proj.NonKeyAttributes {
-				if attr == *a {
-					continue attribs
-				}
-			}
 			proj.NonKeyAttributes = append(proj.NonKeyAttributes, &attr)
 		}
 	}
@@ -148,91 +129,18 @@ func (ct *CreateTable) Project(index string, projection IndexProjection, include
 	return ct
 }
 
-// Index specifies an index to add to this table.
-func (ct *CreateTable) Index(index Index) *CreateTable {
-	ct.add(index.HashKey, string(index.HashKeyType))
-	ks := []*dynamodb.KeySchemaElement{
-		&dynamodb.KeySchemaElement{
-			AttributeName: &index.HashKey,
-			KeyType:       aws.String(dynamodb.KeyTypeHash),
-		},
-	}
-	if index.RangeKey != "" {
-		ct.add(index.RangeKey, string(index.RangeKeyType))
-		ks = append(ks, &dynamodb.KeySchemaElement{
-			AttributeName: &index.RangeKey,
-			KeyType:       aws.String(dynamodb.KeyTypeRange),
-		})
-	}
-
-	var proj *dynamodb.Projection
-	if index.ProjectionType != "" {
-		proj = &dynamodb.Projection{
-			ProjectionType: aws.String((string)(index.ProjectionType)),
-		}
-		if index.ProjectionType == IncludeProjection {
-			proj.NonKeyAttributes = aws.StringSlice(index.ProjectionAttribs)
-		}
-	}
-
-	if index.Local {
-		idx := ct.localIndices[index.Name]
-		idx.KeySchema = ks
-		if proj != nil {
-			idx.Projection = proj
-		}
-		ct.localIndices[index.Name] = idx
-		return ct
-	}
-
-	idx := ct.globalIndices[index.Name]
-	idx.KeySchema = ks
-	if index.Throughput.Read != 0 || index.Throughput.Write != 0 {
-		idx.ProvisionedThroughput = &dynamodb.ProvisionedThroughput{
-			ReadCapacityUnits:  &index.Throughput.Read,
-			WriteCapacityUnits: &index.Throughput.Write,
-		}
-	}
-	if proj != nil {
-		idx.Projection = proj
-	}
-	ct.globalIndices[index.Name] = idx
-	return ct
-}
-
-// Tag specifies a metadata tag for this table. Multiple tags may be specified.
-func (ct *CreateTable) Tag(key, value string) *CreateTable {
-	for _, tag := range ct.tags {
-		if *tag.Key == key {
-			*tag.Value = value
-			return ct
-		}
-	}
-	tag := &dynamodb.Tag{
-		Key:   aws.String(key),
-		Value: aws.String(value),
-	}
-	ct.tags = append(ct.tags, tag)
-	return ct
-}
-
 // Run creates this table or returns and error.
 func (ct *CreateTable) Run() error {
-	ctx, cancel := defaultContext()
-	defer cancel()
-	return ct.RunWithContext(ctx)
-}
-
-func (ct *CreateTable) RunWithContext(ctx aws.Context) error {
 	if ct.err != nil {
 		return ct.err
 	}
 
 	input := ct.input()
-	return retry(ctx, func() error {
-		_, err := ct.db.client.CreateTableWithContext(ctx, input)
+	return retry(func() error {
+		_, err := ct.db.client.CreateTable(input)
 		return err
 	})
+	return nil
 }
 
 func (ct *CreateTable) from(rv reflect.Value) error {
@@ -263,7 +171,7 @@ func (ct *CreateTable) from(rv reflect.Value) error {
 
 		// primary keys
 		if keyType := keyTypeFromTag(field.Tag.Get("dynamo")); keyType != "" {
-			ct.add(name, typeOf(fv, field.Tag.Get("dynamo")))
+			ct.add(name, typeOf(fv))
 			ct.schema = append(ct.schema, &dynamodb.KeySchemaElement{
 				AttributeName: &name,
 				KeyType:       &keyType,
@@ -271,33 +179,29 @@ func (ct *CreateTable) from(rv reflect.Value) error {
 		}
 
 		// global secondary index
-		if gsi, ok := tagLookup(string(field.Tag), "index"); ok {
-			for _, index := range gsi {
-				ct.add(name, typeOf(fv, field.Tag.Get("dynamo")))
-				keyType := keyTypeFromTag(index)
-				indexName := index[:len(index)-len(keyType)-1]
-				idx := ct.globalIndices[indexName]
-				idx.KeySchema = append(idx.KeySchema, &dynamodb.KeySchemaElement{
-					AttributeName: &name,
-					KeyType:       &keyType,
-				})
-				ct.globalIndices[indexName] = idx
-			}
+		if index := field.Tag.Get("index"); index != "" {
+			ct.add(name, typeOf(fv))
+			keyType := keyTypeFromTag(index)
+			indexName := index[:len(index)-len(keyType)-1]
+			idx := ct.globalIndices[indexName]
+			idx.KeySchema = append(idx.KeySchema, &dynamodb.KeySchemaElement{
+				AttributeName: &name,
+				KeyType:       &keyType,
+			})
+			ct.globalIndices[indexName] = idx
 		}
 
 		// local secondary index
-		if lsi, ok := tagLookup(string(field.Tag), "localIndex"); ok {
-			for _, localIndex := range lsi {
-				ct.add(name, typeOf(fv, field.Tag.Get("dynamo")))
-				keyType := keyTypeFromTag(localIndex)
-				indexName := localIndex[:len(localIndex)-len(keyType)-1]
-				idx := ct.localIndices[indexName]
-				idx.KeySchema = append(idx.KeySchema, &dynamodb.KeySchemaElement{
-					AttributeName: &name,
-					KeyType:       &keyType,
-				})
-				ct.localIndices[indexName] = idx
-			}
+		if localIndex := field.Tag.Get("localIndex"); localIndex != "" {
+			ct.add(name, typeOf(fv))
+			keyType := keyTypeFromTag(localIndex)
+			indexName := localIndex[:len(localIndex)-len(keyType)-1]
+			idx := ct.localIndices[indexName]
+			idx.KeySchema = append(idx.KeySchema, &dynamodb.KeySchemaElement{
+				AttributeName: &name,
+				KeyType:       &keyType,
+			})
+			ct.localIndices[indexName] = idx
 		}
 	}
 
@@ -310,14 +214,10 @@ func (ct *CreateTable) input() *dynamodb.CreateTableInput {
 		TableName:            &ct.tableName,
 		AttributeDefinitions: ct.attribs,
 		KeySchema:            ct.schema,
-	}
-	if ct.ondemand {
-		input.BillingMode = aws.String(dynamodb.BillingModePayPerRequest)
-	} else {
-		input.ProvisionedThroughput = &dynamodb.ProvisionedThroughput{
+		ProvisionedThroughput: &dynamodb.ProvisionedThroughput{
 			ReadCapacityUnits:  &ct.readUnits,
 			WriteCapacityUnits: &ct.writeUnits,
-		}
+		},
 	}
 	if ct.streamView != "" {
 		enabled := true
@@ -355,9 +255,7 @@ func (ct *CreateTable) input() *dynamodb.CreateTableInput {
 				ProjectionType: &all,
 			}
 		}
-		if ct.ondemand {
-			idx.ProvisionedThroughput = nil
-		} else if idx.ProvisionedThroughput == nil {
+		if idx.ProvisionedThroughput == nil {
 			units := int64(1)
 			idx.ProvisionedThroughput = &dynamodb.ProvisionedThroughput{
 				ReadCapacityUnits:  &units,
@@ -366,9 +264,6 @@ func (ct *CreateTable) input() *dynamodb.CreateTableInput {
 		}
 		sortKeySchemas(idx.KeySchema)
 		input.GlobalSecondaryIndexes = append(input.GlobalSecondaryIndexes, &idx)
-	}
-	if len(ct.tags) > 0 {
-		input.Tags = ct.tags
 	}
 	return input
 }
@@ -397,28 +292,13 @@ func (ct *CreateTable) setError(err error) {
 	}
 }
 
-func typeOf(rv reflect.Value, tag string) string {
-	split := strings.Split(tag, ",")
-	if len(split) > 1 {
-		for _, v := range split[1:] {
-			if v == "unixtime" {
-				return "N"
-			}
-		}
-	}
+func typeOf(rv reflect.Value) string {
 	if rv.CanInterface() {
 		switch x := rv.Interface().(type) {
 		case Marshaler:
 			if av, err := x.MarshalDynamo(); err == nil {
 				if iface, err := av2iface(av); err == nil {
-					return typeOf(reflect.ValueOf(iface), tag)
-				}
-			}
-		case dynamodbattribute.Marshaler:
-			av := &dynamodb.AttributeValue{}
-			if err := x.MarshalDynamoDBAttributeValue(av); err == nil {
-				if iface, err := av2iface(av); err == nil {
-					return typeOf(reflect.ValueOf(iface), tag)
+					return typeOf(reflect.ValueOf(iface))
 				}
 			}
 		case encoding.TextMarshaler:
@@ -435,8 +315,7 @@ check:
 	case reflect.String:
 		return "S"
 	case reflect.Int, reflect.Int64, reflect.Int32, reflect.Int16,
-		reflect.Int8, reflect.Float64, reflect.Float32,
-		reflect.Uint, reflect.Uint64, reflect.Uint32, reflect.Uint16, reflect.Uint8:
+		reflect.Int8, reflect.Float64, reflect.Float32:
 		return "N"
 	case reflect.Slice, reflect.Array:
 		if typ.Elem().Kind() == reflect.Uint8 {
@@ -448,11 +327,7 @@ check:
 }
 
 func keyTypeFromTag(tag string) string {
-	split := strings.Split(tag, ",")
-	if len(split) <= 1 {
-		return ""
-	}
-	for _, v := range split[1:] {
+	for _, v := range strings.Split(tag, ",") {
 		switch v {
 		case "hash", "partition":
 			return dynamodb.KeyTypeHash
@@ -467,57 +342,4 @@ func sortKeySchemas(schemas []*dynamodb.KeySchemaElement) {
 	if *schemas[0].KeyType == dynamodb.KeyTypeRange {
 		schemas[0], schemas[1] = schemas[1], schemas[0]
 	}
-}
-
-// ripped from the stdlib
-// Copyright 2009 The Go Authors. All rights reserved.
-func tagLookup(tag, key string) (value []string, ok bool) {
-	for tag != "" {
-		// Skip leading space.
-		i := 0
-		for i < len(tag) && tag[i] == ' ' {
-			i++
-		}
-		tag = tag[i:]
-		if tag == "" {
-			break
-		}
-
-		// Scan to colon. A space, a quote or a control character is a syntax error.
-		// Strictly speaking, control chars include the range [0x7f, 0x9f], not just
-		// [0x00, 0x1f], but in practice, we ignore the multi-byte control characters
-		// as it is simpler to inspect the tag's bytes than the tag's runes.
-		i = 0
-		for i < len(tag) && tag[i] > ' ' && tag[i] != ':' && tag[i] != '"' && tag[i] != 0x7f {
-			i++
-		}
-		if i == 0 || i+1 >= len(tag) || tag[i] != ':' || tag[i+1] != '"' {
-			break
-		}
-		name := string(tag[:i])
-		tag = tag[i+1:]
-
-		// Scan quoted string to find value.
-		i = 1
-		for i < len(tag) && tag[i] != '"' {
-			if tag[i] == '\\' {
-				i++
-			}
-			i++
-		}
-		if i >= len(tag) {
-			break
-		}
-		qvalue := string(tag[:i+1])
-		tag = tag[i+1:]
-
-		if key == name {
-			v, err := strconv.Unquote(qvalue)
-			if err != nil {
-				break
-			}
-			value = append(value, v)
-		}
-	}
-	return value, len(value) > 0
 }
