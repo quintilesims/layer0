@@ -20,8 +20,10 @@ before_deploy:
 
 deploy:
 - provider: releases
-  user: "$TV_USER_NAME"
-  password: "$TV_PASS"
+  api_key:
+    # Encrypted personal access token of `carbon-bot-user` github user
+    # Encrypted with `travis encrypt [TOKEN]`
+    secure: "RYA4EpzWYywXIHyhDlLUUpf1As++rUxZZi6PP2LZF4yJpoMjVKyt/pIbBmO/xXStpM/Z7UUJpkJCRRJ2Bt52xyvBwQBZj7WG9SZU15eVXAGsF/aWY12TrtZ+7hLluOIIy5a0O/TkTsmfR1t0OKbF5ata43P2wF6URFnUar+Yhvy15lkYZPwZ3ATTdp7a7ZZP4abFVXdhZQG/EN+GYKegu1yGCUM9c9Xvl15N9nwylGd2vqJAubDe9srCzwkvMzFXJFlRXPgtsx23eD4cxk58vZlSLM4xGebWHOYJbvfZHp68vNZj18dDOMKUflwldrPuZwxzErOLDHMv04Z29Ta5cOCBqyj6YuXl2yzevr0hrNuvIQ4rz65/hiwsXeeD4dYVay6uKul6OB3Te6I1As3nxuMwn7iLbzXIfyAD4hUCrwGO/SPerorwwGlmMMv65LKmavPbV85i+/lZl7KbeKoc1c6ZJlpRes41YgH4HKKwjgWb993bxSQbJsXCaGpQG+m+aPv9A3qetpx+tkUQfALWITCCshubEJFjsF5629avWkX1S+WeglT2RVIbNC4S4N1SQ42+kRfWjXRVx0TsTXAOL6jFjRb/CbYnqAq1e38u1f2P797eEDcwOj2FQkY+yffKHVydYdW/Xob0VRMY/2zwIcvRBOlPe/vXuie7WEfjOfA="
   file: 
    - build/macOS.zip
    - build/Linux.zip
