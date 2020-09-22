@@ -20,10 +20,10 @@ before_deploy:
 
 deploy:
 - provider: releases
-  api_key: 
-   secure: "nqTCTPPjo5ok71Sm3lTq/6j/jxSzNBGKmOzLanNvycRkviXoIxmm/JYfBKMLqa+g1wvdq6NH62hrca9EyUlblHcY4MyJbI4NJV/I0qkY5uM4dqKjGRb0a6y12vBW70riQBq0GTAaNYaaGoGmRaJSKecM39WxKCBdRKlYBYZft4JkAy7VfaHZvIcPoKzt0fOjU9l1K9QDuWvu1OhdYnWIp7bqbASnzmWlSTOMhPRrP7MUzDsHFWnhSnVb8CsgKKYsafDTC6VNd/uwqSj7u2L6s8soPcCBcDB0fh0cDrbXjwwva0u5786hLOu6QkZWBDNRRGZiuGdnpUJEUyx+g2KbMKYwKfE21SovDaIvZfeI0GkkR2hYX0trfQ8S6FXW9kyKmkLyV1FVCj15iSgFlCHXNYX2hvBULrvm91c/aCI/17lq6WsW+XE+kQC05rIy1Z16DKyYGOpoLIaCjR2+0wp3CGbYe4W9WLlsV6Sk4JjOyWddsL1AwmL7T7dSb4l7hD6aU5u+es1fTi7E3PjFlXfS1Vx+SNYpAJSJQ6JiaM4tJ6/BwWyS1jx8BdEwJ0n4nMbED+iMttmXWInNww42sE16rKbmUkQaXd7xm4uIIWPYdvu/2LVgHZCUnqRAb7vDSsfov9p9UYmJrrXdyhDwDwt0qu4zXLlmh/QzRL9WU6i4XfA="
+  api_key:
     # Encrypted personal access token of `carbon-bot-user` github user
     # Encrypted with `travis encrypt [TOKEN]`
+    secure: "GG36ACvf6D4wE3XRy7kN9JbQg9SM5UvG+G86R0xki087jORBfgUiVByCYnbZKcpMy0fCdMc8Kr69YEPqNjBnQ3ZGeWbl1Jni9c+FwGiNA/e5Vfml/6yp+VbJJ17wvEwQ4kVngP8JeKKiZ/aZC+8FlIkeYOxytodUvMG92rlIatfFsUGQBbUn7T4IKMo6M6e+SLxgq7+I8hpO1AjghTPLUvh8G8s4CesPya13yVca/ZCbNdSpf7JhcT2oWZEUp5S39yIMMDEsZ4rJatfwZEq8oUPI2m6twMOVQVXB44INgGPaRWlQHfnbV+u2bloknHuNP+n/44u3AQF8LT8eiBhWIeY9eP/mZcdL+wkiBppzye6iczGiaT9GaueVBJCGAy17aYl14iaz5vYvkLAbGa7q1+MtPKz5e4zBOr0OUdRFS+D966XlaoeOzM1O4zMf/ToLC4YlzCU4Y5uSbkxgriMM9Y9Cnj8JKmRzgiQf4X5cRs26o0C7jREq9g7i3f2Bsd0Q/oO7LTYDnWOfKoH6uTO1Pa3gFaoDKvUAdH4W5ESGg8rlyUpZum2xmBfJ+w2fzPOC6Nn3seAXI94jqoenQn6pj5R8a7A6btD4H8LlCbmQk6clHofAUSaWfczB/C4FX3Oj1hkGGYDfyReq50i1agAx4UiFJvfuHxAa7zn+kYduWUk="
   file: 
    - build/macOS.zip
    - build/Linux.zip
@@ -31,3 +31,4 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
+
