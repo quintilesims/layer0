@@ -71,6 +71,7 @@ func (d *DynamoTagStore) Clear() error {
 }
 
 func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
+
 	schema, err := d.selectByTypeAndID(entityType, entityID)
 	if err != nil {
 		return err
@@ -78,6 +79,21 @@ func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
 
 	// do nothing if key doesn't exist
 	if _, ok := schema.Tags[key]; !ok {
+		return nil
+	}
+
+	if entityType == "task" && key == "arn" {
+		//if environment is NOT api, if arn is gone. Should delete the task.
+		d.table.Delete("EntityType", "task").Range("EntityID", entityID).Run()
+		if _, ok := schema.Tags["environment_id"]; !ok {
+			//if environment is api, if arn is gone. Should delete the task + deploy.
+			if schema.Tags["environment_id"] == "api" {
+				//todo here, should the versions of definition of the task be deleted as well?
+				if _, ok := schema.Tags["deploy_id"]; !ok {
+					d.table.Delete("EntityType", "deploy").Range("EntityID", schema.Tags["deploy_id"]).Run()
+				}
+			}
+		}
 		return nil
 	}
 

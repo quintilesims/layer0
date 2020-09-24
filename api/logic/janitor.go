@@ -14,7 +14,7 @@ import (
 
 const (
 	JOB_LIFETIME           = time.Hour * 1
-	JANITOR_SLEEP_DURATION = time.Minute * 10
+	JANITOR_SLEEP_DURATION = time.Minute * 5
 )
 
 var janitorLogger = logutils.NewStackTraceLogger("Janitor")
@@ -50,34 +50,13 @@ func (this *Janitor) Run() {
 
 func getValidTags(jobs []*models.Job, tags *models.Tags) models.Tags {
 	result := []models.Tag{}
-	//loop job table
-	for _, job := range jobs {
-		//check meta task id
-		if job.Meta != nil {
-			if tags.Any(func(t models.Tag) bool {
-				if t.EntityType == "task" && t.EntityID == job.Meta["task_id"] {
-					result = append(result, t)
-					return true
-				}
-				return false
-			}) {
-			}
-		}
-		//check task id
-		if job.TaskID != "" {
-			if tags.Any(func(t models.Tag) bool {
-				if t.EntityType == "task" && t.EntityID == job.TaskID {
-					result = append(result, t)
-					return true
-				}
-				return false
-			}) {
-			}
-		}
-	}
 	//loop tag table
 	for _, tag := range *tags {
-		//check job type
+		//append all task as now all task are the ones alive.
+		if tag.EntityType == "task" {
+			result = append(result, tag)
+		}
+		//check job type, if the job object links to any exisiting task, keep it.
 		if tag.EntityType == "job" && tag.Key == "task_id" {
 			if tags.Any(func(t models.Tag) bool {
 				if t.EntityType == "task" && t.EntityID == tag.Value {
@@ -88,7 +67,7 @@ func getValidTags(jobs []*models.Job, tags *models.Tags) models.Tags {
 			}) {
 			}
 		}
-		//check deploy type (job.xxx)
+		//check deploy type (job.xxx), if job.xxx links to any existing task, keep it. These are api jobs.
 		if tag.EntityType == "deploy" && tag.Key == "job" {
 			if tags.Any(func(t models.Tag) bool {
 				if t.EntityType == "task" && t.Key == "deploy_id" && t.Value == tag.EntityID {
@@ -99,7 +78,6 @@ func getValidTags(jobs []*models.Job, tags *models.Tags) models.Tags {
 			}) {
 			}
 		}
-
 	}
 
 	return result
@@ -124,10 +102,12 @@ func (this *Janitor) pulse() error {
 				if err := this.JobLogic.Delete(job.JobID); err != nil {
 					jobLogger.Errorf("Failed to delete job '%s': %v", job.JobID, err)
 					errs = append(errs, err)
+					//If by any reasons the job can not be deleted (data corruption), since it already pass the Job life time, just delete the item from dynamodb.
 					if err := this.JobStore.Delete(job.JobID); err != nil {
 						jobLogger.Errorf("Failed to delete job directly from dynamodb'%s': %v", job.JobID, err)
 						errs = append(errs, err)
 					}
+
 				} else {
 					jobLogger.Infof("Finished deleting job '%s'", job.JobID)
 				}
@@ -151,7 +131,7 @@ func (this *Janitor) pulse() error {
 		return false
 	}
 
-	//clean the task in db that not in ecs task
+	//clean the task in db that not in ecs task, if arn value is gone
 	tags, err := this.TagStore.SelectByType("task")
 	if err != nil {
 		tagLogger.Errorln("Could not query for tag store for task entity type - ", err.Error())
@@ -167,27 +147,29 @@ func (this *Janitor) pulse() error {
 			tagLogger.Infof("Tag for task (%s) has been deleted\n", tag.EntityID)
 		}
 	}
+	/*
+		//clean up the entity types that not join to any tasks in tag table
+		tags, err = this.TagStore.SelectByType("task")
+		jobTags, err := this.TagStore.SelectByType("job")
+		deployTags, err := this.TagStore.SelectByType("deploy")
+		tags = append(append(tags, jobTags...), deployTags...)
+		keepTags := getValidTags(jobs, &tags)
 
-	//clean up the tasks not linking to any running jobs
-	tags, err = this.TagStore.SelectByType("task")
-	jobTags, err := this.TagStore.SelectByType("job")
-	deployTags, err := this.TagStore.SelectByType("deploy")
-	tags = append(append(tags, jobTags...), deployTags...)
-	keepTags := getValidTags(jobs, &tags)
+		//clean the tag tables now
+		for _, tag := range tags {
+			if !keepTags.Any(func(t models.Tag) bool {
+				if t.EntityType == tag.EntityType && t.EntityID == tag.EntityID && t.Key == tag.Key {
+					return true
+				}
+				return false
+			}) {
+				if err := this.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
+					jobLogger.Errorf("Failed to delete tag '%s' %s : %v", tag.EntityType, tag.EntityID, err)
+					errs = append(errs, err)
+				}
+			}
 
-	for _, tag := range tags {
-		if !keepTags.Any(func(t models.Tag) bool {
-			if t.EntityType == tag.EntityType && t.EntityID == tag.EntityID && t.Key == tag.Key {
-				return true
-			}
-			return false
-		}) {
-			if err := this.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
-				jobLogger.Errorf("Failed to delete tag '%s' %s : %v", tag.EntityType, tag.EntityID, err)
-				errs = append(errs, err)
-			}
 		}
-
-	}
+	*/
 	return errors.MultiError(errs)
 }
