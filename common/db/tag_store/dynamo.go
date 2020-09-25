@@ -83,17 +83,17 @@ func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
 	}
 
 	if entityType == "task" && key == "arn" {
-		//if environment is NOT api, if arn is gone. Should delete the task.
-		d.table.Delete("EntityType", "task").Range("EntityID", entityID).Run()
-		if _, ok := schema.Tags["environment_id"]; !ok {
+		if _, ok := schema.Tags["environment_id"]; ok {
 			//if environment is api, if arn is gone. Should delete the task + deploy.
 			if schema.Tags["environment_id"] == "api" {
 				//todo here, should the versions of definition of the task be deleted as well?
-				if _, ok := schema.Tags["deploy_id"]; !ok {
+				if _, ok := schema.Tags["deploy_id"]; ok {
 					d.table.Delete("EntityType", "deploy").Range("EntityID", schema.Tags["deploy_id"]).Run()
 				}
 			}
 		}
+		//if environment is NOT api, if arn is gone. Should delete the task.
+		d.table.Delete("EntityType", "task").Range("EntityID", entityID).Run()
 		return nil
 	}
 
