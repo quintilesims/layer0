@@ -94,6 +94,14 @@ func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
 		}
 		//if environment is NOT api, if arn is gone. Should delete the task.
 		d.table.Delete("EntityType", "task").Range("EntityID", entityID).Run()
+		//if task is gone, there is no point to have the job links to the task
+		jobTags, _ := d.SelectByType("job")
+		for _, tag := range jobTags {
+			if tag.Key == "task_id" && tag.Value == entityID {
+				d.table.Delete("EntityType", "job").Range("EntityID", tag.EntityID).Run()
+				break
+			}
+		}
 		return nil
 	}
 
