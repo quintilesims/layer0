@@ -2,6 +2,7 @@ package tag_store
 
 import (
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/awserr"
@@ -82,27 +83,45 @@ func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
 		return nil
 	}
 
-	if entityType == "task" && key == "arn" {
-		if _, ok := schema.Tags["environment_id"]; ok {
-			//if environment is api, if arn is gone. Should delete the task + deploy.
+	switch entityType {
+	case "task":
+		switch key {
+		case "arn":
+			//if environment is api, if arn is gone. Should delete the task + job + deploy.
+			//if environment is NOT api, if arn is gone. Should delete the task + job .
+			if _, ok := schema.Tags["environment_id"]; ok {
+				if schema.Tags["environment_id"] == "api" {
+					//todo here, should the versions of definition of the task be deleted as well?
+					if _, ok := schema.Tags["deploy_id"]; ok {
+						d.table.Delete("EntityType", "deploy").Range("EntityID", schema.Tags["deploy_id"]).Run()
+					}
+				}
+			}
+			d.table.Delete("EntityType", "task").Range("EntityID", entityID).Run()
+			//if task is gone, there is no point to have the job links to the task
+			jobTags, _ := d.SelectByType("job")
+			for _, tag := range jobTags {
+				if tag.Key == "task_id" && tag.Value == entityID {
+					d.table.Delete("EntityType", "job").Range("EntityID", tag.EntityID).Run()
+					break
+				}
+			}
+			return nil
+
+		case "deploy_id":
+			//If delete deploy_id , should remove the deploy as well. Then continue. This is only for api deployment since we want to keep environment deployment not api
 			if schema.Tags["environment_id"] == "api" {
-				//todo here, should the versions of definition of the task be deleted as well?
 				if _, ok := schema.Tags["deploy_id"]; ok {
 					d.table.Delete("EntityType", "deploy").Range("EntityID", schema.Tags["deploy_id"]).Run()
 				}
 			}
 		}
-		//if environment is NOT api, if arn is gone. Should delete the task.
-		d.table.Delete("EntityType", "task").Range("EntityID", entityID).Run()
-		//if task is gone, there is no point to have the job links to the task
-		jobTags, _ := d.SelectByType("job")
-		for _, tag := range jobTags {
-			if tag.Key == "task_id" && tag.Value == entityID {
-				d.table.Delete("EntityType", "job").Range("EntityID", tag.EntityID).Run()
-				break
-			}
+	case "deploy":
+		//if delete deploy belongs to api, then delete the whole row. No need to update the tag
+		if strings.HasPrefix(entityID, "job.") {
+			d.table.Delete("EntityType", "deploy").Range("EntityID", entityID).Run()
+			return nil
 		}
-		return nil
 	}
 
 	delete(schema.Tags, key)

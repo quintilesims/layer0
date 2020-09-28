@@ -48,41 +48,6 @@ func (this *Janitor) Run() {
 	}()
 }
 
-func getValidTags(jobs []*models.Job, tags *models.Tags) models.Tags {
-	result := []models.Tag{}
-	//loop tag table
-	for _, tag := range *tags {
-		//append all task as now all task are the ones alive.
-		if tag.EntityType == "task" {
-			result = append(result, tag)
-		}
-		//check job type, if the job object links to any exisiting task, keep it.
-		if tag.EntityType == "job" && tag.Key == "task_id" {
-			if tags.Any(func(t models.Tag) bool {
-				if t.EntityType == "task" && t.EntityID == tag.Value {
-					result = append(result, t)
-					return true
-				}
-				return false
-			}) {
-			}
-		}
-		//check deploy type (job.xxx), if job.xxx links to any existing task, keep it. These are api jobs.
-		if tag.EntityType == "deploy" && tag.Key == "job" {
-			if tags.Any(func(t models.Tag) bool {
-				if t.EntityType == "task" && t.Key == "deploy_id" && t.Value == tag.EntityID {
-					result = append(result, t)
-					return true
-				}
-				return false
-			}) {
-			}
-		}
-	}
-
-	return result
-}
-
 func (this *Janitor) pulse() error {
 
 	//clean jobs that is not running
@@ -102,7 +67,7 @@ func (this *Janitor) pulse() error {
 				if err := this.JobLogic.Delete(job.JobID); err != nil {
 					jobLogger.Errorf("Failed to delete job '%s': %v", job.JobID, err)
 					errs = append(errs, err)
-					//If by any reasons the job can not be deleted (data corruption), since it already pass the Job life time, just delete the item from dynamodb.
+					//If by any reasons the job can not be deleted (data corruption), because it already pass the Job life time, just delete the item from dynamodb.
 					if err := this.JobStore.Delete(job.JobID); err != nil {
 						jobLogger.Errorf("Failed to delete job directly from dynamodb'%s': %v", job.JobID, err)
 						errs = append(errs, err)
@@ -131,45 +96,38 @@ func (this *Janitor) pulse() error {
 		return false
 	}
 
-	//clean the task in db that not in ecs task, if arn value is gone
-	tags, err := this.TagStore.SelectByType("task")
+	//clean the task in db that not in ecs task
+	taskTags, err := this.TagStore.SelectByType("task")
 	if err != nil {
 		tagLogger.Errorln("Could not query for tag store for task entity type - ", err.Error())
 	}
 
-	for _, tag := range tags {
+	for _, tag := range taskTags {
 		if !taskExists(tag.EntityID) {
 			if err := this.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
 				tagLogger.Errorf("Could not delete tag (%#v) -  %s\n", tag, err.Error())
 				continue
 			}
-
+			//to do
 			tagLogger.Infof("Tag for task (%s) has been deleted\n", tag.EntityID)
 		}
 	}
-	/*
-		//clean up the entity types that not join to any tasks in tag table
-		tags, err = this.TagStore.SelectByType("task")
-		jobTags, err := this.TagStore.SelectByType("job")
-		deployTags, err := this.TagStore.SelectByType("deploy")
-		tags = append(append(tags, jobTags...), deployTags...)
-		keepTags := getValidTags(jobs, &tags)
 
-		//clean the tag tables now
-		for _, tag := range tags {
-			if !keepTags.Any(func(t models.Tag) bool {
-				if t.EntityType == tag.EntityType && t.EntityID == tag.EntityID && t.Key == tag.Key {
-					return true
-				}
-				return false
-			}) {
-				if err := this.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
-					jobLogger.Errorf("Failed to delete tag '%s' %s : %v", tag.EntityType, tag.EntityID, err)
-					errs = append(errs, err)
-				}
+	//clean up orphan api deploy
+	deployTags, err := this.TagStore.SelectByType("deploy")
+	for _, dtag := range deployTags.WithValue("job") {
+		if !taskTags.WithKey("deploy_id").Any(func(t models.Tag) bool {
+			if t.Value == dtag.EntityID {
+				return true
 			}
-
+			return false
+		}) {
+			if err := this.TagStore.Delete("deploy", dtag.EntityID, "name"); err != nil {
+				jobLogger.Errorf("Failed to delete tag '%s' %s : %v", dtag.EntityType, dtag.EntityID, err)
+				errs = append(errs, err)
+			}
+			tagLogger.Infof("orphan deploy record (%s) has been deleted\n", dtag.EntityID)
 		}
-	*/
+	}
 	return errors.MultiError(errs)
 }
