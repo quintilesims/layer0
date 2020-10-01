@@ -14,7 +14,7 @@ import (
 
 const (
 	JOB_LIFETIME           = time.Hour * 1
-	JANITOR_SLEEP_DURATION = time.Minute * 5
+	JANITOR_SLEEP_DURATION = time.Minute * 10
 )
 
 var janitorLogger = logutils.NewStackTraceLogger("Janitor")
@@ -53,7 +53,7 @@ func (this *Janitor) pulse() error {
 	//clean jobs that is not running
 	jobs, err := this.JobLogic.ListJobs()
 	if err != nil {
-		jobLogger.Errorf("Failed to list jobs: %v", err)
+		janitorLogger.Errorf("Failed to list jobs: %v", err)
 		return err
 	}
 
@@ -62,28 +62,26 @@ func (this *Janitor) pulse() error {
 	for _, job := range jobs {
 		timeSinceCreated := this.Clock.Since(job.TimeCreated)
 		if job.JobStatus != int64(types.InProgress) {
-			if timeSinceCreated > JOB_LIFETIME && job.JobStatus == int64(types.Completed) {
-				jobLogger.Infof("Deleting job '%s'", job.JobID)
+			if timeSinceCreated > JOB_LIFETIME && job.JobStatus != int64(types.Error) {
+				janitorLogger.Infof("Deleting job '%s'", job.JobID)
 				if err := this.JobLogic.Delete(job.JobID); err != nil {
-					jobLogger.Errorf("Failed to delete job '%s': %v", job.JobID, err)
 					errs = append(errs, err)
 					//If by any reasons the job can not be deleted (data corruption), because it already pass the Job life time, just delete the item from dynamodb.
 					if err := this.JobStore.Delete(job.JobID); err != nil {
-						jobLogger.Errorf("Failed to delete job directly from dynamodb'%s': %v", job.JobID, err)
 						errs = append(errs, err)
 					}
 
 				} else {
-					jobLogger.Infof("Finished deleting job '%s'", job.JobID)
+					janitorLogger.Infof("Finished deleting job '%s'", job.JobID)
 				}
 			}
 		}
 	}
 
-	// start clean tags table
-	tasks, err := this.TaskLogic.ListTasks()
+	// start clean tags table, Clean non-running tasks in db
+	tasks, err := this.TaskLogic.ListRunningTasks()
 	if err != nil {
-		tagLogger.Errorf("Failed to list tasks: %v", err)
+		janitorLogger.Errorf("Failed to list tasks: %v", err)
 		return err
 	}
 
@@ -99,17 +97,16 @@ func (this *Janitor) pulse() error {
 	//clean the task in db that not in ecs task
 	taskTags, err := this.TagStore.SelectByType("task")
 	if err != nil {
-		tagLogger.Errorln("Could not query for tag store for task entity type - ", err.Error())
+		janitorLogger.Errorln("Could not query for tag store for task entity type - ", err.Error())
 	}
 
 	for _, tag := range taskTags {
 		if !taskExists(tag.EntityID) {
 			if err := this.TagStore.Delete(tag.EntityType, tag.EntityID, tag.Key); err != nil {
-				tagLogger.Errorf("Could not delete tag (%#v) -  %s\n", tag, err.Error())
 				continue
 			}
 			//to do
-			tagLogger.Infof("Tag for task (%s) has been deleted\n", tag.EntityID)
+			janitorLogger.Infof("Tag for task (%s) has been deleted\n", tag.EntityID)
 		}
 	}
 
@@ -123,10 +120,10 @@ func (this *Janitor) pulse() error {
 			return false
 		}) {
 			if err := this.TagStore.Delete("deploy", dtag.EntityID, "name"); err != nil {
-				jobLogger.Errorf("Failed to delete tag '%s' %s : %v", dtag.EntityType, dtag.EntityID, err)
+				janitorLogger.Errorf("Failed to delete tag '%s' %s : %v", dtag.EntityType, dtag.EntityID, err)
 				errs = append(errs, err)
 			}
-			tagLogger.Infof("orphan deploy record (%s) has been deleted\n", dtag.EntityID)
+			janitorLogger.Infof("orphan deploy record (%s) has been deleted\n", dtag.EntityID)
 		}
 	}
 	return errors.MultiError(errs)

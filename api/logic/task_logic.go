@@ -11,6 +11,7 @@ import (
 type TaskLogic interface {
 	CreateTask(models.CreateTaskRequest) (string, error)
 	ListTasks() ([]*models.TaskSummary, error)
+	ListRunningTasks() ([]*models.TaskSummary, error)
 	GetTask(string) (*models.Task, error)
 	GetEnvironmentTasks(environmentID string) ([]*models.Task, error)
 	DeleteTask(string) error
@@ -25,6 +26,15 @@ func NewL0TaskLogic(logic Logic) *L0TaskLogic {
 	return &L0TaskLogic{
 		Logic: logic,
 	}
+}
+
+func (this *L0TaskLogic) ListRunningTasks() ([]*models.TaskSummary, error) {
+	taskARNs, err := this.Backend.ListRunningTasks()
+	if err != nil {
+		return nil, err
+	}
+
+	return this.makeTaskSummaryModels(taskARNs)
 }
 
 func (this *L0TaskLogic) ListTasks() ([]*models.TaskSummary, error) {
@@ -73,7 +83,8 @@ func (this *L0TaskLogic) GetEnvironmentTasks(environmentID string) ([]*models.Ta
 	for taskARN, taskModel := range taskARNModels {
 		taskID, err := this.getTaskARNFromID(taskARN)
 		if err != nil {
-			return nil, err
+			//return nil, err
+			continue
 		}
 
 		if err := this.populateModel(taskID, taskModel); err != nil {

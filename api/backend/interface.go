@@ -30,6 +30,7 @@ type Backend interface {
 
 	CreateTask(environmentID, deployID string, overrides []models.ContainerOverride) (string, error)
 	ListTasks() ([]string, error)
+	ListRunningTasks() ([]string, error)
 	GetTask(environmentID, taskARN string) (*models.Task, error)
 	GetEnvironmentTasks(environmentID string) (map[string]*models.Task, error)
 	DeleteTask(environmentID, taskARN string) error
