@@ -41,7 +41,7 @@ func (this *ECSTaskManager) ListRunningTasks() ([]string, error) {
 
 	taskARNs := []string{}
 	for _, clusterName := range clusterNames {
-		clusterTaskARNs, err := this.ECS.ListClusterTaskARNs(clusterName.String(), id.PREFIX)
+		clusterTaskARNs, err := this.ECS.ListClusterRunningTaskARNs(clusterName.String(), id.PREFIX)
 		if err != nil {
 			return nil, err
 		}

@@ -365,6 +365,19 @@ func (mr *MockBackendMockRecorder) ListTasks() *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListTasks", reflect.TypeOf((*MockBackend)(nil).ListTasks))
 }
 
+// ListRunningTasks mocks base method
+func (m *MockBackend) ListRunningTasks() ([]string, error) {
+	ret := m.ctrl.Call(m, "ListRunningTasks")
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListRunningTasks indicates an expected call of ListTasks
+func (mr *MockBackendMockRecorder) ListRunningTasks() *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListRunningTasks", reflect.TypeOf((*MockBackend)(nil).ListRunningTasks))
+}
+
 // ScaleService mocks base method
 func (m *MockBackend) ScaleService(arg0, arg1 string, arg2 int) (*models.Service, error) {
 	ret := m.ctrl.Call(m, "ScaleService", arg0, arg1, arg2)

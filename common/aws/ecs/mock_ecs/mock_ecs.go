@@ -316,6 +316,19 @@ func (mr *MockProviderMockRecorder) ListClusterTaskARNs(arg0, arg1 interface{}) 
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListClusterTaskARNs", reflect.TypeOf((*MockProvider)(nil).ListClusterTaskARNs), arg0, arg1)
 }
 
+// ListClusterRunningTaskARNs mocks base method
+func (m *MockProvider) ListClusterRunningTaskARNs(arg0, arg1 string) ([]string, error) {
+	ret := m.ctrl.Call(m, "ListClusterRunningTaskARNs", arg0, arg1)
+	ret0, _ := ret[0].([]string)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ListClusterRunningTaskARNs indicates an expected call of ListClusterRunningTaskARNs
+func (mr *MockProviderMockRecorder) ListClusterRunningTaskARNs(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListClusterRunningTaskARNs", reflect.TypeOf((*MockProvider)(nil).ListClusterRunningTaskARNs), arg0, arg1)
+}
+
 // ListClusters mocks base method
 func (m *MockProvider) ListClusters() ([]*string, error) {
 	ret := m.ctrl.Call(m, "ListClusters")
