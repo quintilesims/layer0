@@ -98,6 +98,41 @@ func TestListTasks(t *testing.T) {
 	assert.Equal(t, expected, result)
 }
 
+func TestListRunningTasks(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	ecsEnvironmentIDs := []id.ECSEnvironmentID{
+		id.ECSEnvironmentID("env_id1"),
+		id.ECSEnvironmentID("env_id2"),
+	}
+
+	mockTask := NewMockECSTaskManager(ctrl)
+	mockTask.Backend.EXPECT().
+		ListEnvironments().
+		Return(ecsEnvironmentIDs, nil)
+
+	for i, ecsEnvironmentID := range ecsEnvironmentIDs {
+		arn := fmt.Sprintf("arn_%d", i)
+
+		mockTask.ECS.EXPECT().
+			ListClusterRunningTaskARNs(ecsEnvironmentID.String(), id.PREFIX).
+			Return([]string{arn}, nil)
+	}
+
+	result, err := mockTask.Task().ListRunningTasks()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expected := []string{
+		"arn_0",
+		"arn_1",
+	}
+
+	assert.Equal(t, expected, result)
+}
+
 func TestDeleteTask(t *testing.T) {
 	ctrl := gomock.NewController(t)
 	defer ctrl.Finish()

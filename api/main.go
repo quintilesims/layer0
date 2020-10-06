@@ -150,6 +150,9 @@ func main() {
 
 	setupRestful(*lgc)
 
+	taskLogic := logic.NewL0TaskLogic(*lgc)
+	deployLogic := logic.NewL0DeployLogic(*lgc)
+	jobLogic := logic.NewL0JobLogic(*lgc, taskLogic, deployLogic)
 	environmentLogic := logic.NewL0EnvironmentLogic(*lgc)
 	adminLogic := logic.NewL0AdminLogic(*lgc)
 
@@ -157,7 +160,11 @@ func main() {
 		logrus.Errorf("Failed to update sql: %v", err)
 	}
 
+	Janitor := logic.NewJanitor(jobLogic, taskLogic, lgc.JobStore, lgc.TagStore)
 	go runEnvironmentScaler(environmentLogic)
+
+	logrus.Infof("Starting  Janitor")
+	Janitor.Run()
 
 	logrus.Print("Service on localhost" + port)
 	logrus.Fatal(http.ListenAndServe(port, nil))

@@ -48,10 +48,10 @@ func (d *DynamoJobStore) Delete(jobID string) error {
 }
 
 func (d *DynamoJobStore) UpdateJobStatus(jobID string, status types.JobStatus) error {
+
 	if err := d.table.Update("JobID", jobID).Set("JobStatus", int64(status)).Run(); err != nil {
 		return err
 	}
-
 	return nil
 }
 
@@ -66,7 +66,7 @@ func (d *DynamoJobStore) SetJobMeta(jobID string, meta map[string]string) error 
 func (d *DynamoJobStore) SelectAll() ([]*models.Job, error) {
 	jobs := []*models.Job{}
 	if err := d.table.Scan().
-		Consistent(false).
+		Consistent(true).
 		All(&jobs); err != nil {
 		return nil, err
 	}

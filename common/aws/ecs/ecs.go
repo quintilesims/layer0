@@ -47,6 +47,7 @@ type Provider interface {
 	Helper_ListServices(prefix string) ([]*string, error)
 
 	ListClusterTaskARNs(clusterName, startedBy string) ([]string, error)
+	ListClusterRunningTaskARNs(clusterName, startedBy string) ([]string, error)
 	ListClusterServiceNames(clusterName, prefix string) ([]string, error)
 	ListTasks(clusterName string, serviceName, desiredStatus, startedBy, containerInstance *string) ([]*string, error)
 
@@ -722,6 +723,14 @@ func (this *ECS) ListClusterNames(prefix string) ([]string, error) {
 }
 
 func (this *ECS) ListClusterTaskARNs(clusterName, startedBy string) ([]string, error) {
+	return this.ListClusterTaskARNsByStatus(clusterName, startedBy, []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped})
+}
+
+func (this *ECS) ListClusterRunningTaskARNs(clusterName, startedBy string) ([]string, error) {
+	return this.ListClusterTaskARNsByStatus(clusterName, startedBy, []string{ecs.DesiredStatusRunning})
+}
+
+func (this *ECS) ListClusterTaskARNsByStatus(clusterName, startedBy string, status []string) ([]string, error) {
 	connection, err := this.Connect()
 	if err != nil {
 		return nil, err
@@ -736,7 +745,7 @@ func (this *ECS) ListClusterTaskARNs(clusterName, startedBy string) ([]string, e
 		return !lastPage
 	}
 
-	for _, status := range []string{ecs.DesiredStatusRunning, ecs.DesiredStatusStopped} {
+	for _, status := range status {
 		input := &ecs.ListTasksInput{}
 		input.SetCluster(clusterName)
 		input.SetDesiredStatus(status)
