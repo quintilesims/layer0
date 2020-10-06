@@ -33,6 +33,25 @@ func NewECSTaskManager(
 	}
 }
 
+func (this *ECSTaskManager) ListRunningTasks() ([]string, error) {
+	clusterNames, err := this.Backend.ListEnvironments()
+	if err != nil {
+		return nil, err
+	}
+
+	taskARNs := []string{}
+	for _, clusterName := range clusterNames {
+		clusterTaskARNs, err := this.ECS.ListClusterRunningTaskARNs(clusterName.String(), id.PREFIX)
+		if err != nil {
+			return nil, err
+		}
+
+		taskARNs = append(taskARNs, clusterTaskARNs...)
+	}
+
+	return taskARNs, nil
+}
+
 func (this *ECSTaskManager) ListTasks() ([]string, error) {
 	clusterNames, err := this.Backend.ListEnvironments()
 	if err != nil {

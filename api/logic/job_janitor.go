@@ -1,16 +1,10 @@
 package logic
 
 import (
-	"time"
-
 	"github.com/quintilesims/layer0/common/errors"
 	"github.com/quintilesims/layer0/common/logutils"
+	"github.com/quintilesims/layer0/common/types"
 	"github.com/quintilesims/layer0/common/waitutils"
-)
-
-const (
-	JOB_LIFETIME           = time.Hour * 1
-	JANITOR_SLEEP_DURATION = time.Minute * 10
 )
 
 var jobLogger = logutils.NewStackTraceLogger("Job Janitor")
@@ -48,15 +42,16 @@ func (this *JobJanitor) pulse() error {
 	errs := []error{}
 	for _, job := range jobs {
 		timeSinceCreated := this.Clock.Since(job.TimeCreated)
+		if job.JobStatus != int64(types.InProgress) {
+			if timeSinceCreated > JOB_LIFETIME || job.JobStatus == int64(types.Completed) {
+				jobLogger.Infof("Deleting job '%s'", job.JobID)
 
-		if timeSinceCreated > JOB_LIFETIME {
-			jobLogger.Infof("Deleting job '%s'", job.JobID)
-
-			if err := this.jobLogic.Delete(job.JobID); err != nil {
-				jobLogger.Errorf("Failed to delete job '%s': %v", job.JobID, err)
-				errs = append(errs, err)
-			} else {
-				jobLogger.Infof("Finished deleting job '%s'", job.JobID)
+				if err := this.jobLogic.Delete(job.JobID); err != nil {
+					jobLogger.Errorf("Failed to delete job '%s': %v", job.JobID, err)
+					errs = append(errs, err)
+				} else {
+					jobLogger.Infof("Finished deleting job '%s'", job.JobID)
+				}
 			}
 		}
 	}

@@ -72,6 +72,7 @@ func (d *DynamoTagStore) Clear() error {
 }
 
 func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
+
 	schema, err := d.selectByTypeAndID(entityType, entityID)
 	if err != nil {
 		return err
@@ -80,6 +81,47 @@ func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
 	// do nothing if key doesn't exist
 	if _, ok := schema.Tags[key]; !ok {
 		return nil
+	}
+
+	switch entityType {
+	case "task":
+		switch key {
+		case "arn":
+			//if environment is api, if arn is gone. Should delete the task + job + deploy.
+			//if environment is NOT api, if arn is gone. Should delete the task + job .
+			if _, ok := schema.Tags["environment_id"]; ok {
+				if schema.Tags["environment_id"] == "api" {
+					//todo here, should the versions of definition of the task be deleted as well?
+					if _, ok := schema.Tags["deploy_id"]; ok {
+						d.table.Delete("EntityType", "deploy").Range("EntityID", schema.Tags["deploy_id"]).Run()
+					}
+				}
+			}
+			d.table.Delete("EntityType", "task").Range("EntityID", entityID).Run()
+			//if task is gone, there is no point to have the job links to the task
+			jobTags, _ := d.SelectByType("job")
+			for _, tag := range jobTags {
+				if tag.Key == "task_id" && tag.Value == entityID {
+					d.table.Delete("EntityType", "job").Range("EntityID", tag.EntityID).Run()
+					break
+				}
+			}
+			return nil
+
+		case "deploy_id":
+			//If delete deploy_id , should remove the deploy as well. Then continue. This is only for api deployment since we want to keep environment deployment not api
+			if schema.Tags["environment_id"] == "api" {
+				if _, ok := schema.Tags["deploy_id"]; ok {
+					d.table.Delete("EntityType", "deploy").Range("EntityID", schema.Tags["deploy_id"]).Run()
+				}
+			}
+		}
+	case "deploy":
+		//if delete deploy belongs to api, then delete the whole row. No need to update the tag
+		if strings.HasPrefix(entityID, "job.") {
+			d.table.Delete("EntityType", "deploy").Range("EntityID", entityID).Run()
+			return nil
+		}
 	}
 
 	delete(schema.Tags, key)
@@ -99,7 +141,6 @@ func (d *DynamoTagStore) Delete(entityType, entityID, key string) error {
 }
 
 func (d *DynamoTagStore) Insert(tag models.Tag) error {
-
 	schema := DynamoTagSchema{
 		EntityType: tag.EntityType,
 		EntityID:   tag.EntityID,
@@ -112,24 +153,53 @@ func (d *DynamoTagStore) Insert(tag models.Tag) error {
 		}
 		return err
 	}
-
-	//Add TTL value
-	if tag.EntityType == "task" {
-		d.addTTLValue(tag, config.TASK_TAG_TTL)
-	} else if tag.EntityType == "job" {
-		d.addTTLValue(tag, config.JOB_TAG_TTL)
-	} else if tag.EntityType == "deploy" && strings.HasPrefix(tag.EntityID, "job.") {
-		d.addTTLValue(tag, config.DEPLOY_JOB_TAG_TTL)
-	}
+	/*
+		//Add TTL value
+		if tag.EntityType == "task" {
+			d.addTTLValue(tag, config.TASK_TAG_TTL)
+		} else if tag.EntityType == "job" {
+			d.addTTLValue(tag, config.JOB_TAG_TTL)
+		} else if tag.EntityType == "deploy" && strings.HasPrefix(tag.EntityID, "job.") {
+			d.addTTLValue(tag, config.DEPLOY_JOB_TAG_TTL)
+		}
+	*/
 	return nil
 }
 
+/*
 func (d *DynamoTagStore) addTTLValue(tag models.Tag, ttlHours int) error {
 	if addError := d.table.Update("EntityType", tag.EntityType).
 		Range("EntityID", tag.EntityID).
 		Add("TimeToExist", time.Now().Add(time.Hour*time.Duration(ttlHours)).Unix()).
 		Run(); addError != nil {
 		return addError
+	}
+	return nil
+}
+*/
+
+func (d *DynamoTagStore) AddTTLValue(enityType string, entityId string, ttlHours int) error {
+	if addError := d.table.Update("EntityType", enityType).
+		Range("EntityID", entityId).
+		Add("TimeToExist", time.Now().Add(time.Hour*time.Duration(ttlHours)).Unix()).
+		Run(); addError != nil {
+		return addError
+	}
+	return nil
+}
+
+func (d *DynamoTagStore) AddTTLValueToDeployJobs(entityType, entityID string) error {
+	tags, err := d.SelectByTypeAndID(entityType, entityID)
+	if err != nil {
+		return err
+	}
+
+	for _, tag := range tags {
+		if tag.Key == "deploy_id" {
+			if err := d.AddTTLValue("deploy", tag.Value, config.DEPLOY_JOB_TAG_TTL); err != nil {
+				return err
+			}
+		}
 	}
 	return nil
 }
