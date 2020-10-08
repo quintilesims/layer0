@@ -7,7 +7,7 @@ import (
 	"github.com/quintilesims/layer0/setup/aws"
 )
 
-const LAYER0_MODULE_SOURCE = "github.com/quintilesims/layer0//setup/module"
+const LAYER0_MODULE_SOURCE = "git::ssh://git@gitlab.ims.io:2222/PG/layer0.git//setup/module"
 
 const (
 	INPUT_SOURCE           = "source"
