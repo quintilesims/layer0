@@ -68,7 +68,6 @@ const (
 	DELETE_LOAD_BALANCER_JOB_TTL = 6
 	DELETE_SERVICE_JOB_TTL       = 6
 	DELETE_ENVIRONMENT_JOB_TTL   = 6
-	DELETE_COMPLETED_JOB_TTL     = 1
 )
 
 // tag ttl expire time in hours
