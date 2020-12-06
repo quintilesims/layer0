@@ -28,6 +28,7 @@ const (
 	EU_WEST_1      = "eu-west-1"
 	SA_EAST_1      = "sa-east-1"
 	US_EAST_1      = "us-east-1"
+	US_EAST_2      = "us-east-2"
 	US_WEST_1      = "us-west-1"
 	US_WEST_2      = "us-west-2"
 )
@@ -41,6 +42,7 @@ var regionIsValid = func(region string) (isValid bool) {
 		EU_WEST_1,
 		SA_EAST_1,
 		US_EAST_1,
+		US_EAST_2,
 		US_WEST_1,
 		US_WEST_2,
 	}
