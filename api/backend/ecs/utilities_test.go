@@ -21,7 +21,8 @@ func testCreateDeploy(models.CreateDeployRequest) (*models.Deploy, error) {
 }
 
 func TestGetLogs(t *testing.T) {
-	taskARN := "arn:aws:ecs:region:aws_account_id:task/taskARN"
+	//arn:aws:ecs:us-west-2:064627975291:task/l0-v12102rc2-Developd2250/b3c66a05f1474138ab53751f44b68a91
+	taskARN := "arn:aws:ecs:region:aws_account_id:task/clusterName/taskARN"
 
 	testCases := []testutils.TestCase{
 		{
