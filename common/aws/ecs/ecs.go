@@ -769,8 +769,9 @@ func (this *ECS) ListClusterServiceNames(clusterName, prefix string) ([]string, 
 	fn := func(output *ecs.ListServicesOutput, lastPage bool) bool {
 		for _, serviceARN := range output.ServiceArns {
 			// sample service ARN:
-			// arn:aws:ecs:us-west-2:856306994068:service/l0-tlakedev-guestbo80d9d
-			serviceName := strings.Split(aws.StringValue(serviceARN), "/")[1]
+			// arn:aws:ecs:us-west-2:064627975291:service/l0-v12102-Develop81116/l0-v12102-Develope8871
+			s := strings.Split(aws.StringValue(serviceARN), "/")
+			serviceName := s[len(s)-1]
 			if strings.HasPrefix(serviceName, prefix) {
 				serviceNames = append(serviceNames, serviceName)
 			}
