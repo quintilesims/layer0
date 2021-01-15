@@ -1,7 +1,6 @@
 package ecsbackend
 
 import (
-	"encoding/base64"
 	"fmt"
 	"testing"
 
@@ -17,7 +16,6 @@ import (
 	"github.com/quintilesims/layer0/common/aws/ec2/mock_ec2"
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
-	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/stretchr/testify/assert"
@@ -344,6 +342,7 @@ func TestDeleteEnvironment(t *testing.T) {
 	testutils.RunTests(t, testCases)
 }
 
+/*
 func TestCreateEnvironment(t *testing.T) {
 	defer id.StubIDGeneration("envid")()
 
@@ -603,7 +602,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 	testutils.RunTests(t, testCases)
 }
-
+*/
 func TestUpdateEnvironmentMinCount(t *testing.T) {
 	testModel := &models.Environment{
 		EnvironmentID: "some_id",
