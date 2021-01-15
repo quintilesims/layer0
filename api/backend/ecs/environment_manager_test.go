@@ -55,10 +55,11 @@ func TestGetEnvironment(t *testing.T) {
 				autoScalingGroupName := ecsEnvironmentID.AutoScalingGroupName()
 				clusterName := ecsEnvironmentID.String()
 				securityGroupName := ecsEnvironmentID.SecurityGroupName()
+				cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
 
 				mockEnvironment.ECS.EXPECT().
 					DescribeCluster(clusterName).
-					Return(ecs.NewCluster(clusterName), nil)
+					Return(ecs.NewCluster(clusterName, cpArn), nil)
 
 				asg := autoscaling.NewGroup()
 				asg.LaunchConfigurationName = stringp(clusterName)
@@ -89,10 +90,11 @@ func TestGetEnvironment(t *testing.T) {
 				mockEnvironment := NewMockECSEnvironmentManager(ctrl)
 				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				clusterName := ecsEnvironmentID.String()
+				cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
 
 				mockEnvironment.ECS.EXPECT().
 					DescribeCluster(gomock.Any()).
-					Return(ecs.NewCluster(clusterName), nil)
+					Return(ecs.NewCluster(clusterName, cpArn), nil)
 
 				asg := autoscaling.NewGroup()
 				asg.LaunchConfigurationName = stringp(clusterName)
@@ -357,10 +359,11 @@ func TestCreateEnvironment(t *testing.T) {
 				securityGroupName := ecsEnvironmentID.SecurityGroupName()
 				securityGroupID := "some_sg_id"
 				clusterName := ecsEnvironmentID.String()
+				cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
 
 				mockEnvironment.ECS.EXPECT().
-					CreateCluster(clusterName).
-					Return(ecs.NewCluster(clusterName), nil)
+					CreateCluster(clusterName, cpArn).
+					Return(ecs.NewCluster(clusterName, cpArn), nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(clusterName).
@@ -428,10 +431,11 @@ func TestCreateEnvironment(t *testing.T) {
 				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				clusterName := ecsEnvironmentID.String()
 				securityGroupID := "some_sg_id"
+				cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
 
 				mockEnvironment.ECS.EXPECT().
-					CreateCluster(gomock.Any()).
-					Return(ecs.NewCluster(clusterName), nil)
+					CreateCluster(gomock.Any(), cpArn).
+					Return(ecs.NewCluster(clusterName, cpArn), nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(gomock.Any()).
@@ -481,10 +485,11 @@ func TestCreateEnvironment(t *testing.T) {
 				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				clusterName := ecsEnvironmentID.String()
 				securityGroupID := "some_sg_id"
+				cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
 
 				mockEnvironment.ECS.EXPECT().
-					CreateCluster(gomock.Any()).
-					Return(ecs.NewCluster(clusterName), nil)
+					CreateCluster(gomock.Any(), cpArn).
+					Return(ecs.NewCluster(clusterName, cpArn), nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(gomock.Any()).
@@ -540,10 +545,11 @@ func TestCreateEnvironment(t *testing.T) {
 					ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 					clusterName := ecsEnvironmentID.String()
 					securityGroupID := "some_sg_id"
+					cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
 
 					mockEnvironment.ECS.EXPECT().
-						CreateCluster(gomock.Any()).
-						Return(ecs.NewCluster(clusterName), g.Error())
+						CreateCluster(gomock.Any(), cpArn).
+						Return(ecs.NewCluster(clusterName, cpArn), g.Error())
 
 					mockEnvironment.EC2.EXPECT().
 						CreateSecurityGroup(gomock.Any(), gomock.Any(), gomock.Any()).

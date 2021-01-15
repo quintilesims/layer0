@@ -8,15 +8,26 @@ type ProviderDecorator struct {
 	Decorator func(name string, call func() error) error
 }
 
-func (this *ProviderDecorator) CreateCluster(p0 string) (v0 *Cluster, err error) {
+func (this *ProviderDecorator) CreateCluster(p0 string, p1 string) (v0 *Cluster, err error) {
 	call := func() error {
 		var err error
-		v0, err = this.Inner.CreateCluster(p0)
+		v0, err = this.Inner.CreateCluster(p0, p1)
 		return err
 	}
 	err = this.Decorator("CreateCluster", call)
 	return v0, err
 }
+
+func (this *ProviderDecorator) CreateCapacityProvider(p0 string, p1 string, p2 int64, p3 int64, p4 int64) (v0 *CapacityProvider, err error) {
+	call := func() error {
+		var err error
+		v0, err = this.Inner.CreateCapacityProvider(p0, p1, p2, p3, p4)
+		return err
+	}
+	err = this.Decorator("CreateCapacityProvider", call)
+	return v0, err
+}
+
 func (this *ProviderDecorator) CreateService(p0 string, p1 string, p2 string, p3 int64, p4 []*LoadBalancer, p5 *string) (v0 *Service, err error) {
 	call := func() error {
 		var err error
@@ -332,4 +343,3 @@ func (this *ProviderDecorator) UpdateService(p0 string, p1 string, p2 *string, p
 	err = this.Decorator("UpdateService", call)
 	return err
 }
-

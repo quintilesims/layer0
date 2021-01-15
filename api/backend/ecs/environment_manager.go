@@ -178,11 +178,6 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 		return nil, err
 	}
 
-	cluster, err := e.ECS.CreateCluster(ecsEnvironmentID.String())
-	if err != nil {
-		return nil, err
-	}
-
 	description := "Auto-generated Layer0 Environment Security Group"
 	vpcID := config.AWSVPCID()
 
@@ -233,6 +228,12 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 		minClusterCount,
 		maxClusterCount,
 	); err != nil {
+		return nil, err
+	}
+
+	asg, err := e.describeAutoscalingGroup(ecsEnvironmentID)
+	cluster, err := e.ECS.CreateCluster(ecsEnvironmentID.String(), *asg.AutoScalingGroupARN)
+	if err != nil {
 		return nil, err
 	}
 

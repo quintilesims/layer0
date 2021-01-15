@@ -13,10 +13,14 @@ import (
 const (
 	MAX_DESCRIBE_SERVICE_IDS = 10
 	MAX_DESCRIBE_TASK_ARNS   = 100
+	MAX_SCALING_SIZE         = 32
+	MIN_SCALING_SIZE         = 2
+	TARGETING_CAP_SIZE       = 80
 )
 
 type Provider interface {
-	CreateCluster(clusterName string) (*Cluster, error)
+	CreateCluster(clusterName string, asgArn string) (*Cluster, error)
+	CreateCapacityProvider(CapacityProviderName string, AsgArn string, MaxScalingSize int64, MinScalingSize int64, TargetCapacitySize int64) (*CapacityProvider, error)
 	CreateService(cluster, serviceName, taskDefinition string, desiredCount int64, loadBalancers []*LoadBalancer, loadBalancerRole *string) (*Service, error)
 
 	DeleteCluster(cluster string) error
@@ -74,6 +78,7 @@ type ECS struct {
 
 type ECSInternal interface {
 	CreateCluster(input *ecs.CreateClusterInput) (*ecs.CreateClusterOutput, error)
+	CreateCapacityProvider(input *ecs.CreateCapacityProviderInput) (*ecs.CreateCapacityProviderOutput, error)
 	CreateService(input *ecs.CreateServiceInput) (output *ecs.CreateServiceOutput, err error)
 	DeleteCluster(input *ecs.DeleteClusterInput) (*ecs.DeleteClusterOutput, error)
 	DeleteService(input *ecs.DeleteServiceInput) (*ecs.DeleteServiceOutput, error)
@@ -111,13 +116,18 @@ type Volume struct {
 	*ecs.Volume
 }
 
+type CapacityProvider struct {
+	*ecs.CapacityProvider
+}
+
 type Cluster struct {
 	*ecs.Cluster
 }
 
-func NewCluster(name string) *Cluster {
+func NewCluster(name string, cpArn string) *Cluster {
 	return &Cluster{&ecs.Cluster{
-		ClusterName: &name,
+		ClusterName:       &name,
+		CapacityProviders: []*string{&cpArn},
 	}}
 }
 
@@ -677,9 +687,46 @@ func (this *ECS) Helper_DescribeServices(prefix string) ([]*Service, error) {
 	return services, nil
 }
 
-func (this *ECS) CreateCluster(clusterName string) (*Cluster, error) {
+func (this *ECS) CreateCapacityProvider(CapacityProviderName string, AsgArn string, MaxScalingSize int64, MinScalingSize int64, TargetCapacitySize int64) (*CapacityProvider, error) {
+
+	ManagedScalingStatus := ecs.ManagedScalingStatusEnabled
+	ManagedTerminationProtection := ecs.ManagedTerminationProtectionEnabled
+
+	input := &ecs.CreateCapacityProviderInput{
+		Name: aws.String(CapacityProviderName),
+		AutoScalingGroupProvider: &ecs.AutoScalingGroupProvider{
+			AutoScalingGroupArn: &AsgArn,
+			ManagedScaling: &ecs.ManagedScaling{
+				MaximumScalingStepSize: &MaxScalingSize,
+				MinimumScalingStepSize: &MinScalingSize,
+				Status:                 &ManagedScalingStatus,
+				TargetCapacity:         &TargetCapacitySize,
+			},
+			ManagedTerminationProtection: &ManagedTerminationProtection,
+		},
+	}
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	output, err := connection.CreateCapacityProvider(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CapacityProvider{output.CapacityProvider}, err
+}
+
+func (this *ECS) CreateCluster(clusterName string, asgArn string) (*Cluster, error) {
+
+	capacityProvider, err := this.CreateCapacityProvider(clusterName, asgArn, MAX_SCALING_SIZE, MIN_SCALING_SIZE, TARGETING_CAP_SIZE)
+	if err != nil {
+		return nil, err
+	}
 	input := &ecs.CreateClusterInput{
-		ClusterName: aws.String(clusterName),
+		ClusterName:       aws.String(clusterName),
+		CapacityProviders: []*string{aws.String(*capacityProvider.CapacityProviderArn)},
 	}
 
 	connection, err := this.Connect()

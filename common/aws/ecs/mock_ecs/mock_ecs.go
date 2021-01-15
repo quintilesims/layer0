@@ -33,17 +33,25 @@ func (m *MockProvider) EXPECT() *MockProviderMockRecorder {
 	return m.recorder
 }
 
+// CreateCapacityProvider mocks base method
+func (m *MockProvider) CreateCapacityProvider(arg0 string, arg1 string, arg2 int64, arg3 int64, arg4 int64) (*ecs.CapacityProvider, error) {
+	ret := m.ctrl.Call(m, "CreateCapacityProvider", arg0, arg1, arg2, arg3, arg4)
+	ret0, _ := ret[0].(*ecs.CapacityProvider)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
 // CreateCluster mocks base method
-func (m *MockProvider) CreateCluster(arg0 string) (*ecs.Cluster, error) {
-	ret := m.ctrl.Call(m, "CreateCluster", arg0)
+func (m *MockProvider) CreateCluster(arg0, arg1 string) (*ecs.Cluster, error) {
+	ret := m.ctrl.Call(m, "CreateCluster", arg0, arg1)
 	ret0, _ := ret[0].(*ecs.Cluster)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateCluster indicates an expected call of CreateCluster
-func (mr *MockProviderMockRecorder) CreateCluster(arg0 interface{}) *gomock.Call {
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCluster", reflect.TypeOf((*MockProvider)(nil).CreateCluster), arg0)
+func (mr *MockProviderMockRecorder) CreateCluster(arg0, arg1 interface{}) *gomock.Call {
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateCluster", reflect.TypeOf((*MockProvider)(nil).CreateCluster), arg0, arg1)
 }
 
 // CreateService mocks base method
