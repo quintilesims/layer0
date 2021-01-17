@@ -726,7 +726,7 @@ func (this *ECS) CreateCluster(clusterName string, asgArn string) (*Cluster, err
 	}
 	input := &ecs.CreateClusterInput{
 		ClusterName:       aws.String(clusterName),
-		CapacityProviders: []*string{aws.String(*capacityProvider.CapacityProviderArn)},
+		CapacityProviders: []*string{aws.String(*capacityProvider.Name)},
 	}
 
 	connection, err := this.Connect()
