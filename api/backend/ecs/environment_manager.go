@@ -238,7 +238,7 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 	}
 
 	// wait for cluster
-	e.Clock.Sleep(time.Second * 180)
+	e.Clock.Sleep(time.Second * 40)
 
 	return e.populateModel(cluster)
 }
