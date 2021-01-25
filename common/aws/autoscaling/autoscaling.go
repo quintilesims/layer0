@@ -57,9 +57,10 @@ type Activity struct {
 
 func NewGroup() *Group {
 	return &Group{&autoscaling.Group{
-		MinSize:         aws.Int64(0),
-		MaxSize:         aws.Int64(0),
-		DesiredCapacity: aws.Int64(0),
+		MinSize:             aws.Int64(0),
+		MaxSize:             aws.Int64(0),
+		DesiredCapacity:     aws.Int64(0),
+		AutoScalingGroupARN: aws.String("mock_arn"),
 	}}
 }
 

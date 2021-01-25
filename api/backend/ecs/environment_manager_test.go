@@ -1,6 +1,7 @@
 package ecsbackend
 
 import (
+	"encoding/base64"
 	"fmt"
 	"testing"
 
@@ -16,6 +17,7 @@ import (
 	"github.com/quintilesims/layer0/common/aws/ec2/mock_ec2"
 	"github.com/quintilesims/layer0/common/aws/ecs"
 	"github.com/quintilesims/layer0/common/aws/ecs/mock_ecs"
+	"github.com/quintilesims/layer0/common/config"
 	"github.com/quintilesims/layer0/common/models"
 	"github.com/quintilesims/layer0/common/testutils"
 	"github.com/stretchr/testify/assert"
@@ -53,7 +55,7 @@ func TestGetEnvironment(t *testing.T) {
 				autoScalingGroupName := ecsEnvironmentID.AutoScalingGroupName()
 				clusterName := ecsEnvironmentID.String()
 				securityGroupName := ecsEnvironmentID.SecurityGroupName()
-				cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
+				cpArn := "mock_arn"
 
 				mockEnvironment.ECS.EXPECT().
 					DescribeCluster(clusterName).
@@ -88,7 +90,7 @@ func TestGetEnvironment(t *testing.T) {
 				mockEnvironment := NewMockECSEnvironmentManager(ctrl)
 				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				clusterName := ecsEnvironmentID.String()
-				cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
+				cpArn := "mock_arn"
 
 				mockEnvironment.ECS.EXPECT().
 					DescribeCluster(gomock.Any()).
@@ -342,7 +344,6 @@ func TestDeleteEnvironment(t *testing.T) {
 	testutils.RunTests(t, testCases)
 }
 
-/*
 func TestCreateEnvironment(t *testing.T) {
 	defer id.StubIDGeneration("envid")()
 
@@ -358,7 +359,7 @@ func TestCreateEnvironment(t *testing.T) {
 				securityGroupName := ecsEnvironmentID.SecurityGroupName()
 				securityGroupID := "some_sg_id"
 				clusterName := ecsEnvironmentID.String()
-				cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
+				cpArn := "mock_arn"
 
 				mockEnvironment.ECS.EXPECT().
 					CreateCluster(clusterName, cpArn).
@@ -408,7 +409,7 @@ func TestCreateEnvironment(t *testing.T) {
 				asg.LaunchConfigurationName = stringp(clusterName)
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeAutoScalingGroup(autoScalingGroupName).
-					Return(asg, nil)
+					Return(asg, nil).AnyTimes()
 
 				securityGroup := ec2.NewSecurityGroup(securityGroupID)
 				mockEnvironment.EC2.EXPECT().
@@ -430,7 +431,7 @@ func TestCreateEnvironment(t *testing.T) {
 				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				clusterName := ecsEnvironmentID.String()
 				securityGroupID := "some_sg_id"
-				cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
+				cpArn := "mock_arn"
 
 				mockEnvironment.ECS.EXPECT().
 					CreateCluster(gomock.Any(), cpArn).
@@ -462,7 +463,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeAutoScalingGroup(gomock.Any()).
-					Return(asg, nil)
+					Return(asg, nil).AnyTimes()
 
 				securityGroup := ec2.NewSecurityGroup("some_sg_id")
 				mockEnvironment.EC2.EXPECT().
@@ -484,7 +485,7 @@ func TestCreateEnvironment(t *testing.T) {
 				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				clusterName := ecsEnvironmentID.String()
 				securityGroupID := "some_sg_id"
-				cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
+				cpArn := "mock_arn"
 
 				mockEnvironment.ECS.EXPECT().
 					CreateCluster(gomock.Any(), cpArn).
@@ -515,12 +516,12 @@ func TestCreateEnvironment(t *testing.T) {
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeAutoScalingGroup(gomock.Any()).
-					Return(asg, nil)
+					Return(asg, nil).AnyTimes()
 
 				securityGroup := ec2.NewSecurityGroup("some_sg_id")
 				mockEnvironment.EC2.EXPECT().
 					DescribeSecurityGroup(gomock.Any()).
-					Return(securityGroup, nil)
+					Return(securityGroup, nil).AnyTimes()
 
 				return mockEnvironment.Environment()
 			},
@@ -544,11 +545,11 @@ func TestCreateEnvironment(t *testing.T) {
 					ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 					clusterName := ecsEnvironmentID.String()
 					securityGroupID := "some_sg_id"
-					cpArn := "arn:aws:autoscaling:us-west-2:064627975291:autoScalingGroup:cdcd02b8-01df-4fce-8527-d0305164b13e:autoScalingGroupName/l0-v12102rc-Develop8dddb-ECS"
+					cpArn := "mock_arn"
 
 					mockEnvironment.ECS.EXPECT().
 						CreateCluster(gomock.Any(), cpArn).
-						Return(ecs.NewCluster(clusterName, cpArn), g.Error())
+						Return(ecs.NewCluster(clusterName, cpArn), g.Error()).AnyTimes()
 
 					mockEnvironment.EC2.EXPECT().
 						CreateSecurityGroup(gomock.Any(), gomock.Any(), gomock.Any()).
@@ -602,7 +603,7 @@ func TestCreateEnvironment(t *testing.T) {
 
 	testutils.RunTests(t, testCases)
 }
-*/
+
 func TestUpdateEnvironmentMinCount(t *testing.T) {
 	testModel := &models.Environment{
 		EnvironmentID: "some_id",

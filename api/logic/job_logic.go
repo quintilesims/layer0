@@ -88,7 +88,7 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 	reqStr = strings.TrimPrefix(reqStr, "\"")
 	reqStr = strings.TrimSuffix(reqStr, "\"")
 
-	jobID := id.GenerateHashedEntityID(string(jobType))
+	jobID := id.GenerateHashedEntityID(string(jobType.String()))
 
 	deploy, err := this.createJobDeploy(jobID)
 	if err != nil {
