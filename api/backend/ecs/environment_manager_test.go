@@ -359,11 +359,10 @@ func TestCreateEnvironment(t *testing.T) {
 				securityGroupName := ecsEnvironmentID.SecurityGroupName()
 				securityGroupID := "some_sg_id"
 				clusterName := ecsEnvironmentID.String()
-				cpArn := "mock_arn"
 
 				mockEnvironment.ECS.EXPECT().
-					CreateCluster(clusterName, cpArn).
-					Return(ecs.NewCluster(clusterName, cpArn), nil)
+					CreateCluster(clusterName, "").
+					Return(ecs.NewCluster(clusterName, ""), nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(clusterName).
@@ -431,11 +430,10 @@ func TestCreateEnvironment(t *testing.T) {
 				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				clusterName := ecsEnvironmentID.String()
 				securityGroupID := "some_sg_id"
-				cpArn := "mock_arn"
 
 				mockEnvironment.ECS.EXPECT().
-					CreateCluster(gomock.Any(), cpArn).
-					Return(ecs.NewCluster(clusterName, cpArn), nil)
+					CreateCluster(gomock.Any(), "").
+					Return(ecs.NewCluster(clusterName, ""), nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(gomock.Any()).
@@ -485,11 +483,10 @@ func TestCreateEnvironment(t *testing.T) {
 				ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 				clusterName := ecsEnvironmentID.String()
 				securityGroupID := "some_sg_id"
-				cpArn := "mock_arn"
 
 				mockEnvironment.ECS.EXPECT().
-					CreateCluster(gomock.Any(), cpArn).
-					Return(ecs.NewCluster(clusterName, cpArn), nil)
+					CreateCluster(gomock.Any(), "").
+					Return(ecs.NewCluster(clusterName, ""), nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
 					DescribeLaunchConfiguration(gomock.Any()).
@@ -545,11 +542,10 @@ func TestCreateEnvironment(t *testing.T) {
 					ecsEnvironmentID := id.L0EnvironmentID("envid").ECSEnvironmentID()
 					clusterName := ecsEnvironmentID.String()
 					securityGroupID := "some_sg_id"
-					cpArn := "mock_arn"
 
 					mockEnvironment.ECS.EXPECT().
-						CreateCluster(gomock.Any(), cpArn).
-						Return(ecs.NewCluster(clusterName, cpArn), g.Error()).AnyTimes()
+						CreateCluster(gomock.Any(), "").
+						Return(ecs.NewCluster(clusterName, ""), g.Error()).AnyTimes()
 
 					mockEnvironment.EC2.EXPECT().
 						CreateSecurityGroup(gomock.Any(), gomock.Any(), gomock.Any()).
