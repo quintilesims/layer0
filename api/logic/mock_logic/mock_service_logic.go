@@ -5,133 +5,150 @@
 package mock_logic
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
-	reflect "reflect"
 )
 
-// MockServiceLogic is a mock of ServiceLogic interface
+// MockServiceLogic is a mock of ServiceLogic interface.
 type MockServiceLogic struct {
 	ctrl     *gomock.Controller
 	recorder *MockServiceLogicMockRecorder
 }
 
-// MockServiceLogicMockRecorder is the mock recorder for MockServiceLogic
+// MockServiceLogicMockRecorder is the mock recorder for MockServiceLogic.
 type MockServiceLogicMockRecorder struct {
 	mock *MockServiceLogic
 }
 
-// NewMockServiceLogic creates a new mock instance
+// NewMockServiceLogic creates a new mock instance.
 func NewMockServiceLogic(ctrl *gomock.Controller) *MockServiceLogic {
 	mock := &MockServiceLogic{ctrl: ctrl}
 	mock.recorder = &MockServiceLogicMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockServiceLogic) EXPECT() *MockServiceLogicMockRecorder {
 	return m.recorder
 }
 
-// CreateService mocks base method
+// CreateService mocks base method.
 func (m *MockServiceLogic) CreateService(arg0 models.CreateServiceRequest) (*models.Service, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CreateService", arg0)
 	ret0, _ := ret[0].(*models.Service)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CreateService indicates an expected call of CreateService
+// CreateService indicates an expected call of CreateService.
 func (mr *MockServiceLogicMockRecorder) CreateService(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateService", reflect.TypeOf((*MockServiceLogic)(nil).CreateService), arg0)
 }
 
-// DeleteService mocks base method
+// DeleteService mocks base method.
 func (m *MockServiceLogic) DeleteService(arg0 string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "DeleteService", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// DeleteService indicates an expected call of DeleteService
+// DeleteService indicates an expected call of DeleteService.
 func (mr *MockServiceLogicMockRecorder) DeleteService(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteService", reflect.TypeOf((*MockServiceLogic)(nil).DeleteService), arg0)
 }
 
-// GetEnvironmentServices mocks base method
+// GetEnvironmentServices mocks base method.
 func (m *MockServiceLogic) GetEnvironmentServices(arg0 string) ([]*models.Service, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetEnvironmentServices", arg0)
 	ret0, _ := ret[0].([]*models.Service)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetEnvironmentServices indicates an expected call of GetEnvironmentServices
+// GetEnvironmentServices indicates an expected call of GetEnvironmentServices.
 func (mr *MockServiceLogicMockRecorder) GetEnvironmentServices(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetEnvironmentServices", reflect.TypeOf((*MockServiceLogic)(nil).GetEnvironmentServices), arg0)
 }
 
-// GetService mocks base method
+// GetService mocks base method.
 func (m *MockServiceLogic) GetService(arg0 string) (*models.Service, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetService", arg0)
 	ret0, _ := ret[0].(*models.Service)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetService indicates an expected call of GetService
+// GetService indicates an expected call of GetService.
 func (mr *MockServiceLogicMockRecorder) GetService(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetService", reflect.TypeOf((*MockServiceLogic)(nil).GetService), arg0)
 }
 
-// GetServiceLogs mocks base method
+// GetServiceLogs mocks base method.
 func (m *MockServiceLogic) GetServiceLogs(arg0, arg1, arg2 string, arg3 int) ([]*models.LogFile, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetServiceLogs", arg0, arg1, arg2, arg3)
 	ret0, _ := ret[0].([]*models.LogFile)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetServiceLogs indicates an expected call of GetServiceLogs
+// GetServiceLogs indicates an expected call of GetServiceLogs.
 func (mr *MockServiceLogicMockRecorder) GetServiceLogs(arg0, arg1, arg2, arg3 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetServiceLogs", reflect.TypeOf((*MockServiceLogic)(nil).GetServiceLogs), arg0, arg1, arg2, arg3)
 }
 
-// ListServices mocks base method
+// ListServices mocks base method.
 func (m *MockServiceLogic) ListServices() ([]models.ServiceSummary, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ListServices")
 	ret0, _ := ret[0].([]models.ServiceSummary)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ListServices indicates an expected call of ListServices
+// ListServices indicates an expected call of ListServices.
 func (mr *MockServiceLogicMockRecorder) ListServices() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ListServices", reflect.TypeOf((*MockServiceLogic)(nil).ListServices))
 }
 
-// ScaleService mocks base method
+// ScaleService mocks base method.
 func (m *MockServiceLogic) ScaleService(arg0 string, arg1 int) (*models.Service, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ScaleService", arg0, arg1)
 	ret0, _ := ret[0].(*models.Service)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ScaleService indicates an expected call of ScaleService
+// ScaleService indicates an expected call of ScaleService.
 func (mr *MockServiceLogicMockRecorder) ScaleService(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ScaleService", reflect.TypeOf((*MockServiceLogic)(nil).ScaleService), arg0, arg1)
 }
 
-// UpdateService mocks base method
+// UpdateService mocks base method.
 func (m *MockServiceLogic) UpdateService(arg0 string, arg1 models.UpdateServiceRequest) (*models.Service, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateService", arg0, arg1)
 	ret0, _ := ret[0].(*models.Service)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// UpdateService indicates an expected call of UpdateService
+// UpdateService indicates an expected call of UpdateService.
 func (mr *MockServiceLogicMockRecorder) UpdateService(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateService", reflect.TypeOf((*MockServiceLogic)(nil).UpdateService), arg0, arg1)
 }
