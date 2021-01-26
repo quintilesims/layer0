@@ -25,6 +25,14 @@ func dataSourceLayer0Environment() *schema.Resource {
 				Type:     schema.TypeInt,
 				Computed: true,
 			},
+			"max_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"target_cap_size": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"os": {
 				Type:     schema.TypeString,
 				Computed: true,

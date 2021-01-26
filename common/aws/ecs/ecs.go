@@ -19,8 +19,8 @@ const (
 )
 
 type Provider interface {
-	CreateCluster(clusterName string, asgArn string) (*Cluster, error)
-	CreateCapacityProvider(CapacityProviderName string, AsgArn string, MaxScalingSize int64, MinScalingSize int64, TargetCapacitySize int64) (*CapacityProvider, error)
+	CreateCluster(clusterName string, asgArn string, maxScalingSize, minScalingSize, targetCapSize int) (*Cluster, error)
+	CreateCapacityProvider(CapacityProviderName string, AsgArn string, MaxScalingSize, MinScalingSize, TargetCapacitySize int) (*CapacityProvider, error)
 	CreateService(cluster, serviceName, taskDefinition string, desiredCount int64, loadBalancers []*LoadBalancer, loadBalancerRole *string) (*Service, error)
 
 	DeleteCluster(cluster string) error
@@ -687,7 +687,7 @@ func (this *ECS) Helper_DescribeServices(prefix string) ([]*Service, error) {
 	return services, nil
 }
 
-func (this *ECS) CreateCapacityProvider(CapacityProviderName string, AsgArn string, MaxScalingSize int64, MinScalingSize int64, TargetCapacitySize int64) (*CapacityProvider, error) {
+func (this *ECS) CreateCapacityProvider(CapacityProviderName string, AsgArn string, MaxScalingSize, MinScalingSize, TargetCapacitySize int) (*CapacityProvider, error) {
 
 	ManagedScalingStatus := ecs.ManagedScalingStatusEnabled
 	ManagedTerminationProtection := ecs.ManagedTerminationProtectionEnabled
@@ -697,10 +697,10 @@ func (this *ECS) CreateCapacityProvider(CapacityProviderName string, AsgArn stri
 		AutoScalingGroupProvider: &ecs.AutoScalingGroupProvider{
 			AutoScalingGroupArn: &AsgArn,
 			ManagedScaling: &ecs.ManagedScaling{
-				MaximumScalingStepSize: &MaxScalingSize,
-				MinimumScalingStepSize: &MinScalingSize,
+				MaximumScalingStepSize: aws.Int64(int64(MaxScalingSize)),
+				MinimumScalingStepSize: aws.Int64(int64(MinScalingSize)),
 				Status:                 &ManagedScalingStatus,
-				TargetCapacity:         &TargetCapacitySize,
+				TargetCapacity:         aws.Int64(int64(TargetCapacitySize)),
 			},
 			ManagedTerminationProtection: &ManagedTerminationProtection,
 		},
@@ -718,9 +718,9 @@ func (this *ECS) CreateCapacityProvider(CapacityProviderName string, AsgArn stri
 	return &CapacityProvider{output.CapacityProvider}, err
 }
 
-func (this *ECS) CreateCluster(clusterName string, asgArn string) (*Cluster, error) {
+func (this *ECS) CreateCluster(clusterName string, asgArn string, maxScalingSize, minScalingSize, targetCapSize int) (*Cluster, error) {
 
-	capacityProvider, err := this.CreateCapacityProvider(clusterName, asgArn, MAX_SCALING_SIZE, MIN_SCALING_SIZE, TARGETING_CAP_SIZE)
+	capacityProvider, err := this.CreateCapacityProvider(clusterName, asgArn, maxScalingSize, minScalingSize, targetCapSize)
 	if err != nil {
 		return nil, err
 	}

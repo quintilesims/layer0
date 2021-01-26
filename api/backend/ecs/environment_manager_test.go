@@ -361,7 +361,7 @@ func TestCreateEnvironment(t *testing.T) {
 				clusterName := ecsEnvironmentID.String()
 
 				mockEnvironment.ECS.EXPECT().
-					CreateCluster(clusterName, "").
+					CreateCluster(clusterName, "", 2, 2, 100).
 					Return(ecs.NewCluster(clusterName, ""), nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
@@ -419,7 +419,7 @@ func TestCreateEnvironment(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSEnvironmentManager)
-				manager.CreateEnvironment("env_name", "m3.medium", "linux", "amiid", 2, nil)
+				manager.CreateEnvironment("env_name", "m3.medium", "linux", "amiid", 2, 2, 100, nil)
 			},
 		},
 		{
@@ -432,7 +432,7 @@ func TestCreateEnvironment(t *testing.T) {
 				securityGroupID := "some_sg_id"
 
 				mockEnvironment.ECS.EXPECT().
-					CreateCluster(gomock.Any(), "").
+					CreateCluster(gomock.Any(), "", 0, 0, 100).
 					Return(ecs.NewCluster(clusterName, ""), nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
@@ -472,7 +472,7 @@ func TestCreateEnvironment(t *testing.T) {
 			},
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSEnvironmentManager)
-				manager.CreateEnvironment("env_name", "m3.medium", "linux", "amiid", 0, []byte("user data"))
+				manager.CreateEnvironment("env_name", "m3.medium", "linux", "amiid", 0, 0, 100, []byte("user data"))
 			},
 		},
 		{
@@ -485,7 +485,7 @@ func TestCreateEnvironment(t *testing.T) {
 				securityGroupID := "some_sg_id"
 
 				mockEnvironment.ECS.EXPECT().
-					CreateCluster(gomock.Any(), "").
+					CreateCluster(gomock.Any(), "", 0, 0, 100).
 					Return(ecs.NewCluster(clusterName, ""), nil)
 
 				mockEnvironment.AutoScaling.EXPECT().
@@ -525,7 +525,7 @@ func TestCreateEnvironment(t *testing.T) {
 			Run: func(reporter *testutils.Reporter, target interface{}) {
 				manager := target.(*ECSEnvironmentManager)
 
-				environment, err := manager.CreateEnvironment("env_name", "m3.medium", "linux", "amiid", 0, nil)
+				environment, err := manager.CreateEnvironment("env_name", "m3.medium", "linux", "amiid", 0, 0, 100, nil)
 				if err != nil {
 					reporter.Fatal(err)
 				}
@@ -544,7 +544,7 @@ func TestCreateEnvironment(t *testing.T) {
 					securityGroupID := "some_sg_id"
 
 					mockEnvironment.ECS.EXPECT().
-						CreateCluster(gomock.Any(), "").
+						CreateCluster(gomock.Any(), "", 0, 0, 100).
 						Return(ecs.NewCluster(clusterName, ""), g.Error()).AnyTimes()
 
 					mockEnvironment.EC2.EXPECT().
@@ -589,7 +589,7 @@ func TestCreateEnvironment(t *testing.T) {
 					g.Set(i+1, fmt.Errorf("some error"))
 
 					manager := setup(g).(*ECSEnvironmentManager)
-					if _, err := manager.CreateEnvironment("some_name", "m3.medium", "linux", "amiid", 0, nil); err == nil {
+					if _, err := manager.CreateEnvironment("some_name", "m3.medium", "linux", "amiid", 0, 0, 100, nil); err == nil {
 						reporter.Errorf("Error on variation %d, Error was nil!", i)
 					}
 				}

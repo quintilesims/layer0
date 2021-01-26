@@ -15,6 +15,13 @@ release:
 		cd build/ && zip -r $$os.zip $$os && cd .. ; \
 	done
 
+build:
+	$(MAKE) -C api build
+	$(MAKE) -C cli build
+	$(MAKE) -C runner build
+	$(MAKE) -C setup build
+	$(MAKE) -C plugins/terraform build
+
 unittest:
 	$(MAKE) -C api test
 	$(MAKE) -C cli test
@@ -32,4 +39,4 @@ stresstest:
 systemtest:
 	$(MAKE) -C tests/system test
 
-.PHONY: release unittest smoketest stresstest systemtest
+.PHONY: release unittest smoketest stresstest systemtest build

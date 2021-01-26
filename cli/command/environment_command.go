@@ -37,6 +37,16 @@ func (e *EnvironmentCommand) GetCommand() cli.Command {
 						Value: 0,
 						Usage: "minimum number of instances allowed in the environment cluster",
 					},
+					cli.IntFlag{
+						Name:  "max-count",
+						Value: 0,
+						Usage: "maximum number of instances allowed in the environment cluster",
+					},
+					cli.IntFlag{
+						Name:  "target-cap-size",
+						Value: 100,
+						Usage: "CapacityProviderReservation: percentage of instances reserived in the environment cluster",
+					},
 					cli.StringFlag{
 						Name:  "user-data",
 						Usage: "path to user data file",
@@ -114,7 +124,7 @@ func (e *EnvironmentCommand) Create(c *cli.Context) error {
 		userData = content
 	}
 
-	environment, err := e.Client.CreateEnvironment(args["NAME"], c.String("size"), c.Int("min-count"), userData, c.String("os"), c.String("ami"))
+	environment, err := e.Client.CreateEnvironment(args["NAME"], c.String("size"), c.Int("min-count"), c.Int("max-count"), c.Int("target-cap-size"), userData, c.String("os"), c.String("ami"))
 	if err != nil {
 		return err
 	}

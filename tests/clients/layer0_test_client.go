@@ -34,7 +34,7 @@ func (l *Layer0TestClient) CreateTask(taskName, environmentID, deployID string, 
 }
 
 func (l *Layer0TestClient) CreateEnvironment(name string) *models.Environment {
-	environment, err := l.Client.CreateEnvironment(name, "m3.medium", 0, nil, "linux", "")
+	environment, err := l.Client.CreateEnvironment(name, "m3.medium", 0, 0, 100, nil, "linux", "")
 	if err != nil {
 		l.T.Fatal(err)
 	}
@@ -62,7 +62,7 @@ func (l *Layer0TestClient) CreateLoadBalancer(name, environmentID string) *model
 
 	ports := []models.Port{{HostPort: 80, ContainerPort: 80, Protocol: "http"}}
 
-	loadBalancer, err := l.Client.CreateLoadBalancer(name, environmentID, hc, ports, true)
+	loadBalancer, err := l.Client.CreateLoadBalancer(name, environmentID, hc, ports, true, 0, false)
 	if err != nil {
 		l.T.Fatal(err)
 	}

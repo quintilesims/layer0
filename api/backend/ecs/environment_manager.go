@@ -146,6 +146,8 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 	operatingSystem string,
 	amiID string,
 	minClusterCount int,
+	maxClusterCount int,
+	targetCapSize int,
 	userDataTemplate []byte,
 ) (*models.Environment, error) {
 
@@ -216,9 +218,12 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 		return nil, err
 	}
 
-	maxClusterCount := 0
-	if minClusterCount > 0 {
+	//set the default value
+	if minClusterCount > maxClusterCount {
 		maxClusterCount = minClusterCount
+	}
+	if targetCapSize == 0 {
+		targetCapSize = 100
 	}
 
 	if err := e.AutoScaling.CreateAutoScalingGroup(
@@ -232,7 +237,7 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 	}
 
 	asg, err := e.describeAutoscalingGroup(ecsEnvironmentID)
-	cluster, err := e.ECS.CreateCluster(ecsEnvironmentID.String(), *asg.AutoScalingGroupARN)
+	cluster, err := e.ECS.CreateCluster(ecsEnvironmentID.String(), *asg.AutoScalingGroupARN, maxClusterCount, minClusterCount, targetCapSize)
 	if err != nil {
 		return nil, err
 	}

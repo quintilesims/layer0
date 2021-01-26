@@ -20,18 +20,18 @@ func TestRetry_successes(t *testing.T) {
 
 		mockECS := mock_ecs.NewMockProvider(ctrl)
 		if count > 0 {
-			mockECS.EXPECT().CreateCluster(gomock.Any(), gomock.Any()).
+			mockECS.EXPECT().CreateCluster(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 				Return(nil, getRetryTrigger()).
 				Times(count)
 		}
 
 		cluster := &ecs.Cluster{}
-		mockECS.EXPECT().CreateCluster(gomock.Any(), gomock.Any()).
+		mockECS.EXPECT().CreateCluster(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 			Return(cluster, nil)
 
 		wrap := prepareRetry(mockECS)
 
-		obj, err := wrap.CreateCluster("test", "test")
+		obj, err := wrap.CreateCluster("test", "test", 0, 0, 100)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -48,13 +48,13 @@ func TestRetry_timeout(t *testing.T) {
 
 	mockECS := mock_ecs.NewMockProvider(ctrl)
 
-	mockECS.EXPECT().CreateCluster(gomock.Any(), gomock.Any()).
+	mockECS.EXPECT().CreateCluster(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, getRetryTrigger()).
 		Times(20)
 
 	wrap := prepareRetry(mockECS)
 
-	_, err := wrap.CreateCluster("test", "test")
+	_, err := wrap.CreateCluster("test", "test", 0, 0, 100)
 	if err == nil {
 		t.Errorf("Error was unexpectedly nil")
 	}
@@ -66,12 +66,12 @@ func TestRetry_otherError(t *testing.T) {
 
 	mockECS := mock_ecs.NewMockProvider(ctrl)
 
-	mockECS.EXPECT().CreateCluster(gomock.Any(), gomock.Any()).
+	mockECS.EXPECT().CreateCluster(gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any(), gomock.Any()).
 		Return(nil, fmt.Errorf("Some error"))
 
 	wrap := prepareRetry(mockECS)
 
-	_, err := wrap.CreateCluster("test", "test")
+	_, err := wrap.CreateCluster("test", "test", 0, 0, 100)
 	if err == nil {
 		t.Errorf("Error was unexpectedly nil")
 	}

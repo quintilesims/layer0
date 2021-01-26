@@ -51,18 +51,18 @@ func (mr *MockBackendMockRecorder) CreateDeploy(arg0, arg1 interface{}) *gomock.
 }
 
 // CreateEnvironment mocks base method.
-func (m *MockBackend) CreateEnvironment(arg0, arg1, arg2, arg3 string, arg4 int, arg5 []byte) (*models.Environment, error) {
+func (m *MockBackend) CreateEnvironment(arg0, arg1, arg2, arg3 string, arg4, arg5, arg6 int, arg7 []byte) (*models.Environment, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CreateEnvironment", arg0, arg1, arg2, arg3, arg4, arg5)
+	ret := m.ctrl.Call(m, "CreateEnvironment", arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 	ret0, _ := ret[0].(*models.Environment)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
 // CreateEnvironment indicates an expected call of CreateEnvironment.
-func (mr *MockBackendMockRecorder) CreateEnvironment(arg0, arg1, arg2, arg3, arg4, arg5 interface{}) *gomock.Call {
+func (mr *MockBackendMockRecorder) CreateEnvironment(arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7 interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateEnvironment", reflect.TypeOf((*MockBackend)(nil).CreateEnvironment), arg0, arg1, arg2, arg3, arg4, arg5)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateEnvironment", reflect.TypeOf((*MockBackend)(nil).CreateEnvironment), arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7)
 }
 
 // CreateEnvironmentLink mocks base method.

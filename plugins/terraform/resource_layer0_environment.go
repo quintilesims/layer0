@@ -32,6 +32,14 @@ func resourceLayer0Environment() *schema.Resource {
 				Type:     schema.TypeInt,
 				Optional: true,
 			},
+			"max_count": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
+			"target_cap_size": {
+				Type:     schema.TypeInt,
+				Computed: true,
+			},
 			"user_data": {
 				Type:     schema.TypeString,
 				Optional: true,
@@ -67,11 +75,13 @@ func resourceLayer0EnvironmentCreate(d *schema.ResourceData, meta interface{}) e
 	name := d.Get("name").(string)
 	size := d.Get("size").(string)
 	minCount := d.Get("min_count").(int)
+	maxCount := d.Get("max_count").(int)
+	targetCapSize := d.Get("target_cap_size").(int)
 	userData := d.Get("user_data").(string)
 	os := d.Get("os").(string)
 	ami := d.Get("ami").(string)
 
-	environment, err := client.API.CreateEnvironment(name, size, minCount, []byte(userData), os, ami)
+	environment, err := client.API.CreateEnvironment(name, size, minCount, maxCount, targetCapSize, []byte(userData), os, ami)
 	if err != nil {
 		return err
 	}
