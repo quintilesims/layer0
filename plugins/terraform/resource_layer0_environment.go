@@ -34,11 +34,11 @@ func resourceLayer0Environment() *schema.Resource {
 			},
 			"max_count": {
 				Type:     schema.TypeInt,
-				Computed: true,
+				Optional: true,
 			},
 			"target_cap_size": {
 				Type:     schema.TypeInt,
-				Computed: true,
+				Optional: true,
 			},
 			"user_data": {
 				Type:     schema.TypeString,
