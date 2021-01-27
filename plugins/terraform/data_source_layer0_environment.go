@@ -63,9 +63,11 @@ func datasourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) e
 	d.SetId(environment.EnvironmentID)
 
 	return setResourceData(d.Set, map[string]interface{}{
-		"size":      environment.InstanceSize,
-		"min_count": environment.ClusterCount,
-		"os":        environment.OperatingSystem,
-		"ami":       environment.AMIID,
+		"size":            environment.InstanceSize,
+		"min_count":       environment.ClusterCount,
+		"os":              environment.OperatingSystem,
+		"ami":             environment.AMIID,
+		"max_count":       environment.MaxCount,
+		"target_cap_size": environment.TargetCapSize,
 	})
 }
