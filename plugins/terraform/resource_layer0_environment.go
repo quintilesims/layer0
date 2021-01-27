@@ -111,6 +111,9 @@ func resourceLayer0EnvironmentRead(d *schema.ResourceData, meta interface{}) err
 	d.Set("security_group_id", environment.SecurityGroupID)
 	d.Set("os", environment.OperatingSystem)
 	d.Set("ami", environment.AMIID)
+	d.Set("min_count", environment.MinCount)
+	d.Set("max_count", environment.MaxCount)
+	d.Set("target_cap_size", environment.TargetCapSize)
 
 	return nil
 }
