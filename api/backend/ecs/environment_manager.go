@@ -125,6 +125,8 @@ func (e *ECSEnvironmentManager) populateModel(cluster *ecs.Cluster) (*models.Env
 		InstanceSize:    instanceSize,
 		SecurityGroupID: securityGroupID,
 		AMIID:           amiID,
+		MinCount:        int(*asg.MinSize),
+		MaxCount:        int(*asg.MaxSize),
 	}
 
 	return model, nil
