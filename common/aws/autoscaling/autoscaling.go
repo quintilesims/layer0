@@ -160,7 +160,7 @@ func (this *AutoScaling) CreateLaunchConfiguration(
 func (this *AutoScaling) CreateAutoScalingGroup(name, launchConfigName, subnets string, minSize, maxSize int) error {
 	input := &autoscaling.CreateAutoScalingGroupInput{
 		AutoScalingGroupName:             aws.String(name),
-		DesiredCapacity:                  aws.Int64(int64(maxSize)),
+		DesiredCapacity:                  aws.Int64(int64(minSize)),
 		MinSize:                          aws.Int64(int64(minSize)),
 		MaxSize:                          aws.Int64(int64(maxSize)),
 		LaunchConfigurationName:          aws.String(launchConfigName),
