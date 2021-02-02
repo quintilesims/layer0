@@ -217,7 +217,8 @@ var GetLogs = func(cloudWatchLogs cloudwatchlogs.Provider, taskARNs []*string, s
 func generateTaskIDCatalog(taskARNs []*string) map[string]bool {
 	catalog := map[string]bool{}
 	for _, taskARN := range taskARNs {
-		taskID := strings.Split(*taskARN, "/")[1]
+		s := strings.Split(*taskARN, "/")
+		taskID := s[len(s)-1]
 		catalog[taskID] = true
 	}
 

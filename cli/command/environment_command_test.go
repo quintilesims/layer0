@@ -18,15 +18,17 @@ func TestCreateEnvironment(t *testing.T) {
 	defer close()
 
 	tc.Client.EXPECT().
-		CreateEnvironment("name", "m3.large", 2, []byte("user_data"), "linux", "ami").
+		CreateEnvironment("name", "m3.large", 2, 2, 100, []byte("user_data"), "linux", "ami").
 		Return(&models.Environment{}, nil)
 
 	flags := map[string]interface{}{
-		"size":      "m3.large",
-		"min-count": 2,
-		"user-data": file.Name(),
-		"os":        "linux",
-		"ami":       "ami",
+		"size":            "m3.large",
+		"min-count":       2,
+		"max-count":       2,
+		"target-cap-size": 100,
+		"user-data":       file.Name(),
+		"os":              "linux",
+		"ami":             "ami",
 	}
 
 	c := testutils.GetCLIContext(t, []string{"name"}, flags)

@@ -57,9 +57,10 @@ type Activity struct {
 
 func NewGroup() *Group {
 	return &Group{&autoscaling.Group{
-		MinSize:         aws.Int64(0),
-		MaxSize:         aws.Int64(0),
-		DesiredCapacity: aws.Int64(0),
+		MinSize:             aws.Int64(0),
+		MaxSize:             aws.Int64(0),
+		DesiredCapacity:     aws.Int64(0),
+		AutoScalingGroupARN: aws.String(""),
 	}}
 }
 
@@ -158,12 +159,13 @@ func (this *AutoScaling) CreateLaunchConfiguration(
 
 func (this *AutoScaling) CreateAutoScalingGroup(name, launchConfigName, subnets string, minSize, maxSize int) error {
 	input := &autoscaling.CreateAutoScalingGroupInput{
-		AutoScalingGroupName:    aws.String(name),
-		DesiredCapacity:         aws.Int64(int64(maxSize)),
-		MinSize:                 aws.Int64(int64(minSize)),
-		MaxSize:                 aws.Int64(int64(maxSize)),
-		LaunchConfigurationName: aws.String(launchConfigName),
-		VPCZoneIdentifier:       aws.String(subnets),
+		AutoScalingGroupName:             aws.String(name),
+		DesiredCapacity:                  aws.Int64(int64(minSize)),
+		MinSize:                          aws.Int64(int64(minSize)),
+		MaxSize:                          aws.Int64(int64(maxSize)),
+		LaunchConfigurationName:          aws.String(launchConfigName),
+		VPCZoneIdentifier:                aws.String(subnets),
+		NewInstancesProtectedFromScaleIn: aws.Bool(true),
 		Tags: []*autoscaling.Tag{
 			{
 				Key:               aws.String("Name"),

@@ -20,8 +20,8 @@
     l0 environment create --user-data common/user_data.sh test2 
 }
 
-@test "environment create --min-count 2 test3" {
-    l0 environment create --min-count 2 test3
+@test "environment create --min-count 2 --max-count 2 --target-cap-size 100 test3" {
+    l0 environment create --min-count 2 --max-count 2 --target-cap-size 100 test3
 }
 
 @test "environment create --os windows test4" {

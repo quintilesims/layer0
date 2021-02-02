@@ -14,7 +14,7 @@ func TestEnvironmentCreate_defaults(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient.EXPECT().
-		CreateEnvironment("test-env", "m3.medium", 0, []byte(""), "linux", "").
+		CreateEnvironment("test-env", "m3.medium", 0, 0, 0, []byte(""), "linux", "").
 		Return(&models.Environment{EnvironmentID: "eid"}, nil)
 
 	mockClient.EXPECT().
@@ -37,7 +37,7 @@ func TestEnvironmentCreate_specifyOptional(t *testing.T) {
 	defer ctrl.Finish()
 
 	mockClient.EXPECT().
-		CreateEnvironment("test-env", "m3.large", 2, []byte("user data"), "windows", "ami_id").
+		CreateEnvironment("test-env", "m3.large", 2, 2, 100, []byte("user data"), "windows", "ami_id").
 		Return(&models.Environment{EnvironmentID: "eid"}, nil)
 
 	mockClient.EXPECT().
@@ -46,12 +46,14 @@ func TestEnvironmentCreate_specifyOptional(t *testing.T) {
 
 	environmentResource := provider.ResourcesMap["layer0_environment"]
 	d := schema.TestResourceDataRaw(t, environmentResource.Schema, map[string]interface{}{
-		"name":      "test-env",
-		"size":      "m3.large",
-		"min_count": 2,
-		"user_data": "user data",
-		"os":        "windows",
-		"ami":       "ami_id",
+		"name":            "test-env",
+		"size":            "m3.large",
+		"min_count":       2,
+		"max_count":       2,
+		"target_cap_size": 100,
+		"user_data":       "user data",
+		"os":              "windows",
+		"ami":             "ami_id",
 	})
 
 	client := &Layer0Client{API: mockClient}
@@ -84,7 +86,7 @@ func TestEnvironmentUpdate(t *testing.T) {
 
 	gomock.InOrder(
 		mockClient.EXPECT().
-			CreateEnvironment("test-env", "m3.medium", 0, []byte(""), "linux", "").
+			CreateEnvironment("test-env", "m3.medium", 0, 0, 0, []byte(""), "linux", "").
 			Return(&models.Environment{EnvironmentID: "eid"}, nil),
 
 		mockClient.EXPECT().

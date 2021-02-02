@@ -36,8 +36,8 @@ func (_m *MockECSInternal) CreateCluster(_param0 *ecs.CreateClusterInput) (*ecs.
 	return ret0, ret1
 }
 
-func (_mr *_MockECSInternalRecorder) CreateCluster(arg0 interface{}) *gomock.Call {
-	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateCluster", arg0)
+func (_mr *_MockECSInternalRecorder) CreateCluster(arg0, arg1 interface{}) *gomock.Call {
+	return _mr.mock.ctrl.RecordCall(_mr.mock, "CreateCluster", arg0, arg1)
 }
 
 func (_m *MockECSInternal) CreateService(_param0 *ecs.CreateServiceInput) (*ecs.CreateServiceOutput, error) {
