@@ -20,3 +20,9 @@ variable "vpc_id" {
   description = "optional - use an empty string to provision a new vpc"
   type        = "string"
 }
+
+variable "docker_registry" {
+  description = "optional - use an empty string to use dockerhub"
+  type        = "string"
+  default     = "quintilesims"
+}

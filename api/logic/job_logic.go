@@ -150,10 +150,12 @@ func (this *L0JobLogic) createJobDeploy(jobID string) (*models.Deploy, error) {
 	}
 
 	context := struct {
+		DockerRegistory  string
 		RunnerVersionTag string
 		Variables        []struct{ Key, Val string }
 	}{
 		RunnerVersionTag: config.RunnerVersionTag(),
+		DockerRegistory:  config.DockerRegistory(),
 		Variables: []struct{ Key, Val string }{
 			{
 				Key: config.JOB_ID,
@@ -226,7 +228,7 @@ var jobDockerrun string = `
     "containerDefinitions": [
         {
             "name": "l0-job",
-            "image": "quintilesims/l0-runner:{{ .RunnerVersionTag }}",
+            "image": "{{ .DockerRegistory }}/l0-runner:{{ .RunnerVersionTag }}",
             "essential": true,
             "memory": 64,
             "environment": [

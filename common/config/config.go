@@ -39,6 +39,7 @@ const (
 	TEST_AWS_TAG_DYNAMO_TABLE = "LAYER0_TEST_AWS_TAG_DYNAMO_TABLE"
 	TEST_AWS_JOB_DYNAMO_TABLE = "LAYER0_TEST_AWS_JOB_DYNAMO_TABLE"
 	AWS_TIME_BETWEEN_REQUESTS = "LAYER0_AWS_TIME_BETWEEN_REQUESTS"
+	DOCKER_REGISTRY           = "LAYER0_DOCKER_REGISTRY"
 )
 
 // defaults
@@ -49,6 +50,7 @@ const (
 	DEFAULT_API_PORT              = "9090"
 	DEFAULT_TIME_BETWEEN_REQUESTS = "10ms"
 	DEFAULT_MAX_RETRIES           = 999
+	DEFAULT_DOCKER_REGISTRY       = "quintilesims"
 )
 
 // api resource tags
@@ -91,6 +93,7 @@ var RequiredAPIVariables = []string{
 	AWS_LINUX_SERVICE_AMI,
 	AWS_WINDOWS_SERVICE_AMI,
 	AWS_REGION,
+	DOCKER_REGISTRY,
 }
 
 var RequiredCLIVariables = []string{}
@@ -101,6 +104,7 @@ var RequiredRunnerVariables = []string{
 	AWS_VPC_ID,
 	AWS_PRIVATE_SUBNETS,
 	AWS_PUBLIC_SUBNETS,
+	DOCKER_REGISTRY,
 }
 
 func Validate(required []string) error {
@@ -213,6 +217,10 @@ func APIPort() string {
 
 func APILogLevel() string {
 	return getOr(API_LOG_LEVEL, "1")
+}
+
+func DockerRegistory() string {
+	return getOr(DOCKER_REGISTRY, DEFAULT_DOCKER_REGISTRY)
 }
 
 func DynamoTagTableName() string {

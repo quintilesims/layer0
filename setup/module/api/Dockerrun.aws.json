@@ -1,7 +1,7 @@
 [
     {
         "name": "api",
-        "image": "quintilesims/l0-api:${layer0_version}",
+        "image": "${docker_registry}/l0-api:${layer0_version}",
         "essential": true,
         "memory": 500,
         "portMappings": [
@@ -37,6 +37,7 @@
             { "name": "LAYER0_AWS_ECS_ROLE", "value": "${ecs_role}" },
             { "name": "LAYER0_AWS_SSH_KEY_PAIR", "value": "${ssh_key_pair}" },
             { "name": "LAYER0_AWS_ACCOUNT_ID", "value": "${account_id}" },
+            { "name": "LAYER0_DOCKER_REGISTRY", "value": "${docker_registry}" },
             { "name": "LAYER0_API_LOG_LEVEL", "value": "debug" },
             { "name": "LAYER0_RUNNER_LOG_LEVEL", "value": "debug" }
         ]
