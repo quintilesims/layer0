@@ -27,6 +27,7 @@ module "api" {
   layer0_version = "${var.layer0_version}"
   username       = "${var.username}"
   password       = "${var.password}"
+  docker_registry = "${var.docker_registry}"
 
   # todo: format hack is a workaround for https://github.com/hashicorp/terraform/issues/14399
   vpc_id = "${ var.vpc_id == "" ? format("%s", module.vpc.vpc_id) : var.vpc_id }"

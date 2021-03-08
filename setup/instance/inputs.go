@@ -20,6 +20,7 @@ const (
 	INPUT_PASSWORD         = "password"
 	INPUT_DOCKERCFG        = "dockercfg"
 	INPUT_VPC_ID           = "vpc_id"
+	INPUT_DOCKER_REGISTRY  = "docker_registry"
 )
 
 const INPUT_SOURCE_DESCRIPTION = `
@@ -98,6 +99,11 @@ created for you. Existing VPCs must satisfy the following constraints:
 
 Note that changing this value will destroy and recreate any existing resources.
 `
+const INPUT_DOCKER_REGISTRY_DESCRIPTION = `
+Docker registory (optional): The registory (domain, eg: d.ims.io/layer0) from where the layer0 
+pulls the image
+
+`
 
 type ModuleInput struct {
 	Name        string
@@ -175,6 +181,12 @@ var Layer0ModuleInputs = []*ModuleInput{
 	{
 		Name:        INPUT_VPC_ID,
 		Description: INPUT_VPC_ID_DESCRIPTION,
+		prompter:    OptionalStringPrompter,
+	},
+	{
+		Name:        INPUT_DOCKER_REGISTRY,
+		Default:     "quintilesims",
+		Description: INPUT_DOCKER_REGISTRY_DESCRIPTION,
 		prompter:    OptionalStringPrompter,
 	},
 }
