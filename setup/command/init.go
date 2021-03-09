@@ -42,6 +42,10 @@ func (f *CommandFactory) Init() cli.Command {
 				Name:  "aws-ssh-key-pair",
 				Usage: instance.INPUT_AWS_SSH_KEY_PAIR_DESCRIPTION,
 			},
+			cli.StringFlag{
+				Name:  "docker-registry",
+				Usage: instance.INPUT_DOCKER_REGISTRY_DESCRIPTION,
+			},
 		},
 		Action: func(c *cli.Context) error {
 			args, err := extractArgs(c.Args(), "NAME")
@@ -70,6 +74,10 @@ func (f *CommandFactory) Init() cli.Command {
 
 			if v := c.String("aws-ssh-key-pair"); v != "" {
 				overrides[instance.INPUT_AWS_SSH_KEY_PAIR] = v
+			}
+
+			if v := c.String("docker-registry"); v != "" {
+				overrides[instance.INPUT_DOCKER_REGISTRY] = v
 			}
 
 			dockerPath := strings.Replace(c.String("docker-path"), "~", homedir.Get(), -1)

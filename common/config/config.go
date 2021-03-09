@@ -39,6 +39,7 @@ const (
 	TEST_AWS_TAG_DYNAMO_TABLE = "LAYER0_TEST_AWS_TAG_DYNAMO_TABLE"
 	TEST_AWS_JOB_DYNAMO_TABLE = "LAYER0_TEST_AWS_JOB_DYNAMO_TABLE"
 	AWS_TIME_BETWEEN_REQUESTS = "LAYER0_AWS_TIME_BETWEEN_REQUESTS"
+	DOCKER_REGISTRY           = "LAYER0_DOCKER_REGISTRY"
 )
 
 // defaults
@@ -172,6 +173,11 @@ func AWSSecretKey() string {
 func AWSRegion() string {
 	return get(AWS_REGION)
 }
+
+func DockerRegistry() string {
+	return get(DOCKER_REGISTRY)
+}
+
 
 func AWSVPCID() string {
 	return get(AWS_VPC_ID)
