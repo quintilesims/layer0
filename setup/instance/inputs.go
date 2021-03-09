@@ -100,7 +100,7 @@ created for you. Existing VPCs must satisfy the following constraints:
 Note that changing this value will destroy and recreate any existing resources.
 `
 const INPUT_DOCKER_REGISTRY_DESCRIPTION = `
-Docker registory (optional): The registory (domain, eg: d.ims.io/layer0) from where the layer0 
+Docker registry (optional): The container registry (domain/layer0, eg: d.ims.io/layer0) from where the layer0 
 pulls the image
 
 `
