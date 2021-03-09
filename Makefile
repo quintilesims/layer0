@@ -32,4 +32,4 @@ stresstest:
 systemtest:
 	$(MAKE) -C tests/system test
 
-.PHONY: release unittest smoketest stresstest systemtest build
+.PHONY: release unittest smoketest stresstest systemtest
