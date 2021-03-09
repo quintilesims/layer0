@@ -92,7 +92,6 @@ var RequiredAPIVariables = []string{
 	AWS_LINUX_SERVICE_AMI,
 	AWS_WINDOWS_SERVICE_AMI,
 	AWS_REGION,
-	DOCKER_REGISTRY,
 }
 
 var RequiredCLIVariables = []string{}
@@ -103,7 +102,6 @@ var RequiredRunnerVariables = []string{
 	AWS_VPC_ID,
 	AWS_PRIVATE_SUBNETS,
 	AWS_PUBLIC_SUBNETS,
-	DOCKER_REGISTRY,
 }
 
 func Validate(required []string) error {
