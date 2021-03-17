@@ -26,5 +26,6 @@ data "template_file" "container_definitions" {
     log_group_name       = "${aws_cloudwatch_log_group.mod.id}"
     dynamo_tag_table     = "${aws_dynamodb_table.tags.id}"
     dynamo_job_table     = "${aws_dynamodb_table.jobs.id}"
+    docker_registry      = "${var.docker_registry}"
   }
 }
