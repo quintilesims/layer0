@@ -42,7 +42,7 @@ resource "aws_launch_configuration" "api" {
   key_name             = "${var.ssh_key_pair}"
   ebs_optimized        = true
   volume_type          = "gp2"
-  volume_size          = "180" 
+  volume_size          = "22"
 
   lifecycle {
     create_before_destroy = true
