@@ -44,14 +44,18 @@ resource "aws_launch_configuration" "api" {
 
   root_block_device {
     delete_on_termination = true
-    volume_type           = "gp2"
+    volume_type           = "gp3"
     volume_size           = "8"
+    iops                  = 3000
+    throughput            = 125
   }
   ebs_block_device {
     delete_on_termination = true
     device_name           ="/dev/xvdcz"
-    volume_type           = "gp2"
+    volume_type           = "gp3"
     volume_size           = "22"
+    iops                  = 3000
+    throughput            = 125
   }
 
   lifecycle {
