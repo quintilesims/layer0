@@ -35,12 +35,12 @@ data "template_file" "user_data" {
 resource "aws_launch_configuration" "api" {
   name_prefix          = "l0-${var.name}-api-"
   image_id             = "${data.aws_ami.linux.id}"
-  instance_type        = "t2.medium"
+  instance_type        = "t3.medium"
   security_groups      = ["${aws_security_group.api_env.id}"]
   iam_instance_profile = "${aws_iam_instance_profile.ecs.id}"
   user_data            = "${data.template_file.user_data.rendered}"
   key_name             = "${var.ssh_key_pair}"
-  ebs_optimized        = false
+  ebs_optimized        = true
 
   root_block_device {
     delete_on_termination = true
