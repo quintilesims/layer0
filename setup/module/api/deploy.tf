@@ -6,7 +6,7 @@ resource "aws_ecs_task_definition" "api" {
 data "template_file" "container_definitions" {
   template = file("${path.module}/Dockerrun.aws.json")
 
-  vars {
+  vars = {
     api_auth_token       = base64encode("${var.username}:${var.password}")
     layer0_version       = var.layer0_version
     access_key           = aws_iam_access_key.mod.id

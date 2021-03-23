@@ -26,7 +26,7 @@ resource "aws_security_group" "api_env" {
 data "template_file" "user_data" {
   template = file("${path.module}/user_data.sh")
 
-  vars {
+  vars = {
     cluster_id = aws_ecs_cluster.api.id
     s3_bucket  = aws_s3_bucket.mod.id
   }

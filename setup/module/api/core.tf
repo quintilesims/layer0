@@ -3,7 +3,7 @@ data "aws_caller_identity" "current" {}
 data "aws_subnet_ids" "public" {
   vpc_id = var.vpc_id
 
-  tags {
+  tags = {
     Tier = "Public"
   }
 }
@@ -11,14 +11,13 @@ data "aws_subnet_ids" "public" {
 data "aws_subnet_ids" "private" {
   vpc_id = var.vpc_id
 
-  tags {
+  tags = {
     Tier = "Private"
   }
 }
 
 resource "aws_s3_bucket" "mod" {
   bucket        = "layer0-${var.name}-${data.aws_caller_identity.current.account_id}"
-  region        = var.region
   force_destroy = true
   request_payer = "BucketOwner"
 }
@@ -46,7 +45,7 @@ resource "aws_iam_role" "ecs" {
 data "template_file" "ecs_role_policy" {
   template = file("${path.module}/policies/ecs_role_policy.json")
 
-  vars {
+  vars = {
     name       = var.name
     region     = var.region
     s3_bucket  = aws_s3_bucket.mod.id
@@ -90,7 +89,7 @@ data "template_file" "group_policy" {
   count    = length(var.group_policies)
   template = file("${path.module}/policies/${var.group_policies[count.index]}_group_policy.json")
 
-  vars {
+  vars = {
     name       = var.name
     region     = var.region
     account_id = data.aws_caller_identity.current.account_id
