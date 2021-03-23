@@ -12,14 +12,14 @@ resource "aws_vpc" "mod" {
 resource "aws_internet_gateway" "mod" {
   count = var.count_hack
 
-  vpc_id = aws_vpc.mod.id
+  vpc_id = aws_vpc.mod[count.index].id
   tags   = merge(var.tags, map("Name", format("l0-%s-igw", var.name)))
 }
 
 resource "aws_route_table" "public" {
   count = var.count_hack
 
-  vpc_id = aws_vpc.mod.id
+  vpc_id = aws_vpc.mod[count.index].id
   tags   = merge(var.tags, map("Name", format("l0-%s-rt-public", var.name)))
 }
 
@@ -42,12 +42,12 @@ resource "aws_route" "private_nat_gateway" {
 resource "aws_route_table" "private" {
   count = var.count_hack
 
-  vpc_id = aws_vpc.mod.id
+  vpc_id = aws_vpc.mod[count.index].id
   tags   = merge(var.tags, map("Name", format("l0-%s-rt-private", var.name)))
 }
 
 resource "aws_subnet" "private" {
-  vpc_id            = aws_vpc.mod.id
+  vpc_id            = aws_vpc.mod[count.index].id
   cidr_block        = cidrsubnet(aws_vpc.mod[count.index].cidr_block, 8, count.index + 1)
   availability_zone = element(data.aws_availability_zones.available.names, count.index)
   count             = length(data.aws_availability_zones.available.names) * var.count_hack
@@ -55,7 +55,7 @@ resource "aws_subnet" "private" {
 }
 
 resource "aws_subnet" "public" {
-  vpc_id            = aws_vpc.mod.id
+  vpc_id            = aws_vpc.mod[count.index].id
   cidr_block        = cidrsubnet(aws_vpc.mod[count.index].cidr_block, 8, count.index + 1 + 100)
   availability_zone = element(data.aws_availability_zones.available.names, count.index)
   count             = length(data.aws_availability_zones.available.names) * var.count_hack

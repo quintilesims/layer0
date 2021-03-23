@@ -62,7 +62,7 @@ resource "aws_launch_configuration" "api" {
 resource "aws_autoscaling_group" "api" {
   name                 = "l0-${var.name}-api"
   launch_configuration = aws_launch_configuration.api.name
-  vpc_zone_identifier  = [data.aws_subnet_ids.private.idss]
+  vpc_zone_identifier  = [data.aws_subnet_ids.private.ids]
   min_size             = "2"
   desired_capacity     = "2"
   max_size             = "2"
