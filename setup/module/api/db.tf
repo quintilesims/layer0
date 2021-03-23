@@ -3,7 +3,7 @@ resource "aws_dynamodb_table" "tags" {
   billing_mode   = "PAY_PER_REQUEST"
   hash_key       = "EntityType"
   range_key      = "EntityID"
-  tags           = "${var.tags}"
+  tags           = var.tags
 
   attribute {
     name = "EntityType"

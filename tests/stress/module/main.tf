@@ -38,9 +38,9 @@ resource "random_pet" "deploy_families" {
 }
 
 resource "layer0_deploy" "td" {
-  name    = "${element(random_pet.deploy_families.*.id, count.index)}"
-  content = "${file("${path.module}/Dockerrun.aws.json")}"
-  count   = "${var.num_deploys}"
+  name    = element(random_pet.deploy_families.*.id, count.index)
+  content = file("${path.module}/Dockerrun.aws.json")
+  count   = var.num_deploys
 }
 
 resource "random_pet" "service_names" {

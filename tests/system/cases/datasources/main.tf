@@ -29,18 +29,18 @@ resource "layer0_service" "datasources" {
 
 resource "layer0_deploy" "datasources" {
   name    = "dsrctest"
-  content = "${file("${path.module}/Dockerrun.aws.json")}"
+  content = file("${path.module}/Dockerrun.aws.json")
 }
 
 data "layer0_environment" "datasources" {
-  depends_on = ["layer0_environment.datasources"]
-  name       = "${layer0_environment.datasources.name}"
+  depends_on = [layer0_environment.datasources]
+  name       = layer0_environment.datasources.name
 }
 
 data "layer0_deploy" "datasources" {
-  depends_on = ["layer0_deploy.datasources"]
-  name       = "${layer0_deploy.datasources.name}"
-  version    = "${layer0_deploy.datasources.version}"
+  depends_on = [layer0_deploy.datasources]
+  name       = layer0_deploy.datasources.name
+  version    = layer0_deploy.datasources.version
 }
 
 data "layer0_service" "datasources" {

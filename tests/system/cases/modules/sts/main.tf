@@ -20,9 +20,9 @@ resource "layer0_service" "sts" {
 
 resource "layer0_deploy" "sts" {
   name    = "sts"
-  content = "${data.template_file.sts.rendered}"
+  content = data.template_file.sts.rendered
 }
 
 data "template_file" "sts" {
-  template = "${file("${path.module}/Dockerrun.aws.json")}"
+  template = file("${path.module}/Dockerrun.aws.json")
 }
