@@ -112,7 +112,17 @@ data "aws_ami" "linux" {
 
   filter {
     name   = "name"
-    values = ["amzn-ami-2018.03.20210301-amazon-ecs-optimized"]
+    values = ["amzn2-ami-ecs-hvm-*"]
+  }
+
+  filter {
+    name   = "root-device-type"
+    values = ["ebs"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
   }
 }
 
