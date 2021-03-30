@@ -31,6 +31,3 @@ deploy:
   skip_cleanup: true
   on:
     tags: true
-    
-after_deploy:
-  - "curl -X POST -F token="$GITLAB_PIPELINE_TOKEN" -F ref=master https://gitlab.ims.io/api/v4/projects/8293/trigger/pipeline"
