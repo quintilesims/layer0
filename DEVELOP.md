@@ -1,4 +1,4 @@
-# Developer Notes
+# Developer Notes 
 The following components make up the Layer0 ecosystem.
 Each section will describe the component and its responsibilities. 
 
