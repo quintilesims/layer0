@@ -47,12 +47,6 @@ resource "aws_launch_configuration" "api" {
     volume_type           = "gp2"
     volume_size           = "30"
   }
-  ebs_block_device {
-    delete_on_termination = true
-    device_name           ="/dev/xvdcz"
-    volume_type           = "gp2"
-    volume_size           = "22"
-  }
 
   lifecycle {
     create_before_destroy = true
