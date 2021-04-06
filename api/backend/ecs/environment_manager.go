@@ -201,9 +201,9 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 	ecsRole := config.AWSECSInstanceProfile()
 	keyPair := config.AWSKeyPair()
 	launchConfigurationName := ecsEnvironmentID.LaunchConfigurationName()
-	volSizes := map[string]int{}
-	if operatingSystem == "linux" {
-		volSizes["/dev/xvda"] = 8
+	volSizes := make(map[string]int)
+	if operatingSystem == "linux" {	
+		volSizes["/dev/xvda"] = 30;	
 	} else {
 		volSizes["/dev/sda1"] = 200
 	}
