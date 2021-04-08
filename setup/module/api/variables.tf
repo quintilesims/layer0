@@ -8,6 +8,8 @@ variable "layer0_version" {}
 
 variable "vpc_id" {}
 
+variable "docker_registry" {}
+
 variable "username" {}
 
 variable "password" {}

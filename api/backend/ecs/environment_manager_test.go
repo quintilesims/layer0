@@ -383,7 +383,7 @@ func TestCreateEnvironment(t *testing.T) {
 					reporter.AssertEqualf("m3.medium", *instanceType, "Instance Type")
 					reporter.AssertEqualf(config.TEST_AWS_KEY_PAIR, *keyName, "KeyPair")
 					reporter.AssertEqualf(securityGroupID, *securityGroups[0], "SecurityGroupID 0")
-					reporter.AssertEqualf(volSizes, map[string]int{"/dev/xvda": 8}, "Volume Sizes")
+					reporter.AssertEqualf(volSizes, map[string]int{"/dev/xvda": 30}, "Volume Sizes")
 
 					return nil
 				}
