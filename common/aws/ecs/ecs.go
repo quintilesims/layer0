@@ -720,13 +720,28 @@ func (this *ECS) CreateCapacityProvider(CapacityProviderName string, AsgArn stri
 
 func (this *ECS) CreateCluster(clusterName string, asgArn string, maxScalingSize, minScalingSize, targetCapSize int) (*Cluster, error) {
 
-	capacityProvider, err := this.CreateCapacityProvider(clusterName, asgArn, maxScalingSize, minScalingSize, targetCapSize)
-	if err != nil {
-		return nil, err
-	}
-	input := &ecs.CreateClusterInput{
-		ClusterName:       aws.String(clusterName),
-		CapacityProviders: []*string{aws.String(*capacityProvider.Name)},
+	var input *ecs.CreateClusterInput
+	//ASG section. If CapSize and maxClusterCount equals to default 0.
+	classicASGEnabled := targetCapSize == 0 && maxScalingSize == 0
+	if classicASGEnabled {
+		input = &ecs.CreateClusterInput{
+			ClusterName: aws.String(clusterName),
+		}
+	} else { //If capacitor provider is enabled.
+		if minScalingSize > maxScalingSize {
+			maxScalingSize = minScalingSize
+		}
+		if targetCapSize == 0 {
+			targetCapSize = 100
+		}
+		capacityProvider, err := this.CreateCapacityProvider(clusterName, asgArn, maxScalingSize, minScalingSize, targetCapSize)
+		if err != nil {
+			return nil, err
+		}
+		input = &ecs.CreateClusterInput{
+			ClusterName:       aws.String(clusterName),
+			CapacityProviders: []*string{aws.String(*capacityProvider.Name)},
+		}
 	}
 
 	connection, err := this.Connect()

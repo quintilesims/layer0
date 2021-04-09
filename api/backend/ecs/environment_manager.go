@@ -201,8 +201,8 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 	keyPair := config.AWSKeyPair()
 	launchConfigurationName := ecsEnvironmentID.LaunchConfigurationName()
 	volSizes := make(map[string]int)
-	if operatingSystem == "linux" {	
-		volSizes["/dev/xvda"] = 30;	
+	if operatingSystem == "linux" {
+		volSizes["/dev/xvda"] = 30
 	} else {
 		volSizes["/dev/sda1"] = 200
 	}
@@ -219,21 +219,16 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 	); err != nil {
 		return nil, err
 	}
-
-	//set the default value
+	maxCountToSetInASG := maxClusterCount
 	if minClusterCount > maxClusterCount {
-		maxClusterCount = minClusterCount
+		maxCountToSetInASG = minClusterCount
 	}
-	if targetCapSize == 0 {
-		targetCapSize = 100
-	}
-
 	if err := e.AutoScaling.CreateAutoScalingGroup(
 		ecsEnvironmentID.AutoScalingGroupName(),
 		launchConfigurationName,
 		config.AWSPrivateSubnets(),
 		minClusterCount,
-		maxClusterCount,
+		maxCountToSetInASG,
 	); err != nil {
 		return nil, err
 	}
