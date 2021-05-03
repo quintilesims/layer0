@@ -45,7 +45,7 @@ resource "aws_launch_configuration" "api" {
   root_block_device {
     delete_on_termination = true
     volume_type           = "gp2"
-    volume_size           = "30"
+    volume_size           = "100"
   }
 
   lifecycle {
