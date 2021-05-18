@@ -6,8 +6,10 @@
             "Action": [
                 "ecs:RunTask",
                 "ecs:CreateService",
+                "ecs:CreateCapacityProvider",
                 "ecs:UpdateService",
                 "ecs:DeleteService",
+                "ecs:DeleteCapacityProvider",
                 "ecs:DescribeServices",
                 "ecs:CreateCluster",
                 "ecs:RegisterTaskDefinition",

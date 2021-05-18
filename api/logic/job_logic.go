@@ -88,7 +88,7 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 	reqStr = strings.TrimPrefix(reqStr, "\"")
 	reqStr = strings.TrimSuffix(reqStr, "\"")
 
-	jobID := id.GenerateHashedEntityID(string(jobType))
+	jobID := id.GenerateHashedEntityID(string(jobType.String()))
 
 	deploy, err := this.createJobDeploy(jobID)
 	if err != nil {
@@ -99,23 +99,6 @@ func (this *L0JobLogic) CreateJob(jobType types.JobType, request interface{}) (*
 	if err != nil {
 		return nil, err
 	}
-	/*
-		var jobTTLHours int
-		switch jobType {
-		case types.CreateTaskJob:
-			jobTTLHours = config.CREATE_TASK_JOB_TTL
-		case types.DeleteEnvironmentJob:
-			jobTTLHours = config.DELETE_ENVIRONMENT_JOB_TTL
-		case types.DeleteLoadBalancerJob:
-			jobTTLHours = config.DELETE_LOAD_BALANCER_JOB_TTL
-		case types.DeleteServiceJob:
-			jobTTLHours = config.DELETE_SERVICE_JOB_TTL
-		case types.DeleteTaskJob:
-			jobTTLHours = config.DELETE_TASK_JOB_TTL
-		default:
-			jobTTLHours = 24
-		}
-	*/
 	job := &models.Job{
 		JobID:       jobID,
 		TaskID:      taskID,

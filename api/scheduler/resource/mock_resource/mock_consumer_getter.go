@@ -5,43 +5,46 @@
 package mock_resource
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	resource "github.com/quintilesims/layer0/api/scheduler/resource"
-	reflect "reflect"
 )
 
-// MockConsumerGetter is a mock of ConsumerGetter interface
+// MockConsumerGetter is a mock of ConsumerGetter interface.
 type MockConsumerGetter struct {
 	ctrl     *gomock.Controller
 	recorder *MockConsumerGetterMockRecorder
 }
 
-// MockConsumerGetterMockRecorder is the mock recorder for MockConsumerGetter
+// MockConsumerGetterMockRecorder is the mock recorder for MockConsumerGetter.
 type MockConsumerGetterMockRecorder struct {
 	mock *MockConsumerGetter
 }
 
-// NewMockConsumerGetter creates a new mock instance
+// NewMockConsumerGetter creates a new mock instance.
 func NewMockConsumerGetter(ctrl *gomock.Controller) *MockConsumerGetter {
 	mock := &MockConsumerGetter{ctrl: ctrl}
 	mock.recorder = &MockConsumerGetterMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockConsumerGetter) EXPECT() *MockConsumerGetterMockRecorder {
 	return m.recorder
 }
 
-// GetConsumers mocks base method
+// GetConsumers mocks base method.
 func (m *MockConsumerGetter) GetConsumers(arg0 string) ([]resource.ResourceConsumer, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetConsumers", arg0)
 	ret0, _ := ret[0].([]resource.ResourceConsumer)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetConsumers indicates an expected call of GetConsumers
+// GetConsumers indicates an expected call of GetConsumers.
 func (mr *MockConsumerGetterMockRecorder) GetConsumers(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetConsumers", reflect.TypeOf((*MockConsumerGetter)(nil).GetConsumers), arg0)
 }

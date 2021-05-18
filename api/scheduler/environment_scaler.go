@@ -33,13 +33,15 @@ func NewL0EnvironmentScaler(c resource.ConsumerGetter, p resource.ProviderManage
 }
 
 func (r *L0EnvironmentScaler) ScheduleRun(environmentID string, delay time.Duration) {
-	if c, ok := r.scheduledRuns[environmentID]; ok {
-		c <- delay
-		return
-	}
+	/*
+		if c, ok := r.scheduledRuns[environmentID]; ok {
+			c <- delay
+			return
+		}
 
-	c := r.newScheduledRun(environmentID, delay)
-	r.scheduledRuns[environmentID] = c
+		c := r.newScheduledRun(environmentID, delay)
+		r.scheduledRuns[environmentID] = c
+	*/
 }
 
 func (r *L0EnvironmentScaler) newScheduledRun(environmentID string, delay time.Duration) chan time.Duration {

@@ -5,69 +5,76 @@
 package mock_resource
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	resource "github.com/quintilesims/layer0/api/scheduler/resource"
-	reflect "reflect"
 )
 
-// MockProviderManager is a mock of ProviderManager interface
+// MockProviderManager is a mock of ProviderManager interface.
 type MockProviderManager struct {
 	ctrl     *gomock.Controller
 	recorder *MockProviderManagerMockRecorder
 }
 
-// MockProviderManagerMockRecorder is the mock recorder for MockProviderManager
+// MockProviderManagerMockRecorder is the mock recorder for MockProviderManager.
 type MockProviderManagerMockRecorder struct {
 	mock *MockProviderManager
 }
 
-// NewMockProviderManager creates a new mock instance
+// NewMockProviderManager creates a new mock instance.
 func NewMockProviderManager(ctrl *gomock.Controller) *MockProviderManager {
 	mock := &MockProviderManager{ctrl: ctrl}
 	mock.recorder = &MockProviderManagerMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockProviderManager) EXPECT() *MockProviderManagerMockRecorder {
 	return m.recorder
 }
 
-// CalculateNewProvider mocks base method
+// CalculateNewProvider mocks base method.
 func (m *MockProviderManager) CalculateNewProvider(arg0 string) (*resource.ResourceProvider, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "CalculateNewProvider", arg0)
 	ret0, _ := ret[0].(*resource.ResourceProvider)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// CalculateNewProvider indicates an expected call of CalculateNewProvider
+// CalculateNewProvider indicates an expected call of CalculateNewProvider.
 func (mr *MockProviderManagerMockRecorder) CalculateNewProvider(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CalculateNewProvider", reflect.TypeOf((*MockProviderManager)(nil).CalculateNewProvider), arg0)
 }
 
-// GetProviders mocks base method
+// GetProviders mocks base method.
 func (m *MockProviderManager) GetProviders(arg0 string) ([]*resource.ResourceProvider, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "GetProviders", arg0)
 	ret0, _ := ret[0].([]*resource.ResourceProvider)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// GetProviders indicates an expected call of GetProviders
+// GetProviders indicates an expected call of GetProviders.
 func (mr *MockProviderManagerMockRecorder) GetProviders(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetProviders", reflect.TypeOf((*MockProviderManager)(nil).GetProviders), arg0)
 }
 
-// ScaleTo mocks base method
+// ScaleTo mocks base method.
 func (m *MockProviderManager) ScaleTo(arg0 string, arg1 int, arg2 []*resource.ResourceProvider) (int, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "ScaleTo", arg0, arg1, arg2)
 	ret0, _ := ret[0].(int)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// ScaleTo indicates an expected call of ScaleTo
+// ScaleTo indicates an expected call of ScaleTo.
 func (mr *MockProviderManagerMockRecorder) ScaleTo(arg0, arg1, arg2 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ScaleTo", reflect.TypeOf((*MockProviderManager)(nil).ScaleTo), arg0, arg1, arg2)
 }

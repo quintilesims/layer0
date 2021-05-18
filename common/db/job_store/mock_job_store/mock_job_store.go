@@ -5,117 +5,132 @@
 package mock_job_store
 
 import (
+	reflect "reflect"
+
 	gomock "github.com/golang/mock/gomock"
 	models "github.com/quintilesims/layer0/common/models"
 	types "github.com/quintilesims/layer0/common/types"
-	reflect "reflect"
 )
 
-// MockJobStore is a mock of JobStore interface
+// MockJobStore is a mock of JobStore interface.
 type MockJobStore struct {
 	ctrl     *gomock.Controller
 	recorder *MockJobStoreMockRecorder
 }
 
-// MockJobStoreMockRecorder is the mock recorder for MockJobStore
+// MockJobStoreMockRecorder is the mock recorder for MockJobStore.
 type MockJobStoreMockRecorder struct {
 	mock *MockJobStore
 }
 
-// NewMockJobStore creates a new mock instance
+// NewMockJobStore creates a new mock instance.
 func NewMockJobStore(ctrl *gomock.Controller) *MockJobStore {
 	mock := &MockJobStore{ctrl: ctrl}
 	mock.recorder = &MockJobStoreMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockJobStore) EXPECT() *MockJobStoreMockRecorder {
 	return m.recorder
 }
 
-// Delete mocks base method
+// Delete mocks base method.
 func (m *MockJobStore) Delete(arg0 string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Delete", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Delete indicates an expected call of Delete
+// Delete indicates an expected call of Delete.
 func (mr *MockJobStoreMockRecorder) Delete(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockJobStore)(nil).Delete), arg0)
 }
 
-// Init mocks base method
+// Init mocks base method.
 func (m *MockJobStore) Init() error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Init")
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Init indicates an expected call of Init
+// Init indicates an expected call of Init.
 func (mr *MockJobStoreMockRecorder) Init() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Init", reflect.TypeOf((*MockJobStore)(nil).Init))
 }
 
-// Insert mocks base method
+// Insert mocks base method.
 func (m *MockJobStore) Insert(arg0 *models.Job) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Insert", arg0)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// Insert indicates an expected call of Insert
+// Insert indicates an expected call of Insert.
 func (mr *MockJobStoreMockRecorder) Insert(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Insert", reflect.TypeOf((*MockJobStore)(nil).Insert), arg0)
 }
 
-// SelectAll mocks base method
+// SelectAll mocks base method.
 func (m *MockJobStore) SelectAll() ([]*models.Job, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SelectAll")
 	ret0, _ := ret[0].([]*models.Job)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SelectAll indicates an expected call of SelectAll
+// SelectAll indicates an expected call of SelectAll.
 func (mr *MockJobStoreMockRecorder) SelectAll() *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectAll", reflect.TypeOf((*MockJobStore)(nil).SelectAll))
 }
 
-// SelectByID mocks base method
+// SelectByID mocks base method.
 func (m *MockJobStore) SelectByID(arg0 string) (*models.Job, error) {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SelectByID", arg0)
 	ret0, _ := ret[0].(*models.Job)
 	ret1, _ := ret[1].(error)
 	return ret0, ret1
 }
 
-// SelectByID indicates an expected call of SelectByID
+// SelectByID indicates an expected call of SelectByID.
 func (mr *MockJobStoreMockRecorder) SelectByID(arg0 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SelectByID", reflect.TypeOf((*MockJobStore)(nil).SelectByID), arg0)
 }
 
-// SetJobMeta mocks base method
+// SetJobMeta mocks base method.
 func (m *MockJobStore) SetJobMeta(arg0 string, arg1 map[string]string) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "SetJobMeta", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// SetJobMeta indicates an expected call of SetJobMeta
+// SetJobMeta indicates an expected call of SetJobMeta.
 func (mr *MockJobStoreMockRecorder) SetJobMeta(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "SetJobMeta", reflect.TypeOf((*MockJobStore)(nil).SetJobMeta), arg0, arg1)
 }
 
-// UpdateJobStatus mocks base method
+// UpdateJobStatus mocks base method.
 func (m *MockJobStore) UpdateJobStatus(arg0 string, arg1 types.JobStatus) error {
+	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "UpdateJobStatus", arg0, arg1)
 	ret0, _ := ret[0].(error)
 	return ret0
 }
 
-// UpdateJobStatus indicates an expected call of UpdateJobStatus
+// UpdateJobStatus indicates an expected call of UpdateJobStatus.
 func (mr *MockJobStoreMockRecorder) UpdateJobStatus(arg0, arg1 interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "UpdateJobStatus", reflect.TypeOf((*MockJobStore)(nil).UpdateJobStatus), arg0, arg1)
 }

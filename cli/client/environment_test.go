@@ -29,7 +29,7 @@ func TestCreateEnvironment(t *testing.T) {
 	client, server := newClientAndServer(handler)
 	defer server.Close()
 
-	environment, err := client.CreateEnvironment("name", "m3.medium", 2, []byte("user_data"), "linux", "ami")
+	environment, err := client.CreateEnvironment("name", "m3.medium", 2, 2, 100, []byte("user_data"), "linux", "ami")
 	if err != nil {
 		t.Fatal(err)
 	}

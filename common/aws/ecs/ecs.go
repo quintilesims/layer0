@@ -13,10 +13,14 @@ import (
 const (
 	MAX_DESCRIBE_SERVICE_IDS = 10
 	MAX_DESCRIBE_TASK_ARNS   = 100
+	MAX_SCALING_SIZE         = 32
+	MIN_SCALING_SIZE         = 2
+	TARGETING_CAP_SIZE       = 80
 )
 
 type Provider interface {
-	CreateCluster(clusterName string) (*Cluster, error)
+	CreateCluster(clusterName string, asgArn string, maxScalingSize, minScalingSize, targetCapSize int) (*Cluster, error)
+	CreateCapacityProvider(CapacityProviderName string, AsgArn string, MaxScalingSize, MinScalingSize, TargetCapacitySize int) (*CapacityProvider, error)
 	CreateService(cluster, serviceName, taskDefinition string, desiredCount int64, loadBalancers []*LoadBalancer, loadBalancerRole *string) (*Service, error)
 
 	DeleteCluster(cluster string) error
@@ -74,6 +78,7 @@ type ECS struct {
 
 type ECSInternal interface {
 	CreateCluster(input *ecs.CreateClusterInput) (*ecs.CreateClusterOutput, error)
+	CreateCapacityProvider(input *ecs.CreateCapacityProviderInput) (*ecs.CreateCapacityProviderOutput, error)
 	CreateService(input *ecs.CreateServiceInput) (output *ecs.CreateServiceOutput, err error)
 	DeleteCluster(input *ecs.DeleteClusterInput) (*ecs.DeleteClusterOutput, error)
 	DeleteService(input *ecs.DeleteServiceInput) (*ecs.DeleteServiceOutput, error)
@@ -111,13 +116,18 @@ type Volume struct {
 	*ecs.Volume
 }
 
+type CapacityProvider struct {
+	*ecs.CapacityProvider
+}
+
 type Cluster struct {
 	*ecs.Cluster
 }
 
-func NewCluster(name string) *Cluster {
+func NewCluster(name string, cpArn string) *Cluster {
 	return &Cluster{&ecs.Cluster{
-		ClusterName: &name,
+		ClusterName:       &name,
+		CapacityProviders: []*string{&cpArn},
 	}}
 }
 
@@ -677,9 +687,61 @@ func (this *ECS) Helper_DescribeServices(prefix string) ([]*Service, error) {
 	return services, nil
 }
 
-func (this *ECS) CreateCluster(clusterName string) (*Cluster, error) {
-	input := &ecs.CreateClusterInput{
-		ClusterName: aws.String(clusterName),
+func (this *ECS) CreateCapacityProvider(CapacityProviderName string, AsgArn string, MaxScalingSize, MinScalingSize, TargetCapacitySize int) (*CapacityProvider, error) {
+
+	ManagedScalingStatus := ecs.ManagedScalingStatusEnabled
+	ManagedTerminationProtection := ecs.ManagedTerminationProtectionEnabled
+
+	input := &ecs.CreateCapacityProviderInput{
+		Name: aws.String(CapacityProviderName),
+		AutoScalingGroupProvider: &ecs.AutoScalingGroupProvider{
+			AutoScalingGroupArn: &AsgArn,
+			ManagedScaling: &ecs.ManagedScaling{
+				MaximumScalingStepSize: aws.Int64(int64(MaxScalingSize)),
+				MinimumScalingStepSize: aws.Int64(int64(MinScalingSize)),
+				Status:                 &ManagedScalingStatus,
+				TargetCapacity:         aws.Int64(int64(TargetCapacitySize)),
+			},
+			ManagedTerminationProtection: &ManagedTerminationProtection,
+		},
+	}
+	connection, err := this.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	output, err := connection.CreateCapacityProvider(input)
+	if err != nil {
+		return nil, err
+	}
+
+	return &CapacityProvider{output.CapacityProvider}, err
+}
+
+func (this *ECS) CreateCluster(clusterName string, asgArn string, maxScalingSize, minScalingSize, targetCapSize int) (*Cluster, error) {
+
+	var input *ecs.CreateClusterInput
+	//ASG section. If CapSize and maxClusterCount equals to default 0.
+	classicASGEnabled := targetCapSize == 0 && maxScalingSize == 0
+	if classicASGEnabled {
+		input = &ecs.CreateClusterInput{
+			ClusterName: aws.String(clusterName),
+		}
+	} else { //If capacitor provider is enabled.
+		if minScalingSize > maxScalingSize {
+			maxScalingSize = minScalingSize
+		}
+		if targetCapSize == 0 {
+			targetCapSize = 100
+		}
+		capacityProvider, err := this.CreateCapacityProvider(clusterName, asgArn, maxScalingSize, minScalingSize, targetCapSize)
+		if err != nil {
+			return nil, err
+		}
+		input = &ecs.CreateClusterInput{
+			ClusterName:       aws.String(clusterName),
+			CapacityProviders: []*string{aws.String(*capacityProvider.Name)},
+		}
 	}
 
 	connection, err := this.Connect()
@@ -770,7 +832,8 @@ func (this *ECS) ListClusterServiceNames(clusterName, prefix string) ([]string, 
 		for _, serviceARN := range output.ServiceArns {
 			// sample service ARN:
 			// arn:aws:ecs:us-west-2:064627975291:service/l0-v12102-Develop81116/l0-v12102-Develope8871
-			serviceName := strings.Split(aws.StringValue(serviceARN), "/")[2]
+			s := strings.Split(aws.StringValue(serviceARN), "/")
+			serviceName := s[len(s)-1]
 			if strings.HasPrefix(serviceName, prefix) {
 				serviceNames = append(serviceNames, serviceName)
 			}
