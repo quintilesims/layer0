@@ -202,7 +202,7 @@ func (e *ECSEnvironmentManager) CreateEnvironment(
 	launchConfigurationName := ecsEnvironmentID.LaunchConfigurationName()
 	volSizes := make(map[string]int)
 	if operatingSystem == "linux" {
-		volSizes["/dev/xvda"] = 100
+		volSizes["/dev/xvda"] = 30
 	} else {
 		volSizes["/dev/sda1"] = 200
 	}
