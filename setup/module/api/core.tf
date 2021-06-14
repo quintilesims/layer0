@@ -111,6 +111,11 @@ data "aws_ami" "linux" {
   most_recent = true
 
   filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
+  filter {
     name   = "name"
     values = ["amzn2-ami-ecs-hvm-*"]
   }
