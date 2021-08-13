@@ -116,11 +116,13 @@ func (c *APIClient) WaitForDeployment(serviceID string, timeout time.Duration) (
 		Check: func() (bool, error) {
 			service, err := c.GetService(serviceID)
 			if err != nil {
+				successCount = 0
 				return false, err
 			}
 
 			for _, deploy := range service.Deployments {
 				if deploy.DesiredCount != deploy.RunningCount {
+					successCount = 0
 					return false, nil
 				}
 			}
