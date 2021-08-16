@@ -9,6 +9,7 @@ Using our [CLI](http://layer0.ims.io/reference/cli), or [Terraform Plugin](http:
 you can manage the entire life cycle of your applications without having to focus on infrastructure.
 
 To get started with Layer0, please see our [Official Documentation](http://layer0.ims.io/).
+CI is at : https://travis-ci.com/github/quintilesims/layer0
 
 ---
 
